@@ -1,0 +1,14 @@
+################################################
+## Entities / Sensors / DSMR
+################################################ 
+platform: rest
+name: DSMR
+resource: http://192.168.1.27/restAPI?get=Actueel
+json_attributes:
+  - Timestamp
+  - Gas_Delivered
+  - Energy_Delivered
+  - Power_Delivered_l1
+  - Voltage_l1
+  - Current_l1
+value_template: 'Online'

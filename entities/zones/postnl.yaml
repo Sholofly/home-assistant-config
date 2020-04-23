@@ -1,0 +1,9 @@
+################################################
+## Entities / Zones / PostNL
+################################################ 
+---
+name: PostNL
+latitude: !secret postnl_latitude
+longitude: !secret postnl_longitude
+radius: 50
+icon: mdi:worker

@@ -1,0 +1,9 @@
+################################################
+## Entities / Zones / Kerk
+################################################ 
+---
+name: Kerk
+latitude: !secret kerk_latitude
+longitude: !secret kerk_longitude
+radius: 50
+icon: mdi:church

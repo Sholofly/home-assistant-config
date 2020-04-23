@@ -1,0 +1,8 @@
+################################################
+## Entities / Cameras / Driveway
+################################################
+platform: foscam
+ip: !secret camera_driveway_ip
+port: !secret camera_driveway_port
+username: !secret camera_driveway_username
+password: !secret camera_driveway_password

@@ -1,0 +1,2 @@
+binary_sensor.*_deur:
+  device_class: door

@@ -1,0 +1,4 @@
+################################################
+## Integrations / Device Tracker
+################################################
+device_tracker: !include_dir_list ../entities/device_trackers

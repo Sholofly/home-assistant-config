@@ -1,0 +1,16 @@
+################################################
+## Entities / Binary Sensors / Diepvries MQTT
+##
+## Deze sensor wordt alleen gebruikt om om te zetten naar een template sensor
+################################################
+platform: mqtt
+name: Kleine Schuur Diepvries MQTT
+payload_on: "F9E50A"
+payload_off: "F9E50E"
+state_topic: "rf_schuur/tele/RESULT"
+value_template: '{{ value_json.RfReceived.Data }}'
+availability_topic: "rf_schuur/tele/LWT"
+payload_available: "Online"
+payload_not_available: "Offline"
+device_class: opening
+qos: 0

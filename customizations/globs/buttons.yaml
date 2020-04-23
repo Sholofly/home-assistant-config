@@ -1,0 +1,2 @@
+binary_sensor.*_button:
+  hidden: true

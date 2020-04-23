@@ -1,0 +1,6 @@
+################################################
+## Entities / Lights / Woonkamer Vensterbank
+################################################
+platform: switch
+name: Woonkamer Vensterbank
+entity_id: switch.woonkamer_vensterbank_relay

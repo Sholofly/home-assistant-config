@@ -1,0 +1,5 @@
+#coolcam dressoir
+<<: !include _templates/neo_coolcam.yaml
+substitutions:
+  device_name: esp01
+  restore_mode: RESTORE_DEFAULT_OFF

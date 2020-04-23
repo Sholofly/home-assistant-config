@@ -1,0 +1,6 @@
+################################################
+## Entities / Lights / Woonkamer Salontafel
+################################################
+platform: switch
+name: Woonkamer Salontafel
+entity_id: switch.woonkamer_salontafel_relay

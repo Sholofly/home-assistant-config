@@ -1,0 +1,6 @@
+################################################
+## Entities /Sensors / File Size Log
+################################################ 
+platform: filesize
+file_paths:
+  - /config/home-assistant.log

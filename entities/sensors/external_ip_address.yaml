@@ -1,0 +1,8 @@
+################################################
+## Entities / Sensors / External IP Address
+################################################ 
+platform: rest
+resource: http://icanhazip.com
+name: External IP address
+value_template: '{{ value }}'
+scan_interval: 14400

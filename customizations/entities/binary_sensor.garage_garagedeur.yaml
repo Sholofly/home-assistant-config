@@ -1,0 +1,5 @@
+################################################
+## Customizations / Entities / Garage Garagedeur
+################################################
+binary_sensor.garage_garagedeur:
+  device_class: garage_door

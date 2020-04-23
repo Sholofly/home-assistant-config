@@ -1,0 +1,6 @@
+################################################
+## Integrations / RFLink
+################################################
+rflink:
+  port: /dev/serial/by-id/usb-Arduino__www.arduino.cc__0042_55639313533351407291-if00
+  wait_for_ack: true

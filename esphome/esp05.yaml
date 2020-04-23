@@ -1,0 +1,5 @@
+#coolcam achter bank
+<<: !include _templates/neo_coolcam.yaml
+substitutions:
+  device_name: esp05
+  restore_mode: RESTORE_DEFAULT_OFF

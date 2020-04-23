@@ -1,0 +1,9 @@
+################################################
+## Entities / Zones / Netivity
+################################################ 
+---
+name: Netivity
+latitude: !secret netivity_latitude
+longitude: !secret netivity_longitude
+radius: 50
+icon: mdi:worker

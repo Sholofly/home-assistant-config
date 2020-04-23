@@ -1,0 +1,5 @@
+#esp garagedeur
+<<: !include _templates/esp01_relay_auto_off.yaml
+substitutions:
+  device_name: esp11
+  toggle_delay: 3000ms

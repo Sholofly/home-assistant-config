@@ -1,0 +1,15 @@
+- id: '1581878742916'
+  name: Netflix
+  entities:
+    switch.woonkamer_bank_relay:
+      friendly_name: Woonkamer Bank_relay
+      icon: mdi:power-plug
+      state: 'off'
+    switch.woonkamer_dressoir_relay:
+      friendly_name: Woonkamer Dressoir_relay
+      icon: mdi:power-plug
+      state: 'off'
+    switch.woonkamer_salontafel_relay:
+      friendly_name: Woonkamer Salontafel_relay
+      icon: mdi:power-plug
+      state: 'off'

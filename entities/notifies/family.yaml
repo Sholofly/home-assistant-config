@@ -1,0 +1,8 @@
+################################################
+## Entities / Notifies / Family
+################################################ 
+name: family
+platform: group
+services:
+  - service: pushbullet_leny
+  - service: pushbullet_rudolf

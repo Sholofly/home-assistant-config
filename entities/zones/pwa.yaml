@@ -1,0 +1,9 @@
+################################################
+## Entities / Zones / PWA
+################################################ 
+---
+name: PWA
+latitude: !secret pwa_latitude
+longitude: !secret pwa_longitude
+radius: 50
+icon: mdi:school

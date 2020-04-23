@@ -1,0 +1,66 @@
+<<: !include base.yaml
+esphome:
+  name: $device_name
+  platform: ESP8266
+  board: esp8285
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: 0
+      mode: INPUT_PULLUP
+      inverted: true
+    name: "${device_name} Button"
+    on_press:
+      - switch.toggle: "${device_name}_relay"
+
+switch:
+  - platform: gpio
+    id: "${device_name}_led"
+    pin:
+      number: GPIO13
+      inverted: true
+    internal: true
+
+  - platform: gpio
+    name: "${device_name} Relay"
+    icon: "mdi:power-plug"
+    pin: GPIO14
+    id: "${device_name}_relay"
+    on_turn_on:
+      - switch.turn_on: "${device_name}_led"
+    on_turn_off:
+      - switch.turn_off: "${device_name}_led"
+
+sensor:
+  - platform: hlw8012
+    sel_pin:
+      number: GPIO12
+      inverted: True
+    cf_pin: GPIO04
+    cf1_pin: GPIO05
+    current_resistor: ${current_res}
+    voltage_divider: ${voltage_div}
+    current:
+      name: "${device_name} Amperage"
+      unit_of_measurement: A
+    voltage:
+      name: "${device_name} Voltage"
+      unit_of_measurement: V
+    power:
+      name: "${device_name} Wattage"
+      unit_of_measurement: W
+      id: "${device_name}_wattage"
+    change_mode_every: 8
+    update_interval: 10s
+  - platform: total_daily_energy
+    name: "${device_name} Total Daily Energy"
+    power_id: "${device_name}_wattage"
+    filters:
+        # Multiplication factor from W to kW is 0.001
+        - multiply: 0.001
+    unit_of_measurement: kWh
+
+# Enable time component to reset energy at midnight
+time:
+  - platform: sntp

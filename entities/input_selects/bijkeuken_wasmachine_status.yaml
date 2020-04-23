@@ -1,0 +1,11 @@
+################################################
+## Entities / Input Selects / Status Wasmachine
+################################################ 
+bijkeuken_wasmachine_status:
+  name: Bijkeuken Wasmachine Status
+  options:
+    - Inactief
+    - Bezig
+    - Afronden
+    - Klaar
+  initial: Inactief

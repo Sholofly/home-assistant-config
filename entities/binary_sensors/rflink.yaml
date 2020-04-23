@@ -1,0 +1,8 @@
+################################################
+## Entities / Binary Sensors / RFLink
+################################################
+platform: rflink
+devices:
+  selectplus_1fd7_01:
+    off_delay: 2
+    force_update: true

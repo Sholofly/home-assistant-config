@@ -1,0 +1,9 @@
+################################################
+## Entities / Device Trackers / UPC Connect
+################################################
+---
+platform: upc_connect
+host: !secret router_host
+password: !secret router_password
+new_device_defaults:
+  track_new_devices: false

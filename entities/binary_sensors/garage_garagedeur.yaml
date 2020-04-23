@@ -1,0 +1,14 @@
+################################################
+## Entities / Binary Sensors / Garage Garagedeur
+################################################
+platform: mqtt
+name: Garage Garagedeur
+payload_on: "87B20A"
+payload_off: "87B20E"
+state_topic: "rf_schuur/tele/RESULT"
+value_template: "{{ value_json.RfReceived.Data }}"
+availability_topic: "rf_schuur/tele/LWT"
+payload_available: "Online"
+payload_not_available: "Offline"
+device_class: garage_door
+qos: 0

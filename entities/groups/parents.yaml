@@ -1,0 +1,8 @@
+################################################
+## Entities / Groups / Parents
+################################################ 
+parents:
+  name: Leny & Rudolf
+  entities:
+    - person.leny
+    - person.rudolf

@@ -1,0 +1,11 @@
+################################################
+## Entities / Binary Sensors / Kleine Schuur Bewegingssensor
+################################################
+platform: mqtt
+name: Kleine Schuur Bewegingssensor
+payload_on: "D2242E"
+payload_off: "D2242E-off"
+state_topic: "rf_schuur/tele/RESULT"
+value_template: '{{ value_json.RfReceived.Data }}'
+device_class: motion
+qos: 1

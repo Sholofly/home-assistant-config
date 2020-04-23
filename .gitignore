@@ -1,0 +1,37 @@
+# Generic ignores
+*.log
+*.db
+*.db-shm
+*.db-wal
+*.pyc
+._*
+__pycache__
+
+#Directory Ignores
+_backup
+.cloud
+.storage
+deps
+node-red
+tts
+www/snapshots/*
+
+#File ignores
+secrets.yaml
+.ps4-games.json
+.google.token
+known_devices.yaml
+google_calendars.yaml
+todo.txt
+
+#esphome ignores
+esphome/secrets.yaml
+esphome/**/
+!esphome/_templates
+
+# Ignore files created by IDE's
+.vscode
+.theia
+.Trash*
+
+

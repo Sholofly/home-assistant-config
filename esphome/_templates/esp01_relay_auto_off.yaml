@@ -1,0 +1,19 @@
+<<: !include base.yaml
+
+esphome:
+  name: $device_name
+  platform: ESP8266
+  board: esp01_1m
+
+switch:
+  - platform: gpio
+    pin:
+      number: 0
+      inverted: yes
+    id: "${device_name}_relay"
+  - platform: template
+    name: "${device_name} Relay"
+    turn_on_action:
+    - switch.turn_on: "${device_name}_relay"
+    - delay: $toggle_delay
+    - switch.turn_off: "${device_name}_relay"

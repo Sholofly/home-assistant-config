@@ -1,0 +1,2 @@
+sensor.*_uptime:
+  hidden: true

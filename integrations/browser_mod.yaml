@@ -1,0 +1,8 @@
+################################################
+## Integrations / Browser Mod
+################################################
+browser_mod:
+  prefix: 'browser_'
+  devices:
+    edff78cd-06248c0f:
+      name: Laptop

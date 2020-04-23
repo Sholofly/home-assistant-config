@@ -1,0 +1,2 @@
+sensor.*_esphome_version:
+  hidden: true

@@ -1,0 +1,10 @@
+################################################
+## Entities /Sensors / System Monitor
+################################################ 
+platform: systemmonitor
+resources:
+  - type: disk_use_percent
+    arg: /home
+  - type: memory_use_percent
+  - type: processor_use
+  - type: last_boot

@@ -1,0 +1,9 @@
+################################################
+## Entities / Zones / Moeders
+################################################ 
+---
+name: Moeders
+latitude: !secret moeders_latitude
+longitude: !secret moeders_longitude
+radius: 25
+icon: mdi:home

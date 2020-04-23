@@ -1,0 +1,4 @@
+################################################
+## Integrations / Notify
+################################################
+notify: !include_dir_list ../entities/notifies

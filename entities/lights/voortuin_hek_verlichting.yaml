@@ -1,0 +1,6 @@
+################################################
+## Entities / Lights / Verlichting voortuin
+################################################
+platform: switch
+name: Voortuin Hek Verlichting
+entity_id: switch.voortuin_hek_verlichting

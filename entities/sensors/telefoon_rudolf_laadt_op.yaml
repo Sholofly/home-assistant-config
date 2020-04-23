@@ -1,0 +1,10 @@
+################################################
+## Entities / Sensors / Telefoon Rudolf Laadt op
+################################################ 
+platform: template
+sensors:
+  telefoon_rudolf_laadt_op:
+    friendly_name: Telefoon Rudolf Laadt Op
+    unit_of_measurement: ''
+    value_template: >-
+        {{ state_attr('sensor.moto_g_7_plus_battery_state', 'is_charging') }}

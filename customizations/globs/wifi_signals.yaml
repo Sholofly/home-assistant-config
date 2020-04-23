@@ -1,0 +1,2 @@
+sensor.*_wifi_signal:
+  hidden: true

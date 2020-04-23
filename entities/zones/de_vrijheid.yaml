@@ -1,0 +1,9 @@
+################################################
+## Entities / Zones / WC De Vrijheid
+################################################ 
+---
+name: WC De Vrijheid
+latitude: !secret vrijheid_latitude
+longitude: !secret vrijheid_longitude
+radius: 250
+icon: mdi:cart
