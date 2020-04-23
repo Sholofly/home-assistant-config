@@ -14,7 +14,7 @@ _backup
 deps
 node-red
 tts
-www/snapshots/*
+
 
 #File ignores
 secrets.yaml
