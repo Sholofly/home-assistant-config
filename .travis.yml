@@ -4,6 +4,10 @@ python:
 before_install:
   - mv travis_secrets.yaml secrets.yaml
   - sudo apt-get install -y libudev-dev
+  - touch home-assistant_v2.db
+  - touch home-assistant.log
+  - mkdir config/www/snapshots
+  - mkdir share
 install:
   - pip3 install homeassistant
 script:
