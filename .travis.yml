@@ -6,6 +6,8 @@ before_install:
   - sudo apt-get install -y libudev-dev
   - touch home-assistant_v2.db
   - touch home-assistant.log
+  - mkdir config
+  - mkdir config/www
   - mkdir config/www/snapshots
   - mkdir share
 install:
