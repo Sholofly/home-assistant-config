@@ -1,15 +1,52 @@
-dist: bionic
-language: python
-python:
-  - "3.7.7"
-before_install:
-  - mkdir config
-  - mv travis_secrets.yaml secrets.yaml
-  - sudo apt-get install -y libudev-dev
-  - sudo apt-get install -y libavformat-dev libavcodec-dev libavdevice-dev libavutil-dev libswscale-dev libswresample-dev libavfilter-dev
-  - touch config/home-assistant_v2.db
-  - touch config/home-assistant.log
-install:
-  - pip3 install homeassistant
-script:
-  - hass -c . --script check_config
+jobs:
+  include:
+    - stage: current
+      dist: bionic
+      language: python
+      python:
+        - "3.7"
+      before_install:
+        - mkdir config
+        - mv travis_secrets.yaml secrets.yaml
+        - sudo apt-get install -y libudev-dev
+        - sudo apt-get install -y libavformat-dev libavcodec-dev libavdevice-dev libavutil-dev libswscale-dev libswresample-dev libavfilter-dev
+        - touch config/home-assistant_v2.db
+        - touch config/home-assistant.log
+      install:
+        - pip3 install homeassistant
+      script:
+        - hass -c . --script check_config
+    
+    - stage: beta
+      dist: bionic
+      language: python
+      python:
+        - "3.7"
+      before_install:
+        - mkdir config
+        - mv travis_secrets.yaml secrets.yaml
+        - sudo apt-get install -y libudev-dev
+        - sudo apt-get install -y libavformat-dev libavcodec-dev libavdevice-dev libavutil-dev libswscale-dev libswresample-dev libavfilter-dev
+        - touch config/home-assistant_v2.db
+        - touch config/home-assistant.log
+      install:
+        - pip3 install --pre --upgrade homeassistant
+      script:
+        - hass -c . --script check_config
+
+    - stage: dev
+      dist: bionic
+      language: python
+      python:
+        - "3.7"
+      before_install:
+        - mkdir config
+        - mv travis_secrets.yaml secrets.yaml
+        - sudo apt-get install -y libudev-dev
+        - sudo apt-get install -y libavformat-dev libavcodec-dev libavdevice-dev libavutil-dev libswscale-dev libswresample-dev libavfilter-dev
+        - touch config/home-assistant_v2.db
+        - touch config/home-assistant.log
+      install:
+        - pip3 install --upgrade git+git://github.com/home-assistant/home-assistant.git@dev
+      script:
+        - hass -c . --script check_config
