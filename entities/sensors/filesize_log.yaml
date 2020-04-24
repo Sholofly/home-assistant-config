@@ -3,4 +3,4 @@
 ################################################ 
 platform: filesize
 file_paths:
-  - home-assistant.log
+  - !secret filesize_homeassistant_log

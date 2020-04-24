@@ -3,11 +3,12 @@ language: python
 python:
   - "3.7.7"
 before_install:
+  - mkdir config
   - mv travis_secrets.yaml secrets.yaml
   - sudo apt-get install -y libudev-dev
   - sudo apt-get install -y libavformat-dev libavcodec-dev libavdevice-dev libavutil-dev libswscale-dev libswresample-dev libavfilter-dev
-  - touch home-assistant_v2.db
-  - touch home-assistant.log
+  - touch config/home-assistant_v2.db
+  - touch config/home-assistant.log
 install:
   - pip3 install homeassistant
 script:

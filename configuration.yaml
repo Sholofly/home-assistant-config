@@ -1,7 +1,6 @@
 homeassistant:
   packages: !include_dir_named integrations
 
-  # whitelist_external_dirs: 
-  #   - '/config/www/snapshots/'
-  #   - '/config/'
+  whitelist_external_dirs: 
+    - '/config/'
 

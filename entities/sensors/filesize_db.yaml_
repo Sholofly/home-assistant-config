@@ -3,4 +3,4 @@
 ################################################ 
 platform: filesize
 file_paths:
-  - home-assistant_v2.db
+  - !secret filesize_homeassistant_db
