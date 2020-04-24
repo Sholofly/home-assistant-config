@@ -3,4 +3,4 @@
 ################################################ 
 platform: filesize
 file_paths:
-  - /config/home-assistant.log
+  - home-assistant.log
