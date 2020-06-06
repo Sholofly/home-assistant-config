@@ -8,7 +8,7 @@ output:
 
 light:
   - platform: binary
-    name: "${device_name} Light"
+    name: "${device_name}"
     output: gpio_4
     id: "${device_name}_light"
     

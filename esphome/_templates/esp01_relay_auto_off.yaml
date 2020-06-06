@@ -12,7 +12,7 @@ switch:
       inverted: yes
     id: "${device_name}_relay"
   - platform: template
-    name: "${device_name} Relay"
+    name: "${device_name}"
     turn_on_action:
     - switch.turn_on: "${device_name}_relay"
     - delay: $toggle_delay

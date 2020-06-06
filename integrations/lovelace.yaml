@@ -3,31 +3,31 @@
 ################################################
 lovelace:
   mode: storage
-  resources:
-  - type: css
-    url: 'https://sf.abarba.me/font.css'
-  - url: /hacsfiles/custom-header/custom-header.js
-    type: module
-  - url: /hacsfiles/lovelace-layout-card/layout-card.js
-    type: module
-  - url: /hacsfiles/lovelace-card-mod/card-mod.js
-    type: module
-  - url: /hacsfiles/simple-weather-card/simple-weather-card-bundle.js
-    type: module
-  - url: /hacsfiles/calendar-card/calendar-card.js
-    type: js
-  - url: /hacsfiles/button-entity-row/button-entity-row.js
-    type: module
-  - url: /hacsfiles/bar-card/bar-card.js
-    type: js
-  - url: /hacsfiles/button-card/button-card.js
-    type: module
-  - url: /hacsfiles/lovelace-auto-entities/auto-entities.js
-    type: module
-  - url: /hacsfiles/mini-media-player/mini-media-player-bundle.js
-    type: module
-  - url: /hacsfiles/mini-graph-card/mini-graph-card-bundle.js
-    type: module
+  # resources:
+  # - type: css
+  #   url: 'https://sf.abarba.me/font.css'
+  # - url: /hacsfiles/custom-header/custom-header.js
+  #   type: module
+  # - url: /hacsfiles/lovelace-layout-card/layout-card.js
+  #   type: module
+  # - url: /hacsfiles/lovelace-card-mod/card-mod.js
+  #   type: module
+  # - url: /hacsfiles/simple-weather-card/simple-weather-card-bundle.js
+  #   type: module
+  # - url: /hacsfiles/calendar-card/calendar-card.js
+  #   type: js
+  # - url: /hacsfiles/button-entity-row/button-entity-row.js
+  #   type: module
+  # - url: /hacsfiles/bar-card/bar-card.js
+  #   type: js
+  # - url: /hacsfiles/button-card/button-card.js
+  #   type: module
+  # - url: /hacsfiles/lovelace-auto-entities/auto-entities.js
+  #   type: module
+  # - url: /hacsfiles/mini-media-player/mini-media-player-bundle.js
+  #   type: module
+  # - url: /hacsfiles/mini-graph-card/mini-graph-card-bundle.js
+  #   type: module
   
   dashboards:
     lovelace-generated: # Needs to contain a hyphen (-)

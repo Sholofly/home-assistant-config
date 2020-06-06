@@ -11,4 +11,4 @@ switch:
       number: 0
       inverted: yes
     id: "${device_name}_relay"
-    name: "${device_name} Relay"
+    name: "${device_name}"

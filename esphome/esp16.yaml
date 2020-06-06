@@ -11,8 +11,8 @@ substitutions:
 globals:
   - id: chime
     type: bool
-    restore_value: true
-    initial_value: 'true'
+    restore_value: false
+    initial_value: 'false'
 
 # Exposed switches.
 switch:
@@ -29,17 +29,17 @@ switch:
   # It creates a "virtual" switch based
   # on a global variable.
   - platform: template
-    name: "${device_name} Chime Active"
-    id: chime_active
+    name: "${device_name} Chime Disabled"
+    id: chime_disabled
     restore_state: false
     turn_on_action:
       - globals.set:
           id: chime
-          value: 'true'
+          value: 'false'
     turn_off_action:
       - globals.set:
           id: chime
-          value: 'false'
+          value: 'true'
     lambda: |-
       return id(chime);
 
@@ -63,7 +63,7 @@ binary_sensor:
       then:
         if:
           condition:
-            - switch.is_on: chime_active
+            - switch.is_off: chime_disabled
           then:
             - switch.turn_on: relay
     on_release:

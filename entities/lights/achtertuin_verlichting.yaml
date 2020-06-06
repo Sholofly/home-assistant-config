@@ -3,4 +3,4 @@
 ################################################
 platform: switch
 name: Achtertuin Verlichting
-entity_id: switch.achtertuin_verlichting_relay
+entity_id: switch.achtertuin_verlichting

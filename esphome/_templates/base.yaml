@@ -20,14 +20,14 @@ wifi:
   ap:
     ssid: "${device_name}_ap"
 
-sensor:      
-  # Extra sensor to keep track of plug uptime
-  - platform: uptime
-    name: ${device_name} Uptime
-  # WiFi Signal sensor.
-  - platform: wifi_signal
-    name: ${device_name} Wifi Signal Strength
-    update_interval: 60s
+# sensor:      
+#   # Extra sensor to keep track of plug uptime
+#   - platform: uptime
+#     name: ${device_name} Uptime
+#   # WiFi Signal sensor.
+#   - platform: wifi_signal
+#     name: ${device_name} Wifi Signal Strength
+#     update_interval: 60s
 
 time:
   - platform: homeassistant
@@ -37,16 +37,16 @@ binary_sensor:
   - platform: status
     name: "${device_name} State"
 
-text_sensor:
-  - platform: version
-    name: "${device_name} ESPHome Version"
-  - platform: wifi_info
-    ip_address:
-      name: ${device_name} IP
-    ssid:
-      name: ${device_name} SSID
+# text_sensor:
+#   - platform: version
+#     name: "${device_name} ESPHome Version"
+#   - platform: wifi_info
+#     ip_address:
+#       name: ${device_name} IP
+#     ssid:
+#       name: ${device_name} SSID
 
-switch:
-  # Switch to restart the device.
-  - platform: restart
-    name: Restart ${device_name}
+# switch:
+#   # Switch to restart the device.
+#   - platform: restart
+#     name: Restart ${device_name}

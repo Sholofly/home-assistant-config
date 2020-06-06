@@ -9,7 +9,7 @@ binary_sensor:
   - platform: gpio
     pin:
       number: GPIO5
-    name: "${device_name} Switch"
+    name: "${device_name}"
     on_state:
       - light.toggle: "${device_name}_light"
     internal: true

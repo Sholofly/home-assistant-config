@@ -1,7 +1,7 @@
 """Support for interface with a Ziggo Mediabox Next."""
 import logging
 import random
-from homeassistant.components.media_player import MediaPlayerDevice
+from homeassistant.components.media_player import MediaPlayerEntity
 from .const import ZIGGO_API
 from homeassistant.components.media_player.const import (
     MEDIA_TYPE_TVSHOW,
@@ -41,7 +41,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         players.append(ZiggoNextMediaPlayer(box, api))
     add_entities(players, True)
 
-class ZiggoNextMediaPlayer(MediaPlayerDevice):
+class ZiggoNextMediaPlayer(MediaPlayerEntity):
     """The home assistant media player."""
 
     @property

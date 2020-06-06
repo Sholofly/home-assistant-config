@@ -3,4 +3,4 @@
 ################################################
 platform: switch
 name: Woonkamer Salontafel
-entity_id: switch.woonkamer_salontafel_relay
+entity_id: switch.woonkamer_salontafel

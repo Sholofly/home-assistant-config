@@ -23,7 +23,7 @@ switch:
     internal: true
 
   - platform: gpio
-    name: "${device_name} Relay"
+    name: "${device_name}"
     icon: "mdi:power-plug"
     pin: GPIO14
     id: "${device_name}_relay"

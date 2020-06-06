@@ -1,5 +1,43 @@
 #esp garagedeur
-<<: !include _templates/esp01_relay_auto_off.yaml
+# <<: !include _templates/esp01_relay_auto_off.yaml
+# substitutions:
+#   device_name: esp11
+#   toggle_delay: 3000ms
+
+<<: !include _templates/base.yaml
 substitutions:
   device_name: esp11
-  toggle_delay: 3000ms
+
+esphome:
+  name: ${device_name}
+  platform: ESP8266
+  board: esp01_1m
+
+switch:
+  - platform: gpio
+    pin:
+      number: 0
+      inverted: yes
+    id: "${device_name}_relay"
+
+cover:
+  - platform: template
+    device_class: garage
+    name: "${device_name}_cover"
+    open_action:
+      - switch.turn_off: ${device_name}_relay
+      - switch.turn_on: ${device_name}_relay
+      - delay: 0.1s
+      - switch.turn_off: ${device_name}_relay
+    close_action:
+      - switch.turn_off: ${device_name}_relay
+      - switch.turn_on: ${device_name}_relay
+      - delay: 0.1s
+      - switch.turn_off: ${device_name}_relay
+    stop_action:
+      - switch.turn_off: ${device_name}_relay
+      - switch.turn_on: ${device_name}_relay
+      - delay: 0.1s
+      - switch.turn_off: ${device_name}_relay
+    optimistic: true
+    assumed_state: true

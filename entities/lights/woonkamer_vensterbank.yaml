@@ -3,4 +3,4 @@
 ################################################
 platform: switch
 name: Woonkamer Vensterbank
-entity_id: switch.woonkamer_vensterbank_relay
+entity_id: switch.woonkamer_vensterbank

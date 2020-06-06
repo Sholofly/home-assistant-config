@@ -26,7 +26,7 @@ output:
 light:
   - platform: rgbw
     id: ${device_name}_light
-    name: "${device_name} Light"
+    name: "${device_name}"
     red: pwm_r
     green: pwm_g
     blue: pwm_b

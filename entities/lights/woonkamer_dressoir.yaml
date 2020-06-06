@@ -3,4 +3,4 @@
 ################################################
 platform: switch
 name: Woonkamer Dressoir
-entity_id: switch.woonkamer_dressoir_relay
+entity_id: switch.woonkamer_dressoir
