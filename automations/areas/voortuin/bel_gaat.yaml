@@ -1,0 +1,20 @@
+alias: Bel gaat
+initial_state: on
+trigger:
+  - platform: state
+    entity_id: binary_sensor.gang_deurbel_button
+    to: 'on'
+  - platform: state
+    entity_id: binary_sensor.selectplus_1fd7_01
+    to: 'on'
+action:
+  - service: camera.snapshot
+    data:
+      entity_id: camera.foscam_camera
+      filename: "/config/www/snapshots/snapshot.jpg"
+  - service: notify.family
+    data: 
+      message: "Er staat iemand aan de voordeur"
+      title: "De bel gaat"
+      data: 
+        image: "https://***REMOVED***.nl/local/snapshots/snapshot.jpg"

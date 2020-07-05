@@ -87,8 +87,8 @@ class ZiggoNextMediaPlayer(MediaPlayerEntity):
     @property
     def media_content_type(self):
         """Return the media type."""
-        if self._box.info.sourceType == "app":
-            return MEDIA_TYPE_APP
+        # if self._box.info.sourceType == "app":
+        #     return MEDIA_TYPE_APP
         return MEDIA_TYPE_CHANNEL
 
     @property

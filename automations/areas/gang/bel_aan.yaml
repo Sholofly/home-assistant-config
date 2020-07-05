@@ -1,0 +1,15 @@
+alias: Bel aan
+initial_state: on
+trigger:
+  - platform: time
+    at: '07:00:01'
+  - platform: homeassistant
+    event: start
+condition:
+  condition: time
+  after: '07:00:00'
+  before: '20:00:00'
+action:
+  service: switch.turn_on
+  data:
+    entity_id: switch.gang_deurbel_chime_enabled

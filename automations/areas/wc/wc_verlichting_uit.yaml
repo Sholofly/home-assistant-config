@@ -1,0 +1,13 @@
+alias: WC verlichting uit
+initial_state: on
+trigger:
+  - platform: state
+    entity_id: binary_sensor.wc_bewegingssensor
+    from: 'on'
+    to: 'off'
+    for: 
+      minutes: 10
+action:
+  - service: light.turn_off
+    entity_id: light.wc_plafond
+

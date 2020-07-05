@@ -3,7 +3,7 @@
 ################################################ 
 platform: rest
 name: DSMR
-resource: http://192.168.1.27/restAPI?get=Actueel
+resource: !secret dmsr_rest_url
 json_attributes:
   - Timestamp
   - Gas_Delivered

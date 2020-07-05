@@ -1,6 +1,0 @@
-################################################
-## Entities / Lights / Woonkamer Bank
-################################################
-platform: switch
-name: Woonkamer Bank
-entity_id: switch.woonkamer_bank

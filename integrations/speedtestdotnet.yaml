@@ -6,4 +6,4 @@ speedtestdotnet:
     - ping
     - download
     - upload
-  scan_interval: '06:00:00'
+  scan_interval: '00:30:00'

@@ -1,0 +1,17 @@
+alias: Bijkeuken verlichting uit
+initial_state: on
+trigger:
+  - platform: state
+    entity_id: binary_sensor.bijkeuken_bewegingssensor
+    from: 'on'
+    to: 'off'
+    for: 
+      minutes: 2
+condition:
+  condition: state
+  entity_id: light.bijkeuken_plafond
+  state: 'on'
+action:
+  - service: light.turn_off
+    entity_id: light.bijkeuken_plafond
+

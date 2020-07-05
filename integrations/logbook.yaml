@@ -1,0 +1,9 @@
+################################################
+## Integrations / Logbook
+################################################
+logbook:
+  exclude: 
+    entity_globs:
+      - sensor.*time*
+      - binary_sensor.*button*
+      - sensor.*date*

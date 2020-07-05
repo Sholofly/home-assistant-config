@@ -1,0 +1,8 @@
+alias: Achtertuinverlichting uit
+initial_state: on
+trigger:
+  - platform: time
+    at: "00:00:00"
+action:
+  - service: light.turn_off
+    entity_id: light.achtertuin_paal_en_ornament

@@ -8,4 +8,4 @@ kleine_schuur_airfryer_status:
     - Inactief
     - Bezig
     - Klaar
-  initial: Inactief
+  initial: Uit

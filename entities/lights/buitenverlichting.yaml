@@ -1,0 +1,9 @@
+################################################
+## Entities / Lights / Buitenverlichting
+################################################ 
+platform: group
+name: Buitenverlichting
+entities:
+  - light.achtertuin_paal_en_ornament
+  - light.voortuin_voordeur
+  - light.voortuin_hek

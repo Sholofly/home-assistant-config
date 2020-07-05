@@ -7,34 +7,17 @@ esphome:
 substitutions:
   device_name: esp21
 
-# binary_sensor:
-#   - platform: gpio
-#     pin:
-#       number: D2
-#       mode: INPUT_PULLUP
-#       inverted: true
-#     name: "${device_name} Button"
-
-# switch:
-#   - platform: gpio
-#     pin:
-#       number: D1
-#       inverted: yes
-#     id: "${device_name}_relay"
-#     name: "${device_name}"
-
-# sensor:
-#   - platform: ultrasonic
-#     trigger_pin: D7
-#     echo_pin: D8
-#     update_interval: 5s
-#     name: "Ultrasonic Sensor"
+i2c:
+  sda: D2
+  scl: D1
 
 sensor:
-  - platform: adc
-    pin: A0
-    name: "Living Room Brightness"
-    update_interval: 10s
-    filters:
-      - multiply: 3300
+  - platform: bme280
+    temperature:
+      name: "BME280 Temperature"
+    pressure:
+      name: "BME280 Pressure"
+    humidity:
+      name: "BME280 Humidity"
+    address: 0x77
     

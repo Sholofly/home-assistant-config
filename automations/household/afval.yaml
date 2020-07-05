@@ -1,0 +1,16 @@
+alias: Afval
+initial_state: on
+trigger:
+  - platform: time
+    at: "17:00:00"
+condition:
+  condition: not
+  conditions:
+    - condition: state
+      entity_id: sensor.trash_tomorrow
+      state: 'Geen'
+action:
+  - service: notify.family
+    data_template: 
+      title: "Morgen is een afvaldag"
+      message: "Opgehaalde afval: {{ states.sensor.trash_tomorrow.state }}"

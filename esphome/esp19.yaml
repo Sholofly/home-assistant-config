@@ -1,4 +1,4 @@
-#coolcam salontafel
+#coolcam Airfryer
 <<: !include _templates/neo_coolcam_pm.yaml
 substitutions:
   device_name: esp19

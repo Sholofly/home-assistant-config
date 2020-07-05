@@ -20,6 +20,8 @@ wifi:
   ap:
     ssid: "${device_name}_ap"
 
+captive_portal:
+
 # sensor:      
 #   # Extra sensor to keep track of plug uptime
 #   - platform: uptime

@@ -1,4 +1,4 @@
-#esp garagedeur
+#esp hek
 
 <<: !include _templates/base.yaml
 substitutions:

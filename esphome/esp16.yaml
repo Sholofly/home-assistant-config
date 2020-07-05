@@ -11,8 +11,8 @@ substitutions:
 globals:
   - id: chime
     type: bool
-    restore_value: false
-    initial_value: 'false'
+    restore_value: true
+    initial_value: 'true'
 
 # Exposed switches.
 switch:
@@ -29,17 +29,17 @@ switch:
   # It creates a "virtual" switch based
   # on a global variable.
   - platform: template
-    name: "${device_name} Chime Disabled"
+    name: "${device_name} Chime Enabled"
     id: chime_disabled
     restore_state: false
     turn_on_action:
       - globals.set:
           id: chime
-          value: 'false'
+          value: 'true'
     turn_off_action:
       - globals.set:
           id: chime
-          value: 'true'
+          value: 'false'
     lambda: |-
       return id(chime);
 

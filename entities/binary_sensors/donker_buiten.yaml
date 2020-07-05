@@ -1,0 +1,6 @@
+platform: template
+sensors:
+  donker_buiten:
+    friendly_name: "Donker buiten"
+    value_template: >-
+      {{ states('sensor.voortuin_lichtsensor')|float < 50 }}

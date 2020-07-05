@@ -1,1 +1,14 @@
-[]
+- id: '1591516477870'
+  alias: Test rudolf
+  description: ''
+  trigger:
+  - device_id: cff5aa7b1b8245bba435328302310877
+    domain: deconz
+    platform: device
+    subtype: left
+    type: remote_button_rotated
+  condition: []
+  action:
+  - data: {}
+    entity_id: automation.auto_off_beweging_schuur
+    service: automation.trigger

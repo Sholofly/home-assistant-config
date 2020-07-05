@@ -40,3 +40,8 @@ class ZiggoSensor(Entity):
         """Fetch new state data for the sensor.
         This is the only method that should fetch new data for Home Assistant.
         """
+
+    @property
+    def unique_id(self):
+        """Return the unique id."""
+        return self._box.box_id + "_channel"
