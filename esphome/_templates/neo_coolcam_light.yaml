@@ -13,6 +13,7 @@ binary_sensor:
     name: "${device_name} Button"
     on_press:
       - light.toggle: "${device_name}_light"
+    internal: true
 
 output:
   - platform: gpio

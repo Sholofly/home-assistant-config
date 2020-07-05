@@ -13,6 +13,7 @@ binary_sensor:
     name: "${device_name} Button"
     on_press:
       - switch.toggle: "${device_name}_relay"
+    internal: true
 
 switch:
   - platform: gpio
