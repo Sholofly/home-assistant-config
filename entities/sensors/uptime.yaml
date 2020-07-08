@@ -1,5 +1,6 @@
 ################################################
-## Integrations / Frontend
+## Entities / Sensors / Uptime
 ################################################
-frontend:
-  themes: !include_dir_merge_named ../themes/
+---
+platform: uptime
+unit_of_measurement: hours

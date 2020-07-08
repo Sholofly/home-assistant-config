@@ -1,6 +1,0 @@
-#shelly_2.5_badkamer
-<<: !include _templates/shelly_25_light.yaml
-substitutions:
-  device_name: esp23
-
-  
