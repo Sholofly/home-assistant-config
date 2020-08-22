@@ -1,4 +1,4 @@
-#shelly_1_druppelslang
+#shelly_1_druppelslang_border
 <<: !include _templates/shelly_1_switch.yaml
 substitutions:
   device_name: esp22
@@ -12,7 +12,7 @@ switch:
     name: "${device_name}"
     restore_mode: $restore_mode
     on_turn_on:
-      - delay: 18000s
+      - delay: 8h
       - switch.turn_off: ${device_name}_relay
 
   
