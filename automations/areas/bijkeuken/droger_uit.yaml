@@ -1,0 +1,9 @@
+alias: Droger uit
+trigger:
+  platform: event
+  event_type: mobile_app_notification_action
+  event_data:
+    action: turn_off_dryer
+action:
+  - service: switch.turn_off
+    entity_id: switch.bijkeuken_droger

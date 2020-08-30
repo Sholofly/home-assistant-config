@@ -1,4 +1,4 @@
-alias: ASpeel radio stream
+alias: Speel radio stream
 initial_state: on
 trigger:
   - platform: state

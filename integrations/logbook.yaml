@@ -7,3 +7,4 @@ logbook:
       - sensor.*time*
       - binary_sensor.*button*
       - sensor.*date*
+      - sensor.*_geocoded_location

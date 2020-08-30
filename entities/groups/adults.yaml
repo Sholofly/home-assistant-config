@@ -1,0 +1,8 @@
+################################################
+## Entities / Groups / Adults
+################################################ 
+adults:
+  name: Adults
+  entities:
+    - person.gerrie
+    - group.parents

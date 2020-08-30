@@ -13,8 +13,8 @@ action:
       entity_id: camera.foscam_camera
       filename: "/config/www/snapshots/snapshot.jpg"
   - service: notify.family
-    data: 
+    data_template: 
       message: "Er staat iemand aan de voordeur"
       title: "De bel gaat"
       data: 
-        image: "https://***REMOVED***.nl/local/snapshots/snapshot.jpg"
+        image: "https://***REMOVED***.nl/local/snapshots/snapshot.jpg?{{now().strftime('%Y%m%d%H%M%S%f')}}"

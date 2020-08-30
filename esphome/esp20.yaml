@@ -1,4 +1,4 @@
-#coolcam Zwembad filterpomp
+#coolcam Droger
 <<: !include _templates/neo_coolcam_pm.yaml
 substitutions:
   device_name: esp20
@@ -6,4 +6,4 @@ substitutions:
   current_res: "0.00221"
   # Lower value gives lower voltage readout
   voltage_div: "800"
-  restore_mode: RESTORE_DEFAULT_OFF
+  restore_mode: ALWAYS_ON

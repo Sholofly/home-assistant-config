@@ -63,6 +63,7 @@ class ZiggoNextMediaPlayer(MediaPlayerEntity):
         self.api = api
         self.box_id = box.box_id
         self.box_name = box.name
+        self._box.set_callback(self.box_update_callback)
 
     def update(self):
         """Update the box."""
@@ -180,3 +181,10 @@ class ZiggoNextMediaPlayer(MediaPlayerEntity):
             "title": self._box.info.title,
             "image": self._box.info.image,
         }
+        
+    @property
+    def should_poll(self):
+        return True
+    
+    def box_update_callback(self):
+        self.schedule_update_ha_state(True)

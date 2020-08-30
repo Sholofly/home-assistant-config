@@ -30,7 +30,7 @@ switch:
   # on a global variable.
   - platform: template
     name: "${device_name} Chime Enabled"
-    id: chime_disabled
+    id: chime_enabled
     restore_state: false
     turn_on_action:
       - globals.set:
@@ -63,7 +63,7 @@ binary_sensor:
       then:
         if:
           condition:
-            - switch.is_off: chime_disabled
+            - switch.is_on: chime_enabled
           then:
             - switch.turn_on: relay
     on_release:
