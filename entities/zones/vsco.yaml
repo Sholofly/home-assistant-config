@@ -1,0 +1,9 @@
+################################################
+## Entities / Zones / VSCO
+################################################ 
+---
+name: VSCO
+latitude: !secret vsco_latitude
+longitude: !secret vsco_longitude
+radius: 75
+icon: mdi:soccer

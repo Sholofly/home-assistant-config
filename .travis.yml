@@ -9,7 +9,6 @@ jobs:
         - mkdir config
         - mv travis_secrets.yaml secrets.yaml
         - sudo apt-get install -y libudev-dev
-        - sudo apt-get install -y spotipy
         - sudo apt-get install -y libavformat-dev libavcodec-dev libavdevice-dev libavutil-dev libswscale-dev libswresample-dev libavfilter-dev
         - touch config/home-assistant_v2.db
         - touch config/home-assistant.log
@@ -27,7 +26,6 @@ jobs:
         - mkdir config
         - mv travis_secrets.yaml secrets.yaml
         - sudo apt-get install -y libudev-dev
-        - sudo apt-get install -y spotipy
         - sudo apt-get install -y libavformat-dev libavcodec-dev libavdevice-dev libavutil-dev libswscale-dev libswresample-dev libavfilter-dev
         - touch config/home-assistant_v2.db
         - touch config/home-assistant.log
@@ -45,7 +43,6 @@ jobs:
         - mkdir config
         - mv travis_secrets.yaml secrets.yaml
         - sudo apt-get install -y libudev-dev
-        - sudo apt-get install -y spotipy
         - sudo apt-get install -y libavformat-dev libavcodec-dev libavdevice-dev libavutil-dev libswscale-dev libswresample-dev libavfilter-dev
         - touch config/home-assistant_v2.db
         - touch config/home-assistant.log
