@@ -6,3 +6,4 @@ devices:
   selectplus_1fd7_01:
     off_delay: 2
     force_update: true
+    name: 'Gang Deurbel RF knop'

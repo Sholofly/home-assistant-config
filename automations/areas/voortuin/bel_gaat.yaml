@@ -5,7 +5,7 @@ trigger:
     entity_id: binary_sensor.gang_deurbel_button
     to: 'on'
   - platform: state
-    entity_id: binary_sensor.selectplus_1fd7_01
+    entity_id: binary_sensor.gang_deurbel_rf_knop
     to: 'on'
 action:
   - service: camera.snapshot

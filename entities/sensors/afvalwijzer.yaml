@@ -1,8 +1,0 @@
-################################################
-## Entities / Sensors / Afvalwijzer
-################################################
----
-platform: afvalwijzer
-zipcode: !secret mijnafvalwijzer_zipcode
-housenumber: !secret mijnafvalwijzer_housenumber
-suffix: !secret mijnafvalwijzer_housenumber_suffix

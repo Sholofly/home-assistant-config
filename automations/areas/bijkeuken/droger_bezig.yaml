@@ -14,7 +14,7 @@ condition:
       entity_id: sensor.bijkeuken_droger_wattage
       above: 10
     - condition: state
-      entity_id: group.alduts
+      entity_id: group.adults
       state: 'not_home'
 action:
   - service: notify.mobile_app_moto_g_7_plus

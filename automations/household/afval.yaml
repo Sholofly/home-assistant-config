@@ -7,10 +7,10 @@ condition:
   condition: not
   conditions:
     - condition: state
-      entity_id: sensor.trash_tomorrow
-      state: 'Geen'
+      entity_id: sensor.afvalinfo_tomorrow
+      state: 'none'
 action:
   - service: notify.family
     data_template: 
       title: "Morgen is een afvaldag"
-      message: "Opgehaalde afval: {{ states.sensor.trash_tomorrow.state }}"
+      message: "Opgehaalde afval: {{ states.sensor.afvalinfo_tomorrow.state }}"
