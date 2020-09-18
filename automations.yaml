@@ -1,0 +1,31 @@
+- id: '1600202788865'
+  alias: Turn on the lights in the living room
+  description: ''
+  trigger:
+  - device_id: 59ac67aa1aa9462bbe10ea82f957db5d
+    domain: binary_sensor
+    entity_id: binary_sensor.woonkamer_bewegingssensor
+    platform: device
+    type: motion
+  condition:
+  - condition: state
+    entity_id: binary_sensor.donker_buiten
+    state: 'on'
+  action:
+  - device_id: 3a2745d145a34069b819b8928a7ca82b
+    domain: light
+    entity_id: light.woonkamer_dressoir
+    type: turn_on
+  - device_id: 46ddc194412f43a9972207df5ad07eb6
+    domain: light
+    entity_id: light.woonkamer_salontafel
+    type: turn_on
+  - device_id: 0e1258c031b74ac585efefd3825c2b64
+    domain: light
+    entity_id: light.woonkamer_vensterbank
+    type: turn_on
+  - device_id: d95283b16a484a01b82cfe563886c84c
+    domain: light
+    entity_id: light.woonkamer_bank
+    type: turn_on
+  mode: single
