@@ -1,10 +1,9 @@
 jobs:
   include:
     - stage: current
-      dist: bionic
       language: python
       python:
-        - "3.7"
+        - "3.8.5"
       before_install:
         - mkdir config
         - mv travis_secrets.yaml secrets.yaml
@@ -18,10 +17,9 @@ jobs:
         - hass -c . --script check_config
     
     - stage: beta
-      dist: bionic
       language: python
       python:
-        - "3.7"
+        - "3.8.5"
       before_install:
         - mkdir config
         - mv travis_secrets.yaml secrets.yaml
@@ -35,10 +33,9 @@ jobs:
         - hass -c . --script check_config
 
     - stage: dev
-      dist: bionic
       language: python
       python:
-        - "3.7"
+        - "3.8.5"
       before_install:
         - mkdir config
         - mv travis_secrets.yaml secrets.yaml
