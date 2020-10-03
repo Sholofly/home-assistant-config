@@ -1,0 +1,4 @@
+entity_id: sensor.date
+value_template: >
+  {% set days = ["Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag", "Zondag"] %}
+  {{ days[now().weekday()] }}

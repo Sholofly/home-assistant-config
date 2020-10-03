@@ -1,0 +1,5 @@
+################################################
+## Entities /Sensors / Templates
+################################################ 
+platform: template
+sensors: !include_dir_named ../sensors_templates

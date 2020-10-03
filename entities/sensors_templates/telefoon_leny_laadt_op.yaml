@@ -1,0 +1,4 @@
+friendly_name: Telefoon Leny Laadt Op
+unit_of_measurement: ''
+value_template: >-
+    {{ state_attr('sensor.telefoon_leny_batterij', 'is_charging') }}

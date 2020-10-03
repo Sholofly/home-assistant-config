@@ -1,0 +1,3 @@
+value_template: '{{ states.sensor.dsmr.attributes["Current_l1"] }}' 
+unit_of_measurement: "a"
+icon_template: mdi:current-ac

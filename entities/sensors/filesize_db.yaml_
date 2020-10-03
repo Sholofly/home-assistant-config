@@ -1,6 +1,0 @@
-################################################
-## Entities /Sensors / File Size Database
-################################################ 
-platform: filesize
-file_paths:
-  - !secret filesize_homeassistant_db

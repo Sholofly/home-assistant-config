@@ -1,0 +1,4 @@
+platform: tplink_router
+host: !secret router_host
+username: !secret router_username
+password: !secret router_password

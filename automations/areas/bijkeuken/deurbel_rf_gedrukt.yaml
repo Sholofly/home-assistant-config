@@ -1,0 +1,16 @@
+alias: Deurbel RF gedrukt
+trigger:
+  - platform: state
+    entity_id: binary_sensor.gang_deurbel_rf_knop
+    to: 'on'
+condition:
+  - condition: state
+    entity_id: switch.gang_deurbel_chime_enabled
+    state: 'on'
+action:
+  - service: switch.turn_on
+    entity_id: switch.gang_deurbel_chime
+  - delay:
+      seconds: 1
+  - service: switch.turn_off
+    entity_id: switch.gang_deurbel_chime

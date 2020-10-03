@@ -22,6 +22,7 @@ switch:
     inverted: true
     name: "${device_name} Chime"
     pin: GPIO0
+    restore_mode: RESTORE_DEFAULT_OFF
 
   # Switch to turn on/off chime when
   # doorbell button is pushed.

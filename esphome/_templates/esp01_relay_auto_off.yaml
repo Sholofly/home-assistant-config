@@ -11,6 +11,7 @@ switch:
       number: 0
       inverted: yes
     id: "${device_name}_relay"
+    restore_mode: RESTORE_DEFAULT_OFF 
   - platform: template
     name: "${device_name}"
     turn_on_action:

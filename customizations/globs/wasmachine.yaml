@@ -1,0 +1,5 @@
+switch.*wasmachine*:
+  icon: mdi:washing-machine
+
+binary_sensor.*wasmachine*:
+  icon: mdi:washing-machine

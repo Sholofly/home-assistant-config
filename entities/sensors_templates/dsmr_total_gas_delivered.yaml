@@ -1,0 +1,3 @@
+value_template: '{{ states.sensor.dsmr.attributes["Gas_Delivered"] | round(1) }}' 
+unit_of_measurement: "m³"
+icon_template: mdi:fire

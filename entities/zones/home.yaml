@@ -1,0 +1,9 @@
+################################################
+## Entities / Zones / Home
+################################################ 
+---
+name: Home
+latitude: !secret home_latitude
+longitude: !secret home_longitude
+radius: 75
+icon: mdi:home

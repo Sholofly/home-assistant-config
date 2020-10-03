@@ -1,3 +1,6 @@
+################################################
+## Entities /Sensors / Reistijd naar huis Rudolf
+################################################ 
 platform: waze_travel_time
 name: "Reistijd naar huis"
 origin: person.rudolf

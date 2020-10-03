@@ -1,0 +1,3 @@
+value_template: '{{ states.sensor.dsmr.attributes["Voltage_l1"] }}' 
+unit_of_measurement: "V"
+icon_template: mdi:current-ac

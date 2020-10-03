@@ -1,0 +1,3 @@
+value_template: '{{ states.sensor.dsmr.attributes["Energy_Delivered"] | round(1) }}' 
+unit_of_measurement: "kWh"
+device_class: power

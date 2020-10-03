@@ -12,3 +12,4 @@ switch:
       inverted: yes
     id: "${device_name}_relay"
     name: "${device_name}"
+    restore_mode: RESTORE_DEFAULT_OFF
