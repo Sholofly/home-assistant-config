@@ -12,6 +12,7 @@ jobs:
         - touch config/home-assistant_v2.db
         - touch config/home-assistant.log
       install:
+        - pip3 install spotipy --upgrade
         - pip3 install homeassistant
       script:
         - hass -c . --script check_config
@@ -28,6 +29,7 @@ jobs:
         - touch config/home-assistant_v2.db
         - touch config/home-assistant.log
       install:
+        - pip3 install spotipy --upgrade
         - pip3 install --pre --upgrade homeassistant
       script:
         - hass -c . --script check_config
@@ -44,6 +46,7 @@ jobs:
         - touch config/home-assistant_v2.db
         - touch config/home-assistant.log
       install:
+        - pip3 install spotipy --upgrade
         - pip3 install --upgrade git+git://github.com/home-assistant/home-assistant.git@dev
       script:
         - hass -c . --script check_config
