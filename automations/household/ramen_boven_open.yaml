@@ -30,7 +30,7 @@ action:
         entity_id: person.rudolf
         state: 'home'
       sequence:
-      - service: notify.mobile_app_moto_g_7_plus
+      - service: notify.mobile_app_telefoon_rudolf
         data: 
           title: Er staan nog ramen open
           message: "{{ message_data }}"

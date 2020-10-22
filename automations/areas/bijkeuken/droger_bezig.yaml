@@ -17,7 +17,7 @@ condition:
       entity_id: group.adults
       state: 'not_home'
 action:
-  - service: notify.mobile_app_moto_g_7_plus
+  - service: notify.mobile_app_telefoon_rudolf
     data:
       title: "De droger is nog aan!"
       message: "Wil je hem uitzetten?"

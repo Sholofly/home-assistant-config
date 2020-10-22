@@ -4,5 +4,5 @@
 name: family
 platform: group
 services:
-  - service: mobile_app_moto_g_7_plus
+  - service: mobile_app_telefoon_rudolf
   - service: mobile_app_telefoon_leny
