@@ -3,7 +3,7 @@
   "name": "Ziggo Next",
   "documentation": "",
   "requirements": [
-    "ziggonext==0.7.3"
+    "ziggonext==0.9.0"
   ],
   "dependencies": [],
   "codeowners": ["@Sholofly"]

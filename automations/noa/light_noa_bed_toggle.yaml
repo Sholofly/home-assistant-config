@@ -1,0 +1,12 @@
+alias: Noa bed toggle
+mode: single
+trigger:
+  - device_id: 73bede253078469e973c7a521c7395bf
+    domain: deconz
+    platform: device
+    type: remote_button_short_press
+    subtype: turn_on
+action:
+- service: light.toggle
+  entity_id: light.noa_bed
+

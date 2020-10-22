@@ -1,0 +1,57 @@
+alias: "Ramen boven staan nog open"
+trigger:
+  - platform: state
+    entity_id: group.parents
+    to: 'home'
+  - platform: time
+    at: '16:00:00'
+condition:
+  condition: and
+  conditions:
+    - condition: time
+      after: '16:00:00'
+      before: '20:00:00'
+    - condition: state
+      entity_id: group.parents
+      state: 'on'
+variables:
+  message_data: >-
+    {% for entity_id in states.group.ramen_boven.attributes.entity_id -%}
+      {% if(states(entity_id) == 'on')-%}
+          {{- '\n' -}}
+        - {% print(state_attr(entity_id,'friendly_name')) | regex_replace(find='Raam', replace='', ignorecase=False)-%}
+      {% endif-%}
+    {%- endfor %}
+    
+action:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: person.rudolf
+        state: 'home'
+      sequence:
+      - service: notify.mobile_app_moto_g_7_plus
+        data: 
+          title: Er staan nog ramen open
+          message: "{{ message_data }}"
+          data:
+            ttl: 0
+            priority: high
+            channel: alarm_stream          
+    - conditions:
+      - condition: state
+        entity_id: person.leny
+        state: 'home'
+      sequence:
+      - service: notify.mobile_app_telefoon_leny
+        data: 
+          title: Er staan nog ramen open
+          message: "{{ message_data }}"
+          data:
+            ttl: 0
+            priority: high
+            channel: alarm_stream
+        
+
+
+

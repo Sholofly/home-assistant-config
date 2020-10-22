@@ -1,0 +1,12 @@
+alias: Set Thermostat Mode
+mode: single
+trigger:
+  platform: state
+  entity_id: input_select.noa_bed_effects
+action:
+  service: wled.effect
+  data:
+    entity_id: light.noa_bed
+    effect: "{{ states('input_select.noa_bed_effects') }}"
+    
+

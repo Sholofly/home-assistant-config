@@ -11,11 +11,11 @@ from homeassistant.helpers.entity import Entity
 from homeassistant.util import Throttle
 
 class AfvalInfoTomorrowSensor(Entity):
-    def __init__(self, data, sensor_type, entities):
+    def __init__(self, data, sensor_type, entities, id_name):
         self.data = data
         self.type = sensor_type
         self._last_update = None
-        self._name = SENSOR_PREFIX + SENSOR_TYPES[sensor_type][0]
+        self._name = SENSOR_PREFIX + (id_name + " " if len(id_name) > 0  else "") + SENSOR_TYPES[sensor_type][0]
         self._state = None
         self._icon = SENSOR_TYPES[sensor_type][1]
         self._entities = entities
@@ -51,7 +51,7 @@ class AfvalInfoTomorrowSensor(Entity):
                     tempState = ""
                 numberOfMatches = numberOfMatches + 1
                 #add trash name to string
-                tempState = (tempState + " " + entity.name.split()[1]).strip().lower()
+                tempState = (tempState + " " + entity.name.split()[len(entity.name.split())-1]).strip().lower()
         #only change state if the new state is different than the last state
         if tempState != self._state:
             self._state = tempState
