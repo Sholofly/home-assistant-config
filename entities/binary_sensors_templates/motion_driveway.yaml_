@@ -1,3 +1,0 @@
-friendly_name: Motion driveway
-value_template: '{{ states.sensor.camera_driveway_state.attributes["motionDetectAlarm"] | float == 2}}'
-device_class: motion

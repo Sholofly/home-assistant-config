@@ -1,4 +1,0 @@
-platform: rest
-name: Driveway Motion
-resource: !secret camera_driveway_motion
-value_template: '{{ value_json.cgi_result }}'
