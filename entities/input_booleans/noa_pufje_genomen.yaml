@@ -1,3 +1,6 @@
+################################################
+## Entities / Input Booleans / Pufje genomen
+################################################
 noa_pufje_genomen:
   name: Noa heeft pufje genomen
   initial: on

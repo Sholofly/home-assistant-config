@@ -1,3 +1,6 @@
+################################################
+## Automations / Household / Notificatie afval
+################################################
 alias: Afval
 initial_state: on
 trigger:

@@ -1,2 +1,5 @@
+################################################
+## Customizations / Globs / Device class doors
+################################################
 binary_sensor.*_deur:
   device_class: door

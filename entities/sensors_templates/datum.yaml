@@ -1,3 +1,6 @@
+################################################
+## Entities / Template Sensors / Datum
+################################################ 
 value_template: >
   {% set months = ["januari", "februari", "maart", "april", "mei", "juni", "juli", "augustus", "september", "oktober", "november", "december"] %}
   {{ strptime(states('sensor.date'), '%Y-%m-%d').day }}

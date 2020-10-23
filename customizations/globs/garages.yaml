@@ -1,2 +1,5 @@
+################################################
+## Customizations / Globs / Garage switch
+################################################
 switch.*garage*:
   icon: fas:warehouse

@@ -1,3 +1,6 @@
+################################################
+## Automations / Bijkeuken / Wasmachine klaar Rudolf
+################################################
 alias: Wasmachine klaar notificatie Rudolf
 initial_state: on
 trigger:

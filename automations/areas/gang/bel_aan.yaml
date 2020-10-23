@@ -1,3 +1,6 @@
+################################################
+## Automations / Gang / Deurbel ingeschakeld
+################################################
 alias: Bel aan
 initial_state: on
 trigger:

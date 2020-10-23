@@ -1,3 +1,6 @@
+################################################
+## Automations / Household / Notificatie ramen open
+################################################
 alias: "Ramen boven staan nog open"
 trigger:
   - platform: state
@@ -13,7 +16,7 @@ condition:
       before: '20:00:00'
     - condition: state
       entity_id: group.parents
-      state: 'on'
+      state: 'home'
 variables:
   message_data: >-
     {% for entity_id in states.group.ramen_boven.attributes.entity_id -%}

@@ -1,3 +1,6 @@
+################################################
+## Entities / Binary Sensors / Donker binnen
+################################################
 platform: template
 sensors:
   donker_binnen:

@@ -1,3 +1,6 @@
+################################################
+## Customizations / Entities / sensor.hacs
+################################################
 sensor.hacs:
   unit_of_measurement: 'update(s)'
   friendly_name: HACS

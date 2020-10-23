@@ -1,3 +1,6 @@
+################################################
+## Customizations / Globs / Wasmachines
+################################################
 switch.*wasmachine*:
   icon: mdi:washing-machine
 

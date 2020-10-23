@@ -1,2 +1,5 @@
+################################################
+## Customizations / Globs / Hide button leds
+################################################
 light.*_button_led:
   hidden: true

@@ -1,3 +1,6 @@
+################################################
+## Automations / Achtertun / Verlichting aan
+################################################
 alias: Achtertuinverlichting aan
 initial_state: on
 trigger:

@@ -1,3 +1,6 @@
+################################################
+## Automations / Woonkamer / Lampen aan beweging
+################################################
 alias: Motion lights
 trigger:
   - platform: state

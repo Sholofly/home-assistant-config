@@ -1,3 +1,6 @@
+################################################
+## Automations / System / Update notification
+################################################
 alias: Update notification
 trigger:
   - platform: state

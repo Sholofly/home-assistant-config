@@ -1,3 +1,6 @@
+################################################
+## Automations / Noa / Symfonisk Double click
+################################################
 alias: Noa bed twee keer drukken
 mode: single
 trigger:

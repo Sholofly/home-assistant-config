@@ -1,2 +1,5 @@
+################################################
+## Customizations / Globs / Hide restart buttons
+################################################
 switch.restart_*:
   hidden: true

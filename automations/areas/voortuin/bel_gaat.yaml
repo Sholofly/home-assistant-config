@@ -1,3 +1,6 @@
+################################################
+## Automations / Voortuine / Bel gaat
+################################################
 alias: Bel gaat
 initial_state: on
 trigger:

@@ -1,2 +1,5 @@
+################################################
+## Customizations / Globs / Hide button sensors
+################################################
 binary_sensor.*_button:
   hidden: true

@@ -1,2 +1,5 @@
+################################################
+## Customizations / Globs / Wifi signals
+################################################
 sensor.*_wifi_signal:
   hidden: true

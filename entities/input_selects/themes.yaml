@@ -1,3 +1,6 @@
+################################################
+## Entities / Input Selects / Themes
+################################################
 themes:
     name: 'Themes'
     icon: mdi:format-paint

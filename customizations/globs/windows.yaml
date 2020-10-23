@@ -1,3 +1,6 @@
+################################################
+## Customizations / Globs / Ramen
+################################################
 binary_sensor.*_raam:
   device_class: window
 

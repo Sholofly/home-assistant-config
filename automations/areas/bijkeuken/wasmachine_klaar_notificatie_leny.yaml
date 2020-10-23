@@ -1,3 +1,6 @@
+################################################
+## Automations / Bijkeuken / Wasmachine klaar Leny
+################################################
 alias: Wasmachine klaar notificatie Leny
 initial_state: on
 trigger:

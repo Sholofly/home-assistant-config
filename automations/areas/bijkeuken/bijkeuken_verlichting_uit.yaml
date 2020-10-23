@@ -1,3 +1,6 @@
+################################################
+## Automations / Bijkeuken / Verlichting aan
+################################################
 alias: Bijkeuken verlichting uit
 initial_state: on
 trigger:

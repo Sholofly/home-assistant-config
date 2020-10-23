@@ -1,3 +1,6 @@
+################################################
+## Automations / Noa / Set Led effect
+################################################
 alias: Set Thermostat Mode
 mode: single
 trigger:

@@ -1,3 +1,6 @@
+################################################
+## Automations / Household / Nachtverlichting aan
+################################################
 alias: Nachtverlichting aan
 initial_state: on
 trigger:

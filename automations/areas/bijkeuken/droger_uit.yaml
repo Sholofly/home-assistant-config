@@ -1,3 +1,6 @@
+################################################
+## Automations / Bijkeuken / Droger uit
+################################################
 alias: Droger uit
 trigger:
   platform: event

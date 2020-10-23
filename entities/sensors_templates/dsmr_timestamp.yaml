@@ -1,2 +1,5 @@
+################################################
+## Entities / Template Sensors / DSMR timestamp
+################################################ 
 value_template: '{{ states.sensor.dsmr.attributes["Timestamp"] }}' 
 device_class: timestamp
