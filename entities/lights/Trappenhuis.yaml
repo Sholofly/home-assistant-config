@@ -1,0 +1,8 @@
+################################################
+## Entities / Lights / Trappenhuis
+################################################ 
+platform: group
+name: Trappenhuis
+entities:
+  - light.overloop_plafond
+  - light.gang_plafond
