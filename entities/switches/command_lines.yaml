@@ -1,0 +1,5 @@
+################################################
+## Entities / Switches / Templates
+################################################ 
+platform: command_line
+switches: !include_dir_named ../switches_command_lines

@@ -1,0 +1,4 @@
+friendly_name: "Wall tablet battery level"
+unit_of_measurement: '%'
+value_template: "{{ states.sensor.wall_tablet_device_info.attributes.batteryLevel }}"
+device_class: battery
