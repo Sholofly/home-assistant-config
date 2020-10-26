@@ -1,6 +1,7 @@
 ################################################
 ## Customizations / Entities / Sensor Trash Today
 ################################################
-sensor.trash_today:
+sensor.afvalinfo_today:
+  friendly_name: Afval vandaag
   entity_picture_template: '/local/mijnafvalwijzer/{{states.sensor.trash_today.state}}.png'
   icon_template: mdi:delete-empty
