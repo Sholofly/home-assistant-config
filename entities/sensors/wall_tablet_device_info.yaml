@@ -1,0 +1,8 @@
+platform: rest
+name: Wall Tablet Device Info
+resource: !secret rest_url_wall_tablet_kiosk_device_info
+json_attributes:
+- screenBrightness
+- screenOn
+- batteryLevel
+value_template: 'OK'
