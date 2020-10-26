@@ -1,5 +1,5 @@
 ################################################
-## Automations / Voortuine / Bel gaat
+## Automations / Voortuin / Bel gaat
 ################################################
 alias: Bel gaat
 initial_state: on
@@ -21,3 +21,15 @@ action:
       title: "De bel gaat"
       data: 
         image: "https://***REMOVED***.nl/local/snapshots/snapshot.jpg?{{now().strftime('%Y%m%d%H%M%S%f')}}"
+  - service: light.turn_on
+    entity_id: light.wall_tablet_screen
+  - service: browser_mod.popup
+    data:
+      title: Voordeur
+      card:
+        type: picture-glance
+        camera_image: camera.foscam_camera
+        camera_view: live
+        entities: []
+      deviceID:
+        - wall-tablet
