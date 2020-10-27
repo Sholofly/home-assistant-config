@@ -7,6 +7,7 @@
 ._*
 __pycache__
 *.xls*
+.ps4-games.*.json
 
 #Directory Ignores
 _backup
@@ -19,7 +20,7 @@ tts
 
 #File ignores
 secrets.yaml
-.ps4-games.709E297C098D_0ad9.json
+.ps4-games.*.json
 .google.token
 known_devices.yaml
 google_calendars.yaml
