@@ -5,5 +5,5 @@
 name: VSCO
 latitude: !secret vsco_latitude
 longitude: !secret vsco_longitude
-radius: 75
+radius: 135
 icon: mdi:soccer

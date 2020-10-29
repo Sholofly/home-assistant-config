@@ -5,5 +5,5 @@
 name: WC De Vrijheid
 latitude: !secret vrijheid_latitude
 longitude: !secret vrijheid_longitude
-radius: 250
+radius: 75
 icon: mdi:cart
