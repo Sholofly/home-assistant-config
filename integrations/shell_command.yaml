@@ -1,0 +1,2 @@
+shell_command:
+  google_token_fix: sed -i -e 's/2client.client"}2client.client"}/2client.client"}/g' /config/.google.token

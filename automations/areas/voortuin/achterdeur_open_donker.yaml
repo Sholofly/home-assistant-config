@@ -11,10 +11,6 @@ condition:
   entity_id: binary_sensor.donker_buiten
   state: 'on'
 action:
-  - service: light.turn_off
-    entity_id: light.voortuin_hek
-  - delay:
-      minutes: 10
-  - service: light.turn_on
-    entity_id: light.voortuin_hek
+  - service: script.turn_on
+    entity_id: script.dim_voortuin_hek
   

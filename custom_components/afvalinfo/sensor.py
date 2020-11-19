@@ -116,6 +116,7 @@ from .location.hoekschewaard import HoekscheWaardAfval
 from .location.katwijk import KatwijkAfval
 from .location.uden import UdenAfval
 from .location.westerwolde import WesterwoldeAfval
+from .location.montferland import MontferlandAfval
 
 from .sensortomorrow import AfvalInfoTomorrowSensor
 from .sensortoday import AfvalInfoTodaySensor
@@ -306,7 +307,7 @@ class AfvalinfoData(object):
             self.data = HvcAfval().get_data(
                 self.location, self.postcode, self.street_number, self.resources
             )
-        irado = ["capelle aan den ijssel", "schiedam", "vlaardingen"]
+        irado = ["capelle aan den ijssel", "rotterdam rozenburg", "schiedam", "vlaardingen"]
         if self.location in irado:
             self.data = IradoAfval().get_data(
                 self.location, self.postcode, self.street_number, self.resources
@@ -330,6 +331,11 @@ class AfvalinfoData(object):
             self.data = MijnAfvalWijzerAfval().get_data(
                 self.location, self.postcode, self.street_number, self.resources
             )
+        '''montferland = ["montferland"]
+        if self.location in montferland:
+            self.data = MontferlandAfval().get_data(
+                self.location, self.postcode, self.street_number, self.resources
+            )'''
         omrin = ["achtkarspelen", "ameland", "appingedam", "dantumadeel f", "harlingen", "heerenveen", "het hogeland", "leeuwarden", "noardeast fryslan", "ooststellingwerf", "opsterland", "terschelling", "tietjerksteradeel", "waadhoeke", "weststellingwerf"]
         if self.location in omrin:
             self.data = OmrinAfval().get_data(

@@ -1,0 +1,6 @@
+platform: command_line
+name: Motion driveway
+command: !secret camera_driveway_motion
+value_template: "{{ value | regex_findall_index('<motionDetectAlarm>(.*)</motionDetectAlarm>') == '2' }}"
+scan_interval: 2
+command_timeout: 4

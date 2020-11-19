@@ -1,0 +1,19 @@
+################################################
+## Scripts / Dim heklampen
+################################################
+sequence:
+  - service: light.turn_on
+    data:
+      entity_id: light.voortuin_hek
+      transition: 3
+      brightness: 1
+  - delay:
+      minutes: 10
+  - condition: state
+    entity_id: binary_sensor.donker_buiten
+    state: 'on'
+  - service: light.turn_on
+    data:
+      entity_id: light.voortuin_hek
+      brightness: 255
+      transition: 3
