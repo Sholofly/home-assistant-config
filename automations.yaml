@@ -1,1 +1,44 @@
-[]
+- id: '1607374262159'
+  alias: Symfonisk Noa
+  description: ''
+  use_blueprint:
+    path: zha_ikea_symfonisk_lights.yaml
+    input:
+      brightness: '50'
+      remote: 5ea3fa2915e53cbea39307f9669a7c0b
+      light:
+        device_id: cda7501a0b9811ebac43cb81d1a09be0
+      double_press:
+      - service: input_select.select_next
+        data: {}
+        entity_id: input_select.noa_bed_effects
+      triple_press:
+      - service: input_select.select_option
+        data:
+          option: Solid
+        entity_id: input_select.noa_bed_effects
+      - service: light.turn_on
+        data:
+          brightness_pct: 10
+          color_name: white
+        entity_id: light.noa_bed
+- id: '1607379994170'
+  alias: WC lampen aan bij beweging
+  description: ''
+  use_blueprint:
+    path: homeassistant/motion_light.yaml
+    input:
+      no_motion_wait: '120'
+      motion_entity: binary_sensor.wc_bewegingssensor
+      light_target:
+        entity_id: light.wc_plafond
+- id: '1607380115524'
+  alias: Motion-activated Light
+  description: ''
+  use_blueprint:
+    path: homeassistant/motion_light.yaml
+    input:
+      no_motion_wait: '120'
+      motion_entity: binary_sensor.bijkeuken_bewegingssensor
+      light_target:
+        entity_id: light.bijkeuken_plafond
