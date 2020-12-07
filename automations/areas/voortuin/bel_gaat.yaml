@@ -20,7 +20,7 @@ action:
       message: "Er staat iemand aan de voordeur"
       title: "De bel gaat"
       data: 
-        image: "https://***REMOVED***.nl/local/snapshots/snapshot.jpg?{{now().strftime('%Y%m%d%H%M%S%f')}}"
+        image: !secret snapshot_url
   - service: light.turn_on
     entity_id: light.wall_tablet_screen
   - service: browser_mod.popup
