@@ -1,7 +1,0 @@
-################################################
-## Entities / Weather / Dark Sky
-################################################ 
----
-platform: darksky
-api_key: !secret darksky_key
-mode: daily
