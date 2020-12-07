@@ -1,0 +1,4 @@
+tolerance: 50
+unit_of_measurement: km
+devices:
+  - device_tracker.leny_samsung_galaxy_s10e
