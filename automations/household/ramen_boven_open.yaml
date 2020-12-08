@@ -17,6 +17,9 @@ condition:
     - condition: state
       entity_id: group.parents
       state: 'home'
+    - condition: state
+      entity_id: group.ramen_boven
+      state: 'on'
 variables:
   message_data: >-
     {% for entity_id in states.group.ramen_boven.attributes.entity_id -%}

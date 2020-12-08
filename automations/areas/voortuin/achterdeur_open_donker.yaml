@@ -12,5 +12,5 @@ condition:
   state: 'on'
 action:
   - service: script.turn_on
-    entity_id: script.dim_voortuin_hek
+    entity_id: script.vertrek_in_donker
   
