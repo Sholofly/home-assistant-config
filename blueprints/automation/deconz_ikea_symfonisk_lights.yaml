@@ -2,21 +2,14 @@ blueprint:
   name: Deconz - IKEA SYMFONISK for lights
   description: 'Control lights with an IKEA SYMFONISK from the Deconz integration.
 
-
     Pushing the button once, toggles the lights on/off to the last set
-
     brightness (unless the force brightness is toggled on in the blueprint).
-
-
     Rotating left/right will change the brightness.
 
-
     The button can be pressed double or triple, these actions can be assigned
-
     freely. This allows you to assign, e.g., a scene or anything else.
 
     Thanks to @Frenck. I modified his ZHA version to make it useful for Deconz.
-
     '
   domain: automation
   input:
