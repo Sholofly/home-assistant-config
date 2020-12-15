@@ -21,6 +21,8 @@ action:
       title: "De bel gaat"
       data: 
         image: !secret snapshot_url
+        ttl: 0
+        priority: high
   - service: light.turn_on
     entity_id: light.wall_tablet_screen
   - service: browser_mod.popup

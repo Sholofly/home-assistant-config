@@ -2,11 +2,10 @@
 ## Scripts / Vertrek in donker
 ################################################
 sequence:
-  - service: light.turn_on
+  - service: light.turn_off
     data:
       entity_id: light.voortuin_hek
       transition: 3
-      brightness: 1
   - service: light.turn_on
     entity_id: light.achtertuin_paal_en_ornament
   - delay:

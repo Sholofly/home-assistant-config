@@ -1,27 +1,3 @@
-- id: '1607374262159'
-  alias: Symfonisk Noa
-  description: ''
-  use_blueprint:
-    path: zha_ikea_symfonisk_lights.yaml
-    input:
-      brightness: '50'
-      remote: 5ea3fa2915e53cbea39307f9669a7c0b
-      light:
-        device_id: cda7501a0b9811ebac43cb81d1a09be0
-      double_press:
-      - service: input_select.select_next
-        data: {}
-        entity_id: input_select.noa_bed_effects
-      triple_press:
-      - service: input_select.select_option
-        data:
-          option: Solid
-        entity_id: input_select.noa_bed_effects
-      - service: light.turn_on
-        data:
-          brightness_pct: 10
-          color_name: white
-        entity_id: light.noa_bed
 - id: '1607379994170'
   alias: WC lampen aan bij beweging
   description: ''
@@ -42,3 +18,22 @@
       motion_entity: binary_sensor.bijkeuken_bewegingssensor
       light_target:
         entity_id: light.bijkeuken_plafond
+- id: '1608038011592'
+  alias: Symfonisk lampen Noa
+  description: ''
+  use_blueprint:
+    path: sholofly/deconz_ikea_symfonisk_lights.yaml
+    input:
+      brightness: '50'
+      remote: b225a6d4ec52c665162a23c382f2f38f
+      light:
+        entity_id: light.noa_bed
+      double_press:
+      - service: input_select.select_next
+        data: {}
+        entity_id: input_select.noa_bed_effects
+      triple_press:
+      - service: input_select.select_option
+        data:
+          option: Solid
+        entity_id: input_select.noa_bed_effects
