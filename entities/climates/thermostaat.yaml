@@ -5,7 +5,6 @@ platform: generic_thermostat
 name: Thermostaat
 heater: switch.zolder_cv_ketel
 target_sensor: sensor.woonkamer_multisensor_temperature
-target_temp : 16
 min_temp: 15
 max_temp: 23
 initial_hvac_mode: heat
