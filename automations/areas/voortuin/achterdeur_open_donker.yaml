@@ -5,7 +5,7 @@ alias: Achterdeur open in het donker
 trigger:
   platform: state
   entity_id: binary_sensor.bijkeuken_deur
-  to: 'off'
+  to: 'on'
 condition:
   condition: state
   entity_id: binary_sensor.donker_buiten
