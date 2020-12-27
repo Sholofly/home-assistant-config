@@ -6,12 +6,8 @@ sequence:
     data:
       entity_id: light.voortuin_hek
       transition: 3
-  - service: light.turn_on
-    entity_id: light.achtertuin_paal_en_ornament
   - delay:
-      minutes: 10
-  - service: light.turn_off
-    entity_id: light.achtertuin_paal_en_ornament
+      minutes: 5
   - condition: state
     entity_id: binary_sensor.donker_buiten
     state: 'on'

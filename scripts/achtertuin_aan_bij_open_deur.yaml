@@ -1,0 +1,15 @@
+################################################
+## Scripts /Lampen achtertuin aan bij open deur
+################################################
+sequence:
+  - condition: state
+    entity_id: light.achtertuin_paal_en_ornament
+    state: 'off'
+  - service: light.turn_on
+    data:
+      entity_id: light.achtertuin_paal_en_ornament
+  - delay:
+      minutes: 5
+  - service: light.turn_off
+    data:
+      entity_id: light.achtertuin_paal_en_ornament
