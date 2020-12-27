@@ -14,15 +14,16 @@ action:
   - service: camera.snapshot
     data:
       entity_id: camera.foscam_camera
-      filename: "/config/www/snapshots/snapshot.jpg"
+      filename: "/media/snapshots/snapshot.jpg"
   - service: notify.family
     data_template: 
       message: "Er staat iemand aan de voordeur"
       title: "De bel gaat"
       data: 
-        image: !secret snapshot_url
+        image: /media/local/snapshots/snapshot.jpg
         ttl: 0
         priority: high
+        channel: alarm_stream
   - service: light.turn_on
     entity_id: light.wall_tablet_screen
   - service: browser_mod.popup
