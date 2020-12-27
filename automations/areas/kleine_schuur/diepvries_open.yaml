@@ -17,12 +17,10 @@ action:
   - service: media_player.volume_set
     entity_id: media_player.woonkamer_google_home
     data:
-      volume_level: 1
-  - service: tts.google_translate_say
+      volume_level: 0.7
+  - service: tts.microsoft_say
     entity_id: media_player.woonkamer_google_home
-    data:
-      message: 'De diepvries staat nog open!'
-      language: 'nl'
+    message: 'De diepvries staat nog open!'
   - delay: '00:00:03'
   - service: media_player.volume_set
     entity_id: media_player.woonkamer_google_home
