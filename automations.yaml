@@ -22,7 +22,7 @@
   alias: Symfonisk lampen Noa
   description: ''
   use_blueprint:
-    path: sholofly/deconz_ikea_symfonisk_lights.yaml
+    path: deconz_ikea_symfonisk_lights.yaml
     input:
       brightness: '50'
       remote: b225a6d4ec52c665162a23c382f2f38f
