@@ -19,8 +19,9 @@ action:
     data:
       volume_level: 0.7
   - service: tts.microsoft_say
-    entity_id: media_player.woonkamer_google_home
-    message: 'De diepvries staat nog open!'
+    data:
+      entity_id: media_player.woonkamer_google_home
+      message: 'De diepvries staat nog open!'
   - delay: '00:00:03'
   - service: media_player.volume_set
     entity_id: media_player.woonkamer_google_home
