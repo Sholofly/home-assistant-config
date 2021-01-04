@@ -16,7 +16,7 @@ action:
       entity_id: camera.foscam_camera
       filename: "/media/snapshots/snapshot.jpg"
   - service: notify.family
-    data_template: 
+    data: 
       message: "Er staat iemand aan de voordeur"
       title: "De bel gaat"
       data: 
