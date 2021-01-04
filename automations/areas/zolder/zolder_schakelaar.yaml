@@ -1,0 +1,11 @@
+alias: Zolder schakelaar
+trigger:
+- platform: state
+  entity_id: binary_sensor.zolder_schakelaar
+  to:  
+    - 'on'
+    - 'off'
+action:
+  - service: light.toggle
+    data:
+      entity_id: light.zolder_plafond
