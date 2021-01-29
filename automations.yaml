@@ -37,3 +37,21 @@
         data:
           option: Solid
         entity_id: input_select.noa_bed_effects
+- id: '1609882168905'
+  alias: Mi Magic Cube
+  description: ''
+  use_blueprint:
+    path: bergstrom/mi-magic-cube-deconz-45-actions.yaml
+    input:
+      remote: d0ff81b35fb174f03df700524e4dc25c
+      cube_shake:
+      - service: light.toggle
+        data: {}
+        entity_id: light.woonkamer_dressoir
+      one_side_slide: false
+      cube_one_side_slide: []
+      cube_fall:
+      - type: flash
+        device_id: 3a2745d145a34069b819b8928a7ca82b
+        entity_id: light.woonkamer_dressoir
+        domain: light
