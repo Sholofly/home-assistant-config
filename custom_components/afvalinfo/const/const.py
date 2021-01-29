@@ -13,23 +13,8 @@ SENSOR_TYPES = {
 }
 
 SENSOR_LOCATIONS_TO_URL = {
-    "hoekschewaard": ["https://www.radhw.nl/inwoners/ophaalschema?p={0}&h={1}"],
-    "katwijk": ["https://afval.katwijk.nl/nc/afvalkalender/?tx_windwastecalendar_pi1%5Baction%5D=search"],
-    "middendrenthe": [
-        "https://www.middendrenthe.nl/website/!suite86.scherm0325?mPag=6523&mAlle=J",
-        "https://www.middendrenthe.nl/website/!ctm_afval.Kalender"],
-    "trashapi": ["http://trashapi.azurewebsites.net/trash?Location={0}&ZipCode={1}&HouseNumber={2}"],
-    "uden": ["https://www.uden.nl/inwoners/afval/ophaaldagen-afval/{0}-{1}.html"],
-    "veldhoven": ["https://www.veldhoven.nl/afvalkalender/{0}-{1}"],
-    "venlo": ["https://www.venlo.nl/trash-removal-calendar/{0}/{1}"],
-    "westerkwartier": ["https://www.afvalalert.nl/kalender/{0}/{1}/?web=1"],
-    "westerwolde": ["https://www.westerwolde.nl/trash-removal-calendar/{0}/{1}"],
-    "westland": ["https://huisvuilkalender.gemeentewestland.nl/huisvuilkalender/Huisvuilkalender/get-huisvuilkalender-ajax"]
-}
-
-SENSOR_LOCATIONS_TO_COMPANY_CODE = {
-    "westland": ["https://huisvuilkalender.gemeentewestland.nl/huisvuilkalender/Huisvuilkalender/get-huisvuilkalender-ajax"]
-}
+    "trashapi": ["http://trashapi.azurewebsites.net/trash?Location={0}&ZipCode={1}&HouseNumber={2}"]
+    }
 
 MONTH_TO_NUMBER = {
     "jan": "01",
