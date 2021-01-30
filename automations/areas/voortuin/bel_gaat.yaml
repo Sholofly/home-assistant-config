@@ -13,7 +13,7 @@ trigger:
 action:
   - service: camera.snapshot
     data:
-      entity_id: camera.foscam_camera
+      entity_id: camera.camera_driveway
       filename: "/media/snapshots/snapshot.jpg"
   - service: notify.family
     data: 
@@ -31,7 +31,7 @@ action:
       title: Voordeur
       card:
         type: picture-glance
-        camera_image: camera.foscam_camera
+        camera_image: camera.camera_driveway
         camera_view: live
         entities: []
       deviceID:
