@@ -43,7 +43,6 @@ action:
           data:
             ttl: 0
             priority: high
-            channel: alarm_stream          
     - conditions:
       - condition: state
         entity_id: person.leny
@@ -56,7 +55,6 @@ action:
           data:
             ttl: 0
             priority: high
-            channel: alarm_stream
         
 
 
