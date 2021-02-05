@@ -1,0 +1,6 @@
+################################################
+## Entities / TTS / Google Translate
+################################################
+---
+platform: google_translate
+language: nl

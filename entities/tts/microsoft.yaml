@@ -1,0 +1,9 @@
+################################################
+## Entities / TTS / Google Translate
+################################################
+---
+platform: microsoft
+api_key: !secret microsoft_tts_api_key
+language: nl-nl
+type: ColetteNeural
+region: westeurope

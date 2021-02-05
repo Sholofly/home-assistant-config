@@ -15,7 +15,9 @@ _backup
 .storage
 deps
 node-red
-tts
+/tts/
+
+
 
 
 #File ignores
