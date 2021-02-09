@@ -1,0 +1,18 @@
+###################################################
+## Automations / Achtertuin / Verlichting 's nachts uit
+###################################################
+alias: Achtertuin verlichting 's nachts uit
+description: "'s nachts na 10 minuten achtertuinverlichting uit."
+trigger:
+  - platform: state
+    entity_id: light.achtertuin_paal_en_ornament
+    to: "on"
+    for:
+      minutes: 10
+condition:
+  - condition: time
+    after: 00:00
+    before: 07:00
+action:
+  - service: light.turn_off
+    entity_id: light.achtertuin_paal_en_ornament
