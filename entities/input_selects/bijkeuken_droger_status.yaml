@@ -1,0 +1,11 @@
+################################################
+## Entities / Input Selects / Status Droger
+################################################
+bijkeuken_droger_status:
+  name: Bijkeuken Droger Status
+  options:
+    - Inactief
+    - Bezig
+    - Afronden
+    - Klaar
+  initial: Inactief

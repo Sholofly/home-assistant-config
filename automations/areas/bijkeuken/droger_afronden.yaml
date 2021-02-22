@@ -1,7 +1,7 @@
 ################################################
-## Automations / Bijkeuken / Droger bezig
+## Automations / Bijkeuken / Droger afronden
 ################################################
-alias: Droger bezig
+alias: Droger afronden
 initial_state: on
 trigger:
   - platform: state
@@ -13,13 +13,12 @@ condition:
   conditions:
     - condition: numeric_state
       entity_id: sensor.bijkeuken_droger_wattage
-      above: 10
+      below: 0.75
     - condition: state
-      entity_id: binary_sensor.bijkeuken_droger
-      state: "off"
-
+      entity_id: input_select.bijkeuken_droger_status
+      state: "Bezig"
 action:
   - service: input_select.select_option
     entity_id: input_select.bijkeuken_droger_status
     data:
-      option: "Bezig"
+      option: "Afronden"

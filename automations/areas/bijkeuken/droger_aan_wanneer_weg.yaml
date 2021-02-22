@@ -1,0 +1,33 @@
+########################################################################
+## Automations / Bijkeuken / Droger aan wanneer niemand thuis
+########################################################################
+alias: Droger aan wanneer niemand thuis
+initial_state: on
+trigger:
+  - platform: numeric_state
+    entity_id: sensor.bijkeuken_droger_wattage
+    above: 10
+  - platform: state
+    entity_id: group.adults
+    from: home
+condition:
+  condition: and
+  conditions:
+    - condition: numeric_state
+      entity_id: sensor.bijkeuken_droger_wattage
+      above: 10
+    - condition: state
+      entity_id: group.adults
+      state: "not_home"
+action:
+  - service: notify.mobile_app_telefoon_rudolf
+    data:
+      title: "De droger is nog aan!"
+      message: "Wil je hem uitzetten?"
+      data:
+        ttl: 0
+        priority: high
+        sticky: true
+        actions:
+          - action: "turn_off_dryer" # The key you are sending for the event
+            title: "Ja" # The button title

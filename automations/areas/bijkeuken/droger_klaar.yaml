@@ -1,0 +1,20 @@
+################################################
+## Automations / Bijkeuken / Droger klaar
+################################################
+alias: Droger klaar
+initial_state: on
+trigger:
+  - platform: state
+    entity_id: input_select.bijkeuken_droger_status
+    to: "Afronden"
+    for:
+      minutes: 5
+condition:
+  condition: state
+  entity_id: binary_sensor.bijkeuken_droger
+  state: "off"
+action:
+  - service: input_select.select_option
+    entity_id: input_select.bijkeuken_droger_status
+    data:
+      option: "Klaar"

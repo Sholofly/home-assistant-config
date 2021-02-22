@@ -1,0 +1,20 @@
+################################################
+## Automations / Bijkeuken / Droger open
+################################################
+alias: Droger open
+initial_state: on
+trigger:
+  - platform: state
+    entity_id: binary_sensor.bijkeuken_droger
+    to: "on"
+  - platform: homeassistant
+    event: start
+condition:
+  condition: state
+  entity_id: binary_sensor.bijkeuken_droger
+  state: "on"
+action:
+  - service: input_select.select_option
+    entity_id: input_select.bijkeuken_droger_status
+    data:
+      option: "Inactief"
