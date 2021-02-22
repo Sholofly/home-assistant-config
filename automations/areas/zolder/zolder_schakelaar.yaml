@@ -2,6 +2,9 @@ alias: Zolder schakelaar
 trigger:
 - platform: state
   entity_id: binary_sensor.zolder_schakelaar
+  from:  
+    - 'on'
+    - 'off'
   to:  
     - 'on'
     - 'off'
