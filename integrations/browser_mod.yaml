@@ -18,3 +18,5 @@ browser_mod:
         - media_player
         - sensor
         - binary_sensor
+  disable:
+    - all
