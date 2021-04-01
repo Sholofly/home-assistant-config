@@ -1,6 +1,0 @@
-################################################
-## Entities / Template Sensors / DSMR Power
-################################################ 
-value_template: '{{ states.sensor.dsmr.attributes["Power_Delivered_l1"] }}' 
-unit_of_measurement: "w"
-device_class: power
