@@ -6,11 +6,13 @@ resources:
   - gft
   - papier
   - restafval
+  - takken
   - trash_type_today
   - trash_type_tomorrow
 location: !secret afval_city
 postcode: !secret afval_zipcode
 streetnumber: !secret afval_housenumber
-dateformat: '%d-%m-%Y'
-locale: 'nl'
+streetnumbersuffix: !secret afval_housenumbersuffix
+dateformat: "%d-%m-%Y"
+locale: "nl"
 timespanindays: 365
