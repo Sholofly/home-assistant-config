@@ -1,4 +1,5 @@
 """Platform for sensor integration."""
+import logging
 from homeassistant.helpers.entity import Entity
 from .const import ZIGGO_API
 from ziggonext import (
@@ -6,10 +7,13 @@ from ziggonext import (
     ZiggoNextBox
 )
 
+_LOGGER = logging.getLogger(__name__)
+
 
 def setup_platform(hass, config, add_entities, discovery_info=None):
     """Set up the sensor platform."""
     # We only want this platform to be set up via discovery.
+    _LOGGER.warn("DEPRECATION WARNING: Ziggo Next channel sensors will deprecate soon. Please create a template sensor for monitoring the current channel.")
     sensors = []
     api = hass.data[ZIGGO_API]
     for box in api.settop_boxes.values():

@@ -53,6 +53,7 @@ DOMAIN = "ziggonext"
 _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
+    """Setup platform"""
     players = []
     api = hass.data[ZIGGO_API]
     for box in api.settop_boxes.values():
@@ -65,7 +66,6 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
         """Handle the custom services."""
         entity_ids = call.data.get("entity_id")
         entity_id = entity_ids[0]
-
         _LOGGER.debug("Custom Service for " + entity_id + " - " + call.service)
 
         for player in players:

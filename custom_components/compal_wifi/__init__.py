@@ -1,0 +1,1 @@
+"""The Compal WiFi component."""
