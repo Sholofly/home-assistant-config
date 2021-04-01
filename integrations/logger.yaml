@@ -3,3 +3,5 @@
 ################################################
 logger:
   default: error
+  logs:
+    custom_components.ziggonext: debug
