@@ -4,19 +4,12 @@
 alias: No Motion lights
 trigger:
   - platform: state
-    entity_id: binary_sensor.woonkamer_bewegingssensor
-    to: "off"
-    for:
-      minutes: 10
-  - platform: state
     entity_id: binary_sensor.donker_binnen
     to: "off"
 condition:
-  condition: and
-  conditions:
-    - condition: state
-      entity_id: light.woonkamer
-      state: "on"
+  - condition: state
+    entity_id: light.woonkamer
+    state: "on"
 action:
   - service: light.turn_off
     data:

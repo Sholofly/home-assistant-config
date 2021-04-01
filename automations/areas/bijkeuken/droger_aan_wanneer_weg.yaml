@@ -4,21 +4,18 @@
 alias: Droger aan wanneer niemand thuis
 initial_state: on
 trigger:
-  - platform: numeric_state
-    entity_id: sensor.bijkeuken_droger_wattage
-    above: 10
   - platform: state
     entity_id: group.adults
     from: home
+    to: "not_home"
+    for:
+      minutes: 1
 condition:
   condition: and
   conditions:
     - condition: numeric_state
       entity_id: sensor.bijkeuken_droger_wattage
       above: 10
-    - condition: state
-      entity_id: group.adults
-      state: "not_home"
 action:
   - service: notify.mobile_app_telefoon_rudolf
     data:
