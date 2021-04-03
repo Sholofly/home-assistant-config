@@ -1,0 +1,22 @@
+################################################
+## Automations / Household / Notificatie afval
+################################################
+alias: Takken
+initial_state: on
+trigger:
+  - platform: time
+    at: "09:00:00"
+condition:
+  condition: and
+  conditions:
+    - condition: numeric_state
+      entity_id: sensor.afval_info_days_until_takken
+      below: 8
+    - condition: time
+      weekday:
+        - fri
+action:
+  - service: notify.family
+    data_template:
+      title: "Takken worden binnenkort opghaald"
+      message: "Ophaaldatum: {{ states.sensor.afvalinfo_takken.state }}"
