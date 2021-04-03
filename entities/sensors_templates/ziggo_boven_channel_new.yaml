@@ -1,0 +1,5 @@
+################################################
+## Entities / Template Sensors / Ziggo boven channel
+################################################
+friendly_name: "Media player boven channel"
+value_template: "{{ state_attr('media_player.ziggo_boven', 'channel') }}"
