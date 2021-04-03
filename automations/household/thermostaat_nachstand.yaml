@@ -1,0 +1,17 @@
+################################################
+## Automations / Household / Thermostaat nachtstand
+################################################
+alias: Thermostaat nachtstand
+initial_state: on
+trigger:
+  - platform: time
+    at: "23:00:00"
+action:
+  - service: climate.set_preset_mode
+    data:
+      entity_id: climate.thermostaat
+      preset_mode: away
+  - service: notify.mobile_app_telefoon_rudolf
+    data_template:
+      title: "Verwarming naar nachtstand"
+      message: "De verwarming is automatisch op de nachtstand gezet."

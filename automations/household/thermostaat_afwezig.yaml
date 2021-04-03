@@ -1,0 +1,29 @@
+################################################
+## Automations / Household / Thermostaat afwezig
+################################################
+alias: Thermostaat afwezig
+initial_state: on
+trigger:
+  - platform: state
+    entity_id: group.parents
+    from: "home"
+    to: "not_home"
+condition:
+  condition: not
+  conditions:
+    - condition: state
+      entity_id: input_boolean.gast_modus
+      state: "on"
+action:
+  - service: notify.mobile_app_telefoon_rudolf
+    data:
+      title: "De kachel is nog aan!"
+      message: "Wil je hem uitzetten?"
+      data:
+        ttl: 0
+        priority: high
+        actions:
+          - action: "turn_off_thermostat" # The key you are sending for the event
+            title: "Ja"
+          - action: "turn_on_guest_mode" # The key you are sending for the event
+            title: "Nee, activeer gast modus"

@@ -10,3 +10,4 @@ max_temp: 23
 initial_hvac_mode: heat
 min_cycle_duration:
   seconds: 5
+away_temp: 18

@@ -1,0 +1,19 @@
+################################################
+## Automations / Household / Thermostaat afwezig
+################################################
+alias: Thermostaat aanwezig
+initial_state: on
+trigger:
+  - platform: state
+    entity_id: group.parents
+    to: "home"
+    from: "not_home"
+  - platform: state
+    entity_id: input_boolean.gast_modus
+    to: "off"
+    from: "on"
+action:
+  - service: climate.set_preset_mode
+    data:
+      entity_id: climate.thermostaat
+      preset_mode: none
