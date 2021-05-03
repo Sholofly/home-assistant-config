@@ -99,10 +99,6 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
 class ZiggoNextMediaPlayer(MediaPlayerEntity):
     """The home assistant media player."""
 
-    @callback
-    def box_update_callback(self):
-        self.schedule_update_ha_state(True)
-
     @property
     def unique_id(self):
         """Return the unique id."""
@@ -137,7 +133,9 @@ class ZiggoNextMediaPlayer(MediaPlayerEntity):
 
     async def async_added_to_hass(self):
         """Use lifecycle hooks."""
-        self._box.set_callback(self.box_update_callback)
+        def callback(box_id):
+            self.schedule_update_ha_state(True)
+        self._box.set_callback(callback)
 
 
     async def async_update(self):

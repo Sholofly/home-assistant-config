@@ -27,8 +27,7 @@ def setup(hass, config):
     """Your controller/hub specific code."""
     # Data that you want to share with your platforms
     api = ZiggoNext(config[DOMAIN][CONF_USERNAME], config[DOMAIN][CONF_PASSWORD],config[DOMAIN][CONF_COUNTRY_CODE])
-    api.connect(_LOGGER)
+    api.connect()
     hass.data[ZIGGO_API] = api
     hass.helpers.discovery.load_platform('media_player', DOMAIN, {}, config)
-    hass.helpers.discovery.load_platform('sensor', DOMAIN, {}, config)
     return True
