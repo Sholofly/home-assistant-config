@@ -1,0 +1,22 @@
+id: 442f3f54-87a3-48c3-9bbd-ef25d6818a24
+alias: Mika's lamp uit
+mode: restart
+trigger:
+  - platform: state
+    entity_id:
+      - binary_sensor.mika_bewegingssensor
+    to: "off"
+    for:
+      minutes: 30
+  - platform: state
+    entity_id: light.mika_plafond
+    to: "on"
+    for:
+      minutes: 30
+condition:
+  condition: state
+  entity_id: binary_sensor.mika_bewegingssensor
+  state: "off"
+action:
+  - service: light.turn_off
+    entity_id: light.mika_plafond

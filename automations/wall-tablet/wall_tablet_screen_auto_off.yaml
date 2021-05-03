@@ -1,0 +1,57 @@
+id: 540700bc-a57d-4931-b58f-33678c9fc2b8
+alias: Scherm wall tablet auto off
+initial_state: on
+mode: restart
+trigger:
+  - platform: state
+    entity_id: binary_sensor.wall_tablet_motion
+    for:
+      seconds: 20
+  - platform: state
+    entity_id: light.wall_tablet_screen
+    to: "on"
+    for:
+      seconds: 20
+  - platform: state
+    entity_id: input_boolean.nachtmode
+    to: "on"
+  - platform: state
+    entity_id: input_boolean.tablet_battery_saving
+    to: "on"
+condition:
+  condition: state
+  entity_id: binary_sensor.wall_tablet_motion
+  state: "off"
+action:
+  choose:
+    - conditions:
+        condition: or
+        conditions:
+          - condition: state
+            entity_id: input_boolean.nachtmode
+            state: "on"
+          - condition: state
+            entity_id: input_boolean.tablet_battery_saving
+            state: "on"
+      sequence:
+        - service: light.turn_off
+          entity_id: light.wall_tablet_screen
+        - delay:
+            seconds: 3
+        - service: rest_command.wall_tablet_kiosk_command
+          data:
+            cmd: screenOff
+    - conditions:
+        - condition: and
+          conditions:
+            - condition: state
+              entity_id: input_boolean.nachtmode
+              state: "off"
+            - condition: state
+              entity_id: input_boolean.tablet_battery_saving
+              state: "off"
+      sequence:
+        - service: light.turn_off
+          entity_id: light.wall_tablet_screen
+          # data:
+          #   brightness: 0

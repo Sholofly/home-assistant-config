@@ -1,0 +1,13 @@
+################################################
+## Entities / Template Sensors / Batterijstatus telefoon Rudolf
+################################################
+friendly_name: Batterijstatus telefoon Rudolf
+value_template: "{{ states('sensor.telefoon_rudolf_batterijniveau') }}"
+icon_template: >-
+  {% if (is_state('sensor.telefoon_rudolf_batterij_status', 'charging')) %}
+  {{ state_attr('sensor.telefoon_rudolf_batterijniveau', 'icon') |regex_replace(find='-', replace='-charging-', ignorecase=False)}}
+  {% else %}
+  {{ state_attr('sensor.telefoon_rudolf_batterijniveau', 'icon') }}
+  {% endif %}
+device_class: battery
+unit_of_measurement: "%"

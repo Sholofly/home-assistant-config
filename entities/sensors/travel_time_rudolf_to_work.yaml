@@ -1,8 +1,0 @@
-################################################
-## Entities /Sensors / Reistijd naar werk Rudolf
-################################################
-platform: waze_travel_time
-name: "Reistijd naar werk"
-origin: person.rudolf
-destination: zone.netivity
-region: 'EU'

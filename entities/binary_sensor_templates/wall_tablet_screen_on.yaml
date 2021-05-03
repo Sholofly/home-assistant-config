@@ -1,0 +1,4 @@
+################################################
+## Entities / Template Binary Sensors / Afvalinfo days until takken
+################################################
+value_template: "{{ state_attr('sensor.wall_tablet_device_info', 'screenOn') }}"

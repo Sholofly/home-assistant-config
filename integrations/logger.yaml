@@ -2,6 +2,6 @@
 ## Integrations / Logger
 ################################################
 logger:
-  default: error
-  logs:
-    custom_components.ziggonext: debug
+  default: warning
+  # logs:
+  #   ziggonext: debug

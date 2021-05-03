@@ -1,0 +1,17 @@
+id: webhook_debugger
+alias: "Webhook Debugger"
+trigger:
+  - platform: webhook
+    webhook_id: "" #c95f2c56d8c52541ef2370e7c863c215d22d9e7fca2503f844c7b20440449330
+action:
+  - service: persistent_notification.create
+    data_template:
+      message: >-
+        {% if 'data' in trigger %}
+          Data: {{ dict(trigger.data)|tojson }}
+        {% elif 'json' in trigger %}
+          JSON: {{ dict(trigger.json)|tojson }}
+        {% endif %}
+        {% if 'query' in trigger and trigger.query|length > 0 %}
+          Query: {{ dict(trigger.query)|tojson }}
+        {% endif %}

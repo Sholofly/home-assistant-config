@@ -1,0 +1,13 @@
+################################################
+## Entities / Template Sensors / Batterijstatus telefoon Leny
+################################################
+friendly_name: Batterijstatus telefoon Leny
+value_template: "{{ states('sensor.telefoon_leny_batterijniveau') }}"
+icon_template: >-
+  {% if (is_state('sensor.telefoon_leny_batterij_laadstatus', 'charging')) %}
+  {{ state_attr('sensor.telefoon_leny_batterijniveau', 'icon') |regex_replace(find='-', replace='-charging-', ignorecase=False)}}
+  {% else %}
+  {{ state_attr('sensor.telefoon_leny_batterijniveau', 'icon') }}
+  {% endif %}
+device_class: battery
+unit_of_measurement: "%"

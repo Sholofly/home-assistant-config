@@ -1,4 +1,6 @@
 ################################################
-## Entities / Sensors / Uptime
+## Entities / Input Booleans / Nachtmode
 ################################################
-platform: uptime
+nachtmode:
+  name: Nachtmode
+  icon: mdi:weather-night

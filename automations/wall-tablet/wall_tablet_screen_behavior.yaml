@@ -1,0 +1,20 @@
+id: 1bddfd13-6c28-471b-8bff-67c7088d82df
+alias: Gedrag scherm Wall Tablet
+initial_state: on
+trigger:
+  - platform: state
+    entity_id: binary_sensor.wall_tablet_motion
+    to: "on"
+  - platform: mqtt
+    topic: "fully/event/screenOn/963fde8f-6cb57e26"
+action:
+  - service: light.turn_on
+    entity_id: light.wall_tablet_screen
+    data:
+      brightness: 100
+  - condition: state
+    entity_id: light.wall_tablet_screen
+    state: "off"
+  - service: rest_command.wall_tablet_kiosk_command
+    data:
+      cmd: screenOn

@@ -1,8 +1,6 @@
-platform: rest
+platform: mqtt
 name: Wall Tablet Device Info
-resource: !secret rest_url_wall_tablet_kiosk_device_info
-json_attributes:
-- screenBrightness
-- screenOn
-- batteryLevel
-value_template: 'OK'
+state_topic: "fully/deviceInfo/963fde8f-6cb57e26"
+value_template: "OK"
+json_attributes_topic: "fully/deviceInfo/963fde8f-6cb57e26"
+json_attributes_template: "{{ value_json | tojson }}"

@@ -4,20 +4,10 @@
   use_blueprint:
     path: homeassistant/motion_light.yaml
     input:
-      no_motion_wait: '120'
+      no_motion_wait: 120
       motion_entity: binary_sensor.wc_bewegingssensor
       light_target:
         entity_id: light.wc_plafond
-- id: '1607380115524'
-  alias: Motion-activated Light
-  description: ''
-  use_blueprint:
-    path: homeassistant/motion_light.yaml
-    input:
-      no_motion_wait: '120'
-      motion_entity: binary_sensor.bijkeuken_bewegingssensor
-      light_target:
-        entity_id: light.bijkeuken_plafond
 - id: '1608038011592'
   alias: Symfonisk lampen Noa
   description: ''
@@ -55,3 +45,111 @@
         device_id: 3a2745d145a34069b819b8928a7ca82b
         entity_id: light.woonkamer_dressoir
         domain: light
+- id: '1617472932758'
+  alias: Automatisch volume GHM Woonkamer
+  description: ''
+  use_blueprint:
+    path: andreas1/set-day-or-night-volume-to-speaker.yaml
+    input:
+      volume_night: 0.1
+      filter:
+        entity_id: []
+        device_id: 65f629f228f84418b3b24aaac2fbf152
+- id: '1617684358026'
+  alias: Home Assistant Update Notification for Android
+  description: ''
+  use_blueprint:
+    path: fortepc/update-notif-for-android.yaml
+    input:
+      clickAction: https://my.home-assistant.io/redirect/supervisor/
+      delay: 0
+      notify_device: 267251cf143411ebbf4ef5c3186f709c
+      notification_message: Home Assistant {{ newest_version }} is beschikbaar
+      group: Available Updates
+- id: '1617879450516'
+  alias: Bijkeuken Lamp aan
+  description: De lamp in de bijkeuken gaat aan bij beweging als het donker is binnen
+  trigger:
+  - platform: state
+    entity_id: light.bijkeuken_plafond
+    to: 'on'
+  - platform: homeassistant
+    event: start
+  - platform: event
+    event_type: automation_reloaded
+  condition:
+  - condition: state
+    entity_id: light.bijkeuken_plafond
+    state: 'on'
+  action:
+  - service: timer.start
+    data:
+      duration: 00:01:35
+    target:
+      entity_id: timer.bijkeuken_beweging
+  mode: single
+- id: '1617880160430'
+  alias: Bijkeuken Lamp automatisch uit
+  description: De lamp in de bijkeuken moet na ingestelde tijd uitgaan
+  trigger:
+  - platform: event
+    event_type: timer.finished
+    event_data:
+      entity_id: timer.bijkeuken_beweging
+  condition:
+  - condition: state
+    entity_id: light.bijkeuken_plafond
+    state: 'on'
+  action:
+  - service: light.turn_off
+    target:
+      entity_id: light.bijkeuken_plafond
+  mode: single
+- id: '1619442974401'
+  alias: Bel gaat V2
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.gang_deurbel_button
+    from: of
+    to: 'on'
+  condition: []
+  action:
+  - service: camera.snapshot
+    target:
+      entity_id: camera.eekternas_driveway
+    data:
+      filename: /media/local/snapshots/snapshot.jpg
+  - service: notify.family
+    data:
+      message: Er staat iemand aan de voordeur
+      title: De bel gaat
+      data:
+        image: /media/local/snapshots/snapshot.jpg
+        ttl: 0
+        priority: high
+        clickAction: /lovelace-camera/voordeur
+  mode: single
+- id: '1619731156101'
+  alias: Bijkeuken Beweging
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.bijkeuken_bewegingssensor
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: binary_sensor.donker_binnen
+    state: 'on'
+  action:
+  - service: light.turn_on
+    target:
+      entity_id: light.bijkeuken_plafond
+  - condition: state
+    entity_id: timer.bijkeuken_beweging
+    state: active
+  - service: timer.start
+    data: {}
+    target:
+      entity_id: timer.bijkeuken_beweging
+  mode: single

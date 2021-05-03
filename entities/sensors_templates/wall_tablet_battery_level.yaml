@@ -1,4 +1,15 @@
+################################################
+## Entities / Template Sensors / Wall tablet battery level
+################################################
 friendly_name: "Wall tablet battery level"
-unit_of_measurement: '%'
-value_template: "{{ states.sensor.wall_tablet_device_info.attributes.batteryLevel }}"
+unit_of_measurement: "%"
+value_template: "{{ state_attr('sensor.wall_tablet_device_info', 'batteryLevel') }}"
 device_class: battery
+icon_template: >-
+  {% set battery_level = state_attr('sensor.wall_tablet_device_info', 'batteryLevel')|int('unknown') %}
+  {% set battery_round = (battery_level|int / 10)|int * 10 %}
+  {% if battery_level == 100 or battery_level == 'unknown' %}
+    mdi:battery
+  {% else %}
+    mdi:battery-{{ battery_round }}
+  {% endif %}

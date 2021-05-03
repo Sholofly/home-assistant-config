@@ -1,6 +1,7 @@
 ################################################
 ## Automations / Household / Thermostaat afwezig
 ################################################
+id: 4d1156a6-d49b-4b79-b90f-5980a4799bc9
 alias: Thermostaat afwezig
 initial_state: on
 trigger:
@@ -8,6 +9,8 @@ trigger:
     entity_id: group.parents
     from: "home"
     to: "not_home"
+    for:
+      minutes: 10
 condition:
   condition: not
   conditions:

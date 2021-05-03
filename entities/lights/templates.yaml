@@ -1,5 +1,5 @@
 platform: template
-lights: 
+lights:
   wall_tablet_screen:
     friendly_name: Wall tablet screen
     value_template: '{{ states.sensor.wall_tablet_device_info.attributes["screenOn"] }}'
@@ -7,14 +7,18 @@ lights:
     turn_on:
       service: rest_command.wall_tablet_kiosk_command
       data:
-        cmd: screenOn
+        cmd: setStringSetting
+        key: screenBrightness
+        value: "100"
     turn_off:
       service: rest_command.wall_tablet_kiosk_command
       data:
-        cmd: screenOff
+        cmd: setStringSetting
+        key: screenBrightness
+        value: "0"
     set_level:
       service: rest_command.wall_tablet_kiosk_command
       data_template:
         cmd: setStringSetting
         key: screenBrightness
-        value: '{{ brightness }}'
+        value: "{{ brightness }}"
