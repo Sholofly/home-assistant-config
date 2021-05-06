@@ -1,4 +1,0 @@
-#shelly_1_gang
-<<: !include _templates/shelly_25_light.yaml
-substitutions:
-  device_name: esp25
