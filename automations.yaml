@@ -45,16 +45,6 @@
         device_id: 3a2745d145a34069b819b8928a7ca82b
         entity_id: light.woonkamer_dressoir
         domain: light
-- id: '1617472932758'
-  alias: Automatisch volume GHM Woonkamer
-  description: ''
-  use_blueprint:
-    path: andreas1/set-day-or-night-volume-to-speaker.yaml
-    input:
-      volume_night: 0.1
-      filter:
-        entity_id: []
-        device_id: 65f629f228f84418b3b24aaac2fbf152
 - id: '1617684358026'
   alias: Home Assistant Update Notification for Android
   description: ''
