@@ -3,4 +3,5 @@
 ################################################
 ziggonext:
   username: !secret ziggo_username
-  password: !secret ziggo_password 
+  password: !secret ziggo_password
+  omit_channel_quality: True

@@ -4,19 +4,19 @@
 ################################################
 browser_mod:
   prefix: "browser_"
-  devices:
-    d0b6ebb3_f63c9b67:
-      name: wall-tablet
-      disable:
-        - light
-        - media_player
-        - sensor
-        - binary_sensor
-    f4ea7d53_c8aaa51a:
-      disable:
-        - light
-        - media_player
-        - sensor
-        - binary_sensor
+  # devices:
+  #   d0b6ebb3_f63c9b67:
+  #     name: wall-tablet
+  #     disable:
+  #       - light
+  #       - media_player
+  #       - sensor
+  #       - binary_sensor
+  #   f4ea7d53_c8aaa51a:
+  #     disable:
+  #       - light
+  #       - media_player
+  #       - sensor
+  #       - binary_sensor
   disable:
     - all

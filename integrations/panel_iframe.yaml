@@ -1,4 +1,4 @@
 ################################################
-## Integrations / Shelly
+## Integrations / Panel Iframe
 ################################################
-shelly:
+panel_iframe: !include_dir_merge_named ../entities/panel_iframes

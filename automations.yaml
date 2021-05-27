@@ -96,20 +96,20 @@
       entity_id: light.bijkeuken_plafond
   mode: single
 - id: '1619442974401'
-  alias: Bel gaat V2
+  alias: Bel gaat
   description: ''
   trigger:
   - platform: state
     entity_id: binary_sensor.gang_deurbel_button
-    from: of
+    from: 'off'
     to: 'on'
   condition: []
   action:
   - service: camera.snapshot
-    target:
-      entity_id: camera.eekternas_driveway
     data:
-      filename: /media/local/snapshots/snapshot.jpg
+      filename: /media/snapshots/snapshot.jpg
+    target:
+      device_id: bab1e93d08ca11eba583dba8001b4553
   - service: notify.family
     data:
       message: Er staat iemand aan de voordeur
@@ -142,4 +142,18 @@
     data: {}
     target:
       entity_id: timer.bijkeuken_beweging
+  mode: single
+- id: '1620411227739'
+  alias: Notificatie wanneer DSMR niet updated
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: sensor.dsmr_reading_timestamp
+    for: 00:10:00
+  condition: []
+  action:
+  - service: notify.mobile_app_telefoon_rudolf
+    data:
+      title: DSMR wordt niet geupdated!
+      message: Check of de USB binding nog goed staat in de VM.
   mode: single

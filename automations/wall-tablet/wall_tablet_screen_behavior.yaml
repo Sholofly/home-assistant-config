@@ -18,3 +18,5 @@ action:
   - service: rest_command.wall_tablet_kiosk_command
     data:
       cmd: screenOn
+      key: ""
+      value: ""
