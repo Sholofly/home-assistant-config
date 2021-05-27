@@ -3,11 +3,12 @@
   "name": "Compal WiFi",
   "documentation": "https://github.com/frimtec/hass-compal-wifi",
   "requirements": [
-    "compal-wifi-switch==1.1.5"
+    "compal-wifi-switch==1.1.6"
   ],
   "issue_tracker": "https://github.com/frimtec/hass-compal-wifi/issues",
   "codeowners": [
     "@frimtec"
   ],
-  "version": "1.0.2"
+  "iot_class": "assumed_state",
+  "version": "1.0.3"
 }

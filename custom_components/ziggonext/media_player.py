@@ -11,10 +11,12 @@ from .const import (
     ZIGGO_API,
     RECORD,
     REWIND,
-    FAST_FORWARD
+    FAST_FORWARD,
+    REMOTE_KEY_PRESS,
+    CONF_OMIT_CHANNEL_QUALITY,
+    CONF_REMOTE_KEY
 )
 from homeassistant.components.media_player.const import (
-    MEDIA_TYPE_TVSHOW,
     MEDIA_TYPE_APP,
     MEDIA_TYPE_EPISODE,
     MEDIA_TYPE_CHANNEL,
@@ -36,9 +38,7 @@ from homeassistant.const import (
     STATE_OFF,
     STATE_PAUSED,
     STATE_PLAYING,
-    STATE_UNAVAILABLE,
-    CONF_USERNAME,
-    CONF_PASSWORD
+    STATE_UNAVAILABLE
 )
 
 from ziggonext import (
@@ -55,9 +55,10 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     """Setup platform"""
     players = []
-    api = hass.data[ZIGGO_API]
+    api = hass.data[DOMAIN][ZIGGO_API]
+    omit_channel_quality = hass.data[DOMAIN][CONF_OMIT_CHANNEL_QUALITY]
     for box in api.settop_boxes.values():
-        players.append(ZiggoNextMediaPlayer(box, api))
+        players.append(ZiggoNextMediaPlayer(box, api, omit_channel_quality))
     async_add_entities(players, True)
 
     SCHEMA = cv.make_entity_service_schema({})
@@ -96,6 +97,28 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
         schema=SCHEMA,
     )
 
+
+    key_schema = cv.make_entity_service_schema({
+        vol.Required(CONF_REMOTE_KEY): cv.string
+    })
+
+    def service_handle_press_remote_key(service_call):
+        """Handle button press service"""
+        entity_ids = service_call.data.get("entity_id")
+        entity_id = entity_ids[0]
+        remote_key = service_call.data[CONF_REMOTE_KEY]
+        for player in players:
+            if player.entity_id == entity_id:
+                player.api._send_key_to_box(player.unique_id, f"{remote_key}")
+    
+    
+    hass.services.async_register(
+        DOMAIN,
+        REMOTE_KEY_PRESS,
+        service_handle_press_remote_key,
+        schema=key_schema,
+    )  
+
 class ZiggoNextMediaPlayer(MediaPlayerEntity):
     """The home assistant media player."""
 
@@ -124,13 +147,30 @@ class ZiggoNextMediaPlayer(MediaPlayerEntity):
             "model": "Mediabox Next",
         }
 
-    def __init__(self, box: ZiggoNextBox, api: ZiggoNext):
+    def __init__(self, box: ZiggoNextBox, api: ZiggoNext, omit_channel_quality:bool):
         """Init the media player."""
         self._box = box
         self.api = api
         self.box_id = box.box_id
         self.box_name = box.name
+        self._create_channel_map(omit_channel_quality)
+        self._omit_channel_quality = omit_channel_quality
 
+    def _create_channel_map(self,omit_channel_quality: bool):
+        self._channels = {}
+        for channel in self.api.channels.values():
+            if omit_channel_quality:
+                title = self._strip_quality(channel.title)
+                self._channels[title] = channel.title
+            else:
+                self._channels[channel.title] = channel.title
+
+    def _strip_quality(self, text: str):
+        """Strip quality from text."""
+        if text is None:
+          return text
+        return text.replace(' HD','')
+    
     async def async_added_to_hass(self):
         """Use lifecycle hooks."""
         def callback(box_id):
@@ -228,16 +268,18 @@ class ZiggoNextMediaPlayer(MediaPlayerEntity):
     @property
     def source(self):
         """Name of the current channel."""
+        if self._omit_channel_quality:
+          return self._strip_quality(self._box.info.channelTitle)
         return self._box.info.channelTitle
 
     @property
     def source_list(self):
         """Return a list with available sources."""
-        return [channel.title for channel in self.api.channels.values()]
+        return [channel for channel in self._channels.keys()]
 
     async def async_select_source(self, source):
         """Select a new source."""
-        self.api.select_source(source, self.box_id)
+        self.api.select_source(self._channels[source], self.box_id)
 
 
     async def async_media_play(self):
