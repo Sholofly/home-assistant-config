@@ -157,3 +157,210 @@
       title: DSMR wordt niet geupdated!
       message: Check of de USB binding nog goed staat in de VM.
   mode: single
+- id: '1622670827416'
+  alias: Rudolf medicijnen reminder
+  description: ''
+  use_blueprint:
+    path: Mati24/advanced-medication-reminder.yaml
+    input:
+      logbook_message_skip: Reminder skipped
+      notify_device: 267251cf143411ebbf4ef5c3186f709c
+      notification_title: medicijnen nemen
+      notification_message: Vergeet niet je medicijnen te nemen
+      notification_action_taken: Genomen
+      notification_action_later: Herinner mij later
+      ask_later_wait_time: 5
+      reminder_time: 07:30:00
+      logbook_message_later: Postpone reminder
+      input_boolean: input_boolean.rudolf_medicijnen_genomen
+      logbook_message_taken: Medication taken
+- id: '1623363150731'
+  alias: Set swimming pool testmode on
+  description: ''
+  trigger:
+  - platform: time
+    at: 08:00:00
+  condition:
+  - condition: time
+    weekday:
+    - mon
+    - wed
+    - sat
+  - condition: state
+    entity_id: input_boolean.swimming_pool_installed
+    state: 'on'
+  action:
+  - service: input_boolean.turn_on
+    target:
+      entity_id: input_boolean.test_swimmingpool
+  mode: single
+- id: '1623363309940'
+  alias: Send test swimming pool alert
+  description: ''
+  trigger:
+  - platform: time_pattern
+    hours: '8'
+  condition:
+  - condition: state
+    entity_id: input_boolean.swimming_pool_installed
+    state: 'on'
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: automation.set_swimming_pool_testmode_on
+      state: 'on'
+  action:
+  - service: notify.mobile_app_telefoon_rudolf
+    data:
+      message: Het zwembad moet getest worden!
+      title: Zwembad testen
+  mode: single
+- id: '1624693593116'
+  alias: Thermostaat nachtstand
+  description: ''
+  trigger:
+  - platform: time
+    at: '23:00:00'
+  condition: []
+  action:
+  - service: climate.set_temperature
+    target:
+      entity_id: climate.thermostaat
+    data:
+      temperature: 18.5
+  mode: single
+- id: '1624693689373'
+  alias: Afval
+  trigger:
+  - platform: time
+    at: '17:00:00'
+  condition:
+  - condition: not
+    conditions:
+    - condition: state
+      entity_id: sensor.afvalinfo_tomorrow
+      state: none
+  action:
+  - service: notify.family
+    data_template:
+      title: Morgen is een afvaldag
+      message: 'Opgehaalde afval: {{ states.sensor.afvalinfo_tomorrow.state }}'
+  initial_state: 'on'
+- id: '1624693772631'
+  alias: Gast modus aan
+  trigger:
+  - platform: event
+    event_type: mobile_app_notification_action
+    event_data:
+      action: turn_on_guest_mode
+  action:
+  - service: input_boolean.turn_on
+    entity_id: input_boolean.gast_modus
+  mode: single
+- id: '1624693815080'
+  alias: Laatste gaat naar bed
+  trigger:
+  - platform: state
+    entity_id: input_boolean.nachtmode
+    from: 'off'
+    to: 'on'
+  action:
+  - service: script.turn_on
+    target:
+      entity_id: script.last_sleeper
+  initial_state: 'on'
+  mode: single
+- id: '1624693857334'
+  alias: Nachtverlichting buiten
+  description: Handle night lights based on illumination
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.donker_buiten
+  action:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: binary_sensor.donker_buiten
+        state: 'on'
+      sequence:
+      - service: light.turn_on
+        entity_id: light.buitenverlichting
+    - conditions:
+      - condition: state
+        entity_id: binary_sensor.donker_buiten
+        state: 'off'
+      sequence:
+      - service: light.turn_off
+        entity_id: light.buitenverlichting
+  initial_state: 'on'
+- id: '1624693897568'
+  alias: Ramen boven staan nog open
+  trigger:
+  - platform: state
+    entity_id: group.parents
+    to: home
+  - platform: time
+    at: '16:00:00'
+  condition:
+  - condition: and
+    conditions:
+    - condition: time
+      after: '16:00:00'
+      before: '20:00:00'
+    - condition: state
+      entity_id: group.parents
+      state: home
+    - condition: state
+      entity_id: group.ramen_boven
+      state: 'on'
+  action:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: person.rudolf
+        state: home
+      sequence:
+      - service: notify.mobile_app_telefoon_rudolf
+        data:
+          title: Er staan nog ramen open
+          message: '{{ message_data }}'
+          data:
+            ttl: 0
+            priority: high
+    - conditions:
+      - condition: state
+        entity_id: person.leny
+        state: home
+      sequence:
+      - service: notify.mobile_app_telefoon_leny
+        data:
+          title: Er staan nog ramen open
+          message: '{{ message_data }}'
+          data:
+            ttl: 0
+            priority: high
+  variables:
+    message_data: "{% for entity_id in states.group.ramen_boven.attributes.entity_id\
+      \ -%}\n  {% if(states(entity_id) == 'on')-%}\n      {{- '\\n' -}}\n    - {%\
+      \ print(state_attr(entity_id,'friendly_name')) | regex_replace(find='Raam',\
+      \ replace='', ignorecase=False)-%}\n  {% endif-%}\n{%- endfor %}"
+- id: '1624693921089'
+  alias: Takken
+  trigger:
+  - platform: time
+    at: 09:00:00
+  condition:
+    condition: and
+    conditions:
+    - condition: numeric_state
+      entity_id: sensor.afval_info_days_until_takken
+      below: 8
+    - condition: time
+      weekday:
+      - fri
+  action:
+  - service: notify.family
+    data_template:
+      title: Takken worden binnenkort opghaald
+      message: 'Ophaaldatum: {{ states.sensor.afvalinfo_takken.state }}'
+  initial_state: 'on'
