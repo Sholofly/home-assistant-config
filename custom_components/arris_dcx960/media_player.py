@@ -7,14 +7,18 @@ import homeassistant.helpers.config_validation as cv
 
 from homeassistant.components.media_player import MediaPlayerEntity, BrowseMedia
 from homeassistant.core import callback
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.typing import HomeAssistantType
 from .const import (
-    ZIGGO_API,
+    API,
     RECORD,
     REWIND,
     FAST_FORWARD,
     REMOTE_KEY_PRESS,
     CONF_OMIT_CHANNEL_QUALITY,
-    CONF_REMOTE_KEY
+    CONF_REMOTE_KEY,
+    DOMAIN,
 )
 from homeassistant.components.media_player.const import (
     MEDIA_TYPE_APP,
@@ -31,14 +35,14 @@ from homeassistant.components.media_player.const import (
     SUPPORT_PLAY_MEDIA,
     SUPPORT_BROWSE_MEDIA,
     MEDIA_CLASS_DIRECTORY,
-    MEDIA_CLASS_EPISODE
+    MEDIA_CLASS_EPISODE,
 )
 
 from homeassistant.const import (
     STATE_OFF,
     STATE_PAUSED,
     STATE_PLAYING,
-    STATE_UNAVAILABLE
+    STATE_UNAVAILABLE,
 )
 
 from ziggonext import (
@@ -47,16 +51,19 @@ from ziggonext import (
     ONLINE_RUNNING,
     ONLINE_STANDBY,
     ZiggoRecordingShow,
-    ZiggoRecordingSingle
+    ZiggoRecordingSingle,
 )
-DOMAIN = "ziggonext"
+
 _LOGGER = logging.getLogger(__name__)
 
-async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
+
+async def async_setup_entry(
+    hass: HomeAssistantType, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
+) -> None:
     """Setup platform"""
     players = []
-    api = hass.data[DOMAIN][ZIGGO_API]
-    omit_channel_quality = hass.data[DOMAIN][CONF_OMIT_CHANNEL_QUALITY]
+    api = hass.data[DOMAIN][entry.entry_id][API]
+    omit_channel_quality = hass.data[DOMAIN][entry.entry_id][CONF_OMIT_CHANNEL_QUALITY]
     for box in api.settop_boxes.values():
         players.append(ZiggoNextMediaPlayer(box, api, omit_channel_quality))
     async_add_entities(players, True)
@@ -71,11 +78,11 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
 
         for player in players:
             if player.entity_id == entity_id:
-                if (call.service == RECORD):
+                if call.service == RECORD:
                     player.api.record(player.box_id)
-                elif (call.service == REWIND):
+                elif call.service == REWIND:
                     player.api.rewind(player.box_id)
-                elif (call.service == FAST_FORWARD):
+                elif call.service == FAST_FORWARD:
                     player.api.fast_forward(player.box_id)
 
     hass.services.async_register(
@@ -97,10 +104,9 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
         schema=SCHEMA,
     )
 
-
-    key_schema = cv.make_entity_service_schema({
-        vol.Required(CONF_REMOTE_KEY): cv.string
-    })
+    key_schema = cv.make_entity_service_schema(
+        {vol.Required(CONF_REMOTE_KEY): cv.string}
+    )
 
     def service_handle_press_remote_key(service_call):
         """Handle button press service"""
@@ -110,14 +116,14 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
         for player in players:
             if player.entity_id == entity_id:
                 player.api._send_key_to_box(player.unique_id, f"{remote_key}")
-    
-    
+
     hass.services.async_register(
         DOMAIN,
         REMOTE_KEY_PRESS,
         service_handle_press_remote_key,
         schema=key_schema,
-    )  
+    )
+
 
 class ZiggoNextMediaPlayer(MediaPlayerEntity):
     """The home assistant media player."""
@@ -126,6 +132,7 @@ class ZiggoNextMediaPlayer(MediaPlayerEntity):
     def unique_id(self):
         """Return the unique id."""
         return self.box_id
+
     @property
     def media_image_remotely_accessible(self):
         return True
@@ -143,11 +150,11 @@ class ZiggoNextMediaPlayer(MediaPlayerEntity):
                 (DOMAIN, self.box_id)
             },
             "name": self.box_name,
-            "manufacturer": "Ziggo",
-            "model": "Mediabox Next",
+            "manufacturer": "Arris",
+            "model": "DCX960",
         }
 
-    def __init__(self, box: ZiggoNextBox, api: ZiggoNext, omit_channel_quality:bool):
+    def __init__(self, box: ZiggoNextBox, api: ZiggoNext, omit_channel_quality: bool):
         """Init the media player."""
         self._box = box
         self.api = api
@@ -156,7 +163,7 @@ class ZiggoNextMediaPlayer(MediaPlayerEntity):
         self._create_channel_map(omit_channel_quality)
         self._omit_channel_quality = omit_channel_quality
 
-    def _create_channel_map(self,omit_channel_quality: bool):
+    def _create_channel_map(self, omit_channel_quality: bool):
         self._channels = {}
         for channel in self.api.channels.values():
             if omit_channel_quality:
@@ -168,20 +175,20 @@ class ZiggoNextMediaPlayer(MediaPlayerEntity):
     def _strip_quality(self, text: str):
         """Strip quality from text."""
         if text is None:
-          return text
-        return text.replace(' HD','')
-    
+            return text
+        return text.replace(" HD", "")
+
     async def async_added_to_hass(self):
         """Use lifecycle hooks."""
+
         def callback(box_id):
             self.schedule_update_ha_state(True)
-        self._box.set_callback(callback)
 
+        self._box.set_callback(callback)
 
     async def async_update(self):
         """Update the box."""
-        #self.api.load_channels()
-
+        # self.api.load_channels()
 
     @property
     def name(self):
@@ -211,26 +218,26 @@ class ZiggoNextMediaPlayer(MediaPlayerEntity):
         """Return the supported features."""
         if self._box.info.sourceType == "app":
             return (
-                    SUPPORT_PLAY
-                    | SUPPORT_PAUSE
-                    | SUPPORT_STOP
-                    | SUPPORT_TURN_ON
-                    | SUPPORT_TURN_OFF
-                    | SUPPORT_SELECT_SOURCE
-                    | SUPPORT_PLAY_MEDIA
-                    | SUPPORT_BROWSE_MEDIA
-            )
-        return (
                 SUPPORT_PLAY
                 | SUPPORT_PAUSE
                 | SUPPORT_STOP
                 | SUPPORT_TURN_ON
                 | SUPPORT_TURN_OFF
                 | SUPPORT_SELECT_SOURCE
-                | SUPPORT_NEXT_TRACK
-                | SUPPORT_PREVIOUS_TRACK
                 | SUPPORT_PLAY_MEDIA
                 | SUPPORT_BROWSE_MEDIA
+            )
+        return (
+            SUPPORT_PLAY
+            | SUPPORT_PAUSE
+            | SUPPORT_STOP
+            | SUPPORT_TURN_ON
+            | SUPPORT_TURN_OFF
+            | SUPPORT_SELECT_SOURCE
+            | SUPPORT_NEXT_TRACK
+            | SUPPORT_PREVIOUS_TRACK
+            | SUPPORT_PLAY_MEDIA
+            | SUPPORT_BROWSE_MEDIA
         )
 
     @property
@@ -252,12 +259,12 @@ class ZiggoNextMediaPlayer(MediaPlayerEntity):
         """Return the media image URL."""
         if self._box.info.image is not None:
             image_url = self._box.info.image
-            if (self._box.info.sourceType == "linear"):
+            if self._box.info.sourceType == "linear":
                 join_param = "?"
                 if join_param in self._box.info.image:
                     join_param = "&"
                 image_url = f"{image_url}{join_param}{str(random.randrange(1000000))}"
-            return  image_url
+            return image_url
         return None
 
     @property
@@ -269,7 +276,7 @@ class ZiggoNextMediaPlayer(MediaPlayerEntity):
     def source(self):
         """Name of the current channel."""
         if self._omit_channel_quality:
-          return self._strip_quality(self._box.info.channelTitle)
+            return self._strip_quality(self._box.info.channelTitle)
         return self._box.info.channelTitle
 
     @property
@@ -280,7 +287,6 @@ class ZiggoNextMediaPlayer(MediaPlayerEntity):
     async def async_select_source(self, source):
         """Select a new source."""
         self.api.select_source(self._channels[source], self.box_id)
-
 
     async def async_media_play(self):
         """Play selected box."""
@@ -339,18 +345,20 @@ class ZiggoNextMediaPlayer(MediaPlayerEntity):
         return True
 
     async def async_browse_media(self, media_content_type=None, media_content_id=None):
-        if media_content_type in [None, "main"] :
-            self._recordings = await self.hass.async_add_executor_job(self.api.get_recordings)
+        if media_content_type in [None, "main"]:
+            self._recordings = await self.hass.async_add_executor_job(
+                self.api.get_recordings
+            )
 
             main = BrowseMedia(
                 title="Recordings",
-                media_class = MEDIA_CLASS_DIRECTORY,
-                media_content_type= "main",
-                media_content_id= "main",
+                media_class=MEDIA_CLASS_DIRECTORY,
+                media_content_type="main",
+                media_content_id="main",
                 can_play=False,
                 can_expand=True,
-                children = [],
-                children_media_class = MEDIA_CLASS_DIRECTORY
+                children=[],
+                children_media_class=MEDIA_CLASS_DIRECTORY,
             )
             singleRecordingsCount = 0
             for recording in self._recordings:
@@ -358,19 +366,19 @@ class ZiggoNextMediaPlayer(MediaPlayerEntity):
                     show = self._build_show_item(recording["show"])
                     main.children.append(show)
                 elif recording["type"] == "recording":
-                    singleRecordingsCount+=1
+                    singleRecordingsCount += 1
                 else:
                     _LOGGER.error("Unknown recording type")
 
             if singleRecordingsCount > 0:
-                singlecontainer =  BrowseMedia(
+                singlecontainer = BrowseMedia(
                     title="Losse opnames",
-                    media_class = MEDIA_CLASS_DIRECTORY,
-                    media_content_type= "singles",
-                    media_content_id= "singles",
+                    media_class=MEDIA_CLASS_DIRECTORY,
+                    media_content_type="singles",
+                    media_content_id="singles",
                     can_play=False,
                     can_expand=True,
-                    children_media_class = MEDIA_CLASS_EPISODE
+                    children_media_class=MEDIA_CLASS_EPISODE,
                 )
                 main.children.append(singlecontainer)
             return main
@@ -385,50 +393,48 @@ class ZiggoNextMediaPlayer(MediaPlayerEntity):
 
     def _build_singles_collection(self):
         """Create response payload to describe contents of a specific library.Used by async_browse_media."""
-        singles =  BrowseMedia(
-            title = "Losse opnames",
-            media_class = MEDIA_CLASS_DIRECTORY,
-            media_content_type= "singles",
-            media_content_id= "singles",
+        singles = BrowseMedia(
+            title="Losse opnames",
+            media_class=MEDIA_CLASS_DIRECTORY,
+            media_content_type="singles",
+            media_content_id="singles",
             can_play=False,
             can_expand=True,
-            children_media_class = MEDIA_CLASS_EPISODE,
-            children = []
+            children_media_class=MEDIA_CLASS_EPISODE,
+            children=[],
         )
         for recording in self._recordings:
             if recording["type"] != "recording":
                 continue
-            singles.children.append(
-                self._build_episode_item(recording["recording"])
-            )
+            singles.children.append(self._build_episode_item(recording["recording"]))
         return singles
 
     async def _build_show_collection(self, media_content_id):
         """Create response payload to describe contents of a specific library.Used by async_browse_media."""
-        payload = await self.hass.async_add_executor_job(self.api.get_show_recording, media_content_id)
+        payload = await self.hass.async_add_executor_job(
+            self.api.get_show_recording, media_content_id
+        )
         ziggo_show = payload["show"]
-        show =  self._build_show_item(ziggo_show)
+        show = self._build_show_item(ziggo_show)
         for child in ziggo_show.children:
-            show.children.append(
-                self._build_episode_item(child["recording"])
-            )
+            show.children.append(self._build_episode_item(child["recording"]))
         return show
 
-    def _build_show_item(self, ziggo_show:ZiggoRecordingShow):
+    def _build_show_item(self, ziggo_show: ZiggoRecordingShow):
         """Create response payload to describe contents of a specific library.Used by async_browse_media."""
         return BrowseMedia(
             title=ziggo_show.title,
-            media_class = MEDIA_CLASS_DIRECTORY,
-            media_content_type= "show",
-            media_content_id= ziggo_show.media_group_id,
+            media_class=MEDIA_CLASS_DIRECTORY,
+            media_content_type="show",
+            media_content_id=ziggo_show.media_group_id,
             can_play=False,
             can_expand=True,
             thumbnail=ziggo_show.image,
-            children = [],
-            children_media_class = MEDIA_CLASS_EPISODE
+            children=[],
+            children_media_class=MEDIA_CLASS_EPISODE,
         )
 
-    def _build_episode_item(self, recording:ZiggoRecordingSingle):
+    def _build_episode_item(self, recording: ZiggoRecordingSingle):
         """Create response payload to describe contents of a specific library.Used by async_browse_media."""
         title = recording.title
         if recording.season and recording.episode:
@@ -436,9 +442,9 @@ class ZiggoNextMediaPlayer(MediaPlayerEntity):
         return BrowseMedia(
             title=title,
             media_class=MEDIA_CLASS_EPISODE,
-            media_content_type= "recording_episode",
-            media_content_id= recording.recording_id,
+            media_content_type="recording_episode",
+            media_content_id=recording.recording_id,
             can_play=True,
             can_expand=False,
-            thumbnail=recording.image
+            thumbnail=recording.image,
         )

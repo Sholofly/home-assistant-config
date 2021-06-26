@@ -17,11 +17,8 @@ DOMAIN = "compal_wifi"
 CONF_PAUSE = "pause"
 DEFAULT_PAUSE = 60
 
-CONF_GUEST_MACS_2G = "guest_macs_2g"
-DEFAULT_GUEST_MACS_2G = []
-
-CONF_GUEST_MACS_5G = "guest_macs_5g"
-DEFAULT_GUEST_MACS_5G = []
+CONF_GUEST = "guest"
+DEFAULT_GUEST = False
 
 ATTR_RADIO = "radio"
 DEFAULT_RADIO = "all"
@@ -41,8 +38,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         config[CONF_HOST],
         config[CONF_PASSWORD],
         config.get(CONF_PAUSE, DEFAULT_PAUSE),
-        config.get(CONF_GUEST_MACS_2G, DEFAULT_GUEST_MACS_2G),
-        config.get(CONF_GUEST_MACS_5G, DEFAULT_GUEST_MACS_5G),
+        config.get(CONF_GUEST, DEFAULT_GUEST),
     )
 
     states = extract_states(Commands.status(config[CONF_HOST], config[CONF_PASSWORD]))
@@ -59,12 +55,11 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 
 
 class CompalConfig:
-    def __init__(self, host, password, pause, guest_macs_2g, guest_macs_5g):
+    def __init__(self, host, password, pause, guest):
         self.host = host
         self.password = password
         self.pause = pause
-        self.guest_macs_2g = guest_macs_2g
-        self.guest_macs_5g = guest_macs_5g
+        self.guest = guest
         self.semaphore = threading.Semaphore()
 
 
@@ -79,15 +74,18 @@ class WifiSwitch:
         pass
 
 
-def switch_wifi(wifi_switch: WifiSwitch, state, band, guest):
+def switch_wifi(wifi_switch: WifiSwitch, state, band):
     wifi_switch.set_processing_state("on")
 
     def switch_wifi_blocking(
         semaphore, _host, _password, _state, _band, _guest, _pause
     ):
         semaphore.acquire()
+        enable_guest = False
+        if _state == Switch.ON:
+            enable_guest = _guest
         try:
-            Commands.switch(_host, _password, _state, _band, _guest, _pause)
+            Commands.switch(_host, _password, _state, _band, enable_guest, _pause)
             wifi_switch.set_processing_state("off")
         except:
             _LOGGER.error("Unexpected error:", sys.exc_info()[0])
@@ -104,7 +102,7 @@ def switch_wifi(wifi_switch: WifiSwitch, state, band, guest):
             config.password,
             state,
             band,
-            guest,
+            config.guest,
             config.pause,
         ),
     ).start()
@@ -141,17 +139,12 @@ class CompalWifiSwitch(ToggleEntity, WifiSwitch):
 
     def turn_on(self, **kwargs):
         """Turn the device on."""
-        if self._radio == Band.BAND_2G:
-            guest_macs = self._config.guest_macs_2g
-        else:
-            guest_macs = self._config.guest_macs_5g
-
-        switch_wifi(self, Switch.ON, self._radio, guest_macs)
+        switch_wifi(self, Switch.ON, self._radio)
         self._state = True
 
     def turn_off(self, **kwargs):
         """Turn the device off."""
-        switch_wifi(self, Switch.OFF, self._radio, [])
+        switch_wifi(self, Switch.OFF, self._radio)
         self._state = False
 
     @property
@@ -202,18 +195,15 @@ class CompalCompositWifiSwitch(ToggleEntity, WifiSwitch):
 
     def turn_on(self, **kwargs):
         """Turn the device on."""
-        all_guest_macs = []
-        all_guest_macs.extend(self._config.guest_macs_2g)
-        all_guest_macs.extend(self._config.guest_macs_5g)
         for switch in self._switches:
             switch._state = True
-        switch_wifi(self, Switch.ON, Band.ALL, all_guest_macs)
+        switch_wifi(self, Switch.ON, Band.ALL)
 
     def turn_off(self, **kwargs):
         """Turn the device off."""
         for switch in self._switches:
             switch._state = False
-        switch_wifi(self, Switch.OFF, Band.ALL, [])
+        switch_wifi(self, Switch.OFF, Band.ALL)
 
     @property
     def device_state_attributes(self):
