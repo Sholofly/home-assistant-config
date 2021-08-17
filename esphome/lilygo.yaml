@@ -1,0 +1,94 @@
+# TTGO Higrow version with battery and deep sleep enabled. Battery life not tested yet
+<<: !include _templates/base.yaml
+esphome:
+  name: higrow_00
+  platform: ESP32
+  board: lolin_d32
+  on_shutdown:
+    then:
+      - switch.turn_off: spower
+
+switch:
+  - platform: gpio
+    pin: GPIO4
+    name: "Sensor Power"
+    id: spower
+    restore_mode: ALWAYS_ON
+    internal: true
+    setup_priority: 1000
+
+binary_sensor:
+  - platform: gpio
+    pin: 
+      number: GPIO35
+      mode: INPUT_PULLUP
+      inverted: True
+    name: "Wake Button"
+
+i2c:
+  sda: 25
+  scl: 26
+  scan: True
+  id: bus_a
+  setup_priority: -200
+
+# deep_sleep:
+#   run_duration: 10s
+#   sleep_duration: 15min
+
+sensor:
+  - platform: dht
+    model: dht11
+    pin:
+      number: 16
+      mode: input
+    temperature:
+      name: "HiGrow1 Temperature"
+    humidity:
+      name: "HiGrow1 Humidity"
+    update_interval: 15min
+    setup_priority: -100
+    
+  - platform: adc
+    pin: GPIO32
+    name: "HiGrow1 Soil"
+    update_interval: 15min
+    attenuation: 11db
+    unit_of_measurement: '%'
+    filters:
+      - calibrate_linear:
+          # Map 0.0 (from sensor) to 0.0 (true value)
+          - 3.08 -> 0.0
+          - 1.42 -> 100.0
+    
+  - platform: adc
+    pin: 33
+    name: "HiGrow1 Battery"
+    attenuation: 6db
+    unit_of_measurement: 'V'
+    update_interval: 15min
+    filters:
+      - calibrate_linear:
+          # Map 0.0 (from sensor) to 0.0 (true value)
+          - 0.0 -> 0.0
+          - 2.06 -> 1.89
+      - lambda: return x * 2.0;
+        
+  - platform: adc
+    pin: GPIO34
+    name: "HiGrow1 Salt"
+    update_interval: 15min
+    unit_of_measurement: '%'
+    accuracy_decimals: 4
+    filters:
+      - calibrate_linear:
+          # Map 0.0 (from sensor) to 0.0 (true value)
+          - 0.0 -> 0.0
+          - 1.1 -> 100.0
+    
+  - platform: bh1750
+    i2c_id: bus_a
+    name: "BH1750 Illuminance"
+    address: 0x23
+    update_interval: 15min
+    setup_priority: -300
