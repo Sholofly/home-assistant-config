@@ -1,4 +1,4 @@
-deconz:
+dsmr:
   title: "DSMR"
   url: "http://hassio.lan:7777/"
   icon: mdi:sine-wave
