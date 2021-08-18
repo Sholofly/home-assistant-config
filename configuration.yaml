@@ -1,10 +1,8 @@
 homeassistant:
   packages: !include_dir_named integrations
 
-  allowlist_external_dirs: 
+  allowlist_external_dirs:
     - !secret whitelist_config
-  
-    
+
   external_url: !secret external_url
   internal_url: !secret internal_url
-
