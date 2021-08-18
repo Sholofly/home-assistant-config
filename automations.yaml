@@ -364,3 +364,13 @@
       title: Takken worden binnenkort opghaald
       message: 'Ophaaldatum: {{ states.sensor.afvalinfo_takken.state }}'
   initial_state: 'on'
+- id: '1629281009388'
+  alias: Walltablet opladen
+  description: ''
+  use_blueprint:
+    path: seamus65/wallpanel-battery-management.yaml
+    input:
+      battery: sensor.wall_tablet_battery_level
+      charger: switch.woonkamer_tablet_stroom
+      charged_percent: 100
+      low_percent: 25
