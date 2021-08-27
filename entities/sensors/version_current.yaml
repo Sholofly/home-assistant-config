@@ -3,3 +3,4 @@
 ################################################
 platform: version
 name: Current
+beta: true

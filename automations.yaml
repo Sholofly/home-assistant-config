@@ -56,45 +56,6 @@
       notify_device: 267251cf143411ebbf4ef5c3186f709c
       notification_message: Home Assistant {{ newest_version }} is beschikbaar
       group: Available Updates
-- id: '1617879450516'
-  alias: Bijkeuken Lamp aan
-  description: De lamp in de bijkeuken gaat aan bij beweging als het donker is binnen
-  trigger:
-  - platform: state
-    entity_id: light.bijkeuken_plafond
-    to: 'on'
-  - platform: homeassistant
-    event: start
-  - platform: event
-    event_type: automation_reloaded
-  condition:
-  - condition: state
-    entity_id: light.bijkeuken_plafond
-    state: 'on'
-  action:
-  - service: timer.start
-    data:
-      duration: 00:01:35
-    target:
-      entity_id: timer.bijkeuken_beweging
-  mode: single
-- id: '1617880160430'
-  alias: Bijkeuken Lamp automatisch uit
-  description: De lamp in de bijkeuken moet na ingestelde tijd uitgaan
-  trigger:
-  - platform: event
-    event_type: timer.finished
-    event_data:
-      entity_id: timer.bijkeuken_beweging
-  condition:
-  - condition: state
-    entity_id: light.bijkeuken_plafond
-    state: 'on'
-  action:
-  - service: light.turn_off
-    target:
-      entity_id: light.bijkeuken_plafond
-  mode: single
 - id: '1619442974401'
   alias: Bel gaat
   description: ''
@@ -119,29 +80,6 @@
         ttl: 0
         priority: high
         clickAction: /lovelace-camera/voordeur
-  mode: single
-- id: '1619731156101'
-  alias: Bijkeuken Beweging
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.bijkeuken_bewegingssensor
-    to: 'on'
-  condition:
-  - condition: state
-    entity_id: binary_sensor.donker_binnen
-    state: 'on'
-  action:
-  - service: light.turn_on
-    target:
-      entity_id: light.bijkeuken_plafond
-  - condition: state
-    entity_id: timer.bijkeuken_beweging
-    state: active
-  - service: timer.start
-    data: {}
-    target:
-      entity_id: timer.bijkeuken_beweging
   mode: single
 - id: '1620411227739'
   alias: Notificatie wanneer DSMR niet updated
@@ -372,5 +310,148 @@
     input:
       battery: sensor.wall_tablet_battery_level
       charger: switch.woonkamer_tablet_stroom
-      charged_percent: 100
-      low_percent: 25
+      charged_percent: 80
+      low_percent: 20
+- id: '1629894664286'
+  alias: Achtertuinverlichting aan
+  trigger:
+  - platform: time
+    at: 07:00:00
+  condition:
+  - condition: state
+    entity_id: binary_sensor.donker_buiten
+    state: 'on'
+  action:
+  - service: light.turn_on
+    entity_id: light.achtertuin_paal_en_ornament
+  initial_state: 'on'
+  mode: single
+- id: '1629894698473'
+  alias: Achtertuin verlichting 's nachts uit
+  description: '''s nachts na 10 minuten achtertuinverlichting uit.'
+  trigger:
+  - platform: state
+    entity_id: light.achtertuin_paal_en_ornament
+    to: 'on'
+    for: 0:10:00
+  condition:
+  - condition: time
+    after: 00:00
+    before: 07:00
+  action:
+  - service: light.turn_off
+    entity_id: light.achtertuin_paal_en_ornament
+  mode: single
+- id: '1629894738043'
+  alias: Achtertuinverlichting uit
+  trigger:
+  - platform: time
+    at: 00:00:00
+  action:
+  - service: light.turn_off
+    entity_id: light.achtertuin_paal_en_ornament
+  initial_state: 'on'
+  mode: single
+- id: '1629895185831'
+  alias: Set bed effect Noa
+  trigger:
+    platform: state
+    entity_id: input_select.noa_bed_effects
+  action:
+    service: wled.effect
+    data:
+      entity_id: light.noa_bed
+      effect: '{{ states(''input_select.noa_bed_effects'') }}'
+  mode: single
+- id: '1629895298921'
+  alias: Bel aan
+  trigger:
+  - platform: time
+    at: 07:00:01
+  - platform: homeassistant
+    event: start
+  condition:
+  - condition: time
+    after: 07:00:00
+    before: '20:00:00'
+  action:
+  - service: switch.turn_on
+    data:
+      entity_id: switch.gang_deurbel_chime_enabled
+  initial_state: 'on'
+  mode: single
+- id: '1629895322152'
+  alias: Bel uit
+  trigger:
+  - platform: homeassistant
+    event: start
+  - platform: time
+    at: '20:00:01'
+  condition:
+  - condition: time
+    after: '20:00:00'
+    before: 07:00:00
+  action:
+  - service: switch.turn_off
+    data:
+      entity_id: switch.gang_deurbel_chime_enabled
+  initial_state: 'on'
+  mode: single
+- id: '1629895350290'
+  alias: Zolder schakelaar
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.zolder_schakelaar
+    from:
+    - 'on'
+    - 'off'
+    to: on,off
+  action:
+  - service: light.toggle
+    data:
+      entity_id: light.zolder_plafond
+  mode: single
+- id: '1629911279530'
+  alias: Bijkeuken - Licht aan
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.bijkeuken_bewegingssensor
+    to: 'on'
+  - platform: state
+    entity_id: binary_sensor.donker_binnen
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: binary_sensor.donker_binnen
+    state: 'on'
+  - condition: state
+    entity_id: binary_sensor.bijkeuken_bewegingssensor
+    state: 'on'
+  action:
+  - type: turn_on
+    device_id: 8dafd02b71a94a0f80376693ac7132ea
+    entity_id: light.bijkeuken_plafond
+    domain: light
+  mode: single
+- id: '1629911528869'
+  alias: Bijkeuken - Licht uit
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.bijkeuken_bewegingssensor
+    to: 'off'
+    for: 00:01:00
+  - platform: state
+    entity_id: binary_sensor.donker_binnen
+    to: 'off'
+  condition:
+  - condition: state
+    entity_id: light.bijkeuken_plafond
+    state: 'on'
+  action:
+  - type: turn_off
+    device_id: 8dafd02b71a94a0f80376693ac7132ea
+    entity_id: light.bijkeuken_plafond
+    domain: light
+  mode: single
