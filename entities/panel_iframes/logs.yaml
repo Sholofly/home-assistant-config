@@ -1,0 +1,4 @@
+logs:
+  title: "Logs"
+  url: "/config/logs"
+  icon: mdi:text
