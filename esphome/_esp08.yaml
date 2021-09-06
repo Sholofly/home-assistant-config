@@ -1,0 +1,8 @@
+substitutions:
+  label: esp08
+  slug: esp08
+  name: ESP08
+  description: Niet in gebruik.
+
+packages:
+  device: !include devices/neo_coolcam_light.yaml

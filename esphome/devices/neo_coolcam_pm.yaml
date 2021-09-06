@@ -1,0 +1,65 @@
+---
+# Device: Neo Coolcam PM (switch)
+#
+packages:
+  <<: !include_dir_named ../common
+  board: !include ../boards/esp8285.yaml
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: 0
+      mode: INPUT_PULLUP
+      inverted: true
+    name: "${name} button"
+    on_press:
+      - switch.toggle: "${slug}_relay"
+    internal: true
+
+switch:
+  - platform: gpio
+    id: "${slug}_led"
+    pin:
+      number: GPIO13
+      inverted: true
+    internal: true
+
+  - platform: gpio
+    name: "${name}"
+    icon: "mdi:power-plug"
+    pin: GPIO14
+    id: "${slug}_relay"
+    on_turn_on:
+      - switch.turn_on: "${slug}_led"
+    on_turn_off:
+      - switch.turn_off: "${slug}_led"
+    restore_mode: $restore_mode
+
+sensor:
+  - platform: hlw8012
+    sel_pin:
+      number: GPIO12
+      inverted: True
+    cf_pin: GPIO04
+    cf1_pin: GPIO05
+    current_resistor: ${current_res}
+    voltage_divider: ${voltage_div}
+    current:
+      name: "${name} Huidig amperage"
+      unit_of_measurement: A
+    voltage:
+      name: "${name} Huidig voltage"
+      unit_of_measurement: V
+    power:
+      name: "${name} Huidig wattage"
+      unit_of_measurement: W
+      id: "${slug}_wattage"
+    change_mode_every: 8
+    update_interval: 10s
+  - platform: total_daily_energy
+    name: "${name} Verbruik vandaag"
+    power_id: "${slug}_wattage"
+    filters:
+      # Multiplication factor from W to kW is 0.001
+      - multiply: 0.001
+    unit_of_measurement: kWh

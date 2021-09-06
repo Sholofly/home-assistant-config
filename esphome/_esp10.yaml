@@ -1,0 +1,13 @@
+substitutions:
+  label: esp10
+  slug: esp10
+  name: ESP10
+  description: Niet in gebruik.
+  # Higher value gives lower watt readout
+  current_res: "0.00221"
+  # Lower value gives lower voltage readout
+  voltage_div: "800"
+  restore_mode: RESTORE_DEFAULT_OFF
+
+packages:
+  device: !include devices/neo_coolcam_pm.yaml

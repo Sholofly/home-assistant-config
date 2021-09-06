@@ -1,0 +1,23 @@
+packages:
+  <<: !include_dir_named ../common
+  board: !include ../boards/esp8285.yaml
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO5
+    name: "${name}"
+    on_state:
+      - light.toggle: "${slug}_light"
+    internal: true
+
+output:
+  - platform: gpio
+    pin: GPIO4
+    id: gpio_4
+
+light:
+  - platform: binary
+    name: "${name}"
+    output: gpio_4
+    id: "${slug}_light"

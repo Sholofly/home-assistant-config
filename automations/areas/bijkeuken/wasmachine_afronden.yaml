@@ -4,19 +4,19 @@
 alias: Wasmachine afronden
 initial_state: on
 trigger:
-  - platform:  state
-    entity_id: sensor.bijkeuken_wasmachine_wattage
-  - platform:  homeassistant
+  - platform: state
+    entity_id: sensor.bijkeuken_wasmachine_huidig_wattage
+  - platform: homeassistant
     event: start
 condition:
   condition: and
   conditions:
     - condition: numeric_state
-      entity_id: sensor.bijkeuken_wasmachine_wattage
+      entity_id: sensor.bijkeuken_wasmachine_huidig_wattage
       below: 0.1
     - condition: state
       entity_id: input_select.bijkeuken_wasmachine_status
-      state: 'Bezig'
+      state: "Bezig"
 action:
   - service: input_select.select_option
     entity_id: input_select.bijkeuken_wasmachine_status

@@ -1,0 +1,9 @@
+substitutions:
+  label: esp23
+  slug: overloop_plafond
+  name: Overloop Plafond
+  description: Bedient de lamp op de overloop.
+  restore_mode: RESTORE_DEFAULT_OFF
+
+packages:
+  device: !include devices/shelly1_light.yaml

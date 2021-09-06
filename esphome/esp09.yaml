@@ -1,5 +1,0 @@
-#coolcam schuur
-<<: !include _templates/neo_coolcam_light.yaml
-substitutions:
-  device_name: esp09
-  restore_mode: RESTORE_DEFAULT_OFF

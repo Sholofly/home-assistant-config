@@ -1,4 +1,0 @@
-#Zolder CV Ketel
-<<: !include _templates/esp01_relay.yaml
-substitutions:
-  device_name: esp28

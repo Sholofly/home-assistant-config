@@ -1,5 +1,5 @@
 # Generic ignores
-*.log
+*.log*
 *.db
 *.db-shm
 *.db-wal
@@ -27,11 +27,6 @@ secrets.yaml
 known_devices.yaml
 google_calendars.yaml
 todo.txt
-
-#esphome ignores
-esphome/secrets.yaml
-esphome/**/
-!esphome/_templates
 
 # Ignore files created by IDE's
 .vscode

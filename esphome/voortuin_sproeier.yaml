@@ -1,0 +1,9 @@
+substitutions:
+  label: esp17
+  slug: voortuin_sproeier
+  name: Voortuin Sproeier
+  description: Bedient de sproeier in de voortuin.
+  restore_mode: ALWAYS_OFF
+
+packages:
+  device: !include devices/shelly1.yaml

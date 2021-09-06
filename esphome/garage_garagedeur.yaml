@@ -1,0 +1,11 @@
+# failes update
+substitutions:
+    label: esp11
+    slug: garage_garagedeur
+    name: Garage Garagedeur
+    description: Schakelt de garagedeur.
+    restore_mode: ALWAYS_OFF
+    toggle_delay: 1500ms
+  
+packages:
+    device: !include devices/esp01s-relay-off.yaml

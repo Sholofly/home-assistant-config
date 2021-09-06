@@ -1,4 +1,0 @@
-#T4 Mika
-<<: !include _templates/sonoff_t1_light.yaml
-substitutions:
-  device_name: esp15

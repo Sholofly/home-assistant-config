@@ -1,0 +1,11 @@
+substitutions:
+  label: esp22
+  slug: achtertuin_druppel_border
+  name: Achtertuin Druppel border
+  description: Bedient de druppelslang in de border.
+  restore_mode: ALWAYS_OFF
+
+packages:
+  device: !include devices/shelly1.yaml
+
+  

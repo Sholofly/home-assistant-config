@@ -13,6 +13,6 @@ condition:
     state: "on"
 action:
   - service: light.turn_on
-    entity_id: light.achtertuin_paal_en_ornament
+    entity_id: light.achtertuin_lantaarnpaal
   - service: light.turn_off
     entity_id: light.voortuin_hek

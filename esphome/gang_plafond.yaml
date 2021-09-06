@@ -1,0 +1,9 @@
+substitutions:
+  label: esp24
+  slug: gang_plafond
+  name: Gang Plafond
+  description: Bedient de lamp in de gang.
+  restore_mode: RESTORE_DEFAULT_OFF
+
+packages:
+  device: !include devices/shelly1_light.yaml

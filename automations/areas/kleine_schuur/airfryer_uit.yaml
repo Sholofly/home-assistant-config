@@ -4,21 +4,21 @@
 alias: Airfryer uit
 initial_state: on
 trigger:
-  - platform:  state
-    entity_id: sensor.kleine_schuur_airfryer_wattage
-  - platform:  homeassistant
+  - platform: state
+    entity_id: sensor.kleine_schuur_airfryer_huidig_wattage
+  - platform: homeassistant
     event: start
 condition:
   condition: and
   conditions:
     - condition: numeric_state
-      entity_id: sensor.kleine_schuur_airfryer_wattage
+      entity_id: sensor.kleine_schuur_airfryer_huidig_wattage
       below: 0.1
     - condition: not
       conditions:
         - condition: state
           entity_id: input_select.kleine_schuur_airfryer_status
-          state: 'Uit'
+          state: "Uit"
 action:
   - service: input_select.select_option
     entity_id: input_select.kleine_schuur_airfryer_status

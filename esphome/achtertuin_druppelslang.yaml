@@ -1,0 +1,9 @@
+substitutions:
+  label: esp21
+  slug: achtertuin_druppelslang
+  name: Achtertuin Druppelslang
+  description: Bedient de druppelslang in de achtertuin.
+  restore_mode: ALWAYS_OFF
+
+packages:
+  device: !include devices/shelly1.yaml

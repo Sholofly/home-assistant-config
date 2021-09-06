@@ -1,0 +1,35 @@
+---
+# Device: Neo Coolcam (switch)
+#
+packages:
+  <<: !include_dir_named ../common
+  board: !include ../boards/esp8285.yaml
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: 13
+      mode: INPUT_PULLUP
+      inverted: true
+    name: "${name} button"
+    on_press:
+      - switch.toggle: "${slug}_relay"
+    internal: true
+
+switch:
+  - platform: gpio
+    id: "${slug}_led"
+    pin:
+      number: GPIO4
+      inverted: true
+    internal: true
+
+  - platform: gpio
+    name: "${name}"
+    icon: "mdi:power-plug"
+    pin: GPIO12
+    id: "${slug}_relay"
+    on_turn_on:
+      - switch.turn_on: "${slug}_led"
+    on_turn_off:
+      - switch.turn_off: "${slug}_led"

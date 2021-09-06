@@ -1,4 +1,0 @@
-#shelly_1_overloop
-<<: !include _templates/shelly_1_light.yaml
-substitutions:
-  device_name: esp23

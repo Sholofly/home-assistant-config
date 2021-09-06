@@ -1,0 +1,10 @@
+substitutions:
+  label: esp12
+  slug: voortuin_hek
+  name: Voortuin Hek
+  description: Schakelt het hek.
+  restore_mode: ALWAYS_OFF
+  toggle_delay: 500ms
+
+packages:
+  device: !include devices/esp01s-relay-off.yaml

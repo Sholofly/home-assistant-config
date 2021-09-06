@@ -14,7 +14,7 @@ condition:
   condition: and
   conditions:
     - condition: numeric_state
-      entity_id: sensor.bijkeuken_droger_wattage
+      entity_id: sensor.bijkeuken_droger_huidig_wattage
       above: 10
 action:
   - service: notify.mobile_app_telefoon_rudolf

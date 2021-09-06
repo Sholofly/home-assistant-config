@@ -1,0 +1,8 @@
+substitutions:
+  label: esp05
+  slug: woonkamer_raam_voor
+  name: Woonkamer Raam Voor
+  description: Bedient het licht in het raam voor.
+
+packages:
+  device: !include devices/neo_coolcam_light.yaml

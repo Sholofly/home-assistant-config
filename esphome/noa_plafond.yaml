@@ -1,0 +1,8 @@
+substitutions:
+  label: esp13
+  slug: noa_plafond
+  name: Noa Plafond
+  description: Bedient de lamp in Noa's slaapkamer.
+  restore_mode: RESTORE_DEFAULT_OFF
+packages:
+  device: !include devices/sonoff_t1_light.yaml

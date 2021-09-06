@@ -1,0 +1,16 @@
+packages:
+  <<: !include_dir_named ../common
+  board: !include ../boards/esp01s.yaml
+switch:
+  - platform: gpio
+    pin:
+      number: 0
+      inverted: yes
+    id: "${slug}_relay"
+    restore_mode: $restore_mode
+  - platform: template
+    name: "${name}"
+    turn_on_action:
+      - switch.turn_on: "${slug}_relay"
+      - delay: $toggle_delay
+      - switch.turn_off: "${slug}_relay"

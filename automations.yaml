@@ -27,24 +27,6 @@
         data:
           option: Solid
         entity_id: input_select.noa_bed_effects
-- id: '1609882168905'
-  alias: Mi Magic Cube
-  description: ''
-  use_blueprint:
-    path: bergstrom/mi-magic-cube-deconz-45-actions.yaml
-    input:
-      remote: d0ff81b35fb174f03df700524e4dc25c
-      cube_shake:
-      - service: light.toggle
-        data: {}
-        entity_id: light.woonkamer_dressoir
-      one_side_slide: false
-      cube_one_side_slide: []
-      cube_fall:
-      - type: flash
-        device_id: 3a2745d145a34069b819b8928a7ca82b
-        entity_id: light.woonkamer_dressoir
-        domain: light
 - id: '1617684358026'
   alias: Home Assistant Update Notification for Android
   description: ''
@@ -61,9 +43,9 @@
   description: ''
   trigger:
   - platform: state
-    entity_id: binary_sensor.gang_deurbel_button
     from: 'off'
     to: 'on'
+    entity_id: binary_sensor.gang_bel_button
   condition: []
   action:
   - service: camera.snapshot
@@ -309,21 +291,23 @@
     path: seamus65/wallpanel-battery-management.yaml
     input:
       battery: sensor.wall_tablet_battery_level
-      charger: switch.woonkamer_tablet_stroom
+      charger: switch.zolder_voeding_tablet
       charged_percent: 80
       low_percent: 20
 - id: '1629894664286'
   alias: Achtertuinverlichting aan
   trigger:
   - platform: time
-    at: 07:00:00
+    at: 07:00
   condition:
   - condition: state
     entity_id: binary_sensor.donker_buiten
     state: 'on'
   action:
   - service: light.turn_on
-    entity_id: light.achtertuin_paal_en_ornament
+    data: {}
+    target:
+      entity_id: light.achtertuin_lantaarnpaal
   initial_state: 'on'
   mode: single
 - id: '1629894698473'
@@ -331,7 +315,7 @@
   description: '''s nachts na 10 minuten achtertuinverlichting uit.'
   trigger:
   - platform: state
-    entity_id: light.achtertuin_paal_en_ornament
+    entity_id: light.achtertuin_lantaarnpaal
     to: 'on'
     for: 0:10:00
   condition:
@@ -340,16 +324,20 @@
     before: 07:00
   action:
   - service: light.turn_off
-    entity_id: light.achtertuin_paal_en_ornament
+    data: {}
+    target:
+      entity_id: light.achtertuin_lantaarnpaal
   mode: single
 - id: '1629894738043'
   alias: Achtertuinverlichting uit
   trigger:
   - platform: time
-    at: 00:00:00
+    at: 00:00
   action:
   - service: light.turn_off
-    entity_id: light.achtertuin_paal_en_ornament
+    data: {}
+    target:
+      entity_id: light.achtertuin_lantaarnpaal
   initial_state: 'on'
   mode: single
 - id: '1629895185831'
@@ -367,17 +355,18 @@
   alias: Bel aan
   trigger:
   - platform: time
-    at: 07:00:01
+    at: 07:00
   - platform: homeassistant
     event: start
   condition:
   - condition: time
     after: 07:00:00
-    before: '20:00:00'
+    before: '20:00'
   action:
   - service: switch.turn_on
-    data:
-      entity_id: switch.gang_deurbel_chime_enabled
+    data: {}
+    target:
+      entity_id: switch.gang_bel_enabled
   initial_state: 'on'
   mode: single
 - id: '1629895322152'
@@ -386,15 +375,16 @@
   - platform: homeassistant
     event: start
   - platform: time
-    at: '20:00:01'
+    at: '20:00'
   condition:
   - condition: time
     after: '20:00:00'
-    before: 07:00:00
+    before: 07:00
   action:
   - service: switch.turn_off
-    data:
-      entity_id: switch.gang_deurbel_chime_enabled
+    data: {}
+    target:
+      entity_id: switch.gang_bel_enabled
   initial_state: 'on'
   mode: single
 - id: '1629895350290'

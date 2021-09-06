@@ -1,0 +1,37 @@
+---
+# Device: Neo Coolcam (light)
+#
+packages:
+  <<: !include_dir_named ../common
+  board: !include ../boards/esp8285.yaml
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: 13
+      mode: INPUT_PULLUP
+      inverted: true
+    name: "${name} button"
+    on_press:
+      - light.toggle: "${slug}_light"
+    internal: true
+
+output:
+  - platform: gpio
+    id: gpio_12
+    pin: 12
+  - platform: gpio
+    id: gpio_4
+    pin: 4
+    inverted: true
+
+light:
+  - platform: binary
+    name: "${name}"
+    output: gpio_12
+    id: "${slug}_light"
+  - platform: binary
+    name: "${name} button"
+    output: gpio_4
+    id: "${slug}_button"
+    internal: true

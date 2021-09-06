@@ -1,0 +1,9 @@
+substitutions:
+  label: esp07
+  slug: wc_plafond
+  name: WC Plafond
+  description: Bedient de lamp in de wc.
+  restore_mode: RESTORE_DEFAULT_OFF
+
+packages:
+  device: !include devices/shelly1_light.yaml

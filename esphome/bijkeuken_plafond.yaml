@@ -1,0 +1,9 @@
+substitutions:
+  label: esp06
+  slug: bijkeuken_plafond
+  name: Bijkeuken Plafond
+  description: Bedient de lamp in de bijkeuken.
+  restore_mode: RESTORE_DEFAULT_OFF
+
+packages:
+  device: !include devices/shelly1_light.yaml

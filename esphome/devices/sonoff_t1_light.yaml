@@ -1,0 +1,38 @@
+packages:
+  <<: !include_dir_named ../common
+  board: !include ../boards/esp01s.yaml
+
+# Sensor for button
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO0
+      mode: INPUT_PULLUP
+      inverted: True
+    name: "${name} button"
+    on_press:
+      then:
+        - light.toggle: ${slug}_light
+
+    internal: true
+
+output:
+  # Register the blue LED as a dimmable output ....
+  - platform: esp8266_pwm
+    id: blue_led
+    pin: GPIO13
+    inverted: True
+
+  - platform: gpio
+    id: relay
+    pin: GPIO12
+
+light:
+  # ... and then make a light out of it.
+  - platform: monochromatic
+    name: "${name} button"
+    output: blue_led
+  - platform: binary
+    id: ${slug}_light
+    name: "${name}"
+    output: relay

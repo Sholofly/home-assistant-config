@@ -5,14 +5,14 @@ alias: Droger bezig
 initial_state: on
 trigger:
   - platform: state
-    entity_id: sensor.bijkeuken_droger_wattage
+    entity_id: sensor.bijkeuken_droger_huidig_wattage
   - platform: homeassistant
     event: start
 condition:
   condition: and
   conditions:
     - condition: numeric_state
-      entity_id: sensor.bijkeuken_droger_wattage
+      entity_id: sensor.bijkeuken_droger_huidig_wattage
       above: 10
     - condition: state
       entity_id: binary_sensor.bijkeuken_droger
