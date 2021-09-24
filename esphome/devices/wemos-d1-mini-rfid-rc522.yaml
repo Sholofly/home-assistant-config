@@ -1,0 +1,14 @@
+packages:
+  <<: !include_dir_named ../common
+  board: !include ../boards/wemos-d1-mini.yaml
+
+spi:
+  clk_pin: GPIO14 #D5
+  mosi_pin: GPIO13 #D7
+  miso_pin: GPIO12 #D6
+
+rc522_spi:
+  cs_pin: GPIO15 #D8
+  on_tag:
+    then:
+      - homeassistant.tag_scanned: !lambda "return x;" #sends tag to HA

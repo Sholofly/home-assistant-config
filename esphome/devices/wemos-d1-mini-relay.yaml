@@ -1,0 +1,10 @@
+packages:
+  <<: !include_dir_named ../common
+  board: !include ../boards/wemos-d1-mini.yaml
+
+switch:
+  - platform: gpio
+    name: "${name} Relay"
+    pin:
+      number: 4
+      inverted: true

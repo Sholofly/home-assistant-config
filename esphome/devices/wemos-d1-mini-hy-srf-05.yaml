@@ -1,0 +1,10 @@
+packages:
+  <<: !include_dir_named ../common
+  board: !include ../boards/wemos-d1-mini.yaml
+
+sensor:
+  - platform: ultrasonic
+    trigger_pin: D1
+    echo_pin: D2
+    name: "${name} Distance"
+    update_interval: 5s

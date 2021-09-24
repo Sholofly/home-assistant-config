@@ -1,0 +1,12 @@
+packages:
+  <<: !include_dir_named ../common
+  board: !include ../boards/wemos-d1-mini.yaml
+
+sensor:
+  - platform: dht
+    pin: D2
+    temperature:
+      name: "${name} Temperature"
+    humidity:
+      name: "${name} Humidity"
+    update_interval: 10s

@@ -1,5 +1,5 @@
 substitutions:
-  label: esp20
+  label: esp03
   slug: bijkeuken_droger
   name: Bijkeuken Droger
   description: Monitort energieverbruik droger.

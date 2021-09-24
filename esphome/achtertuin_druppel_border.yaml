@@ -6,6 +6,25 @@ substitutions:
   restore_mode: ALWAYS_OFF
 
 packages:
-  device: !include devices/shelly1.yaml
+  <<: !include_dir_named ./common
+  board: !include ./boards/esp8285.yaml
 
-  
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO5
+    name: "${name}"
+    on_state:
+      - switch.toggle: "${slug}_relay"
+    internal: true
+
+switch:
+  - platform: gpio
+    pin:
+      number: 4
+    id: "${slug}_relay"
+    name: "${name}"
+    restore_mode: $restore_mode
+    on_turn_on:
+      - delay: 6h
+      - switch.turn_off: "${slug}_relay"

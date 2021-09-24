@@ -1,0 +1,19 @@
+packages:
+  <<: !include_dir_named ../common
+  board: !include ../boards/wemos-d1-mini.yaml
+
+i2c:
+  sda: D1
+  scl: D2
+
+sensor:
+  - platform: bme280
+    temperature:
+      name: "${name} Temperature"
+      oversampling: 16x
+    pressure:
+      name: "${name} Pressure"
+    humidity:
+      name: "${name} Humidity"
+    address: 0x76
+    update_interval: 10s

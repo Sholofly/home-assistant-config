@@ -1,0 +1,4 @@
+esphome:
+  <<: !include .esphome.yaml
+  platform: ESP32
+  board: lolin_d32

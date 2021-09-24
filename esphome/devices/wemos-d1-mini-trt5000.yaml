@@ -1,0 +1,13 @@
+packages:
+  <<: !include_dir_named ../common
+  board: !include ../boards/wemos-d1-mini.yaml
+
+sensor:
+  - platform: pulse_meter
+    id: sensor_pulse_meter
+    pin: D1
+    name: "${name} water consumption"
+    icon: "mdi:water"
+    unit_of_measurement: "L/min"
+    accuracy_decimals: 1
+    timeout: 2min

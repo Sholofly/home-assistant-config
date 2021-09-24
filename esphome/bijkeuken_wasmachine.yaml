@@ -1,5 +1,5 @@
 substitutions:
-  label: esp03
+  label: esp20
   slug: bijkeuken_wasmachine
   name: Bijkeuken Wasmachine
   description: Monitort energieverbruik wasmachine.

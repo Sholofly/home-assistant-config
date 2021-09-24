@@ -1,0 +1,21 @@
+packages:
+  <<: !include_dir_named ../common
+  board: !include ../boards/wemos-d1-mini.yaml
+
+# Example configuration entry
+uart:
+  rx_pin: D7
+  baud_rate: 9600
+
+# Declare GPS module
+gps:
+  latitude:
+    name: "${name} Latitude"
+  longitude:
+    name: "${name} Longitude"
+  altitude:
+    name: "${name} Altitude"
+
+# GPS as time source
+time:
+  - platform: gps

@@ -1,0 +1,13 @@
+packages:
+  <<: !include_dir_named ../common
+  board: !include ../boards/esp01s.yaml
+
+sensor:
+  - platform: dht
+    model: AM2302
+    pin: GPIO2
+    temperature:
+      name: "${name} Temperature"
+    humidity:
+      name: "${name} Humidity"
+    update_interval: 10s

@@ -1,0 +1,8 @@
+substitutions:
+  label: esp-watermeter
+  slug: meterkast_watermeter
+  name: ESP Test
+  description: Testen
+
+packages:
+  device: !include devices/wemos-d1-mini-trt5000.yaml

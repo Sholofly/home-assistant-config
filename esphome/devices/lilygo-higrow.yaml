@@ -1,0 +1,83 @@
+esphome:
+  <<: !include ../boards/.esphome.yaml
+  platform: ESP32
+  board: lolin_d32
+
+packages:
+  <<: !include_dir_named ../common
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO35
+      mode: INPUT_PULLUP
+      inverted: True
+    name: "${name} Wake Button"
+
+i2c:
+  sda: 25
+  scl: 26
+  scan: True
+  id: bus_a
+  setup_priority: -200
+
+# deep_sleep:
+#   run_duration: 10s
+#   sleep_duration: 15min
+
+sensor:
+  - platform: dht
+    model: dht11
+    pin:
+      number: 16
+      mode: input
+    temperature:
+      name: "${name} Temperature"
+    humidity:
+      name: "${name} Humidity"
+    update_interval: 15s
+    setup_priority: -100
+
+  - platform: adc
+    pin: GPIO32
+    name: "${name} Soil"
+    update_interval: 15s
+    attenuation: 11db
+    unit_of_measurement: "%"
+    filters:
+      - calibrate_linear:
+          # Map 0.0 (from sensor) to 0.0 (true value)
+          - 3.08 -> 0.0
+          - 1.42 -> 100.0
+
+  - platform: adc
+    pin: 33
+    name: "${name} Battery"
+    attenuation: 6db
+    unit_of_measurement: "V"
+    update_interval: 15s
+    filters:
+      - calibrate_linear:
+          # Map 0.0 (from sensor) to 0.0 (true value)
+          - 0.0 -> 0.0
+          - 2.06 -> 1.89
+      - lambda: return x * 2.0;
+
+  - platform: adc
+    pin: GPIO34
+    name: "${name} Salt"
+    update_interval: 15s
+    unit_of_measurement: "%"
+    accuracy_decimals: 4
+    filters:
+      - calibrate_linear:
+          # Map 0.0 (from sensor) to 0.0 (true value)
+          - 0.0 -> 0.0
+          - 1.1 -> 100.0
+
+  - platform: bh1750
+    i2c_id: bus_a
+    name: "${name} Illuminance"
+    address: 0x23
+    update_interval: 15s
+    setup_priority: -300
