@@ -7,15 +7,15 @@ lights:
     turn_on:
       service: rest_command.wall_tablet_kiosk_command
       data:
-        cmd: setStringSetting
-        key: screenBrightness
-        value: "100"
+        cmd: screenOn
+        key: ""
+        value: ""
     turn_off:
       service: rest_command.wall_tablet_kiosk_command
       data:
-        cmd: setStringSetting
-        key: screenBrightness
-        value: "0"
+        cmd: screenOff
+        key: ""
+        value: ""
     set_level:
       service: rest_command.wall_tablet_kiosk_command
       data_template:
