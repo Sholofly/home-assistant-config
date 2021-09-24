@@ -1,7 +1,0 @@
-################################################
-## Integrations / Ziggo Next
-################################################
-ziggonext:
-  username: !secret ziggo_username
-  password: !secret ziggo_password
-  omit_channel_quality: True
