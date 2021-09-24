@@ -1,10 +1,10 @@
 ################################################
 ## Entities / Lights / Woonkamer
-################################################ 
+################################################
 platform: group
 name: Woonkamer
 entities:
-  - light.woonkamer_bank
   - light.woonkamer_dressoir
-  - light.woonkamer_vensterbank
-  - light.woonkamer_vensterbank_rechts
+  - light.woonkamer_raam_voor
+  - light.woonkamer_raam_zijkant
+  - light.woonkamer_wandrek

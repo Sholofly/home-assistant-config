@@ -1,0 +1,3 @@
+platform: switch
+name: Achtertuin Lantaarnpaal
+entity_id: switch.achtertuin_lantaarnpaal
