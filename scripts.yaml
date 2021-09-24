@@ -1,0 +1,7 @@
+meldt_of_de_garagedeur_nog_open_staat:
+  alias: Meldt of de garagedeur nog open staat
+  sequence:
+  - service: light.turn_on
+    target:
+      entity_id: light.zolder_plafond
+  mode: single
