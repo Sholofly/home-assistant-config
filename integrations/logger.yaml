@@ -4,4 +4,4 @@
 logger:
   default: warning
   # logs:
-  #   ziggonext: debug
+  #   arris_dcx960: debug
