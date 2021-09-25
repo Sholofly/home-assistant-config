@@ -7,9 +7,9 @@ platform: mqtt
 name: Kleine Schuur Diepvries MQTT
 payload_on: "F9E50A"
 payload_off: "F9E50E"
-state_topic: "rf_schuur/tele/RESULT"
+state_topic: "tele/rf_schuur/RESULT"
 value_template: '{{ value_json.RfReceived.Data }}'
-availability_topic: "rf_schuur/tele/LWT"
+availability_topic: "tele/rf_schuur/LWT"
 payload_available: "Online"
 payload_not_available: "Offline"
 device_class: opening
