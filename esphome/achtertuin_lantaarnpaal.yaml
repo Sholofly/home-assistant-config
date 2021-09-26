@@ -1,9 +1,0 @@
-substitutions:
-  label: esp09
-  slug: achtertuin_lantaarnpaal
-  name: Achtertuin Lantaarnpaal
-  description: Bedient de lantaarnpaal in de achtertuin.
-  restore_mode: RESTORE_DEFAULT_OFF
-
-packages:
-  device: !include devices/neo_coolcam_light.yaml
