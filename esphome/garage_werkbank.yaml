@@ -1,0 +1,8 @@
+substitutions:
+  label: esp27
+  slug: garage_werkbank
+  name: Garage Werkbank
+  description: Lamp boven de werkbank in de garage.
+
+packages:
+  device: !include devices/shelly1_light.yaml
