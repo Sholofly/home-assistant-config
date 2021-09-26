@@ -27,7 +27,7 @@ noctis:
   margin-left: 50px
   margin-right: 50px
 
-  lovelace-background: 'center / cover no-repeat url("/local/lowpoly.png")'
+  #lovelace-background: 'center / cover no-repeat url("/local/lowpoly.png")'
   #background: 'center / cover no-repeat url("/local/lowpoly.png")'
 
   # Background
