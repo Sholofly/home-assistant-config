@@ -1,0 +1,4 @@
+nginx:
+  title: "Nginx Prox Manager"
+  url: "http://hassio.lan:81/"
+  icon: mdi:arrow-decision
