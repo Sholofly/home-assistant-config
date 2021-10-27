@@ -21,12 +21,12 @@ node-red
 
 
 #File ignores
-secrets.yaml
-.ps4-games.*.json
-.google.token
-known_devices.yaml
-google_calendars.yaml
-todo.txt
+/secrets.yaml
+/.ps4-games.*.json
+/.google.token
+/known_devices.yaml
+/google_calendars.yaml
+/todo.txt
 
 # Ignore files created by IDE's
 .vscode
