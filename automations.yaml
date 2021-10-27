@@ -1,6 +1,6 @@
-- id: "1607379994170"
+- id: '1607379994170'
   alias: WC lampen aan bij beweging
-  description: ""
+  description: ''
   use_blueprint:
     path: homeassistant/motion_light.yaml
     input:
@@ -8,28 +8,28 @@
       motion_entity: binary_sensor.wc_bewegingssensor
       light_target:
         entity_id: light.wc_plafond
-- id: "1608038011592"
+- id: '1608038011592'
   alias: Symfonisk lampen Noa
-  description: ""
+  description: ''
   use_blueprint:
     path: deconz_ikea_symfonisk_lights.yaml
     input:
-      brightness: "50"
+      brightness: '50'
       remote: b225a6d4ec52c665162a23c382f2f38f
       light:
         entity_id: light.noa_bed
       double_press:
-        - service: input_select.select_next
-          data: {}
-          entity_id: input_select.noa_bed_effects
+      - service: input_select.select_next
+        data: {}
+        entity_id: input_select.noa_bed_effects
       triple_press:
-        - service: input_select.select_option
-          data:
-            option: Solid
-          entity_id: input_select.noa_bed_effects
-- id: "1617684358026"
+      - service: input_select.select_option
+        data:
+          option: Solid
+        entity_id: input_select.noa_bed_effects
+- id: '1617684358026'
   alias: Home Assistant Update Notification for Android
-  description: ""
+  description: ''
   use_blueprint:
     path: fortepc/update-notif-for-android.yaml
     input:
@@ -38,48 +38,23 @@
       notify_device: 267251cf143411ebbf4ef5c3186f709c
       notification_message: Home Assistant {{ newest_version }} is beschikbaar
       group: Available Updates
-- id: "1619442974401"
-  alias: Bel gaat
-  description: ""
-  trigger:
-    - platform: state
-      from: "off"
-      to: "on"
-      entity_id: binary_sensor.gang_bel_button
-  condition: []
-  action:
-    - service: camera.snapshot
-      data:
-        filename: /media/snapshots/snapshot.jpg
-      target:
-        device_id: bab1e93d08ca11eba583dba8001b4553
-    - service: notify.family
-      data:
-        message: Er staat iemand aan de voordeur
-        title: De bel gaat
-        data:
-          image: /media/local/snapshots/snapshot.jpg
-          ttl: 0
-          priority: high
-          clickAction: /lovelace-camera/voordeur
-  mode: single
-- id: "1620411227739"
+- id: '1620411227739'
   alias: Notificatie wanneer DSMR niet updated
-  description: ""
+  description: ''
   trigger:
-    - platform: state
-      entity_id: sensor.dsmr_reading_timestamp
-      for: 00:10:00
+  - platform: state
+    entity_id: sensor.dsmr_reading_timestamp
+    for: 00:10:00
   condition: []
   action:
-    - service: notify.mobile_app_telefoon_rudolf
-      data:
-        title: DSMR wordt niet geupdated!
-        message: Check of de USB binding nog goed staat in de VM.
+  - service: notify.mobile_app_telefoon_rudolf
+    data:
+      title: DSMR wordt niet geupdated!
+      message: Check of de USB binding nog goed staat in de VM.
   mode: single
-- id: "1622670827416"
+- id: '1622670827416'
   alias: Rudolf medicijnen reminder
-  description: ""
+  description: ''
   use_blueprint:
     path: Mati24/advanced-medication-reminder.yaml
     input:
@@ -94,199 +69,188 @@
       logbook_message_later: Postpone reminder
       input_boolean: input_boolean.rudolf_medicijnen_genomen
       logbook_message_taken: Medication taken
-- id: "1624693593116"
+- id: '1624693593116'
   alias: Thermostaat nachtstand
-  description: ""
+  description: ''
   trigger:
-    - platform: time
-      at: "23:00:00"
+  - platform: time
+    at: '23:00:00'
   condition: []
   action:
-    - service: climate.set_temperature
-      target:
-        entity_id: climate.thermostaat
-      data:
-        temperature: 18.5
+  - service: climate.set_temperature
+    target:
+      entity_id: climate.thermostaat
+    data:
+      temperature: 18.5
   mode: single
-- id: "1624693689373"
+- id: '1624693689373'
   alias: Afval
   trigger:
-    - platform: time
-      at: "17:00:00"
+  - platform: time
+    at: '17:00:00'
   condition:
-    - condition: not
-      conditions:
-        - condition: state
-          entity_id: sensor.afvalinfo_tomorrow
-          state: none
+  - condition: not
+    conditions:
+    - condition: state
+      entity_id: sensor.afvalinfo_tomorrow
+      state: none
   action:
-    - service: notify.family
-      data_template:
-        title: Morgen is een afvaldag
-        message: "Opgehaalde afval: {{ states.sensor.afvalinfo_tomorrow.state }}"
+  - service: notify.family
+    data_template:
+      title: Morgen is een afvaldag
+      message: 'Opgehaalde afval: {{ states.sensor.afvalinfo_tomorrow.state }}'
   initial_state: true
-- id: "1624693815080"
+- id: '1624693815080'
   alias: Laatste gaat naar bed
   trigger:
-    - platform: state
-      entity_id: input_boolean.nachtmode
-      from: "off"
-      to: "on"
+  - platform: state
+    entity_id: input_boolean.nachtmode
+    from: 'off'
+    to: 'on'
   action:
-    - service: script.turn_on
-      target:
-        entity_id: script.last_sleeper
+  - service: script.turn_on
+    target:
+      entity_id: script.last_sleeper
   initial_state: true
   mode: single
-- id: "1624693857334"
+- id: '1624693857334'
   alias: Nachtverlichting buiten
   description: Handle night lights based on illumination
   trigger:
-    - platform: state
-      entity_id: binary_sensor.donker_buiten
+  - platform: state
+    entity_id: binary_sensor.donker_buiten
   action:
-    - choose:
-        - conditions:
-            - condition: state
-              entity_id: binary_sensor.donker_buiten
-              state: "on"
-          sequence:
-            - service: light.turn_on
-              entity_id: light.buitenverlichting
-        - conditions:
-            - condition: state
-              entity_id: binary_sensor.donker_buiten
-              state: "off"
-          sequence:
-            - service: light.turn_off
-              entity_id: light.buitenverlichting
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: binary_sensor.donker_buiten
+        state: 'on'
+      sequence:
+      - service: light.turn_on
+        entity_id: light.buitenverlichting
+    - conditions:
+      - condition: state
+        entity_id: binary_sensor.donker_buiten
+        state: 'off'
+      sequence:
+      - service: light.turn_off
+        entity_id: light.buitenverlichting
   initial_state: true
-- id: "1624693897568"
+- id: '1624693897568'
   alias: Ramen boven staan nog open
   trigger:
-    - platform: state
-      entity_id: group.parents
-      to: home
-    - platform: time
-      at: "16:00:00"
+  - platform: state
+    entity_id: group.parents
+    to: home
+  - platform: time
+    at: '16:00:00'
   condition:
-    - condition: and
-      conditions:
-        - condition: time
-          after: "16:00:00"
-          before: "20:00:00"
-        - condition: state
-          entity_id: group.parents
-          state: home
-        - condition: state
-          entity_id: group.ramen_boven
-          state: "on"
+  - condition: and
+    conditions:
+    - condition: time
+      after: '16:00:00'
+      before: '20:00:00'
+    - condition: state
+      entity_id: group.parents
+      state: home
+    - condition: state
+      entity_id: group.ramen_boven
+      state: 'on'
   action:
-    - choose:
-        - conditions:
-            - condition: state
-              entity_id: person.rudolf
-              state: home
-          sequence:
-            - service: notify.mobile_app_telefoon_rudolf
-              data:
-                title: Er staan nog ramen open
-                message: "{{ message_data }}"
-                data:
-                  ttl: 0
-                  priority: high
-        - conditions:
-            - condition: state
-              entity_id: person.leny
-              state: home
-          sequence:
-            - service: notify.mobile_app_telefoon_leny
-              data:
-                title: Er staan nog ramen open
-                message: "{{ message_data }}"
-                data:
-                  ttl: 0
-                  priority: high
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: person.rudolf
+        state: home
+      sequence:
+      - service: notify.mobile_app_telefoon_rudolf
+        data:
+          title: Er staan nog ramen open
+          message: '{{ message_data }}'
+          data:
+            ttl: 0
+            priority: high
+    - conditions:
+      - condition: state
+        entity_id: person.leny
+        state: home
+      sequence:
+      - service: notify.mobile_app_telefoon_leny
+        data:
+          title: Er staan nog ramen open
+          message: '{{ message_data }}'
+          data:
+            ttl: 0
+            priority: high
   variables:
-    message_data:
-      "{% for entity_id in states.group.ramen_boven.attributes.entity_id\
+    message_data: "{% for entity_id in states.group.ramen_boven.attributes.entity_id\
       \ -%}\n  {% if(states(entity_id) == 'on')-%}\n      {{- '\\n' -}}\n    - {%\
       \ print(state_attr(entity_id,'friendly_name')) | regex_replace(find='Raam',\
       \ replace='', ignorecase=False)-%}\n  {% endif-%}\n{%- endfor %}"
-- id: "1624693921089"
+- id: '1624693921089'
   alias: Takken
   trigger:
-    - platform: time
-      at: 09:00:00
+  - platform: time
+    at: 09:00:00
   condition:
     condition: and
     conditions:
-      - condition: numeric_state
-        entity_id: sensor.afval_info_days_until_takken
-        below: 8
-      - condition: time
-        weekday:
-          - fri
+    - condition: numeric_state
+      entity_id: sensor.afval_info_days_until_takken
+      below: 8
+    - condition: time
+      weekday:
+      - fri
   action:
-    - service: notify.family
-      data_template:
-        title: Takken worden binnenkort opghaald
-        message: "Ophaaldatum: {{ states.sensor.afvalinfo_takken.state }}"
+  - service: notify.family
+    data_template:
+      title: Takken worden binnenkort opghaald
+      message: 'Ophaaldatum: {{ states.sensor.afvalinfo_takken.state }}'
   initial_state: true
-- id: "1629281009388"
-  alias: Walltablet - Charge
-  description: ""
-  use_blueprint:
-    path: seamus65/wallpanel-battery-management.yaml
-    input:
-      battery: sensor.wall_tablet_battery_level
-      charger: switch.zolder_voeding_tablet
-      charged_percent: 95
-      low_percent: 35
-- id: "1629894664286"
+- id: '1629894664286'
   alias: Achtertuinverlichting aan
   trigger:
-    - platform: time
-      at: 07:00
+  - platform: time
+    at: 07:00
   condition:
-    - condition: state
-      entity_id: binary_sensor.donker_buiten
-      state: "on"
+  - condition: state
+    entity_id: binary_sensor.donker_buiten
+    state: 'on'
   action:
-    - service: switch.turn_on
-      target:
-        entity_id: switch.kleine_schuur_lantaarnpaal
+  - service: switch.turn_on
+    target:
+      entity_id: switch.achtertuin_lantaarnpaal
   initial_state: true
   mode: single
-- id: "1629894698473"
+- id: '1629894698473'
   alias: Achtertuin verlichting 's nachts uit
-  description: "'s nachts na 10 minuten achtertuinverlichting uit."
+  description: '''s nachts na 10 minuten achtertuinverlichting uit.'
   trigger:
-    - platform: state
-      entity_id: light.achtertuin_lantaarnpaal
-      to: "on"
-      for: 0:10:00
+  - platform: state
+    entity_id: light.achtertuin_lantaarnpaal
+    to: 'on'
+    for: 0:10:00
   condition:
-    - condition: time
-      after: 00:00
-      before: 07:00
+  - condition: time
+    after: 00:00
+    before: 07:00
   action:
-    - service: switch.turn_off
-      target:
-        entity_id: switch.kleine_schuur_lantaarnpaal
+  - service: switch.turn_off
+    target:
+      entity_id: switch.kleine_schuur_lantaarnpaal
   mode: single
-- id: "1629894738043"
+- id: '1629894738043'
   alias: Achtertuinverlichting uit
   trigger:
-    - platform: time
-      at: 00:00
+  - platform: time
+    at: 00:00
   action:
-    - service: switch.turn_off
-      target:
-        entity_id: switch.achtertuin_lantaarnpaal
+  - service: switch.turn_off
+    target:
+      entity_id: switch.achtertuin_lantaarnpaal
   initial_state: true
   mode: single
-- id: "1629895185831"
+- id: '1629895185831'
   alias: Set bed effect Noa
   trigger:
     platform: state
@@ -295,345 +259,355 @@
     service: wled.effect
     data:
       entity_id: light.noa_bed
-      effect: "{{ states('input_select.noa_bed_effects') }}"
+      effect: '{{ states(''input_select.noa_bed_effects'') }}'
   mode: single
-- id: "1629895298921"
+- id: '1629895298921'
   alias: Bel aan
   trigger:
-    - platform: time
-      at: 07:00
-    - platform: homeassistant
-      event: start
+  - platform: time
+    at: 07:00
+  - platform: homeassistant
+    event: start
   condition:
-    - condition: time
-      after: 07:00:00
-      before: "20:00"
+  - condition: time
+    after: 07:00:00
+    before: '20:00'
   action:
-    - service: switch.turn_on
-      data: {}
-      target:
-        entity_id: switch.gang_bel_enabled
+  - service: switch.turn_on
+    data: {}
+    target:
+      entity_id: switch.gang_bel_enabled
   initial_state: true
   mode: single
-- id: "1629895322152"
+- id: '1629895322152'
   alias: Bel uit
   trigger:
-    - platform: homeassistant
-      event: start
-    - platform: time
-      at: "20:00"
+  - platform: homeassistant
+    event: start
+  - platform: time
+    at: '20:00'
   condition:
-    - condition: time
-      after: "20:00:00"
-      before: 07:00
+  - condition: time
+    after: '20:00'
+    before: 07:00
   action:
-    - service: switch.turn_off
-      data: {}
-      target:
-        entity_id: switch.gang_bel_enabled
+  - service: switch.turn_off
+    data: {}
+    target:
+      entity_id: switch.gang_bel_enabled
   initial_state: true
   mode: single
-- id: "1629895350290"
+- id: '1629895350290'
   alias: Zolder schakelaar
   trigger:
-    - platform: state
-      entity_id: binary_sensor.zolder_schakelaar
-      from:
-        - "on"
-        - "off"
-      to: on,off
+  - platform: state
+    entity_id: binary_sensor.zolder_schakelaar
+    from: on,off
+    to: on,off
   action:
-    - service: light.toggle
-      data:
-        entity_id: light.zolder_plafond
+  - service: light.toggle
+    data: {}
+    target:
+      entity_id: light.zolder_plafond
   mode: single
-- id: "1629911279530"
+- id: '1629911279530'
   alias: Bijkeuken - Licht aan
-  description: ""
+  description: ''
   trigger:
-    - platform: state
-      entity_id: binary_sensor.bijkeuken_bewegingssensor
-      to: "on"
-    - platform: state
-      entity_id: binary_sensor.donker_binnen
-      to: "on"
+  - platform: state
+    entity_id: binary_sensor.bijkeuken_bewegingssensor
+    to: 'on'
+  - platform: state
+    entity_id: binary_sensor.donker_binnen
+    to: 'on'
   condition:
-    - condition: state
-      entity_id: binary_sensor.donker_binnen
-      state: "on"
-    - condition: state
-      entity_id: binary_sensor.bijkeuken_bewegingssensor
-      state: "on"
+  - condition: state
+    entity_id: binary_sensor.donker_binnen
+    state: 'on'
+  - condition: state
+    entity_id: binary_sensor.bijkeuken_bewegingssensor
+    state: 'on'
   action:
-    - type: turn_on
-      device_id: 8dafd02b71a94a0f80376693ac7132ea
-      entity_id: light.bijkeuken_plafond
-      domain: light
+  - type: turn_on
+    device_id: 8dafd02b71a94a0f80376693ac7132ea
+    entity_id: light.bijkeuken_plafond
+    domain: light
   mode: single
-- id: "1629911528869"
+- id: '1629911528869'
   alias: Bijkeuken - Licht uit
-  description: ""
+  description: ''
   trigger:
-    - platform: state
-      entity_id: binary_sensor.bijkeuken_bewegingssensor
-      to: "off"
-      for: 00:01:00
-    - platform: state
-      entity_id: binary_sensor.donker_binnen
-      to: "off"
+  - platform: state
+    entity_id: binary_sensor.bijkeuken_bewegingssensor
+    to: 'off'
+    for: 00:01:00
+  - platform: state
+    entity_id: binary_sensor.donker_binnen
+    to: 'off'
   condition:
-    - condition: state
-      entity_id: light.bijkeuken_plafond
-      state: "on"
+  - condition: state
+    entity_id: light.bijkeuken_plafond
+    state: 'on'
   action:
-    - type: turn_off
-      device_id: 8dafd02b71a94a0f80376693ac7132ea
-      entity_id: light.bijkeuken_plafond
-      domain: light
+  - type: turn_off
+    device_id: 8dafd02b71a94a0f80376693ac7132ea
+    entity_id: light.bijkeuken_plafond
+    domain: light
   mode: single
-- id: "1631009095968"
+- id: '1631009095968'
   alias: Notificatie ramen zolder open
-  description: ""
+  description: ''
   trigger:
-    - platform: time
-      at: "19:00"
+  - platform: time
+    at: '19:00'
   condition:
-    - condition: state
-      entity_id: binary_sensor.zolder_raam_achter
-      state: "on"
+  - condition: state
+    entity_id: binary_sensor.zolder_raam_achter
+    state: 'on'
   action:
-    - service: notify.mobile_app_telefoon_rudolf
+  - service: notify.mobile_app_telefoon_rudolf
+    data:
+      message: Dus dicht doen makker!
+      title: Het zolderraam staat nog open
       data:
-        message: Dus dicht doen makker!
-        title: Het zolderraam staat nog open
-        data:
-          ttl: 0
-          priority: high
-          channel: alarm_stream
-          importance: high
+        ttl: 0
+        priority: high
+        channel: alarm_stream
+        importance: high
   mode: single
-- id: "1631010588667"
-  alias: Bel gaat v2
-  description: ""
-  trigger:
-    - platform: state
-      entity_id: binary_sensor.gang_bel_button
-      from: "off"
-      to: "on"
-  condition: []
-  action:
-    - service: notify.mobile_app_telefoon_rudolf
-      data:
-        data:
-          entity_id: camera.eekternas_driveway
-          ttl: 0
-          priority: high
-        title: Er staat iemand voor de voordeur
-        message: Dus open doen pannekoek!
-  mode: single
-- id: "1631707602352"
+- id: '1631707602352'
   alias: Tag Pasje is gescand
-  description: ""
+  description: ''
   trigger:
-    - platform: tag
-      tag_id: 53-BA-DF-2B
+  - platform: tag
+    tag_id: 53-BA-DF-2B
   condition: []
   action:
-    - service: light.toggle
-      target:
-        entity_id: light.zolder_plafond
+  - service: light.toggle
+    target:
+      entity_id: light.zolder_plafond
   mode: single
-- id: "1632223302457"
+- id: '1632223302457'
   alias: Bewegingssensor schuur automatisch uit
-  description: ""
+  description: ''
   trigger:
-    - platform: state
-      entity_id: binary_sensor.kleine_schuur_bewegingssensor
-      to: "on"
-      for:
-        hours: 0
-        minutes: 3
-        seconds: 0
-        milliseconds: 0
+  - platform: state
+    entity_id: binary_sensor.kleine_schuur_bewegingssensor
+    to: 'on'
+    for:
+      hours: 0
+      minutes: 3
+      seconds: 0
+      milliseconds: 0
   condition: []
   action:
-    - service: mqtt.publish
-      data:
-        topic: tele/rf_schuur/RESULT
-        payload: '{"RfReceived":{"Data":"D2242E-off"}}'
+  - service: mqtt.publish
+    data:
+      topic: tele/rf_schuur/RESULT
+      payload: '{"RfReceived":{"Data":"D2242E-off"}}'
   mode: single
-- id: "1632406041853"
-  alias: Wall tablet - Battery saving mode at night
-  description: ""
-  trigger:
-    - platform: time
-      at: "23:00"
-  condition: []
-  action:
-    - service: homeassistant.turn_on
-      target:
-        entity_id: input_boolean.tablet_battery_saving
-    - condition: state
-      entity_id: switch.zolder_voeding_tablet
-      state: "off"
-    - service: switch.turn_on
-      target:
-        entity_id: switch.zolder_voeding_tablet
-  mode: single
-- id: "1632406098337"
-  alias: Wall tablet - Battery to normal mode
-  description: ""
-  trigger:
-    - platform: time
-      at: 07:00
-  condition: []
-  action:
-    - service: homeassistant.turn_off
-      target:
-        entity_id: input_boolean.tablet_battery_saving
-  mode: single
-- id: "1632469998878"
+- id: '1632469998878'
   alias: Wall tablet - Screen auto off
-  description: ""
+  description: ''
   trigger:
-    - platform: state
-      entity_id: binary_sensor.wall_tablet_motion
-      to: "off"
-      for:
-        hours: 0
-        minutes: 0
-        seconds: 5
-        milliseconds: 0
-    - platform: state
-      entity_id: input_boolean.tablet_battery_saving
-      from: "off"
-      to: "on"
-    - platform: state
-      entity_id: light.wall_tablet_screen
-      to: "on"
-      for:
-        hours: 0
-        minutes: 0
-        seconds: 15
-        milliseconds: 0
+  - platform: state
+    entity_id: binary_sensor.wall_tablet_motion
+    to: 'off'
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 5
+      milliseconds: 0
+  - platform: state
+    entity_id: light.wall_tablet_screen
+    to: 'on'
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 15
+      milliseconds: 0
+  - platform: time
+    at: '23:00'
   condition:
-    - condition: state
-      entity_id: binary_sensor.wall_tablet_motion
-      state: "off"
-      for:
-        hours: 0
-        minutes: 0
-        seconds: 5
-        milliseconds: 0
+  - condition: state
+    entity_id: binary_sensor.wall_tablet_motion
+    state: 'off'
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 5
+      milliseconds: 0
   action:
-    - choose:
-        - conditions:
-            - condition: state
-              entity_id: input_boolean.tablet_battery_saving
-              state: "off"
-          sequence:
-            - service: light.turn_on
-              target:
-                entity_id: light.wall_tablet_screen
-              data:
-                transition: 2
-                brightness: 1
-        - conditions:
-            - condition: state
-              entity_id: input_boolean.tablet_battery_saving
-              state: "on"
-          sequence:
-            - service: light.turn_on
-              data:
-                transition: 2
-                brightness: 1
-              target:
-                entity_id: light.wall_tablet_screen
-            - delay:
-                hours: 0
-                minutes: 0
-                seconds: 2
-                milliseconds: 0
-            - service: light.turn_off
-              target:
-                entity_id: light.wall_tablet_screen
-      default: []
-  mode: restart
-- id: "1632471920007"
-  alias: Wall tablet - Bright on motion
-  description: ""
-  trigger:
-    - platform: state
-      entity_id: binary_sensor.wall_tablet_motion
-      to: "on"
-  condition: []
-  action:
-    - service: light.turn_on
-      target:
-        entity_id: light.wall_tablet_screen
-      data: {}
+  - choose:
+    - conditions:
+      - condition: time
+        after: '23:00'
+        before: 07:00
+      sequence:
+      - service: light.turn_on
+        target:
+          entity_id: light.wall_tablet_screen
+        data:
+          transition: 5
+          brightness: 1
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 5
+          milliseconds: 0
+      - service: light.turn_off
+        target:
+          entity_id: light.wall_tablet_screen
+        data: {}
+    default:
     - service: light.turn_on
       target:
         entity_id: light.wall_tablet_screen
       data:
-        brightness: 150
+        brightness: 1
+  mode: restart
+- id: '1632471920007'
+  alias: Wall tablet - Bright on motion
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.wall_tablet_motion
+    to: 'on'
+  condition: []
+  action:
+  - service: light.turn_on
+    target:
+      entity_id: light.wall_tablet_screen
+    data: {}
+  - service: light.turn_on
+    target:
+      entity_id: light.wall_tablet_screen
+    data:
+      brightness: 25
   mode: single
-- id: "1632481170491"
+- id: '1632481170491'
   alias: Voortuin verlichting 's nachts
   description: Wanneer het donker is, lampen hek na 10 minuten weer aan.
   trigger:
-    - platform: state
-      entity_id: light.voortuin_hek
-      to: "off"
-      for:
-        minutes: 10
+  - platform: state
+    entity_id: light.voortuin_hek
+    to: 'off'
+    for:
+      minutes: 10
   condition:
-    - condition: state
-      entity_id: binary_sensor.donker_buiten
-      state: "on"
+  - condition: state
+    entity_id: binary_sensor.donker_buiten
+    state: 'on'
   action:
-    - service: light.turn_on
-      entity_id: light.voortuin_hek
+  - service: light.turn_on
+    entity_id: light.voortuin_hek
   mode: single
-- id: "1632481206036"
-  alias: Deurbel RF gedrukt
-  trigger:
-    - platform: state
-      entity_id: binary_sensor.gang_deurbel_rf_knop
-      to: "on"
-  condition:
-    - condition: state
-      entity_id: switch.gang_deurbel_chime_enabled
-      state: "on"
-  action:
-    - service: switch.turn_on
-      data: {}
-      target:
-        entity_id: switch.gang_bel
-    - delay:
-        hours: 0
-        minutes: 0
-        seconds: 0
-        milliseconds: 500
-    - service: switch.turn_off
-      data: {}
-      target:
-        entity_id: switch.gang_bel
-  mode: single
-- id: "1632481269015"
+- id: '1632481269015'
   alias: Achterdeur open in het donker
   description: Wijzig verlichting wanneer achterdeur open gaat
   trigger:
-    - platform: state
-      entity_id: binary_sensor.bijkeuken_deur
-      to: "on"
+  - platform: state
+    entity_id: binary_sensor.bijkeuken_deur
+    to: 'on'
   condition:
-    - condition: state
-      entity_id: binary_sensor.donker_buiten
-      state: "on"
+  - condition: state
+    entity_id: binary_sensor.donker_buiten
+    state: 'on'
   action:
-    - service: light.turn_on
-      entity_id: light.achtertuin_lantaarnpaal
-    - service: light.turn_off
-      entity_id: light.voortuin_hek
+  - service: light.turn_on
+    entity_id: light.achtertuin_lantaarnpaal
+  - service: light.turn_off
+    entity_id: light.voortuin_hek
+  mode: single
+- id: '1633615150575'
+  alias: Noa deken aan
+  description: ''
+  trigger:
+  - platform: time
+    at: '19:00'
+  condition: []
+  action:
+  - service: switch.turn_on
+    target:
+      entity_id: switch.noa_deken
+  mode: single
+- id: '1633615183579'
+  alias: Noa deken uit
+  description: ''
+  trigger:
+  - platform: time
+    at: '20:30'
+  condition: []
+  action:
+  - service: switch.turn_off
+    target:
+      entity_id: switch.noa_deken
+  mode: single
+- id: '1634330478124'
+  alias: Bel gaat - Stuur bericht
+  description: ''
+  use_blueprint:
+    path: vorion/send-camera-snapshot-notification-on-motion.yaml
+    input:
+      notification_message: Er staat iemand voor de deur
+      motion_sensor: binary_sensor.gang_bel_button
+      camera: camera.voortuin
+      notify_device: 267251cf143411ebbf4ef5c3186f709c
+      delay: 0
+      notification_title: Er wordt aangebeld
+- id: '1634941186819'
+  alias: Bel gaat - Toon pop-up
+  description: Toont camerabeeld in popup wanneer bel gaat
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.gang_bel_button
+    to: 'On'
+  condition: []
+  action:
+  - service: light.turn_on
+    target:
+      entity_id: light.wall_tablet_screen
+    data: {}
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 3
+      milliseconds: 0
+  - service: browser_mod.popup
+    data:
+      title: Popup example
+      card:
+        type: custom:webrtc-camera
+        entity: camera.voortuin
+      deviceID:
+      - ea5c0b48-bbd900ef
+      hide_header: true
+      large: true
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 30
+      milliseconds: 0
+  - service: browser_mod.close_popup
+  mode: single
+- id: '1635097522288'
+  alias: Lampen woonkamer uit wanneer licht
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.donker_binnen
+    to: 'off'
+  condition:
+  - condition: state
+    entity_id: light.woonkamer
+    state: 'on'
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+      milliseconds: 0
+  action:
+  - service: light.turn_off
+    target:
+      area_id: 57d9b04a287a447fb71a39e5d0ce02e5
   mode: single

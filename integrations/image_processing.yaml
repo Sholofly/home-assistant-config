@@ -1,0 +1,4 @@
+################################################
+## Integrations / Image Processing
+################################################
+image_processing: !include_dir_list ../entities/image_processing
