@@ -3,6 +3,7 @@ substitutions:
   slug: woonkamer_dressoir
   name: Woonkamer Dressoir
   description: Bedient het licht op het dressoir in de woonkamer.
+  wifi_static_ip: 192.168.1.82
 
 packages:
   device: !include devices/neo_coolcam_light.yaml

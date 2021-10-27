@@ -1,0 +1,45 @@
+substitutions:
+  label: esp02
+  slug: zolder_temperatuur
+  name: Zolder temperatuur
+  description: Schakelt de voeding van de muur tablet.
+packages:
+  device: !include devices/esp-wroom-32.yaml
+esp32_ble_tracker:
+sensor:
+  - platform: xiaomi_lywsd03mmc
+    mac_address: "A4:C1:38:1F:66:1E"
+    bindkey: "aac7737ff426986eabcb3a5aec7771dc"
+    temperature:
+      name: "Slaapkamer Temperature"
+    humidity:
+      name: "Slaapkamer Humidity"
+    battery_level:
+      name: "Slaapkamer Battery Level"
+    # battery_voltage:
+    #   name: "Zolder Battery Voltage"
+  
+  - platform: xiaomi_lywsd03mmc
+    mac_address: "A4:C1:38:7E:72:B4"
+    bindkey: "9a35ec31fe6c1cbfc9833eff8f661a7d"
+    temperature:
+      name: "Mika Temperature"
+    humidity:
+      name: "Mika Humidity"
+    battery_level:
+      name: "Mika Battery Level"
+    # battery_voltage:
+    #   name: "Mika Battery Voltage"
+  
+  
+  - platform: xiaomi_lywsd03mmc
+    mac_address: "A4:C1:38:47:D0:5B"
+    bindkey: "b78e7f09b40d19b2271f9fcc42d830a9"
+    temperature:
+      name: "Noa Temperature"
+    humidity:
+      name: "Noa Humidity"
+    battery_level:
+      name: "Noa Battery Level"
+    # battery_voltage:
+    #   name: "Noa Battery Voltage"

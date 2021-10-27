@@ -4,6 +4,7 @@ substitutions:
   name: Zolder CV ketel
   description: Schakelt de CV ketel.
   restore_mode: RESTORE_DEFAULT_OFF
+  wifi_static_ip: 192.168.1.196
 
 packages:
   device: !include devices/esp01s-relay.yaml

@@ -1,16 +1,16 @@
 substitutions:
-  label: esp33
+  label: esp16
   slug: gang_bel
   name: Gang Bel
   description: Schakelt de deurbel.
-  restore_mode: RESTORE_ALWAYS_OFF
+  restore_mode: RESTORE_DEFAULT_OFF
 
 packages:
-  device: !include devices/wemos-d1-mini-relay.yaml
+  device: !include devices/esp01s-relay.yaml
 
 # Global to store the on/off state of the chime
 globals:
-  - id: chime
+  - id: "${slug}_state"
     type: bool
     restore_value: true
     initial_value: 'true'
@@ -36,14 +36,14 @@ switch:
     restore_state: false
     turn_on_action:
       - globals.set:
-          id: chime
+          id: "${slug}_state"
           value: 'true'
     turn_off_action:
       - globals.set:
-          id: chime
+          id: "${slug}_state"
           value: 'false'
     lambda: |-
-      return id(chime);
+      return id("${slug}_state");
 
 # Binary sensor representing the
 # Doorbell button push.

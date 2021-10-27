@@ -4,6 +4,7 @@ substitutions:
   name: Gang Plafond
   description: Bedient de lamp in de gang.
   restore_mode: RESTORE_DEFAULT_OFF
+  wifi_static_ip: 192.168.1.46
 
 packages:
   device: !include devices/shelly1_light.yaml

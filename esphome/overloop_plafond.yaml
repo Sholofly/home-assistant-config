@@ -4,6 +4,7 @@ substitutions:
   name: Overloop Plafond
   description: Bedient de lamp op de overloop.
   restore_mode: RESTORE_DEFAULT_OFF
+  wifi_static_ip: 192.168.1.89
 
 packages:
   device: !include devices/shelly1_light.yaml

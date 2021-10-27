@@ -1,0 +1,12 @@
+packages:
+  <<: !include_dir_named ../common
+  board: !include ../boards/esp8266_nodemcuv2.yaml
+
+switch:
+  - platform: gpio
+    pin:
+      number: 0
+      inverted: yes
+    id: "${slug}_relay"
+    name: "${name}"
+    restore_mode: $restore_mode

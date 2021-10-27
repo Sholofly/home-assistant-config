@@ -1,0 +1,11 @@
+---
+# Wemos D1 mini module
+#
+# Can be found in various Tuya-based devices.
+#
+# https://docs.platformio.org/en/latest/boards/espressif8266/esp8285.html
+#
+esphome:
+  <<: !include .esphome.yaml
+  platform: ESP8266
+  board: esp01_1m

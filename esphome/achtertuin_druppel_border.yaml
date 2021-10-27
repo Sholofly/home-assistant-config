@@ -4,6 +4,7 @@ substitutions:
   name: Achtertuin Druppel border
   description: Bedient de druppelslang in de border.
   restore_mode: ALWAYS_OFF
+  wifi_static_ip: 192.168.1.186
 
 packages:
   <<: !include_dir_named ./common

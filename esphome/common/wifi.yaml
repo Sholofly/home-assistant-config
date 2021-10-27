@@ -16,7 +16,7 @@ wifi:
   reboot_timeout: 10min
   ap:
     ssid: "${name}"
-  domain: .lan
+  domain: .local
 
 sensor:
   - <<: !include ../sensors/wifi_signal_percentage.yaml
