@@ -1,4 +1,4 @@
 dsmr:
   title: "DSMR"
-  url: "http://hassio.lan:7777/"
+  url: "http://hassio.local:7777/"
   icon: mdi:sine-wave
