@@ -8,8 +8,10 @@ icon_template: >-
   {% if (state_attr('sensor.wall_tablet_device_info', 'isPlugged')) %}
     {% if (battery_level < 100) %}
       {{ state_attr('sensor.wall_tablet_battery_level', 'icon') |regex_replace(find='-', replace='-charging-', ignorecase=False)}}
+    {% elif (battery_level < 10) %}
+      mdi:battery-charging-outline
     {% else %}
-      mdi:battery-charging
+      mdi:battery-charging-100
     {% endif %}
   {% else %}
   {{ state_attr('sensor.wall_tablet_battery_level', 'icon') }}
