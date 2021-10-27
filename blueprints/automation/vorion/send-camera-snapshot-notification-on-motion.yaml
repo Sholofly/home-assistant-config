@@ -32,7 +32,7 @@ blueprint:
       name: Is it an iOS device?
       description: Toggle if your selected device runs iOS, default is Android
       selector:
-        boolean: {}
+        boolean: null
       default: false
     notification_title:
       name: Notification title (Optional)
