@@ -2,7 +2,7 @@
 ## Automations / Bijkeuken / Droger afronden
 ################################################
 alias: Droger afronden
-initial_state: on
+initial_state: true
 trigger:
   - platform: state
     entity_id: sensor.bijkeuken_droger_huidig_wattage

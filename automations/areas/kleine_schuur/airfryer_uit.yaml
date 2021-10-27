@@ -2,7 +2,7 @@
 ## Automations / Kleine schuur / Airfryer uit
 ################################################
 alias: Airfryer uit
-initial_state: on
+initial_state: true
 trigger:
   - platform: state
     entity_id: sensor.kleine_schuur_airfryer_huidig_wattage

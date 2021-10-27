@@ -2,14 +2,11 @@ blueprint:
   name: Deconz - IKEA SYMFONISK for lights
   description:
     "Control lights with an IKEA SYMFONISK from the Deconz integration.
-
     Pushing the button once, toggles the lights on/off to the last set
     brightness (unless the force brightness is toggled on in the blueprint).
     Rotating left/right will change the brightness.
-
     The button can be pressed double or triple, these actions can be assigned
     freely. This allows you to assign, e.g., a scene or anything else.
-
     Thanks to @Frenck. I modified his ZHA version to make it useful for Deconz.
     "
   domain: automation
@@ -34,7 +31,6 @@ blueprint:
       description:
         'Force the brightness to the set level below, when the "on" button
         on the remote is pushed and lights turn on.
-
         '
       default: false
       selector:
@@ -95,14 +91,14 @@ action:
           - delay:
               milliseconds: 100
       - conditions:
-          - "{{ event == 2001 }}" #start turning clockwise
+          - "{{ event == 2001 }}" # start turning clockwise
         sequence:
           - service: light.turn_on
             target: !input "light"
             data:
               brightness_step_pct: 5
       - conditions:
-          - "{{ event == 3001 }}" #start turning counter clockwise
+          - "{{ event == 3001 }}" # start turning counter clockwise
         sequence:
           - service: light.turn_on
             target: !input "light"

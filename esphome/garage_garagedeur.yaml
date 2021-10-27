@@ -9,4 +9,4 @@ substitutions:
   wifi_static_ip: 192.168.1.121
   
 packages:
-    device: !include devices/esp01s-relay-off.yaml
+  device: !include devices/esp01s-relay-off.yaml

@@ -2,24 +2,24 @@
 ## Automations / Bijkeuken / Wasmachine klaar Leny
 ################################################
 alias: Wasmachine klaar notificatie Leny
-initial_state: on
+initial_state: true
 trigger:
-  - platform:  state
+  - platform: state
     entity_id: input_select.bijkeuken_wasmachine_status
-    to: 'Klaar'
+    to: "Klaar"
   - platform: state
     entity_id: device_tracker.leny_samsung_galaxy_s10e
-    to: 'home'
+    to: "home"
     for:
       minutes: 2
   - platform: time
-    at: '07:30:00'
-condition: 
-      condition: state
-      entity_id: input_select.bijkeuken_wasmachine_status
-      state: 'Klaar'
+    at: "07:30:00"
+condition:
+  condition: state
+  entity_id: input_select.bijkeuken_wasmachine_status
+  state: "Klaar"
 action:
   - service: notify.mobile_app_telefoon_leny
-    data_template: 
+    data_template:
       title: "Wasmachine is klaar"
       message: "Niet vergeten de was eruit te halen"

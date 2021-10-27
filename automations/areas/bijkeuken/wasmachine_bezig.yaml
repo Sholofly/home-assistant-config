@@ -2,7 +2,7 @@
 ## Automations / Bijkeuken / Wasmachine bezig
 ################################################
 alias: Wasmachine bezig
-initial_state: on
+initial_state: true
 trigger:
   - platform: state
     entity_id: sensor.bijkeuken_wasmachine_wattage

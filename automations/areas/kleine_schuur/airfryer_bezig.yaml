@@ -2,7 +2,7 @@
 ## Automations / Kleine schuur / Airfryer bezig
 ################################################
 alias: Airfryer bezig
-initial_state: on
+initial_state: true
 trigger:
   - platform: state
     entity_id: sensor.kleine_schuur_airfryer_huidig_wattage

@@ -1,7 +1,9 @@
 blueprint:
-  name: Motion-activated light scene with surrounding light level check and optional
+  name:
+    Motion-activated light scene with surrounding light level check and optional
     ambient scene
-  description: Turn on a light scene when motion is detected. Three different scenes
+  description:
+    Turn on a light scene when motion is detected. Three different scenes
     can be defined depending on time of day. Furthermore a source for checking sourrounding
     light can be defined to enable light only if it is dark enough.
   domain: automation
@@ -21,7 +23,8 @@ blueprint:
           device_class: illuminance
     illuminace_level:
       name: Max Illuminance
-      description: Maximal immuminance level in lux. If illuminance is higher, light
+      description:
+        Maximal immuminance level in lux. If illuminance is higher, light
         will not be enabled
       default: 600
       selector:
@@ -39,7 +42,8 @@ blueprint:
             domain: light
     scene_ambient:
       name: Ambient Scene (Optional)
-      description: Scene for ambient state. Will be activated when no motion is detected
+      description:
+        Scene for ambient state. Will be activated when no motion is detected
         and light level is under threshold. Default value = scene.none
       default: scene.none
       selector:
@@ -50,13 +54,13 @@ blueprint:
       description: Time from which on ambient scene will be activated
       default: 00:00:00
       selector:
-        time: {}
+        time: null
     time_scene_ambient_end:
       name: Ambient time frame end
       description: Time from which on ambient scene will be not activated
       default: 00:00:00
       selector:
-        time: {}
+        time: null
     scene_morning:
       name: Scene for the morning
       default: scene.none
@@ -65,11 +69,12 @@ blueprint:
           domain: scene
     time_scene_morning:
       name: Time for the morning scene
-      description: A time input which defines the time from which on the scene will
+      description:
+        A time input which defines the time from which on the scene will
         be activated if motion is detected. Default value = scene.none
       default: 00:00:00
       selector:
-        time: {}
+        time: null
     scene_day:
       name: Scene for the bright day
       default: scene.none
@@ -78,11 +83,12 @@ blueprint:
           domain: scene
     time_scene_day:
       name: Time for the day scene
-      description: A time input which defines the time from which on the scene will
+      description:
+        A time input which defines the time from which on the scene will
         be activated if motion is detected. Default value = scene.none
       default: 00:00:00
       selector:
-        time: {}
+        time: null
     scene_evening:
       name: Scene for the evening
       default: scene.none
@@ -91,11 +97,12 @@ blueprint:
           domain: scene
     time_scene_evening:
       name: Time for the evening scene
-      description: A time input which defines the time from which on the scene will
+      description:
+        A time input which defines the time from which on the scene will
         be activated if motion is detected. Default value = scene.none
       default: 00:00:00
       selector:
-        time: {}
+        time: null
     scene_night:
       name: Scene for the dark night
       default: scene.none
@@ -104,11 +111,12 @@ blueprint:
           domain: scene
     time_scene_night:
       name: Time for the night scene
-      description: A time input which defines the time from which on the scene will
+      description:
+        A time input which defines the time from which on the scene will
         be activated if motion is detectedd. Default value = scene.none
       default: 00:00:00
       selector:
-        time: {}
+        time: null
     no_motion_wait:
       name: Wait time
       description: Time to leave the light on after last motion is detected.
@@ -123,67 +131,67 @@ blueprint:
 mode: restart
 max_exceeded: silent
 variables:
-  scene_ambient: !input 'scene_ambient'
+  scene_ambient: !input "scene_ambient"
 trigger:
   platform: state
-  entity_id: !input 'motion_entity'
-  from: 'off'
-  to: 'on'
+  entity_id: !input "motion_entity"
+  from: "off"
+  to: "on"
 action:
-- choose:
-  - conditions:
-    - condition: time
-      after: !input 'time_scene_morning'
-      before: !input 'time_scene_day'
-    - condition: numeric_state
-      entity_id: !input 'lightsensor_entity'
-      below: !input 'illuminace_level'
-    sequence:
-    - scene: !input 'scene_morning'
-  - conditions:
-    - condition: time
-      after: !input 'time_scene_day'
-      before: !input 'time_scene_evening'
-    - condition: numeric_state
-      entity_id: !input 'lightsensor_entity'
-      below: !input 'illuminace_level'
-    sequence:
-    - scene: !input 'scene_day'
-  - conditions:
-    - condition: time
-      after: !input 'time_scene_evening'
-      before: !input 'time_scene_night'
-    - condition: numeric_state
-      entity_id: !input 'lightsensor_entity'
-      below: !input 'illuminace_level'
-    sequence:
-    - scene: !input 'scene_evening'
-  - conditions:
-    - condition: time
-      after: !input 'time_scene_night'
-      before: !input 'time_scene_morning'
-    - condition: numeric_state
-      entity_id: !input 'lightsensor_entity'
-      below: !input 'illuminace_level'
-    sequence:
-    - scene: !input 'scene_night'
-- wait_for_trigger:
-    platform: state
-    entity_id: !input 'motion_entity'
-    from: 'on'
-    to: 'off'
-- delay: !input 'no_motion_wait'
-- choose:
-  - conditions:
-    - '{{ scene_ambient != ''scene.none''}}'
-    - condition: time
-      after: !input 'time_scene_ambient_start'
-      before: !input 'time_scene_ambient_end'
-    - condition: numeric_state
-      entity_id: !input 'lightsensor_entity'
-      below: !input 'illuminace_level'
-    sequence:
-    - scene: !input 'scene_ambient'
-  default:
-  - service: light.turn_off
-    target: !input 'light_target'
+  - choose:
+      - conditions:
+          - condition: time
+            after: !input "time_scene_morning"
+            before: !input "time_scene_day"
+          - condition: numeric_state
+            entity_id: !input "lightsensor_entity"
+            below: !input "illuminace_level"
+        sequence:
+          - scene: !input "scene_morning"
+      - conditions:
+          - condition: time
+            after: !input "time_scene_day"
+            before: !input "time_scene_evening"
+          - condition: numeric_state
+            entity_id: !input "lightsensor_entity"
+            below: !input "illuminace_level"
+        sequence:
+          - scene: !input "scene_day"
+      - conditions:
+          - condition: time
+            after: !input "time_scene_evening"
+            before: !input "time_scene_night"
+          - condition: numeric_state
+            entity_id: !input "lightsensor_entity"
+            below: !input "illuminace_level"
+        sequence:
+          - scene: !input "scene_evening"
+      - conditions:
+          - condition: time
+            after: !input "time_scene_night"
+            before: !input "time_scene_morning"
+          - condition: numeric_state
+            entity_id: !input "lightsensor_entity"
+            below: !input "illuminace_level"
+        sequence:
+          - scene: !input "scene_night"
+  - wait_for_trigger:
+      platform: state
+      entity_id: !input "motion_entity"
+      from: "on"
+      to: "off"
+  - delay: !input "no_motion_wait"
+  - choose:
+      - conditions:
+          - "{{ scene_ambient != 'scene.none'}}"
+          - condition: time
+            after: !input "time_scene_ambient_start"
+            before: !input "time_scene_ambient_end"
+          - condition: numeric_state
+            entity_id: !input "lightsensor_entity"
+            below: !input "illuminace_level"
+        sequence:
+          - scene: !input "scene_ambient"
+    default:
+      - service: light.turn_off
+        target: !input "light_target"

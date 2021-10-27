@@ -11,13 +11,13 @@ binary_sensor:
     pin:
       number: GPIO35
       mode: INPUT_PULLUP
-      inverted: True
+      inverted: true
     name: "${name} Wake Button"
 
 i2c:
   sda: 25
   scl: 26
-  scan: True
+  scan: true
   id: bus_a
   setup_priority: -200
 

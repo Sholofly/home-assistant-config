@@ -39,7 +39,7 @@ sensor:
   - platform: hlw8012
     sel_pin:
       number: GPIO12
-      inverted: True
+      inverted: true
     cf_pin: GPIO04
     cf1_pin: GPIO05
     current_resistor: ${current_res}

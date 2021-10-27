@@ -5,4 +5,4 @@ logger:
   default: warning
   logs:
     homeassistant.components.waze_travel_time: error
-    #arris_dcx960: debug
+    # arris_dcx960: debug

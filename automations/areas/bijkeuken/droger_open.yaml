@@ -2,7 +2,7 @@
 ## Automations / Bijkeuken / Droger open
 ################################################
 alias: Droger open
-initial_state: on
+initial_state: true
 trigger:
   - platform: state
     entity_id: binary_sensor.bijkeuken_droger

@@ -8,7 +8,7 @@ binary_sensor:
     pin:
       number: GPIO0
       mode: INPUT_PULLUP
-      inverted: True
+      inverted: true
     name: "${name} button"
     on_press:
       then:
@@ -21,7 +21,7 @@ output:
   - platform: esp8266_pwm
     id: blue_led
     pin: GPIO13
-    inverted: True
+    inverted: true
 
   - platform: gpio
     id: relay

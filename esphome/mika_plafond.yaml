@@ -1,4 +1,4 @@
-#Is in fact a Sonoff T4 (no neutral)
+# Is in fact a Sonoff T4 (no neutral)
 substitutions:
   label: esp15
   slug: mika_plafond

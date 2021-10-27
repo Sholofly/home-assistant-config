@@ -2,17 +2,17 @@
 ## Automations / Bijkeuken / Wasmachine klaar
 ################################################
 alias: Wasmachine klaar
-initial_state: on
+initial_state: true
 trigger:
-  - platform:  state
+  - platform: state
     entity_id: input_select.bijkeuken_wasmachine_status
-    to: 'Afronden'
+    to: "Afronden"
     for:
       minutes: 5
-condition: 
-      condition: state
-      entity_id: binary_sensor.bijkeuken_wasmachine
-      state: 'off'
+condition:
+  condition: state
+  entity_id: binary_sensor.bijkeuken_wasmachine
+  state: "off"
 action:
   - service: input_select.select_option
     entity_id: input_select.bijkeuken_wasmachine_status

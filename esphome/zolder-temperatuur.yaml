@@ -42,4 +42,4 @@ sensor:
     battery_level:
       name: "Noa Battery Level"
     # battery_voltage:
-    #   name: "Noa Battery Voltage"
+    # name: "Noa Battery Voltage"

@@ -5,7 +5,7 @@ switch:
   - platform: gpio
     pin:
       number: 0
-      inverted: yes
+      inverted: true
     id: "${slug}_relay"
     restore_mode: $restore_mode
   - platform: template

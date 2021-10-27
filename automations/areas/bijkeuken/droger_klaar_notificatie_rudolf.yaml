@@ -2,7 +2,7 @@
 ## Automations / Bijkeuken / Droger klaar Rudolf
 ################################################
 alias: Droger klaar notificatie Rudolf
-initial_state: on
+initial_state: true
 trigger:
   - platform: state
     entity_id: input_select.bijkeuken_droger_status

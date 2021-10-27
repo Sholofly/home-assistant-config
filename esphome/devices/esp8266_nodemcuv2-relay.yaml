@@ -6,7 +6,7 @@ switch:
   - platform: gpio
     pin:
       number: 0
-      inverted: yes
+      inverted: true
     id: "${slug}_relay"
     name: "${name}"
     restore_mode: $restore_mode
