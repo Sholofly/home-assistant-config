@@ -1,6 +1,0 @@
-################################################
-## Entities / Input Booleans / Nachtmode
-################################################
-nachtmode:
-  name: Nachtmode
-  icon: mdi:weather-night

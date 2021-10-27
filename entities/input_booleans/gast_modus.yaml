@@ -1,6 +1,0 @@
-################################################
-## Entities / Input Booleans / Pufje genomen
-################################################
-gast_modus:
-  name: Gast mode
-  icon: mdi:briefcase-account
