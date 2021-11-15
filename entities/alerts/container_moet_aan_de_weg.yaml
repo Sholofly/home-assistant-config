@@ -1,0 +1,10 @@
+container_moet_aan_de_weg:
+  name: Container moet aan de weg
+  done_message: Container staat aan de weg
+  entity_id: input_boolean.container_moet_aan_de_weg
+  state: "on"
+  repeat: 30
+  can_acknowledge: false
+  skip_first: false
+  notifiers:
+    - mobile_app_telefoon_rudolf
