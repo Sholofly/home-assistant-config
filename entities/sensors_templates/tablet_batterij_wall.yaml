@@ -4,7 +4,7 @@
 friendly_name: Batterijstatus wall tablet
 value_template: "{{ states('sensor.wall_tablet_battery_level') }}"
 icon_template: >-
-  {% set battery_level = states('sensor.wall_tablet_battery_level') |int %}
+  {% set battery_level = states('sensor.wall_tablet_battery_level') | int(0) %}
   {% if (state_attr('sensor.wall_tablet_device_info', 'isPlugged')) %}
     {% if (battery_level < 100) %}
       {{ state_attr('sensor.wall_tablet_battery_level', 'icon') |regex_replace(find='-', replace='-charging-', ignorecase=False)}}
