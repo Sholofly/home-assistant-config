@@ -1,4 +1,4 @@
 esphome:
   <<: !include .esphome.yaml
   platform: ESP32
-  board: nodemcu-32s
+  board: esp32dev

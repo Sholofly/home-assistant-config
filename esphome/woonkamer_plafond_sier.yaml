@@ -1,0 +1,13 @@
+substitutions:
+  label: esp04
+  slug: woonkamer_plafond_sier
+  name: Woonkamer Plafond sier
+  description: Bedient de sierlamp aan de haakjes.
+  # Higher value gives lower watt readout
+  current_res: "0.00221"
+  # Lower value gives lower voltage readout
+  voltage_div: "800"
+  restore_mode: RESTORE_DEFAULT_OFF
+
+packages:
+  device: !include devices/neo_coolcam_pm_light.yaml
