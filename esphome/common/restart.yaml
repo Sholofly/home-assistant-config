@@ -7,5 +7,5 @@
 #
 # https://esphome.io/components/switch/restart.html
 #
-switch:
-  - <<: !include ../switches/restart.yaml
+button:
+  - <<: !include ../buttons/restart.yaml
