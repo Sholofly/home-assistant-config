@@ -14,8 +14,7 @@
   use_blueprint:
     path: deconz_ikea_symfonisk_lights.yaml
     input:
-      brightness: '50'
-      remote: b225a6d4ec52c665162a23c382f2f38f
+      brightness: 50
       light:
         entity_id: light.noa_bed
       double_press:
@@ -27,6 +26,7 @@
         data:
           option: Solid
         entity_id: input_select.noa_bed_effects
+      remote: b225a6d4ec52c665162a23c382f2f38f
 - id: '1617684358026'
   alias: Home Assistant Update Notification for Android
   description: ''
@@ -52,23 +52,6 @@
       title: DSMR wordt niet geupdated!
       message: Check of de USB binding nog goed staat in de VM.
   mode: single
-- id: '1622670827416'
-  alias: Rudolf medicijnen reminder
-  description: ''
-  use_blueprint:
-    path: Mati24/advanced-medication-reminder.yaml
-    input:
-      logbook_message_skip: Reminder skipped
-      notify_device: 267251cf143411ebbf4ef5c3186f709c
-      notification_title: medicijnen nemen
-      notification_message: Vergeet niet je medicijnen te nemen
-      notification_action_taken: Genomen
-      notification_action_later: Herinner mij later
-      ask_later_wait_time: 5
-      reminder_time: 07:30:00
-      logbook_message_later: Postpone reminder
-      input_boolean: input_boolean.rudolf_medicijnen_genomen
-      logbook_message_taken: Medication taken
 - id: '1624693593116'
   alias: Thermostaat nachtstand
   description: ''
@@ -77,11 +60,9 @@
     at: '23:00:00'
   condition: []
   action:
-  - service: climate.set_temperature
+  - service: climate.turn_off
     target:
       entity_id: climate.thermostaat
-    data:
-      temperature: 18.5
   mode: single
 - id: '1624693689373'
   alias: Afval
@@ -538,6 +519,9 @@
   - platform: state
     entity_id: binary_sensor.gang_bel_button
     to: 'on'
+  - platform: state
+    entity_id: binary_sensor.voortuin_deurbel
+    to: 'on'
   condition: []
   action:
   - service: light.turn_on
@@ -620,4 +604,24 @@
   - service: alarm_control_panel.alarm_trigger
     target:
       entity_id: alarm_control_panel.home_alarm
+  mode: single
+- id: '1637959661190'
+  alias: Deurbel automatisch uit
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.voortuin_deurbel
+    to: 'on'
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 2
+      milliseconds: 0
+  condition: []
+  action:
+  - service: mqtt.publish
+    data:
+      topic: tele/rfbridge_meterkast/RESULT
+      payload: '{"RfRaw":{"Data":"AA B1 03 044C 0172 16D0 080909090909090918091809090918181818
+        55-off"}}'
   mode: single
