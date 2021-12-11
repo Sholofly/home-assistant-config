@@ -1,4 +1,4 @@
 nginx:
   title: "Nginx Prox Manager"
-  url: "http://hassio.local:81/"
+  url: "http://homeassistant.local:81/"
   icon: mdi:arrow-decision
