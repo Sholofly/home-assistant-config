@@ -3,3 +3,10 @@
 ################################################
 lovelace:
   mode: storage
+  dashboards:
+    tablet-v3:
+      mode: yaml
+      title: Tablet v3
+      icon: mdi:tablet
+      show_in_sidebar: true
+      filename: tablet.yaml

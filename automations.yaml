@@ -22,10 +22,11 @@
         data: {}
         entity_id: input_select.noa_bed_effects
       triple_press:
-      - service: input_select.select_option
+      - service: select.select_option
+        target:
+          entity_id: select.wled_noa_preset
         data:
-          option: Solid
-        entity_id: input_select.noa_bed_effects
+          option: Solid white
       remote: b225a6d4ec52c665162a23c382f2f38f
 - id: '1617684358026'
   alias: Home Assistant Update Notification for Android
