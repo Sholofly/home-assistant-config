@@ -1,2 +1,3 @@
 template:
   sensor: !include_dir_list ../entities/templates/sensors
+  select: !include_dir_list ../entities/templates/selects
