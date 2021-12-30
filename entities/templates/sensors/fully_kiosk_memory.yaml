@@ -1,0 +1,11 @@
+unique_id: fullykiosk_memory
+icon: mdi:memory
+unit_of_measurement: "%"
+state: >
+  {% set FreeMemory = states('sensor.lenovo_tab_m10_ram_free_memory') | float(default=0) %}
+  {% set TotalMemory = states('sensor.lenovo_tab_m10_ram_total_memory') | float(default=0) %}
+  {% if not (FreeMemory == 0.0 or TotalMemory == 0.0) %}
+    {{ 100 - (FreeMemory / TotalMemory * 100) | int(default=0) }}
+  {% endif %}
+attributes:
+  friendly_name: Minne

@@ -1,0 +1,7 @@
+unique_id: fullykiosk_last_app_start
+icon: mdi:update
+device_class: timestamp
+state: >
+  {{ as_timestamp(states('sensor.lenovo_tab_m10_last_app_start'), default=0) | timestamp_local(default=0) }}
+attributes:
+  friendly_name: Laatste herstart

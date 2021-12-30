@@ -1,0 +1,17 @@
+unique_id: updates
+state: template
+attributes:
+  esphome: >
+    {% set installed = states('sensor.esphome_version') %}
+    {% set latest = states('sensor.esphome_newest_version') %}
+    {% set url = 'https://github.com/esphome/esphome/releases/latest' %}
+    {% if installed != latest %}
+      <b><a href="#" onclick="window.open('{{ url }}');">ESPHome</a></b> {{ installed + ' \u279e ' + latest }}
+    {% endif %}
+  synology: >
+    {% set installed = device_attr(device_id('binary_sensor.eekternas_update_available'), 'installed_version') %}
+    {% set latest = device_attr(device_id('binary_sensor.eekternas_update_available'), 'latest_available_version') %}
+    {% set url = 'https://www.synology.com/en-global/releaseNote/DSM' %}
+    {% if is_state('binary_sensor.eekternas_update_available', 'on') %}
+      <b><a href="#" onclick="window.open('{{ url }}');">Synology DSM</a></b> {{ installed + ' \u279e ' + latest }}
+    {% endif %}

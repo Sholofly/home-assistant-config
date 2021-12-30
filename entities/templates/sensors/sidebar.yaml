@@ -49,3 +49,29 @@ attributes:
     {%- else %}
       Kan weersinformatie niet laden...
     {%- endif %}
+  rudolf: |
+    {%- set start_time = state_attr('calendar.r_offereins_gmail_com', 'start_time') %}
+    {%- set end_time = state_attr('calendar.r_offereins_gmail_com', 'end_time') %}
+    {% if start_time != None %}
+      {%- set time = as_timestamp(start_time) | timestamp_custom('%H:%M') %}
+      {%- set time_end = as_timestamp(end_time) | timestamp_custom('%H:%M') %}
+      {%- set hours = as_timestamp(start_time) | timestamp_custom('%H') | int(default=0) / 24 %}
+      {%- set count = (as_timestamp(start_time) - as_timestamp(now())) / 86400 - hours %}
+      {%- set day = strptime(start_time, '%Y-%m-%d %H:%M:%S').strftime('%A') 
+      | replace('Monday', 'Maandag')
+      | replace('Tuesday', 'Dinsdag')
+      | replace('Wednesday', 'Woensdag')
+      | replace('Thursday', 'Donderdag')
+      | replace('Friday', 'Vrijdag')
+      | replace('Saturday', 'Zaterdag')
+      | replace('Sunday', 'Zondat') %}
+      {%- if count <= 0.0 -%}
+        {{'\U0001F6D2'}} Rudolf vandaag tussen {{ time }}-{{ time_end }}
+      {%- elif count <= 1.0 -%}
+        Rudolf morgen tussen {{ time }}-{{ time_end }}
+      {%- elif count <= 2.0 -%}
+        Rudolf overmorgen tussen {{ time }}-{{ time_end }}
+      {%- else -%}
+        Rudolf als {{ (count + hours) | round }} dagen op {{ day }} tussen {{ time }}-{{ time_end }}
+      {%- endif %}
+    {%- endif %}
