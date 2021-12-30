@@ -14,10 +14,10 @@ views:
       grid-template-columns: repeat(4, 1fr) 0
       grid-template-rows: 0 repeat(2, fit-content(100%)) 0fr
       grid-template-areas: |
-        "sidebar  .           .       .       ."
-        "sidebar  familie    thermostaat   keuken  ."
-        "sidebar  media       overig    woonkamer ."
-        "sidebar  footer      footer    footer  ."
+        "sidebar  .           .         .           ."
+        "sidebar  beneden     beneden   thermostaat ."
+        "sidebar  overig      familie   media       ."
+        "sidebar  footer      footer    footer      ."
       mediaquery:
         #phone
         "(max-width: 800px)":
@@ -27,8 +27,8 @@ views:
           grid-template-areas: |
             ".  .           .        ."
             ".  sidebar     sidebar  ."
-            ".  woonkamer   keuken   ."
-            ".  thermostaat    overig   ."
+            ".  beneden     keuken   ."
+            ".  thermostaat overig   ."
             ".  media       familie  ."
             ".  footer      footer   ."
             ".  .           .        ."
@@ -39,7 +39,7 @@ views:
           grid-template-rows: 0 repeat(3, fit-content(100%)) 0fr
           grid-template-areas: |
             "sidebar  .           .       ."
-            "sidebar  woonkamer   keuken  ."
+            "sidebar  beneden   keuken  ."
             "sidebar  thermostaat    overig  ."
             "sidebar  media       familie ."
             "sidebar  footer      footer  ."
@@ -62,70 +62,106 @@ views:
           - type: custom:button-card
             entity: sensor.template_sidebar
             template: sidebar_template
-          - type: custom:atomic-calendar-revive
-            showMonth: true
-            entities:
-              - entity: calendar.r_offereins_gmail_com
-                color: orange
-              - entity: calendar.leny_bosman
-                color: yellow
-              - entity: calendar.noa_offereins
-                color: pink
-              - entity: calendar.mika_offereins
-                color: green
-            name: null
-            enableModeChange: false
-            firstDayOfWeek: "1"
-            showProgressBar: false
-            showCurrentEventLine: false
-            howRelativeTime: false
-            showWeekDay: true
-            showNoEventsForToday: true
-            calShowDescription: false
-            showLastCalendarWeek: false
-            dateFormat: LL
-            europeanDate: true
-            refreshInterval: "300"
-            showFullDayProgress: false
-            fullDayEventText: Hele dag
-            disableEventLink: false
-            hideFinishedEvents: true
-            maxDaysToShow: "5"
+          - type: grid
+            cards:
+              # - type: button
+              #   icon: custom:roborock-vacuum
+              #   tap_action:
+              #     !include popup/sidebar_vacuum.yaml
+              #   hold_action:
+              #     action: none
+
+              - type: button
+                icon: mdi:information-outline
+                tap_action: !include popup/sidebar_information.yaml
+                hold_action:
+                  action: none
+
+              - type: button
+                icon: mdi:arrow-up-bold-circle-outline
+                tap_action: !include popup/sidebar_update.yaml
+                hold_action:
+                  action: call-service
+                  service: homeassistant.update_entity
+                  service_data:
+                    entity_id: sensor.hacs
+          # - type: custom:atomic-calendar-revive
+          #   showMonth: true
+          #   entities:
+          #     - entity: calendar.r_offereins_gmail_com
+          #       color: orange
+          #     - entity: calendar.leny_bosman
+          #       color: yellow
+          #     - entity: calendar.noa_offereins
+          #       color: pink
+          #     - entity: calendar.mika_offereins
+          #       color: green
+          #   name: null
+          #   enableModeChange: false
+          #   firstDayOfWeek: "1"
+          #   showProgressBar: false
+          #   showCurrentEventLine: false
+          #   howRelativeTime: false
+          #   showWeekDay: true
+          #   showNoEventsForToday: true
+          #   calShowDescription: false
+          #   showLastCalendarWeek: false
+          #   dateFormat: LL
+          #   europeanDate: true
+          #   refreshInterval: "300"
+          #   showFullDayProgress: false
+          #   fullDayEventText: Hele dag
+          #   disableEventLink: false
+          #   hideFinishedEvents: true
+          #   maxDaysToShow: "5"
 
       #################################################
       #                                               #
-      #                   Woonkamer                   #
+      #                   BENEDEN                     #
       #                                               #
       #################################################
       - type: grid
-        title: Woonkamer
+        title: Beneden
         view_layout:
-          grid-area: woonkamer
-        columns: 2
+          grid-area: beneden
+        columns: 4
         cards:
           - type: custom:button-card
-            entity: light.woonkamer
-            name: Woonkamer
+            entity: light.woonkamer_dressoir
+            name: Kerstboom
             template:
               - light_toggle
               - icon_lamp
           - type: custom:button-card
-            entity: climate.thermostaat
-            name: Temp.
-            tap_action: !include popup/woonkamer_climate.yaml
+            entity: light.woonkamer_plafond_sier
+            name: Plafond
             template:
-              - base
-              - icon_climate
-              - climate
-            variables:
-              circle_input: >
-                [[[
-                  if (entity) {
-                    return entity.state == 'cool' ?
-                      entity.attributes.temperature :
-                      entity.attributes.current_temperature;
-                  }
-                ]]]
+              - light_toggle
+              - icon_lamp
+          - type: custom:button-card
+            entity: light.woonkamer_wandrek
+            name: Wandrek
+            template:
+              - light_toggle
+              - icon_lamp
+          - type: custom:button-card
+            entity: light.woonkamer_raam_voor
+            name: Raam voor
+            template:
+              - light_toggle
+              - icon_lamp
+          - type: custom:button-card
+            entity: light.woonkamer_raam_zijkant
+            name: Raam zij
+            template:
+              - light_toggle
+              - icon_lamp
+          - type: custom:button-card
+            entity: light.keuken_eettafel
+            name: Eettafel
+            template:
+              - light_no_color
+              - icon_hue
           - type: custom:button-card
             entity: media_player.ziggo_beneden
             name: Tv
@@ -135,38 +171,40 @@ views:
                   return 'Aan';
                 }
               ]]]
-            hold_action: !include popup/woonkamer_tv.yaml
+            #hold_action: !include popup/vardagsrum_tv.yaml
             template:
               - base
               - icon_tv
               - loader
+              #- media
           - type: custom:button-card
             entity: media_player.playstation_4
             name: PS 4
-            hold_action: !include popup/woonkamer_ps4.yaml
+            # hold_action:
+            #   !include popup/vardagsrum_playstation.yaml
             template:
               - base
+              - media
               - icon_ps5
               - loader
-              - media
 
       #################################################
       #                                               #
       #                    Keuken                     #
       #                                               #
       #################################################
-      - type: grid
-        title: Keuken
-        view_layout:
-          grid-area: keuken
-        columns: 2
-        cards:
-          - type: custom:button-card
-            entity: light.keuken_eettafel
-            name: Keuken
-            template:
-              - light_no_color
-              - icon_hue
+      # - type: grid
+      #   title: Keuken
+      #   view_layout:
+      #     grid-area: keuken
+      #   columns: 2
+      #   cards:
+      #     - type: custom:button-card
+      #       entity: light.keuken_eettafel
+      #       name: Keuken
+      #       template:
+      #         - light_no_color
+      #         - icon_hue
 
       #################################################
       #                                               #
@@ -187,10 +225,18 @@ views:
               #   poster: https://home-assistant.io/images/cast/splash.png
               #   ui: true
               - type: custom:simple-thermostat
+                style: |
+                  ha-card {
+                    --st-font-size-xl: 24px;
+                    --st-font-size-m: 14px;
+                    --st-font-size-title: 20px;
+                    --st-font-size-sensors: 16px;
+                    --st-spacing: 2px;
+                  }
                 entity: climate.thermostaat
                 layout:
                   mode:
-                    names: true
+                    names: false
                     headings: false
                     icons: true
                   step: column
@@ -200,17 +246,19 @@ views:
                       name: Uit
                     heat:
                       name: Aan
-                header: false
+                header:
+                  name: ""
+                  icon: false
                 step_size: "0.5"
                 decimals: "1"
-              # - type: entities
-              #   card_mod:
-              #     class: content
-              #   entities:
-              #     - entity: sensor.woonkamer_multisensor_humidity
-              #       name: Luchtvochtigheid
-              #     - entity: sensor.woonkamer_multisensor_airpressure
-              #       name: Luchtdruk
+              - type: entities
+                card_mod:
+                  class: content
+                entities:
+                  - entity: sensor.woonkamer_multisensor_humidity
+                    name: Luchtvochtigheid
+                  # - entity: sensor.woonkamer_multisensor_airpressure
+                  #   name: Luchtdruk
               - type: custom:apexcharts-card
                 layout: minimal
                 locale: nl-NL
@@ -242,7 +290,7 @@ views:
                     x:
                       format: dddd HH:mm
                   chart:
-                    height: 140px
+                    height: 80px
                   xaxis:
                     crosshairs:
                       show: false
@@ -280,6 +328,46 @@ views:
                 rotate: 80
                 depth: 300
             cards:
+              - type: conditional
+                conditions:
+                  - entity: media_player.ziggo_beneden
+                    state_not: "off"
+                card:
+                  type: custom:button-card
+                  entity: media_player.ziggo_beneden
+                  template:
+                    - conditional_media
+                    - icon_apple_tv
+              - type: conditional
+                conditions:
+                  - entity: media_player.keuken
+                    state_not: "off"
+                card:
+                  type: custom:button-card
+                  entity: media_player.keuken
+                  template:
+                    - conditional_media
+                    - icon_nest_hub
+              - type: conditional
+                conditions:
+                  - entity: media_player.woonkamer_google_home
+                    state_not: "off"
+                card:
+                  type: custom:button-card
+                  entity: media_player.woonkamer_google_home
+                  template:
+                    - conditional_media
+                    - icon_nest_mini
+              - type: conditional
+                conditions:
+                  - entity: media_player.woonkamer_chromecast
+                    state_not: "off"
+                card:
+                  type: custom:button-card
+                  entity: media_player.woonkamer_chromecast
+                  template:
+                    - conditional_media
+                    - icon_nest_mini
               - type: grid
                 columns: 2
                 cards:
@@ -312,7 +400,7 @@ views:
                     name: Keuken Nest hub
                     template:
                       - media
-                      - icon_nest_mini
+                      - icon_nest_hub
 
       #################################################
       #                                               #
@@ -334,32 +422,29 @@ views:
             tap_action: !include popup/familie_rudolf.yaml
             hold_action:
               action: none
-            # variables:
-            #   retain: sensor.matte_last_changed
+            variables:
+              battery: sensor.telefoon_rudolf_battery_level
             template: person
 
           - type: custom:button-card
             entity: person.leny
             name: Leny
             triggers_update:
-            #   - person.leny
+              - person.leny
             tap_action: !include popup/familie_leny.yaml
             hold_action:
               action: none
-            # variables:
-            #   retain: sensor.matte_last_changed
+            variables:
+              battery: sensor.telefoon_leny_batterijniveau
             template: person
           - type: custom:button-card
             entity: person.noa
             name: Noa
-            # triggers_update:
-            #   - sensor.matte_last_changed
-            # tap_action:
-            #   !include popup/hemma_mattias.yaml
+            tap_action: !include popup/familie_noa.yaml
             hold_action:
               action: none
-            # variables:
-            #   retain: sensor.matte_last_changed
+            variables:
+              battery: sensor.tablet_noa_batterij
             template: person
 
           - type: custom:button-card
@@ -371,8 +456,8 @@ views:
             #   !include popup/hemma_mattias.yaml
             hold_action:
               action: none
-            # variables:
-            #   retain: sensor.matte_last_changed
+            variables:
+              battery: sensor.tablet_mika_batterijniveau
             template: person
 
       #################################################
@@ -413,3 +498,13 @@ views:
             template:
               - light_toggle
               - icon_bathroom
+      #################################################
+      #                                               #
+      #                    FOOTER                     #
+      #                                               #
+      #################################################
+
+      - type: custom:button-card
+        view_layout:
+          grid-area: footer
+        template: afval
