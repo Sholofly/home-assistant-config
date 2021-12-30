@@ -1,7 +1,0 @@
-################################################
-## Integrations / Rest commands
-################################################
-rest_command:
-  wall_tablet_kiosk_command:
-    url: !secret rest_url_wall_tablet_kiosk_command
-    
