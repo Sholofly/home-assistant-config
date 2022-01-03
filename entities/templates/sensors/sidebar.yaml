@@ -38,8 +38,8 @@ attributes:
 
   weather: |
     {%- set temperature = states('sensor.br_temperature') %}
-    {%- set apparent = states('sensor.buienradar_feel_temperature') | round %}
-    {%- set precip = states('sensor.br_precipitation') | round %}
+    {%- set apparent = states('sensor.buienradar_feel_temperature') | round(0) %}
+    {%- set precip = states('sensor.br_precipitation') | round(0) %}
     {% if not is_state('sensor.br_temperature', 'unknown') %}
       {%- if temperature | float(default=0) <= 0.0 -%}
         Voelt als {{ apparent }}° met {{ precip }}% kans op sneeuw {{'\u2744\uFE0F'}}
@@ -72,6 +72,6 @@ attributes:
       {%- elif count <= 2.0 -%}
         Rudolf overmorgen tussen {{ time }}-{{ time_end }}
       {%- else -%}
-        Rudolf als {{ (count + hours) | round }} dagen op {{ day }} tussen {{ time }}-{{ time_end }}
+        Rudolf als {{ (count + hours) | round(0) }} dagen op {{ day }} tussen {{ time }}-{{ time_end }}
       {%- endif %}
     {%- endif %}

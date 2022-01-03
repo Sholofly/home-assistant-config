@@ -536,27 +536,6 @@
       milliseconds: 0
   - service: browser_mod.close_popup
   mode: single
-- id: '1635097522288'
-  alias: Lampen woonkamer uit wanneer licht
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.donker_binnen
-    to: 'off'
-  condition:
-  - condition: state
-    entity_id: light.woonkamer
-    state: 'on'
-    for:
-      hours: 0
-      minutes: 1
-      seconds: 0
-      milliseconds: 0
-  action:
-  - service: light.turn_off
-    target:
-      area_id: 57d9b04a287a447fb71a39e5d0ce02e5
-  mode: single
 - id: '1636220861020'
   alias: Alarm wanneer weg
   description: ''
@@ -610,4 +589,46 @@
       topic: tele/rfbridge_meterkast/RESULT
       payload: '{"RfRaw":{"Data":"AA B1 03 044C 0172 16D0 080909090909090918091809090918181818
         55-off"}}'
+  mode: single
+- id: '1641238347569'
+  alias: Nieuwe automatisering
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.shopping_list_contents
+    from: 'off'
+    to: 'on'
+  - platform: state
+    entity_id: group.parents
+    to: WC De Vrijheid
+  condition:
+  - condition: state
+    entity_id: binary_sensor.shopping_list_contents
+    state: 'on'
+  - condition: state
+    entity_id: group.parents
+    state: WC De Vrijheid
+  action:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: person.leny
+        state: WC De Vrijheid
+      sequence:
+      - service: notify.mobile_app_telefoon_leny
+        data:
+          title: Er staan boodschappen op de lijst
+          message: '{{ state_attr(''binary_sensor.shopping_list_contents'', ''list_content'')
+            }}'
+    - conditions:
+      - condition: state
+        entity_id: person.rudolf
+        state: WC De Vrijheid
+      sequence:
+      - service: notify.mobile_app_telefoon_rudolf
+        data:
+          title: Er staan boodschappen op de lijst
+          message: '{{ state_attr(''binary_sensor.shopping_list_contents'', ''list_content'')
+            }}'
+    default: []
   mode: single
