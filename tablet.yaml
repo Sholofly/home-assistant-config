@@ -128,22 +128,22 @@ views:
         cards:
           - type: custom:button-card
             entity: light.woonkamer_dressoir
-            name: Kerstboom
+            name: Dressoir
             template:
               - light_toggle
               - icon_lamp
-          - type: custom:button-card
-            entity: light.woonkamer_plafond_sier
-            name: Plafond
-            template:
-              - light_toggle
-              - icon_lamp
-          - type: custom:button-card
-            entity: light.woonkamer_wandrek
-            name: Wandrek
-            template:
-              - light_toggle
-              - icon_lamp
+          # - type: custom:button-card
+          #   entity: light.woonkamer_plafond_sier
+          #   name: Plafond
+          #   template:
+          #     - light_toggle
+          #     - icon_lamp
+          # - type: custom:button-card
+          #   entity: light.woonkamer_wandrek
+          #   name: Wandrek
+          #   template:
+          #     - light_toggle
+          #     - icon_lamp
           - type: custom:button-card
             entity: light.woonkamer_raam_voor
             name: Raam voor
@@ -227,82 +227,104 @@ views:
               - type: custom:simple-thermostat
                 style: |
                   ha-card {
-                    --st-font-size-xl: 24px;
+                    --st-font-size-xl: 28px;
                     --st-font-size-m: 14px;
-                    --st-font-size-title: 20px;
-                    --st-font-size-sensors: 16px;
+                    --st-font-size-title: 22px;
+                    --st-font-size-sensors: 18px;
                     --st-spacing: 2px;
                   }
                 entity: climate.thermostaat
                 layout:
                   mode:
-                    names: false
-                    headings: false
+                    names: true
                     icons: true
+                    headings: false
                   step: column
                 control:
                   hvac:
                     "off":
                       name: Uit
+                      icon: mdi:radiator-disabled
                     heat:
                       name: Aan
+                      icon: mdi:radiator
+                  preset:
+                    away: false
+                    none: false
+                    activity: false
+                    _hide_when_off: true
+                    eco:
+                      name: Eco
+                      icon: mdi:leaf
+                    home:
+                      name: Normaal
+                      icon: mdi:home
+                    comfort:
+                      name: Comfort
+                      icon: mdi:fire
+                    sleep: false
+                sensors:
+                  - entity: climate.thermostaat
+                    attribute: hvac_action
+                hide:
+                  state: true
                 header:
                   name: ""
                   icon: false
                 step_size: "0.5"
                 decimals: "1"
-              - type: entities
-                card_mod:
-                  class: content
-                entities:
-                  - entity: sensor.woonkamer_multisensor_humidity
-                    name: Luchtvochtigheid
-                  # - entity: sensor.woonkamer_multisensor_airpressure
-                  #   name: Luchtdruk
-              - type: custom:apexcharts-card
-                layout: minimal
-                locale: nl-NL
-                graph_span: 12h
-                show:
-                  loading: false
-                apex_config:
-                  plotOptions:
-                    area:
-                      fillTo: end
-                  # grid:
-                  #   padding:
-                  #     top: -15
-                  fill:
-                    type: gradient
-                    gradient:
-                      type: vertical
-                      opacityFrom: 0.8
-                      opacityTo: 0
-                      stops:
-                        - 0
-                        - 99
-                        - 100
-                  stroke:
-                    width: 4
-                  tooltip:
-                    style:
-                      fontSize: 14px
-                    x:
-                      format: dddd HH:mm
-                  chart:
-                    height: 80px
-                  xaxis:
-                    crosshairs:
-                      show: false
-                series:
-                  - entity: sensor.woonkamer_multisensor_temperature
-                    name: Temp
-                    color: "#385581"
-                    type: area
-                    fill_raw: last
-                    group_by:
-                      func: avg
-                      duration: 1h
+              # - type: entities
+              #   card_mod:
+              #     class: content
+              #   entities:
+              #     - entity: sensor.woonkamer_multisensor_humidity
+              #       name: Luchtvochtigheid
+              # - entity: sensor.woonkamer_multisensor_airpressure
+              #   name: Luchtdruk
+              # - type: custom:apexcharts-card
+              #   layout: minimal
+              #   locale: nl-NL
+              #   graph_span: 12h
+              #   show:
+              #     loading: false
+              #   apex_config:
+              #     plotOptions:
+              #       area:
+              #         fillTo: end
+              #     # grid:
+              #     #   padding:
+              #     #     top: -15
+              #     fill:
+              #       type: gradient
+              #       gradient:
+              #         type: vertical
+              #         opacityFrom: 0.8
+              #         opacityTo: 0
+              #         stops:
+              #           - 0
+              #           - 99
+              #           - 100
+              #     stroke:
+              #       width: 4
+              #     tooltip:
+              #       style:
+              #         fontSize: 14px
+              #       x:
+              #         format: dddd HH:mm
+              #     chart:
+              #       height: 80px
+              #     xaxis:
+              #       crosshairs:
+              #         show: false
+              #   series:
+              #     - entity: sensor.woonkamer_multisensor_temperature
+              #       name: Temp
+              #       color: "#385581"
+              #       type: area
+              #       fill_raw: last
+              #       group_by:
+              #         func: avg
+              #         duration: 1h
 
       #################################################
       #                                               #

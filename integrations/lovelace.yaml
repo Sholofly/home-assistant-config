@@ -4,9 +4,9 @@
 lovelace:
   mode: storage
   dashboards:
-    tablet-v3:
+    lovelace-tablet:
       mode: yaml
-      title: Tablet v3
+      title: Tablet
       icon: mdi:tablet
       show_in_sidebar: true
       filename: tablet.yaml
