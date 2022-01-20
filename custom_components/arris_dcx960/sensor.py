@@ -1,5 +1,4 @@
 """Support for interface with a ArrisDCX960 Settopbox."""
-import logging
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_USERNAME
@@ -26,7 +25,7 @@ async def async_setup_entry(
 
 
 class ArrisDCX960Sensor(SensorEntity):
-    """The home assistant media player."""
+    """The Arris DCX960 Sensor."""
 
     username: str
     hass: HomeAssistantType
@@ -38,8 +37,11 @@ class ArrisDCX960Sensor(SensorEntity):
 
     @property
     def name(self):
-        """Return the unique id."""
         return f"{self.username} Recording capacity"
+    
+    @property
+    def icon(self):
+        return "mdi:percent-outline"
 
     @property
     def native_unit_of_measurement(self):
