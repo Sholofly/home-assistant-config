@@ -601,47 +601,425 @@
   - platform: state
     entity_id: binary_sensor.shopping_list_contents
     attribute: list_content
-  - platform: state
-    entity_id: person.rudolf
-    to: WC De Vrijheid
-  - platform: state
-    entity_id: person.leny
-    to: WC De Vrijheid
+  - platform: template
+    value_template: '{{ states(''person.rudolf'') in person_state or states(''person.leny'')
+      in person_state }}
+
+      '
   condition:
-  - condition: and
+  - condition: state
+    entity_id: binary_sensor.shopping_list_contents
+    state: 'on'
+  - condition: template
+    value_template: '{{ states(''person.rudolf'') in person_state or states(''person.leny'')
+      in person_state }}
+
+      '
+  action:
+  - service: '{% if is_state(''person.leny'', person_state) %}notify.mobile_app_telefoon_leny
+      {% else %}notify.mobile_app_telefoon_rudolf {% endif %}
+
+      '
+    data:
+      title: Er staan boodschappen op de lijst
+      message: '{{ state_attr(''binary_sensor.shopping_list_contents'',''list_content'')
+        }}'
+      data:
+        priority: high
+        ttl: 0
+        actions:
+        - action: URI
+          title: Open boodschappenlijst
+          uri: /lovelace-rudolf/boodschappen
+  variables:
+    person_state:
+    - Coop Oldebroek
+    - WC De Vrijheid
+    - AH 't Harde
+    - Boni Oldebroek
+  mode: single
+- id: 1e0bfa94-5035-40e0-a8f9-91822b1a1ec8
+  alias: Airfryer bezig
+  initial_state: true
+  trigger:
+  - platform: state
+    entity_id: sensor.kleine_schuur_airfryer_huidig_wattage
+  - platform: homeassistant
+    event: start
+  condition:
+    condition: and
     conditions:
-    - condition: state
-      entity_id: binary_sensor.shopping_list_contents
-      state: 'on'
-    - condition: or
+    - condition: numeric_state
+      entity_id: sensor.kleine_schuur_airfryer_huidig_wattage
+      above: 20
+    - condition: not
       conditions:
       - condition: state
-        entity_id: person.leny
-        state: WC De Vrijheid
-      - condition: state
-        entity_id: person.rudolf
-        state: WC De Vrijheid
+        entity_id: input_select.kleine_schuur_airfryer_status
+        state: Bezig
   action:
-  - choose:
-    - conditions:
+  - service: input_select.select_option
+    entity_id: input_select.kleine_schuur_airfryer_status
+    data:
+      option: Bezig
+- id: c6e04981-63d3-4940-95cc-b9ef06f79e0b
+  alias: Airfryer inactief
+  initial_state: true
+  trigger:
+  - platform: state
+    entity_id: sensor.kleine_schuur_airfryer_huidig_wattage
+  - platform: homeassistant
+    event: start
+  condition:
+    condition: and
+    conditions:
+    - condition: numeric_state
+      entity_id: sensor.kleine_schuur_airfryer_huidig_wattage
+      above: 0
+      below: 20.1
+  action:
+  - service: input_select.select_option
+    entity_id: input_select.kleine_schuur_airfryer_status
+    data:
+      option: Inactief
+- id: bc245ca1-4716-492c-aabd-bb6a558e29c1
+  alias: Airfryer klaar
+  initial_state: true
+  trigger:
+  - platform: state
+    entity_id: sensor.kleine_schuur_airfryer_huidig_wattage
+  condition:
+    condition: and
+    conditions:
+    - condition: state
+      entity_id: input_select.kleine_schuur_airfryer_status
+      state: Bezig
+    - condition: numeric_state
+      entity_id: sensor.kleine_schuur_airfryer_huidig_wattage
+      below: 20
+  action:
+  - service: input_select.select_option
+    entity_id: input_select.kleine_schuur_airfryer_status
+    data:
+      option: Klaar
+  - service: media_player.volume_set
+    entity_id: media_player.woonkamer_google_home
+    data:
+      volume_level: 0.7
+  - service: tts.microsoft_say
+    data:
+      entity_id: media_player.woonkamer_google_home
+      message: De airfryer is klaar!
+  - delay: 00:00:05
+  - service: media_player.volume_set
+    entity_id: media_player.woonkamer_google_home
+    data:
+      volume_level: 0.4
+- id: 8382a0fb-cad1-4bcd-a942-2d52a72ebdec
+  alias: Airfryer uit
+  initial_state: true
+  trigger:
+  - platform: state
+    entity_id: sensor.kleine_schuur_airfryer_huidig_wattage
+  - platform: homeassistant
+    event: start
+  condition:
+    condition: and
+    conditions:
+    - condition: numeric_state
+      entity_id: sensor.kleine_schuur_airfryer_huidig_wattage
+      below: 0.1
+    - condition: not
+      conditions:
       - condition: state
-        entity_id: person.leny
-        state: WC De Vrijheid
-      sequence:
-      - service: notify.mobile_app_telefoon_leny
-        data:
-          title: Er staan boodschappen op de lijst
-          message: '{{ state_attr(''binary_sensor.shopping_list_contents'', ''list_content'')
-            }}'
-    - conditions:
-      - condition: state
-        entity_id: person.rudolf
-        state: wc_de_vrijheid
-      sequence:
-      - service: notify.mobile_app_telefoon_rudolf
-        data:
-          title: Er staan boodschappen op de lijst
-          message: '{{ state_attr(''binary_sensor.shopping_list_contents'', ''list_content'')
-            }}'
-    default: []
-  mode: single
+        entity_id: input_select.kleine_schuur_airfryer_status
+        state: Uit
+  action:
+  - service: input_select.select_option
+    entity_id: input_select.kleine_schuur_airfryer_status
+    data:
+      option: Uit
+  - service: switch.turn_off
+    entity_id: switch.kleine_schuur_airfryer
+- id: eed90cbc-daf9-4757-aaff-5e615673a600
+  alias: Droger afronden
+  initial_state: true
+  trigger:
+  - platform: state
+    entity_id: sensor.bijkeuken_droger_huidig_wattage
+  - platform: homeassistant
+    event: start
+  condition:
+    condition: and
+    conditions:
+    - condition: numeric_state
+      entity_id: sensor.bijkeuken_droger_huidig_wattage
+      below: 0.75
+    - condition: state
+      entity_id: input_select.bijkeuken_droger_status
+      state: Bezig
+  action:
+  - service: input_select.select_option
+    entity_id: input_select.bijkeuken_droger_status
+    data:
+      option: Afronden
+- id: 58d48250-2189-450f-809b-e6d752ae2557
+  alias: Droger bezig
+  initial_state: true
+  trigger:
+  - platform: state
+    entity_id: sensor.bijkeuken_droger_huidig_wattage
+  - platform: homeassistant
+    event: start
+  condition:
+    condition: and
+    conditions:
+    - condition: numeric_state
+      entity_id: sensor.bijkeuken_droger_huidig_wattage
+      above: 10
+    - condition: state
+      entity_id: binary_sensor.bijkeuken_droger
+      state: 'off'
+  action:
+  - service: input_select.select_option
+    entity_id: input_select.bijkeuken_droger_status
+    data:
+      option: Bezig
+- id: c14ca86d-5ac0-4b2d-9340-8efe05fd8fa4
+  alias: Droger klaar notificatie Leny
+  trigger:
+  - platform: state
+    entity_id: input_select.bijkeuken_droger_status
+    to: Klaar
+  - platform: state
+    entity_id: person.leny
+    to: home
+    for:
+      minutes: 2
+  - platform: time
+    at: 07:30
+  condition:
+    condition: and
+    conditions:
+    - condition: state
+      entity_id: input_select.bijkeuken_droger_status
+      state: Klaar
+    - condition: state
+      entity_id: person.leny
+      state: home
+  action:
+  - service: notify.mobile_app_telefoon_leny
+    data_template:
+      title: Droger is klaar
+      message: Niet vergeten de was eruit te halen
+  initial_state: true
+- id: 3cd797b7-c2bb-42ef-90e4-bb8e1d15f7e7
+  alias: Droger klaar notificatie Rudolf
+  trigger:
+  - platform: state
+    entity_id: input_select.bijkeuken_droger_status
+    to: Klaar
+  - platform: state
+    entity_id: person.rudolf
+    to: home
+    for:
+      minutes: 2
+  - platform: time
+    at: 07:30
+  condition:
+    condition: and
+    conditions:
+    - condition: state
+      entity_id: input_select.bijkeuken_droger_status
+      state: Klaar
+    - condition: state
+      entity_id: person.rudolf
+      state: home
+  action:
+  - service: notify.mobile_app_telefoon_rudolf
+    data_template:
+      title: Droger is klaar
+      message: Niet vergeten de was eruit te halen
+  initial_state: true
+- id: 7988b7bf-ccef-4585-b890-66a80c0a3051
+  alias: Droger klaar
+  initial_state: true
+  trigger:
+  - platform: state
+    entity_id: input_select.bijkeuken_droger_status
+    to: Afronden
+    for:
+      minutes: 5
+  condition:
+    condition: state
+    entity_id: binary_sensor.bijkeuken_droger
+    state: 'off'
+  action:
+  - service: input_select.select_option
+    entity_id: input_select.bijkeuken_droger_status
+    data:
+      option: Klaar
+- id: 051878c9-1760-45f0-bfbf-9fd5f543ff03
+  alias: Droger open
+  initial_state: true
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.bijkeuken_droger
+    to: 'on'
+  - platform: homeassistant
+    event: start
+  condition:
+    condition: state
+    entity_id: binary_sensor.bijkeuken_droger
+    state: 'on'
+  action:
+  - service: input_select.select_option
+    entity_id: input_select.bijkeuken_droger_status
+    data:
+      option: Inactief
+- id: 411ef9ba-1a86-4039-ab65-99cf2e51b665
+  alias: Droger uit
+  trigger:
+    platform: event
+    event_type: mobile_app_notification_action
+    event_data:
+      action: turn_off_dryer
+  action:
+  - service: switch.turn_off
+    entity_id: switch.bijkeuken_droger
+- id: 78d72922-8ca4-4633-be1d-2633263dd555
+  alias: Wasmachine afronden
+  initial_state: true
+  trigger:
+  - platform: state
+    entity_id: sensor.bijkeuken_wasmachine_wattage
+  - platform: homeassistant
+    event: start
+  condition:
+    condition: and
+    conditions:
+    - condition: numeric_state
+      entity_id: sensor.bijkeuken_wasmachine_wattage
+      below: 0.1
+    - condition: state
+      entity_id: input_select.bijkeuken_wasmachine_status
+      state: Bezig
+  action:
+  - service: input_select.select_option
+    entity_id: input_select.bijkeuken_wasmachine_status
+    data:
+      option: Afronden
+- id: ce9471d2-2722-4b68-99d9-61f190dd3c1a
+  alias: Wasmachine bezig
+  initial_state: true
+  trigger:
+  - platform: state
+    entity_id: sensor.bijkeuken_wasmachine_wattage
+  - platform: homeassistant
+    event: start
+  condition:
+    condition: and
+    conditions:
+    - condition: numeric_state
+      entity_id: sensor.bijkeuken_wasmachine_wattage
+      above: 10
+    - condition: state
+      entity_id: binary_sensor.bijkeuken_wasmachine
+      state: 'off'
+  action:
+  - service: input_select.select_option
+    entity_id: input_select.bijkeuken_wasmachine_status
+    data:
+      option: Bezig
+- id: 48d63f5a-beee-4184-8671-e30510557c0d
+  alias: Wasmachine klaar notificatie Leny
+  trigger:
+  - platform: state
+    entity_id: input_select.bijkeuken_wasmachine_status
+    to: Klaar
+  - platform: state
+    entity_id: person.leny
+    to: home
+    for:
+      minutes: 2
+  - platform: time
+    at: 07:30
+  condition:
+    condition: and
+    conditions:
+    - condition: state
+      entity_id: input_select.bijkeuken_wasmachine_status
+      state: Klaar
+    - condition: state
+      entity_id: person.leny
+      state: home
+  action:
+  - service: notify.mobile_app_telefoon_leny
+    data_template:
+      title: Wasmachine is klaar
+      message: Niet vergeten de was eruit te halen
+  initial_state: true
+- id: c9ba3a5e-a073-45e7-a294-9226739655e9
+  alias: Wasmachine klaar notificatie Rudolf
+  trigger:
+  - platform: state
+    entity_id: input_select.bijkeuken_wasmachine_status
+    to: Klaar
+  - platform: state
+    entity_id: person.rudolf
+    to: home
+    for:
+      minutes: 2
+  - platform: time
+    at: 07:30
+  condition:
+    condition: and
+    conditions:
+    - condition: state
+      entity_id: input_select.bijkeuken_wasmachine_status
+      state: Klaar
+    - condition: state
+      entity_id: person.rudolf
+      state: home
+  action:
+  - service: notify.mobile_app_telefoon_rudolf
+    data_template:
+      title: Wasmachine is klaar
+      message: Niet vergeten de was eruit te halen
+  initial_state: true
+- id: df31f385-6980-4f86-824a-0dec7d768dec
+  alias: Wasmachine klaar
+  initial_state: true
+  trigger:
+  - platform: state
+    entity_id: input_select.bijkeuken_wasmachine_status
+    to: Afronden
+    for:
+      minutes: 5
+  condition:
+    condition: state
+    entity_id: binary_sensor.bijkeuken_wasmachine
+    state: 'off'
+  action:
+  - service: input_select.select_option
+    entity_id: input_select.bijkeuken_wasmachine_status
+    data:
+      option: Klaar
+- id: 201e4607-2d30-4951-b259-683ca67aeeb4
+  alias: Wasmachine open
+  initial_state: true
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.bijkeuken_wasmachine
+    to: 'on'
+  - platform: homeassistant
+    event: start
+  condition:
+    condition: state
+    entity_id: binary_sensor.bijkeuken_wasmachine
+    state: 'on'
+  action:
+  - service: input_select.select_option
+    entity_id: input_select.bijkeuken_wasmachine_status
+    data:
+      option: Inactief
