@@ -536,40 +536,6 @@
       milliseconds: 0
   - service: browser_mod.close_popup
   mode: single
-- id: '1636220861020'
-  alias: Alarm wanneer weg
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.bijkeuken_bewegingssensor
-    to: 'on'
-  - platform: state
-    entity_id: binary_sensor.bijkeuken_deur
-    to: 'on'
-  - platform: state
-    entity_id: binary_sensor.woonkamer_raam
-    to: 'on'
-  - platform: state
-    entity_id: binary_sensor.keuken_raam
-    to: 'on'
-  - platform: state
-    entity_id: binary_sensor.mika_raam
-    to: 'on'
-  - platform: state
-    entity_id: binary_sensor.noa_raam
-    to: 'on'
-  - platform: state
-    entity_id: binary_sensor.slaapkamer_raam
-    to: 'on'
-  condition:
-  - condition: state
-    entity_id: alarm_control_panel.home_alarm
-    state: armed_away
-  action:
-  - service: alarm_control_panel.alarm_trigger
-    target:
-      entity_id: alarm_control_panel.home_alarm
-  mode: single
 - id: '1637959661190'
   alias: Deurbel automatisch uit
   description: ''

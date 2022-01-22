@@ -1,6 +1,0 @@
-################################################
-## Entities / Notify / Pushbullet Rudolf
-################################################
-platform: pushbullet
-name: Pushbullet Rudolf
-api_key: !secret pushbullet_apikey_rudolf

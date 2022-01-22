@@ -1,6 +1,0 @@
-platform: manual
-name: Home Alarm
-code: "1234"
-arming_time: 30
-delay_time: 30
-trigger_time: 120

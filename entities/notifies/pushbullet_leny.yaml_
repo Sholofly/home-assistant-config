@@ -1,6 +1,0 @@
-################################################
-## Entities / Notify / Pushbullet Leny
-################################################
-platform: pushbullet
-name: Pushbullet Leny
-api_key: !secret pushbullet_apikey_leny
