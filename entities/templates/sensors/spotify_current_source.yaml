@@ -1,0 +1,2 @@
+name: Spotify huidige device
+state: "{{ state_attr('media_player.spotify_rudolf_offereins', 'source') }}"

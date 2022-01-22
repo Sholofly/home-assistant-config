@@ -1,4 +1,4 @@
 ################################################
 ## Entities / Template Binary Sensors / DSMR up to date
 ################################################
-value_template: "{{ (now() - as_local(as_datetime(states('sensor.dsmr_reading_timestamp')))) < timedelta(minutes = 1, seconds = 30) }}"
+state: "{{ (now() - as_local(as_datetime(states('sensor.dsmr_reading_timestamp')))) < timedelta(minutes = 1, seconds = 30) }}"

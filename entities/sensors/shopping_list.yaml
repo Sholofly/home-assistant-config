@@ -5,6 +5,6 @@ headers:
   content-type: "application/json"
 resource: !secret shopping_list_url
 value_template: >
-  {{ value_json  | selectattr("complete", "equalto", false) | map(attribute='name') | list | join(', ') }}
+  {{ value_json  | selectattr("complete", "equalto", false) | map(attribute='name') | list | join('<br>') }}
 method: GET
 scan_interval: 20

@@ -1,6 +1,6 @@
 ################################################
 ## Entities / Template Sensors / Outside temperature
 ################################################
-friendly_name: Temperatuur buiten
-value_template: "{{ state_attr('weather.br_lelystad_6269', 'temperature') }}"
-icon_template: mdi:thermometer
+name: Temperatuur buiten
+state: "{{ state_attr('weather.br_lelystad_6269', 'temperature') }}"
+icon: mdi:thermometer

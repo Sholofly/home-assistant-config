@@ -1,6 +1,7 @@
 unique_id: fullykiosk_storage
 icon: mdi:sd
 unit_of_measurement: "%"
+name: Opslag
 state: >
   {% set FreeSpace = states('sensor.lenovo_tab_m10_internal_storage_free_space') | float(default=0) %}
   {% set TotalSpace = states('sensor.lenovo_tab_m10_internal_storage_total_space') | float(default=0) %}

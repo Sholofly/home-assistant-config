@@ -1,5 +1,5 @@
 ################################################
 ## Entities / Template Sensors / Datum
 ################################################
-friendly_name: "Media player beneden channel"
-value_template: "{{ state_attr('media_player.ziggo_beneden', 'channel') }}"
+name: "Media player beneden channel"
+state: "{{ state_attr('media_player.ziggo_beneden', 'channel') }}"

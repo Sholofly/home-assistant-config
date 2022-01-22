@@ -5,4 +5,4 @@ state: >
 attributes:
   list_content: >
     {% set list1 = states('sensor.shopping_list').split(', ') %}
-    {% for item in list1 if item %}{{item}}</br>{% endfor %}
+    {% for item in list1 if item %}- {{item}}<br/>{% endfor %}

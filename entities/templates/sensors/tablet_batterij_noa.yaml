@@ -1,9 +1,9 @@
 ################################################
 ## Entities / Template Sensors / Batterijstatus tablet Noa
 ################################################
-friendly_name: Batterijstatus tablet Noa
-value_template: "{{ states('sensor.tablet_noa_batterij') }}"
-icon_template: >-
+name: Batterijstatus tablet Noa
+state: "{{ states('sensor.tablet_noa_batterij') }}"
+icon: >-
   {% if (is_state('sensor.tablet_noa_battery_state', 'charging')) %}
   {{ state_attr('sensor.tablet_noa_batterij', 'icon') |regex_replace(find='-', replace='-charging-', ignorecase=False)}}
   {% else %}
