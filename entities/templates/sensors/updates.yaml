@@ -13,5 +13,5 @@ attributes:
     {% set latest = device_attr(device_id('binary_sensor.eekternas_update_available'), 'latest_available_version') %}
     {% set url = 'https://www.synology.com/en-global/releaseNote/DSM' %}
     {% if is_state('binary_sensor.eekternas_update_available', 'on') %}
-      <b><a href="#" onclick="window.open('{{ url }}');">Synology DSM</a></b> {{ installed + ' \u279e ' + latest }}
+      <b><a href="#" onclick="window.open('{{ url }}');">Synology DSM</a></b> {{ (installed or '') + ' \u279e ' + (latest or '') }}
     {% endif %}

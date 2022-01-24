@@ -38,8 +38,8 @@ attributes:
 
   weather: |
     {%- set temperature = states('sensor.br_temperature') %}
-    {%- set apparent = states('sensor.buienradar_feel_temperature') | round(0) %}
-    {%- set precip = states('sensor.br_precipitation') | round(0) %}
+    {%- set apparent = (states('sensor.buienradar_feel_temperature')) or 0 | round(0) %}
+    {%- set precip = (states('sensor.br_precipitation') or 0) | round(0) %}
     {% if not is_state('sensor.br_temperature', 'unknown') %}
       {%- if temperature | float(default=0) <= 0.0 -%}
         Voelt als {{ apparent }}° met {{ precip }}% kans op sneeuw {{'\u2744\uFE0F'}}
