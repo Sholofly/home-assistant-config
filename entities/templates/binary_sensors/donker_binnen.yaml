@@ -1,0 +1,6 @@
+################################################
+## Entities / Binary Sensors / Donker binnen
+################################################
+name: "Donker binnen"
+state: >-
+  {{ states('sensor.voortuin_lichtsensor')|float < 300 }}

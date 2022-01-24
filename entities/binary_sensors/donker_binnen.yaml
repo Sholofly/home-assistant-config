@@ -1,9 +1,0 @@
-################################################
-## Entities / Binary Sensors / Donker binnen
-################################################
-platform: template
-sensors:
-  donker_binnen:
-    friendly_name: "Donker binnen"
-    value_template: >-
-      {{ states('sensor.voortuin_lichtsensor')|float < 300 }}
