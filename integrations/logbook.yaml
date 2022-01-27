@@ -2,9 +2,13 @@
 ## Integrations / Logbook
 ################################################
 logbook:
-  exclude: 
+  exclude:
     entity_globs:
       - sensor.*time*
       - binary_sensor.*button*
       - sensor.*date*
       - sensor.*_geocoded_location
+      - sensor.dsmr_*
+      - sensor.telefoon_*
+      - sensor.browser_*
+      - button.*_restart
