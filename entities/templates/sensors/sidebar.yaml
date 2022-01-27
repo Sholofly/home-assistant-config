@@ -37,7 +37,7 @@ attributes:
     </b>
 
   weather: |
-    {%- set temperature = states('sensor.br_temperature') %}
+    {%- set temperature = states('sensor.br_temperature') or 0 %}
     {%- set apparent = (states('sensor.buienradar_feel_temperature')) or 0 | round(0) %}
     {%- set precip = (states('sensor.br_precipitation') or 0) | round(0) %}
     {% if not is_state('sensor.br_temperature', 'unknown') %}
