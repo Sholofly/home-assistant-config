@@ -568,17 +568,15 @@
     entity_id: binary_sensor.shopping_list_contents
     attribute: list_content
   - platform: template
-    value_template: '{{ states(''person.rudolf'') in person_state or states(''person.leny'')
-      in person_state }}
-
-      '
+    value_template: "{{ person_state and (states('person.rudolf') in person_state\
+      \ or states('person.leny') in\n person_state) }}\n"
   condition:
   - condition: state
     entity_id: binary_sensor.shopping_list_contents
     state: 'on'
   - condition: template
-    value_template: '{{ states(''person.rudolf'') in person_state or states(''person.leny'')
-      in person_state }}
+    value_template: '{{ person_state and (states(''person.rudolf'') in person_state
+      or states(''person.leny'') in person_state) }}
 
       '
   action:
