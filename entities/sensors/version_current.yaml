@@ -1,6 +1,0 @@
-################################################
-## Entities / Sensors / Version Current
-################################################
-platform: version
-name: Current
-beta: true
