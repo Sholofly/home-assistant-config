@@ -1,8 +1,0 @@
-################################################
-## Entities / Sensors / Version Available
-################################################
-platform: version
-name: Latest beta
-source: hassio
-image: qemux86-64
-beta: true
