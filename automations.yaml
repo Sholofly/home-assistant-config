@@ -602,6 +602,12 @@
     - AH 't Harde
     - Boni Oldebroek
   mode: single
+  trigger_variables:
+    person_state:
+    - Coop Oldebroek
+    - WC De Vrijheid
+    - AH 't Harde
+    - Boni Oldebroek
 - id: 1e0bfa94-5035-40e0-a8f9-91822b1a1ec8
   alias: Airfryer bezig
   initial_state: true
