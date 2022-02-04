@@ -527,6 +527,7 @@
         entity: camera.voortuin
       deviceID:
       - ea5c0b48-bbd900ef
+      - this
       hide_header: true
       large: true
   - delay:
@@ -535,6 +536,7 @@
       seconds: 30
       milliseconds: 0
   - service: browser_mod.close_popup
+    data: {}
   mode: single
 - id: '1637959661190'
   alias: Deurbel automatisch uit
@@ -565,14 +567,13 @@
     from: 'off'
     to: 'on'
   - platform: state
-    entity_id: binary_sensor.shopping_list_contents
-    attribute: list_content
+    entity_id: sensor.shopping_list_all
   - platform: template
     value_template: "{{ person_state and (states('person.rudolf') in person_state\
       \ or states('person.leny') in\n person_state) }}\n"
   condition:
   - condition: state
-    entity_id: binary_sensor.shopping_list_contents
+    entity_id: binary_sensor.shopping_list_has_uncompleted_items
     state: 'on'
   - condition: template
     value_template: '{{ person_state and (states(''person.rudolf'') in person_state
@@ -586,7 +587,7 @@
       '
     data:
       title: Er staan boodschappen op de lijst
-      message: '{{ state_attr(''binary_sensor.shopping_list_contents'',''list_content'')
+      message: '{{ states(''binary_sensor.shopping_list_contents'',''list_content'')
         }}'
       data:
         priority: high

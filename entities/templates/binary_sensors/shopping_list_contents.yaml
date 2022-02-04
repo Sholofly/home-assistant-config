@@ -1,8 +1,0 @@
-name: Shopping List Contents
-state: >
-  {{ not is_state('sensor.shopping_list', '') }}
-
-attributes:
-  list_content: >
-    {% set list1 = states('sensor.shopping_list').split(', ') %}
-    {% for item in list1 if item %}- {{item}}<br/>{% endfor %}
