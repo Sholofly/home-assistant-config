@@ -8,6 +8,6 @@ browser_mod:
     ea5c0b48_bbd900ef:
       name: wall-tablet
       disable:
-        - light
+        - all
   disable:
     - all
