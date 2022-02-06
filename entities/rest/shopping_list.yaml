@@ -7,14 +7,14 @@ scan_interval: 30
 sensor:
   - name: "Shopping list - to do"
     value_template: >
-      {{ value_json  | selectattr("complete", "equalto", false) | map(attribute='name') | list | join('<br>') }}
+      {{ value_json  | default('') | selectattr("complete", "equalto", false) | map(attribute='name') | list | join('<br>') }}
   - name: "Shopping list - all"
     value_template: >
-      {{ value_json  | map(attribute='name') | list | join('<br>') }}
+      {{ value_json  | default('') | map(attribute='name') | list | join('<br>') }}
 binary_sensor:
   - name: "Shopping list has items"
     value_template: >
-      {{ value_json | length > 0  }}
+      {{ value_json | default('off') | length > 0  }}
   - name: "Shopping list has uncompleted items"
     value_template: >
-      {{ value_json | selectattr("complete", "equalto", false) | list | length > 0  }}
+      {{ value_json | default('off') | selectattr("complete", "equalto", false) | list | length > 0  }}
