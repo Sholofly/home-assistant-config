@@ -3,7 +3,8 @@
 ################################################
 recorder:
   db_url: !secret recorder_db_url
-  purge_keep_days: 14
+  purge_keep_days: 3
+  auto_purge: false
   exclude:
     entity_globs:
       - sensor.telefoon_*_*_melding*

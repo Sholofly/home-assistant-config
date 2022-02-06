@@ -41,20 +41,6 @@
       notify_device: 267251cf143411ebbf4ef5c3186f709c
       notification_message: Home Assistant {{ newest_version }} is beschikbaar
       group: Available Updates
-- id: '1620411227739'
-  alias: Notificatie wanneer DSMR niet updated
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: sensor.dsmr_reading_timestamp
-    for: 00:10:00
-  condition: []
-  action:
-  - service: notify.mobile_app_telefoon_rudolf
-    data:
-      title: DSMR wordt niet geupdated!
-      message: Check of de USB binding nog goed staat in de VM.
-  mode: single
 - id: '1624693593116'
   alias: Thermostaat nachtstand
   description: ''
@@ -994,3 +980,29 @@
     entity_id: input_select.bijkeuken_wasmachine_status
     data:
       option: Inactief
+- id: '1643973626379'
+  alias: Recorder Repack
+  description: Sunday morning, early morning, repack the recorder database. This keeps
+    the disk usage low and nice by reclaiming space.
+  trigger:
+  - platform: time
+    at: 05:55
+  condition:
+  - condition: time
+    weekday:
+    - sun
+  action:
+  - service: recorder.purge
+    data:
+      repack: true
+  mode: single
+- id: '1643974035640'
+  alias: Recorder Purge
+  description: Purge my recorder database every hour, to keep things nice and tight.
+    While Home Assistant does this daily, I like to do it every hour.
+  trigger:
+  - platform: time_pattern
+    minutes: 12
+  action:
+  - service: recorder.purge
+  mode: single
