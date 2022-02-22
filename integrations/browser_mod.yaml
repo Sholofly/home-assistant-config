@@ -7,7 +7,5 @@ browser_mod:
   devices:
     ea5c0b48_bbd900ef:
       name: wall-tablet
-      disable:
-        - all
   disable:
     - all

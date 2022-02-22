@@ -7,6 +7,7 @@ kiosk_mode:
 button_card_templates: !include lovelace/button_card_templates.yaml
 views:
   - type: custom:grid-layout
+    theme: tablet
     path: 0
     layout:
       #default
@@ -138,12 +139,12 @@ views:
           #   template:
           #     - light_toggle
           #     - icon_lamp
-          # - type: custom:button-card
-          #   entity: light.woonkamer_wandrek
-          #   name: Wandrek
-          #   template:
-          #     - light_toggle
-          #     - icon_lamp
+          - type: custom:button-card
+            entity: light.woonkamer_wandrek_2
+            name: Wandrek
+            template:
+              - light_toggle
+              - icon_lamp
           - type: custom:button-card
             entity: light.woonkamer_raam_voor
             name: Raam voor
