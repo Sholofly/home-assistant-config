@@ -573,8 +573,7 @@
       '
     data:
       title: Er staan boodschappen op de lijst
-      message: '{{ states(''binary_sensor.shopping_list_contents'',''list_content'')
-        }}'
+      message: '{{ states(''sensor.shopping_list_to_do'') }}'
       data:
         priority: high
         ttl: 0
