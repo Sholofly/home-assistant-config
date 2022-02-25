@@ -1,10 +1,9 @@
-dsmr_niet_up_to_date:
-  name: DSMR loopt achter
-  done_message: DSMR is weer up-to-date
-  entity_id: binary_sensor.dsmr_up_to_date
-  state: "off"
-  repeat: 30
-  can_acknowledge: false
-  skip_first: false
-  notifiers:
-    - mobile_app_telefoon_rudolf
+name: DSMR loopt achter
+done_message: DSMR is weer up-to-date
+entity_id: binary_sensor.dsmr_up_to_date
+state: "off"
+repeat: 30
+can_acknowledge: false
+skip_first: false
+notifiers:
+  - mobile_app_telefoon_rudolf
