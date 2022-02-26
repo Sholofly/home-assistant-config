@@ -70,19 +70,6 @@
       title: Morgen is een afvaldag
       message: 'Opgehaalde afval: {{ states.sensor.afvalinfo_tomorrow.state }}'
   initial_state: true
-- id: '1624693815080'
-  alias: Laatste gaat naar bed
-  trigger:
-  - platform: state
-    entity_id: input_boolean.nachtmode
-    from: 'off'
-    to: 'on'
-  action:
-  - service: script.turn_on
-    target:
-      entity_id: script.last_sleeper
-  initial_state: true
-  mode: single
 - id: '1624693857334'
   alias: Nachtverlichting buiten
   description: Handle night lights based on illumination
@@ -261,8 +248,12 @@
   trigger:
   - platform: state
     entity_id: binary_sensor.zolder_schakelaar
-    from: on,off
-    to: on,off
+    from:
+    - 'on'
+    - 'off'
+    to:
+    - 'on'
+    - 'off'
   action:
   - service: light.toggle
     data: {}
@@ -333,18 +324,6 @@
         priority: high
         channel: alarm_stream
         importance: high
-  mode: single
-- id: '1631707602352'
-  alias: Tag Pasje is gescand
-  description: ''
-  trigger:
-  - platform: tag
-    tag_id: 53-BA-DF-2B
-  condition: []
-  action:
-  - service: light.toggle
-    target:
-      entity_id: light.zolder_plafond
   mode: single
 - id: '1632223302457'
   alias: Bewegingssensor schuur automatisch uit
@@ -524,26 +503,6 @@
   - service: browser_mod.close_popup
     data: {}
   mode: single
-- id: '1637959661190'
-  alias: Deurbel automatisch uit
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.voortuin_deurbel
-    to: 'on'
-    for:
-      hours: 0
-      minutes: 0
-      seconds: 2
-      milliseconds: 0
-  condition: []
-  action:
-  - service: mqtt.publish
-    data:
-      topic: tele/rfbridge_meterkast/RESULT
-      payload: '{"RfRaw":{"Data":"AA B1 03 044C 0172 16D0 080909090909090918091809090918181818
-        55-off"}}'
-  mode: single
 - id: '1641238347569'
   alias: Boodschappen
   description: ''
@@ -567,7 +526,7 @@
 
       '
   action:
-  - service: '{% if is_state(''person.leny'', person_state) %}notify.mobile_app_telefoon_leny
+  - service: '{% if person_state and states(''person.leny'') in person_state %}notify.mobile_app_telefoon_leny
       {% else %}notify.mobile_app_telefoon_rudolf {% endif %}
 
       '
@@ -742,7 +701,15 @@
     data:
       option: Bezig
 - id: c14ca86d-5ac0-4b2d-9340-8efe05fd8fa4
-  alias: Droger klaar notificatie Leny
+  alias: Droger klaar notificatie
+  description: 'Stuurt een notificatie naar Rudolf of Leny wanneer de droger klaar
+    is:
+
+    - Wanneer één van hun thuis is
+
+    - Wanneer één van hun thuis komt
+
+    - ''s Ochtends om 07:30 als één van hun thuis is en de droger nog niet uitgepakt'
   trigger:
   - platform: state
     entity_id: input_select.bijkeuken_droger_status
@@ -752,50 +719,44 @@
     to: home
     for:
       minutes: 2
-  - platform: time
-    at: 07:30
-  condition:
-    condition: and
-    conditions:
-    - condition: state
-      entity_id: input_select.bijkeuken_droger_status
-      state: Klaar
-    - condition: state
-      entity_id: person.leny
-      state: home
-  action:
-  - service: notify.mobile_app_telefoon_leny
-    data_template:
-      title: Droger is klaar
-      message: Niet vergeten de was eruit te halen
-  initial_state: true
-- id: 3cd797b7-c2bb-42ef-90e4-bb8e1d15f7e7
-  alias: Droger klaar notificatie Rudolf
-  trigger:
-  - platform: state
-    entity_id: input_select.bijkeuken_droger_status
-    to: Klaar
+    id: leny_home
   - platform: state
     entity_id: person.rudolf
     to: home
     for:
       minutes: 2
+    id: rudolf_home
   - platform: time
     at: 07:30
   condition:
-    condition: and
+  - condition: and
     conditions:
     - condition: state
       entity_id: input_select.bijkeuken_droger_status
       state: Klaar
-    - condition: state
-      entity_id: person.rudolf
-      state: home
   action:
-  - service: notify.mobile_app_telefoon_rudolf
-    data_template:
-      title: Droger is klaar
-      message: Niet vergeten de was eruit te halen
+  - choose:
+    - alias: Leny thuis?
+      conditions:
+      - condition: state
+        entity_id: person.leny
+        state: home
+      sequence:
+      - service: notify.mobile_app_telefoon_leny
+        data:
+          title: Droger is klaar
+          message: Niet vergeten de was eruit te halen
+  - choose:
+    - alias: Rudolf thuis?
+      conditions:
+      - condition: state
+        entity_id: person.rudolf
+        state: home
+      sequence:
+      - service: notify.mobile_app_telefoon_rudolf
+        data:
+          title: Droger is klaar
+          message: Niet vergeten de was eruit te halen
   initial_state: true
 - id: 7988b7bf-ccef-4585-b890-66a80c0a3051
   alias: Droger klaar
@@ -833,16 +794,6 @@
     entity_id: input_select.bijkeuken_droger_status
     data:
       option: Inactief
-- id: 411ef9ba-1a86-4039-ab65-99cf2e51b665
-  alias: Droger uit
-  trigger:
-    platform: event
-    event_type: mobile_app_notification_action
-    event_data:
-      action: turn_off_dryer
-  action:
-  - service: switch.turn_off
-    entity_id: switch.bijkeuken_droger
 - id: 78d72922-8ca4-4633-be1d-2633263dd555
   alias: Wasmachine afronden
   initial_state: true
@@ -888,7 +839,15 @@
     data:
       option: Bezig
 - id: 48d63f5a-beee-4184-8671-e30510557c0d
-  alias: Wasmachine klaar notificatie Leny
+  alias: Wasmachine klaar notificatie
+  description: 'Stuurt een notificatie naar Rudolf of Leny wanneer de wasmachine klaar
+    is:
+
+    - Wanneer één van hun thuis is
+
+    - Wanneer één van hun thuis komt
+
+    - ''s Ochtends om 07:30 als één van hun thuis is'
   trigger:
   - platform: state
     entity_id: input_select.bijkeuken_wasmachine_status
@@ -898,29 +857,6 @@
     to: home
     for:
       minutes: 2
-  - platform: time
-    at: 07:30
-  condition:
-    condition: and
-    conditions:
-    - condition: state
-      entity_id: input_select.bijkeuken_wasmachine_status
-      state: Klaar
-    - condition: state
-      entity_id: person.leny
-      state: home
-  action:
-  - service: notify.mobile_app_telefoon_leny
-    data_template:
-      title: Wasmachine is klaar
-      message: Niet vergeten de was eruit te halen
-  initial_state: true
-- id: c9ba3a5e-a073-45e7-a294-9226739655e9
-  alias: Wasmachine klaar notificatie Rudolf
-  trigger:
-  - platform: state
-    entity_id: input_select.bijkeuken_wasmachine_status
-    to: Klaar
   - platform: state
     entity_id: person.rudolf
     to: home
@@ -929,19 +865,34 @@
   - platform: time
     at: 07:30
   condition:
-    condition: and
+  - condition: and
     conditions:
     - condition: state
       entity_id: input_select.bijkeuken_wasmachine_status
       state: Klaar
-    - condition: state
-      entity_id: person.rudolf
-      state: home
   action:
-  - service: notify.mobile_app_telefoon_rudolf
-    data_template:
-      title: Wasmachine is klaar
-      message: Niet vergeten de was eruit te halen
+  - choose:
+    - alias: Leny thuis?
+      conditions:
+      - condition: state
+        entity_id: person.leny
+        state: home
+      sequence:
+      - service: notify.mobile_app_telefoon_leny
+        data:
+          title: Wasmachine is klaar
+          message: Niet vergeten de was eruit te halen
+  - choose:
+    - alias: Rudolf thuis?
+      conditions:
+      - condition: state
+        entity_id: person.rudolf
+        state: home
+      sequence:
+      - service: notify.mobile_app_telefoon_rudolf
+        data:
+          title: Wasmachine is klaar
+          message: Niet vergeten de was eruit te halen
   initial_state: true
 - id: df31f385-6980-4f86-824a-0dec7d768dec
   alias: Wasmachine klaar
@@ -1005,3 +956,110 @@
   action:
   - service: recorder.purge
   mode: single
+- id: '1645822938342'
+  alias: Container | Aan de weg zetten
+  description: Stuurt een melding naar Rudolf wanneer de container aan de weg moet
+  trigger:
+  - platform: time_pattern
+    minutes: /30
+  - platform: homeassistant
+    event: start
+  condition:
+  - condition: state
+    entity_id: binary_sensor.container_warning
+    state: 'on'
+  action:
+  - condition: state
+    entity_id: person.rudolf
+    state: home
+  - service: notify.mobile_app_telefoon_rudolf
+    data:
+      title: De container moet aan de weg
+      message: '{{ message_data }}'
+      data:
+        notification_icon: mdi:delete
+        priority: high
+        ttl: 0
+        persistent: true
+        sticky: true
+        tag: '{{ message_tag }}'
+        actions:
+        - action: container_is_aan_de_weg
+          title: Container aan de weg gezet
+  - alias: Wait for a response
+    wait_for_trigger:
+    - platform: event
+      event_type: mobile_app_notification_action
+      event_data:
+        action: container_is_aan_de_weg
+  - service: input_boolean.turn_on
+    target:
+      entity_id: input_boolean.container_staat_aan_de_weg
+    data: {}
+  - service: notify.mobile_app_telefoon_rudolf
+    data:
+      message: clear_notification
+      data:
+        tag: '{{ message_tag }}'
+  mode: restart
+  variables:
+    message_tag: persistent_container
+    message_data: "{% if state_attr('binary_sensor.container_moet_aan_de_weg','today')\
+      \ != 'none' %}\n  Het {{ state_attr('binary_sensor.container_moet_aan_de_weg',\
+      \ 'today') }} wordt vandaag opgehaald.\n{% elif state_attr('binary_sensor.container_moet_aan_de_weg','tomorrow')\
+      \ != 'none' %}\n  Het {{ state_attr('binary_sensor.container_moet_aan_de_weg',\
+      \ 'tomorrow') }} wordt morgen opgehaald.\n{% endif %}\n"
+- id: '1645832179376'
+  alias: Container | Van de weg halen
+  description: Stuurt een melding naar Rudolf wanneer de container van de weg  af
+    moet
+  trigger:
+  - platform: time_pattern
+    minutes: /30
+  - platform: homeassistant
+    event: start
+  condition:
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: binary_sensor.container_warning
+      state: 'off'
+    - condition: state
+      entity_id: input_boolean.container_staat_aan_de_weg
+      state: 'on'
+  action:
+  - condition: state
+    entity_id: person.rudolf
+    state: home
+  - service: notify.mobile_app_telefoon_rudolf
+    data:
+      title: De container moet van de weg
+      message: Haal je hem even op?
+      data:
+        notification_icon: mdi:delete
+        priority: high
+        ttl: 0
+        persistent: true
+        sticky: true
+        tag: '{{ message_tag }}'
+        actions:
+        - action: container_is_van_de_weg
+          title: Opgehaald!
+  - alias: Wait for a response
+    wait_for_trigger:
+    - platform: event
+      event_type: mobile_app_notification_action
+      event_data:
+        action: container_is_van_de_weg
+  - service: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.container_staat_aan_de_weg
+    data: {}
+  - service: notify.mobile_app_telefoon_rudolf
+    data:
+      message: clear_notification
+      data:
+        tag: '{{ message_tag }}'
+  mode: restart
+  variables:
+    message_tag: persistent_container_opgehaald

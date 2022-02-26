@@ -3,12 +3,12 @@
 ################################################
 platform: afvalinfo
 resources:
-  - gft
-  - papier
-  - restafval
-  - takken
-  - trash_type_today
-  - trash_type_tomorrow
+  - type: gft
+  - type: papier
+  - type: restafval
+  - type: takken
+  - type: trash_type_today
+  - type: trash_type_tomorrow
 location: !secret afval_city
 postcode: !secret afval_zipcode
 streetnumber: !secret afval_housenumber
