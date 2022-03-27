@@ -1,3 +1,3 @@
 packages:
   <<: !include_dir_named ../common
-  board: !include ../boards/esp-wroom-32.yaml
+  board: !include ../boards/esp32-dev.yaml

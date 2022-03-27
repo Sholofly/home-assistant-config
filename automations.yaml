@@ -5,31 +5,9 @@
     path: homeassistant/motion_light.yaml
     input:
       no_motion_wait: 120
-      motion_entity: binary_sensor.wc_bewegingssensor
+      motion_entity: binary_sensor.wc_bewegingssensor_ias_zone
       light_target:
         entity_id: light.wc_plafond
-- id: '1608038011592'
-  alias: Symfonisk lampen Noa
-  description: ''
-  use_blueprint:
-    path: deconz_ikea_symfonisk_lights.yaml
-    input:
-      brightness: 50
-      light:
-        entity_id: light.noa_bed
-      double_press:
-      - service: light.turn_on
-        target:
-          device_id: cda7501a0b9811ebac43cb81d1a09be0
-        data:
-          effect: '{{ state_attr(''light.noa_bed'', ''effect_list'') | random }}'
-      triple_press:
-      - service: select.select_option
-        target:
-          entity_id: select.wled_noa_preset
-        data:
-          option: Solid white
-      remote: b225a6d4ec52c665162a23c382f2f38f
 - id: '1617684358026'
   alias: Home Assistant Update Notification for Android
   description: ''
@@ -62,13 +40,13 @@
   - condition: not
     conditions:
     - condition: state
-      entity_id: sensor.afvalinfo_tomorrow
+      entity_id: sensor.trash_type_tomorrow
       state: none
   action:
   - service: notify.family
     data_template:
       title: Morgen is een afvaldag
-      message: 'Opgehaalde afval: {{ states.sensor.afvalinfo_tomorrow.state }}'
+      message: 'Opgehaalde afval: {{ states.sensor.trash_type_tomorrow.state }}'
   initial_state: true
 - id: '1624693857334'
   alias: Nachtverlichting buiten
@@ -162,7 +140,7 @@
   - service: notify.family
     data_template:
       title: Takken worden binnenkort opghaald
-      message: 'Ophaaldatum: {{ states.sensor.afvalinfo_takken.state }}'
+      message: 'Ophaaldatum: {{ states.sensor.takken.state }}'
   initial_state: true
 - id: '1629894664286'
   alias: Achtertuinverlichting aan
@@ -265,7 +243,7 @@
   description: ''
   trigger:
   - platform: state
-    entity_id: binary_sensor.bijkeuken_bewegingssensor
+    entity_id: binary_sensor.bijkeuken_bewegingssensor_ias_zone
     to: 'on'
   - platform: state
     entity_id: binary_sensor.donker_binnen
@@ -275,7 +253,7 @@
     entity_id: binary_sensor.donker_binnen
     state: 'on'
   - condition: state
-    entity_id: binary_sensor.bijkeuken_bewegingssensor
+    entity_id: binary_sensor.bijkeuken_bewegingssensor_ias_zone
     state: 'on'
   action:
   - type: turn_on
@@ -288,9 +266,12 @@
   description: ''
   trigger:
   - platform: state
-    entity_id: binary_sensor.bijkeuken_bewegingssensor
+    entity_id: binary_sensor.bijkeuken_bewegingssensor_ias_zone
     to: 'off'
-    for: 00:01:00
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
   - platform: state
     entity_id: binary_sensor.donker_binnen
     to: 'off'
@@ -503,56 +484,6 @@
   - service: browser_mod.close_popup
     data: {}
   mode: single
-- id: '1641238347569'
-  alias: Boodschappen
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.shopping_list_contents
-    from: 'off'
-    to: 'on'
-  - platform: state
-    entity_id: sensor.shopping_list_all
-  - platform: template
-    value_template: "{{ person_state and (states('person.rudolf') in person_state\
-      \ or states('person.leny') in\n person_state) }}\n"
-  condition:
-  - condition: state
-    entity_id: binary_sensor.shopping_list_has_uncompleted_items
-    state: 'on'
-  - condition: template
-    value_template: '{{ person_state and (states(''person.rudolf'') in person_state
-      or states(''person.leny'') in person_state) }}
-
-      '
-  action:
-  - service: '{% if person_state and states(''person.leny'') in person_state %}notify.mobile_app_telefoon_leny
-      {% else %}notify.mobile_app_telefoon_rudolf {% endif %}
-
-      '
-    data:
-      title: Er staan boodschappen op de lijst
-      message: '{{ states(''sensor.shopping_list_to_do'') }}'
-      data:
-        priority: high
-        ttl: 0
-        actions:
-        - action: URI
-          title: Open boodschappenlijst
-          uri: /lovelace-rudolf/boodschappen
-  variables:
-    person_state:
-    - Coop Oldebroek
-    - WC De Vrijheid
-    - AH 't Harde
-    - Boni Oldebroek
-  mode: single
-  trigger_variables:
-    person_state:
-    - Coop Oldebroek
-    - WC De Vrijheid
-    - AH 't Harde
-    - Boni Oldebroek
 - id: 1e0bfa94-5035-40e0-a8f9-91822b1a1ec8
   alias: Airfryer bezig
   initial_state: true
@@ -956,110 +887,30 @@
   action:
   - service: recorder.purge
   mode: single
-- id: '1645822938342'
-  alias: Container | Aan de weg zetten
-  description: Stuurt een melding naar Rudolf wanneer de container aan de weg moet
-  trigger:
-  - platform: time_pattern
-    minutes: /30
-  - platform: homeassistant
-    event: start
-  condition:
-  - condition: state
-    entity_id: binary_sensor.container_warning
-    state: 'on'
-  action:
-  - condition: state
-    entity_id: person.rudolf
-    state: home
-  - service: notify.mobile_app_telefoon_rudolf
-    data:
-      title: De container moet aan de weg
-      message: '{{ message_data }}'
-      data:
-        notification_icon: mdi:delete
-        priority: high
-        ttl: 0
-        persistent: true
-        sticky: true
-        tag: '{{ message_tag }}'
-        actions:
-        - action: container_is_aan_de_weg
-          title: Container aan de weg gezet
-  - alias: Wait for a response
-    wait_for_trigger:
-    - platform: event
-      event_type: mobile_app_notification_action
-      event_data:
-        action: container_is_aan_de_weg
-  - service: input_boolean.turn_on
-    target:
-      entity_id: input_boolean.container_staat_aan_de_weg
-    data: {}
-  - service: notify.mobile_app_telefoon_rudolf
-    data:
-      message: clear_notification
-      data:
-        tag: '{{ message_tag }}'
-  mode: restart
-  variables:
-    message_tag: persistent_container
-    message_data: "{% if state_attr('binary_sensor.container_moet_aan_de_weg','today')\
-      \ != 'none' %}\n  Het {{ state_attr('binary_sensor.container_moet_aan_de_weg',\
-      \ 'today') }} wordt vandaag opgehaald.\n{% elif state_attr('binary_sensor.container_moet_aan_de_weg','tomorrow')\
-      \ != 'none' %}\n  Het {{ state_attr('binary_sensor.container_moet_aan_de_weg',\
-      \ 'tomorrow') }} wordt morgen opgehaald.\n{% endif %}\n"
-- id: '1645832179376'
-  alias: Container | Van de weg halen
-  description: Stuurt een melding naar Rudolf wanneer de container van de weg  af
-    moet
-  trigger:
-  - platform: time_pattern
-    minutes: /30
-  - platform: homeassistant
-    event: start
-  condition:
-  - condition: and
-    conditions:
-    - condition: state
-      entity_id: binary_sensor.container_warning
-      state: 'off'
-    - condition: state
-      entity_id: input_boolean.container_staat_aan_de_weg
-      state: 'on'
-  action:
-  - condition: state
-    entity_id: person.rudolf
-    state: home
-  - service: notify.mobile_app_telefoon_rudolf
-    data:
-      title: De container moet van de weg
-      message: Haal je hem even op?
-      data:
-        notification_icon: mdi:delete
-        priority: high
-        ttl: 0
-        persistent: true
-        sticky: true
-        tag: '{{ message_tag }}'
-        actions:
-        - action: container_is_van_de_weg
-          title: Opgehaald!
-  - alias: Wait for a response
-    wait_for_trigger:
-    - platform: event
-      event_type: mobile_app_notification_action
-      event_data:
-        action: container_is_van_de_weg
-  - service: input_boolean.turn_off
-    target:
-      entity_id: input_boolean.container_staat_aan_de_weg
-    data: {}
-  - service: notify.mobile_app_telefoon_rudolf
-    data:
-      message: clear_notification
-      data:
-        tag: '{{ message_tag }}'
-  mode: restart
-  variables:
-    message_tag: persistent_container_opgehaald
+- id: '1648378787986'
+  alias: Noa Symfonisk
+  description: ''
+  use_blueprint:
+    path: seamus65/zha_symfonisk_remote_lights.yaml
+    input:
+      remote: b225a6d4ec52c665162a23c382f2f38f
+      light:
+        entity_id: light.noa_bed
+      single_press:
+      - service: light.toggle
+        data:
+          brightness_pct: 50
+        target:
+          entity_id: light.noa_bed
+      double_press:
+      - service: light.turn_on
+        target:
+          entity_id: light.noa_bed
+        data:
+          effect: '{{ state_attr(''light.noa_bed'', ''effect_list'') | random }}'
+      triple_press:
+      - service: select.select_option
+        target:
+          entity_id: select.wled_noa_preset
+        data:
+          option: Solid white

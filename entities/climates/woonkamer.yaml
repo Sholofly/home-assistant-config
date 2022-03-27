@@ -5,7 +5,7 @@ platform: smart_thermostat
 name: Thermostaat
 unique_id: thermostaat
 heater: switch.zolder_cv_ketel
-target_sensor: sensor.woonkamer_multisensor_esp_temperature
+target_sensor: sensor.woonkamer_temperature
 min_temp: 15
 max_temp: 23
 target_temp: 17

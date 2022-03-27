@@ -1,6 +1,0 @@
-################################################
-## Entities / Lights / Woonkamer Wandrek
-################################################
-platform: switch
-name: Woonkamer Wandrek
-entity_id: switch.woonkamer_wandrek

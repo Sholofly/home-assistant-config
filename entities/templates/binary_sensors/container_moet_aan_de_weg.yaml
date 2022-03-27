@@ -1,9 +1,0 @@
-################################################
-## Entities / Binary Sensors / Container moet aan de weg
-################################################
-name: "Container moet aan de weg"
-state: >-
-  {{ (iif(( states('sensor.afvalinfo_today') !='none' and now().hour < 17) or (states('sensor.afvalinfo_tomorrow') !='none' and now().hour >= 17)), 'on', 'off') }}
-attributes:
-  today: "{{ states('sensor.afvalinfo_today') }}"
-  tomorrow: "{{ states('sensor.afvalinfo_tomorrow') }}"

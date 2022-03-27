@@ -5,5 +5,5 @@ platform: group
 name: Buitenverlichting
 entities:
   - light.achtertuin_lantaarnpaal
-  - light.voortuin_voordeur
+  - light.voortuin_deur
   - light.voortuin_hek

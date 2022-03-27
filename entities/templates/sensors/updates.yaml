@@ -1,5 +1,6 @@
 unique_id: updates
 state: template
+name: Total updates
 attributes:
   esphome: >
     {% set installed = states('sensor.esphome_version') %}

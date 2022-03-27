@@ -1,6 +1,7 @@
 ################################################
 ## Entities / Template Sensors / DSMR Weekdag
 ################################################
+name: Weekdag
 state: >
   {% set days = ["Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag", "Zondag"] %}
   {{ days[now().weekday()] }}

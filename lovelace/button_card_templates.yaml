@@ -256,10 +256,10 @@ afval:
       let spacer = '‍ ‍ ‍ ‍ ‍ ‍<font color="#2f3436">|</font> ‍ ‍ ‍ ‍ ';
       return `
         <b>Afval</b>${spacer}
-        <ha-icon icon="mdi:apple"></ha-icon> <b>${states['sensor.afvalinfo_gft'].state}</b>${spacer}
-        <ha-icon icon="mdi:newspaper-variant-multiple"></ha-icon> <b>${states['sensor.afvalinfo_papier'].state}</b>${spacer}
-        <ha-icon icon="mdi:delete-variant"></ha-icon> <b>${states['sensor.afvalinfo_restafval'].state}</b>${spacer}
-        <ha-icon icon="mdi:tree-outline"></ha-icon> <b>${states['sensor.afvalinfo_takken'].state}</b>
+        <ha-icon icon="mdi:apple"></ha-icon> <b>${states['sensor.gft'].state}</b>${spacer}
+        <ha-icon icon="mdi:newspaper-variant-multiple"></ha-icon> <b>${states['sensor.papier'].state}</b>${spacer}
+        <ha-icon icon="mdi:delete-variant"></ha-icon> <b>${states['sensor.restafval'].state}</b>${spacer}
+        <ha-icon icon="mdi:tree-outline"></ha-icon> <b>${states['sensor.takken'].state}</b>
       `;
     ]]]
   styles:

@@ -1,7 +1,7 @@
 ################################################
 ## Customizations / Entities / Sensor Trash Tomorrow
 ################################################
-sensor.afvalinfo_tomorrow:
+sensor.trash_type_tomorrow:
   friendly_name: Afval morgen
   entity_picture_template: '/local/mijnafvalwijzer/{{states.sensor.trash_tomorrow.state}}.png'
   icon_template: mdi:delete-empty

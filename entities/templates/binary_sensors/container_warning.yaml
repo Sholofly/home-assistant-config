@@ -1,6 +1,0 @@
-################################################
-## Entities / Binary Sensors / Container warning
-################################################
-name: "Container warning"
-state: >-
-  {{ iif(states('binary_sensor.container_moet_aan_de_weg') and states('input_boolean.container_staat_aan_de_weg') == 'off', 'on', 'off') }}

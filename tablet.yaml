@@ -140,7 +140,7 @@ views:
           #     - light_toggle
           #     - icon_lamp
           - type: custom:button-card
-            entity: light.woonkamer_wandrek_2
+            entity: light.woonkamer_wandrek
             name: Wandrek
             template:
               - light_toggle

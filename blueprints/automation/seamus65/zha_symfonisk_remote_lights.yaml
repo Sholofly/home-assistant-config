@@ -1,0 +1,106 @@
+blueprint:
+  name: ZHA - IKEA Symfonisk sound controller for lights
+  description: 'Control lights with an IKEA Symfonisk sound controller (the spinny
+    ones).
+
+    You can set functions for single press, double press and triple press. This allows
+    you to assign, e.g., a scene or anything else.
+
+    Rotating left/right will change the brightness smoothly of the selected light.'
+  domain: automation
+  input:
+    remote:
+      name: Remote
+      description: IKEA Symfonisk controller to use
+      selector:
+        device:
+          integration: zha
+          manufacturer: IKEA of Sweden
+          model: SYMFONISK Sound Controller
+    light:
+      name: Light(s)
+      description: The light(s) to control
+      selector:
+        target:
+          entity:
+            domain: light
+    single_press:
+      name: Single press
+      description: Action to run on single press
+      default: []
+      selector:
+        action: {}
+    double_press:
+      name: Double press
+      description: Action to run on double press
+      default: []
+      selector:
+        action: {}
+    triple_press:
+      name: Triple press
+      description: Action to run on triple press
+      default: []
+      selector:
+        action: {}
+  source_url: https://gist.github.com/seamus65/0cd586edfee2e245e0b7e8081c5865f1
+mode: restart
+max_exceeded: silent
+trigger:
+- platform: event
+  event_type: zha_event
+  event_data:
+    device_id: !input 'remote'
+action:
+- variables:
+    command: '{{ trigger.event.data.command }}'
+    cluster_id: '{{ trigger.event.data.cluster_id }}'
+    endpoint_id: '{{ trigger.event.data.endpoint_id }}'
+    args: '{{ trigger.event.data.args }}'
+- choose:
+  - conditions:
+    - '{{ command == ''toggle'' }}'
+    - '{{ cluster_id == 6 }}'
+    - '{{ endpoint_id == 1 }}'
+    sequence: !input 'single_press'
+  - conditions:
+    - '{{ command == ''step'' }}'
+    - '{{ cluster_id == 8 }}'
+    - '{{ endpoint_id == 1 }}'
+    - '{{ args == [0, 1, 0] }}'
+    sequence: !input 'double_press'
+  - conditions:
+    - '{{ command == ''step'' }}'
+    - '{{ cluster_id == 8 }}'
+    - '{{ endpoint_id == 1 }}'
+    - '{{ args == [1, 1, 0] }}'
+    sequence: !input 'triple_press'
+  - conditions:
+    - '{{ command == ''move'' }}'
+    - '{{ cluster_id == 8 }}'
+    - '{{ endpoint_id == 1 }}'
+    - '{{ args == [0, 195] }}'
+    sequence:
+    - repeat:
+        count: 10
+        sequence:
+        - service: light.turn_on
+          target: !input 'light'
+          data:
+            brightness_step_pct: 10
+            transition: 1
+        - delay: 1
+  - conditions:
+    - '{{ command == ''move'' }}'
+    - '{{ cluster_id == 8 }}'
+    - '{{ endpoint_id == 1 }}'
+    - '{{ args == [1, 195] }}'
+    sequence:
+    - repeat:
+        count: 10
+        sequence:
+        - service: light.turn_on
+          target: !input 'light'
+          data:
+            brightness_step_pct: -10
+            transition: 1
+        - delay: 1

@@ -8,4 +8,4 @@ state: >
     {{ 100 - (FreeMemory / TotalMemory * 100) | int(default=0) }}
   {% endif %}
 attributes:
-  friendly_name: Minne
+  friendly_name: Fully Kiosk Memory
