@@ -1,8 +1,0 @@
-substitutions:
-  label: esp-test
-  slug: esp32-cam-test
-  name: ESP32 Test
-  description: Test ESP camera.
-packages:
-  device: !include devices/esp32-cam.yaml
-

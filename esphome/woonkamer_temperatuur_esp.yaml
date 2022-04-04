@@ -1,8 +1,0 @@
-substitutions:
-  label: esp30  
-  slug: woonkamer_multisensor_esp
-  name: Woonkamer multisensor ESP
-  description: Wemos met multisensor voor temperatuur enzo
-packages:
-  device: !include devices/wemos-d1-mini-gy-bme-p-280.yaml
-

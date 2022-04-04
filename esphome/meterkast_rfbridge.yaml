@@ -1,8 +1,0 @@
-substitutions:
-  label: meterkast-rfbridge
-  slug: meterkast_rfbridge
-  name: Meterkast RFBridge
-  description: RFBridge in de meterkast
-
-packages:
-  device: !include devices/rfbridge.yaml
