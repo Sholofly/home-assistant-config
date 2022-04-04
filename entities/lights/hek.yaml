@@ -1,8 +1,0 @@
-################################################
-## Entities / Lights / Hek
-################################################
-platform: group
-name: Voortuin Hek
-entities:
-  - light.voortuin_hek_1
-  - light.voortuin_hek_2

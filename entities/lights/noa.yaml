@@ -1,8 +1,0 @@
-################################################
-## Entities / Lights / Noa
-################################################ 
-platform: group
-name: Noa
-entities:
-  - light.noa_plafond
-  - light.noa_bed
