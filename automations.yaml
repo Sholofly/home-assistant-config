@@ -1,6 +1,6 @@
-- id: '1607379994170'
+- id: "1607379994170"
   alias: WC lampen aan bij beweging
-  description: ''
+  description: ""
   use_blueprint:
     path: homeassistant/motion_light.yaml
     input:
@@ -8,9 +8,9 @@
       motion_entity: binary_sensor.wc_bewegingssensor_ias_zone
       light_target:
         entity_id: light.wc_plafond
-- id: '1617684358026'
+- id: "1617684358026"
   alias: Home Assistant Update Notification for Android
-  description: ''
+  description: ""
   use_blueprint:
     path: fortepc/update-notif-for-android.yaml
     input:
@@ -19,422 +19,423 @@
       notify_device: 267251cf143411ebbf4ef5c3186f709c
       notification_message: Home Assistant {{ newest_version }} is beschikbaar
       group: Available Updates
-- id: '1624693593116'
+- id: "1624693593116"
   alias: Thermostaat nachtstand
-  description: ''
+  description: ""
   trigger:
-  - platform: time
-    at: '23:00:00'
+    - platform: time
+      at: "23:00:00"
   condition: []
   action:
-  - service: climate.turn_off
-    target:
-      entity_id: climate.thermostaat
+    - service: climate.turn_off
+      target:
+        entity_id: climate.thermostaat
   mode: single
-- id: '1624693689373'
+- id: "1624693689373"
   alias: Afval
   trigger:
-  - platform: time
-    at: '17:00:00'
+    - platform: time
+      at: "17:00:00"
   condition:
-  - condition: not
-    conditions:
-    - condition: state
-      entity_id: sensor.trash_type_tomorrow
-      state: none
+    - condition: not
+      conditions:
+        - condition: state
+          entity_id: sensor.trash_type_tomorrow
+          state: none
   action:
-  - service: notify.family
-    data_template:
-      title: Morgen is een afvaldag
-      message: 'Opgehaalde afval: {{ states.sensor.trash_type_tomorrow.state }}'
+    - service: notify.family
+      data_template:
+        title: Morgen is een afvaldag
+        message: "Opgehaalde afval: {{ states.sensor.trash_type_tomorrow.state }}"
   initial_state: true
-- id: '1624693857334'
+- id: "1624693857334"
   alias: Nachtverlichting buiten
   description: Handle night lights based on illumination
   trigger:
-  - platform: state
-    entity_id: binary_sensor.donker_buiten
+    - platform: state
+      entity_id: binary_sensor.donker_buiten
   action:
-  - choose:
-    - conditions:
-      - condition: state
-        entity_id: binary_sensor.donker_buiten
-        state: 'on'
-      sequence:
-      - service: light.turn_on
-        entity_id: light.buitenverlichting
-    - conditions:
-      - condition: state
-        entity_id: binary_sensor.donker_buiten
-        state: 'off'
-      sequence:
-      - service: light.turn_off
-        entity_id: light.buitenverlichting
+    - choose:
+        - conditions:
+            - condition: state
+              entity_id: binary_sensor.donker_buiten
+              state: "on"
+          sequence:
+            - service: light.turn_on
+              entity_id: light.buitenverlichting
+        - conditions:
+            - condition: state
+              entity_id: binary_sensor.donker_buiten
+              state: "off"
+          sequence:
+            - service: light.turn_off
+              entity_id: light.buitenverlichting
   initial_state: true
-- id: '1624693897568'
+- id: "1624693897568"
   alias: Ramen boven staan nog open
   trigger:
-  - platform: state
-    entity_id: group.parents
-    to: home
-  - platform: time
-    at: '16:00:00'
-  condition:
-  - condition: and
-    conditions:
-    - condition: time
-      after: '16:00:00'
-      before: '20:00:00'
-    - condition: state
+    - platform: state
       entity_id: group.parents
-      state: home
-    - condition: state
-      entity_id: group.ramen_boven
-      state: 'on'
+      to: home
+    - platform: time
+      at: "16:00:00"
+  condition:
+    - condition: and
+      conditions:
+        - condition: time
+          after: "16:00:00"
+          before: "20:00:00"
+        - condition: state
+          entity_id: group.parents
+          state: home
+        - condition: state
+          entity_id: binary_sensor.ramen_boven
+          state: "on"
   action:
-  - choose:
-    - conditions:
-      - condition: state
-        entity_id: person.rudolf
-        state: home
-      sequence:
-      - service: notify.mobile_app_telefoon_rudolf
-        data:
-          title: Er staan nog ramen open
-          message: '{{ message_data }}'
-          data:
-            ttl: 0
-            priority: high
-    - conditions:
-      - condition: state
-        entity_id: person.leny
-        state: home
-      sequence:
-      - service: notify.mobile_app_telefoon_leny
-        data:
-          title: Er staan nog ramen open
-          message: '{{ message_data }}'
-          data:
-            ttl: 0
-            priority: high
+    - choose:
+        - conditions:
+            - condition: state
+              entity_id: person.rudolf
+              state: home
+          sequence:
+            - service: notify.mobile_app_telefoon_rudolf
+              data:
+                title: Er staan nog ramen open
+                message: "{{ message_data }}"
+                data:
+                  ttl: 0
+                  priority: high
+        - conditions:
+            - condition: state
+              entity_id: person.leny
+              state: home
+          sequence:
+            - service: notify.mobile_app_telefoon_leny
+              data:
+                title: Er staan nog ramen open
+                message: "{{ message_data }}"
+                data:
+                  ttl: 0
+                  priority: high
   variables:
-    message_data: "{% for entity_id in states.group.ramen_boven.attributes.entity_id\
+    message_data:
+      "{% for entity_id in states.binary_sensor.ramen_boven.attributes.entity_id\
       \ -%}\n  {% if(states(entity_id) == 'on')-%}\n      {{- '\\n' -}}\n    - {%\
       \ print(state_attr(entity_id,'friendly_name')) | regex_replace(find='Raam',\
       \ replace='', ignorecase=False)-%}\n  {% endif-%}\n{%- endfor %}"
-- id: '1624693921089'
+- id: "1624693921089"
   alias: Takken
   trigger:
-  - platform: time
-    at: 09:00:00
+    - platform: time
+      at: 09:00:00
   condition:
     condition: and
     conditions:
-    - condition: numeric_state
-      entity_id: sensor.afval_info_days_until_takken
-      below: 8
-    - condition: time
-      weekday:
-      - fri
+      - condition: numeric_state
+        entity_id: sensor.afval_info_days_until_takken
+        below: 8
+      - condition: time
+        weekday:
+          - fri
   action:
-  - service: notify.family
-    data_template:
-      title: Takken worden binnenkort opghaald
-      message: 'Ophaaldatum: {{ states.sensor.takken.state }}'
+    - service: notify.family
+      data_template:
+        title: Takken worden binnenkort opghaald
+        message: "Ophaaldatum: {{ states.sensor.takken.state }}"
   initial_state: true
-- id: '1629894664286'
+- id: "1629894664286"
   alias: Achtertuinverlichting aan
   trigger:
-  - platform: time
-    at: 07:00
+    - platform: time
+      at: 07:00
   condition:
-  - condition: state
-    entity_id: binary_sensor.donker_buiten
-    state: 'on'
+    - condition: state
+      entity_id: binary_sensor.donker_buiten
+      state: "on"
   action:
-  - service: switch.turn_on
-    target:
-      entity_id: switch.achtertuin_lantaarnpaal
+    - service: switch.turn_on
+      target:
+        entity_id: switch.achtertuin_lantaarnpaal
   initial_state: true
   mode: single
-- id: '1629894698473'
+- id: "1629894698473"
   alias: Achtertuin verlichting 's nachts uit
-  description: '''s nachts na 10 minuten achtertuinverlichting uit.'
+  description: "'s nachts na 10 minuten achtertuinverlichting uit."
   trigger:
-  - platform: state
-    entity_id: light.achtertuin_lantaarnpaal
-    to: 'on'
-    for: 0:10:00
+    - platform: state
+      entity_id: light.achtertuin_lantaarnpaal
+      to: "on"
+      for: 0:10:00
   condition:
-  - condition: time
-    after: 00:00
-    before: 07:00
+    - condition: time
+      after: 00:00
+      before: 07:00
   action:
-  - service: switch.turn_off
-    target:
-      entity_id: switch.kleine_schuur_lantaarnpaal
+    - service: switch.turn_off
+      target:
+        entity_id: switch.kleine_schuur_lantaarnpaal
   mode: single
-- id: '1629894738043'
+- id: "1629894738043"
   alias: Achtertuinverlichting uit
   trigger:
-  - platform: time
-    at: 00:00
+    - platform: time
+      at: 00:00
   action:
-  - service: switch.turn_off
-    target:
-      entity_id: switch.achtertuin_lantaarnpaal
+    - service: switch.turn_off
+      target:
+        entity_id: switch.achtertuin_lantaarnpaal
   initial_state: true
   mode: single
-- id: '1629895298921'
+- id: "1629895298921"
   alias: Bel aan
   trigger:
-  - platform: time
-    at: 07:00
-  - platform: homeassistant
-    event: start
+    - platform: time
+      at: 07:00
+    - platform: homeassistant
+      event: start
   condition:
-  - condition: time
-    after: 07:00:00
-    before: '20:00'
+    - condition: time
+      after: 07:00:00
+      before: "20:00"
   action:
-  - service: switch.turn_on
-    data: {}
-    target:
-      entity_id: switch.gang_bel_enabled
+    - service: switch.turn_on
+      data: {}
+      target:
+        entity_id: switch.gang_bel_enabled
   initial_state: true
   mode: single
-- id: '1629895322152'
+- id: "1629895322152"
   alias: Bel uit
   trigger:
-  - platform: homeassistant
-    event: start
-  - platform: time
-    at: '20:00'
+    - platform: homeassistant
+      event: start
+    - platform: time
+      at: "20:00"
   condition:
-  - condition: time
-    after: '20:00'
-    before: 07:00
+    - condition: time
+      after: "20:00"
+      before: 07:00
   action:
-  - service: switch.turn_off
-    data: {}
-    target:
-      entity_id: switch.gang_bel_enabled
+    - service: switch.turn_off
+      data: {}
+      target:
+        entity_id: switch.gang_bel_enabled
   initial_state: true
   mode: single
-- id: '1629895350290'
+- id: "1629895350290"
   alias: Zolder schakelaar
   trigger:
-  - platform: state
-    entity_id: binary_sensor.zolder_schakelaar
-    from:
-    - 'on'
-    - 'off'
-    to:
-    - 'on'
-    - 'off'
+    - platform: state
+      entity_id: binary_sensor.zolder_schakelaar
+      from:
+        - "on"
+        - "off"
+      to:
+        - "on"
+        - "off"
   action:
-  - service: light.toggle
-    data: {}
-    target:
-      entity_id: light.zolder_plafond
+    - service: light.toggle
+      data: {}
+      target:
+        entity_id: light.zolder_plafond
   mode: single
-- id: '1629911279530'
+- id: "1629911279530"
   alias: Bijkeuken - Licht aan
-  description: ''
+  description: ""
   trigger:
-  - platform: state
-    entity_id: binary_sensor.bijkeuken_bewegingssensor_ias_zone
-    to: 'on'
-  - platform: state
-    entity_id: binary_sensor.donker_binnen
-    to: 'on'
+    - platform: state
+      entity_id: binary_sensor.bijkeuken_bewegingssensor_ias_zone
+      to: "on"
+    - platform: state
+      entity_id: binary_sensor.donker_binnen
+      to: "on"
   condition:
-  - condition: state
-    entity_id: binary_sensor.donker_binnen
-    state: 'on'
-  - condition: state
-    entity_id: binary_sensor.bijkeuken_bewegingssensor_ias_zone
-    state: 'on'
+    - condition: state
+      entity_id: binary_sensor.donker_binnen
+      state: "on"
+    - condition: state
+      entity_id: binary_sensor.bijkeuken_bewegingssensor_ias_zone
+      state: "on"
   action:
-  - type: turn_on
-    device_id: 8dafd02b71a94a0f80376693ac7132ea
-    entity_id: light.bijkeuken_plafond
-    domain: light
+    - type: turn_on
+      device_id: 8dafd02b71a94a0f80376693ac7132ea
+      entity_id: light.bijkeuken_plafond
+      domain: light
   mode: single
-- id: '1629911528869'
+- id: "1629911528869"
   alias: Bijkeuken - Licht uit
-  description: ''
+  description: ""
   trigger:
-  - platform: state
-    entity_id: binary_sensor.bijkeuken_bewegingssensor_ias_zone
-    to: 'off'
-    for:
-      hours: 0
-      minutes: 1
-      seconds: 0
-  - platform: state
-    entity_id: binary_sensor.donker_binnen
-    to: 'off'
+    - platform: state
+      entity_id: binary_sensor.bijkeuken_bewegingssensor_ias_zone
+      to: "off"
+      for:
+        hours: 0
+        minutes: 1
+        seconds: 0
+    - platform: state
+      entity_id: binary_sensor.donker_binnen
+      to: "off"
   condition:
-  - condition: state
-    entity_id: light.bijkeuken_plafond
-    state: 'on'
+    - condition: state
+      entity_id: light.bijkeuken_plafond
+      state: "on"
   action:
-  - type: turn_off
-    device_id: 8dafd02b71a94a0f80376693ac7132ea
-    entity_id: light.bijkeuken_plafond
-    domain: light
+    - type: turn_off
+      device_id: 8dafd02b71a94a0f80376693ac7132ea
+      entity_id: light.bijkeuken_plafond
+      domain: light
   mode: single
-- id: '1631009095968'
+- id: "1631009095968"
   alias: Notificatie ramen zolder open
-  description: ''
+  description: ""
   trigger:
-  - platform: time
-    at: '19:00'
+    - platform: time
+      at: "19:00"
   condition:
-  - condition: state
-    entity_id: binary_sensor.zolder_raam_achter
-    state: 'on'
+    - condition: state
+      entity_id: binary_sensor.zolder_raam_achter
+      state: "on"
   action:
-  - service: notify.mobile_app_telefoon_rudolf
-    data:
-      message: Dus dicht doen makker!
-      title: Het zolderraam staat nog open
+    - service: notify.mobile_app_telefoon_rudolf
       data:
-        ttl: 0
-        priority: high
-        channel: alarm_stream
-        importance: high
+        message: Dus dicht doen makker!
+        title: Het zolderraam staat nog open
+        data:
+          ttl: 0
+          priority: high
+          channel: alarm_stream
+          importance: high
   mode: single
-- id: '1632223302457'
+- id: "1632223302457"
   alias: Bewegingssensor schuur automatisch uit
-  description: ''
+  description: ""
   trigger:
-  - platform: state
-    entity_id: binary_sensor.kleine_schuur_bewegingssensor
-    to: 'on'
-    for:
-      hours: 0
-      minutes: 3
-      seconds: 0
-      milliseconds: 0
+    - platform: state
+      entity_id: binary_sensor.kleine_schuur_bewegingssensor
+      to: "on"
+      for:
+        hours: 0
+        minutes: 3
+        seconds: 0
+        milliseconds: 0
   condition: []
   action:
-  - service: mqtt.publish
-    data:
-      topic: tele/rf_schuur/RESULT
-      payload: '{"RfReceived":{"Data":"D2242E-off"}}'
+    - service: mqtt.publish
+      data:
+        topic: tele/rf_schuur/RESULT
+        payload: '{"RfReceived":{"Data":"D2242E-off"}}'
   mode: single
-- id: '1632469998878'
+- id: "1632469998878"
   alias: Wall tablet - Screen auto off
-  description: ''
+  description: ""
   trigger:
-  - platform: state
-    entity_id: binary_sensor.wall_tablet_motion
-    to: 'off'
-    for:
-      hours: 0
-      minutes: 0
-      seconds: 5
-  - platform: state
-    to: 'on'
-    for:
-      hours: 0
-      minutes: 0
-      seconds: 15
-    entity_id: light.lenovo_tab_m10_screen
-  - platform: time
-    at: '23:00'
+    - platform: state
+      entity_id: binary_sensor.wall_tablet_motion
+      to: "off"
+      for:
+        hours: 0
+        minutes: 0
+        seconds: 5
+    - platform: state
+      to: "on"
+      for:
+        hours: 0
+        minutes: 0
+        seconds: 15
+      entity_id: light.lenovo_tab_m10_screen
+    - platform: time
+      at: "23:00"
   condition:
-  - condition: state
-    entity_id: binary_sensor.wall_tablet_motion
-    state: 'off'
-    for:
-      hours: 0
-      minutes: 0
-      seconds: 5
-      milliseconds: 0
+    - condition: state
+      entity_id: binary_sensor.wall_tablet_motion
+      state: "off"
+      for:
+        hours: 0
+        minutes: 0
+        seconds: 5
+        milliseconds: 0
   action:
-  - choose:
-    - conditions:
-      - condition: time
-        after: '23:00'
-        before: 07:00
-      sequence:
-      - service: light.turn_on
-        data:
-          transition: 5
-          brightness: 1
-        target:
-          device_id: 4e5e759c521f542921a9c9132a2885b4
-      - delay:
-          hours: 0
-          minutes: 0
-          seconds: 5
-          milliseconds: 0
-      - service: light.turn_off
-        data: {}
-        target:
-          device_id: 4e5e759c521f542921a9c9132a2885b4
-    default:
+    - choose:
+        - conditions:
+            - condition: time
+              after: "23:00"
+              before: 07:00
+          sequence:
+            - service: light.turn_on
+              data:
+                transition: 5
+                brightness: 1
+              target:
+                device_id: 4e5e759c521f542921a9c9132a2885b4
+            - delay:
+                hours: 0
+                minutes: 0
+                seconds: 5
+                milliseconds: 0
+            - service: light.turn_off
+              data: {}
+              target:
+                device_id: 4e5e759c521f542921a9c9132a2885b4
+      default:
+        - service: light.turn_on
+          data:
+            brightness: 1
+          target:
+            device_id: 4e5e759c521f542921a9c9132a2885b4
+  mode: restart
+- id: "1632471920007"
+  alias: Wall tablet - Bright on motion
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.wall_tablet_motion
+      to: "on"
+  condition: []
+  action:
     - service: light.turn_on
       data:
-        brightness: 1
+        brightness: 100
       target:
         device_id: 4e5e759c521f542921a9c9132a2885b4
-  mode: restart
-- id: '1632471920007'
-  alias: Wall tablet - Bright on motion
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.wall_tablet_motion
-    to: 'on'
-  condition: []
-  action:
-  - service: light.turn_on
-    data:
-      brightness: 100
-    target:
-      device_id: 4e5e759c521f542921a9c9132a2885b4
   mode: single
-- id: '1632481170491'
+- id: "1632481170491"
   alias: Voortuin verlichting 's nachts
   description: Wanneer het donker is, lampen hek na 10 minuten weer aan.
   trigger:
-  - platform: state
-    entity_id: light.voortuin_hek
-    to: 'off'
-    for:
-      minutes: 10
+    - platform: state
+      entity_id: light.voortuin_hek
+      to: "off"
+      for:
+        minutes: 10
   condition:
-  - condition: state
-    entity_id: binary_sensor.donker_buiten
-    state: 'on'
+    - condition: state
+      entity_id: binary_sensor.donker_buiten
+      state: "on"
   action:
-  - service: light.turn_on
-    entity_id: light.voortuin_hek
+    - service: light.turn_on
+      entity_id: light.voortuin_hek
   mode: single
-- id: '1632481269015'
+- id: "1632481269015"
   alias: Achterdeur open in het donker
   description: Wijzig verlichting wanneer achterdeur open gaat
   trigger:
-  - platform: state
-    entity_id: binary_sensor.bijkeuken_deur
-    to: 'on'
+    - platform: state
+      entity_id: binary_sensor.bijkeuken_deur
+      to: "on"
   condition:
-  - condition: state
-    entity_id: binary_sensor.donker_buiten
-    state: 'on'
+    - condition: state
+      entity_id: binary_sensor.donker_buiten
+      state: "on"
   action:
-  - service: light.turn_on
-    entity_id: light.achtertuin_lantaarnpaal
-  - service: light.turn_off
-    entity_id: light.voortuin_hek
+    - service: light.turn_on
+      entity_id: light.achtertuin_lantaarnpaal
+    - service: light.turn_off
+      entity_id: light.voortuin_hek
   mode: single
-- id: '1634330478124'
+- id: "1634330478124"
   alias: Bel gaat - Stuur bericht
-  description: ''
+  description: ""
   use_blueprint:
     path: vorion/send-camera-snapshot-notification-on-motion.yaml
     input:
@@ -444,452 +445,456 @@
       notify_device: 267251cf143411ebbf4ef5c3186f709c
       delay: 0
       notification_title: Er wordt aangebeld
-- id: '1634941186819'
+- id: "1634941186819"
   alias: Bel gaat - Toon pop-up
   description: Toont camerabeeld in popup wanneer bel gaat
   trigger:
-  - platform: state
-    entity_id: binary_sensor.gang_bel_button
-    to: 'on'
-  - platform: state
-    entity_id: binary_sensor.voortuin_deurbel
-    to: 'on'
+    - platform: state
+      entity_id: binary_sensor.gang_bel_button
+      to: "on"
+    - platform: state
+      entity_id: binary_sensor.voortuin_deurbel
+      to: "on"
   condition: []
   action:
-  - service: light.turn_on
-    data: {}
-    target:
-      device_id: 4e5e759c521f542921a9c9132a2885b4
-  - delay:
-      hours: 0
-      minutes: 0
-      seconds: 3
-      milliseconds: 0
-  - service: browser_mod.popup
-    data:
-      title: Popup example
-      card:
-        type: custom:webrtc-camera
-        entity: camera.voortuin
-      deviceID:
-      - ea5c0b48-bbd900ef
-      - this
-      hide_header: true
-      large: true
-  - delay:
-      hours: 0
-      minutes: 0
-      seconds: 30
-      milliseconds: 0
-  - service: browser_mod.close_popup
-    data: {}
+    - service: light.turn_on
+      data: {}
+      target:
+        device_id: 4e5e759c521f542921a9c9132a2885b4
+    - delay:
+        hours: 0
+        minutes: 0
+        seconds: 3
+        milliseconds: 0
+    - service: browser_mod.popup
+      data:
+        title: Popup example
+        card:
+          type: custom:webrtc-camera
+          entity: camera.voortuin
+        deviceID:
+          - ea5c0b48-bbd900ef
+          - this
+        hide_header: true
+        large: true
+    - delay:
+        hours: 0
+        minutes: 0
+        seconds: 30
+        milliseconds: 0
+    - service: browser_mod.close_popup
+      data: {}
   mode: single
 - id: 1e0bfa94-5035-40e0-a8f9-91822b1a1ec8
   alias: Airfryer bezig
   initial_state: true
   trigger:
-  - platform: state
-    entity_id: sensor.kleine_schuur_airfryer_huidig_wattage
-  - platform: homeassistant
-    event: start
+    - platform: state
+      entity_id: sensor.kleine_schuur_airfryer_huidig_wattage
+    - platform: homeassistant
+      event: start
   condition:
     condition: and
     conditions:
-    - condition: numeric_state
-      entity_id: sensor.kleine_schuur_airfryer_huidig_wattage
-      above: 20
-    - condition: not
-      conditions:
-      - condition: state
-        entity_id: input_select.kleine_schuur_airfryer_status
-        state: Bezig
+      - condition: numeric_state
+        entity_id: sensor.kleine_schuur_airfryer_huidig_wattage
+        above: 20
+      - condition: not
+        conditions:
+          - condition: state
+            entity_id: input_select.kleine_schuur_airfryer_status
+            state: Bezig
   action:
-  - service: input_select.select_option
-    entity_id: input_select.kleine_schuur_airfryer_status
-    data:
-      option: Bezig
+    - service: input_select.select_option
+      entity_id: input_select.kleine_schuur_airfryer_status
+      data:
+        option: Bezig
 - id: c6e04981-63d3-4940-95cc-b9ef06f79e0b
   alias: Airfryer inactief
   initial_state: true
   trigger:
-  - platform: state
-    entity_id: sensor.kleine_schuur_airfryer_huidig_wattage
-  - platform: homeassistant
-    event: start
+    - platform: state
+      entity_id: sensor.kleine_schuur_airfryer_huidig_wattage
+    - platform: homeassistant
+      event: start
   condition:
     condition: and
     conditions:
-    - condition: numeric_state
-      entity_id: sensor.kleine_schuur_airfryer_huidig_wattage
-      above: 0
-      below: 20.1
+      - condition: numeric_state
+        entity_id: sensor.kleine_schuur_airfryer_huidig_wattage
+        above: 0
+        below: 20.1
   action:
-  - service: input_select.select_option
-    entity_id: input_select.kleine_schuur_airfryer_status
-    data:
-      option: Inactief
+    - service: input_select.select_option
+      entity_id: input_select.kleine_schuur_airfryer_status
+      data:
+        option: Inactief
 - id: bc245ca1-4716-492c-aabd-bb6a558e29c1
   alias: Airfryer klaar
   initial_state: true
   trigger:
-  - platform: state
-    entity_id: sensor.kleine_schuur_airfryer_huidig_wattage
+    - platform: state
+      entity_id: sensor.kleine_schuur_airfryer_huidig_wattage
   condition:
     condition: and
     conditions:
-    - condition: state
-      entity_id: input_select.kleine_schuur_airfryer_status
-      state: Bezig
-    - condition: numeric_state
-      entity_id: sensor.kleine_schuur_airfryer_huidig_wattage
-      below: 20
+      - condition: state
+        entity_id: input_select.kleine_schuur_airfryer_status
+        state: Bezig
+      - condition: numeric_state
+        entity_id: sensor.kleine_schuur_airfryer_huidig_wattage
+        below: 20
   action:
-  - service: input_select.select_option
-    entity_id: input_select.kleine_schuur_airfryer_status
-    data:
-      option: Klaar
-  - service: media_player.volume_set
-    entity_id: media_player.woonkamer_google_home
-    data:
-      volume_level: 0.7
-  - service: tts.microsoft_say
-    data:
+    - service: input_select.select_option
+      entity_id: input_select.kleine_schuur_airfryer_status
+      data:
+        option: Klaar
+    - service: media_player.volume_set
       entity_id: media_player.woonkamer_google_home
-      message: De airfryer is klaar!
-  - delay: 00:00:05
-  - service: media_player.volume_set
-    entity_id: media_player.woonkamer_google_home
-    data:
-      volume_level: 0.4
+      data:
+        volume_level: 0.7
+    - service: tts.microsoft_say
+      data:
+        entity_id: media_player.woonkamer_google_home
+        message: De airfryer is klaar!
+    - delay: 00:00:05
+    - service: media_player.volume_set
+      entity_id: media_player.woonkamer_google_home
+      data:
+        volume_level: 0.4
 - id: 8382a0fb-cad1-4bcd-a942-2d52a72ebdec
   alias: Airfryer uit
   initial_state: true
   trigger:
-  - platform: state
-    entity_id: sensor.kleine_schuur_airfryer_huidig_wattage
-  - platform: homeassistant
-    event: start
+    - platform: state
+      entity_id: sensor.kleine_schuur_airfryer_huidig_wattage
+    - platform: homeassistant
+      event: start
   condition:
     condition: and
     conditions:
-    - condition: numeric_state
-      entity_id: sensor.kleine_schuur_airfryer_huidig_wattage
-      below: 0.1
-    - condition: not
-      conditions:
-      - condition: state
-        entity_id: input_select.kleine_schuur_airfryer_status
-        state: Uit
+      - condition: numeric_state
+        entity_id: sensor.kleine_schuur_airfryer_huidig_wattage
+        below: 0.1
+      - condition: not
+        conditions:
+          - condition: state
+            entity_id: input_select.kleine_schuur_airfryer_status
+            state: Uit
   action:
-  - service: input_select.select_option
-    entity_id: input_select.kleine_schuur_airfryer_status
-    data:
-      option: Uit
-  - service: switch.turn_off
-    entity_id: switch.kleine_schuur_airfryer
+    - service: input_select.select_option
+      entity_id: input_select.kleine_schuur_airfryer_status
+      data:
+        option: Uit
+    - service: switch.turn_off
+      entity_id: switch.kleine_schuur_airfryer
 - id: eed90cbc-daf9-4757-aaff-5e615673a600
   alias: Droger afronden
   initial_state: true
   trigger:
-  - platform: state
-    entity_id: sensor.bijkeuken_droger_huidig_wattage
-  - platform: homeassistant
-    event: start
+    - platform: state
+      entity_id: sensor.bijkeuken_droger_huidig_wattage
+    - platform: homeassistant
+      event: start
   condition:
     condition: and
     conditions:
-    - condition: numeric_state
-      entity_id: sensor.bijkeuken_droger_huidig_wattage
-      below: 0.75
-    - condition: state
-      entity_id: input_select.bijkeuken_droger_status
-      state: Bezig
+      - condition: numeric_state
+        entity_id: sensor.bijkeuken_droger_huidig_wattage
+        below: 0.75
+      - condition: state
+        entity_id: input_select.bijkeuken_droger_status
+        state: Bezig
   action:
-  - service: input_select.select_option
-    entity_id: input_select.bijkeuken_droger_status
-    data:
-      option: Afronden
+    - service: input_select.select_option
+      entity_id: input_select.bijkeuken_droger_status
+      data:
+        option: Afronden
 - id: 58d48250-2189-450f-809b-e6d752ae2557
   alias: Droger bezig
   initial_state: true
   trigger:
-  - platform: state
-    entity_id: sensor.bijkeuken_droger_huidig_wattage
-  - platform: homeassistant
-    event: start
+    - platform: state
+      entity_id: sensor.bijkeuken_droger_huidig_wattage
+    - platform: homeassistant
+      event: start
   condition:
     condition: and
     conditions:
-    - condition: numeric_state
-      entity_id: sensor.bijkeuken_droger_huidig_wattage
-      above: 10
-    - condition: state
-      entity_id: binary_sensor.bijkeuken_droger
-      state: 'off'
+      - condition: numeric_state
+        entity_id: sensor.bijkeuken_droger_huidig_wattage
+        above: 10
+      - condition: state
+        entity_id: binary_sensor.bijkeuken_droger
+        state: "off"
   action:
-  - service: input_select.select_option
-    entity_id: input_select.bijkeuken_droger_status
-    data:
-      option: Bezig
+    - service: input_select.select_option
+      entity_id: input_select.bijkeuken_droger_status
+      data:
+        option: Bezig
 - id: c14ca86d-5ac0-4b2d-9340-8efe05fd8fa4
   alias: Droger klaar notificatie
-  description: 'Stuurt een notificatie naar Rudolf of Leny wanneer de droger klaar
+  description:
+    "Stuurt een notificatie naar Rudolf of Leny wanneer de droger klaar
     is:
 
     - Wanneer één van hun thuis is
 
     - Wanneer één van hun thuis komt
 
-    - ''s Ochtends om 07:30 als één van hun thuis is en de droger nog niet uitgepakt'
+    - 's Ochtends om 07:30 als één van hun thuis is en de droger nog niet uitgepakt"
   trigger:
-  - platform: state
-    entity_id: input_select.bijkeuken_droger_status
-    to: Klaar
-  - platform: state
-    entity_id: person.leny
-    to: home
-    for:
-      minutes: 2
-    id: leny_home
-  - platform: state
-    entity_id: person.rudolf
-    to: home
-    for:
-      minutes: 2
-    id: rudolf_home
-  - platform: time
-    at: 07:30
-  condition:
-  - condition: and
-    conditions:
-    - condition: state
+    - platform: state
       entity_id: input_select.bijkeuken_droger_status
-      state: Klaar
+      to: Klaar
+    - platform: state
+      entity_id: person.leny
+      to: home
+      for:
+        minutes: 2
+      id: leny_home
+    - platform: state
+      entity_id: person.rudolf
+      to: home
+      for:
+        minutes: 2
+      id: rudolf_home
+    - platform: time
+      at: 07:30
+  condition:
+    - condition: and
+      conditions:
+        - condition: state
+          entity_id: input_select.bijkeuken_droger_status
+          state: Klaar
   action:
-  - choose:
-    - alias: Leny thuis?
-      conditions:
-      - condition: state
-        entity_id: person.leny
-        state: home
-      sequence:
-      - service: notify.mobile_app_telefoon_leny
-        data:
-          title: Droger is klaar
-          message: Niet vergeten de was eruit te halen
-  - choose:
-    - alias: Rudolf thuis?
-      conditions:
-      - condition: state
-        entity_id: person.rudolf
-        state: home
-      sequence:
-      - service: notify.mobile_app_telefoon_rudolf
-        data:
-          title: Droger is klaar
-          message: Niet vergeten de was eruit te halen
+    - choose:
+        - alias: Leny thuis?
+          conditions:
+            - condition: state
+              entity_id: person.leny
+              state: home
+          sequence:
+            - service: notify.mobile_app_telefoon_leny
+              data:
+                title: Droger is klaar
+                message: Niet vergeten de was eruit te halen
+    - choose:
+        - alias: Rudolf thuis?
+          conditions:
+            - condition: state
+              entity_id: person.rudolf
+              state: home
+          sequence:
+            - service: notify.mobile_app_telefoon_rudolf
+              data:
+                title: Droger is klaar
+                message: Niet vergeten de was eruit te halen
   initial_state: true
 - id: 7988b7bf-ccef-4585-b890-66a80c0a3051
   alias: Droger klaar
   initial_state: true
   trigger:
-  - platform: state
-    entity_id: input_select.bijkeuken_droger_status
-    to: Afronden
-    for:
-      minutes: 5
+    - platform: state
+      entity_id: input_select.bijkeuken_droger_status
+      to: Afronden
+      for:
+        minutes: 5
   condition:
     condition: state
     entity_id: binary_sensor.bijkeuken_droger
-    state: 'off'
+    state: "off"
   action:
-  - service: input_select.select_option
-    entity_id: input_select.bijkeuken_droger_status
-    data:
-      option: Klaar
+    - service: input_select.select_option
+      entity_id: input_select.bijkeuken_droger_status
+      data:
+        option: Klaar
 - id: 051878c9-1760-45f0-bfbf-9fd5f543ff03
   alias: Droger open
   initial_state: true
   trigger:
-  - platform: state
-    entity_id: binary_sensor.bijkeuken_droger
-    to: 'on'
-  - platform: homeassistant
-    event: start
+    - platform: state
+      entity_id: binary_sensor.bijkeuken_droger
+      to: "on"
+    - platform: homeassistant
+      event: start
   condition:
     condition: state
     entity_id: binary_sensor.bijkeuken_droger
-    state: 'on'
+    state: "on"
   action:
-  - service: input_select.select_option
-    entity_id: input_select.bijkeuken_droger_status
-    data:
-      option: Inactief
+    - service: input_select.select_option
+      entity_id: input_select.bijkeuken_droger_status
+      data:
+        option: Inactief
 - id: 78d72922-8ca4-4633-be1d-2633263dd555
   alias: Wasmachine afronden
   initial_state: true
   trigger:
-  - platform: state
-    entity_id: sensor.bijkeuken_wasmachine_wattage
-  - platform: homeassistant
-    event: start
+    - platform: state
+      entity_id: sensor.bijkeuken_wasmachine_electrical_measurement
+    - platform: homeassistant
+      event: start
   condition:
     condition: and
     conditions:
-    - condition: numeric_state
-      entity_id: sensor.bijkeuken_wasmachine_wattage
-      below: 0.1
-    - condition: state
-      entity_id: input_select.bijkeuken_wasmachine_status
-      state: Bezig
+      - condition: numeric_state
+        entity_id: sensor.bijkeuken_wasmachine_electrical_measurement
+        below: 0.1
+      - condition: state
+        entity_id: input_select.bijkeuken_wasmachine_status
+        state: Bezig
   action:
-  - service: input_select.select_option
-    entity_id: input_select.bijkeuken_wasmachine_status
-    data:
-      option: Afronden
+    - service: input_select.select_option
+      entity_id: input_select.bijkeuken_wasmachine_status
+      data:
+        option: Afronden
 - id: ce9471d2-2722-4b68-99d9-61f190dd3c1a
   alias: Wasmachine bezig
   initial_state: true
   trigger:
-  - platform: state
-    entity_id: sensor.bijkeuken_wasmachine_wattage
-  - platform: homeassistant
-    event: start
+    - platform: state
+      entity_id: ssensor.bijkeuken_wasmachine_electrical_measurement
+    - platform: homeassistant
+      event: start
   condition:
     condition: and
     conditions:
-    - condition: numeric_state
-      entity_id: sensor.bijkeuken_wasmachine_wattage
-      above: 10
-    - condition: state
-      entity_id: binary_sensor.bijkeuken_wasmachine
-      state: 'off'
+      - condition: numeric_state
+        entity_id: sensor.bijkeuken_wasmachine_electrical_measurement
+        above: 10
+      - condition: state
+        entity_id: binary_sensor.bijkeuken_wasmachine
+        state: "off"
   action:
-  - service: input_select.select_option
-    entity_id: input_select.bijkeuken_wasmachine_status
-    data:
-      option: Bezig
+    - service: input_select.select_option
+      entity_id: input_select.bijkeuken_wasmachine_status
+      data:
+        option: Bezig
 - id: 48d63f5a-beee-4184-8671-e30510557c0d
   alias: Wasmachine klaar notificatie
-  description: 'Stuurt een notificatie naar Rudolf of Leny wanneer de wasmachine klaar
+  description:
+    "Stuurt een notificatie naar Rudolf of Leny wanneer de wasmachine klaar
     is:
 
     - Wanneer één van hun thuis is
 
     - Wanneer één van hun thuis komt
 
-    - ''s Ochtends om 07:30 als één van hun thuis is'
+    - 's Ochtends om 07:30 als één van hun thuis is"
   trigger:
-  - platform: state
-    entity_id: input_select.bijkeuken_wasmachine_status
-    to: Klaar
-  - platform: state
-    entity_id: person.leny
-    to: home
-    for:
-      minutes: 2
-  - platform: state
-    entity_id: person.rudolf
-    to: home
-    for:
-      minutes: 2
-  - platform: time
-    at: 07:30
-  condition:
-  - condition: and
-    conditions:
-    - condition: state
+    - platform: state
       entity_id: input_select.bijkeuken_wasmachine_status
-      state: Klaar
+      to: Klaar
+    - platform: state
+      entity_id: person.leny
+      to: home
+      for:
+        minutes: 2
+    - platform: state
+      entity_id: person.rudolf
+      to: home
+      for:
+        minutes: 2
+    - platform: time
+      at: 07:30
+  condition:
+    - condition: and
+      conditions:
+        - condition: state
+          entity_id: input_select.bijkeuken_wasmachine_status
+          state: Klaar
   action:
-  - choose:
-    - alias: Leny thuis?
-      conditions:
-      - condition: state
-        entity_id: person.leny
-        state: home
-      sequence:
-      - service: notify.mobile_app_telefoon_leny
-        data:
-          title: Wasmachine is klaar
-          message: Niet vergeten de was eruit te halen
-  - choose:
-    - alias: Rudolf thuis?
-      conditions:
-      - condition: state
-        entity_id: person.rudolf
-        state: home
-      sequence:
-      - service: notify.mobile_app_telefoon_rudolf
-        data:
-          title: Wasmachine is klaar
-          message: Niet vergeten de was eruit te halen
+    - choose:
+        - alias: Leny thuis?
+          conditions:
+            - condition: state
+              entity_id: person.leny
+              state: home
+          sequence:
+            - service: notify.mobile_app_telefoon_leny
+              data:
+                title: Wasmachine is klaar
+                message: Niet vergeten de was eruit te halen
+    - choose:
+        - alias: Rudolf thuis?
+          conditions:
+            - condition: state
+              entity_id: person.rudolf
+              state: home
+          sequence:
+            - service: notify.mobile_app_telefoon_rudolf
+              data:
+                title: Wasmachine is klaar
+                message: Niet vergeten de was eruit te halen
   initial_state: true
 - id: df31f385-6980-4f86-824a-0dec7d768dec
   alias: Wasmachine klaar
   initial_state: true
   trigger:
-  - platform: state
-    entity_id: input_select.bijkeuken_wasmachine_status
-    to: Afronden
-    for:
-      minutes: 5
+    - platform: state
+      entity_id: input_select.bijkeuken_wasmachine_status
+      to: Afronden
+      for:
+        minutes: 5
   condition:
     condition: state
     entity_id: binary_sensor.bijkeuken_wasmachine
-    state: 'off'
+    state: "off"
   action:
-  - service: input_select.select_option
-    entity_id: input_select.bijkeuken_wasmachine_status
-    data:
-      option: Klaar
+    - service: input_select.select_option
+      entity_id: input_select.bijkeuken_wasmachine_status
+      data:
+        option: Klaar
 - id: 201e4607-2d30-4951-b259-683ca67aeeb4
   alias: Wasmachine open
   initial_state: true
   trigger:
-  - platform: state
-    entity_id: binary_sensor.bijkeuken_wasmachine
-    to: 'on'
-  - platform: homeassistant
-    event: start
+    - platform: state
+      entity_id: binary_sensor.bijkeuken_wasmachine
+      to: "on"
+    - platform: homeassistant
+      event: start
   condition:
     condition: state
     entity_id: binary_sensor.bijkeuken_wasmachine
-    state: 'on'
+    state: "on"
   action:
-  - service: input_select.select_option
-    entity_id: input_select.bijkeuken_wasmachine_status
-    data:
-      option: Inactief
-- id: '1643973626379'
+    - service: input_select.select_option
+      entity_id: input_select.bijkeuken_wasmachine_status
+      data:
+        option: Inactief
+- id: "1643973626379"
   alias: Recorder Repack
-  description: Sunday morning, early morning, repack the recorder database. This keeps
+  description:
+    Sunday morning, early morning, repack the recorder database. This keeps
     the disk usage low and nice by reclaiming space.
   trigger:
-  - platform: time
-    at: 05:55
+    - platform: time
+      at: 05:55
   condition:
-  - condition: time
-    weekday:
-    - sun
+    - condition: time
+      weekday:
+        - sun
   action:
-  - service: recorder.purge
-    data:
-      repack: true
+    - service: recorder.purge
+      data:
+        repack: true
   mode: single
-- id: '1643974035640'
+- id: "1643974035640"
   alias: Recorder Purge
-  description: Purge my recorder database every hour, to keep things nice and tight.
+  description:
+    Purge my recorder database every hour, to keep things nice and tight.
     While Home Assistant does this daily, I like to do it every hour.
   trigger:
-  - platform: time_pattern
-    minutes: 12
+    - platform: time_pattern
+      minutes: 12
   action:
-  - service: recorder.purge
+    - service: recorder.purge
   mode: single
-- id: '1648378787986'
+- id: "1648378787986"
   alias: Noa Symfonisk
-  description: ''
+  description: ""
   use_blueprint:
     path: seamus65/zha_symfonisk_remote_lights.yaml
     input:
@@ -897,20 +902,20 @@
       light:
         entity_id: light.noa_bed
       single_press:
-      - service: light.toggle
-        data:
-          brightness_pct: 50
-        target:
-          entity_id: light.noa_bed
+        - service: light.toggle
+          data:
+            brightness_pct: 50
+          target:
+            entity_id: light.noa_bed
       double_press:
-      - service: light.turn_on
-        target:
-          entity_id: light.noa_bed
-        data:
-          effect: '{{ state_attr(''light.noa_bed'', ''effect_list'') | random }}'
+        - service: light.turn_on
+          target:
+            entity_id: light.noa_bed
+          data:
+            effect: "{{ state_attr('light.noa_bed', 'effect_list') | random }}"
       triple_press:
-      - service: select.select_option
-        target:
-          entity_id: select.wled_noa_preset
-        data:
-          option: Solid white
+        - service: select.select_option
+          target:
+            entity_id: select.wled_noa_preset
+          data:
+            option: Solid white
