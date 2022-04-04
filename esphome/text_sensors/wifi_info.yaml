@@ -8,7 +8,10 @@
 platform: wifi_info
 ip_address:
   name: "${name} IP Address"
+  entity_category: "diagnostic"
 ssid:
   name: "${name} Connected SSID"
+  entity_category: "diagnostic"
 bssid:
   name: "${name} Connected BSSID"
+  entity_category: "diagnostic"
