@@ -26,3 +26,4 @@ lambda: |-
   } else {
     return NAN;
   }
+entity_category: diagnostic

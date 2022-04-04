@@ -18,3 +18,4 @@
 #
 platform: uptime
 id: sensor_uptime
+entity_category: diagnostic
