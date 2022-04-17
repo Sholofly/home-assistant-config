@@ -1,0 +1,4 @@
+name: "Current upload speed"
+unit_of_measurement: "mb/s"
+state: '{{ states("sensor.snmp_stats_192_168_1_1_netif_br_lan_curbw_in_mbit") | float }}'
+state_class: measurement
