@@ -363,11 +363,11 @@ views:
                     - icon_apple_tv
               - type: conditional
                 conditions:
-                  - entity: media_player.keuken
+                  - entity: media_player.keuken_nest_hub
                     state_not: "off"
                 card:
                   type: custom:button-card
-                  entity: media_player.keuken
+                  entity: media_player.keuken_nest_hub
                   template:
                     - conditional_media
                     - icon_nest_hub
