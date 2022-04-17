@@ -1,0 +1,9 @@
+name: "Daily Energy consumption total"
+device_class: energy
+unit_of_measurement: kWh
+state: >
+  {% if is_number(states('sensor.daily_energy_consumption_low')) and is_number(states('sensor.daily_energy_consumption_high')) %}
+    {{ states('sensor.daily_energy_consumption_low') | float + states('sensor.daily_energy_consumption_high') | float }}
+  {% else %}
+    None
+  {% endif %}
