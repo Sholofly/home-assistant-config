@@ -8,9 +8,11 @@ switch:
       inverted: true
     id: "${slug}_relay"
     restore_mode: $restore_mode
+
+button:
   - platform: template
     name: "${name}"
-    turn_on_action:
+    on_press:
       - switch.turn_on: "${slug}_relay"
       - delay: $toggle_delay
       - switch.turn_off: "${slug}_relay"
