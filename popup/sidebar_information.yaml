@@ -77,7 +77,7 @@ browser_mod:
           - entity: sensor.latest
           - entity: sensor.latest_beta
           - entity: sensor.home_assistant_database_size
-          - entity: sensor.home_assistant_log
+          - entity: sensor.home_assistant_log_size
           - entity: sensor.uptime
 
           - type: custom:bar-card
@@ -170,7 +170,8 @@ browser_mod:
             icon: mdi:brightness-6
             hide_state: false
           - entity: binary_sensor.lenovo_tab_m10_plugged_in
-          - entity: sensor.template_fullykiosk_last_app_start
+          - entity: sensor.lenovo_tab_m10_last_app_start
+            name: Laatste herstart
           - type: custom:bar-card
             width: 55%
             height: 2em
