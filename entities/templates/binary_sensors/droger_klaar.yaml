@@ -1,0 +1,5 @@
+################################################
+## Entities / Template Binary Sensors / Droger klaar
+################################################
+state: "{{ is_state('input_select.bijkeuken_droger_status', 'Klaar') }}"
+name: Droger klaar

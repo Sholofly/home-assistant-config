@@ -1,0 +1,5 @@
+################################################
+## Entities / Template Binary Sensors / Wasmachine klaar
+################################################
+state: "{{ is_state('input_select.bijkeuken_wasmachine_status', 'Klaar') }}"
+name: Wasmachine klaar
