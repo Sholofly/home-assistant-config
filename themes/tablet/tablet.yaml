@@ -191,7 +191,7 @@ tablet:
         }
       #conditional color
       "$hui-button-card:last-of-type$": |
-        {% if is_state('binary_sensor.template_sidebar_update_color', 'on') %}
+        {% if False and is_state('binary_sensor.template_sidebar_update_color', 'on') %}
           ha-card, ha-state-icon {
             color: rgb(35, 78 ,106) !important;
             opacity: 1 !important;

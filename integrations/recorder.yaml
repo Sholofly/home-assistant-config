@@ -22,3 +22,7 @@ recorder:
       - sensor.weekdag
     domains:
       - media_player
+  include:
+    entities:
+      - media_player.noa_nest_hub
+      - media_player.mika_nest_hub

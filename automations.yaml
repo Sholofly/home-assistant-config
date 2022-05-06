@@ -8,17 +8,6 @@
       motion_entity: binary_sensor.wc_bewegingssensor_ias_zone
       light_target:
         entity_id: light.wc_plafond
-- id: '1617684358026'
-  alias: Home Assistant Update Notification for Android
-  description: ''
-  use_blueprint:
-    path: fortepc/update-notif-for-android.yaml
-    input:
-      clickAction: https://my.home-assistant.io/redirect/supervisor/
-      delay: 0
-      notify_device: 267251cf143411ebbf4ef5c3186f709c
-      notification_message: Home Assistant {{ newest_version }} is beschikbaar
-      group: Available Updates
 - id: '1624693593116'
   alias: Thermostaat nachtstand
   description: ''
@@ -131,7 +120,7 @@
     condition: and
     conditions:
     - condition: numeric_state
-      entity_id: sensor.afval_info_days_until_takken
+      entity_id: sensor.dagen_tot_ophalen_takken
       below: 8
     - condition: time
       weekday:
@@ -152,9 +141,9 @@
     entity_id: binary_sensor.donker_buiten
     state: 'on'
   action:
-  - service: switch.turn_on
+  - service: light.turn_on
     target:
-      entity_id: switch.achtertuin_lantaarnpaal
+      entity_id: light.achtertuin_lantaarnpaal
   initial_state: true
   mode: single
 - id: '1629894698473'
@@ -172,7 +161,7 @@
   action:
   - service: switch.turn_off
     target:
-      entity_id: switch.kleine_schuur_lantaarnpaal
+      entity_id: light.achtertuin_lantaarnpaal
   mode: single
 - id: '1629894738043'
   alias: Achtertuinverlichting uit
@@ -180,9 +169,9 @@
   - platform: time
     at: 00:00
   action:
-  - service: switch.turn_off
+  - service: light.turn_off
     target:
-      entity_id: switch.achtertuin_lantaarnpaal
+      entity_id: light.achtertuin_lantaarnpaal
   initial_state: true
   mode: single
 - id: '1629895298921'
@@ -226,12 +215,8 @@
   trigger:
   - platform: state
     entity_id: binary_sensor.zolder_schakelaar
-    from:
-    - 'on'
-    - 'off'
-    to:
-    - 'on'
-    - 'off'
+    not_from: unavailable
+    not_to: unavailable
   action:
   - service: light.toggle
     data: {}
@@ -451,9 +436,6 @@
   - platform: state
     entity_id: binary_sensor.gang_bel_button
     to: 'on'
-  - platform: state
-    entity_id: binary_sensor.voortuin_deurbel
-    to: 'on'
   condition: []
   action:
   - service: light.turn_on
@@ -611,26 +593,23 @@
       option: Afronden
 - id: 58d48250-2189-450f-809b-e6d752ae2557
   alias: Droger bezig
-  initial_state: true
   trigger:
   - platform: state
     entity_id: sensor.bijkeuken_droger_huidig_wattage
   - platform: homeassistant
     event: start
   condition:
-    condition: and
+  - condition: and
     conditions:
     - condition: numeric_state
       entity_id: sensor.bijkeuken_droger_huidig_wattage
       above: 10
-    - condition: state
-      entity_id: binary_sensor.bijkeuken_droger
-      state: 'off'
   action:
   - service: input_select.select_option
     entity_id: input_select.bijkeuken_droger_status
     data:
       option: Bezig
+  initial_state: true
 - id: c14ca86d-5ac0-4b2d-9340-8efe05fd8fa4
   alias: Droger klaar notificatie
   description: 'Stuurt een notificatie naar Rudolf of Leny wanneer de droger klaar
@@ -760,9 +739,6 @@
     - condition: numeric_state
       entity_id: sensor.bijkeuken_wasmachine_electrical_measurement
       above: 10
-    - condition: state
-      entity_id: binary_sensor.bijkeuken_wasmachine
-      state: 'off'
   action:
   - service: input_select.select_option
     entity_id: input_select.bijkeuken_wasmachine_status
@@ -887,46 +863,21 @@
   action:
   - service: recorder.purge
   mode: single
-- id: '1648378787986'
-  alias: Noa Symfonisk
+- id: '1650539010021'
+  alias: Noa SYMFONISK - Controller
   description: ''
   use_blueprint:
-    path: seamus65/zha_symfonisk_remote_lights.yaml
-    input:
-      remote: b225a6d4ec52c665162a23c382f2f38f
-      light:
-        entity_id: light.noa_bed
-      single_press:
-      - service: light.toggle
-        data:
-          brightness_pct: 50
-        target:
-          entity_id: light.noa_bed
-      double_press:
-      - service: light.turn_on
-        target:
-          entity_id: light.noa_bed
-        data:
-          effect: '{{ state_attr(''light.noa_bed'', ''effect_list'') | random }}'
-      triple_press:
-      - service: select.select_option
-        target:
-          entity_id: select.wled_noa_preset
-        data:
-          option: Solid white
-- id: '1649804442823'
-  alias: Controller - IKEA E2001/E2002 STYRBAR Remote control
-  description: ''
-  use_blueprint:
-    path: EPMatt/ikea_e2001_e2002.yaml
+    path: EPMatt/ikea_e1744.yaml
     input:
       integration: ZHA
-      controller_device: 98ee2767e7b8ecb846699d916f18ce9c
-      helper_last_controller_event: input_text.last_controller_event
-      action_button_up_double: []
-      action_button_up_long:
-      - service: light.turn_on
-        data:
-          flash: long
-        target:
-          entity_id: light.keuken_eettafel
+      controller_device: b225a6d4ec52c665162a23c382f2f38f
+      helper_last_controller_event: input_text.noa_bed_last_controller_event
+- id: '1650539141519'
+  alias: Noa SYMFONISK - Light hook
+  description: ''
+  use_blueprint:
+    path: EPMatt/light.yaml
+    input:
+      controller_model: IKEA E1744 SYMFONISK Rotary Remote
+      controller_device: b225a6d4ec52c665162a23c382f2f38f
+      light: light.noa_bed

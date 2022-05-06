@@ -419,7 +419,7 @@ views:
                       - icon_spotify
 
                   - type: custom:button-card
-                    entity: media_player.keuken
+                    entity: media_player.keuken_nest_hub
                     name: Keuken Nest hub
                     template:
                       - media

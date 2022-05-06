@@ -34,9 +34,9 @@ browser_mod:
         card_mod:
           class: content
         entities:
-          - entity: sensor.woonkamer_multisensor_temperature
+          - entity: sensor.woonkamer_temperature
             name: Temperatuur
-          - entity: sensor.woonkamer_multisensor_humidity
+          - entity: sensor.woonkamer_humidity
             name: Luchtvochtigheid
 
       - type: custom:apexcharts-card
@@ -76,7 +76,7 @@ browser_mod:
             crosshairs:
               show: false
         series:
-          - entity: sensor.woonkamer_multisensor_temperature
+          - entity: sensor.woonkamer_temperature
             name: Temp
             color: "#385581"
             type: area

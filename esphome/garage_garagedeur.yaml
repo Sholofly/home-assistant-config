@@ -5,7 +5,7 @@ substitutions:
   name: Garage Garagedeur
   description: Schakelt de garagedeur.
   restore_mode: ALWAYS_OFF
-  toggle_delay: 1500ms
+  toggle_delay: 500ms
   wifi_static_ip: 192.168.1.121
   
 packages:
