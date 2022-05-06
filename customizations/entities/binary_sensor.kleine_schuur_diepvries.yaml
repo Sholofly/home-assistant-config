@@ -1,5 +1,0 @@
-################################################
-## Customizations / Entities / Kleine Schuur Diepvries
-################################################
-binary_sensor.kleine_schuur_diepvries_mqtt:
-  hidden: true

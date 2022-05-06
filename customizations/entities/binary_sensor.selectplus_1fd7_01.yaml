@@ -1,5 +1,0 @@
-################################################
-## Customizations / Entities / selectplus_1fd7_01
-################################################
-binary_sensor.selectplus_1fd7_01:
-  hidden: true

@@ -1,5 +1,0 @@
-################################################
-## Customizations / Entities / Sensor Wasmachine Status
-################################################
-sensor.wasmachine_status:
-  icon: mdi:washing-machine

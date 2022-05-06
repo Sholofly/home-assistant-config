@@ -1,6 +1,0 @@
-################################################
-## Customizations / Entities / Sensor Trash First Next Item
-################################################
-sensor.trash_first_next_item:
-  entity_picture_template: '/local/mijnafvalwijzer/{{sensor.trash_first_next_item.state}}.png'
-  icon_template: mdi:delete-empty
