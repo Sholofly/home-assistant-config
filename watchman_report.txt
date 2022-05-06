@@ -1,0 +1,36 @@
+-== Watchman Report ==- 
+
+-== Congratulations, all 27 services from your config are available!
+
+-== Missing 16 entity(ies) from 147 found in your config:
++--------------------------------+---------+--------------------------------------------------------------+
+| Entity ID                      | State   | Location                                                     |
++--------------------------------+---------+--------------------------------------------------------------+
+| media_player.playstation_4     | unknown | tablet.yaml:182                                              |
+| light.kleine_schuur_lantaarnpa | missing | automations.yaml:165                                         |
+| al                             |         |                                                              |
+| binary_sensor.kleine_schuur_be | unknown | automations.yaml:304                                         |
+| wegingssensor                  |         |                                                              |
+| binary_sensor.wall_tablet_moti | unknown | automations.yaml:323,340,381                                 |
+| on                             |         |                                                              |
+| select.wled_noa_preset         | unknown | automations.yaml:905                                         |
+| binary_sensor.template_sidebar | missing | themes/tablet/tablet.yaml:194                                |
+| _update_color                  |         |                                                              |
+| switch.is_on                   | missing | esphome/gang_bel.yaml:68                                     |
+| binary_sensor.garage_garagedeu | unknown | customizations/entities/binary_sensor.garage_garagedeur.yaml |
+| r                              |         | :4                                                           |
+| media_player.amazon_fire_media | missing | custom_components/fullykiosk/services.yaml:9,23,44,74,88,102 |
+| _player                        |         | ,133,154,168,182                                             |
+| media_player.ziggobox          | missing | custom_components/arris_dcx960/services.yaml:6,13,20,27      |
+| camera.generic_stream          | missing | custom_components/webrtc/services.yaml:20,66                 |
+| media_player.mibox4            | missing | custom_components/webrtc/services.yaml:51                    |
+| media_player.vardagsrum        | missing | custom_components/spotcast/services.yaml:21                  |
+| camera.front_door              | missing | custom_components/browser_mod/services.yaml:47               |
+| binary_sensor.kleine_schuur_di | unknown | entities/templates/binary_sensors/kleine_schuur_diepvries.ya |
+| epvries_mqtt                   |         | ml:6,8,10                                                    |
+| person.gerrie                  | unknown | entities/groups/adults.yaml:7                                |
++--------------------------------+---------+--------------------------------------------------------------+
+
+-== Report created on 20 Apr 2022 21:43:31
+-== Parsed 237 files in 2.76s., ignored 0 files 
+-== Generated in: 0.02s. Validated in: 0.00s.
