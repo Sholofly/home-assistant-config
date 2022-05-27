@@ -36,3 +36,4 @@ node-red
 
 .shopping_list.json
 www/tmp/
+watchman_report.txt
