@@ -881,3 +881,36 @@
       controller_model: IKEA E1744 SYMFONISK Rotary Remote
       controller_device: b225a6d4ec52c665162a23c382f2f38f
       light: light.noa_bed
+- id: '1651843595462'
+  alias: Alarm triggeren - Afwezig
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.bijkeuken_deur
+    to: 'on'
+    from: 'off'
+  condition:
+  - condition: state
+    entity_id: alarm_control_panel.home_alarm
+    state: armed_away
+  action:
+  - service: alarm_control_panel.alarm_trigger
+    data: {}
+    target:
+      entity_id: alarm_control_panel.home_alarm
+  mode: single
+- id: '1651844991999'
+  alias: Alarm getriggerd
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - alarm_control_panel.home_alarm
+    to: triggered
+  condition: []
+  action:
+  - service: notify.mobile_app_telefoon_rudolf
+    data:
+      message: ALARM!
+  mode: single
