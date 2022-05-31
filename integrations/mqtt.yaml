@@ -1,0 +1,4 @@
+mqtt:
+  sensor: !include_dir_list ../entities/mqtt/sensors
+  binary_sensor: !include_dir_list ../entities/mqtt/binary_sensors
+  select: !include_dir_list ../entities/mqtt/selects

@@ -1,4 +1,3 @@
-platform: mqtt
 name: "Wall Tablet Motion"
 state_topic: "fully/event/onMotion/963fde8f-6cb57e26"
 device_class: motion

@@ -3,7 +3,6 @@
 ##
 ## Deze sensor wordt alleen gebruikt om om te zetten naar een template sensor
 ################################################
-platform: mqtt
 name: Kleine Schuur Diepvries MQTT
 payload_on: "F9E50A"
 payload_off: "F9E50E"

@@ -1,7 +1,6 @@
 ################################################
 ## Entities / Binary Sensors / Garage Garagedeur
 ################################################
-platform: mqtt
 name: Garage Garagedeur
 payload_on: "87B20A"
 payload_off: "87B20E"

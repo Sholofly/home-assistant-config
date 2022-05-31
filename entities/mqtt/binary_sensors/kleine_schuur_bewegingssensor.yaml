@@ -1,7 +1,6 @@
 ################################################
 ## Entities / Binary Sensors / Kleine Schuur Bewegingssensor
 ################################################
-platform: mqtt
 unique_id: 21953a2d-adbc-4379-a860-613f9c48f535
 name: Kleine schuur Bewegingssensor
 payload_on: "D2242E"
