@@ -1,0 +1,5 @@
+################################################
+## Entities / Template Sensors / Afvalinfo rest collections this year
+################################################
+state: "{{ state_attr('sensor.restafval', 'total_collections_this_year') }}"
+name: Aantal ophalingen restafval dit jaar

@@ -1,0 +1,5 @@
+################################################
+## Entities / Template Sensors / Afvalinfo rest collections this year
+################################################
+state: "{{ state_attr('sensor.restafval', 'last_collection_date') }}"
+name: Laatste ophaling restafval

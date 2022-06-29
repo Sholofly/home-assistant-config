@@ -13,6 +13,7 @@ location: !secret afval_city
 postcode: !secret afval_zipcode
 streetnumber: !secret afval_housenumber
 streetnumbersuffix: !secret afval_housenumbersuffix
+diftarcode: !secret afval_diftarcode
 dateformat: "%d-%m-%Y"
 locale: "nl"
 timespanindays: 365
