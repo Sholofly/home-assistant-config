@@ -1,1 +1,20 @@
-{}
+noa_magic_cube_random_effect:
+  alias: Noa Magic cube - Random effect
+  sequence:
+  - service: light.turn_on
+    target:
+      entity_id: light.noa_bed
+    data:
+      effect: '{{ state_attr(''light.noa_bed'', ''effect_list'') | random }}'
+  mode: queued
+noa_magic_cube_random_palette:
+  alias: Noa Magic cube - Random palette
+  sequence:
+  - service: light.turn_on
+    target:
+      entity_id: light.noa_bed
+    data:
+      effect: '{{ state_attr(''select.wled_noa_color_palette'', ''options'') | random
+        }}'
+  mode: queued
+  max: 10
