@@ -1,0 +1,7 @@
+################################################
+## Entities / Template Sensors / Teams Activity
+################################################
+name: "Microsoft Teams activity"
+state: "Onbekend"
+unique_id: sensor.teams_activity
+icon: "mdi:phone-off"
