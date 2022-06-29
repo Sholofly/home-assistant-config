@@ -1,36 +1,45 @@
 -== Watchman Report ==- 
 
--== Congratulations, all 27 services from your config are available!
+-== Missing 1 service(s) from 41 found in your config:
++--------------------------------+---------+--------------------------------------------------------------+
+| Service ID                     | State   | Location                                                     |
++--------------------------------+---------+--------------------------------------------------------------+
+| ytube_music_player.call_method | missing | scripts/google_home_resume_helper.yaml:104                   |
++--------------------------------+---------+--------------------------------------------------------------+
 
--== Missing 16 entity(ies) from 147 found in your config:
+-== Missing 21 entity(ies) from 168 found in your config:
 +--------------------------------+---------+--------------------------------------------------------------+
 | Entity ID                      | State   | Location                                                     |
 +--------------------------------+---------+--------------------------------------------------------------+
-| media_player.playstation_4     | unknown | tablet.yaml:182                                              |
-| light.kleine_schuur_lantaarnpa | missing | automations.yaml:165                                         |
-| al                             |         |                                                              |
-| binary_sensor.kleine_schuur_be | unknown | automations.yaml:304                                         |
-| wegingssensor                  |         |                                                              |
-| binary_sensor.wall_tablet_moti | unknown | automations.yaml:323,340,381                                 |
-| on                             |         |                                                              |
-| select.wled_noa_preset         | unknown | automations.yaml:905                                         |
+| binary_sensor.bijkeuken_wasmac | missing | automations.yaml:822,840                                     |
+| hine                           |         |                                                              |
+| binary_sensor.bijkeuken_wa     | missing | automations.yaml:834                                         |
+| sensor.teams_activity          | missing | automations.yaml:1082                                        |
 | binary_sensor.template_sidebar | missing | themes/tablet/tablet.yaml:194                                |
 | _update_color                  |         |                                                              |
 | switch.is_on                   | missing | esphome/gang_bel.yaml:68                                     |
-| binary_sensor.garage_garagedeu | unknown | customizations/entities/binary_sensor.garage_garagedeur.yaml |
-| r                              |         | :4                                                           |
+| group.resume_active_ghresume_  | missing | scripts/google_home_resume_helper.yaml:32,214                |
+| group.resume_script_target_    | missing | scripts/google_home_resume_helper.yaml:39                    |
+| group.resume_action_false_ghre | missing | scripts/google_home_resume_helper.yaml:205                   |
+| sume                           |         |                                                              |
+| group.resume_script_active_ghr | missing | scripts/google_home_resume_helper.yaml:224                   |
+| esume_                         |         |                                                              |
+| media_player.spotify_          | missing | scripts/google_home_resume.yaml:112,382                      |
+| group.resume_active_ghresume   | missing | scripts/google_home_resume.yaml:413                          |
 | media_player.amazon_fire_media | missing | custom_components/fullykiosk/services.yaml:9,23,44,74,88,102 |
 | _player                        |         | ,133,154,168,182                                             |
 | media_player.ziggobox          | missing | custom_components/arris_dcx960/services.yaml:6,13,20,27      |
-| camera.generic_stream          | missing | custom_components/webrtc/services.yaml:20,66                 |
-| media_player.mibox4            | missing | custom_components/webrtc/services.yaml:51                    |
 | media_player.vardagsrum        | missing | custom_components/spotcast/services.yaml:21                  |
 | camera.front_door              | missing | custom_components/browser_mod/services.yaml:47               |
-| binary_sensor.kleine_schuur_di | unknown | entities/templates/binary_sensors/kleine_schuur_diepvries.ya |
-| epvries_mqtt                   |         | ml:6,8,10                                                    |
-| person.gerrie                  | unknown | entities/groups/adults.yaml:7                                |
+| sensor.br_temperature          | missing | entities/templates/sensors/sidebar.yaml:40,43                |
+| sensor.buienradar_feel_tempera | missing | entities/templates/sensors/sidebar.yaml:41                   |
+| ture                           |         |                                                              |
+| sensor.br_precipitation        | missing | entities/templates/sensors/sidebar.yaml:42                   |
+| sensor.teams_status            | missing | entities/templates/sensors/microsoft_teams_status.yaml:7     |
+| weather.br_lelystad_6269       | missing | entities/templates/sensors/outside_temperature.yaml:5        |
+| sensor.teams_cam_status        | missing | entities/templates/sensors/microsoft_teams_cam_status.yaml:6 |
 +--------------------------------+---------+--------------------------------------------------------------+
 
--== Report created on 20 Apr 2022 21:43:31
--== Parsed 237 files in 2.76s., ignored 0 files 
--== Generated in: 0.02s. Validated in: 0.00s.
+-== Report created on 25 Jun 2022 00:35:31
+-== Parsed 247 files in 3.94s., ignored 0 files 
+-== Generated in: 0.01s. Validated in: 0.00s.
