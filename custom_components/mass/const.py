@@ -21,6 +21,10 @@ CONF_QOBUZ_PASSWORD = "qobuz_password"
 CONF_TUNEIN_ENABLED = "tunein_enabled"
 CONF_TUNEIN_USERNAME = "tunein_username"
 
+CONF_YTMUSIC_ENABLED = "ytmusic_enabled"
+CONF_YTMUSIC_USERNAME = "ytmusic_username"
+CONF_YTMUSIC_PASSWORD = "ytmusic_password"
+
 CONF_FILE_ENABLED = "filesystem_enabled"
 CONF_FILE_DIRECTORY = "filesystem_directory"
 CONF_PLAYLISTS_DIRECTORY = "playlists_directory"
@@ -34,7 +38,8 @@ ATTR_GROUP_MEMBERS = "group_members"
 ATTR_GROUP_PARENTS = "group_parents"
 ATTR_ACTIVE_QUEUE = "active_queue"
 ATTR_QUEUE_ITEMS = "items_in_queue"
-
+ATTR_QUEUE_INDEX = "queue_index"
+ATTR_GROUP_LEADER = "group_leader"
 
 SLIMPROTO_DOMAIN = "slimproto"
 SLIMPROTO_EVENT = "slimproto_event"
@@ -46,5 +51,8 @@ ATV_DOMAIN = "apple_tv"
 KODI_DOMAIN = "kodi"
 GROUP_DOMAIN = "group"
 ALEXA_DOMAIN = "alexa_media"
+VOLUMIO_DOMAIN = "volumio"
+UNIVERSAL_DOMAIN = "universal"
+SPOTIFY_DOMAIN = "spotify"
 
-BLACKLIST_DOMAINS = (ATV_DOMAIN, ALEXA_DOMAIN)
+BLACKLIST_DOMAINS = (ATV_DOMAIN, ALEXA_DOMAIN, UNIVERSAL_DOMAIN, SPOTIFY_DOMAIN)

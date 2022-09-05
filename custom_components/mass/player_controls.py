@@ -4,7 +4,8 @@ from __future__ import annotations
 import asyncio
 import logging
 from datetime import datetime
-from typing import List, Optional, Tuple
+from typing import List, Optional
+from uuid import UUID
 
 from homeassistant.components.media_player import DOMAIN as MP_DOMAIN
 from homeassistant.components.media_player import MediaPlayerEntity
@@ -51,6 +52,7 @@ from .const import (
     SLIMPROTO_DOMAIN,
     SLIMPROTO_EVENT,
     SONOS_DOMAIN,
+    VOLUMIO_DOMAIN,
 )
 
 LOGGER = logging.getLogger(__name__)
@@ -72,19 +74,21 @@ STATE_MAPPING = {
 }
 
 
-def get_source_entity_id(hass: HomeAssistant, entity_id: str) -> str:
+def get_source_entity_id(hass: HomeAssistant, entity_id: str) -> str | None:
     """Return source entity_id from child entity_id."""
     if hass_state := hass.states.get(entity_id):
         # if entity is actually already mass entity, return the source entity
         if source_id := hass_state.attributes.get(ATTR_SOURCE_ENTITY_ID):
             return source_id
-    return entity_id
+        return entity_id
+    return None
 
 
 class HassPlayer(Player):
     """Generic/base Mapping from Home Assistant Mediaplayer to Music Assistant Player."""
 
-    use_mute_as_power: bool = False
+    _attr_use_mute_as_power: bool = False
+    _attr_device_info: DeviceInfo = DeviceInfo()
 
     def __init__(self, hass: HomeAssistant, entity_id: str) -> None:
         """Initialize player."""
@@ -99,24 +103,28 @@ class HassPlayer(Player):
         entity_comp = hass.data.get(DATA_INSTANCES, {}).get(MP_DOMAIN)
         self.entity: MediaPlayerEntity = entity_comp.get_entity(entity_id)
 
-        manufacturer = "Home Assistant"
-        model = entity_id
-        if reg_entry := self.entity.registry_entry:
-            # grab device entry
-            if reg_entry.device_id:
-                dev_reg = dr.async_get(hass)
-                device = dev_reg.async_get(reg_entry.device_id)
-                manufacturer = device.manufacturer
-                model = device.model
-        self._attr_device_info = DeviceInfo(manufacturer=manufacturer, model=model)
+        # grab device info
+        if self._attr_device_info.model == "unknown":
+            manufacturer = "Home Assistant"
+            model = entity_id
+            if reg_entry := self.entity.registry_entry:
+                # grab device entry
+                if reg_entry.device_id:
+                    dev_reg = dr.async_get(hass)
+                    device = dev_reg.async_get(reg_entry.device_id)
+                    manufacturer = device.manufacturer
+                    model = device.model
+            self._attr_device_info = DeviceInfo(manufacturer=manufacturer, model=model)
         self._attr_powered = False
         self._attr_current_url = ""
         self._attr_elapsed_time = 0
-        self.update_attributes()
+        self.on_update()
 
     @property
     def name(self) -> str:
         """Return player name."""
+        if self.entity.has_entity_name:
+            return self.entity.device_info.get("name", self.entity_id)
         if reg_entry := self.entity.registry_entry:
             return reg_entry.name or self.entity.name
         return self.entity_id
@@ -133,7 +141,7 @@ class HassPlayer(Player):
         """Return bool if this player is currently powered on."""
         if not self.available:
             return False
-        if self.use_mute_as_power:
+        if self._attr_use_mute_as_power:
             return not self.volume_muted
         if self.support_power:
             return self.entity.state not in OFF_STATES
@@ -192,12 +200,14 @@ class HassPlayer(Player):
     @callback
     def on_hass_event(self, event: Event) -> None:
         """Call on Home Assistant event."""
+        if not self.available:
+            entity_comp = self.hass.data.get(DATA_INSTANCES, {}).get(MP_DOMAIN)
+            self.entity: MediaPlayerEntity = entity_comp.get_entity(self.entity_id)
         if event.event_type == "state_changed":
             old_state = event.data.get("old_state")
             new_state = event.data.get("new_state")
             if old_state and new_state and old_state.state != new_state.state:
                 self.on_state_changed(old_state, new_state)
-        self.update_attributes()
         self.update_state()
 
     @callback
@@ -216,9 +226,26 @@ class HassPlayer(Player):
             entity_comp = self.hass.data.get(DATA_INSTANCES, {}).get(MP_DOMAIN)
             self.entity: MediaPlayerEntity = entity_comp.get_entity(self.entity_id)
 
+    def on_child_update(self, player_id: str, changed_keys: set) -> None:
+        """Call when one of the child players of a playergroup updates."""
+        self.logger.debug("on_child_update [%s] %s", player_id, changed_keys)
+        # power off group player if last child player turns off
+        if "powered" in changed_keys and self.active_queue.active:
+            powered_childs = set()
+            for child_player in self.get_child_players(True):
+                if child_player.powered:
+                    powered_childs.add(child_player.player_id)
+            if len(powered_childs) == 0:
+                self.mass.create_task(self.set_group_power(False))
+        super().on_child_update(player_id, changed_keys)
+
     @callback
-    def update_attributes(self) -> None:
+    def on_update(self) -> None:
         """Update attributes of this player."""
+        if not self.entity:
+            # edge case: entity is being removed/re-added to HA
+            self._attr_available = False
+            return
         self._attr_available = self.entity.available
         # figure out grouping support
         group_members = []
@@ -241,32 +268,50 @@ class HassPlayer(Player):
 
     async def stop(self) -> None:
         """Send STOP command to player."""
-        self.logger.debug("stop")
+        if self.is_passive:
+            self.logger.debug(
+                "stop command ignored: player is passive (not the group leader)"
+            )
+            return
+        self.logger.debug("stop command called")
         self._attr_current_url = None
         await self.entity.async_media_stop()
 
     async def play(self) -> None:
         """Send PLAY/UNPAUSE command to player."""
+        if self.is_passive:
+            self.logger.debug(
+                "play command ignored: player is passive (not the group leader)"
+            )
+            return
         self.logger.debug("play")
         await self.entity.async_media_play()
 
     async def pause(self) -> None:
         """Send PAUSE command to player."""
+        if self.is_passive:
+            self.logger.debug(
+                "pause command ignored: player is passive (not the group leader)"
+            )
+            return
         if not self.entity.support_pause:
             self.logger.warning("pause not supported, sending STOP instead...")
             await self.stop()
             return
-        self.logger.debug("pause")
+        self.logger.debug("pause command called")
         await self.entity.async_media_pause()
 
     async def power(self, powered: bool) -> None:
         """Send POWER command to player."""
-        self.logger.debug("power: %s", powered)
+        self.logger.debug("power command called with value: %s", powered)
         # send stop if this player is active queue
-        if not powered and self.is_group_leader or not self.is_group:
-            if self.state == PlayerState.PLAYING:
-                await self.active_queue.stop()
-        if self.use_mute_as_power:
+        if (
+            not powered
+            and self.active_queue.queue_id == self.player_id
+            and not self.is_passive
+        ):
+            await self.active_queue.stop()
+        if self._attr_use_mute_as_power:
             await self.volume_mute(not powered)
         elif powered and bool(self.entity.supported_features & SUPPORT_TURN_ON):
             # regular turn_on command
@@ -274,8 +319,7 @@ class HassPlayer(Player):
         elif not powered and bool(self.entity.supported_features & SUPPORT_TURN_OFF):
             # regular turn_off command
             await self.entity.async_turn_off()
-        # update local attribute anyway
-        # (for mute as power workaround and players without power support)
+        # player without power (and mute) support just uses a fake power mode
         self._attr_powered = powered
         self.update_state()
 
@@ -284,26 +328,32 @@ class HassPlayer(Player):
         if not self.entity.support_volume_set:
             self.logger.debug("ignore volume_set as it is not supported")
             return
-        self.logger.debug("volume_set: %s", volume_level)
+        self.logger.debug("volume_set command called with value: %s", volume_level)
         await self.entity.async_set_volume_level(volume_level / 100)
 
     async def volume_mute(self, muted: bool) -> None:
         """Send volume mute command to player."""
+        self.logger.debug("volume_mute command called with value: %s", muted)
         supports_mute = bool(self.entity.supported_features & SUPPORT_VOLUME_MUTE)
         if not supports_mute:
             # for players that do not support mute, we fake mute with volume
             await super().volume_mute(muted)
             return
         await self.entity.async_mute_volume(muted)
+        # some players do not update when we send mute (e.g. cast)
+        # try to handle that here by just setting the local variable
+        # for a more or less optimistic state
+        # pylint: disable=protected-access
+        self.entity._attr_is_volume_muted = muted
 
     async def next_track(self) -> None:
         """Send next_track command to player."""
-        self.logger.debug("next_track")
+        self.logger.debug("next_track command called (on source player directly)")
         await self.entity.async_media_next_track()
 
     async def previous_track(self) -> None:
         """Send previous_track command to player."""
-        self.logger.debug("previous_track")
+        self.logger.debug("previous_track command called (on source player directly)")
         await self.entity.async_media_previous_track()
 
 
@@ -318,29 +368,24 @@ class SlimprotoPlayer(HassPlayer):
         ]
 
     @property
-    def default_sample_rates(self) -> Tuple[int]:
-        """Return the default supported sample rates."""
-        if self.entity.player.max_sample_rate is None:
-            return (44100, 48000)
-        return tuple(
-            sample_rate
-            for sample_rate in (
-                44100,
-                48000,
-                88200,
-                96000,
-                176400,
-                192000,
-                352800,
-                384000,
-            )
-            if sample_rate <= int(self.entity.player.max_sample_rate)
-        )
+    def elapsed_time(self) -> float:
+        """Return elapsed time of current playing media in seconds."""
+        # slimproto has very accurate realtime timestamp, prefer that
+        return self.entity.player.elapsed_seconds
+
+    @property
+    def max_sample_rate(self) -> int:
+        """Return the (default) max supported sample rate."""
+        return int(self.entity.player.max_sample_rate)
 
     @property
     def default_stream_type(self) -> ContentType:
         """Return the default content type to use for streaming."""
-        return self._attr_default_stream_type
+        if "flac" in self.entity.player.supported_codecs:
+            return ContentType.FLAC
+        if "wav" in self.entity.player.supported_codecs:
+            return ContentType.WAV
+        return ContentType.MP3
 
     @callback
     def on_remove(self) -> None:
@@ -364,10 +409,10 @@ class SlimprotoPlayer(HassPlayer):
 class ESPHomePlayer(HassPlayer):
     """Representation of Hass player from ESPHome integration."""
 
-    use_mute_as_power: bool = True
+    _attr_use_mute_as_power: bool = True
 
-    _attr_default_sample_rates: Tuple[int] = (44100, 48000)
-    _attr_default_stream_type: ContentType = ContentType.MP3
+    _attr_max_sample_rate: int = 48000
+    _attr_stream_type: ContentType = ContentType.MP3
     _attr_media_pos_updated_at: Optional[datetime] = None
 
     @property
@@ -415,9 +460,14 @@ class KodiPlayer(HassPlayer):
 
     async def play_url(self, url: str) -> None:
         """Play the specified url on the player."""
+        if self.mass.streams.base_url not in url:
+            # use base implementation if 3rd party url provided...
+            await super().play_url(url)
+            return
+
+        self.logger.debug("play_url: %s", url)
         if not self.powered:
             await self.power(True)
-        self.logger.debug("play_url: %s", url)
 
         if self.state in (PlayerState.PLAYING, PlayerState.PAUSED):
             await self.stop()
@@ -429,20 +479,64 @@ class KodiPlayer(HassPlayer):
 class CastPlayer(HassPlayer):
     """Representation of Hass player from cast integration."""
 
-    _attr_default_sample_rates: Tuple[int] = (44100, 48000, 88200, 96000)
-    _attr_default_stream_type: ContentType = ContentType.FLAC
-    use_mute_as_power = True
+    # pylint: disable=protected-access
+
+    _attr_max_sample_rate: int = 96000
+    _attr_stream_type: ContentType = ContentType.FLAC
+    _attr_use_mute_as_power = True
+    _attr_is_stereo_pair = False
+
+    @property
+    def elapsed_time(self) -> float:
+        """Return elapsed time of current playing media in seconds."""
+        if not self.available:
+            return 0
+        if self._attr_is_stereo_pair:
+            # edge case: handle stereo pair playing in group
+            for group_parent in self.get_group_parents(True):
+                return group_parent.elapsed_time
+        return super().elapsed_time
+
+    @property
+    def current_url(self) -> str:
+        """Return URL that is currently loaded in the player."""
+        if self._attr_is_stereo_pair:
+            # edge case: stereo pair playing in group
+            for group_parent in self.get_group_parents(True):
+                return group_parent.current_url
+        return super().current_url
+
+    @property
+    def state(self) -> PlayerState:
+        """Return current state of player."""
+        if not self.available or not self.powered:
+            return PlayerState.OFF
+        if self._attr_is_stereo_pair:
+            # edge case: stereo pair playing in group
+            for group_parent in self.get_group_parents(True):
+                return group_parent.state
+        return super().state
 
     @property
     def is_group(self) -> bool:
         """Return bool if this player represents a playergroup(leader)."""
-        return self._attr_device_info.model == "Google Cast Group"
+        return self.entity._cast_info.is_audio_group and not self._attr_is_stereo_pair
 
     @property
-    def is_group_leader(self) -> bool:
-        """Return if this player is the leader in a playergroup."""
-        # google cast has dedicated group players = always group leader
-        return self.is_group
+    def powered(self) -> bool:
+        """Return power state."""
+        if self.is_group:
+            # chromecast group player is dedicated player
+            return self.entity.state not in OFF_STATES
+        return super().powered
+
+    @property
+    def group_powered(self) -> bool:
+        """Return power state."""
+        if self.is_group:
+            # chromecast group player is dedicated player
+            return self.entity.state not in OFF_STATES
+        return False
 
     @property
     def group_name(self) -> str:
@@ -450,123 +544,148 @@ class CastPlayer(HassPlayer):
         return self.name
 
     @property
-    def group_powered(self) -> bool:
-        """Return if this playergroup is powered/active."""
-        return self.entity.state not in OFF_STATES
-
-    @property
-    def is_passive(self) -> bool:
-        """
-        Return if this player may not accept any playback related commands.
-
-        Usually this means the player is part of a playergroup but not the leader.
-        """
-        return self.active_queue and self.active_queue.queue_id != self.player_id
+    def group_leader(self) -> str | None:
+        """Return the leader's player_id of this playergroup."""
+        if not self.is_group:
+            return None
+        # pylint:disable=protected-access
+        ipaddr = self.entity._cast_info.cast_info.host
+        for child_player in self.get_child_players():
+            if child_player.entity._cast_info.cast_info.host == ipaddr:
+                return child_player.player_id
+        return None
 
     @callback
-    def update_attributes(self) -> None:
+    def on_update(self) -> None:
         """Update attributes of this player."""
-        super().update_attributes()
-        self.use_mute_as_power = not self.is_group
-        if not self.is_group:
+        HassPlayer.on_update(self)
+        self._attr_group_members = self._get_group_members()
+
+    async def play_url(self, url: str) -> None:
+        """Play the specified url on the player."""
+        if self.mass.streams.base_url not in url or "announce" in url:
+            # use base implementation if 3rd party url provided...
+            await super().play_url(url)
             return
+        self._attr_powered = True
+        if not self.is_group:
+            await self.volume_mute(False)
+
+        # create (fake) CC queue to allow on-player control of next
+        # (or shout next track from google assistant)
+        cast = self.entity._chromecast
+        fmt = url.rsplit(".", 1)[-1]
+        queuedata = {
+            "type": "QUEUE_LOAD",
+            "shuffle": False,  # handled by our queue controller
+            "queueType": "PLAYLIST",
+            "startIndex": 0,
+            "items": [
+                {
+                    "opt_itemId": url,
+                    "autoplay": True,
+                    "preloadTime": 0,
+                    "startTime": 0,
+                    "activeTrackIds": [],
+                    "media": {
+                        "contentId": url,
+                        "contentType": f"audio/{fmt}",
+                        "streamType": "LIVE",
+                        "metadata": {
+                            "title": f"Streaming from {DEFAULT_NAME}",
+                        },
+                    },
+                },
+                {
+                    "opt_itemId": "control/next",
+                    "autoplay": True,
+                    "media": {
+                        "contentId": self.mass.streams.get_control_url(
+                            self.player_id, "next"
+                        ),
+                        "contentType": f"audio/{fmt}",
+                    },
+                },
+            ],
+        }
+        media_controller = cast.media_controller
+        queuedata["mediaSessionId"] = media_controller.status.media_session_id
+
+        def launched_callback():
+            media_controller.send_message(queuedata, False)
+
+        receiver_ctrl = media_controller._socket_client.receiver_controller
+        await self.hass.loop.run_in_executor(
+            None,
+            receiver_ctrl.launch_app,
+            media_controller.supporting_app_id,
+            False,
+            launched_callback,
+        )
+
+    async def volume_set(self, volume_level: int) -> None:
+        """Send volume level (0..100) command to player."""
+        if self.is_group:
+            # redirect to set_group_volume
+            await self.set_group_volume(volume_level)
+            return
+        await super().volume_set(volume_level)
+
+    async def power(self, powered: bool) -> None:
+        """Send volume level (0..100) command to player."""
+        if self.is_group:
+            # redirect to set_group_power
+            await self.set_group_power(powered)
+            return
+        await super().power(powered)
+
+    async def set_group_power(self, powered: bool) -> None:
+        """Send power command to the group player."""
+        # a cast group player is a dedicated player which we need to power off
+        if not powered:
+            await self.entity.async_turn_off()
+            # turn off group childs if group turns off
+            await super().set_group_power(False)
+        else:
+            await self.entity.async_turn_on()
+
+    def _get_group_members(self) -> List[str]:
+        """Get list of group members if this group is a cast group."""
+        # pylint: disable=protected-access
+        if not self.entity._cast_info.is_audio_group:
+            return []
         # this is a bit hacky to get the group members
         # TODO: create PR to add these as state attributes to the cast integration
-        # pylint: disable=protected-access
-        if CAST_MULTIZONE_MANAGER_KEY not in self.hass.data:
-            return
-        mz_mgr = self.hass.data[CAST_MULTIZONE_MANAGER_KEY]
+
+        mz_mgr = self.entity.mz_mgr
         cast_uuid = self.entity.registry_entry.unique_id
-        if cast_uuid not in mz_mgr._groups:
-            return
+        if not mz_mgr or cast_uuid not in mz_mgr._groups:
+            return []
+
         mz_ctrl = mz_mgr._groups[cast_uuid]["listener"]._mz
         child_players = []
         ent_reg = er.async_get(self.hass)
         for member_uuid in mz_ctrl.members:
+            if "-" not in member_uuid:
+                # yes this can happen when you add a stereo pair to a cast group ?!
+                member_uuid = str(UUID(member_uuid))
+            if member_uuid == cast_uuid:
+                # filter out itself (happens with stereo pairs)
+                self._attr_is_stereo_pair = True
+                continue
             if entity_id := ent_reg.entities.get_entity_id(
                 (MP_DOMAIN, CAST_DOMAIN, member_uuid)
             ):
                 child_players.append(entity_id)
-        self._attr_group_members = child_players
-
-    async def power(self, powered: bool) -> None:
-        """Send POWER command to player."""
-        await super().power(powered)
-        if not powered and not self.is_group:
-            # check group power: power off group when last player powers down
-            self.check_group_power()
-
-    async def play_url(self, url: str) -> None:
-        """Play the specified url on the player."""
-        self._attr_powered = True
-        if self.use_mute_as_power:
-            await self.volume_mute(False)
-        # pylint: disable=import-outside-toplevel,protected-access
-        from homeassistant.components.cast.media_player import quick_play
-
-        cast = self.entity._chromecast
-        app_data = {
-            "media_id": url,
-            "media_type": f"audio/{self.active_queue.settings.stream_type.value}",
-            "enqueue": False,
-            "title": f" Streaming from {DEFAULT_NAME}",
-        }
-        await self.hass.async_add_executor_job(
-            quick_play, cast, "default_media_receiver", app_data
-        )
-        # enqueue second item to allow on-player control of next
-        # (or shout next track from google assistant)
-        await asyncio.sleep(1)
-        if self.active_queue.stream and self.active_queue.stream.is_alert:
-            return
-        if self.active_queue.stream and len(self.active_queue.items) < 2:
-            return
-        enqueue_data = {**app_data}
-        enqueue_data["enqueue"] = True
-        enqueue_data["media_id"] = self.mass.streams.get_control_url(
-            self.active_queue.queue_id
-        )
-        await self.hass.async_add_executor_job(
-            quick_play, cast, "default_media_receiver", enqueue_data
-        )
-
-    async def set_group_power(self, powered: bool) -> None:
-        """Send power command to the group player."""
-        await super().set_group_power(powered)
-        # a cast group player is a dedicated player which we need to power off
-        if powered:
-            await self.entity.async_turn_on()
-        else:
-            await self.entity.async_turn_off()
-
-    def check_group_power(self) -> None:
-        """Check if groupplayer can be turned off when all childs are powered off."""
-        # convenience helper:
-        # power off group player if last child player turns off
-        for group_player in self.get_group_parents():
-            if not group_player:
-                continue
-            if not group_player.powered:
-                continue
-            powered_childs = set()
-            for child_player in self.get_child_players(True):
-                if child_player.player_id == self.player_id:
-                    continue
-                if child_player.powered:
-                    powered_childs.add(child_player.player_id)
-            if len(powered_childs) == 0:
-                self.mass.create_task(group_player.power(False))
-        if self.is_group:
-            # schedule update of the attributes to make it refresh group childs
-            self.mass.loop.call_later(5, self.update_state)
+        return child_players
 
 
 class SonosPlayer(HassPlayer):
     """Representation of Hass player from Sonos integration."""
 
-    _attr_default_sample_rates: Tuple[int] = (44100, 48000)
-    _attr_default_stream_type: ContentType = ContentType.FLAC
-    use_mute_as_power: bool = True
+    _attr_max_sample_rate: int = 48000
+    _attr_stream_type: ContentType = ContentType.FLAC
+    _attr_use_mute_as_power: bool = True
     _sonos_paused = False
 
     @property
@@ -584,12 +703,6 @@ class SonosPlayer(HassPlayer):
             return PlayerState.OFF
         return super().state
 
-    @callback
-    def on_state_changed(self, old_state: State, new_state: State) -> None:
-        """Call when state changes from HA player."""
-        super().on_state_changed(old_state, new_state)
-        self.hass.create_task(self.schedule_poll())
-
     async def play(self) -> None:
         """Send PLAY/UNPAUSE command to player."""
         self._sonos_paused = False
@@ -603,8 +716,13 @@ class SonosPlayer(HassPlayer):
     async def play_url(self, url: str) -> None:
         """Play the specified url on the player."""
         self._sonos_paused = False
+        if self.mass.streams.base_url not in url:
+            # use base implementation if 3rd party url provided...
+            await super().play_url(url)
+            return
+
         self._attr_powered = True
-        if self.use_mute_as_power:
+        if self._attr_use_mute_as_power:
             await self.volume_mute(False)
 
         def _play_url():
@@ -613,10 +731,10 @@ class SonosPlayer(HassPlayer):
             meta = (
                 '<DIDL-Lite xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/" xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/" xmlns:dlna="urn:schemas-dlna-org:metadata-1-0/">'
                 '<item id="1" parentID="0" restricted="1">'
-                "<dc:title>Streaming from Music Assistant</dc:title>"
+                f"<dc:title>Streaming from {DEFAULT_NAME}</dc:title>"
                 "<dc:creator></dc:creator>"
                 "<upnp:album></upnp:album>"
-                "<upnp:channelName>Music Assistant</upnp:channelName>"
+                f"<upnp:channelName>{DEFAULT_NAME}</upnp:channelName>"
                 "<upnp:channelNr>0</upnp:channelNr>"
                 "<upnp:class>object.item.audioItem.audioBroadcast</upnp:class>"
                 f'<res protocolInfo="http-get:*:audio/{ext}:DLNA.ORG_OP=00;DLNA.ORG_CI=0;DLNA.ORG_FLAGS=0d500000000000000000000000000000">{url}</res>'
@@ -627,16 +745,20 @@ class SonosPlayer(HassPlayer):
             soco.play_uri(url, meta=meta, force_radio=ext == "mp3")
 
         await self.hass.loop.run_in_executor(None, _play_url)
-        await self.schedule_poll(1)
-        await self.schedule_poll(4)
+        # right after playback is started, sonos returns None for the media_position
+        # until a manual poll_media is done
+        self.entity.media.position = 0
+        self.entity.media.position_updated_at = utcnow()
+        await self.schedule_poll(2)
+        await self.schedule_poll(5)
 
     async def schedule_poll(self, delay: float = 0.5) -> None:
-        """Schedule a manual poll task of the Sonos for more accurate elapsed_time."""
+        """Schedule a manual poll task of the Sonos to fix elapsed_time."""
 
         async def poll():
             if not self.entity.speaker.is_coordinator:
                 return
-            self.logger.debug("poll_media")
+            self.logger.debug("polling sonos media")
             await self.hass.loop.run_in_executor(None, self.entity.media.poll_media)
 
         self.hass.loop.call_later(delay, self.hass.create_task, poll())
@@ -645,11 +767,16 @@ class SonosPlayer(HassPlayer):
 class DlnaPlayer(HassPlayer):
     """Representation of Hass player from DLNA integration."""
 
-    _attr_default_sample_rates: Tuple[int] = (44100, 48000)
-    _attr_default_stream_type: ContentType = ContentType.MP3
+    _attr_max_sample_rate: int = 48000
+    _attr_stream_type: ContentType = ContentType.MP3
 
     async def play_url(self, url: str) -> None:
         """Play the specified url on the player."""
+        if self.mass.streams.base_url not in url:
+            # use base implementation if 3rd party url provided...
+            await super().play_url(url)
+            return
+
         if not self.powered:
             await self.power(True)
         # pylint: disable=protected-access
@@ -687,49 +814,81 @@ class DlnaPlayer(HassPlayer):
 class HassGroupPlayer(HassPlayer):
     """Mapping from Home Assistant Grouped Mediaplayer to Music Assistant Player."""
 
-    _attr_default_sample_rates: Tuple[int] = (44100, 48000)
-    _attr_default_stream_type: ContentType = ContentType.MP3
+    _attr_max_sample_rate: int = 48000
+    _attr_device_info = DeviceInfo(
+        manufacturer="Home Assistant", model="Media Player Group"
+    )
 
-    def __init__(self, *args, **kwargs) -> None:
-        """Initialize player."""
-        self._attr_device_info = DeviceInfo(
-            manufacturer="Home Assistant", model="Media Player Group"
-        )
-        super().__init__(*args, **kwargs)
+    @property
+    def support_power(self) -> bool:
+        """Return if this player supports power commands."""
+        return False
+
+    @property
+    def default_stream_type(self) -> ContentType:
+        """Return the default content type to use for streaming."""
+        # if all of the players supports FLAC, prefer that
+        if all(
+            x.stream_type == ContentType.FLAC
+            for x in self.get_child_players(False, False)
+        ):
+            return ContentType.FLAC
+        # fallback to MP3
+        return ContentType.MP3
+
+    @property
+    def powered(self) -> bool:
+        """Return power state."""
+        return self.group_powered
+
+    @property
+    def state(self) -> PlayerState:
+        """Return the state of the grouped player."""
+        if not self.powered:
+            return PlayerState.OFF
+        if not self.active_queue.active:
+            return PlayerState.IDLE
+        if group_leader := self.mass.players.get_player(self.group_leader):
+            return group_leader.state
+        return PlayerState.IDLE
 
     @property
     def is_group(self) -> bool:
         """Return if this player represents a playergroup or is grouped with other players."""
         return True
 
-    @property
-    def group_members(self) -> List[str]:
-        """Return list of playergroup members."""
-        result = []
-        if self.mass is None:
-            return []
+    @callback
+    def on_update(self) -> None:
+        """Update attributes of this player."""
+        super().on_update()
+        if not self.entity:
+            return
+        # build list of group members
+        group_members = set()
         # pylint: disable=protected-access
         for entity_id in self.entity._entities:
-            # make sure we have a source entity_id
-            entity_id = get_source_entity_id(self.hass, entity_id)
-            if player := self.mass.players.get_player(entity_id):
-                if player.is_passive:
-                    # filter out passive entities
-                    continue
-                if entity_id in result:
-                    # no duplicates please
-                    continue
-                result.append(player.player_id)
-        return result
+            source_id = get_source_entity_id(self.hass, entity_id)
+            if source_id is None:
+                continue
+            group_members.add(source_id)
+        self._attr_group_members = list(group_members)
 
     @property
-    def group_leader(self) -> str:
+    def group_leader(self) -> str | None:
         """Return the group leader for this player group."""
         for child_player in self.get_child_players(True):
-            # simply return the first powered child player
+            # simply return the first (non passive) powered child player
+            if child_player.is_passive:
+                continue
+            if not child_player.current_url:
+                continue
+            if not (self.active_queue and self.active_queue.stream):
+                continue
+            if self.active_queue.stream.stream_id not in child_player.current_url:
+                continue
             return child_player.player_id
         # fallback to the first player
-        return self.group_members[0]
+        return self.group_members[0] if self.group_members else None
 
     @property
     def is_group_leader(self) -> bool:
@@ -751,84 +910,154 @@ class HassGroupPlayer(HassPlayer):
         return self.name
 
     @property
-    def state(self) -> PlayerState:
-        """Return the state of the grouped player."""
-        if not self.group_powered:
-            return PlayerState.OFF
-        # grab details from first (powered) group child
-        for child_player in self.get_child_players(True):
-            if not child_player.current_url:
-                continue
-            return child_player.state
-        return PlayerState.IDLE
-
-    @property
     def current_url(self) -> str:
         """Return the current_url of the grouped player."""
-        # grab details from first (powered) group child
-        for child_player in self.get_child_players(True):
-            if not child_player.current_url:
-                continue
-            return child_player.current_url
-        return super().current_url
+        return self._attr_current_url
 
     @property
     def elapsed_time(self) -> float:
         """Return the corrected/precise elsapsed time of the grouped player."""
-        # grab details from first (powered) group child
-        for child_player in self.get_child_players(True):
-            if not child_player.current_url:
-                continue
-            return child_player.elapsed_time
+        if group_leader := self.mass.players.get_player(self.group_leader):
+            return group_leader.elapsed_time
         return 0
+
+    async def set_group_power(self, powered: bool) -> None:
+        """Send power command to the group player."""
+        # turn off group childs if group turns off
+        if not powered:
+            await super().set_group_power(False)
+        if powered != self._attr_powered:
+            self._attr_powered = powered
+            self.update_state()
+
+    async def volume_set(self, volume_level: int) -> None:
+        """Send volume level (0..100) command to player."""
+        # redirect to groupchilds
+        await self.set_group_volume(volume_level)
+
+    async def power(self, powered: bool) -> None:
+        """Send volume level (0..100) command to player."""
+        # redirect to set_group_power
+        await self.set_group_power(powered)
 
     async def stop(self) -> None:
         """Send STOP command to player."""
         # redirect command to all child players, filter out any passive group childs
         await asyncio.gather(
-            *[x.stop() for x in self.get_child_players(True, skip_passive=True)]
+            *[x.stop() for x in self.get_child_players(True) if not x.is_passive]
         )
 
     async def play(self) -> None:
         """Send PLAY/UNPAUSE command to player."""
+        self._attr_powered = True
         # redirect command to all child players, filter out any passive group childs
         await asyncio.gather(
-            *[x.play() for x in self.get_child_players(True, skip_passive=True)]
+            *[x.play() for x in self.get_child_players(True) if not x.is_passive]
         )
 
     async def pause(self) -> None:
         """Send PAUSE command to player."""
         # redirect command to all child players, filter out any passive group childs
         await asyncio.gather(
-            *[x.pause() for x in self.get_child_players(True, skip_passive=True)]
+            *[x.pause() for x in self.get_child_players(True) if not x.is_passive]
         )
 
     async def play_url(self, url: str) -> None:
         """Play the specified url on the player."""
-        self._attr_current_url = url
         # redirect command to all child players, filter out any passive group childs
-        powered_members = self.get_child_players(True, skip_passive=True)
+        powered_members = self.get_child_players(True)
         if len(powered_members) == 0:
             self.logger.warning("Ignore play_url - no group members are powered")
             return
+        self._attr_current_url = url
+        self._attr_powered = True
+        self.update_state()
+        stream_clients = [x for x in powered_members if not x.is_passive]
         # tell stream task how many clients are expected
-        self.active_queue.stream.expected_clients = len(powered_members)
+        self.active_queue.stream.expected_clients = len(stream_clients)
         # execute the call on group members
-        await asyncio.gather(*[x.play_url(url) for x in powered_members])
+        await asyncio.gather(*[x.play_url(url) for x in stream_clients])
 
     def on_child_update(self, player_id: str, changed_keys: set) -> None:
         """Call when one of the child players of a playergroup updates."""
-        # resume queue if a child player turns on while this queue is playing
         if (
             "powered" in changed_keys
             and self.active_queue.active
-            and self.state == PlayerState.PLAYING
+            and self.state in (PlayerState.PLAYING, PlayerState.PAUSED)
         ):
+
             if child_player := self.mass.players.get_player(player_id):
+                # resume queue if a child player turns on while this queue is playing
                 if child_player.powered:
-                    self.mass.create_task(self.active_queue.resume())
-                    return
-        self.update_state(skip_forward=True)
+                    self.hass.create_task(self.active_queue.resume())
+                # make sure that stop is called on the player
+                else:
+                    self.hass.create_task(child_player.stop())
+
+        super().on_child_update(player_id, changed_keys)
+
+
+class VolumioPlayer(HassPlayer):
+    """Representation of Hass player from Volumio integration."""
+
+    _attr_stream_type: ContentType = ContentType.FLAC
+    _attr_media_pos_updated_at: Optional[datetime] = None
+
+    @property
+    def elapsed_time(self) -> float:
+        """Return elapsed time of current playing media in seconds."""
+        if self.state == PlayerState.PLAYING:
+            last_upd = self._attr_media_pos_updated_at
+            media_pos = self._attr_elapsed_time
+            if last_upd is None or media_pos is None:
+                return 0
+            diff = (utcnow() - last_upd).seconds
+            return media_pos + diff
+        if self.state == PlayerState.PAUSED:
+            return self._attr_elapsed_time
+        return 0
+
+    @callback
+    def on_state_changed(self, old_state: State, new_state: State) -> None:
+        """Call when state changes from HA player."""
+        super().on_state_changed(old_state, new_state)
+        # Workaround alert!
+        # Volumio strips duration/position if media type is webradio so we fake the media position
+        old_state = old_state.state
+        new_state = new_state.state
+        if old_state == STATE_PAUSED and new_state == STATE_PLAYING:
+            self._attr_media_pos_updated_at = utcnow()
+        elif new_state == STATE_PAUSED:
+            last_upd = self._attr_media_pos_updated_at
+            media_pos = self._attr_elapsed_time
+            if last_upd is not None and media_pos is not None:
+                diff = (utcnow() - last_upd).seconds
+                self._attr_elapsed_time = media_pos + diff
+        elif old_state != STATE_PLAYING and new_state == STATE_PLAYING:
+            self._attr_media_pos_updated_at = utcnow()
+            self._attr_elapsed_time = 0
+
+    async def play_url(self, url: str) -> None:
+        """Play the specified url on the player."""
+        # a lot of players do not power on at playback request so send power on from here
+        if not self.powered:
+            await self.power(True)
+        self.logger.debug("play_url: %s", url)
+        self._attr_current_url = url
+        # pylint: disable=protected-access
+        await self.entity._volumio.replace_and_play(
+            {
+                "uri": url,
+                "service": "webradio",
+                "title": "Music Assistant",
+                "artist": "",
+                "album": "",
+                "type": "webradio",
+                "trackType": "flac",
+            }
+        )
+        self._attr_media_pos_updated_at = utcnow()
+        self._attr_elapsed_time = 0
 
 
 PLAYER_MAPPING = {
@@ -839,6 +1068,7 @@ PLAYER_MAPPING = {
     SONOS_DOMAIN: SonosPlayer,
     GROUP_DOMAIN: HassGroupPlayer,
     KODI_DOMAIN: KodiPlayer,
+    VOLUMIO_DOMAIN: VolumioPlayer,
 }
 
 
