@@ -3,6 +3,7 @@ packages:
   board: !include ../boards/esp01s.yaml
 switch:
   - platform: gpio
+    internal: true
     pin:
       number: 0
       inverted: true
@@ -12,6 +13,7 @@ switch:
 button:
   - platform: template
     name: "${name}"
+    id: "${slug}_button"
     on_press:
       - switch.turn_on: "${slug}_relay"
       - delay: $toggle_delay

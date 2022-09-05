@@ -1,6 +1,0 @@
-################################################
-## Entities / Template Sensors / Outside humidity
-################################################
-name: Luchtvochtigheid buiten
-state: "{{ state_attr('weather.br_lelystad_6269', 'humidity') }}"
-icon: mdi:thermometer

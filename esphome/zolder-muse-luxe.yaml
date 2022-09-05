@@ -1,8 +1,0 @@
-substitutions:
-  label: RaspiAudioMuseLuxe
-  slug: zolder-muse-luxe
-  name: zolder_muse_luxe
-  friendly_name: Zolder Muse luxe
-  description: Box op zolder
-packages:
-  device: !include devices/raspiaudio_muse_luxe.yaml

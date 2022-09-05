@@ -16,7 +16,7 @@ sequence:
       title: Popup example
       card:
         type: custom:webrtc-camera
-        entity: camera.voortuin
+        entity: camera.eekternas_driveway
       deviceID:
         - ea5c0b48-bbd900ef
         - this

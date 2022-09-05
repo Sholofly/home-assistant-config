@@ -1,4 +1,8 @@
 esphome:
   <<: !include .esphome.yaml
-  platform: ESP32
+
+esp32:
   board: esp32dev
+  framework:
+    type: arduino
+    version: recommended
