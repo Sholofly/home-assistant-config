@@ -6,39 +6,3 @@ substitutions:
 packages:
   device: !include devices/esp-wroom-32.yaml
 esp32_ble_tracker:
-sensor:
-  - platform: xiaomi_lywsd03mmc
-    mac_address: "A4:C1:38:1F:66:1E"
-    bindkey: "aac7737ff426986eabcb3a5aec7771dc"
-    temperature:
-      name: "Slaapkamer Temperature"
-    humidity:
-      name: "Slaapkamer Humidity"
-    battery_level:
-      name: "Slaapkamer Battery Level"
-    # battery_voltage:
-    #   name: "Zolder Battery Voltage"
-  
-  - platform: pvvx_mithermometer
-    mac_address: "A4:C1:38:7E:72:B4"
-    temperature:
-      name: "Woonkamer Temperature"
-    humidity:
-      name: "Woonkamer Humidity"
-    battery_level:
-      name: "Woonkamer Battery level"
-    battery_voltage:
-      name: "Woonkamer Battery voltage"
-  
-  
-  - platform: xiaomi_lywsd03mmc
-    mac_address: "A4:C1:38:47:D0:5B"
-    bindkey: "b78e7f09b40d19b2271f9fcc42d830a9"
-    temperature:
-      name: "Noa Temperature"
-    humidity:
-      name: "Noa Humidity"
-    battery_level:
-      name: "Noa Battery Level"
-    # battery_voltage:
-    # name: "Noa Battery Voltage"

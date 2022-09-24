@@ -6,3 +6,5 @@ esp32:
   board: esp-wrover-kit
   framework:
     type: arduino
+
+bluetooth_proxy:

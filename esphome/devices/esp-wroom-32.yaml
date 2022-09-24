@@ -1,3 +1,5 @@
 packages:
   <<: !include_dir_named ../common
   board: !include ../boards/esp32-dev.yaml
+
+bluetooth_proxy:
