@@ -175,39 +175,65 @@
   initial_state: true
   mode: single
 - id: '1629895298921'
-  alias: Bel aan
+  alias: Bel inschakelen / uitschakelen
+  description: Schakelt de bel in of uit.
   trigger:
   - platform: time
     at: 07:00
+    id: inschakeltijd
   - platform: homeassistant
     event: start
-  condition:
-  - condition: time
-    after: 07:00:00
-    before: '20:00'
-  action:
-  - service: switch.turn_on
-    data: {}
-    target:
-      entity_id: switch.gang_bel_enabled
-  initial_state: true
-  mode: single
-- id: '1629895322152'
-  alias: Bel uit
-  trigger:
-  - platform: homeassistant
-    event: start
+    id: ha-start
   - platform: time
-    at: '20:00'
-  condition:
-  - condition: time
-    after: '20:00'
-    before: 07:00
+    at: '20:00:00'
+    id: uitschakeltijd
+  condition: []
   action:
-  - service: switch.turn_off
-    data: {}
-    target:
-      entity_id: switch.gang_bel_enabled
+  - choose:
+    - conditions:
+      - condition: and
+        conditions:
+        - condition: state
+          entity_id: switch.gang_bel_enabled
+          state: 'off'
+        - condition: or
+          conditions:
+          - condition: trigger
+            id: inschakeltijd
+          - condition: and
+            conditions:
+            - condition: trigger
+              id: ha-start
+            - condition: time
+              after: 07:00:00
+              before: '20:00:00'
+      sequence:
+      - service: switch.turn_on
+        data: {}
+        target:
+          entity_id: switch.gang_bel_enabled
+    - conditions:
+      - condition: and
+        conditions:
+        - condition: state
+          entity_id: switch.gang_bel_enabled
+          state: 'on'
+        - condition: or
+          conditions:
+          - condition: trigger
+            id: uitschakeltijd
+          - condition: and
+            conditions:
+            - condition: trigger
+              id: ha-start
+            - condition: time
+              after: '20:00:00'
+              before: 07:00:00
+      sequence:
+      - service: switch.turn_off
+        data: {}
+        target:
+          entity_id: switch.gang_bel_enabled
   initial_state: true
   mode: single
 - id: '1629895350290'
@@ -435,307 +461,6 @@
       notify_device: 267251cf143411ebbf4ef5c3186f709c
       delay: 0
       notification_title: Er wordt aangebeld
-- id: eed90cbc-daf9-4757-aaff-5e615673a600
-  alias: Droger afronden
-  initial_state: true
-  trigger:
-  - platform: state
-    entity_id: sensor.bijkeuken_droger_huidig_wattage
-  - platform: homeassistant
-    event: start
-  condition:
-    condition: and
-    conditions:
-    - condition: numeric_state
-      entity_id: sensor.bijkeuken_droger_huidig_wattage
-      below: 0.75
-    - condition: state
-      entity_id: input_select.bijkeuken_droger_status
-      state: Bezig
-  action:
-  - service: input_select.select_option
-    entity_id: input_select.bijkeuken_droger_status
-    data:
-      option: Afronden
-- id: 58d48250-2189-450f-809b-e6d752ae2557
-  alias: Droger bezig
-  trigger:
-  - platform: state
-    entity_id: sensor.bijkeuken_droger_huidig_wattage
-  - platform: homeassistant
-    event: start
-  condition:
-  - condition: and
-    conditions:
-    - condition: numeric_state
-      entity_id: sensor.bijkeuken_droger_huidig_wattage
-      above: 10
-  action:
-  - service: input_select.select_option
-    entity_id: input_select.bijkeuken_droger_status
-    data:
-      option: Bezig
-  initial_state: true
-- id: c14ca86d-5ac0-4b2d-9340-8efe05fd8fa4
-  alias: Droger klaar notificatie
-  description: 'Stuurt een notificatie naar Rudolf of Leny wanneer de droger klaar
-    is:
-
-    - Wanneer één van hun thuis is
-
-    - Wanneer één van hun thuis komt
-
-    - ''s Ochtends om 07:30 als één van hun thuis is en de droger nog niet uitgepakt'
-  trigger:
-  - platform: state
-    entity_id: input_select.bijkeuken_droger_status
-    to: Klaar
-  - platform: state
-    entity_id: person.leny
-    to: home
-    for:
-      minutes: 2
-    id: leny_home
-  - platform: state
-    entity_id: person.rudolf
-    to: home
-    for:
-      minutes: 2
-    id: rudolf_home
-  - platform: time
-    at: 07:30
-  condition:
-  - condition: and
-    conditions:
-    - condition: state
-      entity_id: input_select.bijkeuken_droger_status
-      state: Klaar
-  action:
-  - choose:
-    - alias: Leny thuis?
-      conditions:
-      - condition: state
-        entity_id: person.leny
-        state: home
-      sequence:
-      - service: notify.mobile_app_telefoon_leny
-        data:
-          title: Droger is klaar
-          message: Niet vergeten de was eruit te halen
-  - choose:
-    - alias: Rudolf thuis?
-      conditions:
-      - condition: state
-        entity_id: person.rudolf
-        state: home
-      sequence:
-      - service: notify.mobile_app_telefoon_rudolf
-        data:
-          title: Droger is klaar
-          message: Niet vergeten de was eruit te halen
-  initial_state: true
-- id: 7988b7bf-ccef-4585-b890-66a80c0a3051
-  alias: Droger klaar
-  initial_state: true
-  trigger:
-  - platform: state
-    entity_id: input_select.bijkeuken_droger_status
-    to: Afronden
-    for:
-      minutes: 5
-  condition:
-    condition: state
-    entity_id: binary_sensor.bijkeuken_droger_contact
-    state: 'off'
-  action:
-  - service: input_select.select_option
-    entity_id: input_select.bijkeuken_droger_status
-    data:
-      option: Klaar
-- id: 051878c9-1760-45f0-bfbf-9fd5f543ff03
-  alias: Droger open
-  trigger:
-  - platform: state
-    entity_id:
-    - binary_sensor.bijkeuken_droger_contact
-    to: 'on'
-  - platform: homeassistant
-    event: start
-  condition:
-  - condition: state
-    entity_id: binary_sensor.bijkeuken_droger_contact
-    state: 'on'
-  action:
-  - service: input_select.select_option
-    entity_id: input_select.bijkeuken_droger_status
-    data:
-      option: Inactief
-  initial_state: true
-- id: 78d72922-8ca4-4633-be1d-2633263dd555
-  alias: Wasmachine afronden
-  initial_state: true
-  trigger:
-  - platform: state
-    entity_id: sensor.bijkeuken_wasmachine_power
-  - platform: homeassistant
-    event: start
-  condition:
-    condition: and
-    conditions:
-    - condition: numeric_state
-      entity_id: sensor.bijkeuken_wasmachine_power
-      below: 0.1
-    - condition: state
-      entity_id: input_select.bijkeuken_wasmachine_status
-      state: Bezig
-  action:
-  - service: input_select.select_option
-    entity_id: input_select.bijkeuken_wasmachine_status
-    data:
-      option: Afronden
-- id: ce9471d2-2722-4b68-99d9-61f190dd3c1a
-  alias: Wasmachine bezig
-  trigger:
-  - platform: state
-    entity_id: sensor.bijkeuken_wasmachine_power
-  - platform: homeassistant
-    event: start
-  condition:
-  - condition: and
-    conditions:
-    - condition: numeric_state
-      entity_id: sensor.bijkeuken_wasmachine_power
-      above: 10
-    - condition: not
-      conditions:
-      - condition: state
-        entity_id: input_select.bijkeuken_wasmachine_status
-        state: Bezig
-  action:
-  - service: input_select.select_option
-    entity_id: input_select.bijkeuken_wasmachine_status
-    data:
-      option: Bezig
-  initial_state: true
-- id: 48d63f5a-beee-4184-8671-e30510557c0d
-  alias: Wasmachine klaar notificatie
-  description: 'Stuurt een notificatie naar Rudolf of Leny wanneer de wasmachine klaar
-    is:
-
-    - Wanneer één van hun thuis is
-
-    - Wanneer één van hun thuis komt
-
-    - ''s Ochtends om 07:30 als één van hun thuis is'
-  trigger:
-  - platform: state
-    entity_id: input_select.bijkeuken_wasmachine_status
-    to: Klaar
-  - platform: state
-    entity_id: person.leny
-    to: home
-    for:
-      minutes: 2
-  - platform: state
-    entity_id: person.rudolf
-    to: home
-    for:
-      minutes: 2
-  - platform: time
-    at: 07:30
-  condition:
-  - condition: and
-    conditions:
-    - condition: state
-      entity_id: input_select.bijkeuken_wasmachine_status
-      state: Klaar
-  action:
-  - choose:
-    - alias: Leny thuis?
-      conditions:
-      - condition: state
-        entity_id: person.leny
-        state: home
-      sequence:
-      - service: notify.mobile_app_telefoon_leny
-        data:
-          title: Wasmachine is klaar
-          message: Niet vergeten de was eruit te halen
-  - choose:
-    - alias: Rudolf thuis?
-      conditions:
-      - condition: state
-        entity_id: person.rudolf
-        state: home
-      sequence:
-      - service: notify.mobile_app_telefoon_rudolf
-        data:
-          title: Wasmachine is klaar
-          message: Niet vergeten de was eruit te halen
-  initial_state: true
-- id: df31f385-6980-4f86-824a-0dec7d768dec
-  alias: Wasmachine klaar
-  initial_state: true
-  trigger:
-  - platform: state
-    entity_id: input_select.bijkeuken_wasmachine_status
-    to: Afronden
-    for:
-      minutes: 5
-  condition:
-    condition: state
-    entity_id: binary_sensor.bijkeuken_wasmachine_deur_contact
-    state: 'off'
-  action:
-  - service: input_select.select_option
-    entity_id: input_select.bijkeuken_wasmachine_status
-    data:
-      option: Klaar
-- id: 201e4607-2d30-4951-b259-683ca67aeeb4
-  alias: Wasmachine open
-  trigger:
-  - platform: state
-    entity_id:
-    - binary_sensor.bijkeuken_wasmachine_deur_contact
-    to: 'on'
-  - platform: homeassistant
-    event: start
-  condition:
-  - condition: state
-    entity_id: binary_sensor.bijkeuken_wasmachine_deur_contact
-    state: 'on'
-  action:
-  - service: input_select.select_option
-    entity_id: input_select.bijkeuken_wasmachine_status
-    data:
-      option: Inactief
-  initial_state: true
-- id: '1643973626379'
-  alias: Recorder Repack
-  description: Sunday morning, early morning, repack the recorder database. This keeps
-    the disk usage low and nice by reclaiming space.
-  trigger:
-  - platform: time
-    at: 05:55
-  condition:
-  - condition: time
-    weekday:
-    - sun
-  action:
-  - service: recorder.purge
-    data:
-      repack: true
-  mode: single
-- id: '1643974035640'
-  alias: Recorder Purge
-  description: Purge my recorder database every hour, to keep things nice and tight.
-    While Home Assistant does this daily, I like to do it every hour.
-  trigger:
-  - platform: time_pattern
-    minutes: 12
-  action:
-  - service: recorder.purge
-  mode: single
 - id: '1650539010021'
   alias: Noa SYMFONISK - Controller
   description: ''
@@ -769,25 +494,6 @@
       light: light.noa_bed
       controller_entity: sensor.noa_symfonisk_action
       light_color_mode: None
-- id: '1651843595462'
-  alias: Alarm triggeren - Afwezig
-  description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - binary_sensor.bijkeuken_achterdeur_contact
-    to: 'on'
-    from: 'off'
-  condition:
-  - condition: state
-    entity_id: alarm_control_panel.home_alarm
-    state: armed_away
-  action:
-  - service: alarm_control_panel.alarm_trigger
-    data: {}
-    target:
-      entity_id: alarm_control_panel.home_alarm
-  mode: single
 - id: '1651844991999'
   alias: Alarm getriggerd
   description: ''
@@ -834,6 +540,11 @@
     not_from:
     - unknown
     - unavailable
+    - ''
+    not_to:
+    - unknown
+    - unavailable
+    - ''
   condition: []
   action:
   - service: notify.family
@@ -915,28 +626,6 @@
       data: {}
       target:
         entity_id: light.badkamer_wastafel
-  mode: single
-- id: '1657657477775'
-  alias: Goedkoop tanken - Rudolf
-  description: ''
-  trigger:
-  - platform: time_pattern
-    minutes: '5'
-  condition: []
-  action:
-  - parallel:
-    - service: mqtt.publish
-      data:
-        topic: dgp/gas_stations
-        payload_template: '{"fuel_type":"euro95","radius":7,"latitude":{{ state_attr("person.rudolf",
-          "latitude") }},"longitude":{{ state_attr("person.rudolf", "longitude") }},
-          "to_publish":3, "identifier":"rudolf"}'
-    - service: mqtt.publish
-      data:
-        topic: dgp/gas_stations
-        payload_template: '{"fuel_type":"euro95","radius":7,"latitude":{{ state_attr("person.leny",
-          "latitude") }},"longitude":{{ state_attr("person.leny", "longitude") }},
-          "to_publish":3, "identifier":"leny"}'
   mode: single
 - id: '1661863746711'
   alias: Airfryer

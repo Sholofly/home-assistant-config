@@ -1,9 +1,0 @@
-substitutions:
-  label: esp-watermeter
-  slug: meterkast_watermeter
-  name: Meterkast Watermeter
-  description: Sensor voor het meten van waterverbruik
-  wifi_static_ip: 192.168.1.180
-
-packages:
-  device: !include devices/wemos-d1-mini-trt5000.yaml
