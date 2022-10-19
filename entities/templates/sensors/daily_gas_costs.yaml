@@ -1,9 +1,0 @@
-name: "Daily gas costs"
-device_class: monetary
-unit_of_measurement: €
-state: >
-  {% if is_number(states('input_number.gas_price')) %}
-    {{ (((states('input_number.gas_price') | float) * (states('sensor.daily_gas_consumption') | float)) | round(2)) }}
-  {% else %}
-    None
-  {% endif %}

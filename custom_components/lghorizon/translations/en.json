@@ -1,0 +1,22 @@
+{
+  "title": "LG Horizon",
+  "config": {
+    "step": {
+      "user": {
+        "data": {
+          "username": "Username",
+          "password": "Password",
+          "country_code": "Provider"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Can't connect",
+      "invalid_auth": "Invalid credentials",
+      "unknown": "Unknown error"
+    },
+    "abort": {
+      "already_configured": "This account is already configured."
+    }
+  }
+}

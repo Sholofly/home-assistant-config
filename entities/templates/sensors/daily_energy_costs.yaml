@@ -1,9 +1,0 @@
-name: "Daily energy costs"
-device_class: monetary
-unit_of_measurement: €
-state: >
-  {% if is_number(states('input_number.energy_price_tariff1')) and is_number(states('input_number.energy_price_tariff2')) %}
-    {{ ((states('input_number.energy_price_tariff1') | float) * ((states('sensor.daily_energy_consumption_low') | float) + ((states('input_number.energy_price_tariff2') | float) * states('sensor.daily_energy_consumption_high') | float))) | round(2)  }}
-  {% else %}
-    None
-  {% endif %}

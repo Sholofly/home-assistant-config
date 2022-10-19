@@ -5,4 +5,10 @@ logger:
   default: warning
   logs:
     homeassistant.components.waze_travel_time: error
-    # arris_dcx960: debug
+    custom_components.lghorizon: debug
+    lghorizon: debug
+  filters:
+    homeassistant:
+      - "Error doing job: Exception in callback SerialTransport._read_ready()"
+    dsmr_parser.clients.protocol:
+      - "^Invalid telegram. The CRC checksum*"
