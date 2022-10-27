@@ -5,8 +5,8 @@ logger:
   default: warning
   logs:
     homeassistant.components.waze_travel_time: error
-    custom_components.lghorizon: debug
-    lghorizon: debug
+    # custom_components.lghorizon: debug
+    # lghorizon: debug
   filters:
     homeassistant:
       - "Error doing job: Exception in callback SerialTransport._read_ready()"

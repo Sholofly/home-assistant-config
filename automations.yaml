@@ -552,8 +552,7 @@
       data:
         title: Het restafval is opgehaald
         message:
-          "Het restafval is dit jaar voor de {{ states.sensor.aantal_ophalingen_restafval_dit_jaar.state
-          }}e keer opgehaald
+          "Het restafval is dit jaar voor de {{ states('sensor.aantal_ophalingen_restafval_dit_jaar') | int(0)}}e keer opgehaald
 
           "
         data:
@@ -658,7 +657,7 @@
                 entity_id: media_player.woonkamer_google_home
             - service: tts.microsoft_say
               data:
-                entity_id: media_player.mass_woonkamer_google_home
+                entity_id: media_player.nests_beneden
                 message: De airfryer is klaar!
             - service: media_player.volume_set
               entity_id: media_player.woonkamer_google_home
