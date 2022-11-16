@@ -1,0 +1,5 @@
+unique_id: current_power_usage
+name: Current power usage
+state: "{{(((states('sensor.electricity_meter_power_production') | float(0) * 1000) - (states('sensor.solaredge_ac_power')|float(0))) * -1) + (states('sensor.electricity_meter_power_consumption') | float(0) * 1000)}}"
+unit_of_measurement: w
+device_class: power
