@@ -18,3 +18,17 @@ noa_magic_cube_random_palette:
         }}'
   mode: queued
   max: 10
+play_radio:
+  alias: Play Radio
+  variables:
+    browserkey: '{{ browser_key }}'
+  sequence:
+  - service: media_player.play_media
+    data:
+      media_content_id: media-source://radio_browser/{{ browserkey }}
+      media_content_type: music
+      enqueue: replace
+    target:
+      entity_id: '{{ media_player }}'
+  mode: single
+  icon: mdi:radio
