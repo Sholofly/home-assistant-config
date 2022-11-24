@@ -14,7 +14,7 @@ jobs:
   #   runs-on: ubuntu-latest
   #   steps:
   #     - name: ⤵️ Check out configuration from GitHub
-  #       uses: actions/checkout@v3.0.2
+  #       uses: actions/checkout@v3.1.0
   #     - name: 🚀 Run yamllint
   #       uses: frenck/action-yamllint@v1.1
 
@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: ⤵️ Check out configuration from GitHub
-        uses: actions/checkout@v3.0.2
+        uses: actions/checkout@v3.1.0
       - name: Running Remark lint
         uses: "docker://pipelinecomponents/remark-lint:latest"
         continue-on-error: true
@@ -42,12 +42,12 @@ jobs:
         version: ["stable", "beta", "dev"]
     steps:
       - name: ⤵️ Check out configuration from GitHub
-        uses: actions/checkout@v3.0.2
+        uses: actions/checkout@v3.1.0
       - name: ➕ Create dummy files
         run: |
           touch ./home-assistant.log
       - name: 🚀 Run Home Assistant Configuration Check
-        uses: frenck/action-home-assistant@v1.3
+        uses: frenck/action-home-assistant@v1.4
         with:
           secrets: ./.stubs/fake_secrets.yaml
           version: "${{ matrix.version }}"
@@ -58,11 +58,11 @@ jobs:
     #needs: [yamllint]
     steps:
       - name: ⤵️ Check out configuration from GitHub
-        uses: actions/checkout@v3.0.2
-      - name: Set up Python 3.9.7
-        uses: actions/setup-python@v3.1.2
+        uses: actions/checkout@v3.1.0
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4.3.0
         with:
-          python-version: 3.9.7
+          python-version: '3.10'
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip setuptools wheel
