@@ -1,0 +1,9 @@
+substitutions:
+  label: esp02
+  slug: woonkamer_televisie
+  name: Woonkamer televisie
+  description: Schakelt de tv
+  restore_mode: RESTORE_DEFAULT_ON
+
+packages:
+  device: !include devices/esp01s-relay.yaml
