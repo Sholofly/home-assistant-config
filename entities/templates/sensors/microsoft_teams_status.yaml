@@ -1,7 +1,0 @@
-################################################
-## Entities / Template Sensors / Teams Status
-################################################
-name: "Microsoft Teams status"
-state: "Onbekend"
-icon: "mdi:microsoft-teams"
-unique_id: sensor.teams_status

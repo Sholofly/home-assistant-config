@@ -1,6 +1,0 @@
-################################################
-## Entities / Template Sensors / Teams Status
-################################################
-name: "Microsoft Teams Camera Status"
-state: "Onbekend"
-unique_id: sensor.teams_cam_status      
