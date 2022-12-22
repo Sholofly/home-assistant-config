@@ -4,6 +4,7 @@ DOMAIN = "lghorizon"
 API = "lghorizon_api"
 CONF_COUNTRY_CODE = "country_code"
 CONF_REMOTE_KEY = "remote_key"
+CONF_IDENTIFIER = "identifier"
 
 RECORD = "record"
 REWIND = "rewind"
@@ -20,4 +21,5 @@ COUNTRY_CODES = {
     "Virgin Media (GB)": "gb",
     # "Virgin Media (GB, PREPROD)": "gb-preprod",
     "Virgin Media (IE)": "ie",
+    "UPC (PL)": "pl",
 }

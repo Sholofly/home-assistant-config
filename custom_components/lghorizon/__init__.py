@@ -12,6 +12,7 @@ from .const import (
     CONF_COUNTRY_CODE,
     API,
     COUNTRY_CODES,
+    CONF_IDENTIFIER
 )
 
 from lghorizon import LGHorizonApi
@@ -23,9 +24,10 @@ CONFIG_SCHEMA = vol.Schema(
     {
         DOMAIN: vol.Schema(
             {
+                vol.Optional(CONF_COUNTRY_CODE, default="nl"): cv.string,
                 vol.Required(CONF_USERNAME): cv.string,
                 vol.Required(CONF_PASSWORD): cv.string,
-                vol.Optional(CONF_COUNTRY_CODE, default="nl"): cv.string,
+                vol.Optional(CONF_IDENTIFIER):cv.string
             }
         )
     },
@@ -35,10 +37,15 @@ CONFIG_SCHEMA = vol.Schema(
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up lghorizon api from a config entry."""
+    telenet_identifier = None
+    if CONF_IDENTIFIER in entry.data:
+        telenet_identifier = entry.data[CONF_IDENTIFIER]
+    
     api = LGHorizonApi(
         entry.data[CONF_USERNAME],
         entry.data[CONF_PASSWORD],
         COUNTRY_CODES[entry.data[CONF_COUNTRY_CODE]],
+        telenet_identifier
     )
     await hass.async_add_executor_job(api.connect)
     hass.data.setdefault(DOMAIN, {})

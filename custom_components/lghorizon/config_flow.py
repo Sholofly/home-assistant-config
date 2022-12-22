@@ -13,7 +13,7 @@ from homeassistant.exceptions import HomeAssistantError
 from homeassistant.const import CONF_USERNAME, CONF_PASSWORD
 import homeassistant.helpers.config_validation as cv
 
-from .const import DOMAIN, CONF_COUNTRY_CODE, COUNTRY_CODES
+from .const import DOMAIN, CONF_COUNTRY_CODE, COUNTRY_CODES, CONF_IDENTIFIER
 from lghorizon import (
     LGHorizonApi,
     LGHorizonApiUnauthorizedError,
@@ -24,11 +24,13 @@ _LOGGER = logging.getLogger(__name__)
 
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
-        vol.Required(CONF_USERNAME): cv.string,
-        vol.Required(CONF_PASSWORD): cv.string,
         vol.Required(CONF_COUNTRY_CODE, default=list(COUNTRY_CODES.keys())[0]): vol.In(
             list(COUNTRY_CODES.keys())
-        )
+        ),
+        vol.Required(CONF_USERNAME): cv.string,
+        vol.Required(CONF_PASSWORD): cv.string,
+        vol.Optional(CONF_IDENTIFIER):cv.string
+        
     }
 )
 
@@ -37,10 +39,14 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
     """Validate the user input allows us to connect."""
 
     try:
+        telenet_identifier = None
+        if CONF_IDENTIFIER in data:
+            telenet_identifier = data[CONF_IDENTIFIER]
         api = LGHorizonApi(
             data[CONF_USERNAME],
             data[CONF_PASSWORD],
             COUNTRY_CODES[data[CONF_COUNTRY_CODE]],
+            telenet_identifier,
         )
         await hass.async_add_executor_job(api.connect)
         await hass.async_add_executor_job(api.disconnect)
