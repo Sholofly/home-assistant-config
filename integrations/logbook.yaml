@@ -16,6 +16,5 @@ logbook:
       - sensor.lenovo_tab_m10*
     entities:
       - sensor.noa_symfonisk_action
-      - sensor.neerslag_buienradar_regen_data
     domains:
       - automation
