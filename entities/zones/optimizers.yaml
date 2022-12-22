@@ -1,0 +1,9 @@
+################################################
+## Entities / Zones / Netivity
+################################################
+---
+name: Optimizers
+latitude: !secret optimizers_latitude
+longitude: !secret optimizers_longitude
+radius: 50
+icon: mdi:laptop
