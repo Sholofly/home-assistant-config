@@ -626,89 +626,6 @@
     target:
       entity_id: light.badkamer_wastafel
   mode: single
-- id: '1661863746711'
-  alias: Airfryer
-  trigger:
-  - platform: state
-    entity_id: sensor.kleine_schuur_airfryer_huidig_wattage
-  - platform: homeassistant
-    event: start
-  action:
-  - choose:
-    - conditions:
-      - condition: and
-        conditions:
-        - condition: state
-          entity_id: input_select.kleine_schuur_airfryer_status
-          state: Bezig
-        - condition: numeric_state
-          entity_id: sensor.kleine_schuur_airfryer_huidig_wattage
-          below: 20
-      sequence:
-      - service: input_select.select_option
-        entity_id: input_select.kleine_schuur_airfryer_status
-        data:
-          option: Klaar
-      - service: media_player.volume_set
-        data:
-          volume_level: 0.4
-        target:
-          entity_id: media_player.woonkamer_google_home
-      - service: tts.microsoft_say
-        data:
-          entity_id: media_player.nests_beneden
-          message: De airfryer is klaar!
-      - service: media_player.volume_set
-        entity_id: media_player.woonkamer_google_home
-        data:
-          volume_level: 0.4
-    - conditions:
-      - condition: and
-        conditions:
-        - condition: numeric_state
-          entity_id: sensor.kleine_schuur_airfryer_huidig_wattage
-          above: 20
-        - condition: not
-          conditions:
-          - condition: state
-            entity_id: input_select.kleine_schuur_airfryer_status
-            state: Bezig
-      sequence:
-      - service: input_select.select_option
-        entity_id: input_select.kleine_schuur_airfryer_status
-        data:
-          option: Bezig
-    - conditions:
-      - condition:
-        - condition: and
-          conditions:
-          - condition: numeric_state
-            entity_id: sensor.kleine_schuur_airfryer_huidig_wattage
-            above: 0
-            below: 20.1
-      sequence:
-      - service: input_select.select_option
-        entity_id: input_select.kleine_schuur_airfryer_status
-        data:
-          option: Inactief
-    - conditions:
-      - condition: and
-        conditions:
-        - condition: numeric_state
-          entity_id: sensor.kleine_schuur_airfryer_huidig_wattage
-          below: 0.1
-        - condition: not
-          conditions:
-          - condition: state
-            entity_id: input_select.kleine_schuur_airfryer_status
-            state: Uit
-      sequence:
-      - service: input_select.select_option
-        entity_id: input_select.kleine_schuur_airfryer_status
-        data:
-          option: Uit
-      - service: switch.turn_off
-        entity_id: switch.kleine_schuur_airfryer
 - id: '1669323961547'
   alias: Update energy prices
   description: Past energieprijzen aan op basis van een datetime helper
@@ -733,20 +650,375 @@
     target:
       entity_id: input_number.gas_price
   mode: single
-- id: '1671476699186'
-  alias: Nieuwe automatisering
-  description: ''
+- id: '1671801460867'
+  alias: Wasmachine - Status
+  description: Status afhandeling wasmachine
   trigger:
-  - platform: device
-    domain: mqtt
-    device_id: 9d7e97e24b653c77cef134403ad946d4
-    type: action
-    subtype: 'on'
-    discovery_id: 0x84ba20fffe8096a5 action_on
+  - platform: numeric_state
+    entity_id: sensor.bijkeuken_wasmachine_power
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+    id: 'off'
+    below: 1
+  - platform: numeric_state
+    entity_id: sensor.bijkeuken_wasmachine_power
+    for:
+      hours: 0
+      minutes: 2
+      seconds: 0
+    id: waiting
+    below: 7
+    above: 1
+  - platform: numeric_state
+    entity_id: sensor.bijkeuken_wasmachine_power
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 0
+    id: running
+    above: 10
+  - platform: event
+    event_type: mobile_app_notification_action
+    id: machine_emptied
+    event_data:
+      action: MACHINE_EMPTIED
   condition: []
   action:
-  - service: light.toggle
-    data: {}
-    target:
-      entity_id: light.keuken_eettafel
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: 'off'
+      sequence:
+      - service: input_select.select_option
+        data:
+          option: Uit
+        target:
+          entity_id: input_select.bijkeuken_wasmachine_status
+    - conditions:
+      - condition: trigger
+        id: waiting
+      - condition: state
+        entity_id: input_select.bijkeuken_wasmachine_status
+        state: Bezig
+      sequence:
+      - service: input_select.select_option
+        data:
+          option: Klaar
+        target:
+          entity_id: input_select.bijkeuken_wasmachine_status
+      - service: input_boolean.turn_on
+        data: {}
+        target:
+          entity_id: input_boolean.bijkeuken_wasmachine_legen
+      - service: notify.mobile_app_telefoon_rudolf
+        data:
+          title: De wasmachine is klaar!
+          message: Leegmaken!
+          data:
+            tag: washing
+            persistent: true
+            actions:
+            - action: MACHINE_EMPTIED
+              title: Ik heb hem geleegd!
+            notification_icon: mdi:washing-machine-alert
+    - conditions:
+      - condition: trigger
+        id: waiting
+      - condition: state
+        entity_id: input_select.bijkeuken_wasmachine_status
+        state: Uit
+      sequence:
+      - service: input_select.select_option
+        data:
+          option: Wachten
+        target:
+          entity_id: input_select.bijkeuken_wasmachine_status
+    - conditions:
+      - condition: trigger
+        id: running
+      sequence:
+      - service: input_select.select_option
+        data:
+          option: Bezig
+        target:
+          entity_id: input_select.bijkeuken_wasmachine_status
+    - conditions:
+      - condition: trigger
+        id: machine_emptied
+      sequence:
+      - service: input_boolean.turn_off
+        data: {}
+        target:
+          entity_id: input_boolean.bijkeuken_wasmachine_legen
+      - service: notify.mobile_app_telefoon_rudolf
+        data:
+          data:
+            tag: washing
+          message: clear_notification
+  mode: single
+- id: '1671803048400'
+  alias: Droger - Status
+  description: Status afhandeling droger
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.bijkeuken_droger_huidig_wattage
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+    id: 'off'
+    below: 2
+  - platform: numeric_state
+    entity_id: sensor.bijkeuken_droger_huidig_wattage
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+    id: waiting
+    below: 40
+    above: 2
+  - platform: numeric_state
+    entity_id: sensor.bijkeuken_droger_huidig_wattage
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 0
+    id: running
+    above: 40
+  - platform: event
+    event_type: mobile_app_notification_action
+    id: dryer_emptied
+    event_data:
+      action: DRYER_EMPTIED
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: 'off'
+      sequence:
+      - service: input_select.select_option
+        data:
+          option: Uit
+        target:
+          entity_id: input_select.bijkeuken_droger_status
+    - conditions:
+      - condition: trigger
+        id: waiting
+      - condition: state
+        entity_id: input_select.bijkeuken_droger_status
+        state: Bezig
+      sequence:
+      - service: input_select.select_option
+        data:
+          option: Klaar
+        target:
+          entity_id: input_select.bijkeuken_droger_status
+      - service: input_boolean.turn_on
+        data: {}
+        target:
+          entity_id: input_boolean.bijkeuken_droger_legen
+      - service: notify.mobile_app_telefoon_rudolf
+        data:
+          title: De droger is klaar!
+          message: Leegmaken!
+          data:
+            tag: drying
+            persistent: true
+            actions:
+            - action: DRYER_EMPTIED
+              title: Ik heb hem geleegd!
+            notification_icon: mdi:tumble-dryer-alert
+    - conditions:
+      - condition: trigger
+        id: waiting
+      - condition: state
+        entity_id: input_select.bijkeuken_droger_status
+        state: Uit
+      sequence:
+      - service: input_select.select_option
+        data:
+          option: Wachten
+        target:
+          entity_id: input_select.bijkeuken_droger_status
+    - conditions:
+      - condition: trigger
+        id: running
+      sequence:
+      - service: input_select.select_option
+        data:
+          option: Bezig
+        target:
+          entity_id: input_select.bijkeuken_droger_status
+    - conditions:
+      - condition: trigger
+        id: dryer_emptied
+      sequence:
+      - service: input_boolean.turn_off
+        data: {}
+        target:
+          entity_id: input_boolean.bijkeuken_droger_legen
+      - service: notify.mobile_app_telefoon_rudolf
+        data:
+          data:
+            tag: drying
+          message: clear_notification
+  mode: single
+- id: '1671804817486'
+  alias: Airfryer - Status
+  description: Status afhandeling airfryer
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.kleine_schuur_airfryer_huidig_wattage
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+    id: 'off'
+    below: 1
+  - platform: numeric_state
+    entity_id: sensor.kleine_schuur_airfryer_huidig_wattage
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 2
+    id: waiting
+    below: 7
+    above: 1
+  - platform: numeric_state
+    entity_id: sensor.kleine_schuur_airfryer_huidig_wattage
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 0
+    id: running
+    above: 10
+  - platform: event
+    event_type: mobile_app_notification_action
+    id: fryer_emptied
+    event_data:
+      action: FRYER_EMPTIED
+  - platform: state
+    entity_id:
+    - input_select.kleine_schuur_airfryer_status
+    to: Uit
+    for:
+      hours: 0
+      minutes: 10
+      seconds: 0
+    id: long-off
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: 'off'
+      sequence:
+      - service: input_select.select_option
+        data:
+          option: Uit
+        target:
+          entity_id: input_select.kleine_schuur_airfryer_status
+    - conditions:
+      - condition: trigger
+        id: waiting
+      - condition: state
+        entity_id: input_select.kleine_schuur_airfryer_status
+        state: Bezig
+      sequence:
+      - service: input_select.select_option
+        data:
+          option: Klaar
+        target:
+          entity_id: input_select.kleine_schuur_airfryer_status
+      - service: notify.mobile_app_telefoon_rudolf
+        data:
+          title: De airfryer is klaar!
+          message: Eten!
+          data:
+            tag: frying
+            persistent: true
+            actions:
+            - action: FRYER_EMPTIED
+              title: Ik heb hem geleegd!
+            notification_icon: mdi:french-fries
+      - service: tts.microsoft_say
+        data:
+          language: nl-nl
+          entity_id: media_player.nests_beneden
+          message: De airfryer is klaar
+          cache: true
+    - conditions:
+      - condition: trigger
+        id: waiting
+      - condition: state
+        entity_id: input_select.kleine_schuur_airfryer_status
+        state: Uit
+      sequence:
+      - service: input_select.select_option
+        data:
+          option: Wachten
+        target:
+          entity_id: input_select.kleine_schuur_airfryer_status
+    - conditions:
+      - condition: trigger
+        id: running
+      sequence:
+      - service: input_select.select_option
+        data:
+          option: Bezig
+        target:
+          entity_id: input_select.kleine_schuur_airfryer_status
+    - conditions:
+      - condition: trigger
+        id: fryer_emptied
+      sequence:
+      - service: notify.mobile_app_telefoon_rudolf
+        data:
+          data:
+            tag: frying
+          message: clear_notification
+    - conditions:
+      - condition: trigger
+        id: long-off
+      sequence:
+      - service: switch.turn_off
+        data: {}
+        target:
+          entity_id: switch.kleine_schuur_airfryer
+  mode: single
+- id: '1672759812479'
+  alias: Smoke detection
+  description: ''
+  trigger:
+  - type: smoke
+    platform: device
+    device_id: c2da30671c1cf363c0117e9b7947817f
+    entity_id: binary_sensor.keuken_rookmelder_smoke
+    domain: binary_sensor
+    id: keuken
+  - type: smoke
+    platform: device
+    device_id: ed2375136e4094c936c2036bd3704bd7
+    entity_id: binary_sensor.overloop_rookmelder_smoke
+    domain: binary_sensor
+    id: overloop
+  - type: smoke
+    platform: device
+    device_id: c94896b59076d3d9067446b1a091045d
+    entity_id: binary_sensor.zolder_rookmelder_smoke
+    domain: binary_sensor
+    id: zolder
+  condition: []
+  action:
+  - service: notify.family
+    data:
+      title: ROOK GEDETECTEERD!
+      message: Er is rook gedetecteerd in de {{ trigger.id }}
+      data:
+        channel: alarm_stream
+        ttl: 0
+        priority: high
   mode: single
