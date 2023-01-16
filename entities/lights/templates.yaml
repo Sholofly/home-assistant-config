@@ -1,0 +1,5 @@
+################################################
+## Entities / Lights / Templates
+################################################
+platform: template
+lights: !include_dir_named ../lights_templates
