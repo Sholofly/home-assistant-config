@@ -9,3 +9,5 @@
 #
 api:
   id: component_api
+  encryption:
+    key: !secret esphome_api_key
