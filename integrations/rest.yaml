@@ -1,4 +1,4 @@
 ################################################
 ## Integrations / Rest
 ################################################
-#rest: !include_dir_list ../entities/rest
+rest: !include_dir_list ../entities/rest
