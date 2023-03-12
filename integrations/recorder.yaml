@@ -4,7 +4,8 @@
 recorder:
   db_url: !secret recorder_db_url
   purge_keep_days: 3
-  auto_purge: false
+  auto_purge: true
+  auto_repack: true
   exclude:
     entity_globs:
       - sensor.telefoon_*_*_melding*
@@ -14,7 +15,14 @@ recorder:
       - sensor.*_connected_bssid
       - sensor.*_ssid
       - switch.*_restart
+      - button.*_restart
+      - light.*_restart
+      - update.*_firmware
       - sensor.date*
+      - switch.*_wi_fi_signal*
+      - button.*_wi_fi_signal*
+      - light.*_wi_fi_signal*
+      - sensor.snmp_stats_192_168_1_1*
     event_types:
       - call_service # Don't record service calls
     entities:
