@@ -1,0 +1,8 @@
+substitutions:
+  label: esp02
+  slug: zolder-bluetooth-proxy
+  name: Zolder Buetooth proxy
+  description: Bluetooth proxy voor zolder
+packages:
+  device: !include devices/esp-wroom-32.yaml
+esp32_ble_tracker:

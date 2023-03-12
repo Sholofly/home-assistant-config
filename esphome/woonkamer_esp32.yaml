@@ -1,8 +1,0 @@
-substitutions:
-  label: esp02
-  slug: woonkamer_esp32
-  name: Woonkamer ESP32
-  description: ESP32 in woonkamer
-packages:
-  device: !include devices/esp-wroom-32.yaml
-esp32_ble_tracker:
