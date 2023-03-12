@@ -10,9 +10,9 @@ attributes:
       <b><a href="#" onclick="window.open('{{ url }}');">ESPHome</a></b> {{ installed + ' \u279e ' + latest }}
     {% endif %}
   synology: >
-    {% set installed = device_attr(device_id('binary_sensor.eekternas_update_available'), 'installed_version') %}
-    {% set latest = device_attr(device_id('binary_sensor.eekternas_update_available'), 'latest_available_version') %}
+    {% set installed =state_attr('update.eekternas_dsm_update', 'installed_version') %}
+    {% set latest = state_attr('update.eekternas_dsm_update', 'latest_version') %}
     {% set url = 'https://www.synology.com/en-global/releaseNote/DSM' %}
-    {% if is_state('binary_sensor.eekternas_update_available', 'on') %}
+    {% if is_state('update.eekternas_dsm_update', 'on') %}
       <b><a href="#" onclick="window.open('{{ url }}');">Synology DSM</a></b> {{ (installed or '') + ' \u279e ' + (latest or '') }}
     {% endif %}
