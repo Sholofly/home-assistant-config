@@ -6,5 +6,6 @@
 # https://esphome.io/components/esphome.html
 #
 name: "${slug}"
+friendly_name: "${name}"
 comment: "${description}"
 build_path: "./.build/${slug}/"
