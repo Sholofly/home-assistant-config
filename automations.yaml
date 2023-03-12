@@ -468,7 +468,6 @@
     path: EPMatt/ikea_e1744.yaml
     input:
       integration: Zigbee2MQTT
-      controller_device: b225a6d4ec52c665162a23c382f2f38f
       helper_last_controller_event: input_text.noa_bed_last_controller_event
       controller_entity: sensor.noa_symfonisk_action
       action_click_double:
@@ -537,21 +536,16 @@
   - platform: state
     entity_id:
     - sensor.aantal_ophalingen_restafval_dit_jaar
-    not_from:
-    - unknown
-    - unavailable
-    - ''
-    not_to:
-    - unknown
-    - unavailable
-    - ''
-  condition: []
+  condition:
+  - condition: template
+    value_template: '{{ trigger.from_state is not none and trigger.to_state is not
+      none}}'
   action:
   - service: notify.family
     data:
       title: Het restafval is opgehaald
-      message: 'Het restafval is dit jaar voor de {{ states(''sensor.aantal_ophalingen_restafval_dit_jaar'')
-        | int(0)}}e keer opgehaald
+      message: 'Het restafval is dit jaar voor de {{ states(''sensor.aantal_ophalingen_restafval_dit_jaar'')}}e
+        keer opgehaald
 
         '
       data:
@@ -636,17 +630,17 @@
   action:
   - service: input_number.set_value
     data:
-      value: 0.61195
+      value: 0.45701
     target:
       entity_id: input_number.energy_price_tariff1
   - service: input_number.set_value
     data:
-      value: 0.77708
+      value: 0.53964
     target:
       entity_id: input_number.energy_price_tariff2
   - service: input_number.set_value
     data:
-      value: 2.71377
+      value: 1.82557
     target:
       entity_id: input_number.gas_price
   mode: single
@@ -1021,4 +1015,119 @@
         channel: alarm_stream
         ttl: 0
         priority: high
+  mode: single
+- id: '1677237418061'
+  alias: Radarr Webhook
+  description: ''
+  trigger:
+  - platform: webhook
+    webhook_id: -7Kgxxk-5PWQXQLRXhCivP-ur
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{{trigger.json.eventType == ''Grab''}}'
+      sequence:
+      - service: notify.mobile_app_telefoon_rudolf
+        data:
+          message: '{{ trigger.json.movie.title }}'
+          title: Nieuwe film wordt gedownload!
+          data:
+            ttl: 0
+            priority: high
+    - conditions:
+      - condition: template
+        value_template: '{{trigger.json.eventType == ''Download''}}'
+      sequence:
+      - service: notify.mobile_app_telefoon_rudolf
+        data:
+          message: '{{ trigger.json.movie.title }}'
+          title: Nieuwe film is klaar met downloaden!
+          data:
+            ttl: 0
+            priority: high
+    - conditions:
+      - condition: template
+        value_template: '{{trigger.json.eventType == ''Test''}}'
+      sequence:
+      - service: notify.mobile_app_telefoon_rudolf
+        data:
+          data:
+            ttl: 0
+            priority: high
+          message: Testbericht van Radarr!
+  mode: single
+- id: '1677238382816'
+  alias: Sonarr Webhook
+  description: ''
+  trigger:
+  - platform: webhook
+    webhook_id: -o3qrQHmtUUPunjW4QaE7f0lt
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{{trigger.json.eventType == ''Grab''}}'
+      sequence:
+      - service: notify.mobile_app_telefoon_rudolf
+        data:
+          title: Nieuwe aflevering van {{trigger.json.series.title}} wordt gedownload!
+          message: Seizoen {{trigger.json.episodes[0].seasonNumber}} - aflevering
+            {{ trigger.json.episodes[0].episodeNumber}}
+          data:
+            ttl: 0
+            priority: high
+    - conditions:
+      - condition: template
+        value_template: '{{trigger.json.eventType == ''Download''}}'
+      sequence:
+      - service: notify.mobile_app_telefoon_rudolf
+        data:
+          title: Nieuwe aflevering van {{trigger.json.series.title}} is gedownload!
+          message: Seizoen {{trigger.json.episodes[0].seasonNumber}} - aflevering
+            {{ trigger.json.episodes[0].episodeNumber}}
+          data:
+            ttl: 0
+            priority: high
+    - conditions:
+      - condition: template
+        value_template: '{{trigger.json.eventType == ''Test''}}'
+      sequence:
+      - service: notify.mobile_app_telefoon_rudolf
+        data:
+          data:
+            ttl: 0
+            priority: high
+          message: Testbericht van Sonarr!
+  mode: single
+- id: '1677277974469'
+  alias: Update ESPHome entities
+  description: Updates all updateable esphome entities at 02:00 at night.
+  trigger:
+  - platform: time
+    at: 02:00:00
+  condition: []
+  action:
+  - service: update.install
+    target:
+      entity_id: '{{ integration_entities(''esphome'') | select(''match'', ''^update.'')
+        | select(''is_state'', ''on'') | list }}'
+  mode: single
+- id: '1677601535487'
+  alias: Bazarr Webhook
+  description: ''
+  trigger:
+  - platform: webhook
+    webhook_id: -O9_Ycbdv-OQ2InxwBhZZYW21
+  condition: []
+  action:
+  - choose:
+    - conditions: []
+      sequence: []
+    default:
+    - service: notify.mobile_app_telefoon_rudolf
+      data:
+        message: Sonarr FTW
   mode: single
