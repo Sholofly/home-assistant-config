@@ -1131,3 +1131,25 @@
       data:
         message: Sonarr FTW
   mode: single
+- id: '1678708313676'
+  alias: Schapen voeren
+  description: ''
+  trigger:
+  - platform: time
+    at: 08:00:00
+  condition:
+  - condition: time
+    weekday:
+    - sat
+    - mon
+    - wed
+    - fri
+  action:
+  - service: notify.mobile_app_telefoon_leny
+    data:
+      data:
+        ttl: 0
+        priority: high
+      message: Schapen hebben drinken en eten nodig!
+      title: Schapen voeren
+  mode: single
