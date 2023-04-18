@@ -1,0 +1,8 @@
+name: "Meterkast Watermeter totaal"
+state_topic: "watermeter/reading/current_value"
+unique_id: meterkast_watermeter_total
+state_class: total_increasing
+device_class: water
+force_update: true
+unit_of_measurement: "L"
+icon: mdi:water
