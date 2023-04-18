@@ -32,9 +32,9 @@ class SpookService(AbstractSpookEntityComponentService):
             )
             raise ValueError(msg)
 
-        value = entity.value + amount
+        value = entity.value - amount
 
         if entity.min_value is not None:
             value = max(value, entity.min_value)
 
-        await entity.set_native_value(value)
+        await entity.async_set_native_value(value)
