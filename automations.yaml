@@ -359,7 +359,7 @@
       hours: 0
       minutes: 0
       seconds: 15
-    entity_id: light.lenovo_tab_m10_screen
+    entity_id: switch.lenovo_tab_m10_fhd_plus_screen
   - platform: time
     at: '23:00'
   condition:
@@ -377,42 +377,46 @@
         after: '23:00'
         before: 07:00
       sequence:
-      - service: light.turn_on
+      - service: number.set_value
         data:
-          transition: 5
-          brightness: 1
+          value: '0'
         target:
-          entity_id: light.lenovo_tab_m10_screen
+          entity_id: number.lenovo_tab_m10_fhd_plus_screen_brightness
       - delay:
           hours: 0
           minutes: 0
           seconds: 5
           milliseconds: 0
-      - service: light.turn_off
+      - service: switch.turn_off
         data: {}
         target:
-          entity_id: light.lenovo_tab_m10_screen
+          entity_id: switch.lenovo_tab_m10_fhd_plus_screen
     default:
-    - service: light.turn_on
+    - service: number.set_value
       data:
-        brightness: 1
+        value: '0'
       target:
-        entity_id: light.lenovo_tab_m10_screen
+        entity_id: number.lenovo_tab_m10_fhd_plus_screen_brightness
   mode: restart
 - id: '1632471920007'
   alias: Wall tablet - Bright on motion
   description: ''
   trigger:
   - platform: state
-    entity_id: binary_sensor.wall_tablet_motion
+    entity_id:
+    - binary_sensor.wall_tablet_motion
     to: 'on'
   condition: []
   action:
-  - service: light.turn_on
+  - service: number.set_value
     data:
-      brightness: 100
+      value: '100'
     target:
-      device_id: 4e5e759c521f542921a9c9132a2885b4
+      entity_id: number.lenovo_tab_m10_fhd_plus_screen_brightness
+  - service: switch.turn_on
+    data: {}
+    target:
+      entity_id: switch.lenovo_tab_m10_fhd_plus_screen
   mode: single
 - id: '1632481170491'
   alias: Voortuin verlichting 's nachts
@@ -457,7 +461,7 @@
     input:
       notification_message: Er staat iemand voor de deur
       motion_sensor: binary_sensor.gang_bel_button
-      camera: camera.eekternas_driveway
+      camera: camera.driveway_driveway
       notify_device: 267251cf143411ebbf4ef5c3186f709c
       delay: 0
       notification_title: Er wordt aangebeld
@@ -630,17 +634,17 @@
   action:
   - service: input_number.set_value
     data:
-      value: 0.45701
+      value: 0.36456
     target:
       entity_id: input_number.energy_price_tariff1
   - service: input_number.set_value
     data:
-      value: 0.53964
+      value: 0.40485
     target:
       entity_id: input_number.energy_price_tariff2
   - service: input_number.set_value
     data:
-      value: 1.82557
+      value: 1.32173
     target:
       entity_id: input_number.gas_price
   mode: single
@@ -1022,6 +1026,10 @@
   trigger:
   - platform: webhook
     webhook_id: -7Kgxxk-5PWQXQLRXhCivP-ur
+    allowed_methods:
+    - POST
+    - PUT
+    local_only: true
   condition: []
   action:
   - choose:
@@ -1064,6 +1072,10 @@
   trigger:
   - platform: webhook
     webhook_id: -o3qrQHmtUUPunjW4QaE7f0lt
+    allowed_methods:
+    - POST
+    - PUT
+    local_only: true
   condition: []
   action:
   - choose:
@@ -1107,7 +1119,7 @@
   description: Updates all updateable esphome entities at 02:00 at night.
   trigger:
   - platform: time
-    at: 02:00:00
+    at: 00:30:00
   condition: []
   action:
   - service: update.install
@@ -1121,6 +1133,10 @@
   trigger:
   - platform: webhook
     webhook_id: -O9_Ycbdv-OQ2InxwBhZZYW21
+    allowed_methods:
+    - POST
+    - PUT
+    local_only: true
   condition: []
   action:
   - choose:
@@ -1153,3 +1169,232 @@
       message: Schapen hebben drinken en eten nodig!
       title: Schapen voeren
   mode: single
+- id: '1683126988999'
+  alias: Noa Bed V2
+  description: ''
+  use_blueprint:
+    path: EPMatt/ikea_e2001_e2002.yaml
+    input:
+      integration: Zigbee2MQTT
+      controller_entity: sensor.noa_bed_action
+      helper_last_controller_event: input_text.noa_bed_last_controller_event
+      action_button_left_short:
+      - service: input_select.select_previous
+        data:
+          cycle: true
+        target:
+          entity_id: input_select.noa_bed_effects
+      controller_device: 9d7e97e24b653c77cef134403ad946d4
+      action_button_down_long:
+      - service: light.turn_on
+        data:
+          brightness_step_pct: -20
+        target:
+          entity_id: light.noa_bed
+      button_up_long_loop: true
+      button_up_long_max_loop_repeats: 10
+      action_button_up_long:
+      - service: light.turn_on
+        data:
+          brightness_step: 20
+        target:
+          entity_id: light.noa_bed
+      button_down_long_loop: true
+      button_down_long_max_loop_repeats: 10
+      button_down_double_press: true
+      button_up_double_press: true
+      action_button_up_double:
+      - service: light.turn_on
+        data:
+          brightness_pct: 50
+          effect: Solid
+          rgb_color:
+          - 255
+          - 194
+          - 140
+        target:
+          entity_id: light.noa_bed
+      action_button_down_double:
+      - service: light.turn_off
+        data:
+          transition: 1
+        target:
+          entity_id: light.noa_bed
+      action_button_up_short:
+      - service: light.turn_on
+        data: {}
+        target:
+          entity_id: light.noa_bed
+      action_button_down_short:
+      - service: light.turn_off
+        data:
+          transition: 1
+        target:
+          entity_id: light.noa_bed
+      action_button_right_short:
+      - service: input_select.select_next
+        data:
+          cycle: true
+        target:
+          entity_id: input_select.noa_bed_effects
+      action_button_right_long:
+      - service: number.increment
+        data:
+          amount: 10
+        target:
+          entity_id: number.wled_noa_speed
+      action_button_left_long:
+      - service: number.decrement
+        data:
+          amount: 10
+        target:
+          entity_id: number.wled_noa_speed
+      button_left_double_press: true
+      button_right_double_press: true
+      action_button_left_double:
+      - service: select.select_previous
+        data:
+          cycle: true
+        target:
+          entity_id: select.wled_noa_color_palette
+      action_button_right_double:
+      - service: select.select_next
+        data:
+          cycle: true
+        target:
+          entity_id: select.wled_noa_color_palette
+      button_right_long_loop: true
+      button_left_long_loop: true
+- id: '1683628457434'
+  alias: Opstarten HA
+  description: Diverse dingen die moeten gebeuren als HA is opgestart.
+  trigger:
+  - platform: homeassistant
+    event: start
+  condition: []
+  action:
+  - service: input_select.set_options
+    data:
+      options: '{{ state_attr(''light.noa_bed'', ''effect_list'') | list}}'
+    target:
+      entity_id: input_select.noa_bed_effects
+  - if:
+    - condition: state
+      entity_id: light.noa_bed
+      state: 'on'
+    then:
+    - service: input_select.select_option
+      data:
+        option: '{{state_attr(''light.noa_bed'',''effect'')}}'
+      target:
+        entity_id: input_select.noa_bed_effects
+  mode: single
+- id: '1683630303957'
+  alias: Noa Bed - Effects
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - input_select.noa_bed_effects
+    id: internal-effect-change
+  - platform: state
+    entity_id:
+    - light.noa_bed
+    attribute: effect
+    id: external-effect-change
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: internal-effect-change
+      sequence:
+      - service: light.turn_on
+        data:
+          effect: '{{states(''input_select.noa_bed_effects'')}}'
+        target:
+          entity_id: light.noa_bed
+    - conditions:
+      - condition: trigger
+        id: external-effect-change
+      sequence:
+      - service: input_select.select_option
+        data:
+          option: '{{state_attr(''light.noa_bed'',''effect'')}}'
+        target:
+          entity_id: input_select.noa_bed_effects
+  mode: single
+- id: '1687170214961'
+  alias: Buiten te warm - Ramen nog open
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.buiten_warmer_dan_binnen
+    from: 'off'
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: binary_sensor.ramen_boven
+    state: 'on'
+  action:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: person.rudolf
+        state: home
+      sequence:
+      - service: notify.mobile_app_telefoon_rudolf
+        data:
+          ttle: Er staan nog ramen open
+          message: "Het wordt wel erg warm buiten. De volgende ramen staan nog open:\n
+            \n{{ message_data }}"
+          data:
+            ttl: 0
+            priority: high
+    - conditions:
+      - condition: state
+        entity_id: person.leny
+        state: home
+      sequence:
+      - service: notify.mobile_app_telefoon_leny
+        data:
+          title: Er staan nog ramen open
+          message: "Het wordt wel erg warm buiten. De volgende ramen staan nog open:\n
+            \n{{ message_data }}"
+          data:
+            ttl: 0
+            priority: high
+  variables:
+    message_data: "{% for entity_id in states.binary_sensor.ramen_boven.attributes.entity_id
+      -%}\n  {% if(states(entity_id) == 'on')-%}\n      {{- '\\n' -}}\n    - {% print(state_attr(entity_id,'friendly_name'))
+      | regex_replace(find=' Raam| contact',replace='')-%}\n  {% endif-%}\n{%- endfor
+      %}"
+  mode: single
+- id: '1688378796980'
+  alias: Test sentence
+  description: ''
+  trigger:
+  - platform: conversation
+    command:
+    - Mika is een aap
+    - Noa is lief
+    - papa is een apenkop
+  condition: []
+  action:
+  - service: light.toggle
+    data: {}
+    target:
+      entity_id: light.zolder_plafond
+  mode: single
+- id: '1689791435165'
+  alias: Test conversation agent
+  description: ''
+  use_blueprint:
+    path: homeassistant/notify_agent_agenda.yaml
+    input:
+      conversation_agent: homeassistant
+      zone_entity: zone.home
+      weather_entity: weather.buienradar
+      calendar_entity: calendar.r_offereins_gmail_com
+      notify_service: notify.mobile_app_telefoon_rudolf
