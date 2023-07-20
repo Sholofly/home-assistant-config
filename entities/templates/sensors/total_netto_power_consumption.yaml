@@ -1,5 +1,5 @@
 unique_id: total_netto_power_consumption
 name: Total Netto Power Consumption
 state: "{{ ((states('sensor.electricity_meter_netto_power_consumption') | float(0)) * 1000) + states('sensor.solaredge_ac_power')|float(0)}}"
-unit_of_measurement: w
+unit_of_measurement: W
 device_class: power

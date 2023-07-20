@@ -1,0 +1,17 @@
+substitutions:
+  name: m5stack-atom-echo-80b8a4
+  friendly_name: M5Stack Atom Echo 80b8a4
+packages:
+  m5stack.atom-echo-voice-assistant: github://esphome/firmware/voice-assistant/m5stack-atom-echo.yaml@main
+esphome:
+  name: ${name}
+  name_add_mac_suffix: false
+  friendly_name: ${friendly_name}
+api:
+  encryption:
+    key: I6R65Xa9gfPE9HuhD1XBw26Uw0aMozmqf2LrUCtYJvw=
+
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password

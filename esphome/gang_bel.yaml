@@ -33,7 +33,7 @@ switch:
   - platform: template
     name: "${name} enabled"
     id: "${slug}_enabled"
-    restore_state: false
+    restore_mode: DISABLED
     turn_on_action:
       - globals.set:
           id: chime

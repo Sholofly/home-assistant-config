@@ -16,4 +16,5 @@ streetnumbersuffix: !secret afval_housenumbersuffix
 diftarcode: !secret afval_diftarcode
 dateformat: "%d-%m-%Y"
 locale: "nl"
+getwholeyear: true
 timespanindays: 365
