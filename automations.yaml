@@ -1371,30 +1371,3 @@
       | regex_replace(find=' Raam| contact',replace='')-%}\n  {% endif-%}\n{%- endfor
       %}"
   mode: single
-- id: '1688378796980'
-  alias: Test sentence
-  description: ''
-  trigger:
-  - platform: conversation
-    command:
-    - Mika is een aap
-    - Noa is lief
-    - papa is een apenkop
-  condition: []
-  action:
-  - service: light.toggle
-    data: {}
-    target:
-      entity_id: light.zolder_plafond
-  mode: single
-- id: '1689791435165'
-  alias: Test conversation agent
-  description: ''
-  use_blueprint:
-    path: homeassistant/notify_agent_agenda.yaml
-    input:
-      conversation_agent: homeassistant
-      zone_entity: zone.home
-      weather_entity: weather.buienradar
-      calendar_entity: calendar.r_offereins_gmail_com
-      notify_service: notify.mobile_app_telefoon_rudolf
