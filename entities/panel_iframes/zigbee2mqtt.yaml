@@ -1,4 +1,4 @@
 zigbee2mqtt:
   title: "Zigbee2MQTT"
-  url: "http://192.168.1.135:8080/"
+  url: "http://192.168.1.143:8080/"
   icon: mdi:zigbee
