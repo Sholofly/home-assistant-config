@@ -6,6 +6,8 @@ state: >
   {% set TotalMemory = states('sensor.lenovo_tab_m10_fhd_plus_total_memory') | float(default=0) %}
   {% if not (FreeMemory == 0.0 or TotalMemory == 0.0) %}
     {{ 100 - (FreeMemory / TotalMemory * 100) | int(default=0) }}
+  {% else %}
+    {{ 0.0 }}
   {% endif %}
 attributes:
   friendly_name: Fully Kiosk Memory
