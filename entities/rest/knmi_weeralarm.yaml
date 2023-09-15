@@ -1,9 +1,0 @@
-resource: https://cdn.knmi.nl/knmi/xml/rss/rss_KNMIwaarschuwingen.xml
-scan_interval: 900
-sensor:
-  - name: "KNMI All data"
-    value_template: "OK"
-    json_attributes_path: "$.rss.channel"
-    json_attributes:
-      - "item"
-    force_update: true
