@@ -109,7 +109,7 @@
   variables:
     message_data: "{% for entity_id in states.binary_sensor.ramen_boven.attributes.entity_id
       -%}\n  {% if(states(entity_id) == 'on')-%}\n      {{- '\\n' -}}\n    - {% print(state_attr(entity_id,'friendly_name'))
-      | regex_replace(find=' Raam| contact',replace='')-%}\n  {% endif-%}\n{%- endfor
+      | regex_replace(find=' Raam Door',replace='')-%}\n  {% endif-%}\n{%- endfor
       %}"
 - id: '1624693921089'
   alias: Takken

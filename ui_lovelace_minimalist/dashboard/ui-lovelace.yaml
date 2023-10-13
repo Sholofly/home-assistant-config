@@ -1,0 +1,16 @@
+---
+button_card_templates: !include_dir_merge_named "../../custom_components/ui_lovelace_minimalist/__ui_minimalist__/ulm_templates/"
+
+title: "Mobile v2"
+theme: "minimalist-mobile"
+#background: "var(--background-image)"
+views:
+  - !include views/home.yaml
+  - !include views/livingroom.yaml
+  - !include views/kitchen.yaml
+  - !include views/noa.yaml
+  - !include views/mika.yaml
+  - !include views/bedroom.yaml
+  - !include views/bathroom.yaml
+  - !include views/attic.yaml
+  - !include views/hallway.yaml

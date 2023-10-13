@@ -1,0 +1,216 @@
+title: "Home"
+path: "home"
+cards:
+  - type: "custom:button-card"
+    template: "card_esh_welcome"
+    triggers_update: "input_boolean.minimalist_toggle"
+    variables:
+      ulm_card_esh_welcome_collapse: input_boolean.minimalist_toggle
+      ulm_weather: "weather.buienradar"
+      entity_1:
+        nav: "house"
+        icon: "mdi:home"
+        name: "House"
+        color: "blue"
+      entity_2:
+        nav: "lights"
+        icon: "mdi:lightbulb"
+        name: "Lights"
+        color: "yellow"
+      entity_3:
+        nav: "security"
+        icon: "mdi:shield"
+        name: Secure
+        color: "green"
+      entity_4:
+        nav: "network"
+        icon: "mdi:nas"
+        name: Lab
+        color: "purple"
+      entity_5:
+        nav: "network"
+        icon: "mdi:flask"
+        name: Lab
+        color: "red"
+  - type: horizontal-stack
+    cards:
+      - type: "custom:button-card"
+        template: card_person_info
+        variables:
+          ulm_card_person_entity: person.rudolf
+          ulm_card_person_use_entity_picture: true
+          ulm_card_person_zone1: zone.netivity
+          ulm_card_person_zone2: zone.moeders
+          ulm_multiline: true
+          #ulm_card_person_driving_entity: binary_sensor.lee_in_car
+          ulm_card_person_commute_entity: sensor.rudolf_travel_time_work_home
+          ulm_card_person_commute_icon: mdi:car
+          ulm_card_person_battery_entity: sensor.telefoon_rudolf_battery_level
+          ulm_card_person_battery_state_entity: sensor.telefoon_rudolf_battery_state
+      # - type: "custom:button-card"
+      #   template: card_person
+      #   entity: person.rudolf
+      #   variables:
+      #     ulm_card_person_entity: person.rudolf
+      #     ulm_card_person_use_entity_picture: true
+      #     ulm_card_person_battery: sensor.telefoon_rudolf_battery_level
+      - type: "custom:button-card"
+        template: card_person_info
+        entity: person.leny
+        variables:
+          ulm_card_person_entity: person.leny
+          ulm_card_person_use_entity_picture: true
+          ulm_card_person_battery_entity: sensor.telefoon_leny_battery_level
+          ulm_card_person_battery_state_entity: sensor.telefoon_leny_battery_state
+          #ulm_card_person_eta: sensor.waze_travel_time_person
+          #ulm_address: sensor.telefoon_rudolf_geocoded_location
+  - type: horizontal-stack
+    cards:
+      - type: "custom:button-card"
+        template: card_person_info
+        entity: person.noa
+        variables:
+          ulm_card_person_entity: person.noa
+          ulm_card_person_use_entity_picture: true
+          ulm_card_person_battery_entity: sensor.telefoon_noa_battery_level
+          ulm_card_person_battery_state_entity: sensor.telefoon_noa_battery_state
+
+      - type: "custom:button-card"
+        template: card_person_info
+        entity: person.mika
+        variables:
+          ulm_card_person_entity: person.mika
+          ulm_card_person_use_entity_picture: true
+          ulm_card_person_battery_entity: sensor.tablet_mika_batterijniveau
+          ulm_card_person_battery_state_entity: sensor.tablet_mika_batterij_laadstatus
+          ulm_card_person_battery: sensor.tablet_mika_batterijniveau
+          #ulm_card_person_eta: sensor.waze_travel_time_person
+          #ulm_address: sensor.telefoon_rudolf_geocoded_location
+  - type: custom:button-card
+    template: card_title
+    name: "Ruimtes"
+  - type: horizontal-stack
+    cards:
+      - type: "custom:button-card"
+        template:
+          - card_esh_room
+          - yellow_on
+        name: Woonkamer
+        entity: light.woonkamer
+        icon: mdi:sofa
+        tap_action:
+          action: navigate
+          navigation_path: "livingroom"
+        variables:
+          ulm_custom_card_esh_room_light_entity: light.woonkamer
+          ulm_custom_card_esh_room_climate_entity: climate.woonkamer
+        label: '[[[ return states["sensor.woonkamer_temperature"].state + "°C" ]]]'
+
+      - type: "custom:button-card"
+        template:
+          - card_esh_room
+          - yellow_on
+        name: Keuken
+        entity: light.keuken_eettafel
+        icon: mdi:countertop
+        tap_action:
+          action: navigate
+          navigation_path: "kitchen"
+        variables:
+          ulm_custom_card_esh_room_light_entity: light.keuken_eettafel
+          #ulm_custom_card_esh_room_climate_entity: climate.woonkamer
+        #label: '[[[ return states["sensor.woonkamer_temperature"].state + "°C" ]]]'
+  - type: "custom:button-card"
+    template:
+      - card_esh_room
+      - yellow_on
+    name: Slaapkamer
+    entity: light.slaapkamer_plafond
+    icon: mdi:human-male-female
+    tap_action:
+      action: navigate
+      navigation_path: "bedroom"
+    variables:
+      ulm_custom_card_esh_room_light_entity:
+        light.slaapkamer_plafond
+        #ulm_custom_card_esh_room_climate_entity: climate.woonkamer
+    label: '[[[ return states["sensor.slaapkamer_multisensor_temperature"].state + "°C" ]]]'
+  - type: horizontal-stack
+    cards:
+      - type: "custom:button-card"
+        template:
+          - card_esh_room
+          - yellow_on
+        name: Noa
+        entity: light.noa
+        icon: mdi:face-woman
+        tap_action:
+          action: navigate
+          navigation_path: "noa"
+        variables:
+          ulm_custom_card_esh_room_light_entity: light.noa
+          #ulm_custom_card_esh_room_climate_entity: climate.woonkamer
+        label: '[[[ return states["sensor.noa_multisensor_temperature"].state + "°C" ]]]'
+      - type: "custom:button-card"
+        template:
+          - card_esh_room
+          - yellow_on
+        name: Mika
+        entity: light.mika_plafond
+        icon: mdi:face-man
+        tap_action:
+          action: navigate
+          navigation_path: "mika"
+        variables:
+          ulm_custom_card_esh_room_light_entity: light.mika_plafond
+          #ulm_custom_card_esh_room_climate_entity: climate.woonkamer
+        label: '[[[ return states["sensor.mika_multisensor_temperature"].state + "°C" ]]]'
+  - type: horizontal-stack
+    cards:
+      - type: "custom:button-card"
+        template:
+          - card_esh_room
+          - yellow_on
+        name: Badkamer
+        entity: light.badkamer
+        icon: mdi:human-male-female
+        tap_action:
+          action: navigate
+          navigation_path: "bathroom"
+        variables:
+          ulm_custom_card_esh_room_light_entity:
+            light.badkamer
+            #ulm_custom_card_esh_room_climate_entity: climate.woonkamer
+        label: '[[[ return states["sensor.badkamer_multisensor_temperature"].state + "°C" ]]]'
+
+      - type: "custom:button-card"
+        template:
+          - card_esh_room
+          - yellow_on
+        name: Zolder
+        entity: light.zolder_plafond
+        icon: mdi:home-roof
+        tap_action:
+          action: navigate
+          navigation_path: "attic"
+        variables:
+          ulm_custom_card_esh_room_light_entity: light.zolder_plafond
+          #ulm_custom_card_esh_room_climate_entity: climate.woonkamer
+        label: '[[[ return states["sensor.zolder_multisensor_temperature"].state + "°C" ]]]'
+  - type: horizontal-stack
+    cards:
+      - type: "custom:button-card"
+        template:
+          - card_esh_room
+          - yellow_on
+        name: Trappenhuis & WC
+        entity: light.gang_wc_overloop
+        icon: mdi:coat-rack
+        tap_action:
+          action: navigate
+          navigation_path: "hallway"
+        variables:
+          ulm_custom_card_esh_room_light_entity:
+            light.gang_wc_overloop
+            #ulm_custom_card_esh_room_climate_entity: climate.woonkamer
+        #label: '[[[ return states["sensor.badkamer_multisensor_temperature"].state + "°C" ]]]'

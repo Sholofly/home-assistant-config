@@ -1,0 +1,84 @@
+title: "Slaapkamer"
+path: "bedroom"
+cards:
+  - type: "custom:button-card"
+    template: chip_back
+    variables:
+      ulm_chip_back_path: /ui-lovelace-minimalist/home
+
+  - type: custom:button-card
+    template: card_title
+    name: "Slaapkamer"
+
+  - type: horizontal-stack
+    cards:
+      - type: "custom:button-card"
+        template: card_graph
+        entity: sensor.slaapkamer_multisensor_temperature
+        variables:
+          ulm_card_graph_color: "var(--google-blue)"
+          ulm_card_graph_name: Temperatuur
+          ulm_card_graph_entity: sensor.slaapkamer_multisensor_temperature
+          ulm_card_graph_type: fill
+          ulm_card_graph_hours: 24
+      - type: "custom:button-card"
+        template: card_graph
+        entity: sensor.woonkamer_humidity
+        variables:
+          ulm_card_graph_color: "var(--google-red)"
+          ulm_card_graph_name: Vochtigheid
+          ulm_card_graph_entity: sensor.slaapkamer_multisensor_humidity
+          ulm_card_graph_type: fill
+          ulm_card_graph_hours: 24
+
+  - type: custom:button-card
+    template: card_title
+    label: "Lampen"
+
+  - type: "custom:button-card"
+    template: card_light
+    entity: light.slaapkamer_plafond
+    variables:
+      ulm_card_light_name: "Plafond"
+      ulm_card_light_enable_slider: false
+      ulm_card_light_enable_color: false
+      ulm_card_light_force_background_color: true
+
+  - type: custom:button-card
+    template: card_title
+    label: "Media"
+
+  - type: "custom:button-card"
+    template: card_media_player
+    entity: media_player.ziggo_beneden
+    variables:
+      ulm_card_media_player_name: Ziggo boven
+      ulm_card_media_player_enable_popup: true
+      ulm_card_media_player_enable_art: true
+      ulm_card_media_player_more_info: true
+      ulm_card_media_player_power_button: true
+      ulm_card_media_player_enable_controls: true
+      ulm_card_media_player_collapsible: true
+      ulm_card_media_player_icon: mdi:devices
+
+  - type: custom:button-card
+    template: card_title
+    label: "Sensors"
+
+  - type: horizontal-stack
+    cards:
+      - type: "custom:button-card"
+        template: card_binary_sensor
+        variables:
+          ulm_card_binary_sensor_alert: true
+          ulm_show_last_changed: true
+          ulm_card_binary_sensor_name: Raam
+        entity: binary_sensor.slaapkamer_raam_contact
+      - type: "custom:button-card"
+        template: card_battery
+        entity: sensor.slaapkamer_raam_battery
+        variables:
+          ulm_card_battery_charger_type_entity_id: sensor.slaapkamer_raam_battery
+          ulm_card_battery_battery_level_danger: 25
+          ulm_card_battery_battery_level_warning: 15
+          ulm_card_battery_name: Batterij
