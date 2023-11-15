@@ -49,7 +49,7 @@ cards:
         template: card_binary_sensor
         variables:
           ulm_card_binary_sensor_alert: true
-          ulm_show_last_changed: true
+          ulm_card_binary_sensor_show_last_changed: true
           ulm_card_binary_sensor_name: Raam
         entity: binary_sensor.keuken_raam_contact
       - type: "custom:button-card"
@@ -66,7 +66,7 @@ cards:
         template: card_binary_sensor
         variables:
           ulm_card_binary_sensor_alert: true
-          ulm_show_last_changed: true
+          ulm_card_binary_sensor_show_last_changed: true
           ulm_card_binary_sensor_name: Rook
         entity: binary_sensor.keuken_rookmelder_smoke
       - type: "custom:button-card"

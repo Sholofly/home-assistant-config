@@ -50,7 +50,7 @@ cards:
         template: card_binary_sensor
         variables:
           ulm_card_binary_sensor_alert: true
-          ulm_show_last_changed: true
+          ulm_card_binary_sensor_show_last_changed: true
           ulm_card_binary_sensor_name: Rook
         entity: binary_sensor.overloop_rookmelder_smoke
       - type: "custom:button-card"
@@ -68,7 +68,7 @@ cards:
         template: card_binary_sensor
         variables:
           ulm_card_binary_sensor_alert: true
-          ulm_show_last_changed: true
+          ulm_card_binary_sensor_show_last_changed: true
           ulm_card_binary_sensor_name: WC
         entity: binary_sensor.wc_bewegingssensor_occupancy
       - type: "custom:button-card"

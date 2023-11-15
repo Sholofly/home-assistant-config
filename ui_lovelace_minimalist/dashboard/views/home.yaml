@@ -8,7 +8,7 @@ cards:
       ulm_card_esh_welcome_collapse: input_boolean.minimalist_toggle
       ulm_weather: "weather.buienradar"
       entity_1:
-        nav: "house"
+        nav: "home"
         icon: "mdi:home"
         name: "House"
         color: "blue"
@@ -42,28 +42,20 @@ cards:
           ulm_card_person_zone1: zone.netivity
           ulm_card_person_zone2: zone.moeders
           ulm_multiline: true
-          #ulm_card_person_driving_entity: binary_sensor.lee_in_car
-          ulm_card_person_commute_entity: sensor.rudolf_travel_time_work_home
+          ulm_card_person_commute_entity: sensor.reistijd_naar_huis_rudolf
           ulm_card_person_commute_icon: mdi:car
           ulm_card_person_battery_entity: sensor.telefoon_rudolf_battery_level
           ulm_card_person_battery_state_entity: sensor.telefoon_rudolf_battery_state
-      # - type: "custom:button-card"
-      #   template: card_person
-      #   entity: person.rudolf
-      #   variables:
-      #     ulm_card_person_entity: person.rudolf
-      #     ulm_card_person_use_entity_picture: true
-      #     ulm_card_person_battery: sensor.telefoon_rudolf_battery_level
       - type: "custom:button-card"
         template: card_person_info
         entity: person.leny
         variables:
           ulm_card_person_entity: person.leny
           ulm_card_person_use_entity_picture: true
+          ulm_card_person_commute_icon: mdi:car
+          ulm_card_person_commute_entity: sensor.reistijd_naar_huis_leny
           ulm_card_person_battery_entity: sensor.telefoon_leny_battery_level
           ulm_card_person_battery_state_entity: sensor.telefoon_leny_battery_state
-          #ulm_card_person_eta: sensor.waze_travel_time_person
-          #ulm_address: sensor.telefoon_rudolf_geocoded_location
   - type: horizontal-stack
     cards:
       - type: "custom:button-card"
