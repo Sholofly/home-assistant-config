@@ -1,0 +1,34 @@
+title: "Garden"
+path: "garden"
+cards:
+  - type: "custom:button-card"
+    template: "card_esh_welcome"
+    triggers_update: "input_boolean.minimalist_toggle"
+    variables:
+      ulm_card_esh_welcome_collapse: input_boolean.minimalist_toggle
+      ulm_weather: "weather.buienradar"
+      entity_1:
+        nav: "home"
+        icon: "mdi:home"
+        name: "House"
+        color: "blue"
+      entity_2:
+        nav: "garden"
+        icon: "mdi:flower"
+        name: "Garden"
+        color: "yellow"
+      entity_3:
+        nav: "security"
+        icon: "mdi:shield"
+        name: Secure
+        color: "green"
+      entity_4:
+        nav: "network"
+        icon: "mdi:nas"
+        name: Lab
+        color: "purple"
+      entity_5:
+        nav: "network"
+        icon: "mdi:flask"
+        name: Lab
+        color: "red"

@@ -1,5 +1,5 @@
 ################################################
 ## Entities / Template Sensors / Afvalinfo days until takken
 ################################################
-state: "{{ state_attr('sensor.takken', 'days_until_collection_date') }}"
+state: "{{ state_attr('sensor.afvalinfo_thuis_takken', 'days_until_collection_date') }}"
 name: Dagen tot ophalen takken

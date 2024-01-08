@@ -14,3 +14,4 @@ views:
   - !include views/bathroom.yaml
   - !include views/attic.yaml
   - !include views/hallway.yaml
+  - !include views/garden.yaml

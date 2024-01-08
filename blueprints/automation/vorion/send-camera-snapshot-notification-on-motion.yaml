@@ -1,10 +1,9 @@
 blueprint:
   name: Send a camera snapshot when motion is detected
-  description:
-    "This automation blueprint creates a camera snapshot if motion is detected  and
+  description: 'This automation blueprint creates a camera snapshot if motion is detected  and
     sends a notification to your phone with the picture.
 
-    "
+    '
   domain: automation
   input:
     motion_sensor:
@@ -12,27 +11,32 @@ blueprint:
       description: The sensor wich triggers the snapshot creation
       selector:
         entity:
-          domain: binary_sensor
-          # device_class: motion
+          domain:
+          - binary_sensor
+          device_class:
+          - motion
+          multiple: false
     camera:
       name: Camera
       description: The camera which creates the snapshot
       selector:
         entity:
-          domain: camera
+          domain:
+          - camera
+          multiple: false
     notify_device:
       name: Device to notify
-      description:
-        Device needs to run the official Home Assistant app to receive
+      description: Device needs to run the official Home Assistant app to receive
         notifications
       selector:
-        entity:
-          domain: notify
+        device:
+          integration: mobile_app
+          multiple: false
     is_ios:
       name: Is it an iOS device?
       description: Toggle if your selected device runs iOS, default is Android
       selector:
-        boolean: null
+        boolean: {}
       default: false
     notification_title:
       name: Notification title (Optional)
@@ -41,11 +45,11 @@ blueprint:
     notification_message:
       name: Notification message (Optional)
       description: 'Default: "{{ motion_sensor_name }} detected movement!"'
-      default: "{{ motion_sensor_name }} detected movement!"
+      default: '{{ motion_sensor_name }} detected movement!'
     delay:
       name: Delay (Optional)
       description: Wait before creating camera snapshot
-      default: "0"
+      default: ''
       selector:
         number:
           min: 0.0
@@ -56,36 +60,33 @@ blueprint:
   source_url: https://community.home-assistant.io/t/send-camera-snapshot-notification-on-motion/254565
 trigger:
   platform: state
-  entity_id: !input "motion_sensor"
-  from: "off"
-  to: "on"
+  entity_id: !input motion_sensor
+  from: 'off'
+  to: 'on'
 variables:
-  motion_sensor: !input "motion_sensor"
-  motion_sensor_name: "{{ states[motion_sensor].name }}"
-  camera: !input "camera"
-  notify_device: !input "notify_device"
-  is_ios: !input "is_ios"
-  notification_title: !input "notification_title"
-  notification_message: !input "notification_message"
-  delay: !input "delay"
-  snapshot_create_file_path:
-    /config/www/tmp/snapshot_{{ states[camera].object_id
+  motion_sensor: !input motion_sensor
+  motion_sensor_name: '{{ states[motion_sensor].name }}'
+  camera: !input camera
+  notify_device: !input notify_device
+  is_ios: !input is_ios
+  notification_title: !input notification_title
+  notification_message: !input notification_message
+  delay: !input delay
+  snapshot_create_file_path: /config/www/tmp/snapshot_{{ states[camera].object_id
     }}.jpg
-  snapshot_access_file_path:
-    "{{ snapshot_create_file_path | replace('/config/www','/local')
-    }}"
+  snapshot_access_file_path: '{{ snapshot_create_file_path | replace(''/config/www'',''/local'')
+    }}'
 action:
-  - delay: "{{ delay }}"
-  - service: camera.snapshot
-    entity_id: !input "camera"
-    data:
-      filename: "{{ snapshot_create_file_path }}"
-  - device_id: !input "notify_device"
-    domain: mobile_app
-    type: notify
-    title: "{{ notification_title }}"
-    message: "{{ notification_message }}"
-    data:
-      '{% set android_data = {"image": "%s"} | format(snapshot_access_file_path)
-      %} {% set ios_data = {"attachment": {"url": "%s", "content_type": "JPEG"}} | format(snapshot_access_file_path)
-      %} {{ ios_data if is_ios else android_data }}'
+- delay: '{{ delay }}'
+- service: camera.snapshot
+  entity_id: !input camera
+  data:
+    filename: '{{ snapshot_create_file_path }}'
+- device_id: !input notify_device
+  domain: mobile_app
+  type: notify
+  title: '{{ notification_title }}'
+  message: '{{ notification_message }}'
+  data: '{% set android_data = {"image": "%s"} | format(snapshot_access_file_path)
+    %} {% set ios_data = {"attachment": {"url": "%s", "content_type": "JPEG"}} | format(snapshot_access_file_path)
+    %} {{ ios_data if is_ios else android_data }}'

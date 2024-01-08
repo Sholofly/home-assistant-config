@@ -13,9 +13,9 @@ cards:
         name: "House"
         color: "blue"
       entity_2:
-        nav: "lights"
-        icon: "mdi:lightbulb"
-        name: "Lights"
+        nav: "garden"
+        icon: "mdi:flower"
+        name: "Garden"
         color: "yellow"
       entity_3:
         nav: "security"

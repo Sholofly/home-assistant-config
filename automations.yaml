@@ -29,13 +29,14 @@
   - condition: not
     conditions:
     - condition: state
-      entity_id: sensor.trash_type_tomorrow
-      state: none
+      entity_id: sensor.afvalinfo_thuis_trash_type_tomorrow
+      state: Geen
   action:
   - service: notify.family
     data:
       title: Morgen is een afvaldag
-      message: 'Opgehaalde afval: {{ states.sensor.trash_type_tomorrow.state }}'
+      message: 'Opgehaalde afval: {{ states.sensor.afvalinfo_thuis_trash_type_tomorrow.state
+        | lower }}'
   initial_state: true
 - id: '1624693857334'
   alias: Nachtverlichting buiten
@@ -241,8 +242,12 @@
   trigger:
   - platform: state
     entity_id: binary_sensor.zolder_schakelaar
-    not_from: unavailable
-    not_to: unavailable
+    not_from:
+    - unavailable
+    - unknown
+    not_to:
+    - unavailable
+    - unknown
   action:
   - service: light.toggle
     data: {}
@@ -322,25 +327,6 @@
         priority: high
         channel: alarm_stream
         importance: high
-  mode: single
-- id: '1632223302457'
-  alias: Bewegingssensor schuur automatisch uit
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.kleine_schuur_bewegingssensor
-    to: 'on'
-    for:
-      hours: 0
-      minutes: 3
-      seconds: 0
-      milliseconds: 0
-  condition: []
-  action:
-  - service: mqtt.publish
-    data:
-      topic: tele/rf_schuur/RESULT
-      payload: '{"RfReceived":{"Data":"D2242E-off"}}'
   mode: single
 - id: '1632469998878'
   alias: Wall tablet - Screen auto off
@@ -462,41 +448,9 @@
       notification_message: Er staat iemand voor de deur
       motion_sensor: binary_sensor.gang_bel_button
       camera: camera.driveway_driveway
-      notify_device: 267251cf143411ebbf4ef5c3186f709c
+      notify_device: cab54cb03386ab643e7e865f489aa12b
       delay: 0
       notification_title: Er wordt aangebeld
-- id: '1650539010021'
-  alias: Noa SYMFONISK - Controller
-  description: ''
-  use_blueprint:
-    path: EPMatt/ikea_e1744.yaml
-    input:
-      integration: Zigbee2MQTT
-      helper_last_controller_event: input_text.noa_bed_last_controller_event
-      controller_entity: sensor.noa_symfonisk_action
-      action_click_double:
-      - service: light.turn_on
-        data:
-          effect: Solid
-          brightness_pct: 50
-        target:
-          entity_id: light.noa_bed
-      action_click_triple:
-      - service: script.noa_magic_cube_random_palette
-        data: {}
-      - service: script.noa_magic_cube_random_effect
-        data: {}
-- id: '1650539141519'
-  alias: Noa SYMFONISK - Light hook
-  description: ''
-  use_blueprint:
-    path: EPMatt/light.yaml
-    input:
-      controller_model: IKEA E1744 SYMFONISK Rotary Remote
-      controller_device: 4e31574215b5324da19cdaf1fcfcbf20
-      light: light.noa_bed
-      controller_entity: sensor.noa_symfonisk_action
-      light_color_mode: None
 - id: '1651844991999'
   alias: Alarm getriggerd
   description: ''
@@ -540,6 +494,7 @@
   - platform: state
     entity_id:
     - sensor.aantal_ophalingen_restafval_dit_jaar
+    not_from: unknown
   condition:
   - condition: template
     value_template: '{{ trigger.from_state is not none and trigger.to_state is not
@@ -556,49 +511,6 @@
         ttl: 0
         priority: high
   mode: single
-- id: '1655230377027'
-  alias: Noa Slaaptijd aangebroken
-  description: ''
-  trigger:
-  - platform: time
-    at: input_datetime.noa_slaaptijd
-  condition:
-  - condition: state
-    entity_id: light.noa_bed
-    state: 'on'
-  action:
-  - service: light.turn_on
-    target:
-      entity_id: light.noa_bed
-    data:
-      effect: Blink
-  - delay:
-      hours: 0
-      minutes: 0
-      seconds: 3
-      milliseconds: 0
-  - service: light.turn_on
-    target:
-      entity_id: light.noa_bed
-    data:
-      effect: Solid
-  - delay:
-      hours: 0
-      minutes: 5
-      seconds: 0
-      milliseconds: 0
-  - service: light.turn_off
-    data: {}
-    target:
-      entity_id: light.noa_bed
-  mode: single
-- id: '1656228735037'
-  alias: Noa Magic cube
-  description: ''
-  use_blueprint:
-    path: SirGoodenough/Zigbee2MQTT - Xiaomi Cube Controller.yaml
-    input:
-      remote: sensor.noa_magic_cube_action
 - id: '1656497997657'
   alias: Badkamer - Knop rechts
   description: ''
@@ -634,17 +546,17 @@
   action:
   - service: input_number.set_value
     data:
-      value: 0.36456
+      value: 0.39747
     target:
       entity_id: input_number.energy_price_tariff1
   - service: input_number.set_value
     data:
-      value: 0.40485
+      value: 0.397
     target:
       entity_id: input_number.energy_price_tariff2
   - service: input_number.set_value
     data:
-      value: 1.32173
+      value: 1.39692
     target:
       entity_id: input_number.gas_price
   mode: single
@@ -1169,161 +1081,6 @@
       message: Schapen hebben drinken en eten nodig!
       title: Schapen voeren
   mode: single
-- id: '1683126988999'
-  alias: Noa Bed V2
-  description: ''
-  use_blueprint:
-    path: EPMatt/ikea_e2001_e2002.yaml
-    input:
-      integration: Zigbee2MQTT
-      controller_entity: sensor.noa_bed_action
-      helper_last_controller_event: input_text.noa_bed_last_controller_event
-      action_button_left_short:
-      - service: input_select.select_previous
-        data:
-          cycle: true
-        target:
-          entity_id: input_select.noa_bed_effects
-      controller_device: 9d7e97e24b653c77cef134403ad946d4
-      action_button_down_long:
-      - service: light.turn_on
-        data:
-          brightness_step_pct: -20
-        target:
-          entity_id: light.noa_bed
-      button_up_long_loop: true
-      button_up_long_max_loop_repeats: 10
-      action_button_up_long:
-      - service: light.turn_on
-        data:
-          brightness_step: 20
-        target:
-          entity_id: light.noa_bed
-      button_down_long_loop: true
-      button_down_long_max_loop_repeats: 10
-      button_down_double_press: true
-      button_up_double_press: true
-      action_button_up_double:
-      - service: light.turn_on
-        data:
-          brightness_pct: 50
-          effect: Solid
-          rgb_color:
-          - 255
-          - 194
-          - 140
-        target:
-          entity_id: light.noa_bed
-      action_button_down_double:
-      - service: light.turn_off
-        data:
-          transition: 1
-        target:
-          entity_id: light.noa_bed
-      action_button_up_short:
-      - service: light.turn_on
-        data: {}
-        target:
-          entity_id: light.noa_bed
-      action_button_down_short:
-      - service: light.turn_off
-        data:
-          transition: 1
-        target:
-          entity_id: light.noa_bed
-      action_button_right_short:
-      - service: input_select.select_next
-        data:
-          cycle: true
-        target:
-          entity_id: input_select.noa_bed_effects
-      action_button_right_long:
-      - service: number.increment
-        data:
-          amount: 10
-        target:
-          entity_id: number.wled_noa_speed
-      action_button_left_long:
-      - service: number.decrement
-        data:
-          amount: 10
-        target:
-          entity_id: number.wled_noa_speed
-      button_left_double_press: true
-      button_right_double_press: true
-      action_button_left_double:
-      - service: select.select_previous
-        data:
-          cycle: true
-        target:
-          entity_id: select.wled_noa_color_palette
-      action_button_right_double:
-      - service: select.select_next
-        data:
-          cycle: true
-        target:
-          entity_id: select.wled_noa_color_palette
-      button_right_long_loop: true
-      button_left_long_loop: true
-- id: '1683628457434'
-  alias: Opstarten HA
-  description: Diverse dingen die moeten gebeuren als HA is opgestart.
-  trigger:
-  - platform: homeassistant
-    event: start
-  condition: []
-  action:
-  - service: input_select.set_options
-    data:
-      options: '{{ state_attr(''light.noa_bed'', ''effect_list'') | list}}'
-    target:
-      entity_id: input_select.noa_bed_effects
-  - if:
-    - condition: state
-      entity_id: light.noa_bed
-      state: 'on'
-    then:
-    - service: input_select.select_option
-      data:
-        option: '{{state_attr(''light.noa_bed'',''effect'')}}'
-      target:
-        entity_id: input_select.noa_bed_effects
-  mode: single
-- id: '1683630303957'
-  alias: Noa Bed - Effects
-  description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - input_select.noa_bed_effects
-    id: internal-effect-change
-  - platform: state
-    entity_id:
-    - light.noa_bed
-    attribute: effect
-    id: external-effect-change
-  condition: []
-  action:
-  - choose:
-    - conditions:
-      - condition: trigger
-        id: internal-effect-change
-      sequence:
-      - service: light.turn_on
-        data:
-          effect: '{{states(''input_select.noa_bed_effects'')}}'
-        target:
-          entity_id: light.noa_bed
-    - conditions:
-      - condition: trigger
-        id: external-effect-change
-      sequence:
-      - service: input_select.select_option
-        data:
-          option: '{{state_attr(''light.noa_bed'',''effect'')}}'
-        target:
-          entity_id: input_select.noa_bed_effects
-  mode: single
 - id: '1687170214961'
   alias: Buiten te warm - Ramen nog open
   description: ''
@@ -1346,7 +1103,7 @@
       sequence:
       - service: notify.mobile_app_telefoon_rudolf
         data:
-          ttle: Er staan nog ramen open
+          title: Er staan nog ramen open
           message: "Het wordt wel erg warm buiten. De volgende ramen staan nog open:\n
             \n{{ message_data }}"
           data:
@@ -1370,4 +1127,62 @@
       -%}\n  {% if(states(entity_id) == 'on')-%}\n      {{- '\\n' -}}\n    - {% print(state_attr(entity_id,'friendly_name'))
       | regex_replace(find=' Raam| contact',replace='')-%}\n  {% endif-%}\n{%- endfor
       %}"
+  mode: single
+- id: '1702301389683'
+  alias: Update water price
+  description: ''
+  trigger:
+  - platform: time
+    at: input_datetime.water_tariff_change
+  condition: []
+  action:
+  - service: input_number.set_value
+    target:
+      entity_id: input_number.water_price
+    data:
+      value: 1.04
+  mode: single
+- id: '1703877804565'
+  alias: Bijkeuken licht
+  description: ''
+  use_blueprint:
+    path: freakshock88/motion_illuminance_activated_entity.yaml
+    input:
+      motion_sensor: binary_sensor.bijkeuken_bewegingssensor_occupancy
+      target_entity: light.bijkeuken_plafond
+      blocker_entity: binary_sensor.licht_binnen
+      no_motion_wait: input_number.bijkeuken_turn_off_light_after
+- id: '1703979319165'
+  alias: Kleine schuur licht
+  description: ''
+  use_blueprint:
+    path: freakshock88/motion_illuminance_activated_entity.yaml
+    input:
+      motion_sensor: binary_sensor.kleine_schuur_bewegingssensor
+      target_entity: light.garage_werkbank
+      blocker_entity: binary_sensor.licht_binnen
+      no_motion_wait: input_number.bijkeuken_turn_off_light_after
+- id: '1704015365838'
+  alias: Leny kerk
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - person.leny
+    from: Kerk
+  condition:
+  - condition: state
+    entity_id: person.rudolf
+    state: home
+  action:
+  - service: notify.mobile_app_telefoon_rudolf
+    data:
+      title: Kerk is uit
+      message: Leny verlaat de kerk
+      data:
+        ttl: 0
+        priority: high
+        channel: HA Alarm
+        importance: max
+        notification_icon: mdi:church
   mode: single

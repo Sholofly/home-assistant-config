@@ -1,5 +1,5 @@
 ################################################
 ## Entities / Template Binary Sensors / DSMR up to date
 ################################################
-state: "{{ (now() - as_local(states.sensor.electricity_meter_energy_consumption_tarif_1.last_changed)) < timedelta(minutes = 1, seconds = 30) or (now() - as_local(states.sensor.electricity_meter_energy_consumption_tarif_2.last_changed)) < timedelta(minutes = 1, seconds = 30) | default('on') }}"
+state: "{{ (now() - as_local(states.sensor.electricity_meter_netto_power_consumption.last_changed)) < timedelta(minutes = 1, seconds = 30)  | default('on') }}"
 name: DSMR up-to-date
