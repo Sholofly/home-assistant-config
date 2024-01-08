@@ -1,0 +1,76 @@
+blueprint:
+  name: Motion-activated Light with illuminance
+  description: Turn on a light when motion is detected and illuminance is below a
+    set Lux level.
+  domain: automation
+  input:
+    motion_entity:
+      name: Motion Sensor
+      selector:
+        entity:
+          domain:
+          - binary_sensor
+          device_class:
+          - motion
+          multiple: false
+    lux_entity:
+      name: Illuminance Sensor
+      selector:
+        entity:
+          domain:
+          - sensor
+          device_class:
+          - illuminance
+          multiple: false
+    lux_level:
+      name: Illuminance level
+      description: If lux is below this value and motion is detected, the light will
+        turn on.
+      default: 100
+      selector:
+        number:
+          min: 0.0
+          max: 1000.0
+          mode: slider
+          step: 1.0
+    light_target:
+      name: Light
+      selector:
+        target:
+          entity:
+          - domain:
+            - light
+    no_motion_wait:
+      name: Wait time
+      description: Time to leave the light on after last motion is detected.
+      default: 120
+      selector:
+        number:
+          min: 0.0
+          max: 3600.0
+          unit_of_measurement: seconds
+          mode: slider
+          step: 1.0
+  source_url: https://gist.github.com/Danielbook/7814e7eb32e880b2d7c3fb5ba8430f4f
+mode: restart
+max_exceeded: silent
+trigger:
+  platform: state
+  entity_id: !input motion_entity
+  from: 'off'
+  to: 'on'
+condition:
+  condition: numeric_state
+  entity_id: !input lux_entity
+  below: !input lux_level
+action:
+- service: light.turn_on
+  target: !input light_target
+- wait_for_trigger:
+    platform: state
+    entity_id: !input motion_entity
+    from: 'on'
+    to: 'off'
+- delay: !input no_motion_wait
+- service: light.turn_off
+  target: !input light_target
