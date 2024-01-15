@@ -4,4 +4,4 @@
 unique_id: 994533d9-fcde-411d-b786-cd0d8e87a36f
 name: "Buiten warmer dan binnen"
 state: >-
-  {{ states('sensor.achtertuin_multisensor_temperature') > states('sensor.woonkamer_temperature') | default(False)}}
+  {{ (states('sensor.achtertuin_multisensor_temperature') | float(0) > states('sensor.woonkamer_temperature') | float(0)) | default(False)}}
