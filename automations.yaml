@@ -1158,10 +1158,9 @@
   use_blueprint:
     path: freakshock88/motion_illuminance_activated_entity.yaml
     input:
-      motion_sensor: binary_sensor.kleine_schuur_bewegingssensor
+      motion_sensor: binary_sensor.kleine_schuur_bewegingssensor_occupancy
       target_entity: light.garage_werkbank
       blocker_entity: binary_sensor.licht_binnen
-      no_motion_wait: input_number.bijkeuken_turn_off_light_after
 - id: '1704015365838'
   alias: Leny kerk
   description: ''
@@ -1186,3 +1185,26 @@
         importance: max
         notification_icon: mdi:church
   mode: single
+- id: '1705261901239'
+  alias: Escaperoom herstarten op commando
+  description: ''
+  use_blueprint:
+    path: EPMatt/ikea_e2001_e2002.yaml
+    input:
+      integration: Zigbee2MQTT
+      controller_entity: sensor.noa_bed_e2002_action
+      helper_last_controller_event: input_text.noa_bed_e2002_last_controller_event
+      action_button_up_release: []
+      action_button_up_short:
+      - service: script.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id: script.restart_escaperoom
+      action_button_down_short:
+      - service: media_player.play_media
+        data:
+          media_content_type: video/mp4
+          media_content_id: media-source://media_source/local/security.mp4
+        target:
+          entity_id: media_player.noa_nest_hub

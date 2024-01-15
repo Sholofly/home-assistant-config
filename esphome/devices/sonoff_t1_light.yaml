@@ -32,6 +32,7 @@ light:
   - platform: monochromatic
     name: "${name} button"
     output: blue_led
+    id: ${slug}_button
   - platform: binary
     id: ${slug}_light
     name: "${name}"

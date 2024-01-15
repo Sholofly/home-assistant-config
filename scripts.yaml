@@ -32,3 +32,38 @@ play_radio:
       entity_id: '{{ media_player }}'
   mode: single
   icon: mdi:radio
+restart_escaperoom:
+  alias: Restart escaperoom
+  sequence:
+  - service: tts.cloud_say
+    data:
+      options:
+        voice: FennaNeural
+      entity_id: media_player.noa_nest_hub
+      message: Pak nu pen en papier en houd je blik op de toren. Dan heb je met stip
+        een streepje voor. Druk nog een keer op de knop om het seinen opnieuw te starten.
+  - service: button.press
+    data: {}
+    target:
+      entity_id: button.escaperoom_restart
+  - wait_for_trigger:
+    - platform: state
+      entity_id:
+      - binary_sensor.escaperoom_ready
+      to: 'on'
+      for:
+        hours: 0
+        minutes: 0
+        seconds: 5
+  - service: media_player.turn_off
+    target:
+      entity_id: media_player.noa_nest_hub
+    data: {}
+  - service: mqtt.publish
+    metadata: {}
+    data:
+      qos: '0'
+      topic: escaperoom/start
+      payload: '{word:"zes"}'
+  mode: single
+  icon: mdi:eiffel-tower
