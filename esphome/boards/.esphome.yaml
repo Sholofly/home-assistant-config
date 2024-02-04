@@ -9,3 +9,4 @@ name: "${slug}"
 friendly_name: "${name}"
 comment: "${description}"
 build_path: "./.build/${slug}/"
+compile_process_limit: 1

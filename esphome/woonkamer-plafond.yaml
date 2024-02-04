@@ -1,0 +1,9 @@
+substitutions:
+  label: esp08
+  slug: woonkamerplafond
+  name: Woonkamer Plafond
+  description: Switch voor plafond in woonkamer
+  restore_mode: RESTORE_DEFAULT_OFF
+
+packages:
+  device: !include devices/neo_coolcam.yaml

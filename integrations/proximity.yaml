@@ -1,4 +1,0 @@
-################################################
-## Integrations / Proximity
-################################################
-proximity: !include_dir_named ../entities/proximities
