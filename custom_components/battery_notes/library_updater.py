@@ -17,15 +17,20 @@ from homeassistant.core import callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.event import async_track_utc_time_change
 
+from .discovery import DiscoveryManager
+
 from .const import (
     CONF_LIBRARY_URL,
     DOMAIN,
     DATA_LIBRARY_LAST_UPDATE,
+    DOMAIN_CONFIG,
+    CONF_ENABLE_AUTODISCOVERY,
 )
 
 _LOGGER = logging.getLogger(__name__)
 
 BUILT_IN_DATA_DIRECTORY = os.path.join(os.path.dirname(__file__), "data")
+
 
 class LibraryUpdaterClientError(Exception):
     """Exception to indicate a general API error."""
@@ -33,6 +38,7 @@ class LibraryUpdaterClientError(Exception):
 
 class LibraryUpdaterClientCommunicationError(LibraryUpdaterClientError):
     """Exception to indicate a communication error."""
+
 
 class LibraryUpdater:
     """Library updater."""
@@ -44,11 +50,8 @@ class LibraryUpdater:
 
         # Fire the library check every 24 hours from now
         async_track_utc_time_change(
-            hass,
-            self.timer_update,
-            hour = datetime.now().hour,
-            minute = 1,
-            second=1)
+            hass, self.timer_update, hour=datetime.now().hour, minute=1, second=1
+        )
 
     @callback
     async def timer_update(self, time):
@@ -58,8 +61,20 @@ class LibraryUpdater:
 
         await self.get_library_updates(time)
 
+        if DOMAIN_CONFIG not in self.hass.data[DOMAIN]:
+            return
+
+        domain_config: dict = self.hass.data[DOMAIN][DOMAIN_CONFIG]
+
+        if domain_config.get(CONF_ENABLE_AUTODISCOVERY):
+            discovery_manager = DiscoveryManager(self.hass, self.hass.config)
+            await discovery_manager.start_discovery()
+        else:
+            _LOGGER.debug("Auto discovery disabled")
+
     @callback
-    async def get_library_updates(self, time): # pylint: disable=unused-argument
+    async def get_library_updates(self, time):
+        # pylint: disable=unused-argument
         """Make a call to GitHub to get the latest library.json."""
         try:
             _LOGGER.debug("Getting library updates")
@@ -117,6 +132,7 @@ class LibraryUpdater:
         except ValueError:
             return False
         return True
+
 
 class LibraryUpdaterClient:
     """Library downloader."""

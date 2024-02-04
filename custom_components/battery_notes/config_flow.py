@@ -29,6 +29,8 @@ from .library_updater import LibraryUpdater
 from .const import (
     DOMAIN,
     CONF_BATTERY_TYPE,
+    CONF_BATTERY_QUANTITY,
+    CONF_BATTERY_LOW_THRESHOLD,
     CONF_DEVICE_NAME,
     CONF_MANUFACTURER,
     CONF_MODEL,
@@ -38,6 +40,8 @@ from .const import (
 )
 
 _LOGGER = logging.getLogger(__name__)
+
+CONFIG_VERSION = 2
 
 DEVICE_SCHEMA_ALL = vol.Schema(
     {
@@ -76,7 +80,7 @@ DEVICE_SCHEMA = vol.Schema(
 class BatteryNotesFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     """Config flow for BatteryNotes."""
 
-    VERSION = 1
+    VERSION = CONFIG_VERSION
 
     data: dict
 
@@ -120,9 +124,10 @@ class BatteryNotesFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                 DOMAIN in self.hass.data
                 and DATA_LIBRARY_UPDATER in self.hass.data[DOMAIN]
             ):
-                library_updater: LibraryUpdater  = self.hass.data[DOMAIN][DATA_LIBRARY_UPDATER]
+                library_updater: LibraryUpdater = self.hass.data[DOMAIN][
+                    DATA_LIBRARY_UPDATER
+                ]
                 await library_updater.get_library_updates(dt_util.utcnow())
-
 
             device_registry = dr.async_get(self.hass)
             device_entry = device_registry.async_get(device_id)
@@ -133,29 +138,28 @@ class BatteryNotesFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
             library = Library.factory(self.hass)
 
+            # Set defaults if not found in library
+            self.data[CONF_BATTERY_QUANTITY] = 1
+
             device_battery_details = await library.get_device_battery_details(
                 device_entry.manufacturer, device_entry.model
             )
 
-            if (
-                device_battery_details
-                and not  device_battery_details.is_manual
-            ):
+            if device_battery_details and not device_battery_details.is_manual:
                 _LOGGER.debug(
                     "Found device %s %s", device_entry.manufacturer, device_entry.model
                 )
+                self.data[CONF_BATTERY_TYPE] = device_battery_details.battery_type
+
                 self.data[
-                    CONF_BATTERY_TYPE
-                ] = device_battery_details.battery_type_and_quantity
+                    CONF_BATTERY_QUANTITY
+                ] = device_battery_details.battery_quantity
 
             return await self.async_step_battery()
 
         schema = DEVICE_SCHEMA
         # If show_all_devices = is specified and true, don't filter
-        if (
-            DOMAIN in self.hass.data
-            and DOMAIN_CONFIG in self.hass.data[DOMAIN]
-            ):
+        if DOMAIN in self.hass.data and DOMAIN_CONFIG in self.hass.data[DOMAIN]:
             domain_config: dict = self.hass.data[DOMAIN][DOMAIN_CONFIG]
             if domain_config.get(CONF_SHOW_ALL_DEVICES, False):
                 schema = DEVICE_SCHEMA_ALL
@@ -172,6 +176,10 @@ class BatteryNotesFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         errors: dict[str, str] = {}
         if user_input is not None:
             self.data[CONF_BATTERY_TYPE] = user_input[CONF_BATTERY_TYPE]
+            self.data[CONF_BATTERY_QUANTITY] = int(user_input[CONF_BATTERY_QUANTITY])
+            self.data[CONF_BATTERY_LOW_THRESHOLD] = int(
+                user_input[CONF_BATTERY_LOW_THRESHOLD]
+            )
 
             device_id = self.data[CONF_DEVICE_ID]
             unique_id = f"bn_{device_id}"
@@ -204,6 +212,22 @@ class BatteryNotesFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                             type=selector.TextSelectorType.TEXT
                         ),
                     ),
+                    vol.Required(
+                        CONF_BATTERY_QUANTITY,
+                        default=int(self.data.get(CONF_BATTERY_QUANTITY)),
+                    ): selector.NumberSelector(
+                        selector.NumberSelectorConfig(
+                            min=1, max=100, mode=selector.NumberSelectorMode.BOX
+                        ),
+                    ),
+                    vol.Required(
+                        CONF_BATTERY_LOW_THRESHOLD,
+                        default=int(self.data.get(CONF_BATTERY_LOW_THRESHOLD, 0)),
+                    ): selector.NumberSelector(
+                        selector.NumberSelectorConfig(
+                            min=0, max=99, mode=selector.NumberSelectorMode.BOX
+                        ),
+                    ),
                 }
             ),
             errors=errors,
@@ -220,6 +244,7 @@ class OptionsFlowHandler(OptionsFlow):
         self.source_device_id: str = self.current_config.get(CONF_DEVICE_ID)  # type: ignore
         self.name: str = self.current_config.get(CONF_NAME)
         self.battery_type: str = self.current_config.get(CONF_BATTERY_TYPE)
+        self.battery_quantity: int = self.current_config.get(CONF_BATTERY_QUANTITY)
 
     async def async_step_init(
         self,
@@ -231,6 +256,10 @@ class OptionsFlowHandler(OptionsFlow):
 
         schema = self.build_options_schema()
         if user_input is not None:
+            user_input[CONF_BATTERY_QUANTITY] = int(user_input[CONF_BATTERY_QUANTITY])
+            user_input[CONF_BATTERY_LOW_THRESHOLD] = int(
+                user_input[CONF_BATTERY_LOW_THRESHOLD]
+            )
             errors = await self.save_options(user_input, schema)
             if not errors:
                 return self.async_create_entry(title="", data={})
@@ -288,6 +317,16 @@ class OptionsFlowHandler(OptionsFlow):
                 ),
                 vol.Required(CONF_BATTERY_TYPE): selector.TextSelector(
                     selector.TextSelectorConfig(type=selector.TextSelectorType.TEXT),
+                ),
+                vol.Required(CONF_BATTERY_QUANTITY): selector.NumberSelector(
+                    selector.NumberSelectorConfig(
+                        min=1, max=100, mode=selector.NumberSelectorMode.BOX
+                    ),
+                ),
+                vol.Required(CONF_BATTERY_LOW_THRESHOLD): selector.NumberSelector(
+                    selector.NumberSelectorConfig(
+                        min=0, max=99, mode=selector.NumberSelectorMode.BOX
+                    ),
                 ),
             }
         )

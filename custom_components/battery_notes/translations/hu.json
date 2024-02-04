@@ -13,10 +13,12 @@
             },
             "battery": {
                 "data": {
-                    "battery_type": "Elem típus"
+                    "battery_type": "Elem típus",
+                    "battery_quantity": "Az akkumulátor mennyisége",
+                    "battery_low_threshold": "Az akkumulátor alacsony küszöbértéke"
                 },
                 "data_description": {
-                    "battery_type": "Opcionálisan add meg a mennyiséget, ha több, mint 1, pl. 2x AAA"
+                    "battery_low_threshold": "A 0 a globális alapértelmezett küszöböt fogja használni"
                 }
             }
         },
@@ -33,10 +35,13 @@
                 "description": "Ha segítségre van szükséged a konfigurációhoz: https://github.com/andrew-codechimp/ha-battery-notes",
                 "data": {
                     "name": "Név",
-                    "battery_type": "Elem típus"
+                    "battery_type": "Elem típus",
+                    "battery_quantity": "Az akkumulátor mennyisége",
+                    "battery_low_threshold": "Az akkumulátor alacsony küszöbértéke"
                 },
                 "data_description": {
-                    "name": "Üresen hagyva a forrás eszköz neve lesz használva"
+                    "name": "Üresen hagyva a forrás eszköz neve lesz használva",
+                    "battery_low_threshold": "A 0 a globális alapértelmezett küszöböt fogja használni"
                 }
             }
         },
@@ -45,14 +50,55 @@
         }
     },
     "entity": {
+        "binary_sensor": {
+            "battery_low": {
+                "name": "Lemerült elem",
+                "state_attributes": {
+                    "battery_low_threshold": {
+                        "name": "Az akkumulátor alacsony küszöbértéke"
+                    }
+                }
+            }
+        },
         "button": {
             "battery_replaced": {
                 "name": "Elem cserélve"
             }
         },
         "sensor": {
+            "battery_plus": {
+                "name": "Akkumulátor+",
+                "state_attributes": {
+                    "battery_type": {
+                        "name": "Elem típus"
+                    },
+                    "battery_quantity": {
+                        "name": "Az akkumulátor mennyisége"
+                    },
+                    "battery_type_and_quantity": {
+                        "name": "Az akkumulátor típusa és mennyisége"
+                    },
+                    "battery_last_replaced": {
+                        "name": "Utolsó elemcsere"
+                    },
+                    "battery_low": {
+                        "name": "Lemerült elem"
+                    },
+                    "battery_low_threshold": {
+                        "name": "Az akkumulátor alacsony küszöbértéke"
+                    }
+                }
+            },
             "battery_type": {
-                "name": "Elem típus"
+                "name": "Elem típus",
+                "state_attributes": {
+                    "battery_type": {
+                        "name": "Elem típus"
+                    },
+                    "battery_quantity": {
+                        "name": "Az akkumulátor mennyisége"
+                    }
+                }
             },
             "battery_last_replaced": {
                 "name": "Utolsó elemcsere"

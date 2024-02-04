@@ -13,10 +13,12 @@
             },
             "battery": {
                 "data": {
-                    "battery_type": "Battery type"
+                    "battery_type": "Battery type",
+                    "battery_quantity": "Battery quantity",
+                    "battery_low_threshold": "Battery low threshold"
                 },
                 "data_description": {
-                    "battery_type": "Optionally add the battery quantity if more than 1 eg. 2x AAA"
+                    "battery_low_threshold": "0 will use the global default threshold"
                 }
             }
         },
@@ -33,10 +35,13 @@
                 "description": "If you need help with the configuration have a look here: https://github.com/andrew-codechimp/ha-battery-notes",
                 "data": {
                     "name": "Name",
-                    "battery_type": "Battery type"
+                    "battery_type": "Battery type",
+                    "battery_quantity": "Battery quantity",
+                    "battery_low_threshold": "Battery low threshold"
                 },
                 "data_description": {
-                    "name": "Leaving blank will take the name from the source device"
+                    "name": "Leaving blank will take the name from the source device",
+                    "battery_low_threshold": "0 will use the global default threshold"
                 }
             }
         },
@@ -45,14 +50,55 @@
         }
     },
     "entity": {
+        "binary_sensor": {
+            "battery_low": {
+                "name": "Battery low",
+                "state_attributes": {
+                    "battery_low_threshold": {
+                        "name": "Battery low threshold"
+                    }
+                }
+            }
+        },
         "button": {
             "battery_replaced": {
                 "name": "Battery replaced"
             }
         },
         "sensor": {
+            "battery_plus": {
+                "name": "Battery+",
+                "state_attributes": {
+                    "battery_type": {
+                        "name": "Battery type"
+                    },
+                    "battery_quantity": {
+                        "name": "Battery quantity"
+                    },
+                    "battery_type_and_quantity": {
+                        "name": "Battery type and quantity"
+                    },
+                    "battery_last_replaced": {
+                        "name": "Battery last replaced"
+                    },
+                    "battery_low": {
+                        "name": "Battery low"
+                    },
+                    "battery_low_threshold": {
+                        "name": "Battery low threshold"
+                    }
+                }
+            },
             "battery_type": {
-                "name": "Battery type"
+                "name": "Battery type",
+                "state_attributes": {
+                    "battery_type": {
+                        "name": "Battery type"
+                    },
+                    "battery_quantity": {
+                        "name": "Battery quantity"
+                    }
+                }
             },
             "battery_last_replaced": {
                 "name": "Battery last replaced"
