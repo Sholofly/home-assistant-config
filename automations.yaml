@@ -35,8 +35,8 @@
   - service: notify.family
     data:
       title: Morgen is een afvaldag
-      message: 'Opgehaalde afval: {{ states.sensor.afvalinfo_thuis_trash_type_tomorrow.state
-        | lower }}'
+      message: 'Opgehaalde afval: {{ state_translated("sensor.afvalinfo_thuis_trash_type_tomorrow")|
+        lower }}'
   initial_state: true
 - id: '1624693857334'
   alias: Nachtverlichting buiten
@@ -253,59 +253,6 @@
     data: {}
     target:
       entity_id: light.zolder_plafond
-  mode: single
-- id: '1629911279530'
-  alias: Bijkeuken - Licht aan / uit
-  description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - binary_sensor.bijkeuken_bewegingssensor_occupancy
-    to: 'on'
-    id: motion-start
-  - platform: state
-    entity_id: binary_sensor.donker_binnen
-    to: 'on'
-    id: getting-dark
-  - platform: state
-    entity_id:
-    - binary_sensor.bijkeuken_bewegingssensor_occupancy
-    to: 'off'
-    id: motion-end
-  condition: []
-  action:
-  - choose:
-    - conditions:
-      - condition: and
-        conditions:
-        - condition: or
-          conditions:
-          - condition: trigger
-            id: motion-start
-          - condition: trigger
-            id: getting-dark
-        - condition: state
-          entity_id: binary_sensor.donker_buiten
-          state: 'on'
-        - condition: state
-          entity_id: light.bijkeuken_plafond
-          state: 'off'
-      sequence:
-      - service: light.turn_on
-        data: {}
-        target:
-          entity_id: light.bijkeuken_plafond
-    - conditions:
-      - condition: trigger
-        id: motion-end
-      - condition: state
-        entity_id: light.bijkeuken_plafond
-        state: 'on'
-      sequence:
-      - service: light.turn_off
-        data: {}
-        target:
-          entity_id: light.bijkeuken_plafond
   mode: single
 - id: '1631009095968'
   alias: Notificatie ramen zolder open
@@ -666,114 +613,6 @@
         data:
           data:
             tag: washing
-          message: clear_notification
-  mode: single
-- id: '1671803048400'
-  alias: Droger - Status
-  description: Status afhandeling droger
-  trigger:
-  - platform: numeric_state
-    entity_id: sensor.bijkeuken_droger_huidig_wattage
-    for:
-      hours: 0
-      minutes: 1
-      seconds: 0
-    id: 'off'
-    below: 2
-  - platform: numeric_state
-    entity_id: sensor.bijkeuken_droger_huidig_wattage
-    for:
-      hours: 0
-      minutes: 1
-      seconds: 0
-    id: waiting
-    below: 40
-    above: 2
-  - platform: numeric_state
-    entity_id: sensor.bijkeuken_droger_huidig_wattage
-    for:
-      hours: 0
-      minutes: 0
-      seconds: 0
-    id: running
-    above: 40
-  - platform: event
-    event_type: mobile_app_notification_action
-    id: dryer_emptied
-    event_data:
-      action: DRYER_EMPTIED
-  condition: []
-  action:
-  - choose:
-    - conditions:
-      - condition: trigger
-        id: 'off'
-      sequence:
-      - service: input_select.select_option
-        data:
-          option: Uit
-        target:
-          entity_id: input_select.bijkeuken_droger_status
-    - conditions:
-      - condition: trigger
-        id: waiting
-      - condition: state
-        entity_id: input_select.bijkeuken_droger_status
-        state: Bezig
-      sequence:
-      - service: input_select.select_option
-        data:
-          option: Klaar
-        target:
-          entity_id: input_select.bijkeuken_droger_status
-      - service: input_boolean.turn_on
-        data: {}
-        target:
-          entity_id: input_boolean.bijkeuken_droger_legen
-      - service: notify.mobile_app_telefoon_rudolf
-        data:
-          title: De droger is klaar!
-          message: Leegmaken!
-          data:
-            tag: drying
-            persistent: true
-            actions:
-            - action: DRYER_EMPTIED
-              title: Ik heb hem geleegd!
-            notification_icon: mdi:tumble-dryer-alert
-    - conditions:
-      - condition: trigger
-        id: waiting
-      - condition: state
-        entity_id: input_select.bijkeuken_droger_status
-        state: Uit
-      sequence:
-      - service: input_select.select_option
-        data:
-          option: Wachten
-        target:
-          entity_id: input_select.bijkeuken_droger_status
-    - conditions:
-      - condition: trigger
-        id: running
-      sequence:
-      - service: input_select.select_option
-        data:
-          option: Bezig
-        target:
-          entity_id: input_select.bijkeuken_droger_status
-    - conditions:
-      - condition: trigger
-        id: dryer_emptied
-      sequence:
-      - service: input_boolean.turn_off
-        data: {}
-        target:
-          entity_id: input_boolean.bijkeuken_droger_legen
-      - service: notify.mobile_app_telefoon_rudolf
-        data:
-          data:
-            tag: drying
           message: clear_notification
   mode: single
 - id: '1671804817486'
@@ -1152,15 +991,6 @@
       target_entity: light.bijkeuken_plafond
       blocker_entity: binary_sensor.licht_binnen
       no_motion_wait: input_number.bijkeuken_turn_off_light_after
-- id: '1703979319165'
-  alias: Kleine schuur licht
-  description: ''
-  use_blueprint:
-    path: freakshock88/motion_illuminance_activated_entity.yaml
-    input:
-      motion_sensor: binary_sensor.kleine_schuur_bewegingssensor_occupancy
-      target_entity: light.garage_werkbank
-      blocker_entity: binary_sensor.licht_binnen
 - id: '1704015365838'
   alias: Leny kerk
   description: ''
@@ -1185,26 +1015,25 @@
         importance: max
         notification_icon: mdi:church
   mode: single
-- id: '1705261901239'
-  alias: Escaperoom herstarten op commando
+- id: '1707254496023'
+  alias: Droger status
   description: ''
   use_blueprint:
-    path: EPMatt/ikea_e2001_e2002.yaml
+    path: sbyx/notify-or-do-something-when-an-appliance-like-a-dishwasher-or-washing-machine-finishes.yaml
     input:
-      integration: Zigbee2MQTT
-      controller_entity: sensor.noa_bed_e2002_action
-      helper_last_controller_event: input_text.noa_bed_e2002_last_controller_event
-      action_button_up_release: []
-      action_button_up_short:
-      - service: script.turn_on
-        metadata: {}
-        data: {}
+      power_sensor: sensor.bijkeuken_droger_power
+      starting_hysteresis: 1
+      starting_threshold: 20
+      finishing_hysteresis: 10
+      pre_actions:
+      - service: input_select.select_option
         target:
-          entity_id: script.restart_escaperoom
-      action_button_down_short:
-      - service: media_player.play_media
+          entity_id: input_select.bijkeuken_droger_status
         data:
-          media_content_type: video/mp4
-          media_content_id: media-source://media_source/local/security.mp4
+          option: Bezig
+      actions:
+      - service: input_select.select_option
         target:
-          entity_id: media_player.noa_nest_hub
+          entity_id: input_select.bijkeuken_droger_status
+        data:
+          option: Uit
