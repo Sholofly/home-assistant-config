@@ -37,6 +37,10 @@ from homeassistant.helpers.update_coordinator import (
 from homeassistant.helpers.reload import async_setup_reload_service
 from homeassistant.helpers.typing import EventType
 
+from homeassistant.helpers.entity_registry import (
+    EVENT_ENTITY_REGISTRY_UPDATED,
+)
+
 from homeassistant.const import (
     CONF_NAME,
     CONF_DEVICE_ID,
@@ -62,6 +66,10 @@ from .const import (
     ATTR_BATTERY_LAST_REPLACED,
     ATTR_BATTERY_LOW,
     ATTR_BATTERY_LOW_THRESHOLD,
+    ATTR_BATTERY_LAST_REPORTED,
+    ATTR_BATTERY_LAST_REPORTED_LEVEL,
+    ATTR_DEVICE_ID,
+    ATTR_DEVICE_NAME,
 )
 
 from .common import isfloat
@@ -101,10 +109,11 @@ def async_add_to_device(hass: HomeAssistant, entry: ConfigEntry) -> str | None:
     device_registry = dr.async_get(hass)
 
     device_id = entry.data.get(CONF_DEVICE_ID)
-    device_registry.async_update_device(device_id, add_config_entry_id=entry.entry_id)
 
-    return device_id
-
+    if device_registry.async_get(device_id):
+        device_registry.async_update_device(device_id, add_config_entry_id=entry.entry_id)
+        return device_id
+    return None
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -150,6 +159,9 @@ async def async_setup_entry(
     )
 
     device_id = async_add_to_device(hass, config_entry)
+
+    if not device_id:
+        return
 
     device = hass.data[DOMAIN][DATA].devices[config_entry.entry_id]
 
@@ -234,7 +246,6 @@ async def async_setup_platform(
 
     await async_setup_reload_service(hass, DOMAIN, PLATFORMS)
 
-
 class BatteryNotesBatteryPlusSensor(
     SensorEntity, CoordinatorEntity[BatteryNotesCoordinator]
 ):
@@ -277,7 +288,7 @@ class BatteryNotesBatteryPlusSensor(
                 identifiers=device_entry.identifiers,
             )
 
-            self.entity_id = f"sensor.{device_entry.name.lower()}_{description.key}"
+        self.entity_id = f"sensor.{coordinator.device_name.lower()}_{description.key}"
 
         entity_category = (
             device.wrapped_battery.entity_category if device.wrapped_battery else None
@@ -285,26 +296,27 @@ class BatteryNotesBatteryPlusSensor(
 
         self._attr_entity_category = entity_category
         self._attr_unique_id = unique_id
-        self._battery_entity_id = (
-            device.wrapped_battery.entity_id if device.wrapped_battery else None
-        )
 
         self._attr_device_class = SensorDeviceClass.BATTERY
         self._attr_state_class = SensorStateClass.MEASUREMENT
         self._attr_native_unit_of_measurement = PERCENTAGE
 
     @callback
-    def async_state_changed_listener(
+    async def async_state_changed_listener(
         self, event: EventType[EventStateChangedData] | None = None
     ) -> None:
         # pylint: disable=unused-argument
         """Handle child updates."""
 
-        if not self._battery_entity_id:
+        if not self.coordinator.wrapped_battery.entity_id:
             return
 
         if (
-            (wrapped_battery_state := self.hass.states.get(self._battery_entity_id))
+            (
+                wrapped_battery_state := self.hass.states.get(
+                    self.coordinator.wrapped_battery.entity_id
+                )
+            )
             is None
             or wrapped_battery_state.state
             in [
@@ -318,76 +330,134 @@ class BatteryNotesBatteryPlusSensor(
             self.async_write_ha_state()
             return
 
+        self.coordinator.current_battery_level = wrapped_battery_state.state
+
+        await self.coordinator.async_request_refresh()
+
         self._attr_available = True
-
-        if self.round_battery:
-            self._attr_native_value = round(float(wrapped_battery_state.state), 0)
-        else:
-            self._attr_native_value = round(float(wrapped_battery_state.state), 1)
-
+        self._attr_native_value = self.coordinator.rounded_battery_level
         self._wrapped_attributes = wrapped_battery_state.attributes
 
         self.async_write_ha_state()
+
+    async def _register_entity_id_change_listener(
+        self,
+        entity_id: str,
+        source_entity_id: str,
+    ) -> None:
+        """Listen for battery entity_id changes and update battery_plus."""
+
+        @callback
+        async def _entity_rename_listener(event: Event) -> None:
+            """Handle renaming of the entity."""
+            old_entity_id = event.data["old_entity_id"]
+            new_entity_id = event.data[CONF_ENTITY_ID]
+            _LOGGER.debug(
+                "Entity id has been changed, updating battery notes plus entity registry. old_id=%s, new_id=%s",
+                old_entity_id,
+                new_entity_id,
+            )
+
+            entity_registry = er.async_get(self.hass)
+            if (
+                entity_registry.async_get(entity_id) is not None
+            ):
+                entity_registry.async_update_entity_options(
+                    entity_id,
+                    DOMAIN,
+                    {"entity_id": new_entity_id},
+                )
+
+                new_wrapped_battery = entity_registry.async_get(new_entity_id)
+                self.coordinator.wrapped_battery = new_wrapped_battery
+
+                # Create a listener for the newly named battery entity
+                self.async_on_remove(
+                    async_track_state_change_event(
+                        self.hass,
+                        [self.coordinator.wrapped_battery.entity_id],
+                        self.async_state_changed_listener,
+                    )
+                )
+
+        @callback
+        def _filter_entity_id(event: Event) -> bool:
+            """Only dispatch the listener for update events concerning the source entity."""
+            return (
+                event.data["action"] == "update"
+                and "old_entity_id" in event.data
+                and event.data["old_entity_id"] == source_entity_id
+            )
+
+        self.hass.bus.async_listen(
+            EVENT_ENTITY_REGISTRY_UPDATED,
+            _entity_rename_listener,
+            event_filter=_filter_entity_id,
+        )
 
     async def async_added_to_hass(self) -> None:
         """Handle added to Hass."""
 
         @callback
-        def _async_state_changed_listener(
+        async def _async_state_changed_listener(
             event: EventType[EventStateChangedData] | None = None,
         ) -> None:
             """Handle child updates."""
-            self.async_state_changed_listener(event)
+            await self.async_state_changed_listener(event)
 
-        if self._battery_entity_id:
+        if self.coordinator.wrapped_battery.entity_id:
             self.async_on_remove(
                 async_track_state_change_event(
-                    self.hass, [self._battery_entity_id], _async_state_changed_listener
+                    self.hass,
+                    [self.coordinator.wrapped_battery.entity_id],
+                    _async_state_changed_listener,
                 )
             )
 
+        await self._register_entity_id_change_listener(
+            self.entity_id,
+            self.coordinator.wrapped_battery.entity_id,
+        )
+
         # Call once on adding
-        _async_state_changed_listener()
+        await _async_state_changed_listener()
 
         # Update entity options
         registry = er.async_get(self.hass)
-        if registry.async_get(self.entity_id) is not None and self._battery_entity_id:
+        if (
+            registry.async_get(self.entity_id) is not None
+            and self.coordinator.wrapped_battery.entity_id
+        ):
             registry.async_update_entity_options(
                 self.entity_id,
                 DOMAIN,
-                {"entity_id": self._battery_entity_id},
+                {"entity_id": self.coordinator.wrapped_battery.entity_id},
             )
 
-        if not (wrapped_battery := registry.async_get(self._battery_entity_id)):
+        if not self.coordinator.wrapped_battery:
             return
 
         if DOMAIN_CONFIG in self.hass.data[DOMAIN]:
             domain_config: dict = self.hass.data[DOMAIN][DOMAIN_CONFIG]
             hide_battery = domain_config.get(CONF_HIDE_BATTERY, False)
             if hide_battery:
-                if wrapped_battery and not wrapped_battery.hidden:
+                if (
+                    self.coordinator.wrapped_battery
+                    and not self.coordinator.wrapped_battery.hidden
+                ):
                     registry.async_update_entity(
-                        wrapped_battery.entity_id,
+                        self.coordinator.wrapped_battery.entity_id,
                         hidden_by=er.RegistryEntryHider.INTEGRATION,
                     )
             else:
                 if (
-                    wrapped_battery
-                    and wrapped_battery.hidden_by == er.RegistryEntryHider.INTEGRATION
+                    self.coordinator.wrapped_battery
+                    and self.coordinator.wrapped_battery.hidden_by
+                    == er.RegistryEntryHider.INTEGRATION
                 ):
                     registry.async_update_entity(
-                        wrapped_battery.entity_id, hidden_by=None
+                        self.coordinator.wrapped_battery.entity_id, hidden_by=None
                     )
-
-        def copy_custom_name(wrapped_battery: er.RegistryEntry) -> None:
-            """Copy the name set by user from the wrapped entity."""
-            if wrapped_battery.name is None:
-                return
-            registry.async_update_entity(
-                self.entity_id, name=wrapped_battery.name + "+"
-            )
-
-        copy_custom_name(wrapped_battery)
 
         self.async_on_remove(
             self.coordinator.async_add_listener(self._handle_coordinator_update)
@@ -407,16 +477,23 @@ class BatteryNotesBatteryPlusSensor(
     def extra_state_attributes(self) -> dict[str, str] | None:
         """Return the state attributes of the battery type."""
 
+        # Battery related attributes
         attrs = {
             ATTR_BATTERY_QUANTITY: self.coordinator.battery_quantity,
             ATTR_BATTERY_TYPE: self.coordinator.battery_type,
             ATTR_BATTERY_TYPE_AND_QUANTITY: self.coordinator.battery_type_and_quantity,
             ATTR_BATTERY_LOW: self.coordinator.battery_low,
             ATTR_BATTERY_LOW_THRESHOLD: self.coordinator.battery_low_threshold,
+            ATTR_BATTERY_LAST_REPORTED: self.coordinator.last_reported,
+            ATTR_BATTERY_LAST_REPORTED_LEVEL: self.coordinator.last_reported_level,
         }
 
         if self.enable_replaced:
             attrs[ATTR_BATTERY_LAST_REPLACED] = self.coordinator.last_replaced
+
+        # Other attributes that should follow battery, attribute list is unsorted
+        attrs[ATTR_DEVICE_ID] = self.coordinator.device_id
+        attrs[ATTR_DEVICE_NAME] = self.coordinator.device_name
 
         super_attrs = super().extra_state_attributes
         if super_attrs:
@@ -465,7 +542,7 @@ class BatteryNotesTypeSensor(RestoreSensor, SensorEntity):
                 identifiers=device_entry.identifiers,
             )
 
-            self.entity_id = f"sensor.{device_entry.name.lower()}_{description.key}"
+        self.entity_id = f"sensor.{coordinator.device_name.lower()}_{description.key}"
 
         self._battery_type = coordinator.battery_type
         self._battery_quantity = coordinator.battery_quantity
@@ -515,7 +592,6 @@ class BatteryNotesLastReplacedSensor(
 
     _attr_should_poll = False
     entity_description: BatteryNotesSensorEntityDescription
-    _battery_entity_id = None
 
     def __init__(
         self,
@@ -527,13 +603,16 @@ class BatteryNotesLastReplacedSensor(
     ) -> None:
         # pylint: disable=unused-argument
         """Initialize the sensor."""
-        super().__init__(coordinator)
+
         self._attr_device_class = description.device_class
         self._attr_has_entity_name = True
         self._attr_unique_id = unique_id
         self._device_id = coordinator.device_id
         self.entity_description = description
         self._native_value = None
+
+        super().__init__(
+            coordinator=coordinator)
 
         self._set_native_value(log_on_error=False)
 
@@ -547,7 +626,7 @@ class BatteryNotesLastReplacedSensor(
                 identifiers=device_entry.identifiers,
             )
 
-            self.entity_id = f"sensor.{device_entry.name.lower()}_{description.key}"
+            self.entity_id = f"sensor.{coordinator.device_name.lower()}_{description.key}"
 
     async def async_added_to_hass(self) -> None:
         """Handle added to Hass."""
@@ -557,7 +636,7 @@ class BatteryNotesLastReplacedSensor(
         # pylint: disable=unused-argument
         device_entry = self.coordinator.store.async_get_device(self._device_id)
         if device_entry:
-            if LAST_REPLACED in device_entry:
+            if LAST_REPLACED in device_entry and device_entry[LAST_REPLACED] is not None:
                 last_replaced_date = datetime.fromisoformat(
                     str(device_entry[LAST_REPLACED]) + "+00:00"
                 )
@@ -572,7 +651,7 @@ class BatteryNotesLastReplacedSensor(
 
         device_entry = self.coordinator.store.async_get_device(self._device_id)
         if device_entry:
-            if LAST_REPLACED in device_entry:
+            if LAST_REPLACED in device_entry and device_entry[LAST_REPLACED] is not None:
                 last_replaced_date = datetime.fromisoformat(
                     str(device_entry[LAST_REPLACED]) + "+00:00"
                 )

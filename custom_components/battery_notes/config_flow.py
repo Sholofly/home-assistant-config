@@ -23,7 +23,7 @@ from homeassistant.const import (
     CONF_DEVICE_ID,
 )
 
-from .library import Library
+from .library import Library, ModelInfo
 from .library_updater import LibraryUpdater
 
 from .const import (
@@ -37,6 +37,7 @@ from .const import (
     DATA_LIBRARY_UPDATER,
     DOMAIN_CONFIG,
     CONF_SHOW_ALL_DEVICES,
+    CONF_BATTERY_LOW_TEMPLATE,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -50,7 +51,7 @@ DEVICE_SCHEMA_ALL = vol.Schema(
         ),
         vol.Optional(CONF_NAME): selector.TextSelector(
             selector.TextSelectorConfig(type=selector.TextSelectorType.TEXT),
-        ),
+        )
     }
 )
 
@@ -72,7 +73,7 @@ DEVICE_SCHEMA = vol.Schema(
         ),
         vol.Optional(CONF_NAME): selector.TextSelector(
             selector.TextSelectorConfig(type=selector.TextSelectorType.TEXT),
-        ),
+        )
     }
 )
 
@@ -133,8 +134,10 @@ class BatteryNotesFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             device_entry = device_registry.async_get(device_id)
 
             _LOGGER.debug(
-                "Looking up device %s %s", device_entry.manufacturer, device_entry.model
+                "Looking up device %s %s %s", device_entry.manufacturer, device_entry.model, device_entry.hw_version
             )
+
+            model_info = ModelInfo(device_entry.manufacturer, device_entry.model, device_entry.hw_version)
 
             library = Library.factory(self.hass)
 
@@ -142,12 +145,12 @@ class BatteryNotesFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             self.data[CONF_BATTERY_QUANTITY] = 1
 
             device_battery_details = await library.get_device_battery_details(
-                device_entry.manufacturer, device_entry.model
+                model_info
             )
 
             if device_battery_details and not device_battery_details.is_manual:
                 _LOGGER.debug(
-                    "Found device %s %s", device_entry.manufacturer, device_entry.model
+                    "Found device %s %s %s", device_entry.manufacturer, device_entry.model, device_entry.hw_version
                 )
                 self.data[CONF_BATTERY_TYPE] = device_battery_details.battery_type
 
@@ -228,6 +231,7 @@ class BatteryNotesFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                             min=0, max=99, mode=selector.NumberSelectorMode.BOX
                         ),
                     ),
+                    vol.Optional(CONF_BATTERY_LOW_TEMPLATE): selector.TemplateSelector()
                 }
             ),
             errors=errors,
@@ -245,6 +249,7 @@ class OptionsFlowHandler(OptionsFlow):
         self.name: str = self.current_config.get(CONF_NAME)
         self.battery_type: str = self.current_config.get(CONF_BATTERY_TYPE)
         self.battery_quantity: int = self.current_config.get(CONF_BATTERY_QUANTITY)
+        self.battery_low_template: str = self.current_config.get(CONF_BATTERY_LOW_TEMPLATE)
 
     async def async_step_init(
         self,
@@ -328,6 +333,7 @@ class OptionsFlowHandler(OptionsFlow):
                         min=0, max=99, mode=selector.NumberSelectorMode.BOX
                     ),
                 ),
+                vol.Optional(CONF_BATTERY_LOW_TEMPLATE): selector.TemplateSelector()
             }
         )
 

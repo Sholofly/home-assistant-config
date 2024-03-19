@@ -69,10 +69,11 @@ def async_add_to_device(hass: HomeAssistant, entry: ConfigEntry) -> str | None:
     device_registry = dr.async_get(hass)
 
     device_id = entry.data.get(CONF_DEVICE_ID)
-    device_registry.async_update_device(device_id, add_config_entry_id=entry.entry_id)
 
-    return device_id
-
+    if device_registry.async_get(device_id):
+        device_registry.async_update_device(device_id, add_config_entry_id=entry.entry_id)
+        return device_id
+    return None
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -122,6 +123,9 @@ async def async_setup_entry(
     )
 
     device_id = async_add_to_device(hass, config_entry)
+
+    if not device_id:
+        return
 
     enable_replaced = True
     if DOMAIN_CONFIG in hass.data[DOMAIN]:
@@ -174,6 +178,9 @@ class BatteryNotesButton(ButtonEntity):
         device_id: str,
     ) -> None:
         """Create a battery replaced button."""
+
+        super().__init__()
+
         device_registry = dr.async_get(hass)
 
         self.coordinator = coordinator
@@ -188,7 +195,7 @@ class BatteryNotesButton(ButtonEntity):
                 identifiers=device.identifiers,
             )
 
-            self.entity_id = f"button.{device.name.lower()}_{description.key}"
+        self.entity_id = f"button.{coordinator.device_name.lower()}_{description.key}"
 
     async def async_added_to_hass(self) -> None:
         """Handle added to Hass."""

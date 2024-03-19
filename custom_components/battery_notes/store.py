@@ -9,7 +9,6 @@ from datetime import datetime
 
 import attr
 from homeassistant.core import callback, HomeAssistant
-from homeassistant.loader import bind_hass
 from homeassistant.helpers.storage import Store
 
 from .const import (
@@ -31,6 +30,8 @@ class DeviceEntry:
 
     device_id = attr.ib(type=str, default=None)
     battery_last_replaced = attr.ib(type=datetime, default=None)
+    battery_last_reported = attr.ib(type=datetime, default=None)
+    battery_last_reported_level = attr.ib(type=float, default=None)
 
 
 class MigratableStore(Store):
@@ -138,8 +139,6 @@ class BatteryNotesStorage:
         self.async_schedule_save()
         return new
 
-
-@bind_hass
 async def async_get_registry(hass: HomeAssistant) -> BatteryNotesStorage:
     """Return battery notes storage instance."""
     task = hass.data.get(DATA_REGISTRY)
