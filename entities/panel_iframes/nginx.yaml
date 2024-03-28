@@ -1,4 +1,0 @@
-nginx:
-  title: "Nginx Prox Manager"
-  url: "http://homeassistant.local:81/"
-  icon: mdi:arrow-decision
