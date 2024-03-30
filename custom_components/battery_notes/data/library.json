@@ -340,6 +340,11 @@
         },
         {
             "manufacturer": "AEON Labs",
+            "model": "ZW089",
+            "battery_type": "CR2"
+        },
+        {
+            "manufacturer": "AEON Labs",
             "model": "ZW100",
             "battery_type": "CR123A",
             "battery_quantity": 2
@@ -798,6 +803,12 @@
             "model": "AUG-SL05-M01-S01",
             "battery_type": "CR123A",
             "battery_quantity": 2
+        },
+        {
+            "manufacturer": "August Home Inc.",
+            "model": "MD-01",
+            "battery_type": "AA",
+            "battery_quantity": 4
         },
         {
             "manufacturer": "AVATTO",
@@ -2034,6 +2045,11 @@
         {
             "manufacturer": "IKEA of Sweden",
             "model": "FYRTUR block-out roller blind",
+            "battery_type": "BRAUNIT Battery pack"
+        },
+        {
+            "manufacturer": "IKEA of Sweden",
+            "model": "KADRILJ roller blind",
             "battery_type": "BRAUNIT Battery pack"
         },
         {
