@@ -1,4 +1,0 @@
-################################################
-## Integrations / Panel Iframe
-################################################
-panel_iframe: !include_dir_merge_named ../entities/panel_iframes
