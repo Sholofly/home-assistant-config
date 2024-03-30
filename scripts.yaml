@@ -1,23 +1,3 @@
-noa_magic_cube_random_effect:
-  alias: Noa Magic cube - Random effect
-  sequence:
-  - service: light.turn_on
-    target:
-      entity_id: light.noa_bed
-    data:
-      effect: '{{ state_attr(''light.noa_bed'', ''effect_list'') | random }}'
-  mode: queued
-noa_magic_cube_random_palette:
-  alias: Noa Magic cube - Random palette
-  sequence:
-  - service: light.turn_on
-    target:
-      entity_id: light.noa_bed
-    data:
-      effect: '{{ state_attr(''select.wled_noa_color_palette'', ''options'') | random
-        }}'
-  mode: queued
-  max: 10
 play_radio:
   alias: Play Radio
   variables:
@@ -32,38 +12,35 @@ play_radio:
       entity_id: '{{ media_player }}'
   mode: single
   icon: mdi:radio
-restart_escaperoom:
-  alias: Restart escaperoom
+deurbel:
+  alias: Deurbel
+  icon: mdi:doorbell
+  mode: restart
   sequence:
-  - service: tts.cloud_say
-    data:
-      options:
-        voice: FennaNeural
-      entity_id: media_player.noa_nest_hub
-      message: Pak nu pen en papier en houd je blik op de toren. Dan heb je met stip
-        een streepje voor. Druk nog een keer op de knop om het seinen opnieuw te starten.
-  - service: button.press
-    data: {}
-    target:
-      entity_id: button.escaperoom_restart
-  - wait_for_trigger:
-    - platform: state
-      entity_id:
-      - binary_sensor.escaperoom_ready
-      to: 'on'
-      for:
-        hours: 0
-        minutes: 0
-        seconds: 5
-  - service: media_player.turn_off
-    target:
-      entity_id: media_player.noa_nest_hub
-    data: {}
-  - service: mqtt.publish
+  - service: camera.snapshot
     metadata: {}
     data:
-      qos: '0'
-      topic: escaperoom/start
-      payload: '{word:"zes"}'
-  mode: single
-  icon: mdi:eiffel-tower
+      filename: /media/snapshots/snapshot_driveway.jpg
+    target:
+      entity_id: camera.driveway_driveway
+  - alias: Verstuur melding naar alle home assistant apps die thuis zijn
+    repeat:
+      for_each: "{{\n  expand(state_attr('zone.home', 'persons'))\n    | map(attribute='attributes.source')\n
+        \   | map('replace', 'device_tracker.', 'notify.mobile_app_')\n    | list\n}}
+        \n"
+      sequence:
+      - alias: Send doorbell notification
+        service: '{{ repeat.item }}'
+        data:
+          title: Ding dong!
+          message: De deurbel gaat
+          data:
+            channel: deurbel
+            notification_icon: mdi:doorbell-video
+            priority: high
+            tag: deurbel
+            timeout: 60
+            ttl: 0
+            visibility: public
+            clickAction: /mobile-dashboard/deurbel
+            image: /media/local/snapshots/snapshot_driveway.jpg?ts={{now().timestamp()}}
