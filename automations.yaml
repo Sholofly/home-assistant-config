@@ -118,7 +118,7 @@
   - platform: time
     at: 09:00:00
   condition:
-    condition: and
+  - condition: and
     conditions:
     - condition: numeric_state
       entity_id: sensor.dagen_tot_ophalen_takken
@@ -130,7 +130,7 @@
   - service: notify.family
     data_template:
       title: Takken worden binnenkort opghaald
-      message: 'Ophaaldatum: {{ states.sensor.takken.state }}'
+      message: 'Ophaaldatum: {{ states.sensor.afvalinfo_thuis_takken}}'
   initial_state: true
 - id: '1629894664286'
   alias: Achtertuinverlichting aan
@@ -394,7 +394,7 @@
     input:
       notification_message: Er staat iemand voor de deur
       motion_sensor: binary_sensor.gang_bel_button
-      camera: camera.driveway_driveway
+      camera: camera.voortuin
       notify_device: cab54cb03386ab643e7e865f489aa12b
       delay: 0
       notification_title: Er wordt aangebeld

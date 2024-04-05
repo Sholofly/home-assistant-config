@@ -22,7 +22,7 @@ deurbel:
     data:
       filename: /media/snapshots/snapshot_driveway.jpg
     target:
-      entity_id: camera.driveway_driveway
+      entity_id: camera.voortuin
   - alias: Verstuur melding naar alle home assistant apps die thuis zijn
     repeat:
       for_each: "{{\n  expand(state_attr('zone.home', 'persons'))\n    | map(attribute='attributes.source')\n
