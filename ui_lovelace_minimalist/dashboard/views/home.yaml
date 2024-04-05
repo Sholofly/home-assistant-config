@@ -39,7 +39,7 @@ cards:
         variables:
           ulm_card_person_entity: person.rudolf
           ulm_card_person_use_entity_picture: true
-          ulm_card_person_zone1: zone.netivity
+          ulm_card_person_zone1: zone.optimizers
           ulm_card_person_zone2: zone.moeders
           ulm_multiline: true
           ulm_card_person_commute_entity: sensor.reistijd_naar_huis_rudolf

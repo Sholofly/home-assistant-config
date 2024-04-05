@@ -37,3 +37,5 @@ node-red
 .shopping_list.json
 www/tmp/
 watchman_report.txt
+go2rtc.yaml
+go2rtc-1.8.5

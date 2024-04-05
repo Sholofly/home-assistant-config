@@ -39,15 +39,6 @@ cards:
     cards:
       - type: "custom:button-card"
         template: card_light
-        entity: light.noa_bed
-        variables:
-          ulm_card_light_name: "Bed"
-          ulm_card_light_enable_slider: true
-          ulm_card_light_enable_color: true
-          ulm_card_light_force_background_color: true
-          ulm_card_light_enable_collapse: true
-      - type: "custom:button-card"
-        template: card_light
         entity: light.noa_plafond
         variables:
           ulm_card_light_name: "Plafond"
