@@ -4,15 +4,14 @@ import json
 from logging import Logger, getLogger
 from pathlib import Path
 from typing import Final
+
 import voluptuous as vol
-
 from homeassistant.const import Platform
-
 from homeassistant.helpers import config_validation as cv
 
 LOGGER: Logger = getLogger(__package__)
 
-MIN_HA_VERSION = "2023.11"
+MIN_HA_VERSION = "2024.5"
 
 manifestfile = Path(__file__).parent / "manifest.json"
 with open(file=manifestfile, encoding="UTF-8") as json_file:
@@ -32,6 +31,7 @@ DOMAIN_CONFIG = "config"
 DEFAULT_BATTERY_LOW_THRESHOLD = 10
 DEFAULT_BATTERY_INCREASE_THRESHOLD = 25
 
+CONF_SOURCE_ENTITY_ID = "source_entity_id"
 CONF_BATTERY_TYPE = "battery_type"
 CONF_BATTERY_QUANTITY = "battery_quantity"
 CONF_BATTERY_LOW_THRESHOLD = "battery_low_threshold"
@@ -39,6 +39,7 @@ CONF_SENSORS = "sensors"
 CONF_ENABLE_AUTODISCOVERY = "enable_autodiscovery"
 CONF_USER_LIBRARY = "user_library"
 CONF_MODEL = "model"
+CONF_MODEL_ID = "model_id"
 CONF_MANUFACTURER = "manufacturer"
 CONF_DEVICE_NAME = "device_name"
 CONF_LIBRARY_URL = "https://raw.githubusercontent.com/andrew-codechimp/HA-Battery-Notes/main/custom_components/battery_notes/data/library.json"  # pylint: disable=line-too-long
@@ -72,6 +73,7 @@ EVENT_BATTERY_INCREASED = "battery_notes_battery_increased"
 EVENT_BATTERY_NOT_REPORTED = "battery_notes_battery_not_reported"
 
 ATTR_DEVICE_ID = "device_id"
+ATTR_SOURCE_ENTITY_ID = "source_entity_id"
 ATTR_REMOVE = "remove"
 ATTR_BATTERY_QUANTITY = "battery_quantity"
 ATTR_BATTERY_TYPE = "battery_type"
@@ -89,7 +91,8 @@ ATTR_BATTERY_THRESHOLD_REMINDER = "reminder"
 
 SERVICE_BATTERY_REPLACED_SCHEMA = vol.Schema(
     {
-        vol.Required(ATTR_DEVICE_ID): cv.string,
+        vol.Optional(ATTR_DEVICE_ID): cv.string,
+        vol.Optional(ATTR_SOURCE_ENTITY_ID): cv.string,
         vol.Optional(SERVICE_DATA_DATE_TIME_REPLACED): cv.datetime,
     }
 )

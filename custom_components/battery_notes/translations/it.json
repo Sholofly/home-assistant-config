@@ -4,6 +4,16 @@
             "user": {
                 "description": "Se hai bisogno di aiuto per la configurazione, dai un'occhiata qui: https://andrew-codechimp.github.io/HA-Battery-Notes/",
                 "data": {
+                    "association_type": "Association type"
+                },
+                "menu_options": {
+                    "device": "Device (recommended)",
+                    "entity": "Entità"
+                },
+                "title": "Choose your association type"
+            },
+            "device": {
+                "data": {
                     "device_id": "Dispositivo",
                     "name": "Nome"
                 },
@@ -11,7 +21,17 @@
                     "name": "Lasciando vuoto prenderà il nome dal dispositivo di origine"
                 }
             },
+            "entity": {
+                "data": {
+                    "source_entity_id": "Entità",
+                    "name": "Nome"
+                },
+                "data_description": {
+                    "name": "Leaving blank will take the name from the source entity"
+                }
+            },
             "battery": {
+                "description": "Manufacturer: {manufacturer}\nModel: {model}\nModel ID: {model_id}\nHardware version: {hw_version}\n",
                 "data": {
                     "battery_type": "Tipo di batteria",
                     "battery_quantity": "Quantità batteria",
@@ -22,19 +42,24 @@
                     "battery_low_threshold": "0 utilizzerà la soglia globale predefinita",
                     "battery_low_template": "Modello per determinare se una batteria è scarica, dovrebbe restituire vero se scarica. \nNecessario solo per livelli di batteria non standard"
                 }
+            },
+            "manual": {
+                "description": "This device is marked in the library as manual, variants use different battery types so it cannot be set in the library.\nThe next step will allow you to set your battery type but please do not submit a device request.",
+                "title": "Device manual configuration"
             }
         },
         "abort": {
             "already_configured": "Il dispositivo è già configurato"
         },
         "error": {
-            "unknown": "Errore sconosciuto."
+            "unknown": "Errore sconosciuto.",
+            "unconfigurable_entity": "It is not possible to add this entity to Battery Notes."
         }
     },
     "options": {
         "step": {
             "init": {
-                "description": "Se hai bisogno di aiuto per la configurazione, dai un'occhiata qui: https://andrew-codechimp.github.io/HA-Battery-Notes/",
+                "description": "Manufacturer: {manufacturer}\nModel: {model}\nModel ID: {model_id}\nHardware version: {hw_version}\n",
                 "data": {
                     "name": "Nome",
                     "battery_type": "Tipo di batteria",
@@ -56,7 +81,7 @@
     "entity": {
         "binary_sensor": {
             "battery_low": {
-                "name": "Batteria bassa",
+                "name": "{device_name}Batteria bassa",
                 "state_attributes": {
                     "battery_low_threshold": {
                         "name": "Livello batteria bassa"
@@ -66,12 +91,12 @@
         },
         "button": {
             "battery_replaced": {
-                "name": "Batteria sostituita"
+                "name": "{device_name}Batteria sostituita"
             }
         },
         "sensor": {
             "battery_plus": {
-                "name": "Batteria+",
+                "name": "{device_name}Batteria+",
                 "state_attributes": {
                     "battery_type": {
                         "name": "Tipo di batteria"
@@ -97,6 +122,9 @@
                     "battery_last_reported_level": {
                         "name": "Ultimo livello di batteria segnalato"
                     },
+                    "source_entity_id": {
+                        "name": "Source Entity Id"
+                    },
                     "device_id": {
                         "name": "ID dispositivo"
                     },
@@ -106,7 +134,7 @@
                 }
             },
             "battery_type": {
-                "name": "Tipo di batteria",
+                "name": "{device_name}Tipo di batteria",
                 "state_attributes": {
                     "battery_type": {
                         "name": "Tipo di batteria"
@@ -117,7 +145,7 @@
                 }
             },
             "battery_last_replaced": {
-                "name": "Ultima sostituzione della batteria"
+                "name": "{device_name}Ultima sostituzione della batteria"
             }
         }
     },
@@ -128,6 +156,10 @@
                 "device_id": {
                     "description": "Dispositivo che ha avuto la batteria sostituita.",
                     "name": "Dispositivo"
+                },
+                "entity_id": {
+                    "description": "Entity that has had its battery replaced.",
+                    "name": "Entità"
                 },
                 "datetime_replaced": {
                     "description": "Data di sostituzione",

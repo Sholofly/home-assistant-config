@@ -4,6 +4,16 @@
             "user": {
                 "description": "Ha segítségre van szükséged a konfigurációhoz: https://andrew-codechimp.github.io/HA-Battery-Notes/",
                 "data": {
+                    "association_type": "Association type"
+                },
+                "menu_options": {
+                    "device": "Device (recommended)",
+                    "entity": "Entity"
+                },
+                "title": "Choose your association type"
+            },
+            "device": {
+                "data": {
                     "device_id": "Eszköz",
                     "name": "Név"
                 },
@@ -11,7 +21,17 @@
                     "name": "Üresen hagyva a forrás eszköz neve lesz használva"
                 }
             },
+            "entity": {
+                "data": {
+                    "source_entity_id": "Entity",
+                    "name": "Név"
+                },
+                "data_description": {
+                    "name": "Leaving blank will take the name from the source entity"
+                }
+            },
             "battery": {
+                "description": "Manufacturer: {manufacturer}\nModel: {model}\nModel ID: {model_id}\nHardware version: {hw_version}\n",
                 "data": {
                     "battery_type": "Elem típus",
                     "battery_quantity": "Az akkumulátor mennyisége",
@@ -22,19 +42,24 @@
                     "battery_low_threshold": "A 0 a globális alapértelmezett küszöböt fogja használni",
                     "battery_low_template": "Template to determine a battery is low, should return true if low\nOnly needed for non-standard battery levels"
                 }
+            },
+            "manual": {
+                "description": "This device is marked in the library as manual, variants use different battery types so it cannot be set in the library.\nThe next step will allow you to set your battery type but please do not submit a device request.",
+                "title": "Device manual configuration"
             }
         },
         "abort": {
             "already_configured": "Eszköz már konfigurálva van"
         },
         "error": {
-            "unknown": "Ismeretlen hiba lépett fel."
+            "unknown": "Ismeretlen hiba lépett fel.",
+            "unconfigurable_entity": "It is not possible to add this entity to Battery Notes."
         }
     },
     "options": {
         "step": {
             "init": {
-                "description": "Ha segítségre van szükséged a konfigurációhoz: https://andrew-codechimp.github.io/HA-Battery-Notes/",
+                "description": "Manufacturer: {manufacturer}\nModel: {model}\nModel ID: {model_id}\nHardware version: {hw_version}\n",
                 "data": {
                     "name": "Név",
                     "battery_type": "Elem típus",
@@ -56,7 +81,7 @@
     "entity": {
         "binary_sensor": {
             "battery_low": {
-                "name": "Lemerült elem",
+                "name": "{device_name}Lemerült elem",
                 "state_attributes": {
                     "battery_low_threshold": {
                         "name": "Az akkumulátor alacsony küszöbértéke"
@@ -66,12 +91,12 @@
         },
         "button": {
             "battery_replaced": {
-                "name": "Elem cserélve"
+                "name": "{device_name}Elem cserélve"
             }
         },
         "sensor": {
             "battery_plus": {
-                "name": "Akkumulátor+",
+                "name": "{device_name}Akkumulátor+",
                 "state_attributes": {
                     "battery_type": {
                         "name": "Elem típus"
@@ -97,6 +122,9 @@
                     "battery_last_reported_level": {
                         "name": "Az akkumulátor utoljára jelentett szintje"
                     },
+                    "source_entity_id": {
+                        "name": "Source Entity Id"
+                    },
                     "device_id": {
                         "name": "Device Id"
                     },
@@ -106,7 +134,7 @@
                 }
             },
             "battery_type": {
-                "name": "Elem típus",
+                "name": "{device_name}Elem típus",
                 "state_attributes": {
                     "battery_type": {
                         "name": "Elem típus"
@@ -117,7 +145,7 @@
                 }
             },
             "battery_last_replaced": {
-                "name": "Utolsó elemcsere"
+                "name": "{device_name}Utolsó elemcsere"
             }
         }
     },
@@ -128,6 +156,10 @@
                 "device_id": {
                     "description": "Az eszköz eleme cserélve lett.",
                     "name": "Eszköz"
+                },
+                "entity_id": {
+                    "description": "Entity that has had its battery replaced.",
+                    "name": "Entity"
                 },
                 "datetime_replaced": {
                     "description": "Csere dátuma.",

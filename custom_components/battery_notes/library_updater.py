@@ -2,31 +2,29 @@
 
 from __future__ import annotations
 
-import logging
 import asyncio
-import socket
 import json
+import logging
 import os
+import socket
 from datetime import datetime, timedelta
+from typing import Any
 
 import aiohttp
 import async_timeout
-
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import ConfigEntryNotReady
-
-from homeassistant.core import callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.event import async_track_utc_time_change
 
-from .discovery import DiscoveryManager
-
 from .const import (
-    CONF_LIBRARY_URL,
-    DOMAIN,
-    DATA_LIBRARY_LAST_UPDATE,
-    DOMAIN_CONFIG,
     CONF_ENABLE_AUTODISCOVERY,
+    CONF_LIBRARY_URL,
+    DATA_LIBRARY_LAST_UPDATE,
+    DOMAIN,
+    DOMAIN_CONFIG,
 )
+from .discovery import DiscoveryManager
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -44,7 +42,7 @@ class LibraryUpdaterClientCommunicationError(LibraryUpdaterClientError):
 class LibraryUpdater:
     """Library updater."""
 
-    def __init__(self, hass):
+    def __init__(self, hass: HomeAssistant):
         """Initialize the library updater."""
         self.hass = hass
         self._client = LibraryUpdaterClient(session=async_get_clientsession(hass))
@@ -77,6 +75,12 @@ class LibraryUpdater:
     async def get_library_updates(self, time):
         # pylint: disable=unused-argument
         """Make a call to GitHub to get the latest library.json."""
+
+        def _update_library_json(library_file: str, content: str) -> dict[str, Any]:
+            with open(library_file, mode="w", encoding="utf-8") as file:
+                file.write(content)
+                file.close()
+
         try:
             _LOGGER.debug("Getting library updates")
 
@@ -88,9 +92,9 @@ class LibraryUpdater:
                     "library.json",
                 )
 
-                with open(json_path, "w", encoding="utf-8") as file:
-                    file.write(content)
-                    file.close()
+                await self.hass.async_add_executor_job(
+                    _update_library_json, json_path, content
+                )
 
                 self.hass.data[DOMAIN][DATA_LIBRARY_LAST_UPDATE] = datetime.now()
 
@@ -100,7 +104,8 @@ class LibraryUpdater:
 
         except LibraryUpdaterClientError:
             _LOGGER.warning(
-                "Unable to update library, this could be a GitHub or internet connectivity issue, will retry later."
+                "Unable to update library, this could be a GitHub or internet "
+                "connectivity issue, will retry later."
             )
 
     async def time_to_update_library(self) -> bool:

@@ -4,6 +4,16 @@
             "user": {
                 "description": "Ak potrebujete pomoc s konfiguráciou, pozrite sa sem: https://andrew-codechimp.github.io/HA-Battery-Notes/",
                 "data": {
+                    "association_type": "Typ asociácie"
+                },
+                "menu_options": {
+                    "device": "Zariadenie (odporúčané)",
+                    "entity": "Entita"
+                },
+                "title": "Vyberte typ asociácie"
+            },
+            "device": {
+                "data": {
                     "device_id": "Zariadenie",
                     "name": "Názov"
                 },
@@ -11,41 +21,56 @@
                     "name": "Ak ponecháte prázdne, názov sa prevezme zo zdrojového zariadenia"
                 }
             },
+            "entity": {
+                "data": {
+                    "source_entity_id": "Entita",
+                    "name": "Názov"
+                },
+                "data_description": {
+                    "name": "Ak ponecháte prázdne, názov sa prevezme zo zdrojovej entity"
+                }
+            },
             "battery": {
+                "description": "Manufacturer: {manufacturer}\nModel: {model}\nModel ID: {model_id}\nHardware version: {hw_version}\n",
                 "data": {
                     "battery_type": "Typ batérie",
                     "battery_quantity": "Množstvo batérie",
                     "battery_low_threshold": "Nízky prah batérie",
-                    "battery_low_template": "Battery low template"
+                    "battery_low_template": "Šablóna slabej batérie"
                 },
                 "data_description": {
                     "battery_low_threshold": "0 použije globálny predvolený prah",
-                    "battery_low_template": "Template to determine a battery is low, should return true if low\nOnly needed for non-standard battery levels"
+                    "battery_low_template": "Šablóna na určenie nízkej úrovne batérie by mala vrátiť hodnotu Pravda, ak je nízke\nPotrebné iba pri neštandardných úrovniach batérie"
                 }
+            },
+            "manual": {
+                "description": "This device is marked in the library as manual, variants use different battery types so it cannot be set in the library.\nThe next step will allow you to set your battery type but please do not submit a device request.",
+                "title": "Device manual configuration"
             }
         },
         "abort": {
             "already_configured": "Zariadenie je už nakonfigurované"
         },
         "error": {
-            "unknown": "Vyskytla sa neznáma chyba."
+            "unknown": "Vyskytla sa neznáma chyba.",
+            "unconfigurable_entity": "It is not possible to add this entity to Battery Notes."
         }
     },
     "options": {
         "step": {
             "init": {
-                "description": "Ak potrebujete pomoc s konfiguráciou, pozrite sa sem: https://andrew-codechimp.github.io/HA-Battery-Notes/",
+                "description": "Manufacturer: {manufacturer}\nModel: {model}\nModel ID: {model_id}\nHardware version: {hw_version}\n",
                 "data": {
                     "name": "Názov",
                     "battery_type": "Typ batérie",
                     "battery_quantity": "Množstvo batérie",
                     "battery_low_threshold": "Nízky prah batérie",
-                    "battery_low_template": "Battery low template"
+                    "battery_low_template": "Šablóna slabej batérie"
                 },
                 "data_description": {
                     "name": "Ak ponecháte prázdne, názov sa prevezme zo zdrojového zariadenia",
                     "battery_low_threshold": "0 použije globálny predvolený prah",
-                    "battery_low_template": "Template to determine a battery is low, should return true if low\nOnly needed for non-standard battery levels"
+                    "battery_low_template": "Šablóna na určenie nízkej úrovne batérie by mala vrátiť hodnotu true, ak je nízka\nPotrebné iba pri neštandardných úrovniach batérie"
                 }
             }
         },
@@ -56,7 +81,7 @@
     "entity": {
         "binary_sensor": {
             "battery_low": {
-                "name": "Slabá batéria",
+                "name": "{device_name}Slabá batéria",
                 "state_attributes": {
                     "battery_low_threshold": {
                         "name": "Nízky prah batérie"
@@ -66,12 +91,12 @@
         },
         "button": {
             "battery_replaced": {
-                "name": "Batéria vymenená"
+                "name": "{device_name}Batéria vymenená"
             }
         },
         "sensor": {
             "battery_plus": {
-                "name": "Batéria+",
+                "name": "{device_name}Batéria+",
                 "state_attributes": {
                     "battery_type": {
                         "name": "Typ batérie"
@@ -97,16 +122,19 @@
                     "battery_last_reported_level": {
                         "name": "Posledná nahlásená úroveň batérie"
                     },
+                    "source_entity_id": {
+                        "name": "Id_ zdroja_entity"
+                    },
                     "device_id": {
-                        "name": "Device Id"
+                        "name": "ID zariadenia"
                     },
                     "device_name": {
-                        "name": "Device name"
+                        "name": "Názov zariadenia"
                     }
                 }
             },
             "battery_type": {
-                "name": "Typ batérie",
+                "name": "{device_name}Typ batérie",
                 "state_attributes": {
                     "battery_type": {
                         "name": "Typ batérie"
@@ -117,7 +145,7 @@
                 }
             },
             "battery_last_replaced": {
-                "name": "Batéria naposledy vymenená"
+                "name": "{device_name}Batéria naposledy vymenená"
             }
         }
     },
@@ -129,6 +157,10 @@
                     "description": "Zariadenie, v ktorom bola vymenená batéria.",
                     "name": "Zariadenie"
                 },
+                "entity_id": {
+                    "description": "Entita, ktorej bola vymenená batéria.",
+                    "name": "Entita"
+                },
                 "datetime_replaced": {
                     "description": "Dátum nahradený.",
                     "name": "Dátum"
@@ -137,18 +169,18 @@
             "name": "Sada vymenená batéria"
         },
         "check_battery_last_reported": {
-            "description": "Raise events for devices that haven't reported their battery level.",
+            "description": "Vyvolajte udalosti pre zariadenia, ktoré nenahlásili úroveň batérie.",
             "fields": {
                 "days_last_reported": {
-                    "description": "Number of days since a device last reported its battery level.",
+                    "description": "Počet dní, odkedy zariadenie naposledy nahlásilo úroveň nabitia batérie.",
                     "name": "Dni"
                 }
             },
-            "name": "Check battery last reported"
+            "name": "Batéria bola naposledy nahlásená"
         },
         "check_battery_low": {
-            "description": "Raise events for devices that have a low battery.",
-            "name": "Check battery low"
+            "description": "Vyvolajte udalosti pre zariadenia, ktoré nahlásili nízku úroveň batérie.",
+            "name": "Skontrolovať stav vybitia batérie"
         }
     }
 }

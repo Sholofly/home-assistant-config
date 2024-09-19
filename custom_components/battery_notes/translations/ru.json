@@ -4,6 +4,16 @@
             "user": {
                 "description": "Если вам нужна помощь с настройкой, посмотрите здесь: https://andrew-codechimp.github.io/HA-Battery-Notes/",
                 "data": {
+                    "association_type": "Тип связи"
+                },
+                "menu_options": {
+                    "device": "Устройство (рекомендуется)",
+                    "entity": "Объект"
+                },
+                "title": "Выберите тип связи"
+            },
+            "device": {
+                "data": {
                     "device_id": "Устройство",
                     "name": "Название"
                 },
@@ -11,7 +21,17 @@
                     "name": "Если оставить пустым, то название будет взято с исходного устройства"
                 }
             },
+            "entity": {
+                "data": {
+                    "source_entity_id": "Объект",
+                    "name": "Название"
+                },
+                "data_description": {
+                    "name": "Если оставить пустым, то название будет взято с исходного устройства"
+                }
+            },
             "battery": {
+                "description": "Производитель: {manufacturer}\nМодель: {model}\nID модели: {model_id}\nРевизия: {hw_version}\n",
                 "data": {
                     "battery_type": "Тип батареи",
                     "battery_quantity": "Количество батарей",
@@ -22,19 +42,24 @@
                     "battery_low_threshold": "0 будет использовать общий порог по умолчанию",
                     "battery_low_template": "Шаблон низкого заряда батареи. В случае низкого заряда должен возвращать true.\nТребуется только для нестандартных уровней заряда батареи."
                 }
+            },
+            "manual": {
+                "description": "Это устройство помечено в библиотеке для настройки вручную, в разных версиях используются различные типы батарей, поэтому оно не может быть настроено автоматически.\nСледующий шаг позволит вам настроить тип батареи. Пожалуйста, не отправляйте запросы на добавление настроек устройства в библиотеку.",
+                "title": "Ручная настройка устройства"
             }
         },
         "abort": {
             "already_configured": "Устройство уже настроено"
         },
         "error": {
-            "unknown": "Произошла неизвестная ошибка."
+            "unknown": "Произошла неизвестная ошибка.",
+            "unconfigurable_entity": "Невозможно добавить этот элемент в Battery Notes."
         }
     },
     "options": {
         "step": {
             "init": {
-                "description": "Если вам нужна помощь с настройкой, посмотрите здесь: https://andrew-codechimp.github.io/HA-Battery-Notes/",
+                "description": "Производитель: {manufacturer}\nМодель: {model}\nID модели: {model_id}\nРевизия: {hw_version}\n",
                 "data": {
                     "name": "Название",
                     "battery_type": "Тип батареи",
@@ -56,7 +81,7 @@
     "entity": {
         "binary_sensor": {
             "battery_low": {
-                "name": "Низкий заряд батареи",
+                "name": "{device_name}Низкий заряд батареи",
                 "state_attributes": {
                     "battery_low_threshold": {
                         "name": "Порог низкого заряда батареи"
@@ -66,12 +91,12 @@
         },
         "button": {
             "battery_replaced": {
-                "name": "Батарея заменена"
+                "name": "{device_name}Батарея заменена"
             }
         },
         "sensor": {
             "battery_plus": {
-                "name": "Батарея+",
+                "name": "{device_name}Батарея+",
                 "state_attributes": {
                     "battery_type": {
                         "name": "Тип батареи"
@@ -97,6 +122,9 @@
                     "battery_last_reported_level": {
                         "name": "Последний уровень заряда батареи"
                     },
+                    "source_entity_id": {
+                        "name": "ID исходного объекта"
+                    },
                     "device_id": {
                         "name": "Id устройства"
                     },
@@ -106,7 +134,7 @@
                 }
             },
             "battery_type": {
-                "name": "Тип батареи",
+                "name": "{device_name}Тип батареи",
                 "state_attributes": {
                     "battery_type": {
                         "name": "Тип батареи"
@@ -117,7 +145,7 @@
                 }
             },
             "battery_last_replaced": {
-                "name": "Последняя замена батареи"
+                "name": "{device_name}Последняя замена батареи"
             }
         }
     },
@@ -128,6 +156,10 @@
                 "device_id": {
                     "description": "Устройство, в котором была заменена батарея.",
                     "name": "Устройство"
+                },
+                "entity_id": {
+                    "description": "Объект, в котором была заменена батарея.",
+                    "name": "Объект"
                 },
                 "datetime_replaced": {
                     "description": "Дата замены.",

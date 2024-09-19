@@ -1,4 +1,5 @@
-"""Entities for battery_notes."""
+"""Entity for battery_notes."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

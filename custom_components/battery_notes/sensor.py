@@ -1,83 +1,83 @@
 """Sensor platform for battery_notes."""
+
 from __future__ import annotations
 
-from collections.abc import Mapping
 import logging
-from datetime import datetime
+from collections.abc import Mapping
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Any
-import voluptuous as vol
 
+import voluptuous as vol
 from homeassistant.components.sensor import (
     PLATFORM_SCHEMA,
+    RestoreSensor,
     SensorDeviceClass,
-    SensorStateClass,
     SensorEntity,
     SensorEntityDescription,
-    RestoreSensor,
+    SensorStateClass,
 )
-
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_ENTITY_ID
-from homeassistant.core import HomeAssistant, callback, Event
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.const import (
+    CONF_DEVICE_ID,
+    CONF_NAME,
+    PERCENTAGE,
+    STATE_UNAVAILABLE,
+    STATE_UNKNOWN,
+)
+from homeassistant.core import Event, HomeAssistant, callback, split_entity_id
 from homeassistant.helpers import (
     config_validation as cv,
+)
+from homeassistant.helpers import (
     device_registry as dr,
+)
+from homeassistant.helpers import (
     entity_registry as er,
 )
-from homeassistant.helpers.typing import StateType
 from homeassistant.helpers.entity import DeviceInfo, EntityCategory
-from homeassistant.helpers.event import (
-    EventStateChangedData,
-    async_track_state_change_event,
-    async_track_entity_registry_updated_event,
-)
-from homeassistant.helpers.update_coordinator import (
-    CoordinatorEntity,
-)
-from homeassistant.helpers.reload import async_setup_reload_service
-from homeassistant.helpers.typing import EventType
-
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.entity_registry import (
     EVENT_ENTITY_REGISTRY_UPDATED,
 )
-
-from homeassistant.const import (
-    CONF_NAME,
-    CONF_DEVICE_ID,
-    STATE_UNAVAILABLE,
-    STATE_UNKNOWN,
-    PERCENTAGE,
+from homeassistant.helpers.event import (
+    EventStateChangedData,
+    async_track_entity_registry_updated_event,
+    async_track_state_change_event,
+)
+from homeassistant.helpers.reload import async_setup_reload_service
+from homeassistant.helpers.typing import StateType
+from homeassistant.helpers.update_coordinator import (
+    CoordinatorEntity,
 )
 
+from .common import validate_is_float
 from .const import (
-    DOMAIN,
-    PLATFORMS,
-    CONF_BATTERY_TYPE,
-    CONF_BATTERY_QUANTITY,
-    DATA,
-    LAST_REPLACED,
-    DOMAIN_CONFIG,
-    CONF_ENABLE_REPLACED,
-    CONF_HIDE_BATTERY,
-    CONF_ROUND_BATTERY,
+    ATTR_BATTERY_LAST_REPLACED,
+    ATTR_BATTERY_LAST_REPORTED,
+    ATTR_BATTERY_LAST_REPORTED_LEVEL,
+    ATTR_BATTERY_LOW,
+    ATTR_BATTERY_LOW_THRESHOLD,
     ATTR_BATTERY_QUANTITY,
     ATTR_BATTERY_TYPE,
     ATTR_BATTERY_TYPE_AND_QUANTITY,
-    ATTR_BATTERY_LAST_REPLACED,
-    ATTR_BATTERY_LOW,
-    ATTR_BATTERY_LOW_THRESHOLD,
-    ATTR_BATTERY_LAST_REPORTED,
-    ATTR_BATTERY_LAST_REPORTED_LEVEL,
     ATTR_DEVICE_ID,
     ATTR_DEVICE_NAME,
+    ATTR_SOURCE_ENTITY_ID,
+    CONF_BATTERY_QUANTITY,
+    CONF_BATTERY_TYPE,
+    CONF_ENABLE_REPLACED,
+    CONF_HIDE_BATTERY,
+    CONF_ROUND_BATTERY,
+    CONF_SOURCE_ENTITY_ID,
+    DATA,
+    DOMAIN,
+    DOMAIN_CONFIG,
+    LAST_REPLACED,
+    PLATFORMS,
 )
-
-from .common import isfloat
-from .device import BatteryNotesDevice
 from .coordinator import BatteryNotesCoordinator
-
+from .device import BatteryNotesDevice
 from .entity import (
     BatteryNotesEntityDescription,
 )
@@ -96,7 +96,8 @@ class BatteryNotesSensorEntityDescription(
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
         vol.Optional(CONF_NAME): cv.string,
-        vol.Required(CONF_DEVICE_ID): cv.string,
+        vol.Optional(CONF_DEVICE_ID): cv.string,
+        vol.Optional(CONF_SOURCE_ENTITY_ID): cv.string,
         vol.Required(CONF_BATTERY_TYPE): cv.string,
         vol.Required(CONF_BATTERY_QUANTITY): cv.positive_int,
     }
@@ -112,10 +113,14 @@ def async_add_to_device(hass: HomeAssistant, entry: ConfigEntry) -> str | None:
 
     device_id = entry.data.get(CONF_DEVICE_ID)
 
-    if device_registry.async_get(device_id):
-        device_registry.async_update_device(device_id, add_config_entry_id=entry.entry_id)
-        return device_id
+    if device_id:
+        if device_registry.async_get(device_id):
+            device_registry.async_update_device(
+                device_id, add_config_entry_id=entry.entry_id
+            )
+            return device_id
     return None
+
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -125,6 +130,8 @@ async def async_setup_entry(
     """Initialize Battery Type config entry."""
     entity_registry = er.async_get(hass)
     device_registry = dr.async_get(hass)
+
+    device_id = config_entry.data.get(CONF_DEVICE_ID, None)
 
     async def async_registry_updated(event: Event) -> None:
         """Handle entity registry update."""
@@ -143,7 +150,7 @@ async def async_setup_entry(
             # If the tracked battery note is no longer in the device, remove our config entry
             # from the device
             if (
-                not (entity_entry := entity_registry.async_get(data[CONF_ENTITY_ID]))
+                not (entity_entry := entity_registry.async_get(data["entity_id"]))
                 or not device_registry.async_get(device_id)
                 or entity_entry.device_id == device_id
             ):
@@ -160,12 +167,13 @@ async def async_setup_entry(
         )
     )
 
-    device_id = async_add_to_device(hass, config_entry)
+    device: BatteryNotesDevice = hass.data[DOMAIN][DATA].devices[config_entry.entry_id]
 
-    if not device_id:
-        return
+    if not device.fake_device:
+        device_id = async_add_to_device(hass, config_entry)
 
-    device = hass.data[DOMAIN][DATA].devices[config_entry.entry_id]
+        if not device_id:
+            return
 
     coordinator = device.coordinator
 
@@ -191,7 +199,6 @@ async def async_setup_entry(
         unique_id_suffix="",  # battery_type has uniqueId set to entityId in V1, never add a suffix
         key="battery_type",
         translation_key="battery_type",
-        icon="mdi:battery-unknown",
         entity_category=EntityCategory.DIAGNOSTIC,
     )
 
@@ -199,7 +206,6 @@ async def async_setup_entry(
         unique_id_suffix="_battery_last_replaced",
         key="battery_last_replaced",
         translation_key="battery_last_replaced",
-        icon="mdi:battery-clock",
         entity_category=EntityCategory.DIAGNOSTIC,
         device_class=SensorDeviceClass.TIMESTAMP,
         entity_registry_enabled_default=enable_replaced,
@@ -248,13 +254,29 @@ async def async_setup_platform(
 
     await async_setup_reload_service(hass, DOMAIN, PLATFORMS)
 
+
 class BatteryNotesBatteryPlusSensor(
-    SensorEntity, CoordinatorEntity[BatteryNotesCoordinator]
+    RestoreSensor, SensorEntity, CoordinatorEntity[BatteryNotesCoordinator]
 ):
     """Represents a battery plus type sensor."""
 
     _attr_should_poll = False
     _wrapped_attributes = None
+    _unrecorded_attributes = frozenset(
+        {
+            ATTR_BATTERY_QUANTITY,
+            ATTR_BATTERY_TYPE,
+            ATTR_BATTERY_TYPE_AND_QUANTITY,
+            ATTR_BATTERY_LOW,
+            ATTR_BATTERY_LOW_THRESHOLD,
+            ATTR_BATTERY_LAST_REPORTED,
+            ATTR_BATTERY_LAST_REPORTED_LEVEL,
+            ATTR_BATTERY_LAST_REPLACED,
+            ATTR_DEVICE_ID,
+            ATTR_SOURCE_ENTITY_ID,
+            ATTR_DEVICE_NAME,
+        }
+    )
 
     def __init__(
         self,
@@ -274,14 +296,45 @@ class BatteryNotesBatteryPlusSensor(
 
         self.config_entry = config_entry
         self.coordinator = coordinator
-        self.entity_description = description
+
         self._attr_has_entity_name = True
+
+        if coordinator.source_entity_id and not coordinator.device_id:
+            self._attr_translation_placeholders = {
+                "device_name": coordinator.device_name + " "
+            }
+            self.entity_id = (
+                f"sensor.{coordinator.device_name.lower()}_{description.key}"
+            )
+        elif coordinator.source_entity_id and coordinator.device_id:
+            source_entity_domain, source_object_id = split_entity_id(
+                coordinator.source_entity_id
+            )
+            self._attr_translation_placeholders = {
+                "device_name": coordinator.source_entity_name + " "
+            }
+            self.entity_id = f"sensor.{source_object_id}_{description.key}"
+        else:
+            self._attr_translation_placeholders = {"device_name": ""}
+            self.entity_id = (
+                f"sensor.{coordinator.device_name.lower()}_{description.key}"
+            )
+
+        _LOGGER.debug(
+            "Setting up %s with wrapped battery %s",
+            self.entity_id,
+            self.coordinator.wrapped_battery.entity_id,
+        )
+
+        self.entity_description = description
         self._attr_unique_id = unique_id
         self.device = device
         self.enable_replaced = enable_replaced
         self.round_battery = round_battery
 
         self._device_id = coordinator.device_id
+        self._source_entity_id = coordinator.source_entity_id
+
         if coordinator.device_id and (
             device_entry := device_registry.async_get(coordinator.device_id)
         ):
@@ -289,8 +342,6 @@ class BatteryNotesBatteryPlusSensor(
                 connections=device_entry.connections,
                 identifiers=device_entry.identifiers,
             )
-
-        self.entity_id = f"sensor.{coordinator.device_name.lower()}_{description.key}"
 
         entity_category = (
             device.wrapped_battery.entity_category if device.wrapped_battery else None
@@ -305,7 +356,7 @@ class BatteryNotesBatteryPlusSensor(
 
     @callback
     async def async_state_changed_listener(
-        self, event: EventType[EventStateChangedData] | None = None
+        self, event: Event[EventStateChangedData] | None = None
     ) -> None:
         # pylint: disable=unused-argument
         """Handle child updates."""
@@ -325,7 +376,7 @@ class BatteryNotesBatteryPlusSensor(
                 STATE_UNAVAILABLE,
                 STATE_UNKNOWN,
             ]
-            or not isfloat(wrapped_battery_state.state)
+            or not validate_is_float(wrapped_battery_state.state)
         ):
             self._attr_native_value = None
             self._attr_available = False
@@ -353,7 +404,7 @@ class BatteryNotesBatteryPlusSensor(
         async def _entity_rename_listener(event: Event) -> None:
             """Handle renaming of the entity."""
             old_entity_id = event.data["old_entity_id"]
-            new_entity_id = event.data[CONF_ENTITY_ID]
+            new_entity_id = event.data[CONF_SOURCE_ENTITY_ID]
             _LOGGER.debug(
                 "Entity id has been changed, updating battery notes plus entity registry. old_id=%s, new_id=%s",
                 old_entity_id,
@@ -361,9 +412,7 @@ class BatteryNotesBatteryPlusSensor(
             )
 
             entity_registry = er.async_get(self.hass)
-            if (
-                entity_registry.async_get(entity_id) is not None
-            ):
+            if entity_registry.async_get(entity_id) is not None:
                 entity_registry.async_update_entity_options(
                     entity_id,
                     DOMAIN,
@@ -387,7 +436,7 @@ class BatteryNotesBatteryPlusSensor(
             """Only dispatch the listener for update events concerning the source entity."""
 
             # Breaking change in 2024.4.0, check for Event for versions prior to this
-            if type(event_data) is Event:  # Intentionally avoid `isinstance` because it's slow and we trust `Event` is not subclassed
+            if type(event_data) is Event:  # pylint: disable=unidiomatic-typecheck
                 event_data = event_data.data
 
             return (
@@ -407,7 +456,7 @@ class BatteryNotesBatteryPlusSensor(
 
         @callback
         async def _async_state_changed_listener(
-            event: EventType[EventStateChangedData] | None = None,
+            event: Event[EventStateChangedData] | None = None,
         ) -> None:
             """Handle child updates."""
             await self.async_state_changed_listener(event)
@@ -499,7 +548,8 @@ class BatteryNotesBatteryPlusSensor(
             attrs[ATTR_BATTERY_LAST_REPLACED] = self.coordinator.last_replaced
 
         # Other attributes that should follow battery, attribute list is unsorted
-        attrs[ATTR_DEVICE_ID] = self.coordinator.device_id
+        attrs[ATTR_DEVICE_ID] = self.coordinator.device_id or ""
+        attrs[ATTR_SOURCE_ENTITY_ID] = self.coordinator.source_entity_id or ""
         attrs[ATTR_DEVICE_NAME] = self.coordinator.device_name
 
         super_attrs = super().extra_state_attributes
@@ -520,6 +570,7 @@ class BatteryNotesTypeSensor(RestoreSensor, SensorEntity):
 
     _attr_should_poll = False
     entity_description: BatteryNotesSensorEntityDescription
+    _unrecorded_attributes = frozenset({ATTR_BATTERY_QUANTITY, ATTR_BATTERY_TYPE})
 
     def __init__(
         self,
@@ -536,10 +587,34 @@ class BatteryNotesTypeSensor(RestoreSensor, SensorEntity):
         device_registry = dr.async_get(hass)
 
         self.coordinator = coordinator
-        self.entity_description = description
+
         self._attr_has_entity_name = True
+
+        if coordinator.source_entity_id and not coordinator.device_id:
+            self._attr_translation_placeholders = {
+                "device_name": coordinator.device_name + " "
+            }
+            self.entity_id = (
+                f"sensor.{coordinator.device_name.lower()}_{description.key}"
+            )
+        elif coordinator.source_entity_id and coordinator.device_id:
+            source_entity_domain, source_object_id = split_entity_id(
+                coordinator.source_entity_id
+            )
+            self._attr_translation_placeholders = {
+                "device_name": coordinator.source_entity_name + " "
+            }
+            self.entity_id = f"sensor.{source_object_id}_{description.key}"
+        else:
+            self._attr_translation_placeholders = {"device_name": ""}
+            self.entity_id = (
+                f"sensor.{coordinator.device_name.lower()}_{description.key}"
+            )
+
+        self.entity_description = description
         self._attr_unique_id = unique_id
         self._device_id = coordinator.device_id
+        self._source_entity_id = coordinator.source_entity_id
 
         if coordinator.device_id and (
             device_entry := device_registry.async_get(coordinator.device_id)
@@ -548,8 +623,6 @@ class BatteryNotesTypeSensor(RestoreSensor, SensorEntity):
                 connections=device_entry.connections,
                 identifiers=device_entry.identifiers,
             )
-
-        self.entity_id = f"sensor.{coordinator.device_name.lower()}_{description.key}"
 
         self._battery_type = coordinator.battery_type
         self._battery_quantity = coordinator.battery_quantity
@@ -610,16 +683,39 @@ class BatteryNotesLastReplacedSensor(
     ) -> None:
         # pylint: disable=unused-argument
         """Initialize the sensor."""
+        super().__init__(coordinator)
+
+        self.coordinator = coordinator
+
+        self._attr_has_entity_name = True
+
+        if coordinator.source_entity_id and not coordinator.device_id:
+            self._attr_translation_placeholders = {
+                "device_name": coordinator.device_name + " "
+            }
+            self.entity_id = (
+                f"sensor.{coordinator.device_name.lower()}_{description.key}"
+            )
+        elif coordinator.source_entity_id and coordinator.device_id:
+            source_entity_domain, source_object_id = split_entity_id(
+                coordinator.source_entity_id
+            )
+            self._attr_translation_placeholders = {
+                "device_name": coordinator.source_entity_name + " "
+            }
+            self.entity_id = f"sensor.{source_object_id}_{description.key}"
+        else:
+            self._attr_translation_placeholders = {"device_name": ""}
+            self.entity_id = (
+                f"sensor.{coordinator.device_name.lower()}_{description.key}"
+            )
 
         self._attr_device_class = description.device_class
-        self._attr_has_entity_name = True
         self._attr_unique_id = unique_id
         self._device_id = coordinator.device_id
+        self._source_entity_id = coordinator.source_entity_id
         self.entity_description = description
         self._native_value = None
-
-        super().__init__(
-            coordinator=coordinator)
 
         self._set_native_value(log_on_error=False)
 
@@ -633,19 +729,21 @@ class BatteryNotesLastReplacedSensor(
                 identifiers=device_entry.identifiers,
             )
 
-            self.entity_id = f"sensor.{coordinator.device_name.lower()}_{description.key}"
-
     async def async_added_to_hass(self) -> None:
         """Handle added to Hass."""
         await super().async_added_to_hass()
 
     def _set_native_value(self, log_on_error=True):
         # pylint: disable=unused-argument
-        device_entry = self.coordinator.store.async_get_device(self._device_id)
-        if device_entry:
-            if LAST_REPLACED in device_entry and device_entry[LAST_REPLACED] is not None:
+        if self._source_entity_id:
+            entry = self.coordinator.store.async_get_entity(self._source_entity_id)
+        else:
+            entry = self.coordinator.store.async_get_device(self._device_id)
+
+        if entry:
+            if LAST_REPLACED in entry and entry[LAST_REPLACED] is not None:
                 last_replaced_date = datetime.fromisoformat(
-                    str(device_entry[LAST_REPLACED]) + "+00:00"
+                    str(entry[LAST_REPLACED]) + "+00:00"
                 )
                 self._native_value = last_replaced_date
 
@@ -656,11 +754,15 @@ class BatteryNotesLastReplacedSensor(
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
 
-        device_entry = self.coordinator.store.async_get_device(self._device_id)
-        if device_entry:
-            if LAST_REPLACED in device_entry and device_entry[LAST_REPLACED] is not None:
+        if self.coordinator.source_entity_id:
+            entry = self.coordinator.store.async_get_entity(self._source_entity_id)
+        else:
+            entry = self.coordinator.store.async_get_device(self._device_id)
+
+        if entry:
+            if LAST_REPLACED in entry and entry[LAST_REPLACED] is not None:
                 last_replaced_date = datetime.fromisoformat(
-                    str(device_entry[LAST_REPLACED]) + "+00:00"
+                    str(entry[LAST_REPLACED]) + "+00:00"
                 )
                 self._native_value = last_replaced_date
 

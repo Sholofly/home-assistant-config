@@ -1,8 +1,10 @@
 """Common functions for battery_notes."""
 
+from homeassistant.helpers.device_registry import DeviceEntry
 
-def isfloat(num):
-    """Is the value a float."""
+
+def validate_is_float(num):
+    """Validate value is a float."""
     if num:
         try:
             float(num)
@@ -10,3 +12,8 @@ def isfloat(num):
         except ValueError:
             return False
     return False
+
+
+def get_device_model_id(device_entry: DeviceEntry) -> str | None:
+    """Get the device model if available."""
+    return device_entry.model_id if hasattr(device_entry, "model_id") else None

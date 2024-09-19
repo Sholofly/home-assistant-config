@@ -4,6 +4,16 @@
             "user": {
                 "description": "Jeśli potrzebujesz pomocy w konfiguracji, zajrzyj tutaj: https://andrew-codechimp.github.io/HA-Battery-Notes/",
                 "data": {
+                    "association_type": "Rodzaj powiązania"
+                },
+                "menu_options": {
+                    "device": "Urządzenie (zalecane)",
+                    "entity": "Encja"
+                },
+                "title": "Wybierz rodzaj powiązania"
+            },
+            "device": {
+                "data": {
                     "device_id": "Urządzenie",
                     "name": "Nazwa"
                 },
@@ -11,7 +21,17 @@
                     "name": "Pozostawienie pustego pola spowoduje pobranie nazwy z urządzenia źródłowego"
                 }
             },
+            "entity": {
+                "data": {
+                    "source_entity_id": "Encja",
+                    "name": "Nazwa"
+                },
+                "data_description": {
+                    "name": "Pozostawienie pustego pola spowoduje pobranie nazwy z encji źródłowej"
+                }
+            },
             "battery": {
+                "description": "Producent: {manufacturer}\nModel: {model}\nModel ID: {model_id}\nWersja sprzętowa: {hw_version}",
                 "data": {
                     "battery_type": "Typ baterii",
                     "battery_quantity": "Liczba baterii",
@@ -22,19 +42,24 @@
                     "battery_low_threshold": "0 użyje globalnego progu domyślnego",
                     "battery_low_template": "Szablon do określenia czy poziom naładowania baterii jest niski, powinien zwrócić wartość true, jeśli poziom jest niski.\nJest wymagany tylko dla niestandardowych raportów poziomu baterii"
                 }
+            },
+            "manual": {
+                "description": "To urządzenie jest oznaczone w bibliotece jako manualne, różne warianty używają różnych typów baterii, więc nie mogą być ustawione z biblioteki.\nNastępny krok pozwoli Ci ustawić typ baterii, ale nie wysyłaj żądania dodania urządzenia do biblioteki.",
+                "title": "Ręczna konfiguracja urządzenia"
             }
         },
         "abort": {
             "already_configured": "Urządzenie jest już skonfigurowane"
         },
         "error": {
-            "unknown": "Wystąpił nieznany błąd."
+            "unknown": "Wystąpił nieznany błąd.",
+            "unconfigurable_entity": "Nie można dodać tej encji do Battery Notes."
         }
     },
     "options": {
         "step": {
             "init": {
-                "description": "Jeśli potrzebujesz pomocy w konfiguracji, zajrzyj tutaj: https://andrew-codechimp.github.io/HA-Battery-Notes/",
+                "description": "Producent: {manufacturer}\nModel: {model}\nModel ID: {model_id}\nWersja sprzętowa: {hw_version}",
                 "data": {
                     "name": "Nazwa",
                     "battery_type": "Typ baterii",
@@ -56,7 +81,7 @@
     "entity": {
         "binary_sensor": {
             "battery_low": {
-                "name": "Niski poziom baterii",
+                "name": "{device_name}Niski poziom baterii",
                 "state_attributes": {
                     "battery_low_threshold": {
                         "name": "Próg niskiego poziomu baterii"
@@ -66,12 +91,12 @@
         },
         "button": {
             "battery_replaced": {
-                "name": "Wymiana baterii"
+                "name": "{device_name}Wymiana baterii"
             }
         },
         "sensor": {
             "battery_plus": {
-                "name": "Bateria+",
+                "name": "{device_name}Bateria+",
                 "state_attributes": {
                     "battery_type": {
                         "name": "Typ baterii"
@@ -97,6 +122,9 @@
                     "battery_last_reported_level": {
                         "name": "Ostatni zgłoszony poziom baterii"
                     },
+                    "source_entity_id": {
+                        "name": "Identyfikator encji źródłowej"
+                    },
                     "device_id": {
                         "name": "ID Urządzenia"
                     },
@@ -106,7 +134,7 @@
                 }
             },
             "battery_type": {
-                "name": "Typ baterii",
+                "name": "{device_name}Typ baterii",
                 "state_attributes": {
                     "battery_type": {
                         "name": "Typ baterii"
@@ -117,7 +145,7 @@
                 }
             },
             "battery_last_replaced": {
-                "name": "Ostatnia wymiana baterii"
+                "name": "{device_name}Ostatnia wymiana baterii"
             }
         }
     },
@@ -128,6 +156,10 @@
                 "device_id": {
                     "description": "Urządzenie w którym wymieniono baterię/baterie.",
                     "name": "Urządzenie"
+                },
+                "entity_id": {
+                    "description": "Entity that has had its battery replaced.",
+                    "name": "Encja"
                 },
                 "datetime_replaced": {
                     "description": "Data wymiany.",
@@ -147,8 +179,8 @@
             "name": "Ostatni raport dotyczący sprawdzenia baterii"
         },
         "check_battery_low": {
-            "description": "Raise events for devices that have a low battery.",
-            "name": "Check battery low"
+            "description": "Zwiększ liczbę zdarzeń dla urządzeń, które mają niski poziom baterii.",
+            "name": "Sprawdzaj niski poziom baterii"
         }
     }
 }
