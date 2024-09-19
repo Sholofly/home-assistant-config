@@ -1,5 +1,11 @@
-name: OpenWRT br-lan TX Mbits
+name: OpenWRT br-lan TX MB/s
 state_topic: collectd/OpenWrt/interface-br-lan/if_octets
-unit_of_measurement: Mbits
-value_template: "{{ value.split(':')[1] | float * 8 / 1048576 }}"
+unit_of_measurement: MB/s
+value_template: "{{ value.split(':')[1] | float / 1048576}}"
 unique_id: br-lan-tx-transfer
+device_class: data_rate
+device:
+  identifiers: WRT7800
+  name: Router TP-Link TL-WR1043ND v4
+  model: TL-WR1043ND v4
+  manufacturer: TP-Link

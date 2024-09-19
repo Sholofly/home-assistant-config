@@ -1,0 +1,10 @@
+name: OpenWRT connections
+state_topic: collectd/OpenWrt/conntrack/conntrack
+unit_of_measurement: connections
+value_template: "{{ value.split(':')[1].split('\x00')[0] | int }}"
+unique_id: ap_connections
+device:
+  identifiers: WRT7800
+  name: Router TP-Link TL-WR1043ND v4
+  model: TL-WR1043ND v4
+  manufacturer: TP-Link

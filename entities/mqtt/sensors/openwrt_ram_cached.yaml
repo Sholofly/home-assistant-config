@@ -1,0 +1,10 @@
+name: OpenWRT RAM cached
+state_topic: collectd/OpenWrt/memory/memory-cached
+unit_of_measurement: MB
+value_template: "{{ value.split(':')[1].split('\x00')[0] | float / 1000000 }}"
+unique_id: ram_cached
+device:
+  identifiers: WRT7800
+  name: Router TP-Link TL-WR1043ND v4
+  model: TL-WR1043ND v4
+  manufacturer: TP-Link

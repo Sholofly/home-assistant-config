@@ -1,0 +1,10 @@
+name: OpenWRT Ping Google
+state_topic: collectd/OpenWrt/ping/ping-8.8.8.8
+unit_of_measurement: ms
+value_template: "{{ value.split(':')[1].split('\x00')[0] | float | round(2) }}"
+unique_id: ap_ping
+device:
+  identifiers: WRT7800
+  name: Router TP-Link TL-WR1043ND v4
+  model: TL-WR1043ND v4
+  manufacturer: TP-Link
