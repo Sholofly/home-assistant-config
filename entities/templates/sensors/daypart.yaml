@@ -1,0 +1,9 @@
+################################################
+## Entities / Template Sensors / Day part
+################################################
+name: Day part
+state: >
+  {%- if now().hour < 5 -%} night
+  {%- elif now().hour < 12 -%} morning
+  {%- elif now().hour < 18 -%} afternoon
+  {%- else -%} night {%- endif -%}

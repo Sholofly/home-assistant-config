@@ -1,36 +1,17 @@
 blueprint:
   name: Hook - Light
-  description: '# Hook - Light
-
-
-    Hook automation which allows to control a light. Supports brightness and color
-    control both for white temperature and rgb lights. Features may vary depending
-    on the selected Controller.
-
-
-    An automation created with this blueprint must be linked to a [Controller](https://epmatt.github.io/awesome-ha-blueprints/blueprints/controllers)
-    automation.
-
-    Controllers are blueprints which allow to easily integrate a wide range of controllers
-    (wall switches, remotes, dimmers, etc.) and use them to run a set of actions when
-    interacting with them.
-
-    They expose an abstract interface used by Hooks to create controller-based automations.
-
-
-    A list of controllers supported by this hook is available [here](https://epmatt.github.io/awesome-ha-blueprints/docs/blueprints/hooks/light#supported-controllers).
-
-
-    📕 Full documentation regarding this blueprint is available [here](https://epmatt.github.io/awesome-ha-blueprints/docs/blueprints/hooks/light).
-
-
-    🚀 This blueprint is part of the **[Awesome HA Blueprints](https://epmatt.github.io/awesome-ha-blueprints)
-    project**.
-
-
-    ℹ️ Version 2021.12.05
-
-    '
+  description: "# Hook - Light\n\nHook automation which allows to control a light.
+    Supports brightness and color control both for white temperature and rgb lights.
+    Features may vary depending on the selected Controller.\n\nAn automation created
+    with this blueprint must be linked to a [Controller](https://epmatt.github.io/awesome-ha-blueprints/blueprints/controllers)
+    automation.\nControllers are blueprints which allow to easily integrate a wide
+    range of controllers (wall switches, remotes, dimmers, etc.) and use them to run
+    a set of actions when interacting with them.\nThey expose an abstract interface
+    used by Hooks to create controller-based automations.\n\nA list of controllers
+    supported by this hook is available [here](https://epmatt.github.io/awesome-ha-blueprints/docs/blueprints/hooks/light#supported-controllers).\n\n\U0001F4D5
+    Full documentation regarding this blueprint is available [here](https://epmatt.github.io/awesome-ha-blueprints/docs/blueprints/hooks/light).\n\n\U0001F680
+    This blueprint is part of the **[Awesome HA Blueprints](https://epmatt.github.io/awesome-ha-blueprints)
+    project**.\n\nℹ️ Version 2022.07.30\n"
   source_url: https://github.com/EPMatt/awesome-ha-blueprints/blob/main/blueprints/hooks/light/light.yaml
   domain: automation
   input:
@@ -52,7 +33,8 @@ blueprint:
       default: ''
       selector:
         entity:
-          domain: sensor
+          domain:
+          - sensor
           multiple: false
     controller_model:
       name: (Required) Controller model
@@ -75,20 +57,24 @@ blueprint:
           - Philips 324131092621 Hue Dimmer switch
           - Philips 8718699693985 Hue Smart Button
           - Philips 929002398602 Hue Dimmer switch v2
+          - SONOFF SNZB-01 Wireless Switch
           - Xiaomi WXCJKG11LM Aqara Opple 2 button remote
           - Xiaomi WXCJKG12LM Aqara Opple 4 button remote
           - Xiaomi WXCJKG12LM Aqara Opple 4 button remote (#2)
           - Xiaomi WXCJKG13LM Aqara Opple 6 button remote
           - Xiaomi WXCJKG13LM Aqara Opple 6 button remote (#2)
           - Xiaomi WXCJKG13LM Aqara Opple 6 button remote (#3)
-          multiple: false
+          - Xiaomi WXKG11LM Aqara Wireless Switch Mini
+          sort: false
           custom_value: false
+          multiple: false
     light:
       name: (Required) Light
       description: Light which will be controlled with this automation.
       selector:
         entity:
-          domain: light
+          domain:
+          - light
           multiple: false
     light_color_mode:
       name: (Optional) Light color mode
@@ -104,8 +90,9 @@ blueprint:
           - Color Temperature
           - Hue - Saturation
           - None
-          multiple: false
+          sort: false
           custom_value: false
+          multiple: false
     light_transition:
       name: (Optional) Light Transition
       description: Number that represents the time (in milliseconds) the light should
@@ -198,7 +185,7 @@ blueprint:
       selector:
         boolean: {}
 variables:
-  controller_model: !input 'controller_model'
+  controller_model: !input controller_model
   controller_mapping:
     IKEA E1524/E1810 TRÅDFRI Wireless 5-Button Remote:
       brightness_up: button_up_short
@@ -294,6 +281,9 @@ variables:
       brightness_up_repeat: button_up_long
       brightness_down: button_down_short
       brightness_down_repeat: button_down_long
+    SONOFF SNZB-01 Wireless Switch:
+      toggle: button_short
+      color_up: button_double
     Xiaomi WXCJKG11LM Aqara Opple 2 button remote:
       turn_on: button_1_short
       brightness_up_repeat: button_1_long
@@ -336,6 +326,9 @@ variables:
       turn_off: button_6_short
       brightness_down_repeat: button_6_long
       color_down: button_6_double
+    Xiaomi WXKG11LM Aqara Wireless Switch Mini:
+      toggle: button_short
+      color_up: button_double
   brightness_up: '{{ controller_mapping[controller_model]["brightness_up"] | default(None)
     }}'
   brightness_up_repeat: '{{ controller_mapping[controller_model]["brightness_up_repeat"]
@@ -354,17 +347,17 @@ variables:
   toggle: '{{ controller_mapping[controller_model]["toggle"] | default(None) }}'
   turn_on: '{{ controller_mapping[controller_model]["turn_on"] | default(None) }}'
   turn_off: '{{ controller_mapping[controller_model]["turn_off"] | default(None) }}'
-  light_color_mode: !input 'light_color_mode'
-  light: !input 'light'
-  light_transition: !input 'light_transition'
-  min_brightness: !input 'min_brightness'
-  max_brightness: !input 'max_brightness'
-  brightness_steps_short: !input 'brightness_steps_short'
-  brightness_steps_long: !input 'brightness_steps_long'
-  force_brightness: !input 'force_brightness'
-  on_brightness: !input 'on_brightness'
-  smooth_power_on: !input 'smooth_power_on'
-  smooth_power_off: !input 'smooth_power_off'
+  light_color_mode: !input light_color_mode
+  light: !input light
+  light_transition: !input light_transition
+  min_brightness: !input min_brightness
+  max_brightness: !input max_brightness
+  brightness_steps_short: !input brightness_steps_short
+  brightness_steps_long: !input brightness_steps_long
+  force_brightness: !input force_brightness
+  on_brightness: !input on_brightness
+  smooth_power_on: !input smooth_power_on
+  smooth_power_off: !input smooth_power_off
   color_modes:
     Auto: auto
     Color Temperature: color_temp
@@ -385,11 +378,11 @@ trigger:
 - platform: event
   event_type: ahb_controller_event
   event_data:
-    controller: !input 'controller_device'
+    controller: !input controller_device
 - platform: event
   event_type: ahb_controller_event
   event_data:
-    controller: !input 'controller_entity'
+    controller: !input controller_entity
 condition: []
 action:
 - variables:
@@ -401,13 +394,13 @@ action:
       - conditions: '{{ force_brightness }}'
         sequence:
         - service: light.toggle
-          entity_id: !input 'light'
+          entity_id: !input light
           data:
-            brightness: !input 'on_brightness'
+            brightness: !input on_brightness
             transition: '{{ light_transition / 1000 }}'
       default:
       - service: light.toggle
-        entity_id: !input 'light'
+        entity_id: !input light
         data:
           transition: '{{ light_transition / 1000 }}'
   - conditions: '{{ action == turn_on }}'
@@ -416,19 +409,19 @@ action:
       - conditions: '{{ force_brightness }}'
         sequence:
         - service: light.turn_on
-          entity_id: !input 'light'
+          entity_id: !input light
           data:
-            brightness: !input 'on_brightness'
+            brightness: !input on_brightness
             transition: '{{ light_transition / 1000 }}'
       default:
       - service: light.turn_on
-        entity_id: !input 'light'
+        entity_id: !input light
         data:
           transition: '{{ light_transition / 1000 }}'
   - conditions: '{{ action == turn_off }}'
     sequence:
     - service: light.turn_off
-      entity_id: !input 'light'
+      entity_id: !input light
       data:
         transition: '{{ light_transition / 1000 }}'
   - conditions: '{{ action == brightness_up }}'
@@ -439,21 +432,21 @@ action:
         - service: light.turn_on
           data:
             transition: '{{ light_transition / 1000 }}'
-            entity_id: !input 'light'
+            entity_id: !input light
       - conditions: '{{ states(light) == "off" and smooth_power_on}}'
         sequence:
         - service: light.turn_on
           data:
             brightness: '{{ min_brightness }}'
             transition: '{{ light_transition / 1000 }}'
-            entity_id: !input 'light'
+            entity_id: !input light
       default:
       - service: light.turn_on
         data:
           brightness: '{{ [ [state_attr(light,"brightness")+step_short, min_brightness]
             | max, max_brightness] | min }}'
           transition: 0.25
-          entity_id: !input 'light'
+          entity_id: !input light
   - conditions: '{{ action == brightness_down and states(light) == "on" }}'
     sequence:
     - choose:
@@ -463,14 +456,14 @@ action:
         - service: light.turn_off
           data:
             transition: '{{ light_transition / 1000 }}'
-            entity_id: !input 'light'
+            entity_id: !input light
       default:
       - service: light.turn_on
         data:
           brightness: '{{ [ [state_attr(light,"brightness")-step_short, min_brightness]
             | max, max_brightness] | min }}'
           transition: 0.25
-          entity_id: !input 'light'
+          entity_id: !input light
   - conditions: '{{ action == brightness_up_repeat }}'
     sequence:
     - choose:
@@ -479,18 +472,18 @@ action:
         - service: light.turn_on
           data:
             transition: '{{ light_transition / 1000 }}'
-            entity_id: !input 'light'
+            entity_id: !input light
         - delay:
-            milliseconds: !input 'light_transition'
+            milliseconds: !input light_transition
       - conditions: '{{ states(light) == "off" and smooth_power_on}}'
         sequence:
         - service: light.turn_on
           data:
             brightness: '{{ min_brightness }}'
             transition: '{{ light_transition / 1000 }}'
-            entity_id: !input 'light'
+            entity_id: !input light
         - delay:
-            milliseconds: !input 'light_transition'
+            milliseconds: !input light_transition
     - repeat:
         while: '{{ true }}'
         sequence:
@@ -499,7 +492,7 @@ action:
             brightness: '{{ [ [state_attr(light,"brightness")+step_long, min_brightness]
               | max, max_brightness] | min }}'
             transition: 0.25
-            entity_id: !input 'light'
+            entity_id: !input light
         - delay:
             milliseconds: 250
   - conditions: '{{ action == brightness_down_repeat and states(light) == "on"  }}'
@@ -516,16 +509,16 @@ action:
                 - service: light.turn_off
                   data:
                     transition: '{{ light_transition / 1000 }}'
-                    entity_id: !input 'light'
+                    entity_id: !input light
                 - delay:
-                    milliseconds: !input 'light_transition'
+                    milliseconds: !input light_transition
               default:
               - service: light.turn_on
                 data:
                   brightness: '{{ [ [state_attr(light,"brightness")-step_long, min_brightness]
                     | max, max_brightness] | min }}'
                   transition: 0.25
-                  entity_id: !input 'light'
+                  entity_id: !input light
               - delay:
                   milliseconds: 250
       default:
@@ -537,7 +530,7 @@ action:
               brightness: '{{ [ [state_attr(light,"brightness")-step_long, min_brightness]
                 | max, max_brightness] | min }}'
               transition: 0.25
-              entity_id: !input 'light'
+              entity_id: !input light
           - delay:
               milliseconds: 250
   - conditions: '{{ action == color_up and light_color_mode_id != "none" }}'
@@ -549,7 +542,7 @@ action:
           data:
             color_temp: '{{ state_attr(light,"color_temp")|int + 50 }}'
             transition: 0.25
-          entity_id: !input 'light'
+          entity_id: !input light
       - conditions: '{{ light_color_mode_id == "hs_color" }}'
         sequence:
         - service: light.turn_on
@@ -557,7 +550,7 @@ action:
             hs_color: '{{ [((state_attr(light,"hs_color")[0] or 0) + 15) % 360, 100]
               }}'
             transition: 0.25
-          entity_id: !input 'light'
+          entity_id: !input light
   - conditions: '{{ action == color_down and light_color_mode_id != "none" }}'
     sequence:
       choose:
@@ -567,7 +560,7 @@ action:
           data:
             color_temp: '{{ [state_attr(light,"color_temp")|int - 50, 1]|max }}'
             transition: 0.25
-          entity_id: !input 'light'
+          entity_id: !input light
       - conditions: '{{ light_color_mode_id == "hs_color" }}'
         sequence:
         - service: light.turn_on
@@ -575,7 +568,7 @@ action:
             hs_color: '{{ [((state_attr(light,"hs_color")[0] or 0) - 15) % 360, 100]
               }}'
             transition: 0.25
-          entity_id: !input 'light'
+          entity_id: !input light
   - conditions: '{{ action == color_up_repeat and light_color_mode_id != "none" }}'
     sequence:
       choose:
@@ -588,7 +581,7 @@ action:
               data:
                 color_temp: '{{ state_attr(light,"color_temp")|int + 50 }}'
                 transition: 0.25
-              entity_id: !input 'light'
+              entity_id: !input light
             - delay:
                 milliseconds: 250
       - conditions: '{{ light_color_mode_id == "hs_color" }}'
@@ -601,7 +594,7 @@ action:
                 hs_color: '{{ [((state_attr(light,"hs_color")[0] or 0) + 15) % 360,
                   100] }}'
                 transition: 0.25
-              entity_id: !input 'light'
+              entity_id: !input light
             - delay:
                 milliseconds: 250
   - conditions: '{{ action == color_down_repeat and light_color_mode_id != "none"
@@ -617,7 +610,7 @@ action:
               data:
                 color_temp: '{{ [state_attr(light,"color_temp")|int - 50, 1]|max }}'
                 transition: 0.25
-              entity_id: !input 'light'
+              entity_id: !input light
             - delay:
                 milliseconds: 250
       - conditions: '{{ light_color_mode_id == "hs_color" }}'
@@ -630,6 +623,6 @@ action:
                 hs_color: '{{ [((state_attr(light,"hs_color")[0] or 0) - 15) % 360,
                   100] }}'
                 transition: 0.25
-              entity_id: !input 'light'
+              entity_id: !input light
             - delay:
                 milliseconds: 250
