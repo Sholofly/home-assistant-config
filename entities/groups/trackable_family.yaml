@@ -1,7 +1,8 @@
 ################################################
-## Entities / Groups / Adults
+## Entities / Groups / Trackable family
 ################################################
-adults:
-  name: Adults
+trackable_family:
+  name: Trackable Family
   entities:
     - group.parents
+    - person.noa
