@@ -1,6 +1,6 @@
-- id: "1607379994170"
+- id: '1607379994170'
   alias: WC lampen aan bij beweging
-  description: ""
+  description: ''
   use_blueprint:
     path: homeassistant/motion_light.yaml
     input:
@@ -8,968 +8,958 @@
       motion_entity: binary_sensor.wc_bewegingssensor_occupancy
       light_target:
         entity_id: light.wc_plafond
-- id: "1624693593116"
+- id: '1624693593116'
   alias: Thermostaat uitzetten
-  description: ""
+  description: ''
   trigger:
-    - platform: time
-      at: "23:00:00"
-    - platform: state
-      entity_id:
-        - group.trackable_family
-      to: not_home
-      for:
-        hours: 0
-        minutes: 5
-        seconds: 0
-      id: adults-away
+  - platform: time
+    at: '23:00:00'
+  - platform: state
+    entity_id:
+    - group.trackable_family
+    to: not_home
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
+    id: adults-away
   condition:
-    - condition: not
-      conditions:
-        - condition: state
-          entity_id: climate.woonkamer
-          state: "off"
+  - condition: not
+    conditions:
+    - condition: state
+      entity_id: climate.woonkamer
+      state: 'off'
   action:
-    - service: climate.turn_off
-      target:
-        entity_id: climate.woonkamer
-      data: {}
-    - condition: trigger
-      id:
-        - adults-away
-    - service: notify.mobile_app_telefoon_rudolf
-      metadata: {}
+  - service: climate.turn_off
+    target:
+      entity_id: climate.woonkamer
+    data: {}
+  - condition: trigger
+    id:
+    - adults-away
+  - service: notify.mobile_app_telefoon_rudolf
+    metadata: {}
+    data:
+      message: Thermostaat is automatisch uit gegaan omdat er niemand meer thuis is.
+      title: Verwarming is uit!
       data:
-        message: Thermostaat is automatisch uit gegaan omdat er niemand meer thuis is.
-        title: Verwarming is uit!
-        data:
-          ttl: 0
-          priority: high
+        ttl: 0
+        priority: high
   mode: single
-- id: "1624693689373"
+- id: '1624693689373'
   alias: Afval
   trigger:
-    - platform: time
-      at: "17:00:00"
+  - platform: time
+    at: '17:00:00'
   condition:
-    - condition: not
-      conditions:
-        - condition: state
-          entity_id: sensor.afvalinfo_thuis_trash_type_tomorrow
-          state: Geen
+  - condition: not
+    conditions:
+    - condition: state
+      entity_id: sensor.afvalinfo_thuis_trash_type_tomorrow
+      state: Geen
   action:
-    - service: notify.family
-      data:
-        title: Morgen is een afvaldag
-        message:
-          'Opgehaalde afval: {{ state_translated("sensor.afvalinfo_thuis_trash_type_tomorrow")|
-          lower }}'
+  - service: notify.family
+    data:
+      title: Morgen is een afvaldag
+      message: 'Opgehaalde afval: {{ state_translated("sensor.afvalinfo_thuis_trash_type_tomorrow")|
+        lower }}'
   initial_state: true
-- id: "1624693857334"
+- id: '1624693857334'
   alias: Nachtverlichting buiten
   description: Handle night lights based on illumination
   trigger:
-    - platform: state
-      entity_id: binary_sensor.donker_buiten
+  - platform: state
+    entity_id: binary_sensor.donker_buiten
   action:
-    - choose:
-        - conditions:
-            - condition: state
-              entity_id: binary_sensor.donker_buiten
-              state: "on"
-          sequence:
-            - service: light.turn_on
-              entity_id: light.buitenverlichting
-        - conditions:
-            - condition: state
-              entity_id: binary_sensor.donker_buiten
-              state: "off"
-          sequence:
-            - service: light.turn_off
-              entity_id: light.buitenverlichting
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: binary_sensor.donker_buiten
+        state: 'on'
+      sequence:
+      - service: light.turn_on
+        entity_id: light.buitenverlichting
+    - conditions:
+      - condition: state
+        entity_id: binary_sensor.donker_buiten
+        state: 'off'
+      sequence:
+      - service: light.turn_off
+        entity_id: light.buitenverlichting
   initial_state: true
-- id: "1624693897568"
+- id: '1624693897568'
   alias: Ramen boven staan nog open
   trigger:
-    - platform: state
-      entity_id: group.trackable_family
-      to: home
-    - platform: time
-      at: "16:00:00"
+  - platform: state
+    entity_id: group.trackable_family
+    to: home
+  - platform: time
+    at: '16:00:00'
   condition:
-    - condition: and
-      conditions:
-        - condition: time
-          after: "16:00:00"
-          before: "20:00:00"
-        - condition: state
-          entity_id: group.parents
-          state: home
-        - condition: state
-          entity_id: binary_sensor.ramen_boven
-          state: "on"
+  - condition: and
+    conditions:
+    - condition: time
+      after: '16:00:00'
+      before: '20:00:00'
+    - condition: state
+      entity_id: group.parents
+      state: home
+    - condition: state
+      entity_id: binary_sensor.ramen_boven
+      state: 'on'
   action:
-    - choose:
-        - conditions:
-            - condition: state
-              entity_id: person.rudolf
-              state: home
-          sequence:
-            - data:
-                title: Er staan nog ramen open
-                message: "{{ message_data }}"
-                data:
-                  ttl: 0
-                  priority: high
-              action: notify.mobile_app_telefoon_rudolf
-        - conditions:
-            - condition: state
-              entity_id: person.leny
-              state: home
-          sequence:
-            - data:
-                title: Er staan nog ramen open
-                message: "{{ message_data }}"
-                data:
-                  ttl: 0
-                  priority: high
-              action: notify.mobile_app_telefoon_leny
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: person.rudolf
+        state: home
+      sequence:
+      - data:
+          title: Er staan nog ramen open
+          message: '{{ message_data }}'
+          data:
+            ttl: 0
+            priority: high
+        action: notify.mobile_app_telefoon_rudolf
+    - conditions:
+      - condition: state
+        entity_id: person.leny
+        state: home
+      sequence:
+      - data:
+          title: Er staan nog ramen open
+          message: '{{ message_data }}'
+          data:
+            ttl: 0
+            priority: high
+        action: notify.mobile_app_telefoon_leny
   variables:
-    message_data:
-      "{% for entity_id in states.binary_sensor.ramen_boven.attributes.entity_id
+    message_data: "{% for entity_id in states.binary_sensor.ramen_boven.attributes.entity_id
       -%}\n  {% if(states(entity_id) == 'on')-%}\n      {{- '\\n' -}}\n    - {% print(state_attr(entity_id,'friendly_name'))
       | regex_replace(find=' Raam Door',replace='')-%}\n  {% endif-%}\n{%- endfor
       %}"
-- id: "1624693921089"
+- id: '1624693921089'
   alias: Takken
   trigger:
-    - platform: time
-      at: 09:00:00
+  - platform: time
+    at: 09:00:00
   condition:
-    - condition: and
-      conditions:
-        - condition: numeric_state
-          entity_id: sensor.dagen_tot_ophalen_takken
-          below: 8
-        - condition: time
-          weekday:
-            - fri
+  - condition: and
+    conditions:
+    - condition: numeric_state
+      entity_id: sensor.dagen_tot_ophalen_takken
+      below: 8
+    - condition: time
+      weekday:
+      - fri
   action:
-    - service: notify.family
-      data_template:
-        title: Takken worden binnenkort opghaald
-        message: "Ophaaldatum: {{ states('sensor.afvalinfo_thuis_takken')}}"
+  - service: notify.family
+    data_template:
+      title: Takken worden binnenkort opghaald
+      message: 'Ophaaldatum: {{ states(''sensor.afvalinfo_thuis_takken'')}}'
   initial_state: true
-- id: "1629894664286"
+- id: '1629894664286'
   alias: Achtertuinverlichting aan
   trigger:
-    - platform: time
-      at: 07:00
+  - platform: time
+    at: 07:00
   condition:
-    - condition: state
-      entity_id: binary_sensor.donker_buiten
-      state: "on"
+  - condition: state
+    entity_id: binary_sensor.donker_buiten
+    state: 'on'
   action:
-    - service: light.turn_on
-      target:
-        entity_id: light.achtertuin_lantaarnpaal
+  - service: light.turn_on
+    target:
+      entity_id: light.achtertuin_lantaarnpaal
   initial_state: true
   mode: single
-- id: "1629894698473"
+- id: '1629894698473'
   alias: Achtertuin verlichting 's nachts uit
-  description: "'s nachts na 10 minuten achtertuinverlichting uit."
+  description: '''s nachts na 10 minuten achtertuinverlichting uit.'
   trigger:
-    - platform: state
-      entity_id: light.achtertuin_lantaarnpaal
-      to: "on"
-      for: 0:10:00
+  - platform: state
+    entity_id: light.achtertuin_lantaarnpaal
+    to: 'on'
+    for: 0:10:00
   condition:
-    - condition: time
-      after: 00:00
-      before: 07:00
+  - condition: time
+    after: 00:00
+    before: 07:00
   action:
-    - service: switch.turn_off
-      target:
-        entity_id: light.achtertuin_lantaarnpaal
+  - service: switch.turn_off
+    target:
+      entity_id: light.achtertuin_lantaarnpaal
   mode: single
-- id: "1629894738043"
+- id: '1629894738043'
   alias: Achtertuinverlichting uit
   trigger:
-    - platform: time
-      at: 00:00
+  - platform: time
+    at: 00:00
   action:
-    - service: light.turn_off
-      target:
-        entity_id: light.achtertuin_lantaarnpaal
+  - service: light.turn_off
+    target:
+      entity_id: light.achtertuin_lantaarnpaal
   initial_state: true
   mode: single
-- id: "1629895298921"
+- id: '1629895298921'
   alias: Bel inschakelen / uitschakelen
   description: Schakelt de bel in of uit.
   trigger:
-    - platform: time
-      at: 07:00
-      id: inschakeltijd
-    - platform: homeassistant
-      event: start
-      id: ha-start
-    - platform: time
-      at: "20:00:00"
-      id: uitschakeltijd
+  - platform: time
+    at: 07:00
+    id: inschakeltijd
+  - platform: homeassistant
+    event: start
+    id: ha-start
+  - platform: time
+    at: '20:00:00'
+    id: uitschakeltijd
   condition: []
   action:
-    - choose:
-        - conditions:
-            - condition: and
-              conditions:
-                - condition: state
-                  entity_id: switch.gang_bel_enabled
-                  state: "off"
-                - condition: or
-                  conditions:
-                    - condition: trigger
-                      id: inschakeltijd
-                    - condition: and
-                      conditions:
-                        - condition: trigger
-                          id: ha-start
-                        - condition: time
-                          after: 07:00:00
-                          before: "20:00:00"
-          sequence:
-            - service: switch.turn_on
-              data: {}
-              target:
-                entity_id: switch.gang_bel_enabled
-        - conditions:
-            - condition: and
-              conditions:
-                - condition: state
-                  entity_id: switch.gang_bel_enabled
-                  state: "on"
-                - condition: or
-                  conditions:
-                    - condition: trigger
-                      id: uitschakeltijd
-                    - condition: and
-                      conditions:
-                        - condition: trigger
-                          id: ha-start
-                        - condition: time
-                          after: "20:00:00"
-                          before: 07:00:00
-          sequence:
-            - service: switch.turn_off
-              data: {}
-              target:
-                entity_id: switch.gang_bel_enabled
+  - choose:
+    - conditions:
+      - condition: and
+        conditions:
+        - condition: state
+          entity_id: switch.gang_bel_enabled
+          state: 'off'
+        - condition: or
+          conditions:
+          - condition: trigger
+            id: inschakeltijd
+          - condition: and
+            conditions:
+            - condition: trigger
+              id: ha-start
+            - condition: time
+              after: 07:00:00
+              before: '20:00:00'
+      sequence:
+      - service: switch.turn_on
+        data: {}
+        target:
+          entity_id: switch.gang_bel_enabled
+    - conditions:
+      - condition: and
+        conditions:
+        - condition: state
+          entity_id: switch.gang_bel_enabled
+          state: 'on'
+        - condition: or
+          conditions:
+          - condition: trigger
+            id: uitschakeltijd
+          - condition: and
+            conditions:
+            - condition: trigger
+              id: ha-start
+            - condition: time
+              after: '20:00:00'
+              before: 07:00:00
+      sequence:
+      - service: switch.turn_off
+        data: {}
+        target:
+          entity_id: switch.gang_bel_enabled
   initial_state: true
   mode: single
-- id: "1629895350290"
+- id: '1629895350290'
   alias: Zolder schakelaar
   trigger:
-    - platform: event
-      event_type: shelly.click
-      event_data:
-        device_id: b7ba6c24535c5f0e51d88cf35b43199f
-        device: shellydimmer-D479CB
+  - platform: event
+    event_type: shelly.click
+    event_data:
+      device_id: b7ba6c24535c5f0e51d88cf35b43199f
+      device: shellydimmer-D479CB
   action:
-    - service: light.toggle
-      data: {}
-      target:
-        entity_id: light.zolder_plafond
+  - service: light.toggle
+    data: {}
+    target:
+      entity_id: light.zolder_plafond
   mode: single
-- id: "1631009095968"
+- id: '1631009095968'
   alias: Notificatie ramen zolder open
-  description: ""
+  description: ''
   trigger:
-    - platform: time
-      at: "19:00"
+  - platform: time
+    at: '19:00'
   condition:
-    - condition: state
-      entity_id: binary_sensor.zolder_raam_achter_contact
-      state: "on"
+  - condition: state
+    entity_id: binary_sensor.zolder_raam_achter_contact
+    state: 'on'
   action:
-    - service: notify.mobile_app_telefoon_rudolf
+  - service: notify.mobile_app_telefoon_rudolf
+    data:
+      message: Dus dicht doen makker!
+      title: Het zolderraam staat nog open
       data:
-        message: Dus dicht doen makker!
-        title: Het zolderraam staat nog open
-        data:
-          ttl: 0
-          priority: high
-          channel: alarm_stream
-          importance: high
+        ttl: 0
+        priority: high
+        channel: alarm_stream
+        importance: high
   mode: single
-- id: "1632469998878"
+- id: '1632469998878'
   alias: Wall tablet - Screen auto off
-  description: ""
+  description: ''
   trigger:
-    - platform: state
-      entity_id: binary_sensor.wall_tablet_motion
-      to: "off"
-      for:
-        hours: 0
-        minutes: 0
-        seconds: 5
-    - platform: time
-      at: "23:00"
-    - platform: state
-      entity_id:
-        - binary_sensor.wall_tablet_motion
-      to: unavailable
-      for:
-        hours: 0
-        minutes: 0
-        seconds: 5
-    - platform: state
-      entity_id:
-        - group.trackable_family
-      to: not_home
+  - platform: state
+    entity_id: binary_sensor.wall_tablet_motion
+    to: 'off'
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 5
+  - platform: time
+    at: '23:00'
+  - platform: state
+    entity_id:
+    - binary_sensor.wall_tablet_motion
+    to: unavailable
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 5
+  - platform: state
+    entity_id:
+    - group.trackable_family
+    to: not_home
   condition: []
   action:
-    - choose:
-        - conditions:
-            - condition: or
-              conditions:
-                - condition: time
-                  after: "23:00"
-                  before: 07:00
-                - condition: state
-                  entity_id: group.trackable_family
-                  state: not_home
-          sequence:
-            - service: number.set_value
-              data:
-                value: "0"
-              target:
-                entity_id: number.lenovo_tab_m10_fhd_plus_screen_brightness
-            - delay:
-                hours: 0
-                minutes: 0
-                seconds: 5
-                milliseconds: 0
-            - service: switch.turn_off
-              data: {}
-              target:
-                entity_id: switch.lenovo_tab_m10_fhd_plus_screen
-      default:
-        - service: number.set_value
-          data:
-            value: "0"
-          target:
-            entity_id: number.lenovo_tab_m10_fhd_plus_screen_brightness
-  mode: restart
-- id: "1632471920007"
-  alias: Wall tablet - Bright on motion
-  description: ""
-  trigger:
-    - platform: state
-      entity_id:
-        - binary_sensor.wall_tablet_motion
-      to: "on"
-  condition: []
-  action:
+  - choose:
+    - conditions:
+      - condition: or
+        conditions:
+        - condition: time
+          after: '23:00'
+          before: 07:00
+        - condition: state
+          entity_id: group.trackable_family
+          state: not_home
+      sequence:
+      - service: number.set_value
+        data:
+          value: '0'
+        target:
+          entity_id: number.lenovo_tab_m10_fhd_plus_screen_brightness
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 5
+          milliseconds: 0
+      - service: switch.turn_off
+        data: {}
+        target:
+          entity_id: switch.lenovo_tab_m10_fhd_plus_screen
+    default:
     - service: number.set_value
       data:
-        value: "100"
+        value: '0'
       target:
         entity_id: number.lenovo_tab_m10_fhd_plus_screen_brightness
-    - service: switch.turn_on
-      data: {}
-      target:
-        entity_id: switch.lenovo_tab_m10_fhd_plus_screen
+  mode: restart
+- id: '1632471920007'
+  alias: Wall tablet - Bright on motion
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.wall_tablet_motion
+    to: 'on'
+  condition: []
+  action:
+  - service: number.set_value
+    data:
+      value: '100'
+    target:
+      entity_id: number.lenovo_tab_m10_fhd_plus_screen_brightness
+  - service: switch.turn_on
+    data: {}
+    target:
+      entity_id: switch.lenovo_tab_m10_fhd_plus_screen
   mode: single
-- id: "1632481170491"
+- id: '1632481170491'
   alias: Voortuin verlichting 's nachts
   description: Wanneer het donker is, lampen hek na 10 minuten weer aan.
   trigger:
-    - platform: state
-      entity_id: light.voortuin_hek
-      to: "off"
-      for:
-        minutes: 10
+  - platform: state
+    entity_id: light.voortuin_hek
+    to: 'off'
+    for:
+      minutes: 10
   condition:
-    - condition: state
-      entity_id: binary_sensor.donker_buiten
-      state: "on"
+  - condition: state
+    entity_id: binary_sensor.donker_buiten
+    state: 'on'
   action:
-    - service: light.turn_on
-      entity_id: light.voortuin_hek
+  - service: light.turn_on
+    entity_id: light.voortuin_hek
   mode: single
-- id: "1632481269015"
+- id: '1632481269015'
   alias: Achterdeur open in het donker
   description: Wijzig verlichting wanneer achterdeur open gaat
   trigger:
-    - platform: state
-      entity_id:
-        - binary_sensor.bijkeuken_achterdeur_contact
-      to: "on"
+  - platform: state
+    entity_id:
+    - binary_sensor.bijkeuken_achterdeur_contact
+    to: 'on'
   condition:
-    - condition: state
-      entity_id: binary_sensor.donker_buiten
-      state: "on"
+  - condition: state
+    entity_id: binary_sensor.donker_buiten
+    state: 'on'
   action:
-    - service: light.turn_on
-      entity_id: light.achtertuin_lantaarnpaal
-    - service: light.turn_off
-      entity_id: light.voortuin_hek
+  - service: light.turn_on
+    entity_id: light.achtertuin_lantaarnpaal
+  - service: light.turn_off
+    entity_id: light.voortuin_hek
   mode: single
-- id: "1654416602001"
+- id: '1654416602001'
   alias: Rudolf Antibiotica
-  description: ""
+  description: ''
   trigger:
-    - platform: time
-      at:
-        - 07:00:00
-        - "12:00:00"
-        - "17:00:00"
-        - "22:00:00"
+  - platform: time
+    at:
+    - 07:00:00
+    - '12:00:00'
+    - '17:00:00'
+    - '22:00:00'
   condition: []
   action:
-    - service: notify.mobile_app_telefoon_rudolf
+  - service: notify.mobile_app_telefoon_rudolf
+    data:
+      title: Antibiotica
+      message: Het is tijd om je antibiotica te nemen!
       data:
-        title: Antibiotica
-        message: Het is tijd om je antibiotica te nemen!
-        data:
-          ttl: 0
-          priority: high
-          notification_icon: mdi:pill
-          channel: alarm_stream
+        ttl: 0
+        priority: high
+        notification_icon: mdi:pill
+        channel: alarm_stream
   mode: single
-- id: "1654613094104"
+- id: '1654613094104'
   alias: Meld restafval afhaling
-  description: ""
+  description: ''
   trigger:
-    - platform: state
-      entity_id:
-        - sensor.aantal_ophalingen_restafval_dit_jaar
-      not_from: unknown
+  - platform: state
+    entity_id:
+    - sensor.aantal_ophalingen_restafval_dit_jaar
+    not_from: unknown
   condition:
-    - condition: template
-      value_template:
-        "{{ trigger.from_state is not none and trigger.to_state is not
-        none}}"
+  - condition: template
+    value_template: '{{ trigger.from_state is not none and trigger.to_state is not
+      none}}'
   action:
-    - service: notify.family
-      data:
-        title: Het restafval is opgehaald
-        message:
-          "Het restafval is dit jaar voor de {{ states('sensor.aantal_ophalingen_restafval_dit_jaar')}}e
-          keer opgehaald
+  - service: notify.family
+    data:
+      title: Het restafval is opgehaald
+      message: 'Het restafval is dit jaar voor de {{ states(''sensor.aantal_ophalingen_restafval_dit_jaar'')}}e
+        keer opgehaald
 
-          "
-        data:
-          ttl: 0
-          priority: high
+        '
+      data:
+        ttl: 0
+        priority: high
   mode: single
-- id: "1656497997657"
+- id: '1656497997657'
   alias: Badkamer - Knop rechts
-  description: ""
+  description: ''
   trigger:
-    - platform: state
-      entity_id:
-        - binary_sensor.wastafel_input
-      from: "off"
-      to: "on"
-      enabled: false
-    - platform: event
-      event_type: shelly.click
-      event_data:
-        device_id: c5de9c3be9b1a0c71e52fa9a57a9c0a2
-        device: shellyswitch25-68C63AF9AF42
-        channel: 1
-        click_type: single
-        generation: 1
+  - platform: state
+    entity_id:
+    - binary_sensor.wastafel_input
+    from: 'off'
+    to: 'on'
+    enabled: false
+  - platform: event
+    event_type: shelly.click
+    event_data:
+      device_id: c5de9c3be9b1a0c71e52fa9a57a9c0a2
+      device: shellyswitch25-68C63AF9AF42
+      channel: 1
+      click_type: single
+      generation: 1
   condition: []
   action:
-    - service: light.toggle
-      data: {}
-      target:
-        entity_id: light.badkamer_wastafel
+  - service: light.toggle
+    data: {}
+    target:
+      entity_id: light.badkamer_wastafel
   mode: single
-- id: "1671801460867"
+- id: '1671801460867'
   alias: Wasmachine - Status
   description: Status afhandeling wasmachine
   trigger:
-    - platform: numeric_state
-      entity_id: sensor.bijkeuken_wasmachine_power
-      for:
-        hours: 0
-        minutes: 1
-        seconds: 0
-      id: "off"
-      below: 1
-    - platform: numeric_state
-      entity_id: sensor.bijkeuken_wasmachine_power
-      for:
-        hours: 0
-        minutes: 2
-        seconds: 0
-      id: waiting
-      below: 7
-      above: 1
-    - platform: numeric_state
-      entity_id: sensor.bijkeuken_wasmachine_power
-      for:
-        hours: 0
-        minutes: 0
-        seconds: 0
-      id: running
-      above: 10
-    - platform: event
-      event_type: mobile_app_notification_action
-      id: machine_emptied
-      event_data:
-        action: MACHINE_EMPTIED
+  - platform: numeric_state
+    entity_id: sensor.bijkeuken_wasmachine_power
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+    id: 'off'
+    below: 1
+  - platform: numeric_state
+    entity_id: sensor.bijkeuken_wasmachine_power
+    for:
+      hours: 0
+      minutes: 2
+      seconds: 0
+    id: waiting
+    below: 7
+    above: 1
+  - platform: numeric_state
+    entity_id: sensor.bijkeuken_wasmachine_power
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 0
+    id: running
+    above: 10
+  - platform: event
+    event_type: mobile_app_notification_action
+    id: machine_emptied
+    event_data:
+      action: MACHINE_EMPTIED
   condition: []
   action:
-    - choose:
-        - conditions:
-            - condition: trigger
-              id: "off"
-          sequence:
-            - service: input_select.select_option
-              data:
-                option: Uit
-              target:
-                entity_id: input_select.bijkeuken_wasmachine_status
-        - conditions:
-            - condition: trigger
-              id: waiting
-            - condition: state
-              entity_id: input_select.bijkeuken_wasmachine_status
-              state: Bezig
-          sequence:
-            - service: input_select.select_option
-              data:
-                option: Klaar
-              target:
-                entity_id: input_select.bijkeuken_wasmachine_status
-            - service: input_boolean.turn_on
-              data: {}
-              target:
-                entity_id: input_boolean.bijkeuken_wasmachine_legen
-            - service: notify.mobile_app_telefoon_rudolf
-              data:
-                title: De wasmachine is klaar!
-                message: Leegmaken!
-                data:
-                  tag: washing
-                  persistent: true
-                  actions:
-                    - action: MACHINE_EMPTIED
-                      title: Ik heb hem geleegd!
-                  notification_icon: mdi:washing-machine-alert
-        - conditions:
-            - condition: trigger
-              id: waiting
-            - condition: state
-              entity_id: input_select.bijkeuken_wasmachine_status
-              state: Uit
-          sequence:
-            - service: input_select.select_option
-              data:
-                option: Wachten
-              target:
-                entity_id: input_select.bijkeuken_wasmachine_status
-        - conditions:
-            - condition: trigger
-              id: running
-          sequence:
-            - service: input_select.select_option
-              data:
-                option: Bezig
-              target:
-                entity_id: input_select.bijkeuken_wasmachine_status
-        - conditions:
-            - condition: trigger
-              id: machine_emptied
-          sequence:
-            - service: input_boolean.turn_off
-              data: {}
-              target:
-                entity_id: input_boolean.bijkeuken_wasmachine_legen
-            - service: notify.mobile_app_telefoon_rudolf
-              data:
-                data:
-                  tag: washing
-                message: clear_notification
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: 'off'
+      sequence:
+      - service: input_select.select_option
+        data:
+          option: Uit
+        target:
+          entity_id: input_select.bijkeuken_wasmachine_status
+    - conditions:
+      - condition: trigger
+        id: waiting
+      - condition: state
+        entity_id: input_select.bijkeuken_wasmachine_status
+        state: Bezig
+      sequence:
+      - service: input_select.select_option
+        data:
+          option: Klaar
+        target:
+          entity_id: input_select.bijkeuken_wasmachine_status
+      - service: input_boolean.turn_on
+        data: {}
+        target:
+          entity_id: input_boolean.bijkeuken_wasmachine_legen
+      - service: notify.mobile_app_telefoon_rudolf
+        data:
+          title: De wasmachine is klaar!
+          message: Leegmaken!
+          data:
+            tag: washing
+            persistent: true
+            actions:
+            - action: MACHINE_EMPTIED
+              title: Ik heb hem geleegd!
+            notification_icon: mdi:washing-machine-alert
+    - conditions:
+      - condition: trigger
+        id: waiting
+      - condition: state
+        entity_id: input_select.bijkeuken_wasmachine_status
+        state: Uit
+      sequence:
+      - service: input_select.select_option
+        data:
+          option: Wachten
+        target:
+          entity_id: input_select.bijkeuken_wasmachine_status
+    - conditions:
+      - condition: trigger
+        id: running
+      sequence:
+      - service: input_select.select_option
+        data:
+          option: Bezig
+        target:
+          entity_id: input_select.bijkeuken_wasmachine_status
+    - conditions:
+      - condition: trigger
+        id: machine_emptied
+      sequence:
+      - service: input_boolean.turn_off
+        data: {}
+        target:
+          entity_id: input_boolean.bijkeuken_wasmachine_legen
+      - service: notify.mobile_app_telefoon_rudolf
+        data:
+          data:
+            tag: washing
+          message: clear_notification
   mode: single
-- id: "1671804817486"
+- id: '1671804817486'
   alias: Airfryer - Status
   description: Status afhandeling airfryer
   trigger:
-    - platform: numeric_state
-      entity_id: sensor.kleine_schuur_airfryer_huidig_wattage
-      for:
-        hours: 0
-        minutes: 1
-        seconds: 0
-      id: "off"
-      below: 1
-    - platform: numeric_state
-      entity_id: sensor.kleine_schuur_airfryer_huidig_wattage
-      for:
-        hours: 0
-        minutes: 0
-        seconds: 2
-      id: waiting
-      below: 7
-      above: 1
-    - platform: numeric_state
-      entity_id: sensor.kleine_schuur_airfryer_huidig_wattage
-      for:
-        hours: 0
-        minutes: 0
-        seconds: 0
-      id: running
-      above: 10
-    - platform: event
-      event_type: mobile_app_notification_action
-      id: fryer_emptied
-      event_data:
-        action: FRYER_EMPTIED
-    - platform: state
-      entity_id:
-        - input_select.kleine_schuur_airfryer_status
-      to: Uit
-      for:
-        hours: 0
-        minutes: 10
-        seconds: 0
-      id: long-off
+  - platform: numeric_state
+    entity_id: sensor.kleine_schuur_airfryer_huidig_wattage
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+    id: 'off'
+    below: 1
+  - platform: numeric_state
+    entity_id: sensor.kleine_schuur_airfryer_huidig_wattage
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 2
+    id: waiting
+    below: 7
+    above: 1
+  - platform: numeric_state
+    entity_id: sensor.kleine_schuur_airfryer_huidig_wattage
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 0
+    id: running
+    above: 10
+  - platform: event
+    event_type: mobile_app_notification_action
+    id: fryer_emptied
+    event_data:
+      action: FRYER_EMPTIED
+  - platform: state
+    entity_id:
+    - input_select.kleine_schuur_airfryer_status
+    to: Uit
+    for:
+      hours: 0
+      minutes: 10
+      seconds: 0
+    id: long-off
   condition: []
   action:
-    - choose:
-        - conditions:
-            - condition: trigger
-              id: "off"
-          sequence:
-            - service: input_select.select_option
-              data:
-                option: Uit
-              target:
-                entity_id: input_select.kleine_schuur_airfryer_status
-        - conditions:
-            - condition: trigger
-              id: waiting
-            - condition: state
-              entity_id: input_select.kleine_schuur_airfryer_status
-              state: Bezig
-          sequence:
-            - service: input_select.select_option
-              data:
-                option: Klaar
-              target:
-                entity_id: input_select.kleine_schuur_airfryer_status
-            - service: notify.mobile_app_telefoon_rudolf
-              data:
-                title: De airfryer is klaar!
-                message: Eten!
-                data:
-                  tag: frying
-                  persistent: true
-                  actions:
-                    - action: FRYER_EMPTIED
-                      title: Ik heb hem geleegd!
-                  notification_icon: mdi:french-fries
-            - service: tts.microsoft_say
-              data:
-                language: nl-nl
-                entity_id: media_player.nests_beneden
-                message: De airfryer is klaar
-                cache: true
-        - conditions:
-            - condition: trigger
-              id: waiting
-            - condition: state
-              entity_id: input_select.kleine_schuur_airfryer_status
-              state: Uit
-          sequence:
-            - service: input_select.select_option
-              data:
-                option: Wachten
-              target:
-                entity_id: input_select.kleine_schuur_airfryer_status
-        - conditions:
-            - condition: trigger
-              id: running
-          sequence:
-            - service: input_select.select_option
-              data:
-                option: Bezig
-              target:
-                entity_id: input_select.kleine_schuur_airfryer_status
-        - conditions:
-            - condition: trigger
-              id: fryer_emptied
-          sequence:
-            - service: notify.mobile_app_telefoon_rudolf
-              data:
-                data:
-                  tag: frying
-                message: clear_notification
-        - conditions:
-            - condition: trigger
-              id: long-off
-          sequence:
-            - service: switch.turn_off
-              data: {}
-              target:
-                entity_id: switch.kleine_schuur_airfryer
-  mode: single
-- id: "1672759812479"
-  alias: Smoke detection
-  description: ""
-  trigger:
-    - type: smoke
-      platform: device
-      device_id: c2da30671c1cf363c0117e9b7947817f
-      entity_id: binary_sensor.keuken_rookmelder_smoke
-      domain: binary_sensor
-      id: keuken
-    - type: smoke
-      platform: device
-      device_id: ed2375136e4094c936c2036bd3704bd7
-      entity_id: binary_sensor.overloop_rookmelder_smoke
-      domain: binary_sensor
-      id: overloop
-    - type: smoke
-      platform: device
-      device_id: c94896b59076d3d9067446b1a091045d
-      entity_id: binary_sensor.zolder_rookmelder_smoke
-      domain: binary_sensor
-      id: zolder
-  condition: []
-  action:
-    - service: notify.family
-      data:
-        title: ROOK GEDETECTEERD!
-        message: Er is rook gedetecteerd in de {{ trigger.id }}
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: 'off'
+      sequence:
+      - service: input_select.select_option
         data:
-          channel: alarm_stream
-          ttl: 0
-          priority: high
+          option: Uit
+        target:
+          entity_id: input_select.kleine_schuur_airfryer_status
+    - conditions:
+      - condition: trigger
+        id: waiting
+      - condition: state
+        entity_id: input_select.kleine_schuur_airfryer_status
+        state: Bezig
+      sequence:
+      - service: input_select.select_option
+        data:
+          option: Klaar
+        target:
+          entity_id: input_select.kleine_schuur_airfryer_status
+      - service: notify.mobile_app_telefoon_rudolf
+        data:
+          title: De airfryer is klaar!
+          message: Eten!
+          data:
+            tag: frying
+            persistent: true
+            actions:
+            - action: FRYER_EMPTIED
+              title: Ik heb hem geleegd!
+            notification_icon: mdi:french-fries
+      - service: tts.microsoft_say
+        data:
+          language: nl-nl
+          entity_id: media_player.nests_beneden
+          message: De airfryer is klaar
+          cache: true
+    - conditions:
+      - condition: trigger
+        id: waiting
+      - condition: state
+        entity_id: input_select.kleine_schuur_airfryer_status
+        state: Uit
+      sequence:
+      - service: input_select.select_option
+        data:
+          option: Wachten
+        target:
+          entity_id: input_select.kleine_schuur_airfryer_status
+    - conditions:
+      - condition: trigger
+        id: running
+      sequence:
+      - service: input_select.select_option
+        data:
+          option: Bezig
+        target:
+          entity_id: input_select.kleine_schuur_airfryer_status
+    - conditions:
+      - condition: trigger
+        id: fryer_emptied
+      sequence:
+      - service: notify.mobile_app_telefoon_rudolf
+        data:
+          data:
+            tag: frying
+          message: clear_notification
+    - conditions:
+      - condition: trigger
+        id: long-off
+      sequence:
+      - service: switch.turn_off
+        data: {}
+        target:
+          entity_id: switch.kleine_schuur_airfryer
   mode: single
-- id: "1677237418061"
+- id: '1672759812479'
+  alias: Smoke detection
+  description: ''
+  trigger:
+  - type: smoke
+    platform: device
+    device_id: c2da30671c1cf363c0117e9b7947817f
+    entity_id: binary_sensor.keuken_rookmelder_smoke
+    domain: binary_sensor
+    id: keuken
+  - type: smoke
+    platform: device
+    device_id: ed2375136e4094c936c2036bd3704bd7
+    entity_id: binary_sensor.overloop_rookmelder_smoke
+    domain: binary_sensor
+    id: overloop
+  - type: smoke
+    platform: device
+    device_id: c94896b59076d3d9067446b1a091045d
+    entity_id: binary_sensor.zolder_rookmelder_smoke
+    domain: binary_sensor
+    id: zolder
+  condition: []
+  action:
+  - service: notify.family
+    data:
+      title: ROOK GEDETECTEERD!
+      message: Er is rook gedetecteerd in de {{ trigger.id }}
+      data:
+        channel: alarm_stream
+        ttl: 0
+        priority: high
+  mode: single
+- id: '1677237418061'
   alias: Radarr Webhook
-  description: ""
+  description: ''
   trigger:
-    - platform: webhook
-      webhook_id: -7Kgxxk-5PWQXQLRXhCivP-ur
-      allowed_methods:
-        - POST
-        - PUT
-      local_only: true
+  - platform: webhook
+    webhook_id: -7Kgxxk-5PWQXQLRXhCivP-ur
+    allowed_methods:
+    - POST
+    - PUT
+    local_only: true
   condition: []
   action:
-    - choose:
-        - conditions:
-            - condition: template
-              value_template: "{{trigger.json.eventType == 'Grab'}}"
-          sequence:
-            - service: notify.mobile_app_telefoon_rudolf
-              data:
-                message: "{{ trigger.json.movie.title }}"
-                title: Nieuwe film wordt gedownload!
-                data:
-                  ttl: 0
-                  priority: high
-        - conditions:
-            - condition: template
-              value_template: "{{trigger.json.eventType == 'Download'}}"
-          sequence:
-            - service: notify.mobile_app_telefoon_rudolf
-              data:
-                message: "{{ trigger.json.movie.title }}"
-                title: Nieuwe film is klaar met downloaden!
-                data:
-                  ttl: 0
-                  priority: high
-        - conditions:
-            - condition: template
-              value_template: "{{trigger.json.eventType == 'Test'}}"
-          sequence:
-            - service: notify.mobile_app_telefoon_rudolf
-              data:
-                data:
-                  ttl: 0
-                  priority: high
-                message: Testbericht van Radarr!
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{{trigger.json.eventType == ''Grab''}}'
+      sequence:
+      - service: notify.mobile_app_telefoon_rudolf
+        data:
+          message: '{{ trigger.json.movie.title }}'
+          title: Nieuwe film wordt gedownload!
+          data:
+            ttl: 0
+            priority: high
+    - conditions:
+      - condition: template
+        value_template: '{{trigger.json.eventType == ''Download''}}'
+      sequence:
+      - service: notify.mobile_app_telefoon_rudolf
+        data:
+          message: '{{ trigger.json.movie.title }}'
+          title: Nieuwe film is klaar met downloaden!
+          data:
+            ttl: 0
+            priority: high
+    - conditions:
+      - condition: template
+        value_template: '{{trigger.json.eventType == ''Test''}}'
+      sequence:
+      - service: notify.mobile_app_telefoon_rudolf
+        data:
+          data:
+            ttl: 0
+            priority: high
+          message: Testbericht van Radarr!
   mode: single
-- id: "1677238382816"
+- id: '1677238382816'
   alias: Sonarr Webhook
-  description: ""
+  description: ''
   trigger:
-    - platform: webhook
-      webhook_id: -o3qrQHmtUUPunjW4QaE7f0lt
-      allowed_methods:
-        - POST
-        - PUT
-      local_only: true
+  - platform: webhook
+    webhook_id: -o3qrQHmtUUPunjW4QaE7f0lt
+    allowed_methods:
+    - POST
+    - PUT
+    local_only: true
   condition: []
   action:
-    - choose:
-        - conditions:
-            - condition: template
-              value_template: "{{trigger.json.eventType == 'Grab'}}"
-          sequence:
-            - service: notify.mobile_app_telefoon_rudolf
-              data:
-                title: Nieuwe aflevering van {{trigger.json.series.title}} wordt gedownload!
-                message:
-                  Seizoen {{trigger.json.episodes[0].seasonNumber}} - aflevering
-                  {{ trigger.json.episodes[0].episodeNumber}}
-                data:
-                  ttl: 0
-                  priority: high
-        - conditions:
-            - condition: template
-              value_template: "{{trigger.json.eventType == 'Download'}}"
-          sequence:
-            - service: notify.mobile_app_telefoon_rudolf
-              data:
-                title: Nieuwe aflevering van {{trigger.json.series.title}} is gedownload!
-                message:
-                  Seizoen {{trigger.json.episodes[0].seasonNumber}} - aflevering
-                  {{ trigger.json.episodes[0].episodeNumber}}
-                data:
-                  ttl: 0
-                  priority: high
-        - conditions:
-            - condition: template
-              value_template: "{{trigger.json.eventType == 'Test'}}"
-          sequence:
-            - service: notify.mobile_app_telefoon_rudolf
-              data:
-                data:
-                  ttl: 0
-                  priority: high
-                message: Testbericht van Sonarr!
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{{trigger.json.eventType == ''Grab''}}'
+      sequence:
+      - service: notify.mobile_app_telefoon_rudolf
+        data:
+          title: Nieuwe aflevering van {{trigger.json.series.title}} wordt gedownload!
+          message: Seizoen {{trigger.json.episodes[0].seasonNumber}} - aflevering
+            {{ trigger.json.episodes[0].episodeNumber}}
+          data:
+            ttl: 0
+            priority: high
+    - conditions:
+      - condition: template
+        value_template: '{{trigger.json.eventType == ''Download''}}'
+      sequence:
+      - service: notify.mobile_app_telefoon_rudolf
+        data:
+          title: Nieuwe aflevering van {{trigger.json.series.title}} is gedownload!
+          message: Seizoen {{trigger.json.episodes[0].seasonNumber}} - aflevering
+            {{ trigger.json.episodes[0].episodeNumber}}
+          data:
+            ttl: 0
+            priority: high
+    - conditions:
+      - condition: template
+        value_template: '{{trigger.json.eventType == ''Test''}}'
+      sequence:
+      - service: notify.mobile_app_telefoon_rudolf
+        data:
+          data:
+            ttl: 0
+            priority: high
+          message: Testbericht van Sonarr!
   mode: single
-- id: "1677277974469"
+- id: '1677277974469'
   alias: Update ESPHome entities
   description: Updates all updateable esphome entities at 02:00 at night.
   trigger:
-    - platform: time
-      at: 00:30:00
+  - platform: time
+    at: 00:30:00
   condition: []
   action:
-    - service: update.install
-      target:
-        entity_id:
-          "{{ integration_entities('esphome') | select('match', '^update.')
-          | select('is_state', 'on') | list }}"
+  - service: update.install
+    target:
+      entity_id: '{{ integration_entities(''esphome'') | select(''match'', ''^update.'')
+        | select(''is_state'', ''on'') | list }}'
   mode: single
-- id: "1677601535487"
+- id: '1677601535487'
   alias: Bazarr Webhook
-  description: ""
+  description: ''
   trigger:
-    - platform: webhook
-      webhook_id: -O9_Ycbdv-OQ2InxwBhZZYW21
-      allowed_methods:
-        - POST
-        - PUT
-      local_only: true
+  - platform: webhook
+    webhook_id: -O9_Ycbdv-OQ2InxwBhZZYW21
+    allowed_methods:
+    - POST
+    - PUT
+    local_only: true
   condition: []
   action:
-    - choose:
-        - conditions: []
-          sequence: []
-      default:
-        - service: notify.mobile_app_telefoon_rudolf
-          data:
-            message: Sonarr FTW
-  mode: single
-- id: "1678708313676"
-  alias: Schapen voeren
-  description: ""
-  trigger:
-    - platform: time
-      at: 08:00:00
-  condition:
-    - condition: time
-      weekday:
-        - sat
-        - mon
-        - wed
-        - fri
-  action:
-    - service: notify.mobile_app_telefoon_leny
+  - choose:
+    - conditions: []
+      sequence: []
+    default:
+    - service: notify.mobile_app_telefoon_rudolf
       data:
-        data:
-          ttl: 0
-          priority: high
-        message: Schapen hebben drinken en eten nodig!
-        title: Schapen voeren
+        message: Sonarr FTW
   mode: single
-- id: "1687170214961"
-  alias: Buiten te warm - Ramen nog open
-  description: ""
+- id: '1678708313676'
+  alias: Schapen voeren
+  description: ''
   trigger:
-    - platform: state
-      entity_id:
-        - binary_sensor.buiten_warmer_dan_binnen
-      from: "off"
-      to: "on"
+  - platform: time
+    at: 08:00:00
   condition:
-    - condition: state
-      entity_id: binary_sensor.ramen_boven
-      state: "on"
+  - condition: time
+    weekday:
+    - sat
+    - mon
+    - wed
+    - fri
   action:
-    - choose:
-        - conditions:
-            - condition: state
-              entity_id: person.rudolf
-              state: home
-          sequence:
-            - service: notify.mobile_app_telefoon_rudolf
-              data:
-                title: Er staan nog ramen open
-                message:
-                  "Het wordt wel erg warm buiten. De volgende ramen staan nog open:\n
-                  \n{{ message_data }}"
-                data:
-                  ttl: 0
-                  priority: high
-        - conditions:
-            - condition: state
-              entity_id: person.leny
-              state: home
-          sequence:
-            - service: notify.mobile_app_telefoon_leny
-              data:
-                title: Er staan nog ramen open
-                message:
-                  "Het wordt wel erg warm buiten. De volgende ramen staan nog open:\n
-                  \n{{ message_data }}"
-                data:
-                  ttl: 0
-                  priority: high
+  - service: notify.mobile_app_telefoon_leny
+    data:
+      data:
+        ttl: 0
+        priority: high
+      message: Schapen hebben drinken en eten nodig!
+      title: Schapen voeren
+  mode: single
+- id: '1687170214961'
+  alias: Buiten te warm - Ramen nog open
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.buiten_warmer_dan_binnen
+    from: 'off'
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: binary_sensor.ramen_boven
+    state: 'on'
+  action:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: person.rudolf
+        state: home
+      sequence:
+      - service: notify.mobile_app_telefoon_rudolf
+        data:
+          title: Er staan nog ramen open
+          message: "Het wordt wel erg warm buiten. De volgende ramen staan nog open:\n
+            \n{{ message_data }}"
+          data:
+            ttl: 0
+            priority: high
+    - conditions:
+      - condition: state
+        entity_id: person.leny
+        state: home
+      sequence:
+      - service: notify.mobile_app_telefoon_leny
+        data:
+          title: Er staan nog ramen open
+          message: "Het wordt wel erg warm buiten. De volgende ramen staan nog open:\n
+            \n{{ message_data }}"
+          data:
+            ttl: 0
+            priority: high
   variables:
-    message_data:
-      "{% for entity_id in states.binary_sensor.ramen_boven.attributes.entity_id
+    message_data: "{% for entity_id in states.binary_sensor.ramen_boven.attributes.entity_id
       -%}\n  {% if(states(entity_id) == 'on')-%}\n      {{- '\\n' -}}\n    - {% print(state_attr(entity_id,'friendly_name'))
       | regex_replace(find=' Raam| contact',replace='')-%}\n  {% endif-%}\n{%- endfor
       %}"
   mode: single
-- id: "1702301389683"
+- id: '1702301389683'
   alias: Update water price
-  description: ""
+  description: ''
   trigger:
-    - platform: time
-      at: input_datetime.water_tariff_change
+  - platform: time
+    at: input_datetime.water_tariff_change
   condition: []
   action:
-    - service: input_number.set_value
-      target:
-        entity_id: input_number.water_price
-      data:
-        value: 1.04
+  - service: input_number.set_value
+    target:
+      entity_id: input_number.water_price
+    data:
+      value: 1.04
   mode: single
-- id: "1703877804565"
+- id: '1703877804565'
   alias: Bijkeuken licht
-  description: ""
+  description: ''
   use_blueprint:
     path: freakshock88/motion_illuminance_activated_entity.yaml
     input:
@@ -977,33 +967,33 @@
       target_entity: light.bijkeuken_plafond
       blocker_entity: binary_sensor.licht_binnen
       no_motion_wait: input_number.bijkeuken_turn_off_light_after
-- id: "1704015365838"
+- id: '1704015365838'
   alias: Leny kerk
-  description: ""
+  description: ''
   trigger:
-    - platform: state
-      entity_id:
-        - person.leny
-      from: Kerk
+  - platform: state
+    entity_id:
+    - person.leny
+    from: Kerk
   condition:
-    - condition: state
-      entity_id: person.rudolf
-      state: home
+  - condition: state
+    entity_id: person.rudolf
+    state: home
   action:
-    - service: notify.mobile_app_telefoon_rudolf
+  - service: notify.mobile_app_telefoon_rudolf
+    data:
+      title: Kerk is uit
+      message: Leny verlaat de kerk
       data:
-        title: Kerk is uit
-        message: Leny verlaat de kerk
-        data:
-          ttl: 0
-          priority: high
-          channel: HA Alarm
-          importance: max
-          notification_icon: mdi:church
+        ttl: 0
+        priority: high
+        channel: HA Alarm
+        importance: max
+        notification_icon: mdi:church
   mode: single
-- id: "1707254496023"
+- id: '1707254496023'
   alias: Droger status
-  description: ""
+  description: ''
   use_blueprint:
     path: sbyx/notify-or-do-something-when-an-appliance-like-a-dishwasher-or-washing-machine-finishes.yaml
     input:
@@ -1012,198 +1002,239 @@
       starting_threshold: 20
       finishing_hysteresis: 10
       pre_actions:
-        - service: input_select.select_option
-          target:
-            entity_id: input_select.bijkeuken_droger_status
-          data:
-            option: Bezig
+      - service: input_select.select_option
+        target:
+          entity_id: input_select.bijkeuken_droger_status
+        data:
+          option: Bezig
       actions:
-        - service: input_select.select_option
-          target:
-            entity_id: input_select.bijkeuken_droger_status
-          data:
-            option: Uit
-- id: "1711790259096"
+      - service: input_select.select_option
+        target:
+          entity_id: input_select.bijkeuken_droger_status
+        data:
+          option: Uit
+- id: '1711790259096'
   alias: Deurbel
   description: Voer actie uit wanneer deurbel gaat.
   trigger:
-    - platform: state
-      entity_id:
-        - binary_sensor.gang_bel_button
-      from: "off"
-      to: "on"
+  - platform: state
+    entity_id:
+    - binary_sensor.gang_bel_button
+    from: 'off'
+    to: 'on'
   condition: []
   action:
-    - service: script.turn_on
-      metadata: {}
-      data: {}
-      target:
-        entity_id: script.deurbel
-    - service: media_player.play_media
-      data:
-        media_content_id: /media/local/snapshots/snapshot_driveway.jpg
-        media_content_type: image/jpeg
-      target:
-        device_id: 5e7a4946b72771280b3bdb6d1a192e5a
-    - delay:
-        hours: 0
-        minutes: 1
-        seconds: 0
-        milliseconds: 0
-    - service: media_player.turn_off
-      metadata: {}
-      data: {}
-      target:
-        device_id: 5e7a4946b72771280b3bdb6d1a192e5a
+  - service: script.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: script.deurbel
+  - service: media_player.play_media
+    data:
+      media_content_id: /media/local/snapshots/snapshot_driveway.jpg
+      media_content_type: image/jpeg
+    target:
+      device_id: 5e7a4946b72771280b3bdb6d1a192e5a
+  - delay:
+      hours: 0
+      minutes: 1
+      seconds: 0
+      milliseconds: 0
+  - service: media_player.turn_off
+    metadata: {}
+    data: {}
+    target:
+      device_id: 5e7a4946b72771280b3bdb6d1a192e5a
   mode: single
-- id: "1712692187196"
+- id: '1712692187196'
   alias: Todo tasks
-  description: ""
+  description: ''
   trigger:
-    - platform: time
-      at: 06:00:00
+  - platform: time
+    at: 06:00:00
   condition: []
   action:
-    - service: todo.get_items
+  - service: todo.get_items
+    data:
+      status:
+      - needs_action
+      - completed
+    response_variable: items_on_todo
+    target:
+      entity_id: todo.todos_today
+  - if:
+    - alias: Mormel voeren niet op de lijst
+      condition: template
+      value_template: '{{''Mormel voeren'' not in items_on_todo[''todo.todos_today''][''items'']
+        | map(attribute=''summary'') | list | string}}'
+    then:
+    - service: todo.add_item
+      metadata: {}
       data:
-        status:
-          - needs_action
-          - completed
-      response_variable: items_on_todo
+        item: Mormel voeren
       target:
         entity_id: todo.todos_today
-    - if:
-        - alias: Mormel voeren niet op de lijst
-          condition: template
-          value_template:
-            "{{'Mormel voeren' not in items_on_todo['todo.todos_today']['items']
-            | map(attribute='summary') | list | string}}"
-      then:
-        - service: todo.add_item
-          metadata: {}
-          data:
-            item: Mormel voeren
-          target:
-            entity_id: todo.todos_today
-        - service: notify.persistent_notification
-          data:
-            message: Test
-  mode: single
-- id: "1713036861687"
-  alias: Wall tablet - Reload
-  description: ""
-  trigger:
-    - platform: time
-      at: 01:15:00
-  condition: []
-  action:
-    - service: fully_kiosk.load_url
-      target:
-        device_id: f6b31284b6b269c52b5330a8f410eb5f
+    - service: notify.persistent_notification
       data:
-        url: http://192.168.1.21:8123/wall-tablet
+        message: Test
   mode: single
-- id: "1715605589630"
-  alias: Schakel zonnepanelen uit bij negatieve stroomprijs
-  description: ""
+- id: '1713036861687'
+  alias: Wall tablet - Reload
+  description: ''
   trigger:
-    - platform: state
-      entity_id:
-        - binary_sensor.negatieve_stroomprijzen
-      attribute: position
-      to: below
-    - platform: state
-      entity_id:
-        - binary_sensor.negatieve_stroomprijzen
-      attribute: position
-      to: above
+  - platform: time
+    at: 01:15:00
   condition: []
   action:
-    - if:
-        - condition: state
-          entity_id: binary_sensor.negatieve_stroomprijzen
-          state: "on"
-      then:
-        - service: number.set_value
-          data:
-            value: "0"
-          target:
-            entity_id: number.solaredge_active_power_limit
-        - service: notify.mobile_app_telefoon_rudolf
-          metadata: {}
-          data:
-            title: De zonnepanelen gaan uit
-            message: De stroomprijs is negatief!
-            data:
-              ttl: 0
-              priority: high
-              channel: HA Alarm
-              importance: max
-              notification_icon: mdi:solar-power-variant
-      else:
-        - service: number.set_value
-          data:
-            value: "100"
-          target:
-            entity_id: number.solaredge_active_power_limit
-        - service: notify.mobile_app_telefoon_rudolf
-          metadata: {}
-          data:
-            title: De zonnepanelen gaan weer aan
-            message: De stroomprijzen zijn weer positief.
-            data:
-              ttl: 0
-              priority: high
-              channel: HA Alarm
-              importance: max
-              notification_icon: mdi:solar-power-variant
+  - service: fully_kiosk.load_url
+    target:
+      device_id: f6b31284b6b269c52b5330a8f410eb5f
+    data:
+      url: http://192.168.1.21:8123/wall-tablet
   mode: single
-- id: "1726083649864"
+- id: '1715605589630'
+  alias: Schakel zonnepanelen uit bij negatieve stroomprijs
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.negatieve_stroomprijzen
+    attribute: position
+    to: below
+  - platform: state
+    entity_id:
+    - binary_sensor.negatieve_stroomprijzen
+    attribute: position
+    to: above
+  condition: []
+  action:
+  - if:
+    - condition: state
+      entity_id: binary_sensor.negatieve_stroomprijzen
+      state: 'on'
+    then:
+    - service: number.set_value
+      data:
+        value: '0'
+      target:
+        entity_id: number.solaredge_active_power_limit
+    - service: notify.mobile_app_telefoon_rudolf
+      metadata: {}
+      data:
+        title: De zonnepanelen gaan uit
+        message: De stroomprijs is negatief!
+        data:
+          ttl: 0
+          priority: high
+          channel: HA Alarm
+          importance: max
+          notification_icon: mdi:solar-power-variant
+    else:
+    - service: number.set_value
+      data:
+        value: '100'
+      target:
+        entity_id: number.solaredge_active_power_limit
+    - service: notify.mobile_app_telefoon_rudolf
+      metadata: {}
+      data:
+        title: De zonnepanelen gaan weer aan
+        message: De stroomprijzen zijn weer positief.
+        data:
+          ttl: 0
+          priority: high
+          channel: HA Alarm
+          importance: max
+          notification_icon: mdi:solar-power-variant
+  mode: single
+- id: '1726487429371'
+  alias: Lichten uit bij verlaten huis
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - group.trackable_family
+    from: home
+    to: not_home
+  condition:
+  - condition: state
+    entity_id: light.functionele_verlichting
+    state: 'on'
+  action:
+  - data:
+      title: Lampen uitgeschakeld na verlaten huis
+      message: '{{ message_data }}'
+      data:
+        ttl: 0
+        priority: high
+    action: notify.mobile_app_telefoon_rudolf
+  - action: light.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: light.functionele_verlichting
+  mode: single
+  variables:
+    message_data: "{% for entity_id in states.light.functionele_verlichting.attributes.entity_id
+      -%}\n  {% if(states(entity_id) == 'on')-%}\n      {{- '\\n' -}}\n    - {% print(state_attr(entity_id,'friendly_name'))
+      -%}\n  {% endif-%}\n{%- endfor %}"
+- id: '1727854274643'
+  alias: Mika deken aanzetten
+  description: Zet Mika's deken aan om 18:30
+  triggers:
+  - trigger: time
+    at: '18:30:00'
+  conditions: []
+  actions:
+  - type: turn_on
+    device_id: e4338830b28f1dbc923f6ca4dede173d
+    entity_id: c051b0866dd83ee3368b42bf1bd32331
+    domain: switch
+  mode: single
+- id: '1729681583908'
   alias: Keuken light
-  description: ""
+  description: ''
   use_blueprint:
     path: TheHolyRoger/Philips_HUE_SmartButton.yaml
     input:
       helper_last_controller_event: input_text.last_controller_event
       controller_topic: zigbee2mqtt/Keuken Mini button/action
       hold_to_dim_entity: light.keuken_eettafel
-      button_multi_press_enabled: false
-      toggle_dim_entity_brightness: 78
-      hold_to_dim_brightness_step: 10
-      button_long_repeat_max_loop_repeats: 25
-      button_long_repeat_loop: false
-      resume_light_state_when_off: false
-      hold_to_dim_direction_down: false
+      toggle_dim_entity_transition: 1
+      toggle_dim_entity_brightness: 100
       button_multi_press_always_fire_first_release: false
-- id: "1726487429371"
-  alias: Lichten uit bij verlaten huis
-  description: ""
-  trigger:
-    - platform: state
-      entity_id:
-        - group.trackable_family
-      from: home
-      to: not_home
-  condition:
-    - condition: state
-      entity_id: light.functionele_verlichting
-      state: "on"
-  action:
-    - data:
-        title: Lampen uitgeschakeld na verlaten huis
-        message: "{{ message_data }}"
-        data:
-          ttl: 0
-          priority: high
-      action: notify.mobile_app_telefoon_rudolf
-    - action: light.turn_off
-      metadata: {}
-      data: {}
-      target:
-        entity_id: light.functionele_verlichting
+      hold_to_dim_direction_down: false
+      button_multi_press_enabled: false
+      button_toggle_dim_entity_first_press: true
+      hold_to_dim_brightness_step: 20
+      button_hold_to_dim: false
+- id: '1730240747048'
+  alias: Flight entry notification
+  description: ''
+  triggers:
+  - event_type: flightradar24_entry
+    trigger: event
+  actions:
+  - data:
+      message: Flight entry of {{ trigger.event.data.callsign }} to {{ trigger.event.data.airport_destination_city
+        }} [Open FlightRadar](https://www.flightradar24.com/{{ trigger.event.data.callsign
+        }})
+      data:
+        url: https://fr24.com/{{ trigger.event.data.callsign }}/{{ trigger.event.data.id
+          }}
+        image: '{{ trigger.event.data.aircraft_photo_medium }}'
+    action: notify.mobile_app_telefoon_rudolf
+- id: '1731329249522'
+  alias: Test zinnen
+  description: ''
+  triggers:
+  - trigger: conversation
+    command: Speel het clublied van de beste club ter wereld
+  conditions: []
+  actions:
+  - action: spotcast.play_media
+    data:
+      media_player:
+        entity_id: media_player.nests_beneden
+      spotify_uri: https://open.spotify.com/track/2lL45TYwowSVlBoh72q6nA?si=22b035f3b4014dff
   mode: single
-  variables:
-    message_data:
-      "{% for entity_id in states.light.functionele_verlichting.attributes.entity_id
-      -%}\n  {% if(states(entity_id) == 'on')-%}\n      {{- '\\n' -}}\n    - {% print(state_attr(entity_id,'friendly_name'))
-      -%}\n  {% endif-%}\n{%- endfor %}"
