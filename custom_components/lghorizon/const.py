@@ -3,8 +3,11 @@
 DOMAIN = "lghorizon"
 API = "lghorizon_api"
 CONF_COUNTRY_CODE = "country_code"
+CONF_REFRESH_TOKEN = "refresh_token"
 CONF_REMOTE_KEY = "remote_key"
 CONF_IDENTIFIER = "identifier"
+CONF_PROFILE_ID = "profile_id"
+
 
 RECORD = "record"
 REWIND = "rewind"
@@ -15,6 +18,7 @@ COUNTRY_CODES = {
     "Ziggo": "nl",
     "Telenet (BE)": "be-nl",
     "Telenet (BE, PREPROD)": "be-nl-preprod",
+    "BASE TV (BE)": "be-basetv",
     # "Telenet (FR)": "be-fr",
     "Magenta": "at",
     "UPC Switzerland": "ch",

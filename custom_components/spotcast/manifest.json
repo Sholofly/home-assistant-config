@@ -1,19 +1,24 @@
 {
     "domain": "spotcast",
     "name": "Spotcast",
-    "after_dependencies": [
-        "cast",
-        "spotify"
-    ],
     "codeowners": [
         "@fondberg",
         "@fcusson"
     ],
+    "config_flow": true,
     "dependencies": [
-        "spotify"
+        "spotify",
+        "cast",
+        "application_credentials"
     ],
     "documentation": "https://github.com/fondberg/spotcast",
+    "integration_type": "service",
     "iot_class": "cloud_polling",
     "issue_tracker": "https://github.com/fondberg/spotcast/issues",
-    "version": "v3.8.1"
+    "requirements": [
+        "spotipy>=2.23.0",
+        "Levenshtein>=0.26.1",
+        "spotifyaio>=0.8.8"
+    ],
+    "version": "v5.0.0-b4"
 }

@@ -3,19 +3,34 @@
   "config": {
     "step": {
       "user": {
-        "title": "LG Horizon - Login details",
-        "description":"Vul de gegevens van je Ziggo, Telenet, UPC, Magenta of Virgin account in.",
+        "title": "LG Horizon - Provider en gebruikersnaam",
+        "description": "Vul de gegevens van je Ziggo, Telenet, UPC, Magenta of Virgin account in.",
         "data": {
-          "username": "Gebruikersnaam",
-          "password": "Wachtwoord",
           "country_code": "Provider",
-          "identifier": "DTV identifier"
+          "username": "Gebruikersnaam"
+        }
+      },
+      "credentials": {
+        "title": "LG Horizon - Authenticatiegegevens",
+        "description": "Vul de authenticatiegegevens van je Ziggo, Telenet, UPC/Sunrise, Magenta of Virgin account in.",
+        "data": {
+          "password": "Wachtwoord",
+          "identifier": "DTV identifier",
+          "refresh_token": "Refreshtoken"
+        }
+      },
+      "profile": {
+        "title": "LG Horizon - Selecteer profiel",
+        "description": "Selecteer het profiel waarvan je de favoriete kanalen wilt tonen",
+        "data": {
+          "profile_id": "Profiel"
         }
       }
     },
     "error": {
       "cannot_connect": "Kan niet verbinden",
       "invalid_auth": "Ongeldige logingegevens",
+      "account_locked": "Je account is geblokkeerd. Wacht 10 minuten voor je het weer probeert.",
       "unknown": "Onbekende fout"
     },
     "abort": {
@@ -61,7 +76,7 @@
           "name": "Entity Id",
           "description": "Entiteit ID van je mediabox."
         },
-        "remote_key":{
+        "remote_key": {
           "name": "Knop afstandsbediening",
           "description": "De te versturen knop."
         }
