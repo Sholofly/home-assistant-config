@@ -4,27 +4,4 @@ unique_id: f1a67a35-7b50-4d95-8ccb-e6642c950061
 icon: mdi:currency-eur
 unit_of_measurement: "EUR/kWh"
 state: >
-  {{ states('sensor.nordpool_kwh_nl_eur_5_10_021') | float(0) + states('input_number.nordpool_additional_costs_eneco') | float(0) }}
-attributes:
-  times: >
-    {% set ns = namespace(times=[]) -%}
-    {%- set today = state_attr('sensor.nordpool_kwh_nl_eur_5_10_021','raw_today') -%}
-    {%- for hours in today -%}
-      {%- set ns.times = ns.times + [as_local((hours.start)).strftime("%Y-%m-%d %H:%M:%S")] -%} 
-    {%- endfor -%}
-    {%- set tomorrow = state_attr('sensor.nordpool_kwh_nl_eur_5_10_021','raw_tomorrow') -%}
-    {%- for hours in tomorrow -%}
-      {%- set ns.times = ns.times + [as_local((hours.start)).strftime("%Y-%m-%d %H:%M:%S")] -%} 
-    {%- endfor -%}
-    {{ ns.times }}
-  prices: >
-    {% set ns = namespace(prices=[]) -%}
-    {%- set today = state_attr('sensor.nordpool_kwh_nl_eur_5_10_021','raw_today') -%}
-    {%- for hours in today -%}
-      {%- set ns.prices = ns.prices + [hours.value + states('input_number.nordpool_additional_costs_eneco') | float(0)] -%} 
-    {%- endfor -%}
-    {%- set tomorrow = state_attr('sensor.nordpool_kwh_nl_eur_5_10_021','raw_tomorrow') -%}
-    {%- for hours in tomorrow -%}
-      {%- set ns.prices = ns.prices + [hours.value + states('input_number.nordpool_additional_costs_eneco') | float(0)] -%} 
-    {%- endfor -%}
-    {{ ns.prices }}
+  {{ (states('sensor.nord_pool_nl_huidige_prijs') | float(0) * 1.23) + states('input_number.nordpool_additional_costs_eneco') | float(0) }}
