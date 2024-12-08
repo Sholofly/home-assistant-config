@@ -1243,6 +1243,13 @@
             "battery_type": "CR123"
         },
         {
+            "manufacturer": "BOSCH",
+            "model": "DWCII",
+            "model_id": "12309",
+            "hw_version": "2.0",
+            "battery_type": "CR123A"
+        },
+        {
             "manufacturer": "Bosch",
             "model": "ISW-ZPR1-WP13",
             "battery_type": "AA",
@@ -1267,9 +1274,23 @@
             "battery_quantity": 2
         },
         {
+            "manufacturer": "BOSCH",
+            "model": "Radiator Thermostat II +M",
+            "model_id": "12306",
+            "hw_version": "1.2.0",
+            "battery_type": "AA",
+            "battery_quantity": 2
+        },
+        {
             "manufacturer": "Bosch",
             "model": "Smoke alarm detector (BSD-2)",
             "battery_type": "Irreplaceable"
+        },
+        {
+            "manufacturer": "BOSCH",
+            "model": "TWINGUARD",
+            "battery_type": "AA",
+            "battery_quantity": 6
         },
         {
             "manufacturer": "Bosch",
@@ -2537,6 +2558,11 @@
         },
         {
             "manufacturer": "Govee",
+            "model": "H5100",
+            "battery_type": "AAA"
+        },
+        {
+            "manufacturer": "Govee",
             "model": "H5101/H5102/H5177",
             "battery_type": "AAA"
         },
@@ -2812,7 +2838,7 @@
         {
             "manufacturer": "Husqvarna AB",
             "model": "TBD",
-            "battery_type": "9V"
+            "battery_type": "PP3"
         },
         {
             "manufacturer": "iCasa",
@@ -3165,6 +3191,12 @@
         {
             "manufacturer": "Konke",
             "model": "3AFE28010402000D",
+            "battery_type": "CR2450"
+        },
+        {
+            "manufacturer": "Konke",
+            "model": "Temperature and humidity sensor",
+            "model_id": "2AJZ4KPFT",
             "battery_type": "CR2450"
         },
         {
@@ -3526,6 +3558,12 @@
             "model": "CSX-YJ-XX (SerenaHoneycombShade)",
             "battery_type": "D",
             "battery_quantity": 6
+        },
+        {
+            "manufacturer": "Lutron Electronics Co., Inc",
+            "model": "None (Shade)",
+            "battery_type": "D",
+            "battery_quantity": 8
         },
         {
             "manufacturer": "Lutron Electronics Co., Inc",
@@ -4588,6 +4626,11 @@
         },
         {
             "manufacturer": "Shelly",
+            "model": "BTHome sensor",
+            "battery_type": "MANUAL"
+        },
+        {
+            "manufacturer": "Shelly",
             "model": "gen1 (SHHT-1)",
             "battery_type": "CR123A"
         },
@@ -4864,6 +4907,11 @@
         },
         {
             "manufacturer": "SMaBiT (Bitron Video)",
+            "model": "4 button Zigbee remote control (AV2010/23)",
+            "battery_type": "CR2032"
+        },
+        {
+            "manufacturer": "SMaBiT (Bitron Video)",
             "model": "Compact magnetic contact sensor (AV2010/21A)",
             "battery_type": "CR2"
         },
@@ -4875,7 +4923,7 @@
         {
             "manufacturer": "SmartLabs, Inc",
             "model": "2844-222 (0x10, 0x16)",
-            "battery_type": "9V"
+            "battery_type": "PP3"
         },
         {
             "manufacturer": "SmartLabs, Inc",
@@ -6672,7 +6720,7 @@
         {
             "manufacturer": "Xiaomi",
             "model": "BTHome sensor",
-            "battery_type": "CR2032"
+            "battery_type": "MANUAL"
         },
         {
             "manufacturer": "Xiaomi",
@@ -6859,6 +6907,11 @@
             "manufacturer": "Xiaomi",
             "model": "WXKG13LM",
             "battery_type": "CR2032"
+        },
+        {
+            "manufacturer": "Xiaomi",
+            "model": "XMOSB01XS",
+            "battery_type": "CR2450"
         },
         {
             "manufacturer": "Xiaomi",
@@ -7133,6 +7186,11 @@
             "manufacturer": "Zooz",
             "model": "ZSE41",
             "battery_type": "CR2032"
+        },
+        {
+            "manufacturer": "Zooz",
+            "model": "ZSE41 Open Close Sensor",
+            "battery_type": "Zooz ZSE41"
         },
         {
             "manufacturer": "Zooz",

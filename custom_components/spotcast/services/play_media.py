@@ -5,8 +5,10 @@ Functions:
 """
 
 from logging import getLogger
+from random import randint
 
 from homeassistant.core import HomeAssistant, ServiceCall
+from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import config_validation as cv
 import voluptuous as vol
 
@@ -40,7 +42,6 @@ async def async_play_media(hass: HomeAssistant, call: ServiceCall):
         - hass(HomeAssistant): the Home Assistant Instance
         - call(ServiceCall): the service call data pack
     """
-
     uri: str = call.data.get("spotify_uri")
     account_id: str = call.data.get("account")
     media_players: dict[str, list] = call.data.get("media_player")
@@ -59,11 +60,19 @@ async def async_play_media(hass: HomeAssistant, call: ServiceCall):
     )
 
     # check for track uri and switch to album with offset if necessary
-    if uri.startswith("spotify:track:"):
-        track_info = await account.async_get_track(uri)
-        uri = track_info["album"]["uri"]
-        LOGGER.debug("Switching context to song's album `%s`", uri)
-        extras["offset"] = track_info["track_number"] - 1
+    if uri is None:
+        pass
+    elif uri.startswith("spotify:track:"):
+
+        uri, index = await async_track_index(account, uri)
+        LOGGER.debug(
+            "Switching context to song's album `%s`, with offset %d",
+            uri,
+            index,
+        )
+        extras["offset"] = index - 1
+    elif extras.get("random", False):
+        extras["offset"] = await async_random_index(account, uri)
 
     LOGGER.debug("Getting %s from home assistant", entity_id)
     media_player = await async_media_player_from_id(hass, account, entity_id)
@@ -77,3 +86,64 @@ async def async_play_media(hass: HomeAssistant, call: ServiceCall):
 
     await account.async_play_media(media_player.id, uri, **extras)
     await account.async_apply_extras(media_player.id, extras)
+
+
+async def async_track_index(
+    account: SpotifyAccount,
+    uri: str
+) -> tuple[str, int]:
+    """Returns the uri of the album and the index that would play the
+    uri provided in the context of the album
+
+    Args:
+        - account(SpotifyAccount): the account used to fetch track
+            information
+        - uri(str): A track URI
+
+    Returns:
+        - tuple[str, int]: A tuple containing the album uri of the
+            track and its index in the album (counting multi disc
+            albums)
+    """
+    track_info = await account.async_get_track(uri)
+    album_uri = track_info["album"]["uri"]
+
+    # returns track number, when part of album
+    if track_info["disc_number"] == 1:
+        return album_uri, track_info["track_number"]
+
+    album_info = await account.async_get_album(album_uri)
+
+    album_songs = [x["uri"] for x in album_info["tracks"]["items"]]
+
+    return album_uri, album_songs.index(uri) + 1
+
+
+async def async_random_index(account: SpotifyAccount, uri: str) -> int:
+    """Returns a random index for starting the context at. Must be an
+    artist, album or playlist
+
+    Args:
+        - account(SpotifyAccount): the account used for fetching
+            context info
+        - uri(str): the uri of the context to start at a random index
+
+    Result:
+        - int: a random index between 0 and the number of items in the
+            context uri - 1
+    """
+
+    if uri.startswith("spotify:album:"):
+        album = await account.async_get_album(uri)
+        count = album["total_tracks"]
+    elif uri.startswith("spotify:playlist:"):
+        playlist = await account.async_get_playlist(uri)
+        count = playlist["tracks"]["total"]
+    elif uri == account.liked_songs_uri:
+        count = await account.async_liked_songs_count()
+    else:
+        raise ServiceValidationError(
+            f"{uri} is not compatible with random start track"
+        )
+
+    return randint(0, count-1)
