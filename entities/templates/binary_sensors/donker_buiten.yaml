@@ -3,4 +3,4 @@
 ################################################
 name: "Donker buiten"
 state: >-
-  {{ states('sensor.voortuin_lichtsensor_illuminance_lux') | float(30) < 30 | default(False) }}
+  {{ states('sensor.voortuin_lichtsensor_illuminance') | float(30) < 30 | default(False) }}
