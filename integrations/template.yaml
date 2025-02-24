@@ -1,4 +1,13 @@
 template:
-  sensor: !include_dir_list ../entities/templates/sensors
-  binary_sensor: !include_dir_list ../entities/templates/binary_sensors
-  select: !include_dir_list ../entities/templates/selects
+  - sensor: !include_dir_list ../entities/templates/sensors
+  - binary_sensor: !include_dir_list ../entities/templates/binary_sensors
+  - select: !include_dir_list ../entities/templates/selects
+  - trigger:
+      trigger: event
+      event_type: set_camera_description
+    sensor:
+      - unique_id: 4a4c8e53-9e68-4198-9cc5-b336e228ea4d
+        name: Camera detection
+        state: "{{trigger.event.data.key}}"
+        attributes:
+          full_description: "{{ trigger.event.data.value}}"

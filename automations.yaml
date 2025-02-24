@@ -1016,23 +1016,23 @@
 - id: '1711790259096'
   alias: Deurbel
   description: Voer actie uit wanneer deurbel gaat.
-  trigger:
-  - platform: state
-    entity_id:
+  triggers:
+  - entity_id:
     - binary_sensor.gang_bel_button
     from: 'off'
     to: 'on'
-  condition: []
-  action:
-  - service: script.turn_on
-    metadata: {}
+    trigger: state
+  conditions: []
+  actions:
+  - metadata: {}
     data: {}
     target:
       entity_id: script.deurbel
-  - service: media_player.play_media
-    data:
+    action: script.turn_on
+  - data:
       media_content_id: /media/local/snapshots/snapshot_driveway.jpg
       media_content_type: image/jpeg
+    action: media_player.play_media
     target:
       device_id: 5e7a4946b72771280b3bdb6d1a192e5a
   - delay:
@@ -1040,11 +1040,11 @@
       minutes: 1
       seconds: 0
       milliseconds: 0
-  - service: media_player.turn_off
-    metadata: {}
+  - metadata: {}
     data: {}
     target:
       device_id: 5e7a4946b72771280b3bdb6d1a192e5a
+    action: media_player.turn_off
   mode: single
 - id: '1712692187196'
   alias: Todo tasks
@@ -1237,4 +1237,49 @@
       media_player:
         entity_id: media_player.nests_beneden
       spotify_uri: https://open.spotify.com/track/2lL45TYwowSVlBoh72q6nA?si=22b035f3b4014dff
+  mode: single
+- id: '1733684130313'
+  alias: Nieuw bericht VSCO.nl
+  description: ''
+  triggers:
+  - trigger: event
+    event_type: feedreader
+    event_data:
+      feed_url: https://vsco.nl/nieuws/feed
+  conditions: []
+  actions:
+  - action: notify.mobile_app_telefoon_rudolf
+    metadata: {}
+    data:
+      title: Nieuw bericht VSCO.nl
+      message: 'Titel: {{state_attr(''event.nieuws_archive_vsco_61'', ''title'')}}\n
+        Datum: {{states(''event.nieuws_archive_vsco_61'') }}
+
+        '
+      data:
+        notification_icon: mdi:newspaper-plus
+        actions:
+        - action: URI
+          title: Lees bericht
+          uri: '{{state_attr(''event.nieuws_archive_vsco_61'', ''link'')}}'
+  mode: single
+- id: '1740346097698'
+  alias: Inkoopvergoedingen wijzigen
+  description: ''
+  triggers:
+  - trigger: time
+    at: input_datetime.datum_nieuw_tarief_eneco
+  conditions: []
+  actions:
+  - action: input_number.set_value
+    metadata: {}
+    data: value:"{{states('input_number.eneco_nieuwe_inkoopvergoeding_stroom')}}"
+    target:
+      entity_id: input_number.eneco_inkoopvergoeding_stroom
+  - action: input_number.set_value
+    metadata: {}
+    data:
+      value: '{{states(''input_number.eneco_nieuwe_inkoopvergoeding_gas'')}}'
+    target:
+      entity_id: input_number.eneco_inkoopvergoeding_gas
   mode: single
