@@ -1,7 +1,0 @@
-##### NordPool Energyprices ##################################
-name: "NordPool Energyprices"
-unique_id: f1a67a35-7b50-4d95-8ccb-e6642c950061
-icon: mdi:currency-eur
-unit_of_measurement: "EUR/kWh"
-state: >
-  {{ (states('sensor.nord_pool_nl_huidige_prijs') | float(0) * 1.23) + states('input_number.nordpool_additional_costs_eneco') | float(0) }}

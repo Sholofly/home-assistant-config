@@ -17,30 +17,57 @@ deurbel:
   icon: mdi:doorbell
   mode: restart
   sequence:
-  - service: camera.snapshot
-    metadata: {}
-    data:
-      filename: /media/snapshots/snapshot_driveway.jpg
-    target:
-      entity_id: camera.voortuin
-  - alias: Verstuur melding naar alle home assistant apps die thuis zijn
-    repeat:
-      for_each: "{{\n  expand(state_attr('zone.home', 'persons'))\n    | map(attribute='attributes.source')\n
-        \   | map('replace', 'device_tracker.', 'notify.mobile_app_')\n    | list\n}}
-        \n"
-      sequence:
-      - alias: Send doorbell notification
-        service: '{{ repeat.item }}'
-        data:
-          title: Ding dong!
-          message: De deurbel gaat
-          data:
-            channel: deurbel
-            notification_icon: mdi:doorbell-video
-            priority: high
-            tag: deurbel
-            timeout: 60
-            ttl: 0
-            visibility: public
-            clickAction: /mobile-dashboard/deurbel
-            image: /media/local/snapshots/snapshot_driveway.jpg?ts={{now().timestamp()}}
+  - sequence:
+    - metadata: {}
+      data:
+        filename: /media/snapshots/snapshot_driveway.jpg
+      target:
+        entity_id: camera.voortuin
+      action: camera.snapshot
+    - action: google_generative_ai_conversation.generate_content
+      metadata: {}
+      data:
+        prompt: 'Start with a boolean that states if there''s a person or vehicle
+          in the image. Than place a ''|'' and then describe in Dutch what persons,
+          cars or bikes you see on the image. If it is a person, tell me if it looks
+          like a man or a woman, what he or she is wearing and if he or she is carrying
+          something. If so, describe what it looks like. If it''s a car, try to read
+          the license plate, tell me the color and the possible brand and model. '
+        image_filename: /media/snapshots/snapshot_driveway.jpg
+      response_variable: photodescription
+    - parallel:
+      - alias: Verstuur melding naar alle home assistant apps die thuis zijn
+        repeat:
+          for_each: "{{\n  expand(state_attr('zone.home', 'persons'))\n    | map(attribute='attributes.source')\n
+            \   | map('replace', 'device_tracker.', 'notify.mobile_app_')\n    | list\n}}
+            \n"
+          sequence:
+          - alias: Send doorbell notification
+            data:
+              title: Ding dong!
+              message: '{{photodescription.text.split(''|'')[1]}}'
+              data:
+                channel: deurbel
+                notification_icon: mdi:doorbell-video
+                priority: high
+                tag: deurbel
+                timeout: 60
+                ttl: 0
+                visibility: public
+                clickAction: /mobile-dashboard/deurbel
+                image: /media/local/snapshots/snapshot_driveway.jpg?ts={{now().timestamp()}}
+            action: '{{ repeat.item }}'
+      - event: set_camera_description
+        event_data:
+          key: '{{ photodescription.text.split(''|'')[0] }}'
+          value: '{{ photodescription.text.split(''|'')[1] }}'
+  description: ''
+announce_keuken:
+  use_blueprint:
+    path: balloob/announce-text-to-speech-on-media-player.yaml
+    input:
+      text_to_speech_engine: tts.home_assistant_cloud
+      media_player:
+      - media_player.keuken_nest_hub_mass
+  alias: Announce keuken
+  description: ''
