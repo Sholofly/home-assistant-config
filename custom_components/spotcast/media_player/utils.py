@@ -17,6 +17,7 @@ from homeassistant.components.cast.helpers import ChromeCastZeroconf
 from custom_components.spotcast.media_player.exceptions import (
     MediaPlayerNotFoundError,
     UnknownIntegrationError,
+    MissingActiveDeviceError,
 )
 from custom_components.spotcast.media_player import (
     MediaPlayer,
@@ -38,9 +39,23 @@ PLAYER_TYPES = (
 async def async_media_player_from_id(
     hass: HomeAssistant,
     account: SpotifyAccount,
-    entity_id: str,
+    entity_id: str = None,
 ) -> MediaPlayer:
-    """Retrives an entity from the entity_id"""
+    """Retrives an entity from the entity_id
+
+    Args:
+        - hass(HomeAssistant): the Home Assistant instance
+        - account(SpotifyAccount): the account linked to the request
+        - entity_id(str, optional): the entity_id of the media player
+            to retrieve. Defaults to the active device of the account
+
+    Returns:
+        - MediaPlayer: the media player linked to the entity id
+            provided
+    """
+
+    if entity_id is None:
+        return await async_active_device(account)
 
     for player_type in PLAYER_TYPES:
 
@@ -67,6 +82,33 @@ async def async_media_player_from_id(
     raise MediaPlayerNotFoundError(
         f"Could not find `{entity_id}` in the managed integrations",
     )
+
+
+async def async_active_device(account: SpotifyAccount) -> SpotifyDevice:
+    """Returns the currently active device for the spotify account.
+    Raises an error if there are no active playback
+
+    Args:
+        - account(SpotifyAccount): the account to look for an active
+            device
+
+    Returns:
+        - SpotifyDevice: the media player instance of the active
+            device
+
+    Raises:
+        - MissingActiveDeviceError: raised when no active playback exist
+    """
+    playback_state = await account.async_playback_state(force=True)
+
+    if playback_state == {}:
+        raise MissingActiveDeviceError(
+            "No active playback available. A target must be provided"
+        )
+
+    media_player = SpotifyDevice(account, playback_state["device"])
+
+    return media_player
 
 
 async def async_entities_from_integration(
@@ -106,7 +148,7 @@ async def async_entities_from_integration(
 
 def need_to_quit_app(
     media_player: Chromecast,
-    active_device: str,
+    account: SpotifyAccount,
     app_id: str = SpotifyController.APP_ID,
 ) -> bool:
     """Returns True if the CastDevice needs to quit the app its
@@ -114,8 +156,8 @@ def need_to_quit_app(
 
     Args:
         - media_player(Chromecast): the cast device to check
-        - active_device(str): The id of the currently active device
-            on the account
+        - account(SpotifyAccount):  the account requesting to start
+            Spotify playback on the media_player
         - app_id(str, optional): The spotify App ID. Defaults to the
             app_id set in the SpotifyController
 
@@ -123,11 +165,12 @@ def need_to_quit_app(
         - bool: True if needs to quit the app
     """
 
-    return (
-        (
-            media_player.app_id == app_id
-            and media_player.id != active_device
-        ) or media_player.app_id is not None
+    if media_player.app_id is None:
+        return False
+
+    return not (
+        media_player.app_id == app_id
+        and media_player.id == account.active_device
     )
 
 
@@ -160,13 +203,17 @@ async def async_build_from_type(
         media_player.register_handler(spotify_controller)
         await account.async_playback_state()
 
-        if need_to_quit_app(media_player, account.active_device):
+        do_quit = need_to_quit_app(media_player, account)
+        running_spotify = media_player.app_id == spotify_controller.APP_ID
+
+        if do_quit:
             media_player.quit_app()
 
-        await hass.async_add_executor_job(
-            spotify_controller.launch_app,
-            media_player,
-        )
+        if not running_spotify or do_quit:
+            await hass.async_add_executor_job(
+                spotify_controller.launch_app,
+                media_player,
+            )
 
         return media_player
 

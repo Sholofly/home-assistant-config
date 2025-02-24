@@ -7,9 +7,9 @@ Functions:
 from logging import getLogger
 
 from homeassistant.core import HomeAssistant, ServiceCall
-from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import config_validation as cv
 from homeassistant.util.read_only_dict import ReadOnlyDict
+from homeassistant.exceptions import ServiceValidationError
 import voluptuous as vol
 
 
@@ -52,13 +52,12 @@ async def async_transfer_playback(hass: HomeAssistant, call: ServiceCall):
     playback_state = await account.async_playback_state(force=True)
     call_data = copy_to_dict(call.data)
     call_data["data"] = call_data.get("data", {})
+    last_uri_context = _get_context_uri(account.last_playback_state)
 
     # check if no active playback
-    if playback_state == {} and account.last_playback_state == {}:
-        raise ServiceValidationError(
-            f"Account `{account.name}` has no known or active playback. "
-            "Nothing to transfer"
-        )
+    if playback_state == {} and last_uri_context is None:
+        LOGGER.warning("No known playback state. Defaults back to liked songs")
+        call_data["spotify_uri"] = account.liked_songs_uri
     elif playback_state != {}:
         call_data["spotify_uri"] = None
     else:
@@ -67,6 +66,17 @@ async def async_transfer_playback(hass: HomeAssistant, call: ServiceCall):
     call.data = ReadOnlyDict(call_data)
 
     await async_play_media(hass, call)
+
+
+def _get_context_uri(playback_state: dict) -> str:
+    """Returns the uri of the playback context from the playback state
+    provided. Returns None if not context exist"""
+    context: dict = playback_state.get("context")
+
+    if context is None:
+        context = {}
+
+    return context.get("uri")
 
 
 async def async_rebuild_playback(
@@ -88,7 +98,7 @@ async def async_rebuild_playback(
     last_playback_state: dict = account.last_playback_state
     context_uri: str = last_playback_state["context"]["uri"]
     context_type: str = last_playback_state["context"]["type"]
-    extras = call_data["data"]
+    extras = call_data.get("data", {})
 
     # set the context_uri in the call_data
     call_data["spotify_uri"] = context_uri
@@ -119,6 +129,9 @@ async def async_rebuild_playback(
             track_index = track_index[1] - 1
         except ValueError:
             pass
+    # change the context to the episode if context is show
+    elif context_type == "show":
+        call_data["spotify_uri"] = current_item["uri"]
 
     # all remaining case that rely on fetching a list of items and
     # finding the current uri in the list

@@ -33,6 +33,11 @@ from custom_components.spotcast.spotify.exceptions import (
     PlaybackError,
     TokenError,
 )
+from custom_components.spotcast.sessions.exceptions import (
+    InternalServerError,
+    UpstreamServerNotready,
+)
+
 
 LOGGER = getLogger(__name__)
 
@@ -51,7 +56,7 @@ class SpotifyAccount:
 
     Properties:
         - id(str): the identifier of the account
-        - name(str): the dusplay name for the account
+        - name(str): the display name for the account
         - profile(dict): the full profile dictionary of the account
         - country(str): the country code where the account currently
             is.
@@ -84,8 +89,10 @@ class SpotifyAccount:
         - async_apply_extras
         - async_shuffle
         - async_liked_songs
+        - async_like_media
         - async_repeat
         - async_set_volume
+        - async_view
 
     Functions:
         - async_from_config_entry
@@ -368,7 +375,7 @@ class SpotifyAccount:
             skip_profile: bool = False,
             reauth_on_fail: bool = True,
     ):
-        """Ensures the token are valid
+        """Ensures the token are valid.
 
         Args:
             - skip_profile(bool, optional): set True to skip the
@@ -421,7 +428,7 @@ class SpotifyAccount:
         dataset = self._datasets["profile"]
 
         async with dataset.lock:
-            if force or dataset.is_expired:
+            if force or dataset.is_expired():
                 LOGGER.debug("Refreshing profile dataset")
                 data = await self.hass.async_add_executor_job(
                     self.apis["private"].me
@@ -440,7 +447,7 @@ class SpotifyAccount:
         dataset = self._datasets["devices"]
 
         async with dataset.lock:
-            if force or dataset.is_expired:
+            if force or dataset.is_expired():
                 LOGGER.debug("Refreshing devices dataset")
                 data = await self.hass.async_add_executor_job(
                     self.apis["public"].devices
@@ -509,6 +516,8 @@ class SpotifyAccount:
         Returns:
             - dict: the playlist details
         """
+        await self.async_ensure_tokens_valid()
+        LOGGER.debug("Fetching information from playlist `%s`", uri)
 
         playlist_id = self._id_from_uri(uri)
 
@@ -530,6 +539,8 @@ class SpotifyAccount:
         Returns:
             - dict: the album details
         """
+        await self.async_ensure_tokens_valid()
+        LOGGER.debug("Fetching information for album `%s`", uri)
 
         album_id = self._id_from_uri(uri)
 
@@ -550,6 +561,8 @@ class SpotifyAccount:
         Returns:
             - list[dict]: the list of top songes for an artist
         """
+        await self.async_ensure_tokens_valid()
+        LOGGER.debug("Fetching Top Tracks for artist `%s`", uri)
 
         result = await self.hass.async_add_executor_job(
             self.apis["private"].artist_top_tracks,
@@ -562,6 +575,7 @@ class SpotifyAccount:
     async def async_get_playlist_tracks(self, uri: str) -> list[dict]:
         """Retrieves the list of tracks inside a playlist"""
         await self.async_ensure_tokens_valid()
+        LOGGER.debug("Fetching tracks from playlist `%s`", uri)
 
         playlist_id = self._id_from_uri(uri)
 
@@ -596,14 +610,26 @@ class SpotifyAccount:
                 information
         """
         await self.async_ensure_tokens_valid()
-
-        show_id = self._id_from_uri(uri)
+        LOGGER.debug("Fetching episodes from show `%s`", uri)
 
         result = await self._async_pager(
             function=self.apis["private"].show_episodes,
-            prepends=[show_id],
+            prepends=[uri],
             appends=[self.country],
             max_items=limit,
+        )
+
+        return result
+
+    async def async_get_episode(self, uri: str) -> str:
+        """Retrieves the information of a podcast episode"""
+        await self.async_ensure_tokens_valid()
+        LOGGER.debug("Fetching information from episode `%s`")
+
+        result = await self.hass.async_add_executor_job(
+            self.apis["private"].episode,
+            uri,
+            self.country,
         )
 
         return result
@@ -616,7 +642,7 @@ class SpotifyAccount:
         dataset = self._datasets["playback_state"]
 
         async with dataset.lock:
-            if force or dataset.is_expired:
+            if force or dataset.is_expired():
                 LOGGER.debug("Refreshing playback state dataset")
                 data = await self.hass.async_add_executor_job(
                     self.apis["private"].current_playback,
@@ -643,8 +669,19 @@ class SpotifyAccount:
 
     async def _async_add_audio_features(self, playback_state: dict) -> dict:
         """Adds the audio_features to the current playback state"""
-        current_uri = playback_state["item"]["uri"]
+
+        playback_state = {} if playback_state is None else playback_state
+
+        current_item = playback_state.get("item")
+
+        if current_item is None:
+            current_item = {}
+
+        current_uri = current_item.get("uri")
         last_uri = self.current_item["uri"]
+
+        if current_uri is None:
+            return playback_state
 
         if current_uri != last_uri:
             audio_features = await self.async_track_features(current_uri)
@@ -685,7 +722,7 @@ class SpotifyAccount:
         dataset = self._datasets["playlists"]
 
         async with dataset.lock:
-            if force or dataset.is_expired:
+            if force or dataset.is_expired():
                 LOGGER.debug("Refreshing playlists dataset")
 
                 playlists = await self._async_pager(
@@ -703,9 +740,15 @@ class SpotifyAccount:
     async def async_search(
             self,
             query: SearchQuery,
-            max_items: int = 20
+            limit: int = 20,
     ) -> list[dict]:
-        """Makes a search query and returns the result"""
+        """Makes a search query and returns the result
+
+        Args:
+            - query(SearchQuery): The search query to run
+            - limit(int, optional): The maximum amount of item to
+                retrieve in each category. Defaults to 20.
+        """
         await self.async_ensure_tokens_valid()
         LOGGER.debug(
             "Getting Search Result `%s` for account `%s`",
@@ -713,21 +756,22 @@ class SpotifyAccount:
             self.name,
         )
 
-        limit = 50
-
-        if max_items < limit:
-            limit = max_items
-
-        search_result = await self._async_pager(
-            function=self.apis["private"].search,
-            prepends=[query.query_string],
-            appends=[query.item_type, self.country],
-            limit=limit,
-            sub_layer=f"{query.item_type}s",
-            max_items=max_items,
+        search_result = await self.hass.async_add_executor_job(
+            self.apis["private"].search,
+            query.query_string,
+            limit,
+            0,
+            query.item_types_string,
+            self.country,
         )
 
-        return search_result
+        result = {}
+
+        for item_type in query.item_types:
+            key = f"{item_type}s"
+            result[key] = search_result[key]["items"]
+
+        return result
 
     async def async_wait_for_device(self, device_id: str, timeout: int = 12):
         """Asycnhronously wait for a device to become available
@@ -808,6 +852,18 @@ class SpotifyAccount:
         """
         await self.async_ensure_tokens_valid()
 
+        if context_uri is None and (uris == [] or uris is None):
+            LOGGER.info("transfering playback to device `%s`", device_id)
+            try:
+                await self.hass.async_add_executor_job(
+                    self.apis["private"].transfer_playback,
+                    device_id,
+                    True,
+                )
+                return
+            except SpotifyException as exc:
+                raise PlaybackError(exc.msg) from exc
+
         LOGGER.info(
             "Starting playback of `%s` on device `%s`",
             context_uri,
@@ -873,7 +929,7 @@ class SpotifyAccount:
         dataset = self._datasets["liked_songs"]
 
         async with dataset.lock:
-            if force or dataset.is_expired:
+            if force or dataset.is_expired():
                 LOGGER.debug("Refreshing liked songs dataset")
 
                 liked_songs = await self._async_pager(
@@ -885,6 +941,22 @@ class SpotifyAccount:
                 LOGGER.debug("Using cached liked songs dataset")
 
         return self.liked_songs
+
+    async def async_like_media(self, uris: list[str]):
+        """Adds a list of uris to the user's liked songs"""
+        await self.async_ensure_tokens_valid()
+
+        dataset = self._datasets["liked_songs"]
+
+        # Force expire the liked_songs dataset
+        async with dataset.lock:
+            dataset.expires_at = 0
+            LOGGER.debug("Expired liked_songs dataset after adding new likes")
+
+            await self.hass.async_add_executor_job(
+                self.apis["private"].current_user_saved_tracks_add,
+                uris,
+            )
 
     async def async_repeat(
         self,
@@ -948,7 +1020,7 @@ class SpotifyAccount:
         dataset = self._datasets["categories"]
 
         async with dataset.lock:
-            if force or dataset.is_expired:
+            if force or dataset.is_expired():
                 LOGGER.debug("Refreshing Browse Categories dataset")
 
                 categories = await self._async_pager(
@@ -995,6 +1067,72 @@ class SpotifyAccount:
         )
 
         return playlists
+
+    async def async_view(
+        self,
+        url: str,
+        language: str = None,
+        limit: int = None,
+    ) -> list[dict]:
+        """Fetches a view based on url.
+
+        Args:
+            - url(str): The url of the view to fetch (e.g.,
+                'made-for-x').
+            - language(str, optional): The ISO-639-1 language code to
+                show the view in. If None, defaults to en_US. Default
+                is None.
+            - limit(int, optional): The maximum number of playlists to
+                retrieve. If None, retrieves all items. Defaults to
+                None.
+
+        Returns:
+            - list: A list of playlists.
+        """
+
+        await self.async_ensure_tokens_valid()
+
+        locale = None if language is None else f"{language}_{self.country}"
+
+        return await self._async_pager(
+            function=self._fetch_view,
+            prepends=[url, locale],
+            limit=25,  # This is the max amount per call
+            max_items=limit,
+            sub_layer="content",
+        )
+
+    def _fetch_view(
+        self,
+        url: str,
+        locale: str,
+        limit: int = 25,
+        offset: int = 0,
+    ) -> dict:
+        """Retrieve a page from a view
+
+        Args:
+            - url(str): the endpoint to retrieve
+            - locale(str): an ISO-639-2 language code
+            - limit(int, optional): the maximum number of item to
+                retrieve in each call. Defaults to 25.
+            - offset(int, optional): the starting index from which to
+                retrieve elements. Defaults to 0.
+
+        Returns:
+            - dict: an api reply containing the content of a view
+        """
+
+        params = {
+            "content_limit": limit,
+            "locale": locale,
+            "platform": "web",
+            "types": "album,playlist,artist,show,station",
+            "limit": limit,
+            "offset": offset,
+        }
+
+        return self.apis["private"]._get(url, params)
 
     async def _async_get_count(
             self,

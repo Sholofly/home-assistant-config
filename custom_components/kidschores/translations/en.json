@@ -1,0 +1,1192 @@
+{
+  "title": "KidsChores",
+  "config": {
+    "step": {
+      "intro": {
+        "title": "Welcome to KidsChores",
+        "description": "This wizard will guide you through setting up KidsChores."
+      },
+      "points_label": {
+        "title": "Points Label",
+        "description": "Choose a label and icon for points.",
+        "data": {
+          "points_label": "Points Label",
+          "points_icon": "Points Icon"
+        }
+      },
+      "kid_count": {
+        "title": "Number of Kids",
+        "description": "How many kids do you want to manage?",
+        "data": {
+          "kid_count": "Number of Kids"
+        }
+      },
+      "kids": {
+        "title": "Define Kid",
+        "description": "Enter the name for each kid.",
+        "data": {
+          "kid_name": "Kid Name",
+          "internal_id": "Internal ID",
+          "ha_user": "Home Assistant User",
+          "enable_mobile_notifications": "Enable Mobile Notifications",
+          "mobile_notify_service": "Notify Service",
+          "enable_persistent_notifications": "Enable Persistent Notifications"
+        }
+      },
+      "parent_count": {
+        "title": "Number of Parents",
+        "description": "How many parents do you want to define initially?",
+        "data": {
+          "parent_count": "Number of Parents"
+        }
+      },
+      "parents": {
+        "title": "Define Parent",
+        "description": "Enter details for each parent.",
+        "data": {
+          "parent_name": "Parent Name",
+          "ha_user_id": "Home Assistant User",
+          "associated_kids": "Associated Kids",
+          "enable_mobile_notifications": "Enable Mobile Notifications",
+          "mobile_notify_service": "Notify Service",
+          "enable_persistent_notifications": "Enable Persistent Notifications",
+          "internal_id": "Internal ID"
+        }
+      },
+      "chore_count": {
+        "title": "Number of Chores",
+        "description": "How many chores do you want to define?",
+        "data": {
+          "chore_count": "Number of Chores"
+        }
+      },
+      "chores": {
+        "title": "Define Chore",
+        "description": "Enter details for each chore.",
+        "data": {
+          "chore_name": "Chore Name",
+          "internal_id": "Internal ID",
+          "default_points": "Default Points",
+          "allow_multiple_claims_per_day": "Allow Multiple Claims per Day?",
+          "partial_allowed": "Allow Partial Points?",
+          "shared_chore": "Shared Chore?",
+          "assigned_kids": "Assigned Kids",
+          "chore_description": "Description (optional)",
+          "icon": "Icon (mdi:xxx)",
+          "recurring_frequency": "Recurring Frequency",
+          "applicable_days": "Applicable Days",
+          "due_date": "Due Date",
+          "notify_on_claim": "Notify on Claim",
+          "notify_on_approval": "Notify on Approval",
+          "notify_on_disapproval": "Notify on Disapproval"
+        }
+      },
+      "badge_count": {
+        "title": "Number of Badges",
+        "description": "How many badges do you want to define?",
+        "data": {
+          "badge_count": "Badge Count"
+        }
+      },
+      "badges": {
+        "title": "Define Badge",
+        "description": "Enter details for each badge.",
+        "data": {
+          "badge_name": "Badge Name",
+          "internal_id": "Internal ID",
+          "threshold_type": "Threshold Type",
+          "threshold_value": "Threshold Value",
+          "points_multiplier": "Points Multiplier",
+          "icon": "Icon (mdi:xxx)",
+          "badge_description": "Description (optional)"
+        }
+      },
+      "reward_count": {
+        "title": "Number of Rewards",
+        "description": "How many rewards do you want to define?",
+        "data": {
+          "reward_count": "Reward Count"
+        }
+      },
+      "rewards": {
+        "title": "Define Reward",
+        "description": "Enter details for each reward.",
+        "data": {
+          "reward_name": "Reward Name",
+          "internal_id": "Internal ID",
+          "reward_cost": "Reward Cost",
+          "reward_description": "Description (optional)",
+          "icon": "Icon (mdi:xxx)"
+        }
+      },
+      "penalty_count": {
+        "title": "Number of Penalties",
+        "description": "How many penalties do you want to define?",
+        "data": {
+          "penalty_count": "Penalty Count"
+        }
+      },
+      "penalties": {
+        "title": "Define Penalty",
+        "description": "Enter details for each penalty.",
+        "data": {
+          "penalty_name": "Penalty Name",
+          "penalty_description": "Description (optional)",
+          "internal_id": "Internal ID",
+          "penalty_points": "Penalty Points (negative)",
+          "icon": "Icon (mdi:xxx)"
+        }
+      },
+      "achievement_count": {
+        "title": "Number of Achievements",
+        "description": "How many achievements do you want to define?",
+        "data": {
+          "achievement_count": "Achievement Count"
+        }
+      },
+      "achievements": {
+        "title": "Define Achievement",
+        "description": "Enter details for each achievement.",
+        "data": {
+          "name": "Achievement Name",
+          "description": "Description (optional)",
+          "icon": "Icon (mdi:xxx)",
+          "assigned_kids": "Assigned Kids",
+          "type": "Type of Achievement",
+          "selected_chore_id": "Select Chore Associated",
+          "criteria": "Criteria (optional)",
+          "target_value": "Achievement Target",
+          "reward_points": "Extra Points for Completing Achievement",
+          "internal_id": "Internal ID"
+        }
+      },
+      "challenge_count": {
+        "title": "Number of Challenges",
+        "description": "How many challenges do you want to define?",
+        "data": {
+          "challenge_count": "Challenge Count"
+        }
+      },
+      "challenges": {
+        "title": "Define Challenge",
+        "description": "Enter details for each challenge.",
+        "data": {
+          "name": "Challenge Name",
+          "description": "Description (optional)",
+          "icon": "Icon (mdi:xxx)",
+          "assigned_kids": "Assigned Kids",
+          "type": "Type of Challenge",
+          "selected_chore_id": "Select Chore Associated with Challenge (Optional)",
+          "criteria": "Criteria (optional)",
+          "target_value": "Challenges Target",
+          "reward_points": "Extra Points for Completing Challenge",
+          "start_date": "Start Date",
+          "end_date": "End Date",
+          "internal_id": "Internal ID"
+        }
+      },
+      "finish": {
+        "title": "Review & Finish",
+        "description": "Review the setup:\n{summary}\nClick Submit to finalize."
+      }
+    },
+    "error": {
+      "duplicate_achievement": "An achievement with this name already exists",
+      "duplicate_badge": "A badge with this name already exists",
+      "duplicate_challenge": "A challenge with this name already exists",
+      "duplicate_chore": "A chore with this name already exists",
+      "duplicate_kid": "A kid with this name already exists",
+      "duplicate_parent": "A parent with this name already exists",
+      "duplicate_penalty": "A penalty with this name already exists",
+      "duplicate_reward": "A reward with this name already exists",
+      "due_date_in_past": "Due date must be in the future.",
+      "end_date_in_past": "End Date must be in the future.",
+      "end_date_not_after_start_date": "End date must be later than start date",
+      "invalid_achievement_count": "Invalid achievement count",
+      "invalid_achievement_name": "Invalid achievement name",
+      "invalid_badge": "Invalid badge",
+      "invalid_badge_count": "Invalid badge count",
+      "invalid_badge_name": "Invalid badge name",
+      "invalid_challenge_count": "Invalid challenge count",
+      "invalid_challenge_name": "Invalid challenge name",
+      "invalid_chore": "Invalid chore",
+      "invalid_chore_count": "Invalid chore count",
+      "invalid_chore_name": "Invalid chore name",
+      "invalid_due_date": "Invalid due date",
+      "invalid_end_date": "Invalid end date.",
+      "invalid_kid_count": "Invalid kid count",
+      "invalid_kid_name": "Invalid kid name",
+      "invalid_parent_count": "Invalid parent count",
+      "invalid_parent_name": "Invalid parent name",
+      "invalid_penalty": "Invalid penalty",
+      "invalid_penalty_count": "Invalid penalty count",
+      "invalid_penalty_name": "Invalid penalty name",
+      "invalid_reward": "Invalid reward",
+      "invalid_reward_count": "Invalid reward count",
+      "invalid_reward_name": "Invalid reward name",
+      "invalid_start_date": "Invalid start date.",
+      "start_date_in_past": "Start Date must be in the future."
+    },
+    "abort": {
+      "single_instance_allowed": "Only a single KidsChores instance can be configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "KidsChores Options",
+        "description": "Manage kids, chores, badges, rewards, penalties, or finish.",
+        "data": {
+          "menu_selection": "Select an Option"
+        }
+      },
+      "manage_entity": {
+        "title": "Select Action",
+        "description": "Add, edit or delete options.",
+        "data": {
+          "manage_action": "Select an Action"
+        }
+      },
+      "select_entity": {
+        "title": "Select {entity_type}",
+        "description": "Select the {entity_type} you want to {action}.",
+        "data": {
+          "entity_name": "Name"
+        }
+      },
+      "manage_points": {
+        "title": "Edit Points Label & Icon",
+        "description": "Change the label and icon used to represent points.",
+        "data": {
+          "points_label": "Points Label",
+          "points_icon": "Points Icon"
+        }
+      },
+      "add_kid": {
+        "title": "Add Kid",
+        "description": "Provide the details for the new kid.",
+        "data": {
+          "kid_name": "Kid Name",
+          "ha_user": "Home Assistant User",
+          "enable_mobile_notifications": "Enable Mobile Notifications",
+          "mobile_notify_service": "Notify Service",
+          "enable_persistent_notifications": "Enable Persistent Notifications",
+          "internal_id": "Internal ID"
+        }
+      },
+      "add_parent": {
+        "title": "Add Parent",
+        "description": "Provide the details for the new parent.",
+        "data": {
+          "parent_name": "Parent Name",
+          "ha_user_id": "Home Assistant User",
+          "associated_kids": "Associated Kids",
+          "enable_mobile_notifications": "Enable Mobile Notifications",
+          "mobile_notify_service": "Notify Service",
+          "enable_persistent_notifications": "Enable Persistent Notifications",
+          "internal_id": "Internal ID"
+        }
+      },
+      "add_chore": {
+        "title": "Add Chore",
+        "description": "Provide the details for the new chore.",
+        "data": {
+          "chore_name": "Chore Name",
+          "internal_id": "Internal ID",
+          "default_points": "Default Points",
+          "allow_multiple_claims_per_day": "Allow Multiple Claims per Day?",
+          "partial_allowed": "Allow Partial Points?",
+          "shared_chore": "Shared Chore?",
+          "assigned_kids": "Assigned Kids",
+          "chore_description": "Description (optional)",
+          "icon": "Icon (mdi:xxx)",
+          "recurring_frequency": "Recurring Frequency",
+          "applicable_days": "Applicable Days",
+          "due_date": "Due Date",
+          "notify_on_claim": "Notify on Claim",
+          "notify_on_approval": "Notify on Approval",
+          "notify_on_disapproval": "Notify on Disapproval"
+        }
+      },
+      "add_badge": {
+        "title": "Add Badge",
+        "description": "Provide the details for the new badge.",
+        "data": {
+          "badge_name": "Badge Name",
+          "internal_id": "Internal ID",
+          "threshold_type": "Threshold Type",
+          "threshold_value": "Threshold Value",
+          "points_multiplier": "Points Multiplier",
+          "icon": "Icon (mdi:xxx)",
+          "badge_description": "Description (optional)"
+        }
+      },
+      "add_reward": {
+        "title": "Add Reward",
+        "description": "Provide the details for the new reward.",
+        "data": {
+          "reward_name": "Reward Name",
+          "internal_id": "Internal ID",
+          "reward_cost": "Reward Cost",
+          "reward_description": "Description (optional)",
+          "icon": "Icon (mdi:xxx)"
+        }
+      },
+      "add_penalty": {
+        "title": "Add Penalty",
+        "description": "Provide the details for the new penalty.",
+        "data": {
+          "penalty_name": "Penalty Name",
+          "penalty_description": "Description (optional)",
+          "internal_id": "Internal ID",
+          "penalty_points": "Penalty Points (negative)",
+          "icon": "Icon (mdi:xxx)"
+        }
+      },
+      "add_achievement": {
+        "title": "Define Achievement",
+        "description": "Enter details for each achievement.",
+        "data": {
+          "name": "Achievement Name",
+          "description": "Description (optional)",
+          "icon": "Icon (mdi:xxx)",
+          "assigned_kids": "Assigned Kids",
+          "type": "Type of Achievement",
+          "selected_chore_id": "Select Chore Associated",
+          "criteria": "Criteria (optional)",
+          "target_value": "Achievement Target",
+          "reward_points": "Extra Points for Completing Achievement",
+          "internal_id": "Internal ID"
+        }
+      },
+      "add_challenge": {
+        "title": "Define Challenge",
+        "description": "Enter details for each challenge.",
+        "data": {
+          "name": "Challenge Name",
+          "description": "Description (optional)",
+          "icon": "Icon (mdi:xxx)",
+          "assigned_kids": "Assigned Kids",
+          "type": "Type of Challenge",
+          "selected_chore_id": "Select Chore Associated with Challenge (Optional)",
+          "criteria": "Criteria (optional)",
+          "target_value": "Challenges Target",
+          "reward_points": "Extra Points for Completing Challenge",
+          "start_date": "Start Date",
+          "end_date": "End Date",
+          "internal_id": "Internal ID"
+        }
+      },
+      "edit_kid": {
+        "title": "Edit Kid",
+        "description": "Modify the details of the selected kid.",
+        "data": {
+          "kid_name": "Kid Name",
+          "ha_user": "Home Assistant User",
+          "enable_mobile_notifications": "Enable Mobile Notifications",
+          "mobile_notify_service": "Notify Service",
+          "enable_persistent_notifications": "Enable Persistent Notifications",
+          "internal_id": "Internal ID"
+        }
+      },
+      "edit_parent": {
+        "title": "Edit Parent",
+        "description": "Modify the details of the selected parent.",
+        "data": {
+          "parent_name": "Parent Name",
+          "ha_user_id": "Home Assistant User",
+          "associated_kids": "Associated Kids",
+          "enable_mobile_notifications": "Enable Mobile Notifications",
+          "mobile_notify_service": "Notify Service",
+          "enable_persistent_notifications": "Enable Persistent Notifications",
+          "internal_id": "Internal ID"
+        }
+      },
+      "edit_chore": {
+        "title": "Edit Chore",
+        "description": "Modify the details of the selected chore.",
+        "data": {
+          "chore_name": "Chore Name",
+          "internal_id": "Internal ID",
+          "default_points": "Default Points",
+          "allow_multiple_claims_per_day": "Allow Multiple Claims per Day?",
+          "partial_allowed": "Allow Partial Points?",
+          "shared_chore": "Shared Chore?",
+          "assigned_kids": "Assigned Kids",
+          "chore_description": "Description (optional)",
+          "icon": "Icon (mdi:xxx)",
+          "recurring_frequency": "Recurring Frequency",
+          "applicable_days": "Applicable Days",
+          "due_date": "Due Date",
+          "notify_on_claim": "Notify on Claim",
+          "notify_on_approval": "Notify on Approval",
+          "notify_on_disapproval": "Notify on Disapproval"
+        }
+      },
+      "edit_badge": {
+        "title": "Edit Badge",
+        "description": "Modify the details of the selected badge.",
+        "data": {
+          "badge_name": "Badge Name",
+          "internal_id": "Internal ID",
+          "threshold_type": "Threshold Type",
+          "threshold_value": "Threshold Value",
+          "points_multiplier": "Points Multiplier",
+          "icon": "Icon (mdi:xxx)",
+          "badge_description": "Description (optional)"
+        }
+      },
+      "edit_reward": {
+        "title": "Edit Reward",
+        "description": "Modify the details of the selected reward.",
+        "data": {
+          "reward_name": "Reward Name",
+          "internal_id": "Internal ID",
+          "reward_cost": "Reward Cost",
+          "reward_description": "Description (optional)",
+          "icon": "Icon (mdi:xxx)"
+        }
+      },
+      "edit_penalty": {
+        "title": "Edit Penalty",
+        "description": "Modify the details of the selected penalty.",
+        "data": {
+          "penalty_name": "Penalty Name",
+          "penalty_description": "Description (optional)",
+          "internal_id": "Internal ID",
+          "penalty_points": "Penalty Points (negative)",
+          "icon": "Icon (mdi:xxx)"
+        }
+      },
+      "edit_achievement": {
+        "title": "Define Achievement",
+        "description": "Enter details for each achievement.",
+        "data": {
+          "name": "Achievement Name",
+          "description": "Description (optional)",
+          "icon": "Icon (mdi:xxx)",
+          "assigned_kids": "Assigned Kids",
+          "type": "Type of Achievement",
+          "selected_chore_id": "Select Chore Associated",
+          "criteria": "Criteria (optional)",
+          "target_value": "Achievement Target",
+          "reward_points": "Extra Points for Completing Achievement",
+          "internal_id": "Internal ID"
+        }
+      },
+      "edit_challenge": {
+        "title": "Define Challenge",
+        "description": "Enter details for each challenge.",
+        "data": {
+          "name": "Challenge Name",
+          "description": "Description (optional)",
+          "icon": "Icon (mdi:xxx)",
+          "assigned_kids": "Assigned Kids",
+          "type": "Type of Challenge",
+          "selected_chore_id": "Select Chore Associated with Challenge (Optional)",
+          "criteria": "Criteria (optional)",
+          "target_value": "Challenges Target",
+          "reward_points": "Extra Points for Completing Challenge",
+          "start_date": "Start Date",
+          "end_date": "End Date",
+          "internal_id": "Internal ID"
+        }
+      },
+      "delete_kid": {
+        "title": "Delete Kid",
+        "description": "Are you sure you want to delete the kid {kid_name}?",
+        "data": {}
+      },
+      "delete_parent": {
+        "title": "Delete Parent",
+        "description": "Are you sure you want to delete the parent {parent_name}?",
+        "data": {}
+      },
+      "delete_chore": {
+        "title": "Delete Chore",
+        "description": "Are you sure you want to delete the chore {chore_name}?",
+        "data": {}
+      },
+      "delete_badge": {
+        "title": "Delete Badge",
+        "description": "Are you sure you want to delete the badge {badge_name}?",
+        "data": {}
+      },
+      "delete_reward": {
+        "title": "Delete Reward",
+        "description": "Are you sure you want to delete the reward {reward_name}?",
+        "data": {}
+      },
+      "delete_penalty": {
+        "title": "Delete Penalty",
+        "description": "Are you sure you want to delete the penalty {penalty_name}?",
+        "data": {}
+      },
+      "delete_achievement": {
+        "title": "Delete Achievement",
+        "description": "Are you sure you want to delete the achievement {achievement_name}?",
+        "data": {}
+      },
+      "delete_challenge": {
+        "title": "Delete Challenge",
+        "description": "Are you sure you want to delete the challenge {challenge_name}?",
+        "data": {}
+      }
+    },
+    "error": {
+      "duplicate_achievement": "An achievement with this name already exists",
+      "duplicate_badge": "A badge with this name already exists",
+      "duplicate_challenge": "A challenge with this name already exists",
+      "duplicate_chore": "A chore with this name already exists",
+      "duplicate_kid": "A kid with this name already exists",
+      "duplicate_parent": "A parent with this name already exists",
+      "duplicate_penalty": "A penalty with this name already exists",
+      "duplicate_reward": "A reward with this name already exists",
+      "due_date_in_past": "Due date must be in the future.",
+      "end_date_in_past": "End Date must be in the future.",
+      "end_date_not_after_start_date": "End date must be later than start date",
+      "invalid_badge": "Invalid badge",
+      "invalid_badge_count": "Invalid badge count",
+      "invalid_chore": "Invalid chore",
+      "invalid_chore_count": "Invalid chore count",
+      "invalid_due_date": "Invalid due date",
+      "invalid_end_date": "Invalid end date.",
+      "invalid_kid_count": "Invalid kid count",
+      "invalid_kid_name": "Invalid kid name",
+      "invalid_penalty": "Invalid penalty",
+      "invalid_penalty_count": "Invalid penalty count",
+      "invalid_reward": "Invalid reward",
+      "invalid_reward_count": "Invalid reward count",
+      "invalid_start_date": "Invalid start date.",
+      "start_date_in_past": "Start Date must be in the future."
+    },
+    "abort": {
+      "invalid_action": "Invalid Action",
+      "invalid_achievement": "Invalid Achievement",
+      "invalid_badge": "Invalid Badge",
+      "invalid_challenge": "Invalid Challenge",
+      "invalid_chore": "Invalid Chore",
+      "invalid_entity": "Invalid Entity",
+      "invalid_kid": "Invalid Kid",
+      "invalid_parent": "Invalid Parent",
+      "invalid_penalty": "Invalid Penalty",
+      "invalid_reward": "Invalid Reward",
+      "no_kid": "No Kids are setup for edit. Add one entry first.",
+      "no_parent": "No Parents are setup for edit. Add one entry first.",
+      "no_chore": "No Chores are setup for edit. Add one entry first.",
+      "no_badge": "No Badges are setup for edit. Add one entry first.",
+      "no_reward": "No Rewards are setup for edit. Add one entry first.",
+      "no_penalty": "No Penalties are setup for edit. Add one entry first.",
+      "no_achievement": "No Achievements are setup for edit. Add one entry first.",
+      "no_challenge": "No Challenges are setup for edit. Add one entry first.",
+      "setup_complete": "Setup Complete"
+    }
+  },
+  "selector": {
+    "main_menu": {
+      "options": {
+        "manage_points": "Manage Points",
+        "manage_kid": "Manage Kid",
+        "manage_parent": "Manage Parent",
+        "manage_chore": "Manage Chore",
+        "manage_badge": "Manage Badge",
+        "manage_reward": "Manage Reward",
+        "manage_penalty": "Manage Penalty",
+        "manage_achievement": "Manage Achievement",
+        "manage_challenge": "Manage Challenge",
+        "done": "Finish Setup"
+      }
+    },
+    "manage_actions": {
+      "options": {
+        "add": "Add",
+        "edit": "Edit",
+        "delete": "Delete",
+        "back": "Back to Main Menu"
+      }
+    },
+    "recurring_frequency": {
+      "options": {
+        "none": "None",
+        "daily": "Daily",
+        "weekly": "Weekly",
+        "monthly": "Monthly"
+      }
+    },
+    "applicable_days": {
+      "options": {
+        "mon": "Monday",
+        "tue": "Tuesday",
+        "wed": "Wednesday",
+        "thu": "Thursday",
+        "fri": "Friday",
+        "sat": "Saturday",
+        "sun": "Sunday"
+      }
+    },
+    "threshold_type": {
+      "options": {
+        "points": "Points",
+        "chore_count": "Chore Count"
+      }
+    }
+  },
+  "services": {
+    "claim_chore": {
+      "name": "Claim Chore",
+      "description": "A kid claims a chore, marking it as 'claimed' for parental approval.",
+      "fields": {
+        "kid_name": {
+          "name": "Kid Name",
+          "description": "The name of the kid claiming the chore.",
+          "example": "Alice"
+        },
+        "chore_name": {
+          "name": "Chore Name",
+          "description": "The name of the chore to claim.",
+          "example": "Wash Dishes"
+        }
+      }
+    },
+    "approve_chore": {
+      "name": "Approve Chore",
+      "description": "Parent approves the chore, awarding points.",
+      "fields": {
+        "parent_name": {
+          "name": "Parent Name",
+          "description": "The parent approving the chore.",
+          "example": "Mom"
+        },
+        "kid_name": {
+          "name": "Kid Name",
+          "description": "The name of the kid who performed the chore.",
+          "example": "Alice"
+        },
+        "chore_name": {
+          "name": "Chore Name",
+          "description": "The name of the chore being approved.",
+          "example": "Wash Dishes"
+        },
+        "points_awarded": {
+          "name": "Points Awarded",
+          "description": "Points to award (optional; defaults to the chore's points).",
+          "example": 3
+        }
+      }
+    },
+    "disapprove_chore": {
+      "name": "Disapprove Chore",
+      "description": "Parent disapproves a chore for a kid, reverting its status.",
+      "fields": {
+        "parent_name": {
+          "name": "Parent Name",
+          "description": "The parent disapproving the chore.",
+          "example": "Mom"
+        },
+        "kid_name": {
+          "name": "Kid Name",
+          "description": "The name of the kid whose chore is being disapproved.",
+          "example": "Alice"
+        },
+        "chore_name": {
+          "name": "Chore Name",
+          "description": "The name of the chore being disapproved.",
+          "example": "Clean Room"
+        }
+      }
+    },
+    "redeem_reward": {
+      "name": "Redeem Reward",
+      "description": "A parent redeems a reward for a kid, deducting points.",
+      "fields": {
+        "parent_name": {
+          "name": "Parent Name",
+          "description": "The parent authorizing the reward redemption.",
+          "example": "Mom"
+        },
+        "kid_name": {
+          "name": "Kid Name",
+          "description": "The kid redeeming the reward.",
+          "example": "Alice"
+        },
+        "reward_name": {
+          "name": "Reward Name",
+          "description": "The name of the reward to redeem.",
+          "example": "Extra Screen Time"
+        }
+      }
+    },
+    "approve_reward": {
+      "name": "Approve Reward",
+      "description": "Parent approves a reward claimed by a kid.",
+      "fields": {
+        "parent_name": {
+          "name": "Parent Name",
+          "description": "The parent approving the reward.",
+          "example": "Mom"
+        },
+        "kid_name": {
+          "name": "Kid Name",
+          "description": "The kid who is redeeming the reward.",
+          "example": "Alice"
+        },
+        "reward_name": {
+          "name": "Reward Name",
+          "description": "The name of the reward being approved.",
+          "example": "Extra Screen Time"
+        }
+      }
+    },
+    "disapprove_reward": {
+      "name": "Disapprove Reward",
+      "description": "Parent disapproves a reward redemption for a kid.",
+      "fields": {
+        "parent_name": {
+          "name": "Parent Name",
+          "description": "The parent disapproving the reward.",
+          "example": "Dad"
+        },
+        "kid_name": {
+          "name": "Kid Name",
+          "description": "The kid whose reward redemption is being disapproved.",
+          "example": "Alice"
+        },
+        "reward_name": {
+          "name": "Reward Name",
+          "description": "The name of the reward being disapproved.",
+          "example": "Extra Screen Time"
+        }
+      }
+    },
+    "apply_penalty": {
+      "name": "Apply Penalty",
+      "description": "A parent applies a penalty to deduct points.",
+      "fields": {
+        "parent_name": {
+          "name": "Parent Name",
+          "description": "The parent applying the penalty.",
+          "example": "Dad"
+        },
+        "kid_name": {
+          "name": "Kid Name",
+          "description": "The kid receiving the penalty.",
+          "example": "Alice"
+        },
+        "penalty_name": {
+          "name": "Penalty Name",
+          "description": "The name of the penalty to apply.",
+          "example": "Yelling"
+        }
+      }
+    },
+    "reset_all_data": {
+      "name": "Reset All Data",
+      "description": "Completely clears the KidsChores data from storage."
+    },
+    "reset_all_chores": {
+      "name": "Reset All Chores",
+      "description": "Manually reset chores to pending state, removing claims and approvals."
+    },
+    "reset_overdue_chores": {
+      "name": "Reset Overdue Chores",
+      "description": "Reset overdue chore(s) back to the Pending state and reschedule them based on their recurring frequency and previous due date. You may optionally provide a chore_id (or chore_name) to reset a specific chore and optionally a kid_name to reset the chore only for that kid.",
+      "fields": {
+        "chore_id": {
+          "name": "Chore ID",
+          "description": "The internal ID of the chore to reset (optional if chore_name is provided).",
+          "example": "abc123"
+        },
+        "chore_name": {
+          "name": "Chore Name",
+          "description": "The name of the chore to reset (optional if chore_id is provided).",
+          "example": "Wash Dishes"
+        },
+        "kid_name": {
+          "name": "Kid Name",
+          "description": "The kid receiving the penalty.",
+          "example": "Alice"
+        }
+      }
+    },
+    "set_chore_due_date": {
+      "name": "Set/Reset Chore Due Date",
+      "description": "Set (or clear) the due date for a chore. Provide the chore name and, if desired, a new due date. If no due date is provided the existing due date will be cleared. The service will reject due dates set in the past.",
+      "fields": {
+        "chore_name": {
+          "name": "Chore Name",
+          "description": "The name of the chore to update",
+          "example": "Wash Dishes"
+        },
+        "due_date": {
+          "name": "Due Date",
+          "description": "The new due date for the chore. Use the date/time selector to choose a valid date and time (in your local timezone). Leave empty to clear the due date.",
+          "example": "2025-03-01T23:59:00Z"
+        }
+      }
+    },
+    "skip_chore_due_date": {
+      "name": "Skip Chore Due Date",
+      "description": "Skip the current due date of a recurring chore. This service immediately reschedules the chore's due date based on its recurring frequency and resets its state to pending. Any pending claims or approvals will be removed.",
+      "fields": {
+        "chore_id": {
+          "name": "Chore ID",
+          "description": "The internal ID of the chore to reset (optional if chore_name is provided).",
+          "example": "abc123"
+        },
+        "chore_name": {
+          "name": "Chore Name",
+          "description": "The name of the chore to reset (optional if chore_id is provided).",
+          "example": "Wash Dishes"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "chore_status_sensor": {
+        "name": "{kid_name} - Status - {chore_name}",
+        "state": {
+          "pending": "Pending",
+          "approved": "Approved",
+          "claimed": "Claimed",
+          "overdue": "Overdue",
+          "unknown": "Unknown",
+          "none": "None",
+          "approved_in_part": "Approved (in-part)",
+          "claimed_in_part": "Claimed (in-part)"
+        },
+        "state_attributes": {
+          "kid_name": { "name": "Kid Name" },
+          "chore_name": { "name": "Chore Name" },
+          "shared_chore": {
+            "name": "Shared Chore",
+            "state": {
+              "true": "Yes",
+              "false": "No"
+            }
+          },
+          "recurring_frequency": {
+            "name": "Recurring Frequency",
+            "state": {
+              "none": "None",
+              "daily": "Daily",
+              "weekly": "Weekly",
+              "monthly": "Monthly"
+            }
+          },
+          "applicable_days": {
+            "name": "Applicable Days",
+            "state": {
+              "mon": "Monday",
+              "tue": "Tuesday",
+              "wed": "Wednesday",
+              "thu": "Thursday",
+              "fri": "Friday",
+              "sat": "Saturday",
+              "sun": "Sunday"
+            }
+          },
+          "due_date": { "name": "Due Date" },
+          "default_points": { "name": "Default Points" },
+          "description": { "name": "Description" },
+          "global_state": {
+            "name": "Global State",
+            "state": {
+              "pending": "Pending",
+              "approved": "Approved",
+              "claimed": "Claimed",
+              "overdue": "Overdue",
+              "unknown": "Unknown",
+              "none": "None",
+              "approved_in_part": "Approved (in-part)",
+              "claimed_in_part": "Claimed (in-part)"
+            }
+          },
+          "partial_allowed": {
+            "name": "Partially Allowed",
+            "state": {
+              "true": "Yes",
+              "false": "No"
+            }
+          },
+          "allow_multiple_claims_per_day": {
+            "name": "Allow Multiple Claims per Day",
+            "state": {
+              "true": "Yes",
+              "false": "No"
+            }
+          },
+          "assigned_kids": { "name": "Assigned Kids" }
+        }
+      },
+      "kid_points_sensor": {
+        "name": "{kid_name} - {points}"
+      },
+      "kid_max_points_ever_sensor": {
+        "name": "{kid_name} - Maximum Points Ever"
+      },
+      "chores_completed_total_sensor": {
+        "name": "{kid_name} - Chores Completed - Total"
+      },
+      "chores_completed_daily_sensor": {
+        "name": "{kid_name} - Chores Completed - Daily"
+      },
+      "chores_completed_weekly_sensor": {
+        "name": "{kid_name} - Chores Completed - Weekly"
+      },
+      "chores_completed_monthly_sensor": {
+        "name": "{kid_name} - Chores Completed - Monthly"
+      },
+      "kid_badges_sensor": {
+        "name": "{kid_name} - Badges Earned"
+      },
+      "kids_highest_badge_sensor": {
+        "name": "{kid_name} - Badge",
+        "state_attributes": {
+          "kid_name": { "name": "Kid Name" },
+          "all_earned_badges": { "name": "All Earned Badges" },
+          "highest_badge_threshold_value": { "name": "Highest Badge Threshold" }
+        }
+      },
+      "badge_sensor": {
+        "name": "Badge - {badge_name}",
+        "state_attributes": {
+          "threshold_type": {
+            "name": "Threshold Type",
+            "state": {
+              "points": "Points",
+              "chore_count": "Chore Count"
+            }
+          },
+          "points_multiplier": { "name": "Points Multiplier" },
+          "description": { "name": "Description" },
+          "kids_earned": { "name": "Kids Earned" }
+        }
+      },
+      "pending_chores_approvals_sensor": {
+        "name": "Pending Chore Approvals"
+      },
+      "pending_rewards_approvals_sensor": {
+        "name": "Pending Reward Approvals"
+      },
+      "reward_claims_sensor": {
+        "name": "{kid_name} - Claims - {reward_name}"
+      },
+      "reward_approvals_sensor": {
+        "name": "{kid_name} - Approvals - {reward_name}"
+      },
+      "shared_chore_global_status_sensor": {
+        "name": "{chore_name} - Global Status",
+        "state": {
+          "pending": "Pending",
+          "approved": "Approved",
+          "claimed": "Claimed",
+          "overdue": "Overdue",
+          "unknown": "Unknown",
+          "none": "None",
+          "approved_in_part": "Approved (in-part)",
+          "claimed_in_part": "Claimed (in-part)"
+        },
+        "state_attributes": {
+          "chore_name": { "name": "Chore Name" },
+          "description": { "name": "Description" },
+          "recurring_frequency": {
+            "name": "Recurring Frequency",
+            "state": {
+              "none": "None",
+              "daily": "Daily",
+              "weekly": "Weekly",
+              "monthly": "Monthly"
+            }
+          },
+          "applicable_days": {
+            "name": "Applicable Days",
+            "state": {
+              "mon": "Monday",
+              "tue": "Tuesday",
+              "wed": "Wednesday",
+              "thu": "Thursday",
+              "fri": "Friday",
+              "sat": "Saturday",
+              "sun": "Sunday"
+            }
+          },
+          "due_date": { "name": "Due Date" },
+          "default_points": { "name": "Default Points" },
+          "partial_allowed": {
+            "name": "Partially Allowed",
+            "state": {
+              "true": "Yes",
+              "false": "No"
+            }
+          },
+          "allow_multiple_claims_per_day": {
+            "name": "Allow Multiple Claims per Day",
+            "state": {
+              "true": "Yes",
+              "false": "No"
+            }
+          },
+          "assigned_kids": {
+            "name": "Assigned Kids"
+          }
+        }
+      },
+      "reward_status_sensor": {
+        "name": "{kid_name} - Reward Status - {reward_name}",
+        "state": {
+          "not_claimed": "Not Claimed",
+          "approved": "Approved",
+          "claimed": "Claimed",
+          "unknown": "Unknown",
+          "none": "None"
+        },
+        "state_attributes": {
+          "kid_name": { "name": "Kid Name" },
+          "reward_name": { "name": "Reward Name" },
+          "reward_cost": { "name": "Reward Cost" },
+          "description": { "name": "Description" }
+        }
+      },
+      "chore_claims_sensor": {
+        "name": "{kid_name} - Claims - {chore_name}"
+      },
+      "chore_approvals_sensor": {
+        "name": "{kid_name} - Approvals - {chore_name}"
+      },
+      "penalty_applies_sensor": {
+        "name": "{kid_name} - Penalties Applied - {penalty_name}",
+        "state_attributes": {
+          "kid_name": { "name": "Kid Name" },
+          "penalty_name": { "name": "Penalty Name" },
+          "description": { "name": "Description" },
+          "penalty_points": { "name": "Penalty Points" }
+        }
+      },
+      "kid_points_earned_daily_sensor": {
+        "name": "{kid_name} - Points Earned - Daily"
+      },
+      "kid_points_earned_weekly_sensor": {
+        "name": "{kid_name} - Points Earned - Weekly"
+      },
+      "kid_points_earned_monthly_sensor": {
+        "name": "{kid_name} - Points Earned - Monthly"
+      },
+      "achievement_state_sensor": {
+        "name": "Achievement - {achievement_name}",
+        "state_attributes": {
+          "achievement_name": { "name": "Achievement Name" },
+          "description": { "name": "Description" },
+          "assigned_kids": { "name": "Assigned Kids" },
+          "type": { "name": "Type" },
+          "associated_chore": { "name": "Associated Chore" },
+          "critera": { "name": "Criteria" },
+          "target_value": { "name": "Target" },
+          "reward_points": { "name": "Reward Points" },
+          "kids_earned": { "name": "Earned by" }
+        }
+      },
+      "challenge_state_sensor": {
+        "name": "Challenge - {challenge_name}",
+        "state_attributes": {
+          "challenge_name": { "name": "Challenge Name" },
+          "challenge_type": { "name": "Challenge Type" },
+          "description": { "name": "Description" },
+          "assigned_kids": { "name": "Assigned Kids" },
+          "type": { "name": "Type" },
+          "associated_chore": { "name": "Associated Chore" },
+          "critera": { "name": "Criteria" },
+          "target_value": { "name": "Target" },
+          "reward_points": { "name": "Reward Points" },
+          "start_date": { "name": "Start Date" },
+          "end_date": { "name": "End Date" },
+          "kids_earned": { "name": "Earned by" }
+        }
+      },
+      "achievement_progress_sensor": {
+        "name": "{kid_name} - Progress - {achievement_name}",
+        "state_attributes": {
+          "achievement_name": { "name": "Achievement Name" },
+          "description": { "name": "Description" },
+          "assigned_kids": { "name": "Assigned Kids" },
+          "type": { "name": "Type" },
+          "associated_chore": { "name": "Associated Chore" },
+          "critera": { "name": "Criteria" },
+          "target_value": { "name": "Target" },
+          "reward_points": { "name": "Reward Points" },
+          "raw_progress": { "name": "Progress" },
+          "awarded": {
+            "name": "Awarded",
+            "state": {
+              "true": "Yes",
+              "false": "No"
+            }
+          }
+        }
+      },
+      "challenge_progress_sensor": {
+        "name": "{kid_name} - Progress - {challenge_name}",
+        "state_attributes": {
+          "challenge_name": { "name": "Challenge Name" },
+          "challenge_type": { "name": "Challenge Type" },
+          "description": { "name": "Description" },
+          "assigned_kids": { "name": "Assigned Kids" },
+          "type": { "name": "Type" },
+          "associated_chore": { "name": "Associated Chore" },
+          "critera": { "name": "Criteria" },
+          "target_value": { "name": "Target" },
+          "reward_points": { "name": "Reward Points" },
+          "start_date": { "name": "Start Date" },
+          "end_date": { "name": "End Date" },
+          "raw_progress": { "name": "Progress" },
+          "awarded": {
+            "name": "Awarded",
+            "state": {
+              "true": "Yes",
+              "false": "No"
+            }
+          }
+        }
+      },
+      "kid_highest_streak_sensor": {
+        "name": "{kid_name} - Highest Streak",
+        "state_attributes": {
+          "streaks_by_achievement": { "name": "Streaks by Achievement" }
+        }
+      },
+      "chore_streak_sensor": {
+        "name": "{kid_name} - Streak - {chore_name}",
+        "state_attributes": {
+          "last_date": { "name": "Last Date" },
+          "raw_streak": { "name": "Current Streak" }
+        }
+      }
+    },
+    "button": {
+      "claim_chore_button": {
+        "name": "{kid_name} - Claim Chore - {chore_name}"
+      },
+      "approve_chore_button": {
+        "name": "{kid_name} - Approve Chore - {chore_name}"
+      },
+      "disapprove_chore_button": {
+        "name": "{kid_name} - Disapprove Chore - {chore_name}"
+      },
+      "claim_reward_button": {
+        "name": "{kid_name} - Claim Reward - {reward_name}"
+      },
+      "approve_reward_button": {
+        "name": "{kid_name} - Approve Reward - {reward_name}"
+      },
+      "disapprove_reward_button": {
+        "name": "{kid_name} - Disapprove Reward - {reward_name}"
+      },
+      "penalty_button": {
+        "name": "{kid_name} - Apply Penalty - {penalty_name}"
+      },
+      "manual_adjustment_button": {
+        "name": "{kid_name} {sign_label} {points_label}"
+      }
+    }
+  }
+}

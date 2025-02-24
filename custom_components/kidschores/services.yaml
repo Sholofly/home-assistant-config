@@ -1,0 +1,278 @@
+# File: services.yaml
+#
+# Custom services documentation for the KidsChores integration.
+# These services allow direct actions through scripts or automations.
+# Includes UI editor support with selectors for text inputs and numbers.
+
+claim_chore:
+  name: "Claim Chore"
+  description: "A kid claims a chore, marking it as 'claimed' for parental approval."
+  fields:
+    kid_name:
+      name: "Kid Name"
+      description: "The name of the kid claiming the chore."
+      example: "Alice"
+      required: true
+      selector:
+        text:
+    chore_name:
+      name: "Chore Name"
+      description: "The name of the chore to claim."
+      example: "Wash Dishes"
+      required: true
+      selector:
+        text:
+
+approve_chore:
+  name: "Approve Chore"
+  description: "Parent approves a chore, awarding points (full or partial)."
+  fields:
+    parent_name:
+      name: "Parent Name"
+      description: "The parent approving the chore."
+      example: "Mom"
+      required: true
+      selector:
+        text:
+    kid_name:
+      name: "Kid Name"
+      description: "The name of the kid who performed the chore."
+      example: "Alice"
+      required: true
+      selector:
+        text:
+    chore_name:
+      name: "Chore Name"
+      description: "The name of the chore being approved."
+      example: "Wash Dishes"
+      required: true
+      selector:
+        text:
+    points_awarded:
+      name: "Points Awarded"
+      description: "Points to award (optional; defaults to the chore's points)."
+      example: 3
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 1000
+          mode: box
+
+disapprove_chore:
+  name: "Disapprove Chore"
+  description: "Parent disapproves a chore for a kid, reverting its status."
+  fields:
+    parent_name:
+      name: "Parent Name"
+      description: "The parent disapproving the chore."
+      example: "Mom"
+      required: true
+      selector:
+        text:
+    kid_name:
+      name: "Kid Name"
+      description: "The name of the kid whose chore is being disapproved."
+      example: "Bob"
+      required: true
+      selector:
+        text:
+    chore_name:
+      name: "Chore Name"
+      description: "The name of the chore being disapproved."
+      example: "Clean Room"
+      required: true
+      selector:
+        text:
+
+redeem_reward:
+  name: "Redeem Reward"
+  description: "A kid redeems a reward, marking it as 'pending' for parental approval."
+  fields:
+    parent_name:
+      name: "Parent Name"
+      description: "The parent authorizing the reward redemption."
+      example: "Mom"
+      required: true
+      selector:
+        text:
+    kid_name:
+      name: "Kid Name"
+      description: "The kid redeeming the reward."
+      example: "Alice"
+      required: true
+      selector:
+        text:
+    reward_name:
+      name: "Reward Name"
+      description: "The name of the reward to redeem."
+      example: "Extra Screen Time"
+      required: true
+      selector:
+        text:
+
+approve_reward:
+  name: "Approve Reward"
+  description: "Parent approves a reward claimed by a kid, deducting points."
+  fields:
+    parent_name:
+      name: "Parent Name"
+      description: "The parent approving the reward."
+      example: "Mom"
+      required: true
+      selector:
+        text:
+    kid_name:
+      name: "Kid Name"
+      description: "The kid who is redeeming the reward."
+      example: "Alice"
+      required: true
+      selector:
+        text:
+    reward_name:
+      name: "Reward Name"
+      description: "The name of the reward being approved."
+      example: "Extra Screen Time"
+      required: true
+      selector:
+        text:
+
+disapprove_reward:
+  name: "Disapprove Reward"
+  description: "Parent disapproves a reward redemption for a kid."
+  fields:
+    parent_name:
+      name: "Parent Name"
+      description: "The parent disapproving the reward."
+      example: "Dad"
+      required: true
+      selector:
+        text:
+    kid_name:
+      name: "Kid Name"
+      description: "The kid whose reward redemption is being disapproved."
+      example: "Bob"
+      required: true
+      selector:
+        text:
+    reward_name:
+      name: "Reward Name"
+      description: "The name of the reward being disapproved."
+      example: "Extra Screen Time"
+      required: true
+      selector:
+        text:
+
+apply_penalty:
+  name: "Apply Penalty"
+  description: "A parent applies a penalty, deducting points from a kid."
+  fields:
+    parent_name:
+      name: "Parent Name"
+      description: "The parent applying the penalty."
+      example: "Dad"
+      required: true
+      selector:
+        text:
+    kid_name:
+      name: "Kid Name"
+      description: "The kid receiving the penalty."
+      example: "Bob"
+      required: true
+      selector:
+        text:
+    penalty_name:
+      name: "Penalty Name"
+      description: "The name of the penalty to apply."
+      example: "Yelling"
+      required: true
+      selector:
+        text:
+
+reset_all_data:
+  name: "Reset All Data"
+  description: "Completely clears the KidsChores data from storage."
+  fields: {}
+
+reset_all_chores:
+  name: "Reset All Chores"
+  description: "Manually reset chores to pending state, removing claims and approvals."
+  fields: {}
+
+reset_overdue_chores:
+  name: "Reset Overdue Chores"
+  description: >
+    Reset overdue chore(s) back to the Pending state and reschedule them based on
+    their recurring frequency and previous due date. You may optionally provide a
+    chore_id (or chore_name) to reset a specific chore and optionally a kid_name
+    to reset the chore only for that kid.
+  fields:
+    chore_id:
+      name: "Chore ID"
+      description: "The internal ID of the chore to reset (optional if chore_name is provided)."
+      example: "abc123"
+      required: false
+      selector:
+        text:
+    chore_name:
+      name: "Chore Name"
+      description: "The name of the chore to reset (optional if chore_id is provided)."
+      example: "Wash Dishes"
+      required: false
+      selector:
+        text:
+    kid_name:
+      name: "Kid Name"
+      description: "If provided, reset the chore only for this kid."
+      example: "Alice"
+      required: false
+      selector:
+        text:
+
+set_chore_due_date:
+  name: "Set Chore Due Date"
+  description: >
+    Set (or clear) the due date for a chore. Provide the chore name and, if desired,
+    a new due date. If no due date is provided the existing due date will be cleared.
+    The service will reject due dates set in the past.
+  fields:
+    chore_name:
+      name: "Chore Name"
+      description: "The name of the chore to update."
+      example: "Wash Dishes"
+      required: true
+      selector:
+        text:
+    due_date:
+      name: "Due Date"
+      description: >
+        The new due date for the chore. Use the date/time selector to choose a valid
+        date and time (in your local timezone). Leave empty to clear the due date.
+      example: "2025-03-01T23:59:00Z"
+      required: false
+      selector:
+        datetime: {}
+
+skip_chore_due_date:
+  name: "Skip Chore Due Date"
+  description: >
+    Skip the current due date of a recurring chore. This service immediately
+    reschedules the chore's due date based on its recurring frequency and resets
+    its state to pending. Any pending claims or approvals will be removed.
+  fields:
+    chore_id:
+      name: "Chore ID"
+      description: >
+        The internal ID of the chore to update. Optional if you provide a chore name.
+      example: "abc123"
+      required: false
+      selector:
+        text:
+    chore_name:
+      name: "Chore Name"
+      description: >
+        The name of the chore to update. Optional if you provide a chore ID.
+      example: "Weekly Laundry"
+      required: false
+      selector:
+        text:

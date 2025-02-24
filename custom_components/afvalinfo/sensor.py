@@ -13,6 +13,7 @@ from babel.dates import format_date, format_datetime, format_time
 import re
 
 from .const.const import (
+    DOMAIN,
     MIN_TIME_BETWEEN_UPDATES,
     _LOGGER,
     CONF_ENABLED_SENSORS,
@@ -44,25 +45,31 @@ from .location.trashapi import TrashApiAfval
 from .sensortomorrow import AfvalInfoTomorrowSensor
 from .sensortoday import AfvalInfoTodaySensor
 
-from homeassistant.components.sensor import PLATFORM_SCHEMA
-import homeassistant.helpers.config_validation as cv
-from homeassistant.const import CONF_RESOURCES
 from homeassistant.util import Throttle
 from homeassistant.helpers.entity import Entity
 from homeassistant import config_entries
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers import entity_registry as er
+
 
 async def async_format_date(hass, collection_date, half_babel_half_date, locale):
     return await hass.async_add_executor_job(
         format_date, collection_date, half_babel_half_date, locale
     )
 
+
 async def async_setup_entry(
     hass: HomeAssistant,
     config_entry: config_entries.ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
+    # Store the entities for this entry_id
+    if DOMAIN not in hass.data:
+        hass.data[DOMAIN] = {}
+    if config_entry.entry_id not in hass.data[DOMAIN]:
+        hass.data[DOMAIN][config_entry.entry_id] = {}
+
     config = config_entry.data
 
     location = config.get(CONF_LOCATION).lower().strip()
@@ -77,51 +84,48 @@ async def async_setup_entry(
     diftar_code = config.get(CONF_DIFTAR_CODE)
     get_whole_year = config.get(CONF_GET_WHOLE_YEAR)
 
-
     resources = config[CONF_ENABLED_SENSORS].copy()
 
     # filter the types from the dict if it's a dictionary
     if isinstance(resources[0], dict):
-            resourcesMinusTodayAndTomorrow = [obj["type"] for obj in resources]
+        resourcesMinusTodayAndTomorrow = [obj["type"] for obj in resources]
     else:
-            resourcesMinusTodayAndTomorrow = resources
+        resourcesMinusTodayAndTomorrow = resources
 
     if "trash_type_today" in resourcesMinusTodayAndTomorrow:
-            resourcesMinusTodayAndTomorrow.remove("trash_type_today")
+        resourcesMinusTodayAndTomorrow.remove("trash_type_today")
 
     if "trash_type_tomorrow" in resourcesMinusTodayAndTomorrow:
-            resourcesMinusTodayAndTomorrow.remove("trash_type_tomorrow")
+        resourcesMinusTodayAndTomorrow.remove("trash_type_tomorrow")
 
     if (
-            "cleanprofsgft" in resourcesMinusTodayAndTomorrow
-            or "cleanprofsrestafval" in resourcesMinusTodayAndTomorrow
-        ):
-            get_cleanprofs_data = True
+        "cleanprofsgft" in resourcesMinusTodayAndTomorrow
+        or "cleanprofsrestafval" in resourcesMinusTodayAndTomorrow
+    ):
+        get_cleanprofs_data = True
     else:
-            get_cleanprofs_data = False
+        get_cleanprofs_data = False
 
     data = AfvalinfoData(
-            location,
-            postcode,
-            street_number,
-            street_number_suffix,
-            district,
-            diftar_code,
-            get_whole_year,
-            resourcesMinusTodayAndTomorrow,
-            get_cleanprofs_data,
-        )
+        location,
+        postcode,
+        street_number,
+        street_number_suffix,
+        district,
+        diftar_code,
+        get_whole_year,
+        resourcesMinusTodayAndTomorrow,
+        get_cleanprofs_data,
+    )
 
     await data.async_update()
 
     entities = []
+    entity_registry = er.async_get(hass)
 
     for resource in config[CONF_ENABLED_SENSORS]:
         sensor_type = resource
-        if (
-            resource != "trash_type_today"
-            and resource != "trash_type_tomorrow"
-        ):
+        if resource != "trash_type_today" and resource != "trash_type_tomorrow":
             entities.append(
                 AfvalinfoSensor(
                     data,
@@ -156,9 +160,34 @@ async def async_setup_entry(
             )
             entities.append(tomorrow)
 
+    # Create a list of entities to remove
+    entities_to_remove = []
+    for entity_id, entity in entity_registry.entities.items():
+        if entity.config_entry_id == config_entry.entry_id:
+            # Extract sensor type from entity_id
+            sensor_type = (
+                entity.unique_id.replace(SENSOR_PREFIX, "")
+                .replace(f"{id_name} ", "")
+                .strip()
+            )
+            if sensor_type not in config[CONF_ENABLED_SENSORS]:
+                _LOGGER.debug(
+                    f"Marking entity {entity_id} for removal as it's no longer enabled"
+                )
+                entities_to_remove.append(entity_id)
 
+    # Remove the entities in a separate loop
+    for entity_id in entities_to_remove:
+        _LOGGER.debug(f"Removing entity {entity_id}")
+        entity_registry.async_remove(entity_id)
 
     async_add_entities(entities)
+
+    # Store the list of enabled sensors for future reference
+    hass.data[DOMAIN][config_entry.entry_id]["enabled_sensors"] = config[
+        CONF_ENABLED_SENSORS
+    ]
+
 
 class AfvalinfoData(object):
     def __init__(
@@ -222,18 +251,12 @@ class AfvalinfoSensor(Entity):
 
         self._get_whole_year = get_whole_year
         self.entity_id = "sensor." + (
-            (
-                SENSOR_PREFIX
-                + (id_name + " " if len(id_name) > 0 else "")
-                + sensor_type
-            )
+            (SENSOR_PREFIX + (id_name + " " if len(id_name) > 0 else "") + sensor_type)
             .lower()
             .replace(" ", "_")
         )
         self._attr_unique_id = (
-            SENSOR_PREFIX
-            + (id_name + " " if len(id_name) > 0 else "")
-            + sensor_type
+            SENSOR_PREFIX + (id_name + " " if len(id_name) > 0 else "") + sensor_type
         )
 
         self._attr_translation_key = "afvalinfo_" + sensor_type

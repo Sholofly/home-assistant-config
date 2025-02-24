@@ -14,8 +14,8 @@
     "issue_tracker": "https://github.com/UI-Lovelace-Minimalist/UI/issues",
     "name": "UI Lovelace Minimalist",
     "requirements": [
-        "aiofiles==0.8.0",
+        "aiofiles>=0.8.0",
         "aiogithubapi>=22.2.4"
     ],
-    "version": "v1.3.10"
+    "version": "v1.3.17"
 }

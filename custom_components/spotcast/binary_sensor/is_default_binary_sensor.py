@@ -32,13 +32,12 @@ class IsDefaultBinarySensor(SpotcastBinarySensor):
     ICON_OFF = ICON
     ENTITY_CATEGORY = EntityCategory.DIAGNOSTIC
 
-    async def async_update(self):
+    async def _async_update_process(self):
         """Updates based on the is_default proerty of account
         asynchornously"""
-        await self.account.async_profile()
         LOGGER.debug(
             "Updating default state sensor for `%s`",
-            self.account.name,
+            self.account.entry_id,
         )
 
         self._attr_state = STATE_ON if self.account.is_default else STATE_OFF

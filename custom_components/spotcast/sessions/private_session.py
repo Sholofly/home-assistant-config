@@ -9,7 +9,8 @@ Classes:
 
 from time import time
 from asyncio import Lock
-from aiohttp import ClientSession, ContentTypeError
+from aiohttp import ClientSession
+from aiohttp.client_exceptions import ContentTypeError, ClientOSError
 from types import MappingProxyType
 from logging import getLogger
 
@@ -22,9 +23,14 @@ from homeassistant.config_entries import ConfigEntry
 from custom_components.spotcast.sessions.connection_session import (
     ConnectionSession,
 )
+from custom_components.spotcast.sessions.retry_supervisor import (
+    RetrySupervisor,
+)
 from custom_components.spotcast.sessions.exceptions import (
     TokenRefreshError,
     ExpiredSpotifyCookiesError,
+    InternalServerError,
+    UpstreamServerNotready,
 )
 
 LOGGER = getLogger(__name__)
@@ -90,12 +96,10 @@ class PrivateSession(ConnectionSession):
             - entry(ConfigEntry): Configuration entry of a Spotify
                 Account
         """
-        self.hass = hass
-        self.entry = entry
         self._access_token = None
         self._expires_at = 0
-        self._token_lock = Lock()
-        self._is_healthy = False
+
+        super().__init__(hass, entry)
 
     @property
     def token(self) -> str:
@@ -120,15 +124,35 @@ class PrivateSession(ConnectionSession):
         sp_key = internal_api["sp_key"]
         return {"sp_dc": sp_dc, "sp_key": sp_key}
 
-    async def async_ensure_token_valid(self) -> None:
-        """Ensure the current token is valid or gets a new one"""
+    async def async_ensure_token_valid(self) -> bool:
+        """Ensure the current token is valid or gets a new one. Returns
+        True if the refcresh worked or False if it didn't
+        """
+
+        not_ready = False
+
         async with self._token_lock:
-            if self.valid_token:
+
+            if not self.supervisor.is_ready:
+                not_ready = True
+
+            elif self.valid_token:
                 return
 
-            LOGGER.debug("Token is expired. Getting a new one")
+            else:
 
-            await self.async_refresh_token()
+                LOGGER.debug("Token is expired. Getting a new one")
+
+                try:
+                    await self.async_refresh_token()
+                    self.supervisor._is_healthy = True
+                except self.supervisor.SUPERVISED_EXCEPTIONS as exc:
+                    self.supervisor._is_healthy = False
+                    self.supervisor.log_message(exc)
+                    not_ready = True
+
+        if not_ready:
+            raise UpstreamServerNotready("Server not ready for refresh")
 
     async def async_refresh_token(self) -> tuple[str, float]:
         """Retrives a new token, sets it in the session and returns
@@ -144,7 +168,6 @@ class PrivateSession(ConnectionSession):
             - TokenError: raised if an error occured when getting the
                 token
         """
-
         async with ClientSession(cookies=self.cookies) as session:
             async with session.get(
                 self.REQUEST_URL,
@@ -163,7 +186,17 @@ class PrivateSession(ConnectionSession):
                         "sp_dc and sp_key are likely expired",
                         location
                     )
+                    self._is_healthy = False
                     raise ExpiredSpotifyCookiesError("Expired sp_dc, sp_key")
+
+                if (
+                        (response.status >= 500 and response.status < 600)
+                        or (response.status == 104)
+                ):
+                    raise InternalServerError(
+                        response.status,
+                        await response.text()
+                    )
 
                 try:
                     data = await response.json()
@@ -181,6 +214,7 @@ class PrivateSession(ConnectionSession):
             self._access_token = data[self.TOKEN_KEY]
             self._expires_at = int(data[self.EXPIRATION_KEY]) // 1000
             self._is_healthy = True
+            self.supervisor.is_healthy = True
 
             return {
                 "access_token": self._access_token,
