@@ -32,32 +32,8 @@ from .storage_manager import KidsChoresStorageManager
 from .services import async_setup_services, async_unload_services
 
 
-async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
-    """Set up the integration via configuration.yaml (if supported in the future).
-
-    Args:
-        hass: Home Assistant core object.
-        config: Configuration dictionary.
-
-    Returns:
-        bool: True if successful, False otherwise.
-
-    """
-    LOGGER.info("Setting up KidsChores integration via YAML is currently unsupported")
-    return True
-
-
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up the integration from a config entry.
-
-    Args:
-        hass: Home Assistant core object.
-        entry: Configuration entry created via the UI.
-
-    Returns:
-        bool: True if successful, raises an exception otherwise.
-
-    """
+    """Set up the integration from a config entry."""
     LOGGER.info("Starting setup for KidsChores entry: %s", entry.entry_id)
 
     # Initialize the storage manager to handle persistent data.
