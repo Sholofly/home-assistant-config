@@ -21,9 +21,9 @@ deurbel:
     - metadata: {}
       data:
         filename: /media/snapshots/snapshot_driveway.jpg
+      action: camera.snapshot
       target:
         entity_id: camera.voortuin
-      action: camera.snapshot
     - action: google_generative_ai_conversation.generate_content
       metadata: {}
       data:
@@ -33,7 +33,8 @@ deurbel:
           like a man or a woman, what he or she is wearing and if he or she is carrying
           something. If so, describe what it looks like. If it''s a car, try to read
           the license plate, tell me the color and the possible brand and model. '
-        image_filename: /media/snapshots/snapshot_driveway.jpg
+        filenames:
+        - /media/snapshots/snapshot_driveway.jpg
       response_variable: photodescription
     - parallel:
       - alias: Verstuur melding naar alle home assistant apps die thuis zijn
