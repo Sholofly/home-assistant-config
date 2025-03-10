@@ -1272,14 +1272,18 @@
   conditions: []
   actions:
   - action: input_number.set_value
-    metadata: {}
-    data: value:"{{states('input_number.eneco_nieuwe_inkoopvergoeding_stroom')}}"
+    data:
+      value: '{{states(''input_number.eneco_nieuwe_inkoopvergoeding_stroom'')}}'
     target:
       entity_id: input_number.eneco_inkoopvergoeding_stroom
   - action: input_number.set_value
-    metadata: {}
     data:
       value: '{{states(''input_number.eneco_nieuwe_inkoopvergoeding_gas'')}}'
     target:
       entity_id: input_number.eneco_inkoopvergoeding_gas
+  - action: input_number.set_value
+    data:
+      value: '{{states(''input_number.eneco_nieuwe_verkoopvergoeding_stroom'')}}'
+    target:
+      entity_id: input_number.eneco_verkoopvergoeding_stroom
   mode: single
