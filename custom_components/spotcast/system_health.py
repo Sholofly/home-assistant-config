@@ -1,4 +1,4 @@
-"""Module providing the info to system health"""
+"""Module providing the info to system health."""
 
 from logging import getLogger
 
@@ -8,31 +8,41 @@ from homeassistant.components.system_health import (
     async_check_can_reach_url,
 )
 
-from custom_components.spotcast import __version__, DOMAIN
-from custom_components.spotcast.spotify.account import SpotifyAccount
-from custom_components.spotcast.sessions import (
+from custom_components.spotcast import __version__
+
+from .chromecast import SpotifyController
+from .const import DOMAIN
+from .spotify.account import SpotifyAccount
+from .sessions import (
     PublicSession,
-    PrivateSession,
 )
 
 LOGGER = getLogger(__name__)
 
 
 @callback
-def async_register(hass: HomeAssistant, register: SystemHealthRegistration):  # pylint: disable=W0613
+def async_register(hass: HomeAssistant, register: SystemHealthRegistration):
     """Registers the system health callbacks."""
     register.async_register_info(system_health_info)
 
 
-async def system_health_info(hass: HomeAssistant) -> dict[str]:  # pylint: disable=W0613
-    """Get Health info for the info page"""
-
+async def system_health_info(hass: HomeAssistant) -> dict[str]:
+    """Get Health info for the info page."""
     health_info = {}
 
     health_info["Version"] = __version__
 
-    for entry in hass.data[DOMAIN].values():
+    health_info["API Endpoint"] = async_check_can_reach_url(
+        hass,
+        PublicSession.API_ENDPOINT,
+    )
 
+    health_info["Device Registration Endpoint"] = async_check_can_reach_url(
+        hass,
+        SpotifyController.APP_HOSTNAME,
+    )
+
+    for entry in hass.data[DOMAIN].values():
         account: SpotifyAccount = entry["account"]
         base_key = f"{account.id[0].upper()}{account.id[1:]}"
 
@@ -45,14 +55,8 @@ async def system_health_info(hass: HomeAssistant) -> dict[str]:  # pylint: disab
                 health_status[key] = {"type": "failed", "error": "unhealthy"}
 
         health_info[f"{base_key} Is Default"] = account.is_default
-        health_info[f"{base_key} Public Endpoint"] = \
-            async_check_can_reach_url(hass, PublicSession.API_ENDPOINT)
         health_info[f"{base_key} Public Token"] = health_status["public"]
-        health_info[f"{base_key} Private Endpoint"] = \
-            async_check_can_reach_url(hass, PrivateSession.API_ENDPOINT)
-        health_info[f"{base_key} Private Token"] = health_status[
-            "private"
-        ]
+        health_info[f"{base_key} Desktop Token"] = health_status["private"]
         health_info[f"{base_key} Product"] = account.product
 
     return health_info

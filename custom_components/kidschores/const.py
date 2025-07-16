@@ -313,10 +313,14 @@ SERVICE_SKIP_CHORE_DUE_DATE = (
     "skip_chore_due_date"  # Skip chores due date and reschedule
 )
 SERVICE_APPLY_BONUS = "apply_bonus"  # Apply bonus service
+SERVICE_RESET_PENALTIES = "reset_penalties"  # Reset penalties service
+SERVICE_RESET_BONUSES = "reset_bonuses"  # Reset bonuses service
+SERVICE_RESET_REWARDS = "reset_rewards"  # Reset rewards service
 
 # Field Names (for consistency across services)
 FIELD_CHORE_ID = "chore_id"
 FIELD_CHORE_NAME = "chore_name"
+FIELD_DUE_DATE = "due_date"
 FIELD_KID_NAME = "kid_name"
 FIELD_PARENT_NAME = "parent_name"
 FIELD_PENALTY_NAME = "penalty_name"

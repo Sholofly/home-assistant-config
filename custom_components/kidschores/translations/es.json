@@ -953,6 +953,54 @@
           "example": "Lavar Platos"
         }
       }
+    },
+    "reset_penalties": {
+      "name": "Restablecer Sanciones",
+      "description": "Restablece todas las sanciones aplicadas para todos los niños. Opcionalmente, proporciona Nombre de la Sanción para restablecer una sanción específica en todos los niños. Usa Nombre del Niño/a para restablecer todas las sanciones de un/a niño/a en particular. Combina ambos para restablecer una sanción específica de un/a niño/a específico/a.",
+      "fields": {
+        "kid_name": {
+          "name": "Nombre del Niño/a",
+          "description": "El niño/a para el cual se restablecerán las sanciones.",
+          "example": "Alicia"
+        },
+        "penalty_name": {
+          "name": "Nombre de la Sanción",
+          "description": "El nombre de la sanción a restablecer.",
+          "example": "Gritar"
+        }
+      }
+    },
+    "reset_bonuses": {
+      "name": "Restablecer Bonificaciones",
+      "description": "Restablece todas las bonificaciones aplicadas para todos los niños. Opcionalmente, proporciona Nombre de la Bonificación para restablecer una bonificación específica en todos los niños. Usa Nombre del Niño/a para restablecer todas las bonificaciones de un/a niño/a en particular. Combina ambos para restablecer una bonificación específica de un/a niño/a específico/a.",
+      "fields": {
+        "kid_name": {
+          "name": "Nombre del Niño/a",
+          "description": "El niño/a para el cual se restablecerán las bonificaciones.",
+          "example": "Alicia"
+        },
+        "bonus_name": {
+          "name": "Nombre de la Bonificación",
+          "description": "El nombre de la bonificación a restablecer.",
+          "example": "Ayudar"
+        }
+      }
+    },
+    "reset_rewards": {
+      "name": "Restablecer Recompensas",
+      "description": "Restablece el conteo de reclamaciones y aprobaciones de recompensas para todos los niños. Opcionalmente, proporciona Nombre de la Recompensa para restablecer el conteo de una recompensa específica en todos los niños. Usa Nombre del Niño/a para restablecer el conteo de recompensas de un/a niño/a en particular. Combina ambos para restablecer una recompensa específica de un/a niño/a específico/a.",
+      "fields": {
+        "kid_name": {
+          "name": "Nombre del Niño/a",
+          "description": "El niño para el cual se restablecerán los conteos de recompensas.",
+          "example": "Alicia"
+        },
+        "reward_name": {
+          "name": "Nombre de la Recompensa",
+          "description": "El nombre de la recompensa a restablecer.",
+          "example": "Helado"
+        }
+      }
     }
   },
   "entity": {
@@ -970,8 +1018,12 @@
           "claimed_in_part": "Reclamada (parcialmente)"
         },
         "state_attributes": {
-          "kid_name": { "name": "Nombre del Niño/a" },
-          "chore_name": { "name": "Nombre de la Tarea" },
+          "kid_name": {
+            "name": "Nombre del Niño/a"
+          },
+          "chore_name": {
+            "name": "Nombre de la Tarea"
+          },
           "shared_chore": {
             "name": "Tarea Compartida",
             "state": {
@@ -1002,13 +1054,27 @@
               "sun": "Domingo"
             }
           },
-          "due_date": { "name": "Fecha de Vencimiento" },
-          "default_points": { "name": "Puntos Predeterminados" },
-          "description": { "name": "Descripción" },
-          "chore_claims_count": { "name": "—" },
-          "chore_approvals_count": { "name": "—" },
-          "chore_current_streak": { "name": "Racha Actual de la Tarea" },
-          "chore_highest_streak": { "name": "Mejor Racha de la Tarea" },
+          "due_date": {
+            "name": "Fecha de Vencimiento"
+          },
+          "default_points": {
+            "name": "Puntos Predeterminados"
+          },
+          "description": {
+            "name": "Descripción"
+          },
+          "chore_claims_count": {
+            "name": "—"
+          },
+          "chore_approvals_count": {
+            "name": "—"
+          },
+          "chore_current_streak": {
+            "name": "Racha Actual de la Tarea"
+          },
+          "chore_highest_streak": {
+            "name": "Mejor Racha de la Tarea"
+          },
           "global_state": {
             "name": "Estado Global",
             "state": {
@@ -1037,8 +1103,12 @@
               "false": "No"
             }
           },
-          "assigned_kids": { "name": "Niños Asignados" },
-          "custom_frequency_interval": { "name": "Frecuencia Personalizada" },
+          "assigned_kids": {
+            "name": "Niños Asignados"
+          },
+          "custom_frequency_interval": {
+            "name": "Frecuencia Personalizada"
+          },
           "custom_frequency_unit": {
             "name": "Periodo de Frecuencia Personalizada",
             "state": {
@@ -1079,14 +1149,24 @@
       "kids_highest_badge_sensor": {
         "name": "{kid_name} - Insignia",
         "state_attributes": {
-          "kid_name": { "name": "Nombre del Niño/a" },
-          "all_earned_badges": { "name": "Todas las Insignias Obtenidas" },
+          "kid_name": {
+            "name": "Nombre del Niño/a"
+          },
+          "all_earned_badges": {
+            "name": "Todas las Insignias Obtenidas"
+          },
           "highest_badge_threshold_value": {
             "name": "Mayor Umbral de Insignia"
           },
-          "points_multiplier": { "name": "Multiplicador de Puntos" },
-          "points_to_next_badge": { "name": "Puntos para la Próxima Insignia" },
-          "labels": { "name": "Etiquetas" }
+          "points_multiplier": {
+            "name": "Multiplicador de Puntos"
+          },
+          "points_to_next_badge": {
+            "name": "Puntos para la Próxima Insignia"
+          },
+          "labels": {
+            "name": "Etiquetas"
+          }
         }
       },
       "badge_sensor": {
@@ -1099,10 +1179,18 @@
               "chore_count": "Cantidad de Tareas"
             }
           },
-          "points_multiplier": { "name": "Multiplicador de Puntos" },
-          "descriptionn": { "name": "Descripción" },
-          "kids_earned": { "name": "Niños que la han Obtenido" },
-          "labels": { "name": "Etiquetas" }
+          "points_multiplier": {
+            "name": "Multiplicador de Puntos"
+          },
+          "descriptionn": {
+            "name": "Descripción"
+          },
+          "kids_earned": {
+            "name": "Niños que la han Obtenido"
+          },
+          "labels": {
+            "name": "Etiquetas"
+          }
         }
       },
       "pending_chores_approvals_sensor": {
@@ -1131,8 +1219,12 @@
           "independent": "Independiente"
         },
         "state_attributes": {
-          "chore_name": { "name": "Nombre de la Tarea" },
-          "description": { "name": "Descripción" },
+          "chore_name": {
+            "name": "Nombre de la Tarea"
+          },
+          "description": {
+            "name": "Descripción"
+          },
           "recurring_frequency": {
             "name": "Frecuencia Recurrente",
             "state": {
@@ -1156,8 +1248,12 @@
               "sun": "Domingo"
             }
           },
-          "due_date": { "name": "Fecha de Vencimiento" },
-          "default_points": { "name": "Puntos Predeterminados" },
+          "due_date": {
+            "name": "Fecha de Vencimiento"
+          },
+          "default_points": {
+            "name": "Puntos Predeterminados"
+          },
           "partial_allowed": {
             "name": "Permitido Parcialmente",
             "state": {
@@ -1193,11 +1289,21 @@
           "none": "Ninguna"
         },
         "state_attributes": {
-          "kid_name": { "name": "Nombre del Niño/a" },
-          "reward_name": { "name": "Nombre de la Recompensa" },
-          "reward_cost": { "name": "Costo de la Recompensa" },
-          "description": { "name": "Descripción" },
-          "labels": { "name": "Etiquetas" }
+          "kid_name": {
+            "name": "Nombre del Niño/a"
+          },
+          "reward_name": {
+            "name": "Nombre de la Recompensa"
+          },
+          "reward_cost": {
+            "name": "Costo de la Recompensa"
+          },
+          "description": {
+            "name": "Descripción"
+          },
+          "labels": {
+            "name": "Etiquetas"
+          }
         }
       },
       "chore_claims_sensor": {
@@ -1209,21 +1315,41 @@
       "penalty_applies_sensor": {
         "name": "{kid_name} - Penalizaciones Aplicadas - {penalty_name}",
         "state_attributes": {
-          "kid_name": { "name": "Nombre del Niño/a" },
-          "penalty_name": { "name": "Nombre de la Penalización" },
-          "descriptionn": { "name": "Descripción" },
-          "penalty_points": { "name": "Puntos de Penalización" },
-          "labels": { "name": "Etiquetas" }
+          "kid_name": {
+            "name": "Nombre del Niño/a"
+          },
+          "penalty_name": {
+            "name": "Nombre de la Penalización"
+          },
+          "descriptionn": {
+            "name": "Descripción"
+          },
+          "penalty_points": {
+            "name": "Puntos de Penalización"
+          },
+          "labels": {
+            "name": "Etiquetas"
+          }
         }
       },
       "bonus_applies_sensor": {
         "name": "{kid_name} - Bonus Applies - {bonus_name}",
         "state_attributes": {
-          "kid_name": { "name": "Nombre del Niño/a" },
-          "bonus_name": { "name": "Nombre de la Bonificación" },
-          "description": { "name": "Descripción" },
-          "bonus_points": { "name": "Puntos de Bonificación" },
-          "labels": { "name": "Etiquetas" }
+          "kid_name": {
+            "name": "Nombre del Niño/a"
+          },
+          "bonus_name": {
+            "name": "Nombre de la Bonificación"
+          },
+          "description": {
+            "name": "Descripción"
+          },
+          "bonus_points": {
+            "name": "Puntos de Bonificación"
+          },
+          "labels": {
+            "name": "Etiquetas"
+          }
         }
       },
       "kid_points_earned_daily_sensor": {
@@ -1238,9 +1364,15 @@
       "achievement_state_sensor": {
         "name": "Logro - {achievement_name}",
         "state_attributes": {
-          "achievement_name": { "name": "Nombre del Logro" },
-          "description": { "name": "Descripción" },
-          "assigned_kids": { "name": "Niños Asignados" },
+          "achievement_name": {
+            "name": "Nombre del Logro"
+          },
+          "description": {
+            "name": "Descripción"
+          },
+          "assigned_kids": {
+            "name": "Niños Asignados"
+          },
           "type": {
             "name": "Tipo",
             "state": {
@@ -1249,20 +1381,38 @@
               "daily_minimum": "Mínimo Diario"
             }
           },
-          "associated_chore": { "name": "Tarea Asociada" },
-          "critera": { "name": "Criterios" },
-          "target_value": { "name": "Objetivo" },
-          "reward_points": { "name": "Puntos de Recompensa" },
-          "kids_earned": { "name": "Ganado por" },
-          "labels": { "name": "Etiquetas" }
+          "associated_chore": {
+            "name": "Tarea Asociada"
+          },
+          "critera": {
+            "name": "Criterios"
+          },
+          "target_value": {
+            "name": "Objetivo"
+          },
+          "reward_points": {
+            "name": "Puntos de Recompensa"
+          },
+          "kids_earned": {
+            "name": "Ganado por"
+          },
+          "labels": {
+            "name": "Etiquetas"
+          }
         }
       },
       "challenge_state_sensor": {
         "name": "Desafío - {challenge_name}",
         "state_attributes": {
-          "challenge_name": { "name": "Nombre del Desafío" },
-          "description": { "name": "Descripción" },
-          "assigned_kids": { "name": "Niños Asignados" },
+          "challenge_name": {
+            "name": "Nombre del Desafío"
+          },
+          "description": {
+            "name": "Descripción"
+          },
+          "assigned_kids": {
+            "name": "Niños Asignados"
+          },
           "type": {
             "name": "Tipo",
             "state": {
@@ -1270,22 +1420,44 @@
               "daily_minimum": "Minimo Diario"
             }
           },
-          "associated_chore": { "name": "Tarea Asociada" },
-          "critera": { "name": "Criterios" },
-          "target_value": { "name": "Objetivo" },
-          "reward_points": { "name": "Puntos de Recompensa" },
-          "start_date": { "name": "Fecha de Inicio" },
-          "end_date": { "name": "Fecha de Finalización" },
-          "kids_earned": { "name": "Ganado por" },
-          "labels": { "name": "Etiquetas" }
+          "associated_chore": {
+            "name": "Tarea Asociada"
+          },
+          "critera": {
+            "name": "Criterios"
+          },
+          "target_value": {
+            "name": "Objetivo"
+          },
+          "reward_points": {
+            "name": "Puntos de Recompensa"
+          },
+          "start_date": {
+            "name": "Fecha de Inicio"
+          },
+          "end_date": {
+            "name": "Fecha de Finalización"
+          },
+          "kids_earned": {
+            "name": "Ganado por"
+          },
+          "labels": {
+            "name": "Etiquetas"
+          }
         }
       },
       "achievement_progress_sensor": {
         "name": "{kid_name} - Progreso - {achievement_name}",
         "state_attributes": {
-          "achievement_name": { "name": "Nombre del Logro" },
-          "description": { "name": "Descripción" },
-          "assigned_kids": { "name": "Niños Asignados" },
+          "achievement_name": {
+            "name": "Nombre del Logro"
+          },
+          "description": {
+            "name": "Descripción"
+          },
+          "assigned_kids": {
+            "name": "Niños Asignados"
+          },
           "type": {
             "name": "Tipo",
             "state": {
@@ -1294,11 +1466,21 @@
               "daily_minimum": "Mínimo Diario"
             }
           },
-          "associated_chore": { "name": "Tarea Asociada" },
-          "critera": { "name": "Criterios" },
-          "target_value": { "name": "Objetivo" },
-          "reward_points": { "name": "Puntos de Recompensa" },
-          "raw_progress": { "name": "Progreso" },
+          "associated_chore": {
+            "name": "Tarea Asociada"
+          },
+          "critera": {
+            "name": "Criterios"
+          },
+          "target_value": {
+            "name": "Objetivo"
+          },
+          "reward_points": {
+            "name": "Puntos de Recompensa"
+          },
+          "raw_progress": {
+            "name": "Progreso"
+          },
           "awarded": {
             "name": "Otorgado",
             "state": {
@@ -1306,16 +1488,23 @@
               "false": "No"
             }
           },
-          "labels": { "name": "Etiquetas" }
+          "labels": {
+            "name": "Etiquetas"
+          }
         }
       },
       "challenge_progress_sensor": {
         "name": "{kid_name} - Progreso - {challenge_name}",
         "state_attributes": {
-          "challenge_name": { "name": "Nombre del Desafío" },
-          "challenge_type": { "name": "Tipo de Desafío" },
-          "description": { "name": "Descripción" },
-          "assigned_kids": { "name": "Niños Asignados" },
+          "challenge_name": {
+            "name": "Nombre del Desafío"
+          },
+          "description": {
+            "name": "Descripción"
+          },
+          "assigned_kids": {
+            "name": "Niños Asignados"
+          },
           "type": {
             "name": "Tipo",
             "state": {
@@ -1323,13 +1512,27 @@
               "daily_minimum": "Minimo Diario"
             }
           },
-          "associated_chore": { "name": "Tarea Asociada" },
-          "critera": { "name": "Criterios" },
-          "target_value": { "name": "Objetivo" },
-          "reward_points": { "name": "Puntos de Recompensa" },
-          "start_date": { "name": "Fecha de Inicio" },
-          "end_date": { "name": "Fecha de Finalización" },
-          "raw_progress": { "name": "Progreso" },
+          "associated_chore": {
+            "name": "Tarea Asociada"
+          },
+          "critera": {
+            "name": "Criterios"
+          },
+          "target_value": {
+            "name": "Objetivo"
+          },
+          "reward_points": {
+            "name": "Puntos de Recompensa"
+          },
+          "start_date": {
+            "name": "Fecha de Inicio"
+          },
+          "end_date": {
+            "name": "Fecha de Finalización"
+          },
+          "raw_progress": {
+            "name": "Progreso"
+          },
           "awarded": {
             "name": "Otorgado",
             "state": {
@@ -1337,20 +1540,28 @@
               "false": "No"
             }
           },
-          "labels": { "name": "Etiquetas" }
+          "labels": {
+            "name": "Etiquetas"
+          }
         }
       },
       "kid_highest_streak_sensor": {
         "name": "{kid_name} - Mayor Racha",
         "state_attributes": {
-          "streaks_by_achievement": { "name": "Rachas por Logro" }
+          "streaks_by_achievement": {
+            "name": "Rachas por Logro"
+          }
         }
       },
       "chore_streak_sensor": {
         "name": "{kid_name} - Racha - {chore_name}",
         "state_attributes": {
-          "last_date": { "name": "Última Fecha" },
-          "raw_streak": { "name": "Racha Actual" }
+          "last_date": {
+            "name": "Última Fecha"
+          },
+          "raw_streak": {
+            "name": "Racha Actual"
+          }
         }
       }
     },
@@ -1358,49 +1569,65 @@
       "claim_chore_button": {
         "name": "{kid_name} - Reclamar Tarea - {chore_name}",
         "state_attributes": {
-          "labels": { "name": "Etiquetas" }
+          "labels": {
+            "name": "Etiquetas"
+          }
         }
       },
       "approve_chore_button": {
         "name": "{kid_name} - Aprobar Tarea - {chore_name}",
         "state_attributes": {
-          "labels": { "name": "Etiquetas" }
+          "labels": {
+            "name": "Etiquetas"
+          }
         }
       },
       "disapprove_chore_button": {
         "name": "{kid_name} - Desaprobar Tarea - {chore_name}",
         "state_attributes": {
-          "labels": { "name": "Etiquetas" }
+          "labels": {
+            "name": "Etiquetas"
+          }
         }
       },
       "claim_reward_button": {
         "name": "{kid_name} - Reclamar Recompensa - {reward_name}",
         "state_attributes": {
-          "labels": { "name": "Etiquetas" }
+          "labels": {
+            "name": "Etiquetas"
+          }
         }
       },
       "approve_reward_button": {
         "name": "{kid_name} - Aprobar Recompensa - {reward_name}",
         "state_attributes": {
-          "labels": { "name": "Etiquetas" }
+          "labels": {
+            "name": "Etiquetas"
+          }
         }
       },
       "disapprove_reward_button": {
         "name": "{kid_name} - Desaprobar Recompensa - {reward_name}",
         "state_attributes": {
-          "labels": { "name": "Etiquetas" }
+          "labels": {
+            "name": "Etiquetas"
+          }
         }
       },
       "penalty_button": {
         "name": "{kid_name} - Aplicar Penalización - {penalty_name}",
         "state_attributes": {
-          "labels": { "name": "Etiquetas" }
+          "labels": {
+            "name": "Etiquetas"
+          }
         }
       },
       "bonus_button": {
         "name": "{kid_name} - Aplicar Bonificación - {bonus_name}",
         "state_attributes": {
-          "labels": { "name": "Etiquetas" }
+          "labels": {
+            "name": "Etiquetas"
+          }
         }
       },
       "manual_adjustment_button": {

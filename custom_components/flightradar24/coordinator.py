@@ -69,11 +69,15 @@ class FlightRadar24Coordinator(DataUpdateCoordinator[int]):
             update_interval=timedelta(seconds=update_interval),
         )
 
+    async def clear_tracked(self) -> None:
+        self.tracked = {}
+
     async def add_track(self, number: str) -> None:
         if not self.scanning:
             self.logger.error('FlightRadar24: API data fetching if OFF')
             return
         current: dict[str, dict[str, Any]] = {}
+        number = number.upper()
         await self._find_flight(current, number)
         if not current:
             self.logger.error('FlightRadar24: Add Track - No flight found by - {}'.format(number))
@@ -113,6 +117,7 @@ class FlightRadar24Coordinator(DataUpdateCoordinator[int]):
                 await self._update_flights_data(flight, current, self.tracked)
             else:
                 current[found.get('id')] = {
+                    'id': found.get('id'),
                     'callsign': found['detail'].get('callsign'),
                     'flight_number': found['detail'].get('flight'),
                     'aircraft_registration': None,
@@ -125,6 +130,7 @@ class FlightRadar24Coordinator(DataUpdateCoordinator[int]):
         if not self.scanning:
             self.logger.error('FlightRadar24: API data fetching if OFF')
             return
+        number = number.upper()
         remove = None
         for flight_id in self.tracked:
             flight = self.tracked[flight_id]
@@ -172,6 +178,7 @@ class FlightRadar24Coordinator(DataUpdateCoordinator[int]):
             return
 
         reg_numbers = []
+        current_flights = []
         current: dict[str, dict[str, Any]] = {}
         for flight in self.tracked:
             if self.tracked[flight].get('aircraft_registration'):
@@ -183,12 +190,28 @@ class FlightRadar24Coordinator(DataUpdateCoordinator[int]):
             for obj in flights:
                 await self._update_flights_data(obj, current, self.tracked, SensorType.TRACKED)
                 current[obj.id]['tracked_type'] = 'live'
+                if current[obj.id].get('flight_number'):
+                    current_flights.append(current[obj.id].get('flight_number'))
+                if current[obj.id].get('callsign'):
+                    current_flights.append(current[obj.id].get('callsign'))
+
         remains = self.tracked.keys() - current.keys()
         if remains:
             for flight_id in remains:
+                flight_number = self.tracked[flight_id].get('flight_number')
+                if flight_number and flight_number in current_flights:
+                    continue
+                callsign = self.tracked[flight_id].get('callsign')
+                if not flight_number and callsign and callsign in current_flights:
+                    continue
+                number = flight_number or callsign
+                if not number:
+                    continue
                 size = current.__len__()
-                await self._find_flight(current, self.tracked[flight_id].get('flight_number', ''))
-                if size == current.__len__():
+                await self._find_flight(current, number)
+                if size != current.__len__():
+                    current_flights.append(number)
+                else:
                     current[flight_id] = self.tracked[flight_id]
                     current[flight_id]['tracked_type'] = 'not_found'
 
@@ -331,6 +354,9 @@ class FlightRadar24Coordinator(DataUpdateCoordinator[int]):
             'airport_origin_country_code': await _get_country_code(
                 self._get_value(flight, ['airport', 'origin', 'position', 'country', 'code'])),
             'airport_origin_city': self._get_value(flight, ['airport', 'origin', 'position', 'region', 'city']),
+            'airport_origin_timezone_offset': self._get_value(flight, ['airport', 'origin', 'timezone', 'offset']),
+            'airport_origin_timezone_abbr': self._get_value(flight, ['airport', 'origin', 'timezone', 'abbr']),
+            'airport_origin_terminal': self._get_value(flight, ['airport', 'origin', 'info', 'terminal']),
             'airport_destination_name': self._get_value(flight, ['airport', 'destination', 'name']),
             'airport_destination_code_iata': self._get_value(flight, ['airport', 'destination', 'code', 'iata']),
             'airport_destination_code_icao': self._get_value(flight, ['airport', 'destination', 'code', 'icao']),
@@ -340,6 +366,11 @@ class FlightRadar24Coordinator(DataUpdateCoordinator[int]):
                 self._get_value(flight, ['airport', 'destination', 'position', 'country', 'code'])),
             'airport_destination_city': self._get_value(flight, ['airport', 'destination', 'position',
                                                                  'region', 'city']),
+            'airport_destination_timezone_offset': self._get_value(flight,
+                                                                   ['airport', 'destination', 'timezone', 'offset']),
+            'airport_destination_timezone_abbr': self._get_value(flight,
+                                                                 ['airport', 'destination', 'timezone', 'abbr']),
+            'airport_destination_terminal': self._get_value(flight, ['airport', 'destination', 'info', 'terminal']),
             'time_scheduled_departure': self._get_value(flight, ['time', 'scheduled', 'departure']),
             'time_scheduled_arrival': self._get_value(flight, ['time', 'scheduled', 'arrival']),
             'time_real_departure': self._get_value(flight, ['time', 'real', 'departure']),
