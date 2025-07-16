@@ -13,12 +13,12 @@ binary_sensor:
       inverted: true
     name: "${name} button"
     on_press:
-      - switch.toggle: "${slug}_relay"
+      - switch.toggle: "${id}_relay"
     internal: true
 
 switch:
   - platform: gpio
-    id: "${slug}_led"
+    id: "${id}_led"
     pin:
       number: GPIO13
       inverted: true
@@ -28,12 +28,13 @@ switch:
     name: "${name}"
     icon: "mdi:power-plug"
     pin: GPIO14
-    id: "${slug}_relay"
+    id: "${id}_relay"
     on_turn_on:
-      - switch.turn_on: "${slug}_led"
+      - switch.turn_on: "${id}_led"
     on_turn_off:
-      - switch.turn_off: "${slug}_led"
+      - switch.turn_off: "${id}_led"
     restore_mode: $restore_mode
+    device_id: "${id}_device"
 
 sensor:
   - platform: hlw8012
@@ -47,19 +48,23 @@ sensor:
     current:
       name: "${name} Huidig amperage"
       unit_of_measurement: A
+      device_id: "${id}_device"
     voltage:
       name: "${name} Huidig voltage"
       unit_of_measurement: V
+      device_id: "${id}_device"
     power:
       name: "${name} Huidig wattage"
       unit_of_measurement: W
-      id: "${slug}_wattage"
+      id: "${id}_wattage"
+      device_id: "${id}_device"
     change_mode_every: 8
     update_interval: 10s
   - platform: total_daily_energy
     name: "${name} Verbruik vandaag"
-    power_id: "${slug}_wattage"
+    power_id: "${id}_wattage"
     filters:
       # Multiplication factor from W to kW is 0.001
       - multiply: 0.001
     unit_of_measurement: kWh
+    device_id: "${id}_device"

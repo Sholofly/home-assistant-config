@@ -1,6 +1,7 @@
 substitutions:
   label: esp04
-  slug: woonkamer_raam_zijkant
+  slug: woonkamer-raam-zijkant
+  id: woonkamer_raam_zijkant
   name: Woonkamer Raam zijkant
   description: Bedient de lamp in het zijraam.
   # Higher value gives lower watt readout

@@ -27,3 +27,4 @@ lambda: |-
     return NAN;
   }
 entity_category: diagnostic
+device_id: "${id}_device"

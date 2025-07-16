@@ -1,7 +1,8 @@
 # Is in fact a Sonoff T4 (no neutral)
 substitutions:
   label: esp15
-  slug: mika_plafond
+  id: mika_plafond
+  slug: mika-plafond
   name: Mika Plafond
   description: Bedient de lamp in Mika's slaapkamer.
   restore_mode: RESTORE_DEFAULT_OFF

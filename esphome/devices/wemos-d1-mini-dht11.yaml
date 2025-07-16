@@ -10,3 +10,4 @@ sensor:
     humidity:
       name: "${name} Humidity"
     update_interval: 10s
+    device_id: "${id}_device"

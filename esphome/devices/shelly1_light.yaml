@@ -8,7 +8,7 @@ binary_sensor:
       number: GPIO5
     name: "${name}"
     on_state:
-      - light.toggle: "${slug}_light"
+      - light.toggle: "${id}_light"
     internal: true
 
 output:
@@ -20,4 +20,5 @@ light:
   - platform: binary
     name: "${name}"
     output: gpio_4
-    id: "${slug}_light"
+    id: "${id}_light"
+    device_id: "${id}_device"

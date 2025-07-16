@@ -8,5 +8,8 @@
 name: "${slug}"
 friendly_name: "${name}"
 comment: "${description}"
-build_path: "./.build/${slug}/"
+build_path: "./.build/${id}/"
 compile_process_limit: 1
+devices:
+  - id: "${id}_device"
+    name: "${name}"

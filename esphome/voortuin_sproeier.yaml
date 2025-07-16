@@ -1,6 +1,7 @@
 substitutions:
   label: esp17
-  slug: voortuin_sproeier
+  id: voortuin_sproeier
+  slug: voortuin-sproeier
   name: Voortuin Sproeier
   description: Bedient de sproeier in de voortuin.
   restore_mode: ALWAYS_OFF

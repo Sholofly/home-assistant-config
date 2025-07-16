@@ -12,7 +12,7 @@ binary_sensor:
     name: "${name} button"
     on_press:
       then:
-        - light.toggle: ${slug}_light
+        - light.toggle: ${id}_light
 
     internal: true
 
@@ -32,8 +32,8 @@ light:
   - platform: monochromatic
     name: "${name} button"
     output: blue_led
-    id: ${slug}_button
+    id: ${id}_button
   - platform: binary
-    id: ${slug}_light
+    id: ${id}_light
     name: "${name}"
     output: relay

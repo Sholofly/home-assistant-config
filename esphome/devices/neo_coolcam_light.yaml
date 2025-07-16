@@ -13,7 +13,7 @@ binary_sensor:
       inverted: true
     name: "${name} button"
     on_press:
-      - light.toggle: "${slug}_light"
+      - light.toggle: "${id}_light"
     internal: true
 
 output:
@@ -29,9 +29,10 @@ light:
   - platform: binary
     name: "${name}"
     output: gpio_12
-    id: "${slug}_light"
+    id: "${id}_light"
+    device_id: "${id}_device"
   - platform: binary
     name: "${name} button"
     output: gpio_4
-    id: "${slug}_button"
+    id: "${id}_button"
     internal: true

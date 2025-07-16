@@ -11,3 +11,4 @@ sensor:
     unit_of_measurement: "L/min"
     accuracy_decimals: 1
     timeout: 2min
+    device_id: "${id}_device"

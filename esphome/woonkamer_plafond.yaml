@@ -1,6 +1,7 @@
 substitutions:
   label: esp08
-  slug: woonkamerplafond
+  id: woonkamer_plafond
+  slug: woonkamer-plafond
   name: Woonkamer Plafond
   description: Switch voor plafond in woonkamer
   restore_mode: RESTORE_DEFAULT_OFF

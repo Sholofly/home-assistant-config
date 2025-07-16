@@ -13,7 +13,7 @@ binary_sensor:
       inverted: true
     name: "${name} button"
     on_press:
-      - light.toggle: "${slug}_light"
+      - light.toggle: "${id}_light"
     internal: true
 
 output:
@@ -25,7 +25,8 @@ light:
   - platform: binary
     name: "${name}"
     output: gpio_14
-    id: "${slug}_light"
+    id: "${id}_light"
+    device_id: "${id}_device"
 
 sensor:
   - platform: hlw8012
@@ -39,19 +40,23 @@ sensor:
     current:
       name: "${name} Amperage"
       unit_of_measurement: A
+      device_id: "${id}_device"
     voltage:
       name: "${name} Voltage"
       unit_of_measurement: V
+      device_id: "${id}_device"
     power:
       name: "${name} Wattage"
       unit_of_measurement: W
-      id: "${slug}_wattage"
+      id: "${id}_wattage"
+      device_id: "${id}_device"
     change_mode_every: 8
     update_interval: 10s
   - platform: total_daily_energy
     name: "${name} Total Daily Energy"
-    power_id: "${slug}_wattage"
+    power_id: "${id}_wattage"
     filters:
       # Multiplication factor from W to kW is 0.001
       - multiply: 0.001
     unit_of_measurement: kWh
+    device_id: "${id}_device"

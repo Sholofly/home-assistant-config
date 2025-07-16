@@ -11,9 +11,12 @@ sensor:
     temperature:
       name: "${name} Temperature"
       oversampling: 16x
+      device_id: "${id}_device"
     pressure:
       name: "${name} Pressure"
+      device_id: "${id}_device"
     humidity:
       name: "${name} Humidity"
+      device_id: "${id}_device"
     address: 0x76
     update_interval: 60s

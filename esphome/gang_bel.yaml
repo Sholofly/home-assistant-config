@@ -1,6 +1,7 @@
 substitutions:
   label: esp33
-  slug: gang_bel
+  slug: gang-bel
+  id: gang_bel
   name: Gang Bel
   description: Schakelt de deurbel.
   restore_mode: RESTORE_ALWAYS_OFF
@@ -32,7 +33,7 @@ switch:
   # on a global variable.
   - platform: template
     name: "${name} enabled"
-    id: "${slug}_enabled"
+    id: "${id}_enabled"
     restore_mode: DISABLED
     turn_on_action:
       - globals.set:
@@ -49,7 +50,7 @@ switch:
 # Doorbell button push.
 binary_sensor:
   - platform: gpio
-    id: "${slug}_button"
+    id: "${id}_button"
     name: "${name} button"
     pin:
       # Connected to GPIO on the ESP-01S.
@@ -65,9 +66,9 @@ binary_sensor:
       then:
         if:
           condition:
-            - switch.is_on: "${slug}_enabled"
+            - switch.is_on: "${id}_enabled"
           then:
-            - switch.turn_on: "${slug}_relay"
+            - switch.turn_on: "${id}_relay"
     on_release:
       # On release, turn of the chime.
-      - switch.turn_off: "${slug}_relay"
+      - switch.turn_off: "${id}_relay"

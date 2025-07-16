@@ -1,6 +1,7 @@
 substitutions:
   label: esp14
-  slug: slaapkamer_plafond
+  id: slaapkamer_plafond
+  slug: slaapkamer-plafond
   name: Slaapkamer Plafond
   description: Bedient de lamp in de slaapkamer.
   restore_mode: RESTORE_DEFAULT_OFF

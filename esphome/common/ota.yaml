@@ -6,5 +6,7 @@
 # https://esphome.io/components/ota.html
 #
 ota:
-  id: component_ota
-  platform: esphome
+  - id: component_ota_esphome
+    platform: esphome
+  - id: component_ota_webserver
+    platform: web_server

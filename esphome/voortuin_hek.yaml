@@ -1,6 +1,7 @@
 substitutions:
   label: esp12
-  slug: voortuin_hek
+  id: voortuin_hek
+  slug: voortuin-hek
   name: Voortuin Hek
   description: Schakelt het hek.
   restore_mode: ALWAYS_OFF

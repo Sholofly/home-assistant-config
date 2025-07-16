@@ -7,14 +7,15 @@ switch:
     pin:
       number: 0
       inverted: true
-    id: "${slug}_relay"
+    id: "${id}_relay"
     restore_mode: $restore_mode
 
 button:
   - platform: template
     name: "${name}"
-    id: "${slug}_button"
+    id: "${id}_button"
     on_press:
-      - switch.turn_on: "${slug}_relay"
+      - switch.turn_on: "${id}_relay"
       - delay: $toggle_delay
-      - switch.turn_off: "${slug}_relay"
+      - switch.turn_off: "${id}_relay"
+    device_id: "${id}_device"

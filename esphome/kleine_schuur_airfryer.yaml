@@ -1,6 +1,7 @@
 substitutions:
   label: esp19
-  slug: kleine_schuur_airfryer
+  slug: kleine-schuur-airfryer
+  id: kleine_schuur_airfryer
   name: Kleine schuur Airfryer
   description: Monitort energieverbruik airfryer.
   # Higher value gives lower watt readout

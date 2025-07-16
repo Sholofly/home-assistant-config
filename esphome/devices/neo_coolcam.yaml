@@ -13,12 +13,12 @@ binary_sensor:
       inverted: true
     name: "${name} button"
     on_press:
-      - switch.toggle: "${slug}_relay"
+      - switch.toggle: "${id}_relay"
     internal: true
 
 switch:
   - platform: gpio
-    id: "${slug}_led"
+    id: "${id}_led"
     pin:
       number: GPIO4
       inverted: true
@@ -28,8 +28,9 @@ switch:
     name: "${name}"
     icon: "mdi:power-plug"
     pin: GPIO12
-    id: "${slug}_relay"
+    id: "${id}_relay"
     on_turn_on:
-      - switch.turn_on: "${slug}_led"
+      - switch.turn_on: "${id}_led"
     on_turn_off:
-      - switch.turn_off: "${slug}_led"
+      - switch.turn_off: "${id}_led"
+    device_id: "${id}_device"

@@ -5,7 +5,8 @@ packages:
 switch:
   - platform: gpio
     name: "${name} Relay"
-    id: "${slug}_relay"
+    id: "${id}_relay"
     pin:
       number: 5
     restore_mode: ALWAYS_OFF
+    device_id: "${id}_device"

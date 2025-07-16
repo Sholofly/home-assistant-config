@@ -10,3 +10,4 @@ platform: version
 id: text_sensor_version
 name: "${name} ESPHome Version"
 entity_category: diagnostic
+device_id: "${id}_device"

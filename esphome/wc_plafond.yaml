@@ -1,6 +1,7 @@
 substitutions:
   label: esp07
-  slug: wc_plafond
+  id: wc_plafond
+  slug: wc-plafond
   name: WC Plafond
   description: Bedient de lamp in de wc.
   restore_mode: RESTORE_DEFAULT_OFF

@@ -1,6 +1,7 @@
 substitutions:
   label: esp24
-  slug: gang_plafond
+  id: gang_plafond
+  slug: gang-plafond
   name: Gang Plafond
   description: Bedient de lamp in de gang.
   restore_mode: RESTORE_DEFAULT_OFF

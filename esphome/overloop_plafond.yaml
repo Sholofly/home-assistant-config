@@ -1,6 +1,7 @@
 substitutions:
   label: esp23
-  slug: overloop_plafond
+  slug: overloop-plafond
+  id: overloop_plafond
   name: Overloop Plafond
   description: Bedient de lamp op de overloop.
   restore_mode: RESTORE_DEFAULT_OFF

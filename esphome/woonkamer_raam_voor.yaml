@@ -1,6 +1,7 @@
 substitutions:
   label: esp05
-  slug: woonkamer_raam_voor
+  id: woonkamer_raam_voor
+  slug: woonkamer-raam-voor
   name: Woonkamer Raam Voor
   description: Bedient het licht in het raam voor.
   wifi_static_ip: 192.168.1.131

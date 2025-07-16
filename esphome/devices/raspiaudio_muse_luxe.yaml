@@ -22,6 +22,7 @@ media_player:
     mute_pin:
       number: GPIO21
       inverted: true
+    device_id: "${id}_device"
 
 es8388:
 
@@ -36,6 +37,7 @@ binary_sensor:
     name: ${friendly_name} Volume Up
     on_click:
       - media_player.volume_up:
+    device_id: "${id}_device"
   - platform: gpio
     pin:
       number: GPIO32
@@ -46,6 +48,7 @@ binary_sensor:
     name: ${friendly_name} Volume Down
     on_click:
       - media_player.volume_down:
+    device_id: "${id}_device"
   - platform: gpio
     pin:
       number: GPIO12
@@ -56,6 +59,7 @@ binary_sensor:
     name: ${friendly_name} Play Button
     on_click:
       - media_player.toggle:
+    device_id: "${id}_device"
 
 light:
   - platform: fastled_clockless
@@ -64,3 +68,4 @@ light:
     chipset: SK6812
     num_leds: 1
     rgb_order: grb
+    device_id: "${id}_device"
