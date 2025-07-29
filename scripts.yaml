@@ -72,3 +72,16 @@ announce_keuken:
       - media_player.keuken_nest_hub_mass
   alias: Announce keuken
   description: ''
+ask_kitchen_light_on:
+  alias: Ask kitchen light on
+  use_blueprint:
+    path: homeassistant/ask_yes_no_question.yaml
+    input:
+      question: It's getting dark in the kitchen, do you want to turn on the lights?
+      yes_actions:
+      - action: light.turn_on
+        metadata: {}
+        data: {}
+        target:
+          device_id: c9bcd9c5204db8412b82410fa077b8bb
+  description: ''
