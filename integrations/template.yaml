@@ -3,6 +3,16 @@ template:
   - binary_sensor: !include_dir_list ../entities/templates/binary_sensors
   - select: !include_dir_list ../entities/templates/selects
   - trigger:
+      - trigger: event
+        event_type: bubble_card_update_modules
+    sensor:
+      - name: "Bubble Card Modules"
+        state: "saved"
+        icon: "mdi:puzzle"
+        attributes:
+          modules: "{{ trigger.event.data.modules }}"
+          last_updated: "{{ trigger.event.data.last_updated }}"
+  - trigger:
       trigger: event
       event_type: set_camera_description
     sensor:

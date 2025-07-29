@@ -89,13 +89,13 @@
   initial_state: true
 - id: '1624693897568'
   alias: Ramen boven staan nog open
-  trigger:
-  - platform: state
-    entity_id: group.trackable_family
+  triggers:
+  - entity_id: group.trackable_family
     to: home
-  - platform: time
-    at: '16:00:00'
-  condition:
+    trigger: state
+  - at: '16:00:00'
+    trigger: time
+  conditions:
   - condition: and
     conditions:
     - condition: time
@@ -107,7 +107,7 @@
     - condition: state
       entity_id: binary_sensor.ramen_boven
       state: 'on'
-  action:
+  actions:
   - choose:
     - conditions:
       - condition: state
@@ -135,9 +135,8 @@
         action: notify.mobile_app_telefoon_leny
   variables:
     message_data: "{% for entity_id in states.binary_sensor.ramen_boven.attributes.entity_id
-      -%}\n  {% if(states(entity_id) == 'on')-%}\n      {{- '\\n' -}}\n    - {% print(state_attr(entity_id,'friendly_name'))
-      | regex_replace(find=' Raam Door',replace='')-%}\n  {% endif-%}\n{%- endfor
-      %}"
+      -%}\n  {% if(states(entity_id) == 'on')-%}\n      {{- '\\n' -}}\n    - {% print(state_attr(entity_id,'friendly_name')
+      + ' (' + area_name(entity_id) + ')') -%}\n  {% endif-%}\n{%- endfor %}"
 - id: '1624693921089'
   alias: Takken
   trigger:
@@ -594,17 +593,16 @@
 - id: '1671804817486'
   alias: Airfryer - Status
   description: Status afhandeling airfryer
-  trigger:
-  - platform: numeric_state
-    entity_id: sensor.kleine_schuur_airfryer_huidig_wattage
+  triggers:
+  - entity_id: sensor.kleine_schuur_airfryer_huidig_wattage
     for:
       hours: 0
       minutes: 1
       seconds: 0
     id: 'off'
     below: 1
-  - platform: numeric_state
-    entity_id: sensor.kleine_schuur_airfryer_huidig_wattage
+    trigger: numeric_state
+  - entity_id: sensor.kleine_schuur_airfryer_huidig_wattage
     for:
       hours: 0
       minutes: 0
@@ -612,21 +610,21 @@
     id: waiting
     below: 7
     above: 1
-  - platform: numeric_state
-    entity_id: sensor.kleine_schuur_airfryer_huidig_wattage
+    trigger: numeric_state
+  - entity_id: sensor.kleine_schuur_airfryer_huidig_wattage
     for:
       hours: 0
       minutes: 0
       seconds: 0
     id: running
     above: 10
-  - platform: event
-    event_type: mobile_app_notification_action
+    trigger: numeric_state
+  - event_type: mobile_app_notification_action
     id: fryer_emptied
     event_data:
       action: FRYER_EMPTIED
-  - platform: state
-    entity_id:
+    trigger: event
+  - entity_id:
     - input_select.kleine_schuur_airfryer_status
     to: Uit
     for:
@@ -634,18 +632,19 @@
       minutes: 10
       seconds: 0
     id: long-off
-  condition: []
-  action:
+    trigger: state
+  conditions: []
+  actions:
   - choose:
     - conditions:
       - condition: trigger
         id: 'off'
       sequence:
-      - service: input_select.select_option
-        data:
+      - data:
           option: Uit
         target:
           entity_id: input_select.kleine_schuur_airfryer_status
+        action: input_select.select_option
     - conditions:
       - condition: trigger
         id: waiting
@@ -653,13 +652,12 @@
         entity_id: input_select.kleine_schuur_airfryer_status
         state: Bezig
       sequence:
-      - service: input_select.select_option
-        data:
+      - data:
           option: Klaar
         target:
           entity_id: input_select.kleine_schuur_airfryer_status
-      - service: notify.mobile_app_telefoon_rudolf
-        data:
+        action: input_select.select_option
+      - data:
           title: De airfryer is klaar!
           message: Eten!
           data:
@@ -669,12 +667,36 @@
             - action: FRYER_EMPTIED
               title: Ik heb hem geleegd!
             notification_icon: mdi:french-fries
-      - service: tts.microsoft_say
+        action: notify.mobile_app_telefoon_rudolf
+      - variables:
+          originele_volume: '{{ state_attr(''media_player.woonkamer_google_home'',
+            ''volume_level'') }}'
+      - action: media_player.volume_set
+        metadata: {}
         data:
-          language: nl-nl
-          entity_id: media_player.nests_beneden
+          volume_level: 0.7
+        target:
+          device_id: 65f629f228f84418b3b24aaac2fbf152
+      - action: tts.speak
+        metadata: {}
+        data:
+          cache: false
           message: De airfryer is klaar
-          cache: true
+          language: nl-NL
+          media_player_entity_id: media_player.woonkamer_google_home
+        target:
+          entity_id: tts.home_assistant_cloud
+      - wait_for_trigger:
+        - trigger: state
+          entity_id:
+          - media_player.woonkamer_google_home
+          to: idle
+      - action: media_player.volume_set
+        metadata: {}
+        data:
+          volume_level: '{{ originele_volume | float }}'
+        target:
+          device_id: 65f629f228f84418b3b24aaac2fbf152
     - conditions:
       - condition: trigger
         id: waiting
@@ -682,37 +704,37 @@
         entity_id: input_select.kleine_schuur_airfryer_status
         state: Uit
       sequence:
-      - service: input_select.select_option
-        data:
+      - data:
           option: Wachten
         target:
           entity_id: input_select.kleine_schuur_airfryer_status
+        action: input_select.select_option
     - conditions:
       - condition: trigger
         id: running
       sequence:
-      - service: input_select.select_option
-        data:
+      - data:
           option: Bezig
         target:
           entity_id: input_select.kleine_schuur_airfryer_status
+        action: input_select.select_option
     - conditions:
       - condition: trigger
         id: fryer_emptied
       sequence:
-      - service: notify.mobile_app_telefoon_rudolf
-        data:
+      - data:
           data:
             tag: frying
           message: clear_notification
+        action: notify.mobile_app_telefoon_rudolf
     - conditions:
       - condition: trigger
         id: long-off
       sequence:
-      - service: switch.turn_off
-        data: {}
+      - data: {}
         target:
           entity_id: switch.kleine_schuur_airfryer
+        action: switch.turn_off
   mode: single
 - id: '1672759812479'
   alias: Smoke detection
@@ -899,49 +921,48 @@
 - id: '1687170214961'
   alias: Buiten te warm - Ramen nog open
   description: ''
-  trigger:
-  - platform: state
-    entity_id:
+  triggers:
+  - entity_id:
     - binary_sensor.buiten_warmer_dan_binnen
     from: 'off'
     to: 'on'
-  condition:
+    trigger: state
+  conditions:
   - condition: state
     entity_id: binary_sensor.ramen_boven
     state: 'on'
-  action:
+  actions:
   - choose:
     - conditions:
       - condition: state
         entity_id: person.rudolf
         state: home
       sequence:
-      - service: notify.mobile_app_telefoon_rudolf
-        data:
+      - data:
           title: Er staan nog ramen open
           message: "Het wordt wel erg warm buiten. De volgende ramen staan nog open:\n
             \n{{ message_data }}"
           data:
             ttl: 0
             priority: high
+        action: notify.mobile_app_telefoon_rudolf
     - conditions:
       - condition: state
         entity_id: person.leny
         state: home
       sequence:
-      - service: notify.mobile_app_telefoon_leny
-        data:
+      - data:
           title: Er staan nog ramen open
           message: "Het wordt wel erg warm buiten. De volgende ramen staan nog open:\n
             \n{{ message_data }}"
           data:
             ttl: 0
             priority: high
+        action: notify.mobile_app_telefoon_leny
   variables:
     message_data: "{% for entity_id in states.binary_sensor.ramen_boven.attributes.entity_id
-      -%}\n  {% if(states(entity_id) == 'on')-%}\n      {{- '\\n' -}}\n    - {% print(state_attr(entity_id,'friendly_name'))
-      | regex_replace(find=' Raam| contact',replace='')-%}\n  {% endif-%}\n{%- endfor
-      %}"
+      -%}\n  {% if(states(entity_id) == 'on')-%}\n      {{- '\\n' -}}\n    - {% print(state_attr(entity_id,'friendly_name')
+      + ' (' + area_name(entity_id) + ')') -%}\n  {% endif-%}\n{%- endfor %}"
   mode: single
 - id: '1702301389683'
   alias: Update water price
@@ -1224,20 +1245,6 @@
           }}
         image: '{{ trigger.event.data.aircraft_photo_medium }}'
     action: notify.mobile_app_telefoon_rudolf
-- id: '1731329249522'
-  alias: Test zinnen
-  description: ''
-  triggers:
-  - trigger: conversation
-    command: Speel het clublied van de beste club ter wereld
-  conditions: []
-  actions:
-  - action: spotcast.play_media
-    data:
-      media_player:
-        entity_id: media_player.nests_beneden
-      spotify_uri: https://open.spotify.com/track/2lL45TYwowSVlBoh72q6nA?si=22b035f3b4014dff
-  mode: single
 - id: '1733684130313'
   alias: Nieuw bericht VSCO.nl
   description: ''
@@ -1286,4 +1293,109 @@
       value: '{{states(''input_number.eneco_nieuwe_verkoopvergoeding_stroom'')}}'
     target:
       entity_id: input_number.eneco_verkoopvergoeding_stroom
+  mode: single
+- id: '1743603349092'
+  alias: Update traveltime when not home
+  description: ''
+  triggers:
+  - trigger: time_pattern
+    minutes: /10
+  conditions:
+  - condition: state
+    entity_id: person.rudolf
+    state: Optimizers
+  actions:
+  - action: homeassistant.update_entity
+    metadata: {}
+    data:
+      entity_id:
+      - sensor.google_travel_time
+  mode: single
+- id: '1743683158651'
+  alias: Test begin conversatie
+  description: ''
+  triggers: []
+  conditions: []
+  actions:
+  - action: assist_satellite.start_conversation
+    metadata: {}
+    data:
+      start_message: 'Ha Rudolf, Fijn dat je thuis bent. '
+      preannounce: true
+      extra_system_prompt: 'Geef aan of er nog was in de wasmachine zit op basus van
+        de status van de wasmachine. In het nederlands graag! '
+    target:
+      entity_id: assist_satellite.home_assistant_voice_095f62_assist_satellite
+  mode: single
+- id: '1746613388284'
+  alias: Camera herstarten
+  description: ''
+  triggers:
+  - trigger: time
+    at: 00:00:00
+  conditions: []
+  actions:
+  - action: switch.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: switch.meterkast_camera
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 5
+      milliseconds: 0
+  - action: switch.turn_on
+    metadata: {}
+    data: {}
+    target:
+      device_id: a242f0ef45a22d30887fe61bb082784c
+  mode: single
+- id: '1746940797242'
+  alias: Sproeier voortuin automatisch uit
+  description: ''
+  triggers:
+  - type: turned_on
+    device_id: 2a3c6550788e4f2b98943abe7d1f0efc
+    entity_id: e8bcae5259f1dd177b1196f74b0a7110
+    domain: switch
+    trigger: device
+    for:
+      hours: 2
+      minutes: 30
+      seconds: 0
+  conditions: []
+  actions:
+  - type: turn_off
+    device_id: 2a3c6550788e4f2b98943abe7d1f0efc
+    entity_id: e8bcae5259f1dd177b1196f74b0a7110
+    domain: switch
+  mode: single
+- id: '1748722408594'
+  alias: Noa nest hub
+  description: ''
+  triggers:
+  - device_id: a934a35a9e476072f18713a130942c68
+    domain: media_player
+    entity_id: 0f2bc0ac3c95c5937cc016a8c8a3f57a
+    type: playing
+    trigger: device
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 10
+  conditions:
+  - condition: time
+    after: '21:30:00'
+    before: 06:30:00
+  actions:
+  - action: media_player.turn_off
+    metadata: {}
+    data: {}
+    target:
+      device_id: a934a35a9e476072f18713a130942c68
+  - action: notify.mobile_app_telefoon_rudolf
+    metadata: {}
+    data:
+      message: Nest hub noa is uitgezet
   mode: single
