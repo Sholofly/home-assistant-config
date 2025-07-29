@@ -1,5 +1,5 @@
 ################################################
 ## Entities / Switches / Templates
-################################################ 
+################################################
 platform: template
-switches: !include_dir_named ../switches_templates
+covers: !include_dir_named ../templates/covers

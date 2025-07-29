@@ -2,16 +2,17 @@
 ## Entities / Template Switches / Garagedeur
 ################################################
 friendly_name: Garage Garagedeur
+device_class: garage
 value_template: "{{ is_state('binary_sensor.garage_garagedeur_contact', 'on') }}"
-turn_on:
+open_cover:
   service: button.press
   data:
     entity_id: button.garage_garagedeur
-turn_off:
+close_cover:
   service: button.press
   data:
     entity_id: button.garage_garagedeur
-icon_template: >
-  {% if is_state('binary_sensor.garage_garagedeur_contact', 'on') %} mdi:garage-open
-  {% else %} mdi:garage
-  {% endif %}
+stop_cover:
+  service: button.press
+  data:
+    entity_id: button.garage_garagedeur
