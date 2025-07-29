@@ -1,11 +1,10 @@
 substitutions:
   label: esp17
   id: voortuin_sproeier
-  slug: voortuin-sproeier
   name: Voortuin Sproeier
   description: Bedient de sproeier in de voortuin.
   restore_mode: ALWAYS_OFF
-  wifi_static_ip: 192.168.1.181
+  wifi_static_ip: 192.168.1.145
 
 packages:
   device: !include devices/shelly1.yaml

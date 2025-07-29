@@ -1,11 +1,9 @@
 substitutions:
   label: esp24
   id: gang_plafond
-  slug: gang-plafond
   name: Gang Plafond
   description: Bedient de lamp in de gang.
   restore_mode: RESTORE_DEFAULT_OFF
-  wifi_static_ip: 192.168.1.46
-
+  wifi_static_ip: 192.168.1.25
 packages:
   device: !include devices/shelly1_light.yaml

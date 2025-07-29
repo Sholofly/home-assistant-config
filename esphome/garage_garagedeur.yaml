@@ -1,13 +1,12 @@
 # failes update
 substitutions:
   label: esp11
-  slug: garage-garagedeur
   id: garage_garagedeur
   name: Garage Garagedeur
   description: Schakelt de garagedeur.
   restore_mode: ALWAYS_OFF
   toggle_delay: 500ms
-  wifi_static_ip: 192.168.1.121
+  wifi_static_ip: 192.168.1.230
   
 packages:
   device: !include devices/esp01s-relay-off.yaml

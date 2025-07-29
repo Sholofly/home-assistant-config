@@ -1,6 +1,5 @@
 substitutions:
   label: esp34
-  slug: achtertuin-zwembad
   name: Achtertuin Zwembad
   description: Heeft sensoren voor het zwembad.
 
@@ -30,7 +29,7 @@ i2c:
   sda: D2
   scl: D1
   scan: true
-  
+
 display:
   - platform: lcd_pcf8574
     dimensions: 16x2
@@ -57,4 +56,4 @@ display:
       }
       else if (id(ph).state >= 11) {
         it.print(0, 1, "Very alkaline");
-      } 
+      }

@@ -1,10 +1,9 @@
 substitutions:
   label: esp01
   id: woonkamer_dressoir
-  slug: woonkamer-dressoir
   name: Woonkamer Dressoir
   description: Bedient het licht op het dressoir in de woonkamer.
-  wifi_static_ip: 192.168.1.82
+  wifi_static_ip: 192.168.1.221
 
 packages:
   device: !include devices/neo_coolcam_light.yaml

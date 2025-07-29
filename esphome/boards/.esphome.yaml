@@ -5,7 +5,7 @@
 #
 # https://esphome.io/components/esphome.html
 #
-name: "${slug}"
+name: "${name | lower | replace(' ','-')}"
 friendly_name: "${name}"
 comment: "${description}"
 build_path: "./.build/${id}/"

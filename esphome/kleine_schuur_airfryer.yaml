@@ -1,6 +1,5 @@
 substitutions:
   label: esp19
-  slug: kleine-schuur-airfryer
   id: kleine_schuur_airfryer
   name: Kleine schuur Airfryer
   description: Monitort energieverbruik airfryer.
@@ -9,7 +8,7 @@ substitutions:
   # Lower value gives lower voltage readout
   voltage_div: "800"
   restore_mode: RESTORE_DEFAULT_OFF
-  wifi_static_ip: 192.168.1.247
+  wifi_static_ip: 192.168.1.186
 
 packages:
   device: !include devices/neo_coolcam_pm.yaml

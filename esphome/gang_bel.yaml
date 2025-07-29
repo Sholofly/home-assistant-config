@@ -1,10 +1,10 @@
 substitutions:
   label: esp33
-  slug: gang-bel
   id: gang_bel
   name: Gang Bel
   description: Schakelt de deurbel.
   restore_mode: RESTORE_ALWAYS_OFF
+  wifi_static_ip: 192.168.1.210
 
 packages:
   device: !include devices/wemos-d1-mini-relay.yaml

@@ -1,10 +1,9 @@
 substitutions:
   label: esp05
   id: woonkamer_raam_voor
-  slug: woonkamer-raam-voor
   name: Woonkamer Raam Voor
   description: Bedient het licht in het raam voor.
-  wifi_static_ip: 192.168.1.131
+  wifi_static_ip: 192.168.1.250
 
 packages:
   device: !include devices/neo_coolcam_light.yaml

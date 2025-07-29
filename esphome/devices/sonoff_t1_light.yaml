@@ -33,7 +33,9 @@ light:
     name: "${name} button"
     output: blue_led
     id: ${id}_button
+    device_id: "${id}_device"
   - platform: binary
     id: ${id}_light
     name: "${name}"
     output: relay
+    device_id: "${id}_device"

@@ -1,11 +1,10 @@
 substitutions:
   label: esp21
   id: achtertuin_druppelslang
-  slug: achtertuin-druppelslang
   name: Achtertuin Druppelslang
   description: Bedient de druppelslang in de achtertuin.
   restore_mode: ALWAYS_OFF
-  wifi_static_ip: 192.168.1.203
+  wifi_static_ip: 192.168.1.152
 
 packages:
   <<: !include_dir_named ./common

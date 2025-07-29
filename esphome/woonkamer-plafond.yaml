@@ -1,10 +1,11 @@
 substitutions:
   label: esp08
   id: woonkamer_plafond
-  slug: woonkamer-plafond
   name: Woonkamer Plafond
   description: Switch voor plafond in woonkamer
   restore_mode: RESTORE_DEFAULT_OFF
+  
+  wifi_static_ip: 192.168.1.202
 
 packages:
   device: !include devices/neo_coolcam.yaml

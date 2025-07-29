@@ -1,11 +1,10 @@
 substitutions:
   label: esp06
-  slug: bijkeuken-plafond
   id: bijkeuken_plafond
   name: Bijkeuken Plafond
   description: Bedient de lamp in de bijkeuken.
   restore_mode: RESTORE_DEFAULT_OFF
-  wifi_static_ip: 192.168.1.84
+  wifi_static_ip: 192.168.1.224
 
 packages:
   device: !include devices/shelly1_light.yaml

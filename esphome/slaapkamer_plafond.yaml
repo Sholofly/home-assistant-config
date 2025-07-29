@@ -1,9 +1,9 @@
 substitutions:
   label: esp14
   id: slaapkamer_plafond
-  slug: slaapkamer-plafond
   name: Slaapkamer Plafond
   description: Bedient de lamp in de slaapkamer.
   restore_mode: RESTORE_DEFAULT_OFF
+  wifi_static_ip: 192.168.1.50
 packages:
   device: !include devices/sonoff_t1_light.yaml

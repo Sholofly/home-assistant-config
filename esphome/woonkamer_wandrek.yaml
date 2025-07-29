@@ -1,7 +1,6 @@
 substitutions:
   label: esp20
   id: woonkamer_wandrek
-  slug: woonkamer-wandrek
   name: Woonkamer Wandrek
   description: Bedient de lamp op het wandrek.
   # Higher value gives lower watt readout
@@ -9,6 +8,7 @@ substitutions:
   # Lower value gives lower voltage readout
   voltage_div: "800"
   restore_mode: RESTORE_DEFAULT_OFF
+  wifi_static_ip: 192.168.1.139
 
 packages:
   device: !include devices/neo_coolcam_pm_light.yaml

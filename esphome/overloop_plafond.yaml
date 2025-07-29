@@ -1,11 +1,10 @@
 substitutions:
   label: esp23
-  slug: overloop-plafond
   id: overloop_plafond
   name: Overloop Plafond
   description: Bedient de lamp op de overloop.
   restore_mode: RESTORE_DEFAULT_OFF
-  wifi_static_ip: 192.168.1.89
+  wifi_static_ip: 192.168.1.223
 
 packages:
   device: !include devices/shelly1_light.yaml

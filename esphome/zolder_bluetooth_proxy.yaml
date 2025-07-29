@@ -1,6 +1,5 @@
 substitutions:
   label: esp02
-  slug: zolder-bluetooth-proxy
   name: Zolder Buetooth proxy
   description: Bluetooth proxy voor zolder
 packages:

@@ -1,11 +1,10 @@
 substitutions:
   label: esp07
   id: wc_plafond
-  slug: wc-plafond
   name: WC Plafond
   description: Bedient de lamp in de wc.
   restore_mode: RESTORE_DEFAULT_OFF
-  wifi_static_ip: 192.168.1.70
+  wifi_static_ip: 192.168.1.174
 
 packages:
   device: !include devices/shelly1_light.yaml

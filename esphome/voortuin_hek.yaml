@@ -1,12 +1,11 @@
 substitutions:
   label: esp12
   id: voortuin_hek
-  slug: voortuin-hek
   name: Voortuin Hek
   description: Schakelt het hek.
   restore_mode: ALWAYS_OFF
   toggle_delay: 500ms
-  wifi_static_ip: 192.168.1.98
+  wifi_static_ip: 192.168.1.242
 
 packages:
   device: !include devices/esp01s-relay-off.yaml

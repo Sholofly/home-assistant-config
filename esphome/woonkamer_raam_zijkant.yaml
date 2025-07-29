@@ -1,6 +1,5 @@
 substitutions:
   label: esp04
-  slug: woonkamer-raam-zijkant
   id: woonkamer_raam_zijkant
   name: Woonkamer Raam zijkant
   description: Bedient de lamp in het zijraam.
@@ -9,7 +8,7 @@ substitutions:
   # Lower value gives lower voltage readout
   voltage_div: "800"
   restore_mode: RESTORE_DEFAULT_OFF
-  wifi_static_ip: 192.168.1.226
+  wifi_static_ip: 192.168.1.245
 
 packages:
   device: !include devices/neo_coolcam_pm_light.yaml
