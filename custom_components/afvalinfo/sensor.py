@@ -64,6 +64,11 @@ async def async_setup_entry(
     config_entry: config_entries.ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
+    _LOGGER.info(
+        "[afvalinfo.sensor] Setting up sensors for entry: %s",
+        config_entry.entry_id,
+    )
+
     # Store the entities for this entry_id
     if DOMAIN not in hass.data:
         hass.data[DOMAIN] = {}
@@ -113,12 +118,20 @@ async def async_setup_entry(
         street_number_suffix,
         district,
         diftar_code,
-        get_whole_year,
+        True,  # get_whole_year altijd True
         resourcesMinusTodayAndTomorrow,
         get_cleanprofs_data,
     )
 
     await data.async_update()
+
+    # Sla het data object op zodat de calendar het kan hergebruiken
+    hass.data[DOMAIN][config_entry.entry_id]["data"] = data
+
+    _LOGGER.info(
+        "[afvalinfo.sensor] Data object stored for entry: %s",
+        config_entry.entry_id,
+    )
 
     entities = []
     entity_registry = er.async_get(hass)
@@ -182,6 +195,12 @@ async def async_setup_entry(
         entity_registry.async_remove(entity_id)
 
     async_add_entities(entities)
+
+    _LOGGER.info(
+        "[afvalinfo.sensor] Successfully added %d sensor entities for entry: %s",
+        len(entities),
+        config_entry.entry_id,
+    )
 
     # Store the list of enabled sensors for future reference
     hass.data[DOMAIN][config_entry.entry_id]["enabled_sensors"] = config[

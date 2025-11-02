@@ -61,6 +61,7 @@ blueprint:
           - domain:
             - input_text
           multiple: false
+          reorder: false
     hold_to_dim_entity:
       name: (Optional) Toggle/Dim Light Entity
       description: Light entity to be dimmed when holding or toggled on first press
@@ -72,6 +73,7 @@ blueprint:
           - domain:
             - light
           multiple: false
+          reorder: false
     scene_first_release:
       default: ''
       selector:
@@ -80,6 +82,7 @@ blueprint:
           - domain:
             - scene
           multiple: false
+          reorder: false
       name: (Optional) First Press/Release Scene
       description: Select a scene to be activated on the first button press/release.
     scene_second_release:
@@ -90,6 +93,7 @@ blueprint:
           - domain:
             - scene
           multiple: false
+          reorder: false
       name: (Optional) Second Press/Release Scene
       description: Select a scene to be activated on the second button press/release.
     scene_third_release:
@@ -100,6 +104,7 @@ blueprint:
           - domain:
             - scene
           multiple: false
+          reorder: false
       name: (Optional) Third Press/Release Scene
       description: Select a scene to be activated on the third button press/release.
     scene_fourth_release:
@@ -110,6 +115,7 @@ blueprint:
           - domain:
             - scene
           multiple: false
+          reorder: false
       name: (Optional) Fourth Press/Release Scene
       description: Select a scene to be activated on the fourth button press/release.
     scene_fifth_release:
@@ -120,6 +126,7 @@ blueprint:
           - domain:
             - scene
           multiple: false
+          reorder: false
       name: (Optional) Fifth Press/Release Scene
       description: Select a scene to be activated on the fifth button press/release.
     button_toggle_dim_entity_first_press:

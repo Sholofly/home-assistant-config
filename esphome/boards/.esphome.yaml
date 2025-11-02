@@ -6,10 +6,10 @@
 # https://esphome.io/components/esphome.html
 #
 name: "${name | lower | replace(' ','-')}"
-friendly_name: "${name}"
+friendly_name: " "
 comment: "${description}"
 build_path: "./.build/${id}/"
 compile_process_limit: 1
-devices:
-  - id: "${id}_device"
-    name: "${name}"
+# devices:
+#   - id: "${id}_device"
+#     name: "${name}"
