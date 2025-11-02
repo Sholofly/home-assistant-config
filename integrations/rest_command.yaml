@@ -1,0 +1,4 @@
+rest_command:
+  duckdns_sholofly:
+    url: 'https://www.duckdns.org/update?domains=sholofly&token={{states("sensor.duckdns_token")}}&ip={{states("sensor.myip")}}'
+    method: GET
