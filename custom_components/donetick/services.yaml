@@ -1,0 +1,121 @@
+complete_task:
+  name: Complete Task
+  description: Complete a Donetick task with optional user attribution
+  fields:
+    task_id:
+      name: Task ID
+      description: The ID of the task to complete
+      required: true
+      selector:
+        number:
+          min: 1
+          mode: box
+    completed_by:
+      name: Completed By User ID
+      description: The Donetick user ID who completed the task (optional)
+      required: false
+      selector:
+        number:
+          min: 1
+          mode: box
+    config_entry_id:
+      name: Config Entry ID
+      description: The specific Donetick integration to use (optional, uses first if not specified)
+      required: false
+      selector:
+        text:
+
+create_task:
+  name: Create Task
+  description: Create a new Donetick task
+  fields:
+    name:
+      name: Task Name
+      description: The name of the task
+      required: true
+      selector:
+        text:
+    description:
+      name: Description
+      description: Task description (optional)
+      required: false
+      selector:
+        text:
+          multiline: true
+    due_date:
+      name: Due Date
+      description: Task due date in RFC3339 format (optional, e.g., 2025-07-28T18:00:00Z)
+      required: false
+      selector:
+        text:
+    created_by:
+      name: Created By User ID
+      description: The Donetick user ID who created the task (optional)
+      required: false
+      selector:
+        number:
+          min: 1
+          mode: box
+    config_entry_id:
+      name: Config Entry ID
+      description: The specific Donetick integration to use (optional, uses first if not specified)
+      required: false
+      selector:
+        text:
+
+update_task:
+  name: Update Task
+  description: Update an existing Donetick task
+  fields:
+    task_id:
+      name: Task ID
+      description: The ID of the task to update
+      required: true
+      selector:
+        number:
+          min: 1
+          mode: box
+    name:
+      name: Task Name
+      description: The new name of the task (optional)
+      required: false
+      selector:
+        text:
+    description:
+      name: Description
+      description: New task description (optional, empty string to clear)
+      required: false
+      selector:
+        text:
+          multiline: true
+    due_date:
+      name: Due Date
+      description: New task due date in RFC3339 format (optional, e.g., 2025-07-28T18:00:00Z)
+      required: false
+      selector:
+        text:
+    config_entry_id:
+      name: Config Entry ID
+      description: The specific Donetick integration to use (optional, uses first if not specified)
+      required: false
+      selector:
+        text:
+
+delete_task:
+  name: Delete Task
+  description: Delete a Donetick task
+  fields:
+    task_id:
+      name: Task ID
+      description: The ID of the task to delete
+      required: true
+      selector:
+        number:
+          min: 1
+          mode: box
+    config_entry_id:
+      name: Config Entry ID
+      description: The specific Donetick integration to use (optional, uses first if not specified)
+      required: false
+      selector:
+        text:

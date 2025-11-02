@@ -1,0 +1,31 @@
+{
+  "domain": "spotifyplus",
+  "name": "SpotifyPlus",
+  "codeowners": [
+    "@thlucas1"
+  ],
+  "config_flow": true,
+  "dependencies": [
+    "application_credentials",
+    "zeroconf"
+  ],
+  "documentation": "https://github.com/thlucas1/homeassistantcomponent_spotifyplus/wiki/Device-Configuration-Options#integration-options",
+  "integration_type": "service",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/thlucas1/homeassistantcomponent_spotifyplus/issues",
+  "requirements": [
+    "oauthlib>=3.2.2",
+    "platformdirs>=4.1.0",
+    "requests>=2.31.0",
+    "requests_oauthlib>=1.3.1",
+    "smartinspectpython>=3.0.38",
+    "spotifywebapipython>=1.0.239",
+    "urllib3>=2.0",
+    "zeroconf>=0.132.2"
+  ],
+  "version": "v1.0.160",
+  "zeroconf": [
+    "_spotify-connect._tcp.local.",
+    "_googlecast._tcp.local."
+  ]
+}
