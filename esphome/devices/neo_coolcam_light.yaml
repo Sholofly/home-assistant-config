@@ -30,7 +30,7 @@ light:
     name: "${name}"
     output: gpio_12
     id: "${id}_light"
-    device_id: "${id}_device"
+    #device_id: "${id}_device"
   - platform: binary
     name: "${name} button"
     output: gpio_4

@@ -19,4 +19,4 @@
 platform: uptime
 id: sensor_uptime
 entity_category: diagnostic
-device_id: "${id}_device"
+#device_id: "${id}_device"

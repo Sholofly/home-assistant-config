@@ -33,4 +33,4 @@ switch:
       - switch.turn_on: "${id}_led"
     on_turn_off:
       - switch.turn_off: "${id}_led"
-    device_id: "${id}_device"
+    #device_id: "${id}_device"

@@ -29,4 +29,4 @@ switch:
     on_turn_on:
       - delay: 6h
       - switch.turn_off: "${id}_relay"
-    device_id: "${id}_device"
+    #device_id: "${id}_device"

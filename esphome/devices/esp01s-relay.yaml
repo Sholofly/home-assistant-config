@@ -10,4 +10,4 @@ switch:
     id: "${slug}_relay"
     name: "${name}"
     restore_mode: $restore_mode
-    device_id: "${id}_device"
+    #device_id: "${id}_device"

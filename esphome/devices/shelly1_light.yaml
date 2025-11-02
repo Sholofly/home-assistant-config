@@ -21,4 +21,4 @@ light:
     name: "${name}"
     output: gpio_4
     id: "${id}_light"
-    device_id: "${id}_device"
+    #device_id: "${id}_device"

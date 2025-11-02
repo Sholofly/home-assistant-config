@@ -3,3 +3,4 @@ homeassistant:
 
   allowlist_external_dirs:
     - !secret whitelist_config
+    - !secret whitelist_snapshot

@@ -26,7 +26,7 @@ light:
     name: "${name}"
     output: gpio_14
     id: "${id}_light"
-    device_id: "${id}_device"
+    #device_id: "${id}_device"
 
 sensor:
   - platform: hlw8012
@@ -40,16 +40,16 @@ sensor:
     current:
       name: "${name} Amperage"
       unit_of_measurement: A
-      device_id: "${id}_device"
+      #device_id: "${id}_device"
     voltage:
       name: "${name} Voltage"
       unit_of_measurement: V
-      device_id: "${id}_device"
+      #device_id: "${id}_device"
     power:
       name: "${name} Wattage"
       unit_of_measurement: W
       id: "${id}_wattage"
-      device_id: "${id}_device"
+      #device_id: "${id}_device"
     change_mode_every: 8
     update_interval: 10s
   - platform: total_daily_energy
@@ -59,4 +59,4 @@ sensor:
       # Multiplication factor from W to kW is 0.001
       - multiply: 0.001
     unit_of_measurement: kWh
-    device_id: "${id}_device"
+    #device_id: "${id}_device"

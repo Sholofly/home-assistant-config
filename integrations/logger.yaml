@@ -5,6 +5,7 @@ logger:
   default: warning
   logs:
     homeassistant.components.waze_travel_time: error
+    #homeassistant.components.rest_command: debug
     # custom_components.lghorizon: debug
     # lghorizon: debug
   filters:

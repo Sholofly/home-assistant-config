@@ -9,12 +9,12 @@ platform: wifi_info
 ip_address:
   name: "${name} IP Address"
   entity_category: "diagnostic"
-  device_id: "${id}_device"
+  #device_id: "${id}_device"
 ssid:
   name: "${name} Connected SSID"
   entity_category: "diagnostic"
-  device_id: "${id}_device"
+  #device_id: "${id}_device"
 bssid:
   name: "${name} Connected BSSID"
   entity_category: "diagnostic"
-  device_id: "${id}_device"
+  #device_id: "${id}_device"

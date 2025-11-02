@@ -57,3 +57,6 @@ zigbee2mqtt/log/2024-04-28.10-04-51/log.txt
 zigbee2mqtt/log/2024-04-28.10-04-51/log1.txt
 ps5-mqtt/credentials.json
 zigbee2mqtt/configuration_backup_*.yaml
+tmp/snapshot_driveway_driveway.jpg
+tmp/snapshot_eekternas_driveway.jpg
+tmp/snapshot_voortuin.jpg

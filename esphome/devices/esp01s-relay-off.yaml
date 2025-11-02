@@ -18,4 +18,4 @@ button:
       - switch.turn_on: "${id}_relay"
       - delay: $toggle_delay
       - switch.turn_off: "${id}_relay"
-    device_id: "${id}_device"
+    #device_id: "${id}_device"

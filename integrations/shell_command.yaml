@@ -1,0 +1,2 @@
+shell_command:
+  start_month_orisha: bash /config/www/orisha/orisha_travels_start_month.sh

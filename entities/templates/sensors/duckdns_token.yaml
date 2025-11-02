@@ -1,0 +1,5 @@
+################################################
+## Entities / Template Sensors / DuckDNS Token
+################################################
+name: DuckDNS Token
+state: !secret duckdns_token

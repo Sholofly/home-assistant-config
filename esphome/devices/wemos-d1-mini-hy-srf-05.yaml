@@ -8,4 +8,4 @@ sensor:
     echo_pin: D2
     name: "${name} Distance"
     update_interval: 5s
-    device_id: "${id}_device"
+    #device_id: "${id}_device"

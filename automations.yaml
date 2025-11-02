@@ -460,27 +460,21 @@
 - id: '1656497997657'
   alias: Badkamer - Knop rechts
   description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - binary_sensor.wastafel_input
-    from: 'off'
-    to: 'on'
-    enabled: false
-  - platform: event
-    event_type: shelly.click
+  triggers:
+  - event_type: shelly.click
     event_data:
-      device_id: c5de9c3be9b1a0c71e52fa9a57a9c0a2
-      device: shellyswitch25-68C63AF9AF42
+      device_id: 68fdce8d7ad08e466d7336ea1d4730a7
+      device: shellyplus2pm-345f4518a324
       channel: 1
-      click_type: single
-      generation: 1
-  condition: []
-  action:
-  - service: light.toggle
-    data: {}
+      click_type: single_push
+      generation: 2
+    trigger: event
+  conditions: []
+  actions:
+  - data: {}
     target:
       entity_id: light.badkamer_wastafel
+    action: light.toggle
   mode: single
 - id: '1671801460867'
   alias: Wasmachine - Status
@@ -865,16 +859,17 @@
   mode: single
 - id: '1677277974469'
   alias: Update ESPHome entities
-  description: Updates all updateable esphome entities at 02:00 at night.
-  trigger:
-  - platform: time
-    at: 00:30:00
-  condition: []
-  action:
-  - service: update.install
-    target:
+  description: Werkt alle updatebare ESPHome entiteiten bij om 00:30 's nachts.
+  triggers:
+  - at: 00:30:00
+    trigger: time
+  conditions: []
+  actions:
+  - target:
       entity_id: '{{ integration_entities(''esphome'') | select(''match'', ''^update.'')
         | select(''is_state'', ''on'') | list }}'
+    action: update.install
+    data: {}
   mode: single
 - id: '1677601535487'
   alias: Bazarr Webhook
@@ -920,7 +915,8 @@
   mode: single
 - id: '1687170214961'
   alias: Buiten te warm - Ramen nog open
-  description: ''
+  description: Stuurt een notificatie als het buiten warmer wordt dan binnen en ramen
+    boven nog open staan.
   triggers:
   - entity_id:
     - binary_sensor.buiten_warmer_dan_binnen
@@ -985,24 +981,24 @@
     path: freakshock88/motion_illuminance_activated_entity.yaml
     input:
       motion_sensor: binary_sensor.bijkeuken_bewegingssensor_occupancy
-      target_entity: light.bijkeuken_plafond
+      target_entity: light.bijkeuken_plafond_bijkeuken_plafond
       blocker_entity: binary_sensor.licht_binnen
       no_motion_wait: input_number.bijkeuken_turn_off_light_after
 - id: '1704015365838'
-  alias: Leny kerk
-  description: ''
-  trigger:
-  - platform: state
-    entity_id:
+  alias: Melding Leny Kerk Uit
+  description: Verstuurt een melding naar Rudolf wanneer Leny de kerk verlaat, mits
+    Rudolf thuis is.
+  triggers:
+  - entity_id:
     - person.leny
     from: Kerk
-  condition:
+    trigger: state
+  conditions:
   - condition: state
     entity_id: person.rudolf
     state: home
-  action:
-  - service: notify.mobile_app_telefoon_rudolf
-    data:
+  actions:
+  - data:
       title: Kerk is uit
       message: Leny verlaat de kerk
       data:
@@ -1011,6 +1007,7 @@
         channel: HA Alarm
         importance: max
         notification_icon: mdi:church
+    action: notify.mobile_app_telefoon_rudolf
   mode: single
 - id: '1707254496023'
   alias: Droger status
@@ -1066,38 +1063,6 @@
     target:
       device_id: 5e7a4946b72771280b3bdb6d1a192e5a
     action: media_player.turn_off
-  mode: single
-- id: '1712692187196'
-  alias: Todo tasks
-  description: ''
-  trigger:
-  - platform: time
-    at: 06:00:00
-  condition: []
-  action:
-  - service: todo.get_items
-    data:
-      status:
-      - needs_action
-      - completed
-    response_variable: items_on_todo
-    target:
-      entity_id: todo.todos_today
-  - if:
-    - alias: Mormel voeren niet op de lijst
-      condition: template
-      value_template: '{{''Mormel voeren'' not in items_on_todo[''todo.todos_today''][''items'']
-        | map(attribute=''summary'') | list | string}}'
-    then:
-    - service: todo.add_item
-      metadata: {}
-      data:
-        item: Mormel voeren
-      target:
-        entity_id: todo.todos_today
-    - service: notify.persistent_notification
-      data:
-        message: Test
   mode: single
 - id: '1713036861687'
   alias: Wall tablet - Reload
@@ -1204,13 +1169,27 @@
   description: Zet Mika's deken aan om 18:30
   triggers:
   - trigger: time
-    at: '18:30:00'
+    at: '19:00:00'
+    id: deken-aan
+  - trigger: time
+    at: '20:00:00'
+    id: deken-uit
   conditions: []
   actions:
-  - type: turn_on
-    device_id: e4338830b28f1dbc923f6ca4dede173d
-    entity_id: c051b0866dd83ee3368b42bf1bd32331
-    domain: switch
+  - if:
+    - condition: trigger
+      id:
+      - deken-aan
+    then:
+    - type: turn_on
+      device_id: e4338830b28f1dbc923f6ca4dede173d
+      entity_id: c051b0866dd83ee3368b42bf1bd32331
+      domain: switch
+    else:
+    - type: turn_off
+      device_id: e4338830b28f1dbc923f6ca4dede173d
+      entity_id: c051b0866dd83ee3368b42bf1bd32331
+      domain: switch
   mode: single
 - id: '1729681583908'
   alias: Keuken light
@@ -1218,7 +1197,7 @@
   use_blueprint:
     path: TheHolyRoger/Philips_HUE_SmartButton.yaml
     input:
-      helper_last_controller_event: input_text.last_controller_event
+      helper_last_controller_event: input_text.keuken_hue_button_last_controller_event
       controller_topic: zigbee2mqtt/Keuken Mini button/action
       hold_to_dim_entity: light.keuken_eettafel
       toggle_dim_entity_transition: 1
@@ -1228,7 +1207,7 @@
       button_multi_press_enabled: false
       button_toggle_dim_entity_first_press: true
       hold_to_dim_brightness_step: 20
-      button_hold_to_dim: false
+      button_hold_to_dim: true
 - id: '1730240747048'
   alias: Flight entry notification
   description: ''
@@ -1311,22 +1290,6 @@
       entity_id:
       - sensor.google_travel_time
   mode: single
-- id: '1743683158651'
-  alias: Test begin conversatie
-  description: ''
-  triggers: []
-  conditions: []
-  actions:
-  - action: assist_satellite.start_conversation
-    metadata: {}
-    data:
-      start_message: 'Ha Rudolf, Fijn dat je thuis bent. '
-      preannounce: true
-      extra_system_prompt: 'Geef aan of er nog was in de wasmachine zit op basus van
-        de status van de wasmachine. In het nederlands graag! '
-    target:
-      entity_id: assist_satellite.home_assistant_voice_095f62_assist_satellite
-  mode: single
 - id: '1746613388284'
   alias: Camera herstarten
   description: ''
@@ -1357,18 +1320,14 @@
   triggers:
   - type: turned_on
     device_id: 2a3c6550788e4f2b98943abe7d1f0efc
-    entity_id: e8bcae5259f1dd177b1196f74b0a7110
+    entity_id: c0bdb0b064ce252186ac554594997037
     domain: switch
     trigger: device
-    for:
-      hours: 2
-      minutes: 30
-      seconds: 0
   conditions: []
   actions:
   - type: turn_off
     device_id: 2a3c6550788e4f2b98943abe7d1f0efc
-    entity_id: e8bcae5259f1dd177b1196f74b0a7110
+    entity_id: c0bdb0b064ce252186ac554594997037
     domain: switch
   mode: single
 - id: '1748722408594'
@@ -1398,4 +1357,274 @@
     metadata: {}
     data:
       message: Nest hub noa is uitgezet
+  mode: single
+- id: '1754561068701'
+  alias: Donetick message
+  description: ''
+  triggers:
+  - trigger: webhook
+    allowed_methods:
+    - POST
+    - PUT
+    - HEAD
+    - GET
+    local_only: false
+    webhook_id: -Ctb8Dx8OJGvN7AzUKBYmCbuD
+  conditions: []
+  actions:
+  - action: notify.persistent_notification
+    metadata: {}
+    data:
+      message: '{{ trigger.json }}'
+    enabled: false
+  - variables:
+      notification_type: '{{trigger.json.type}}'
+  - alias: Task completed
+    if:
+    - condition: template
+      value_template: '{{ notification_type == ''task.completed'' }}'
+    then:
+    - variables:
+        task_executor: '{{ trigger.json.data.username}}'
+        task_name: '{{ trigger.json.data.chore.name }}'
+    - action: notify.mobile_app_telefoon_rudolf
+      metadata: {}
+      data:
+        message: De taak {{task_name}} is uitgevoerd door {{task_executor }}.
+        title: Taak {{ task_name }} uitgevoerd
+  - alias: Task reminder
+    if:
+    - condition: template
+      value_template: '{{ notification_type == ''task.reminder'' }}'
+    then:
+    - variables:
+        task_executor: '{{ trigger.json.data.assignee}}'
+        task_name: '{{ trigger.json.data.name }}'
+    - action: notify.mobile_app_telefoon_rudolf
+      metadata: {}
+      data:
+        message: '{{ task_executor }} heeft de taak ''{{task_name}}'' nog niet uitgevoerd.'
+        title: Taak '{{ task_name }}' niet uitgevoerd
+  mode: single
+- id: '1757059485795'
+  alias: Check externe IP verandering
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - sensor.myip
+  conditions:
+  - condition: not
+    conditions:
+    - condition: state
+      entity_id: sensor.myip
+      state: unavailable
+    - condition: state
+      entity_id: sensor.myip
+      state: unknown
+  actions:
+  - action: rest_command.duckdns_sholofly
+    metadata: {}
+    data: {}
+  - action: notify.mobile_app_telefoon_rudolf
+    metadata: {}
+    data:
+      title: IP-adres gewijzigd
+      message: Je IP-adres is gewijzigd van {{trigger.from_state.state}} naar {{states('sensor.myip')}}.
+  mode: single
+- id: '1757426624890'
+  alias: SpotifyPlus Media Player Podcast Pause Player at End
+  description: Pauses the SpotifyPlus media player when podcast episode estimated
+    play time remaining is less than 10 seconds.
+  triggers:
+  - trigger: state
+    alias: When SpotifyPlus estimated play time remaining changes
+    entity_id:
+    - media_player.spotifyplus_rudolf_offereins
+    attribute: sp_play_time_remaining_est
+  conditions:
+  - alias: If SpotifyPlus is playing something
+    condition: state
+    entity_id: media_player.spotifyplus_rudolf_offereins
+    state: playing
+    enabled: true
+  - alias: If SpotifyPlus is playing podcast content
+    condition: state
+    entity_id: media_player.spotifyplus_rudolf_offereins
+    attribute: sp_item_type
+    state: podcast
+    enabled: true
+  - alias: If SpotifyPlus is playing an episode
+    condition: state
+    entity_id: media_player.spotifyplus_rudolf_offereins
+    attribute: sp_playing_type
+    state: episode
+    enabled: true
+  - alias: If less than 10 seconds remain of playing media content
+    condition: template
+    value_template: '{% if ((state_attr(''media_player.spotifyplus_rudolf_offereins'',''sp_play_time_remaining_est'')
+      | int(0)) < 10) %} true  {% else %}  false  {% endif %}'
+    enabled: true
+  actions:
+  - action: media_player.media_pause
+    alias: Pause SpotifyPlus media player
+    data:
+      entity_id: media_player.spotifyplus_rudolf_offereins
+    enabled: true
+  mode: single
+- id: '1761255353644'
+  alias: Reset Orisha allowance registered today
+  description: ''
+  triggers:
+  - at: 00:00:01
+    trigger: time
+  actions:
+  - action: input_boolean.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: input_boolean.orisha_allowance_today_registered
+- id: '1761257643688'
+  alias: Work at home registration
+  description: ''
+  triggers:
+  - entity_id: person.rudolf
+    zone: zone.optimizers
+    event: enter
+    trigger: zone
+    id: to_office_zwolle
+  - trigger: state
+    entity_id:
+    - input_button.register_working_from_home
+    id: work_at_home
+  - trigger: time
+    at: '12:00:00'
+    weekday:
+    - mon
+    - tue
+    - wed
+    - thu
+    - fri
+    id: time_trigger
+  - trigger: event
+    event_type: mobile_app_notification_action
+    event_data:
+      action: register_home_work
+    id: notification_trigger
+  conditions:
+  - condition: time
+    weekday:
+    - mon
+    - tue
+    - wed
+    - thu
+    - fri
+  - condition: state
+    entity_id: input_boolean.orisha_allowance_today_registered
+    state:
+    - 'off'
+  actions:
+  - choose:
+    - conditions:
+      - condition: or
+        conditions:
+        - condition: trigger
+          id:
+          - work_at_home
+          - notification_trigger
+      sequence:
+      - action: pyscript.register_orisha_allowance
+        metadata: {}
+        data:
+          day: '{{now().day}}'
+          month: '{{now().month}}'
+          year: '{{now().year}}'
+          from_travel: x
+          to_travel: x
+          home_allowance: 1
+          travelled_km: 0
+          logline: '{{states(''counter.orisha_travels_logline'')}}'
+      - action: notify.mobile_app_telefoon_rudolf
+        metadata: {}
+        data:
+          title: Working from home successfully registered
+          message: Your working at home day is succesfully registered.
+    - conditions:
+      - condition: trigger
+        id:
+        - to_office_zwolle
+      sequence:
+      - action: pyscript.register_orisha_allowance
+        metadata: {}
+        data:
+          day: '{{now().day}}'
+          month: '{{now().month}}'
+          year: '{{now().year}}'
+          to_travel: Zwolle
+          logline: '{{states(''counter.orisha_travels_logline'')}}'
+          from_travel: Home
+          home_allowance: 0
+          travelled_km: 40
+      - action: notify.mobile_app_telefoon_rudolf
+        metadata: {}
+        data:
+          title: Travel to office successfully registered
+          message: Your travel to the office is succesfully registered.
+    - conditions:
+      - condition: trigger
+        id:
+        - time_trigger
+      sequence:
+      - action: notify.mobile_app_telefoon_rudolf
+        metadata: {}
+        data:
+          title: Thuis aan het werk?
+          message: Ben je thuis aan het werk?
+          data:
+            actions:
+            - action: register_home_work
+              title: Ja
+            - action: dont_register_home_work
+              title: Nee
+            notification_icon: mdi:home-alert-outline
+  - action: counter.increment
+    metadata: {}
+    data: {}
+    target:
+      entity_id: counter.orisha_travels_logline
+  - action: input_boolean.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: input_boolean.orisha_allowance_today_registered
+  mode: single
+- id: '1761918501770'
+  alias: Finish monthly Orisha registration
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - number.day_of_month
+    to:
+    - 1,0
+  conditions: []
+  actions:
+  - action: shell_command.start_month_orisha
+    metadata: {}
+    data: {}
+  - action: notify.r_offereins_gmail_com
+    metadata: {}
+    data:
+      title: Je maandelijkse reiskostenrapport staat voor je klaar.
+      message: '<a href="https://nup0aglpwgql3adz1aep3rpg84pdghq5.ui.nabu.casa/local/orisha/offereins_travels_{{(now().date()
+        - timedelta(days=1)).year}}_{{(now().date() - timedelta(days=1)).month}}.xltx">
+        Download het bestand hier.</a>
+
+        '
+      target: r.offereins@tweakwise.com
+  - action: counter.reset
+    metadata: {}
+    data: {}
+    target:
+      entity_id: counter.orisha_travels_logline
   mode: single

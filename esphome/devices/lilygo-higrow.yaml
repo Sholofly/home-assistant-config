@@ -65,7 +65,7 @@ sensor:
           - 0.0 -> 0.0
           - 2.06 -> 1.89
       - lambda: return x * 2.0;
-    device_id: "${id}_device"
+    #device_id: "${id}_device"
 
   - platform: adc
     pin: GPIO34
@@ -78,7 +78,7 @@ sensor:
           # Map 0.0 (from sensor) to 0.0 (true value)
           - 0.0 -> 0.0
           - 1.1 -> 100.0
-    device_id: "${id}_device"
+    #device_id: "${id}_device"
 
   - platform: bh1750
     i2c_id: bus_a
@@ -86,4 +86,4 @@ sensor:
     address: 0x23
     update_interval: 15s
     setup_priority: -300
-    device_id: "${id}_device"
+    #device_id: "${id}_device"
