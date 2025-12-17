@@ -1544,6 +1544,16 @@
           home_allowance: 1
           travelled_km: 0
           logline: '{{states(''counter.orisha_travels_logline'')}}'
+      - action: counter.increment
+        metadata: {}
+        data: {}
+        target:
+          entity_id: counter.orisha_travels_logline
+      - action: input_boolean.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id: input_boolean.orisha_allowance_today_registered
       - action: notify.mobile_app_telefoon_rudolf
         metadata: {}
         data:
@@ -1565,6 +1575,16 @@
           from_travel: Home
           home_allowance: 0
           travelled_km: 40
+      - action: counter.increment
+        metadata: {}
+        data: {}
+        target:
+          entity_id: counter.orisha_travels_logline
+      - action: input_boolean.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id: input_boolean.orisha_allowance_today_registered
       - action: notify.mobile_app_telefoon_rudolf
         metadata: {}
         data:
@@ -1587,16 +1607,6 @@
             - action: dont_register_home_work
               title: Nee
             notification_icon: mdi:home-alert-outline
-  - action: counter.increment
-    metadata: {}
-    data: {}
-    target:
-      entity_id: counter.orisha_travels_logline
-  - action: input_boolean.turn_on
-    metadata: {}
-    data: {}
-    target:
-      entity_id: input_boolean.orisha_allowance_today_registered
   mode: single
 - id: '1761918501770'
   alias: Finish monthly Orisha registration
@@ -1606,7 +1616,7 @@
     entity_id:
     - number.day_of_month
     to:
-    - 1,0
+    - '1'
   conditions: []
   actions:
   - action: shell_command.start_month_orisha
@@ -1628,3 +1638,4 @@
     target:
       entity_id: counter.orisha_travels_logline
   mode: single
+

@@ -72,7 +72,7 @@ fields:
     date_str = f"{month_str}-{year}"
 
     # File path
-    xltx_path = f"/config/www/orisha/offereins_travels_{year}_{month:02d}.xltx"
+    xlsx_path = f"/config/www/orisha/offereins_travels_{year}_{month:02d}.xlsx"
 
     # Load workbook and worksheet
     wb = load_workbook(filename=xltx_path)
@@ -86,5 +86,4 @@ fields:
     ws.cell(row=logline, column=5, value=travelled_km)
 
     # Save workbook
-    wb.template = True
-    wb.save(xltx_path)
+    wb.save(xlsx_path)
