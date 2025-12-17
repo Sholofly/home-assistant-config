@@ -5,7 +5,7 @@ from datetime import timedelta
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.helpers.device_registry import DeviceInfo
-from pycountry import countries
+import pycountry
 from .const import (
     DOMAIN,
     URL,
@@ -265,7 +265,10 @@ class FlightRadar24Coordinator(DataUpdateCoordinator[int]):
             flight['ground_speed'] = obj.ground_speed
             flight['squawk'] = obj.squawk
             flight['vertical_speed'] = obj.vertical_speed
-            flight['distance'] = obj.get_distance_from(self.point)
+            new_distance = obj.get_distance_from(self.point)
+            prev_distance = flight.get('distance', None) or new_distance
+            flight['distance'] = new_distance
+            flight['closest_distance'] = min(new_distance, prev_distance)
             flight['on_ground'] = obj.on_ground
             self._takeoff_and_landing(flight, last_position, obj.on_ground, sensor_type)
 
@@ -322,7 +325,7 @@ class FlightRadar24Coordinator(DataUpdateCoordinator[int]):
                 return code
 
             def _get_code(c: str):
-                return countries.get(alpha_3=c)
+                return pycountry.countries.get(alpha_3=c)
 
             country = await self.hass.async_add_executor_job(_get_code, code)
 

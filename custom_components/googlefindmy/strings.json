@@ -1,0 +1,90 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Google Find My Device Authentication",
+        "description": "Choose your authentication method. Method 1 is recommended if you can run GoogleFindMyTools on a computer with Chrome.",
+        "data": {
+          "auth_method": "Authentication Method"
+        }
+      },
+      "secrets_json": {
+        "title": "Method 1: GoogleFindMyTools secrets.json",
+        "description": "Run GoogleFindMyTools on a machine with Chrome to generate authentication tokens, then paste the complete contents of the Auth/secrets.json file below.",
+        "data": {
+          "secrets_json": "Contents of secrets.json file"
+        }
+      },
+      "individual_tokens": {
+        "title": "Method 2: Individual OAuth Token",
+        "description": "Enter your OAuth token and Google email address obtained from a manual authentication process.",
+        "data": {
+          "oauth_token": "OAuth Token",
+          "google_email": "Google Email Address"
+        }
+      }
+    },
+    "error": {
+      "auth_failed": "Authentication failed. Please try again.",
+      "invalid_token": "Invalid token provided or missing required fields.",
+      "invalid_json": "Invalid JSON format in secrets.json content.",
+      "no_devices": "No devices found. Please ensure you have Find My Device enabled on your Google account.",
+      "cannot_connect": "Failed to connect to Google API. This may be a temporary issue - please try again.",
+      "unknown": "Unexpected error occurred."
+    },
+    "abort": {
+      "already_configured": "Google Find My Device is already configured.",
+      "cannot_connect": "Failed to connect to Google Find My Device."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Configure Google Find My Device",
+        "description": "Configuring account: {account_email}\n\nTo add another account, use '+ Add Integration' from the Integrations page.",
+        "menu_options": {
+          "settings": "Settings",
+          "credentials": "Update Credentials",
+          "visibility": "Device Visibility"
+        },
+        "data": {
+          "map_view_token_expiration": "Enable map view token expiration"
+        },
+        "data_description": {
+          "map_view_token_expiration": "When enabled, map view tokens expire after 1 week. When disabled (default), tokens do not expire."
+        }
+      },
+      "credentials": {
+        "title": "Update Credentials for {account_email}",
+        "description": "⚠️ This will update credentials for the current account only.\n\nTo add a different account, cancel this and use '+ Add Integration' from the Integrations page instead.",
+        "data": {
+          "new_secrets_json": "New secrets.json content (optional)",
+          "new_oauth_token": "New OAuth Token (optional)",
+          "new_google_email": "New Google Email (optional)"
+        }
+      }
+    }
+  },
+  "services": {
+    "locate_device": {
+      "name": "Locate Device",
+      "description": "Get the current location of a Google Find My device.",
+      "fields": {
+        "device_id": {
+          "name": "Device ID",
+          "description": "The ID of the device to locate."
+        }
+      }
+    },
+    "play_sound": {
+      "name": "Play Sound",
+      "description": "Play a sound on a Google Find My device.",
+      "fields": {
+        "device_id": {
+          "name": "Device ID",
+          "description": "The ID of the device to play sound on."
+        }
+      }
+    }
+  }
+}
