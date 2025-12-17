@@ -2,6 +2,7 @@ template:
   - sensor: !include_dir_list ../entities/templates/sensors
   - binary_sensor: !include_dir_list ../entities/templates/binary_sensors
   - select: !include_dir_list ../entities/templates/selects
+  - cover: !include_dir_list ../entities/templates/covers
   - trigger:
       - trigger: event
         event_type: bubble_card_update_modules

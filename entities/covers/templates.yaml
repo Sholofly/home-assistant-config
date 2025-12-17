@@ -1,5 +1,0 @@
-################################################
-## Entities / Switches / Templates
-################################################
-platform: template
-covers: !include_dir_named ../templates/covers
