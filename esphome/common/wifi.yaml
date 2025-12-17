@@ -14,6 +14,7 @@ wifi:
   ssid: "${wifi_ssid}"
   password: "${wifi_password}"
   reboot_timeout: 10min
+  min_auth_mode: WPA2
   ap:
     ssid: "${name}"
   manual_ip:
