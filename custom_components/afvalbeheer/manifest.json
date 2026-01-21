@@ -1,0 +1,13 @@
+{
+  "domain": "afvalbeheer",
+  "name": "Afvalbeheer",
+  "documentation": "https://github.com/pippyn/Home-Assistant-Sensor-Afvalbeheer",
+  "dependencies": [],
+  "codeowners": ["@pippyn"],
+  "requirements": [
+    "rsa",
+    "pycryptodome"
+  ],
+  "version": "6.5.8",
+  "config_flow": true
+}

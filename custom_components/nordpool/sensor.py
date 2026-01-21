@@ -108,6 +108,10 @@ class NordpoolSensor(SensorEntity):
     _attr_device_class = SensorDeviceClass.MONETARY
     _attr_suggested_display_precision = None
     _attr_state_class = SensorStateClass.TOTAL
+    # Do not write list attributes to database.
+    _unrecorded_attributes = frozenset(
+        {"raw_today", "raw_tomorrow", "today", "tomorrow"}
+    )
 
     def __init__(
         self,
@@ -429,7 +433,7 @@ class NordpoolSensor(SensorEntity):
         data = await self._api.today(self._area, self._currency)
         if data:
             for item in self._someday(data):
-                if item["start"] == start_of(local_now, "hour"):
+                if item["start"] <= local_now < item["end"]:
                     self._current_price = item["value"]
                     _LOGGER.debug(
                         "Updated %s _current_price %s", self.name, item["value"]

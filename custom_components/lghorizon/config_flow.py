@@ -1,4 +1,4 @@
-"""Config flow for arrisdcx960 integration."""
+"""Config flow for LGHorizon integration."""
 
 from __future__ import annotations
 
@@ -8,9 +8,10 @@ from typing import Any
 import voluptuous as vol
 
 from homeassistant import config_entries
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.data_entry_flow import FlowResult
-from homeassistant.exceptions import HomeAssistantError, ConfigEntryAuthFailed
+from homeassistant.exceptions import HomeAssistantError
+from .options_flow import OptionsFlowHandler
 from homeassistant.const import CONF_USERNAME, CONF_PASSWORD
 from homeassistant.helpers.selector import (
     SelectSelectorMode,
@@ -37,6 +38,8 @@ from .const import (
     COUNTRY_CODES,
     CONF_IDENTIFIER,
     CONF_PROFILE_ID,
+    CONF_CHANNEL_SORT,
+    CONF_EXCLUDED_CHANNELS,
 )
 
 
@@ -62,6 +65,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     CONFIG_DATA: dict[str, Any] = None
 
     customer: LGHorizonCustomer = None
+    channels = []
 
     async def async_step_user(
         self,
@@ -157,11 +161,36 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             for profile in self.customer.profiles.values()
         ]
 
+        sort_selectors = [
+            "number",
+            "alpha",
+        ]
+
+        channel_selectors = [
+            SelectOptionDict(value=str(channel.channel_number), label=channel.title)
+            for channel in self.channels
+        ]
+
         profile_schema = vol.Schema(
             {
                 vol.Required(CONF_PROFILE_ID): SelectSelector(
                     SelectSelectorConfig(
                         options=profile_selectors, mode=SelectSelectorMode.DROPDOWN
+                    ),
+                ),
+                vol.Required(CONF_CHANNEL_SORT, default="number"): SelectSelector(
+                    SelectSelectorConfig(
+                        options=sort_selectors,
+                        translation_key="channel_sort",
+                        mode=SelectSelectorMode.DROPDOWN,
+                    ),
+                ),
+                vol.Required(CONF_EXCLUDED_CHANNELS, default=[]): SelectSelector(
+                    SelectSelectorConfig(
+                        options=channel_selectors,
+                        translation_key="excluded_channels",
+                        mode=SelectSelectorMode.DROPDOWN,
+                        multiple=True,
                     ),
                 ),
             }
@@ -192,6 +221,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             await hass.async_add_executor_job(api.connect)
             # store customer for profile extraction
             self.customer = api.customer
+            self.channels = api.get_display_channels()
             await hass.async_add_executor_job(api.disconnect)
         except LGHorizonApiUnauthorizedError as lgau_err:
             raise InvalidAuth from lgau_err
@@ -202,3 +232,11 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         except Exception as ex:
             _LOGGER.error(ex)
             raise CannotConnect from ex
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(
+        config_entry: config_entries.ConfigEntry,
+    ) -> OptionsFlowHandler:
+        """Create the options flow."""
+        return OptionsFlowHandler()

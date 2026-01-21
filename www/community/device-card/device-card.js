@@ -716,12 +716,12 @@ const $093edc2594769ee5$export$c6a2d06cc40e579 = (hass, config, deviceId, device
         const state = (0, $e24dedcf9e480b2d$export$50fdfeece43146fd)(hass, entity.entity_id);
         if (state === undefined) return;
         // convenience
-        const name = state.attributes.friendly_name === deviceName ? deviceName : state.attributes.friendly_name.replace(deviceName, '');
+        const name = state.attributes.friendly_name === deviceName ? deviceName : state.attributes.friendly_name.replace(deviceName, '').trim();
         const active = (0, $043ab5348dd51237$export$c0e85c3982a3daa6)(state);
         return {
-            entity_id: entity.entity_id,
+            name: name,
+            ...state,
             category: entity.entity_category,
-            state: state.state,
             translation_key: entity.translation_key,
             isProblemEntity: state.attributes.device_class === 'problem',
             isActive: active,
@@ -731,10 +731,6 @@ const $093edc2594769ee5$export$c6a2d06cc40e579 = (hass, config, deviceId, device
                     action: 'more-info'
                 },
                 double_tap_action: config.double_tap_action
-            },
-            attributes: {
-                ...state.attributes,
-                friendly_name: name
             }
         };
     }).filter((e)=>e !== undefined);
@@ -759,7 +755,7 @@ const $562e4e067cd81a2b$export$30c823bc834d6ab4 = (hass, config)=>{
         hassDevice.manufacturer,
         hassDevice.model,
         hassDevice.model_id
-    ].filter((s)=>s).join(' ');
+    ].filter(Boolean).join(' ');
     const entities = (0, $093edc2594769ee5$export$c6a2d06cc40e579)(hass, config, hassDevice.id, hassDevice.name);
     entities.forEach((entity)=>{
         if ($562e4e067cd81a2b$var$shouldSkipEntity(entity, config)) return;
@@ -1710,12 +1706,17 @@ var $736e6599d6bbd3bf$exports = {};
 $736e6599d6bbd3bf$exports = JSON.parse('{"card":{"device_name":"Nome do Dispositivo","expand":"Expandir","collapse":"Recolher","loading":"Carregando...","no_devices_found":"Nenhum dispositivo encontrado para a integra\xe7\xe3o:","device_card_name":"Cart\xe3o de Dispositivo","device_card_description":"Um cart\xe3o para resumir o status de um Dispositivo.","integration_card_name":"Cart\xe3o de Integra\xe7\xe3o","integration_card_description":"Um cart\xe3o para exibir todos os dispositivos de uma integra\xe7\xe3o espec\xedfica."},"sections":{"controls":"Controles","configuration":"Configura\xe7\xe3o","sensors":"Sensores","diagnostic":"Diagn\xf3stico"}}');
 
 
+var $9d8ca0c26d9d22c3$exports = {};
+$9d8ca0c26d9d22c3$exports = JSON.parse('{"card":{"device_name":"\u041D\u0430\u0437\u0432\u0430\u043D\u0438\u0435 \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0430","expand":"\u0420\u0430\u0437\u0432\u0435\u0440\u043D\u0443\u0442\u044C","collapse":"\u0421\u0432\u0435\u0440\u043D\u0443\u0442\u044C","loading":"\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0430...","no_devices_found":"\u041D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D\u043E \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432 \u0438\u0437 \u0438\u043D\u0442\u0435\u0433\u0440\u0430\u0446\u0438\u0438:","device_card_name":"\u041A\u0430\u0440\u0442\u043E\u0447\u043A\u0430 \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0430","device_card_description":"\u041A\u0430\u0440\u0442\u043E\u0447\u043A\u0430 \u0434\u043B\u044F \u043E\u0431\u043E\u0431\u0449\u0435\u043D\u0438\u044F \u0441\u043E\u0441\u0442\u043E\u044F\u043D\u0438\u044F \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0430.","integration_card_name":"\u041A\u0430\u0440\u0442\u043E\u0447\u043A\u0430 \u0438\u043D\u0442\u0435\u0433\u0440\u0430\u0446\u0438\u0438","integration_card_description":"\u041A\u0430\u0440\u0442\u043E\u0447\u043A\u0430 \u0434\u043B\u044F \u043E\u0442\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u044F \u0432\u0441\u0435\u0445 \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432 \u0438\u0437 \u043E\u043F\u0440\u0435\u0434\u0435\u043B\u0435\u043D\u043D\u043E\u0439 \u0438\u043D\u0442\u0435\u0433\u0440\u0430\u0446\u0438\u0438."},"sections":{"controls":"\u0423\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u0435","configuration":"\u041D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438","sensors":"\u0421\u0435\u043D\u0441\u043E\u0440\u044B","diagnostic":"\u0414\u0438\u0430\u0433\u043D\u043E\u0441\u0442\u0438\u043A\u0430"}}');
+
+
 // Import other languages as needed above this line and in order
 // Define supported languages
 const $623ffaa3e77fea87$var$languages = {
     en: $9a28a77a5af263d9$exports,
     fr: $a8bf67e13c48de4e$exports,
-    pt: $736e6599d6bbd3bf$exports
+    pt: $736e6599d6bbd3bf$exports,
+    ru: $9d8ca0c26d9d22c3$exports
 };
 const $623ffaa3e77fea87$export$b3bd0bc58e36cd63 = (hass, key, search = '', replace = '')=>{
     let translated;
@@ -2034,17 +2035,27 @@ const $5cc8c88379d13dba$export$16bd37df0047a29c = (attributes)=>{
 /**
  * Function to determine the color class based on percentage value
  * @param {number} percentage - The percentage value (0-100)
+ * @param {boolean} isInverse - Whether to invert the color logic (green for low, red for high)
  * @return {string} - The color class name
- */ function $a6a6434f1848f426$var$getColorClass(percentage) {
-    if (percentage > 60) return 'high';
-    else if (percentage > 30) return 'medium';
-    else return 'low';
+ */ function $a6a6434f1848f426$var$getColorClass(percentage, isInverse = false) {
+    let baseClass;
+    if (percentage > 60) baseClass = 'high';
+    else if (percentage > 30) baseClass = 'medium';
+    else baseClass = 'low';
+    // If inverse, swap high and low (medium stays the same)
+    if (isInverse) {
+        if (baseClass === 'high') return 'low';
+        else if (baseClass === 'low') return 'high';
+    }
+    return baseClass;
 }
-const $a6a6434f1848f426$export$40075bc608c4544e = (entity)=>{
+const $a6a6434f1848f426$export$40075bc608c4544e = (entity, inverseEntities = [])=>{
     // Extract the percentage value from the entity state
     const percentage = Number(entity.state);
-    // Determine the color class based on percentage value
-    const colorClass = $a6a6434f1848f426$var$getColorClass(percentage);
+    // Check if this entity should use inverted colors
+    const isInverse = inverseEntities.includes(entity.entity_id);
+    // Determine the color class based on percentage value and inverse setting
+    const colorClass = $a6a6434f1848f426$var$getColorClass(percentage, isInverse);
     return (0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`
     <div class="percent-gauge">
       <div
@@ -2065,6 +2076,8 @@ const $91384c06f34fa41f$export$535a09426ee2ea59 = async (hass, entity, className
     // Create the row configuration, we will handle actions ourselves
     const config = {
         entity: entity.entity_id,
+        // our name removes the device name from the friendly name
+        name: entity.name,
         tap_action: {
             action: 'none'
         },
@@ -2085,16 +2098,19 @@ const $91384c06f34fa41f$export$535a09426ee2ea59 = async (hass, entity, className
 };
 
 
-const $68e7242076c3e34e$export$120ff0929b202a6d = async (hass, entity, element, expansions, updateExpansions)=>{
+const $68e7242076c3e34e$export$120ff0929b202a6d = async (hass, entity, element, expansions, updateExpansions, config)=>{
     let statusClassName;
     // Determine status class based on problem state
     if (entity.isProblemEntity) // Add color to problem class based on state
     statusClassName = entity.isActive ? 'status-error' : 'status-ok';
     // Determine if we should show a percentage bar
-    const showBar = entity.attributes.state_class === 'measurement' && entity.attributes.unit_of_measurement === '%';
+    // Show bar for any entity with % unit (including variations like "% available") and numeric state value
+    const showBar = entity.attributes.unit_of_measurement?.includes('%') && !Number.isNaN(Number(entity.state));
     // Check if this entity's details are expanded
     const isEntityExpanded = expansions.expandedEntities[entity.entity_id] || false;
     const stateContentResult = await (0, $91384c06f34fa41f$export$535a09426ee2ea59)(hass, entity, statusClassName);
+    // Get inverse_percent entities from config, default to empty array
+    const inverseEntities = config?.inverse_percent || [];
     return (0, $f58f44579a4747ac$export$c0bb0b647f701bb5)` <div
     class="${[
         'row',
@@ -2105,7 +2121,8 @@ const $68e7242076c3e34e$export$120ff0929b202a6d = async (hass, entity, element, 
     .actionHandler=${(0, $57febad8376708f1$export$8a44987212de21b)(entity)}
   >
     <div class="row-content">
-      ${stateContentResult} ${showBar ? (0, $a6a6434f1848f426$export$40075bc608c4544e)(entity) : (0, $f58f44579a4747ac$export$45b790e32b2810ee)}
+      ${stateContentResult}
+      ${showBar ? (0, $a6a6434f1848f426$export$40075bc608c4544e)(entity, inverseEntities) : (0, $f58f44579a4747ac$export$45b790e32b2810ee)}
     </div>
     ${isEntityExpanded ? (0, $5cc8c88379d13dba$export$16bd37df0047a29c)(entity.attributes) : (0, $f58f44579a4747ac$export$45b790e32b2810ee)}
   </div>`;
@@ -2166,9 +2183,9 @@ const $9b8ea5fddc8bd48e$export$4c0287abd2ec956e = async (element, expansions, ha
     const displayEntities = needsExpansion && !isExpanded ? sortedEntities.slice(0, size) : sortedEntities;
     // Determine section class based on expanded state, number of items, and compact feature
     const isCompact = (0, $a64cd1666b27644b$export$805ddaeeece0413e)(config, 'compact');
-    const sectionClass = `section ${isExpanded ? 'expanded' : ''} ${!needsExpansion ? 'few-items' : ''} ${isCompact ? 'compact' : ''}`;
+    const sectionClass = `section ${isExpanded ? 'expanded' : ''} ${needsExpansion ? '' : 'few-items'} ${isCompact ? 'compact' : ''}`;
     // Render all rows asynchronously
-    const rowPromises = displayEntities.map((entity)=>(0, $68e7242076c3e34e$export$120ff0929b202a6d)(hass, entity, element, expansions, updateExpansions));
+    const rowPromises = displayEntities.map((entity)=>(0, $68e7242076c3e34e$export$120ff0929b202a6d)(hass, entity, element, expansions, updateExpansions, config));
     const rowResults = await Promise.all(rowPromises);
     return (0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`<div class="${sectionClass}">
     <div class="section-header">
@@ -2647,12 +2664,12 @@ class $76efc5be730c974a$export$cee8aa229c046b5e extends (0, $ab210b2da7b39b9d$ex
         return (0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`
       <ha-card class="${problem ? 'problem' : ''}">
         ${headerContent}
-        ${!this.collapse ? this._renderSectionsTask.render({
+        ${this.collapse ? (0, $f58f44579a4747ac$export$45b790e32b2810ee) : this._renderSectionsTask.render({
             initial: ()=>(0, $f58f44579a4747ac$export$45b790e32b2810ee),
             pending: ()=>(0, $f58f44579a4747ac$export$45b790e32b2810ee),
             complete: (sections)=>sections,
             error: (error)=>(0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`<div>Error rendering sections: ${error}</div>`
-        }) : (0, $f58f44579a4747ac$export$45b790e32b2810ee)}
+        })}
       </ha-card>
     `;
     }
@@ -3014,6 +3031,20 @@ const $84451a3e48ae541f$var$featuresSchema = (integration, entities)=>{
                         }
                     }
                 }
+            },
+            {
+                name: 'inverse_percent',
+                label: 'Entities with inverted percent colors (green for low, red for high)',
+                required: false,
+                selector: {
+                    entity: {
+                        multiple: true,
+                        include_entities: entities,
+                        filter: {
+                            integration: integration
+                        }
+                    }
+                }
             }
         ]
     };
@@ -3113,6 +3144,7 @@ class $4d8f78da09198f60$export$eb3c6eb92a4f4397 extends (0, $ab210b2da7b39b9d$ex
         if (!config.exclude_entities?.length) delete config.exclude_entities;
         if (!config.exclude_sections?.length) delete config.exclude_sections;
         if (!config.section_order?.length) delete config.section_order;
+        if (!config.inverse_percent?.length) delete config.inverse_percent;
         // @ts-ignore
         (0, $9c83ab07519e6203$export$43835e9acf248a15)(this, 'config-changed', {
             config: config
@@ -3396,7 +3428,7 @@ class $bb372a36f92bd9c9$export$9e322cdd8735282 extends (0, $ab210b2da7b39b9d$exp
 
 
 var $b06602ab53bd58a3$exports = {};
-$b06602ab53bd58a3$exports = JSON.parse("{\"name\":\"device-card\",\"version\":\"0.14.0\",\"author\":\"Patrick Masters\",\"license\":\"ISC\",\"description\":\"Custom Home Assistant card to show info about your devices.\",\"source\":\"src/index.ts\",\"module\":\"dist/device-card.js\",\"targets\":{\"module\":{\"includeNodeModules\":true}},\"scripts\":{\"watch\":\"parcel watch\",\"build\":\"parcel build\",\"format\":\"prettier --write .\",\"test\":\"TS_NODE_PROJECT='./tsconfig.test.json' mocha\",\"test:coverage\":\"nyc yarn test\",\"test:watch\":\"TS_NODE_PROJECT='./tsconfig.test.json' mocha --watch\",\"update\":\"npx npm-check-updates -u && yarn install\"},\"devDependencies\":{\"@istanbuljs/nyc-config-typescript\":\"^1.0.2\",\"@open-wc/testing\":\"^4.0.0\",\"@parcel/transformer-inline-string\":\"^2.15.4\",\"@testing-library/dom\":\"^10.4.1\",\"@trivago/prettier-plugin-sort-imports\":\"^5.2.2\",\"@types/chai\":\"^5.2.2\",\"@types/jsdom\":\"^21.1.7\",\"@types/mocha\":\"^10.0.10\",\"@types/sinon\":\"^17.0.4\",\"chai\":\"^5.2.1\",\"jsdom\":\"^26.1.0\",\"mocha\":\"^11.7.1\",\"nyc\":\"^17.1.0\",\"parcel\":\"^2.15.4\",\"prettier\":\"3.6.2\",\"prettier-plugin-organize-imports\":\"^4.2.0\",\"proxyquire\":\"^2.1.3\",\"sinon\":\"^21.0.0\",\"ts-node\":\"^10.9.2\",\"tsconfig-paths\":\"^4.2.0\",\"typescript\":\"^5.9.2\"},\"dependencies\":{\"@lit/task\":\"^1.0.3\",\"fast-deep-equal\":\"^3.1.3\",\"lit\":\"^3.3.1\"}}");
+$b06602ab53bd58a3$exports = JSON.parse("{\"name\":\"device-card\",\"version\":\"0.15.0\",\"author\":\"Patrick Masters\",\"license\":\"ISC\",\"description\":\"Custom Home Assistant card to show info about your devices.\",\"source\":\"src/index.ts\",\"module\":\"dist/device-card.js\",\"targets\":{\"module\":{\"includeNodeModules\":true}},\"scripts\":{\"watch\":\"parcel watch\",\"build\":\"parcel build\",\"format\":\"prettier --write .\",\"test\":\"TS_NODE_PROJECT='./tsconfig.test.json' mocha\",\"test:coverage\":\"nyc yarn test\",\"test:watch\":\"TS_NODE_PROJECT='./tsconfig.test.json' mocha --watch\",\"update\":\"npx npm-check-updates -u && yarn install\"},\"devDependencies\":{\"@istanbuljs/nyc-config-typescript\":\"^1.0.2\",\"@open-wc/testing\":\"^4.0.0\",\"@parcel/transformer-inline-string\":\"^2.15.4\",\"@testing-library/dom\":\"^10.4.1\",\"@trivago/prettier-plugin-sort-imports\":\"^5.2.2\",\"@types/chai\":\"^5.2.2\",\"@types/jsdom\":\"^21.1.7\",\"@types/mocha\":\"^10.0.10\",\"@types/sinon\":\"^17.0.4\",\"chai\":\"^5.2.1\",\"jsdom\":\"^26.1.0\",\"mocha\":\"^11.7.1\",\"nyc\":\"^17.1.0\",\"parcel\":\"^2.15.4\",\"prettier\":\"3.6.2\",\"prettier-plugin-organize-imports\":\"^4.2.0\",\"proxyquire\":\"^2.1.3\",\"sinon\":\"^21.0.0\",\"ts-node\":\"^10.9.2\",\"tsconfig-paths\":\"^4.2.0\",\"typescript\":\"^5.9.2\"},\"dependencies\":{\"@lit/task\":\"^1.0.3\",\"fast-deep-equal\":\"^3.1.3\",\"lit\":\"^3.3.1\"}}");
 
 
 // Register the custom elements with the browser
@@ -3418,8 +3450,7 @@ window.customCards.push({
     preview: true,
     // URL for the card's documentation
     documentationURL: 'https://github.com/homeassistant-extras/device-card'
-});
-window.customCards.push({
+}, {
     // Unique identifier for the card type
     type: 'integration-card',
     // Display name in the UI
