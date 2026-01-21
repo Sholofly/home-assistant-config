@@ -75,7 +75,7 @@ fields:
     xlsx_path = f"/config/www/orisha/offereins_travels_{year}_{month:02d}.xlsx"
 
     # Load workbook and worksheet
-    wb = load_workbook(filename=xltx_path)
+    wb = load_workbook(filename=xlsx_path)
     ws = wb.active
 
     # Insert values into the specified row
