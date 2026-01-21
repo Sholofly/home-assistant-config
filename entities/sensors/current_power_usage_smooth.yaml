@@ -1,0 +1,10 @@
+################################################
+## Entities / Sensors / Current Power Usage Smooth
+################################################
+platform: filter
+name: "Current Power Usage Smooth"
+entity_id: sensor.current_power_usage
+filters:
+  - filter: time_simple_moving_average
+    window_size: "00:01"
+    precision: 0
