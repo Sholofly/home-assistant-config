@@ -14,7 +14,7 @@ logbook:
       - button.*_restart
       - update.*
       - sensor.lenovo_tab_m10*
-    entities:
-      - sensor.noa_symfonisk_action
+    # entities:
+
     domains:
       - automation
