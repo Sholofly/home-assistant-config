@@ -15,7 +15,6 @@
         "description": "Vul de authenticatiegegevens van je Ziggo, Telenet, UPC/Sunrise, Magenta of Virgin account in.",
         "data": {
           "password": "Wachtwoord",
-          "identifier": "DTV identifier",
           "refresh_token": "Refreshtoken"
         }
       },
@@ -25,8 +24,13 @@
         "data": {
           "profile_id": "Profiel",
           "channel_sort": "Kanaalvolgorde",
-          "excluded_channels": "Uitgesloten kanalen"
+          "excluded_channels": "Uitgesloten kanalen",
+          "interrupt_app": "Toestaan dat een app gestopt wordt om notificaties te tonen. Zo nee, worden er tijdens een app geen notificaties getoond."
         }
+      },
+      "reauth_confirm": {
+        "description": "Je LGHorizon account authorization is verlopen. Vul je refreshtoken of wachtwoord opnieuw in",
+        "title": "Authenticatie verlopen"
       }
     },
     "error": {
@@ -36,7 +40,8 @@
       "unknown": "Onbekende fout"
     },
     "abort": {
-      "already_configured": "Dit account is reeds toegevoegd."
+      "already_configured": "Dit account is reeds toegevoegd.",
+      "reauth_successful": "Herauthenticatie geslaagd"
     }
   },
   "options": {
@@ -45,7 +50,9 @@
         "title": "LG Horizon - Instellingen",
         "description": "Wijzig de instellingen voor je LG Horizon integratie.",
         "data": {
-          "channel_sort": "Kanaalvolgorde"
+          "channel_sort": "Kanaalvolgorde",
+          "excluded_channels": "Uitgesloten kanalen",
+          "interrupt_app": "Toestaan dat een app gestopt wordt om notificaties te tonen. Zo nee, worden er tijdens een app geen notificaties getoond."
         }
       }
     }
@@ -100,6 +107,24 @@
         "remote_key": {
           "name": "Knop afstandsbediening",
           "description": "De te versturen knop."
+        }
+      }
+    },
+    "send_message": {
+      "name": "Stuur een bericht naar de box",
+      "description": "Stuur een bericht naar de box",
+      "fields": {
+        "entity_id": {
+          "name": "Entity Id",
+          "description": "Entiteit ID van je mediabox."
+        },
+        "message": {
+          "name": "Bericht",
+          "description": "Bericht van max. 70 tekens"
+        },
+        "interrupt_app": {
+          "name": "Bericht tijdens app‑weergave toestaan?",
+          "description": "Mag er een bericht worden afgespeeld terwijl een app actief is? Let op: dit sluit de app af."
         }
       }
     }

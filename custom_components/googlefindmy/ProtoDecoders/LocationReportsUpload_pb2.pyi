@@ -1,12 +1,27 @@
+# custom_components/googlefindmy/ProtoDecoders/LocationReportsUpload_pb2.pyi
+from __future__ import annotations
+
+from collections.abc import Iterable as _Iterable
+from collections.abc import Mapping as _Mapping
+from typing import (
+    Any as _Any,
+)
+from typing import (
+    ClassVar as _ClassVar,
+)
+
+from custom_components.googlefindmy.protobuf_typing import MessageProto as _MessageProto
 from custom_components.googlefindmy.ProtoDecoders import Common_pb2 as _Common_pb2
-from google.protobuf.internal import containers as _containers
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional, Union as _Union
+from google.protobuf.internal import containers as _containers
+
+Message = _message.Message
+MessageProto = _MessageProto
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
-class LocationReportsUpload(_message.Message):
+class LocationReportsUpload(Message, _MessageProto):
     __slots__ = ("reports", "clientMetadata", "random1", "random2")
     REPORTS_FIELD_NUMBER: _ClassVar[int]
     CLIENTMETADATA_FIELD_NUMBER: _ClassVar[int]
@@ -16,9 +31,15 @@ class LocationReportsUpload(_message.Message):
     clientMetadata: ClientMetadata
     random1: int
     random2: int
-    def __init__(self, reports: _Optional[_Iterable[_Union[Report, _Mapping]]] = ..., clientMetadata: _Optional[_Union[ClientMetadata, _Mapping]] = ..., random1: _Optional[int] = ..., random2: _Optional[int] = ...) -> None: ...
+    def __init__(
+        self,
+        reports: _Iterable[Report | _Mapping[str, _Any]] | None = ...,
+        clientMetadata: ClientMetadata | _Mapping[str, _Any] | None = ...,
+        random1: int | None = ...,
+        random2: int | None = ...,
+    ) -> None: ...
 
-class Report(_message.Message):
+class Report(Message, _MessageProto):
     __slots__ = ("advertisement", "time", "location")
     ADVERTISEMENT_FIELD_NUMBER: _ClassVar[int]
     TIME_FIELD_NUMBER: _ClassVar[int]
@@ -26,32 +47,48 @@ class Report(_message.Message):
     advertisement: Advertisement
     time: _Common_pb2.Time
     location: _Common_pb2.LocationReport
-    def __init__(self, advertisement: _Optional[_Union[Advertisement, _Mapping]] = ..., time: _Optional[_Union[_Common_pb2.Time, _Mapping]] = ..., location: _Optional[_Union[_Common_pb2.LocationReport, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self,
+        advertisement: Advertisement | _Mapping[str, _Any] | None = ...,
+        time: _Common_pb2.Time | _Mapping[str, _Any] | None = ...,
+        location: _Common_pb2.LocationReport | _Mapping[str, _Any] | None = ...,
+    ) -> None: ...
 
-class Advertisement(_message.Message):
+class Advertisement(Message, _MessageProto):
     __slots__ = ("identifier", "unwantedTrackingModeEnabled")
     IDENTIFIER_FIELD_NUMBER: _ClassVar[int]
     UNWANTEDTRACKINGMODEENABLED_FIELD_NUMBER: _ClassVar[int]
     identifier: Identifier
     unwantedTrackingModeEnabled: int
-    def __init__(self, identifier: _Optional[_Union[Identifier, _Mapping]] = ..., unwantedTrackingModeEnabled: _Optional[int] = ...) -> None: ...
+    def __init__(
+        self,
+        identifier: Identifier | _Mapping[str, _Any] | None = ...,
+        unwantedTrackingModeEnabled: int | None = ...,
+    ) -> None: ...
 
-class Identifier(_message.Message):
+class Identifier(Message, _MessageProto):
     __slots__ = ("truncatedEid", "canonicDeviceId")
     TRUNCATEDEID_FIELD_NUMBER: _ClassVar[int]
     CANONICDEVICEID_FIELD_NUMBER: _ClassVar[int]
     truncatedEid: bytes
     canonicDeviceId: bytes
-    def __init__(self, truncatedEid: _Optional[bytes] = ..., canonicDeviceId: _Optional[bytes] = ...) -> None: ...
+    def __init__(
+        self,
+        truncatedEid: bytes | None = ...,
+        canonicDeviceId: bytes | None = ...,
+    ) -> None: ...
 
-class ClientMetadata(_message.Message):
+class ClientMetadata(Message, _MessageProto):
     __slots__ = ("version",)
     VERSION_FIELD_NUMBER: _ClassVar[int]
     version: ClientVersionInformation
-    def __init__(self, version: _Optional[_Union[ClientVersionInformation, _Mapping]] = ...) -> None: ...
+    def __init__(
+        self,
+        version: ClientVersionInformation | _Mapping[str, _Any] | None = ...,
+    ) -> None: ...
 
-class ClientVersionInformation(_message.Message):
+class ClientVersionInformation(Message, _MessageProto):
     __slots__ = ("playServicesVersion",)
     PLAYSERVICESVERSION_FIELD_NUMBER: _ClassVar[int]
     playServicesVersion: str
-    def __init__(self, playServicesVersion: _Optional[str] = ...) -> None: ...
+    def __init__(self, playServicesVersion: str | None = ...) -> None: ...

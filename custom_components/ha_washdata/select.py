@@ -1,4 +1,5 @@
 """Select entity for HA WashData."""
+
 from __future__ import annotations
 
 import logging
@@ -11,10 +12,12 @@ from homeassistant.helpers.dispatcher import async_dispatcher_connect
 
 from .const import DOMAIN, SIGNAL_WASHER_UPDATE
 from .manager import WashDataManager
+from .profile_store import profile_sort_key
 
 _LOGGER = logging.getLogger(__name__)
 
 OPTION_AUTO = "auto_detect"
+
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -23,7 +26,7 @@ async def async_setup_entry(
 ) -> None:
     """Set up the select entity."""
     manager: WashDataManager = hass.data[DOMAIN][config_entry.entry_id]
-    
+
     async_add_entities([WashDataProgramSelect(manager, config_entry)])
 
 
@@ -45,18 +48,20 @@ class WashDataProgramSelect(SelectEntity):
             "name": config_entry.title,
             "manufacturer": "HA WashData",
         }
-        
+
         # Determine icon based on device type
         dtype = getattr(manager, "device_type", "washing_machine")
         if dtype == "dryer":
             self._attr_icon = "mdi:tumble-dryer"
         elif dtype == "dishwasher":
             self._attr_icon = "mdi:dishwasher"
+        elif dtype == "ev":
+            self._attr_icon = "mdi:car-electric"
         elif dtype == "coffee_machine":
             self._attr_icon = "mdi:coffee"
         else:
-            self._attr_icon = "mdi:washing-machine" # Default and washing_machine
-            
+            self._attr_icon = "mdi:washing-machine"  # Default and washing_machine
+
         self._update_options()
 
     @callback
@@ -64,7 +69,7 @@ class WashDataProgramSelect(SelectEntity):
         """Update the list of available options from profiles."""
         profiles = self._manager.profile_store.list_profiles()
         # Sort profiles by name
-        profile_names = sorted([p["name"] for p in profiles])
+        profile_names = sorted([p["name"] for p in profiles], key=profile_sort_key)
         self._attr_options = [OPTION_AUTO] + profile_names
 
     async def async_added_to_hass(self) -> None:
@@ -83,26 +88,30 @@ class WashDataProgramSelect(SelectEntity):
         """Update state from manager."""
         # Refresh options in case new profiles were created
         self._update_options()
-        
+
         current = self._manager.current_program
         manual_active = getattr(self._manager, "manual_program_active", False)
-        
+
         if manual_active and current:
             self._attr_current_option = current
         elif current in ("detecting...", "off", "restored..."):
             self._attr_current_option = OPTION_AUTO
         elif current:
-             # It detected a program, but it's not "manual override" mode.
-             # Should we show the detected program or "Auto"?
-             # Showing "Auto" implies "I am in auto mode".
-             # But user might want to see what is detected here too?
-             # Standard pattern: Select shows target/mode. 
-             # If we are in auto mode, show Auto. The sensor shows the detected program.
-             self._attr_current_option = OPTION_AUTO
+            # It detected a program, but it's not "manual override" mode.
+            # Should we show the detected program or "Auto"?
+            # Showing "Auto" implies "I am in auto mode".
+            # But user might want to see what is detected here too?
+            # Standard pattern: Select shows target/mode.
+            # If we are in auto mode, show Auto. The sensor shows the detected program.
+            self._attr_current_option = OPTION_AUTO
         else:
-             self._attr_current_option = OPTION_AUTO
-        
+            self._attr_current_option = OPTION_AUTO
+
         self.async_write_ha_state()
+
+    def select_option(self, option: str) -> None:
+        """Handle the option selection (sync wrapper)."""
+        raise NotImplementedError("Use async_select_option instead")
 
     async def async_select_option(self, option: str) -> None:
         """Change the selected option."""

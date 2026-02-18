@@ -1,3 +1,4 @@
+# custom_components/googlefindmy/Auth/aas_token_retrieval.py
 #
 #  GoogleFindMyTools - A set of tools to interact with the Google Find My API
 #  Copyright © 2024 Leon Böttger. All rights reserved.
@@ -9,116 +10,214 @@ It exchanges an existing OAuth token for an AAS token using the `gpsoauth` libra
 Blocking calls are executed in an executor to avoid blocking Home Assistant's event loop.
 
 Design:
-- Primary API: `async_get_aas_token()`, which uses the entry-scoped TokenCache.
-- Cached retrieval via `async_get_cached_value_or_set` ensures we compute only once.
-- Fallback: If no explicit OAuth token is present, reuse any cached `adm_token_*` value.
+- Primary API: `async_get_aas_token(cache=..., retries=..., backoff=...)`.
+  Callers **must** pass the entry-scoped TokenCache instance to guarantee
+  multi-account isolation.
+- Cached retrieval via the cache's `get_or_set` ensures we compute only once.
+- Fallback: If no explicit OAuth token is present, reuse any `adm_token_*` value
+  from the same cache (entry-scoped when provided).
 - Sync wrapper `get_aas_token()` is intentionally unsupported to prevent deadlocks.
 
 Notes:
-- The Android ID is unique per user (extracted from fcm_credentials or generated) and cached.
-  This prevents Google from flagging the integration as suspicious due to shared credentials.
-- The username is obtained from the cache via `username_provider`; if an ADM fallback
-  is used, we also update the username accordingly.
+- The Android ID is resolved per-user from cached FCM credentials or generated
+  on demand to avoid reuse across accounts.
+- The username is read from the cache via `username_provider`; if an ADM fallback
+  is used, we also update the username accordingly (entry-scoped when `cache` is given).
+
+Enhancements (defensive validation & retries):
+- Some deployments accidentally persist non-OAuth values in the OAuth slot (e.g., an
+  AAS token with prefix "aas_et…" or a JWT-like blob starting with "eyJ…").
+  We **do not reuse** such values. Instead, we disqualify them for the OAuth→AAS
+  exchange and fall back to the next available source. This avoids brittle shortcuts.
+- Retry policy: transient transport/library errors retry with bounded exponential
+  backoff; clear auth failures (e.g., "BadAuthentication", "invalid_grant", 401/403
+  semantics like "unauthorized"/"forbidden") are **not** retried.
 """
 
 from __future__ import annotations
 
 import asyncio
 import logging
-import random
-from typing import Any, Dict, Optional
+import secrets
+import time
+from collections.abc import Mapping
+from types import ModuleType
+from typing import Any
 
-import gpsoauth
-
-from .token_cache import (
-    async_get_all_cached_values,
-    async_get_cached_value,
-    async_get_cached_value_or_set,
-    async_set_cached_value,
+from ..const import CONF_OAUTH_TOKEN, DATA_AAS_TOKEN
+from .gpsoauth_loader import (
+    GpsoauthModule,
+    load_gpsoauth_exceptions,
+    require_gpsoauth,
 )
-from .username_provider import async_get_username, username_string
-from ..const import CONF_OAUTH_TOKEN
+from .gpsoauth_loader import (
+    gpsoauth as _gpsoauth_proxy,
+)
+from .token_cache import TokenCache, async_get_all_cached_values
+from .username_provider import username_string
 
 _LOGGER = logging.getLogger(__name__)
 
-# Fallback Android ID - prefer per-user ID (16-hex-digit integer).
-_ANDROID_ID_FALLBACK: int = 0x38918A453D071993
+gpsoauth_exceptions: ModuleType | None = load_gpsoauth_exceptions()
+gpsoauth = _gpsoauth_proxy
 
 
-async def _get_or_generate_android_id(username: str) -> int:
-    """Get or generate a unique Android ID for this user.
+def _gpsoauth() -> GpsoauthModule:
+    """Import the optional gpsoauth module on demand."""
 
-    Strategy:
-        1) Check cache for android_id_{username}
-        2) If not found, try to extract from fcm_credentials.gcm.android_id
-        3) If still not found, generate a random 64-bit Android ID
-        4) Store in cache and return
+    return require_gpsoauth()
 
-    Args:
-        username: The Google account email.
 
-    Returns:
-        A 64-bit Android ID (int) unique to this user.
+_JWT_SEGMENT_MIN_COUNT = 2
+
+
+# ---------------------------------------------------------------------------
+# Helpers (privacy-friendly logging, validation, brief error messages)
+# ---------------------------------------------------------------------------
+
+
+def _clip(value: object, limit: int = 200) -> str:
+    """Clip long strings to a safe length for logs."""
+    s = str(value)
+    return s if len(s) <= limit else (s[: limit - 1] + "…")
+
+
+def _summarize_response(obj: Mapping[str, Any] | object) -> str:
+    """Summarize a gpsoauth response without leaking sensitive data."""
+    if isinstance(obj, Mapping):
+        keys = ", ".join(sorted(map(str, obj.keys())))
+        return f"dict(keys=[{keys}])"
+    return f"{type(obj).__name__}"
+
+
+def _mask_email_for_logs(email: str | None) -> str:
+    """Return a privacy-friendly representation of an email for logs."""
+
+    if not email or "@" not in email:
+        return "<unknown>"
+    local, domain = email.split("@", 1)
+    if not local:
+        return f"*@{domain}"
+    masked_local = (local[0] + "***") if len(local) > 1 else "*"
+    return f"{masked_local}@{domain}"
+
+
+def _looks_like_jwt(token: str) -> bool:
+    """Very lightweight check for JWT-like blobs (Base64URL x3, commonly 'eyJ' prefix).
+
+    Note:
+        We only use this to *disqualify* obviously wrong inputs for the OAuth→AAS
+        exchange path. This is not a full JWT validator and intentionally avoids
+        strict checks to keep the code robust and non-invasive.
     """
+    return token.count(".") >= _JWT_SEGMENT_MIN_COUNT and token[:3] == "eyJ"
+
+
+def _disqualifies_oauth_for_exchange(token: str) -> str | None:
+    """Return a reason string if the value is clearly not suitable as an OAuth token.
+
+    This function implements a negative filter. If it returns a non-empty string,
+    callers must ignore the value for the OAuth→AAS exchange and use fallbacks.
+    """
+    if _looks_like_jwt(token):
+        return "value looks like a JWT (possibly installation/ID token), not an OAuth token"
+    return None
+
+
+def _is_non_retryable_auth(err: Exception) -> bool:
+    """Return True if the error indicates a non-recoverable auth problem."""
+    text = _clip(err).lower()
+    if "badauthentication" in text:
+        return True
+    if "invalid_grant" in text:
+        return True
+    if "unauthorized" in text or "forbidden" in text:
+        return True
+    # gpsoauth sometimes returns dicts with {"Error": ...}; these are wrapped in our error text
+    if "missing 'token' in gpsoauth response" in text:
+        return True
+    return False
+
+
+def _coerce_android_id(value: object, source: str) -> int | None:
+    """Normalize cached or credential Android IDs into integers."""
+
+    if isinstance(value, bool):
+        _LOGGER.debug("android_id value from %s is boolean; ignoring", source)
+        return None
+
+    if isinstance(value, int):
+        return value
+    if isinstance(value, str):
+        try:
+            return int(value, 0)
+        except (TypeError, ValueError):
+            _LOGGER.debug("android_id value from %s is not numeric", source)
+            return None
+    if value is not None:
+        _LOGGER.debug("Unsupported android_id type from %s: %s", source, type(value))
+    return None
+
+
+async def _get_or_generate_android_id(
+    username: str, cache: TokenCache | None = None
+) -> int:
+    """Return a per-user Android ID from cache, FCM credentials, or a fresh value."""
+
+    if cache is None:
+        raise ValueError("TokenCache instance is required for multi-account safety.")
+
     cache_key = f"android_id_{username}"
+    cached_android_id = _coerce_android_id(await cache.get(cache_key), "cache")
 
-    # Fast path: already cached
-    try:
-        cached_id = await async_get_cached_value(cache_key)
-        if cached_id is not None:
-            try:
-                return int(cached_id)
-            except (ValueError, TypeError):
-                _LOGGER.warning("Cached android_id for %s is invalid; will regenerate.", username)
-    except Exception as e:  # noqa: BLE001
-        # Cache not available (multi-entry, validation, etc.) - continue to generation
-        _LOGGER.debug("Cache not available for android_id lookup: %s. Will generate temporary Android ID.", e)
+    fcm_creds = await cache.get("fcm_credentials")
+    android_id = None
+    if isinstance(fcm_creds, Mapping):
+        gcm_block = fcm_creds.get("gcm")
+        if isinstance(gcm_block, Mapping):
+            android_id = _coerce_android_id(
+                gcm_block.get("android_id"), "FCM credentials"
+            )
 
-    # Try to extract from fcm_credentials
-    try:
-        fcm_creds = await async_get_cached_value("fcm_credentials")
-        if isinstance(fcm_creds, dict):
-            try:
-                android_id = fcm_creds.get("gcm", {}).get("android_id")
-                if android_id is not None:
-                    android_id_int = int(android_id)
-                    _LOGGER.info("Extracted android_id from fcm_credentials for user %s: %s", username, hex(android_id_int))
-                    try:
-                        await async_set_cached_value(cache_key, android_id_int)
-                    except Exception:  # noqa: BLE001
-                        # Can't cache during validation; that's OK
-                        pass
-                    return android_id_int
-            except (ValueError, TypeError, KeyError) as e:
-                _LOGGER.debug("Failed to extract android_id from fcm_credentials: %s", e)
-    except Exception:  # noqa: BLE001
-        # Cache not available; proceed to generation
-        pass
+    if android_id is not None:
+        try:
+            await cache.set(cache_key, android_id)
+        except Exception as err:  # noqa: BLE001
+            _LOGGER.debug(
+                "Skipping cache write for android_id derived from FCM bundle; persistence failed",
+                exc_info=err,
+            )
+        return android_id
 
-    # Generate a new random Android ID (64-bit positive integer)
-    # Use a secure random to avoid collisions
-    new_id = random.randint(0x1000000000000000, 0xFFFFFFFFFFFFFFFF)
+    if cached_android_id is not None:
+        return cached_android_id
+
+    android_id = secrets.randbelow(0xF000000000000000) + 0x1000000000000000
     _LOGGER.warning(
-        "No android_id found for user %s; generated new random ID: %s. "
-        "This may indicate the user needs to re-run GoogleFindMyTools to get fcm_credentials.",
-        username,
-        hex(new_id)
+        "Generated new android_id for %s; cache was missing a stored identifier.",
+        _mask_email_for_logs(username),
     )
     try:
-        await async_set_cached_value(cache_key, new_id)
-    except Exception:  # noqa: BLE001
-        # Can't cache during config flow validation; the ID will be regenerated properly after entry creation
-        _LOGGER.debug("Cannot cache android_id during validation; will cache after entry is created.")
-    return new_id
+        await cache.set(cache_key, android_id)
+    except Exception as err:  # noqa: BLE001
+        _LOGGER.debug("Failed to persist generated android_id: %s", _clip(err))
+    return android_id
 
 
-async def _exchange_oauth_for_aas(username: str, oauth_token: str, android_id: int) -> Dict[str, Any]:
+# ---------------------------------------------------------------------------
+# Core exchange (executor offload)
+# ---------------------------------------------------------------------------
+
+
+async def _exchange_oauth_for_aas(
+    username: str, oauth_token: str, android_id: int
+) -> dict[str, Any]:
     """Run the blocking gpsoauth exchange in an executor.
 
     Args:
         username: Google account e-mail.
         oauth_token: OAuth token to exchange.
-        android_id: The unique Android ID for this user.
+        android_id: Android ID tied to the FCM credentials for this account.
 
     Returns:
         The raw dictionary response from gpsoauth containing at least a 'Token' key.
@@ -126,32 +225,85 @@ async def _exchange_oauth_for_aas(username: str, oauth_token: str, android_id: i
     Raises:
         RuntimeError: If the exchange fails or returns an invalid response.
     """
-    def _run() -> Dict[str, Any]:
+
+    def _run() -> dict[str, Any]:
         # gpsoauth.exchange_token(username, oauth_token, android_id) is blocking.
-        return gpsoauth.exchange_token(username, oauth_token, android_id)  # Use per-user Android ID
+        return _gpsoauth().exchange_token(username, oauth_token, android_id)
 
     loop = asyncio.get_running_loop()
+
+    _LOGGER.debug(
+        "Calling gpsoauth.exchange_token.",
+        extra={
+            "user": _mask_email_for_logs(username),
+            "token_length": len(oauth_token) if oauth_token else 0,
+            "android_id_hex": f"0x{android_id:X}",
+        },
+    )
+
     try:
         resp = await loop.run_in_executor(None, _run)
     except Exception as err:  # noqa: BLE001
-        raise RuntimeError(f"gpsoauth exchange failed: {err}") from err
+        if gpsoauth_exceptions and isinstance(err, gpsoauth_exceptions.AuthError):
+            _LOGGER.warning(
+                "gpsoauth authentication error for %s: %s",
+                _mask_email_for_logs(username),
+                _clip(err),
+            )
+            raise RuntimeError(f"gpsoauth authentication failed: {_clip(err)}") from err
+        _LOGGER.error(
+            "gpsoauth exchange failed unexpectedly for %s: %s",
+            _mask_email_for_logs(username),
+            _clip(err),
+        )
+        raise RuntimeError(f"gpsoauth exchange failed: {_clip(err)}") from err
+
+    _LOGGER.debug(
+        "gpsoauth exchange response received: type=%s, keys=%s",
+        type(resp).__name__,
+        list(resp.keys()) if isinstance(resp, dict) else "N/A",
+    )
 
     if not isinstance(resp, dict) or not resp:
-        raise RuntimeError("Invalid response from gpsoauth: empty or not a dict")
+        raise RuntimeError(
+            f"Invalid response from gpsoauth: {_summarize_response(resp)}"
+        )
     if "Token" not in resp:
-        raise RuntimeError(f"Missing 'Token' in gpsoauth response: {resp}")
+        resp_keys: list[str] | str = "N/A"
+        error_details_present = False
+        if isinstance(resp, dict):
+            resp_keys = list(resp.keys())
+            error_details_present = bool(resp.get("ErrorDetails") or resp.get("Error"))
+        _LOGGER.warning(
+            "gpsoauth response missing token; response details recorded in extras.",
+            extra={
+                "error_field_present": error_details_present,
+                "response_keys": resp_keys,
+                "user": _mask_email_for_logs(username),
+            },
+        )
+        raise RuntimeError("Missing 'Token' in gpsoauth response")
     return resp
 
 
-async def _generate_aas_token() -> str:
+# ---------------------------------------------------------------------------
+# Token generation (entry-scoped when `cache` is provided)
+# ---------------------------------------------------------------------------
+
+
+async def _generate_aas_token(*, cache: TokenCache) -> str:  # noqa: PLR0912, PLR0915
     """Generate an AAS token using the best available OAuth token and username.
 
     Strategy:
         1) Try the explicit OAuth token from the cache (`CONF_OAUTH_TOKEN`).
+           1a) If the value is *clearly not* an OAuth token (e.g., JWT), ignore it.
         2) If missing, scan for any `adm_token_*` key and reuse its value as an OAuth token.
            In that case, set `username` from the key suffix (after `adm_token_`).
         3) Exchange OAuth → AAS via gpsoauth in an executor.
-        4) Update the cached username if gpsoauth returns an 'Email' field.
+        4) Update the cached username if gpsoauth returns an 'Email' field (entry-scoped when possible).
+
+    Args:
+        cache: Optional TokenCache instance for multi-account isolation.
 
     Returns:
         The AAS token string.
@@ -160,82 +312,228 @@ async def _generate_aas_token() -> str:
         ValueError: If required inputs are missing.
         RuntimeError: If gpsoauth exchange fails or returns an invalid response.
     """
-    # Start with the configured username if present.
-    try:
-        username: Optional[str] = await async_get_username()
-    except Exception:  # noqa: BLE001
-        # Cache not available during validation
-        username = None
+    if cache is None:
+        raise ValueError("TokenCache instance is required for multi-account safety.")
 
-    # Prefer explicit OAuth token from cache.
-    oauth_token: Optional[str] = None
-    try:
-        oauth_token = await async_get_cached_value(CONF_OAUTH_TOKEN)
-    except Exception:  # noqa: BLE001
-        # Cache not available during validation
-        pass
+    # 0) Username (prefer entry cache when available)
+    cached_user = await cache.get(username_string)
+    username: str | None = str(cached_user) if isinstance(cached_user, str) else None
 
-    # Fallback: scan ADM tokens if no explicit OAuth token exists.
-    if not oauth_token:
+    # 1) Explicit OAuth token from cache
+    oauth_val = await cache.get(CONF_OAUTH_TOKEN)
+    oauth_token: str | None = str(oauth_val) if isinstance(oauth_val, str) else None
+
+    # Defensive negative validation for OAuth slot
+    if oauth_token:
+        reason = _disqualifies_oauth_for_exchange(oauth_token)
+        if reason:
+            _LOGGER.warning("Ignoring value from '%s': %s.", CONF_OAUTH_TOKEN, reason)
+            oauth_token = None  # Force fallback path
+
+    # 2) Fallback: scan ADM tokens if no explicit OAuth token exists or it was disqualified
+    if oauth_token and oauth_token.startswith("aas_et/"):
+        if not username:
+            raise ValueError(
+                "No username available; please ensure the account e-mail is configured."
+            )
+        _LOGGER.debug(
+            "Cached value for '%s' already looks like an AAS token; reusing without gpsoauth.exchange_token.",
+            CONF_OAUTH_TOKEN,
+        )
         try:
-            all_cached = await async_get_all_cached_values()
-        except Exception:  # noqa: BLE001
-            # Cache not available during validation
-            all_cached = {}
+            await cache.set(DATA_AAS_TOKEN, oauth_token)
+        except Exception as err:  # noqa: BLE001
+            _LOGGER.debug("Failed to persist cached AAS token shortcut.", exc_info=err)
+        return oauth_token
+
+    if not oauth_token:
+        all_cached = await cache.all()
         for key, value in all_cached.items():
-            if isinstance(key, str) and key.startswith("adm_token_") and isinstance(value, str) and value:
+            if (
+                isinstance(key, str)
+                and key.startswith("adm_token_")
+                and isinstance(value, str)
+                and value
+            ):
                 # Reuse ADM token value as OAuth token.
                 oauth_token = value
                 extracted_username = key.replace("adm_token_", "", 1)
                 if extracted_username and "@" in extracted_username:
                     username = extracted_username
-                _LOGGER.info("Using existing ADM token from cache for OAuth exchange (user: %s).", username or "unknown")
+                _LOGGER.info(
+                    "Using existing ADM token from cache for OAuth exchange.",
+                    extra={"user": _mask_email_for_logs(username)},
+                )
                 break
 
+        # Fallback 3: Try global cache for ADM tokens if entry cache had none (validation scenario)
+        if not oauth_token and cache:
+            try:
+                all_cached_global = await async_get_all_cached_values()
+                for key, value in all_cached_global.items():
+                    if (
+                        isinstance(key, str)
+                        and key.startswith("adm_token_")
+                        and isinstance(value, str)
+                        and value
+                    ):
+                        oauth_token = value
+                        extracted_username = key.replace("adm_token_", "", 1)
+                        if extracted_username and "@" in extracted_username:
+                            username = extracted_username
+                        _LOGGER.info(
+                            "Using existing ADM token from global cache for OAuth exchange.",
+                            extra={"user": _mask_email_for_logs(username)},
+                        )
+                        break
+            except Exception:  # noqa: BLE001
+                pass
+
     if not oauth_token:
-        raise ValueError("No OAuth token available; please configure the integration with a valid token.")
+        raise ValueError(
+            "No OAuth token available; please configure the integration with a valid token."
+        )
     if not username:
-        raise ValueError("No username available; please ensure the account e-mail is configured.")
+        # We need a username only for the gpsoauth exchange path.
+        raise ValueError(
+            "No username available; please ensure the account e-mail is configured."
+        )
 
-    # Get unique Android ID for this user
-    android_id = await _get_or_generate_android_id(username)
+    android_id = await _get_or_generate_android_id(username, cache=cache)
 
-    # Exchange OAuth → AAS (blocking call executed in executor).
+    # 3) Exchange OAuth → AAS (blocking call executed in executor).
     resp = await _exchange_oauth_for_aas(username, oauth_token, android_id)
 
-    # Persist normalized email if gpsoauth returns it (keeps cache consistent).
+    # 4) Persist normalized email if gpsoauth returns it (keeps cache consistent).
     if isinstance(resp.get("Email"), str) and resp["Email"]:
         try:
-            await async_set_cached_value(username_string, resp["Email"])
+            await cache.set(username_string, resp["Email"])
         except Exception as err:  # noqa: BLE001
-            _LOGGER.debug("Failed to persist normalized username from gpsoauth: %s", err)
+            _LOGGER.debug(
+                "Failed to persist normalized username from gpsoauth: %s", _clip(err)
+            )
 
     return str(resp["Token"])
 
 
-async def async_get_aas_token() -> str:
+# ---------------------------------------------------------------------------
+# Public API (entry-scoped when `cache` is provided) with retries/backoff
+# ---------------------------------------------------------------------------
+
+
+async def async_get_aas_token(
+    *,
+    cache: TokenCache,
+    retries: int = 2,
+    backoff: float = 1.0,
+) -> str:
     """Return the cached AAS token or compute and cache it.
+
+    When an entry-scoped `cache` is provided, only that cache is used for reads/writes.
+    Otherwise, the legacy facade operates on the default cache (single-entry setups).
+
+    Persistence:
+        - Stored under key `DATA_AAS_TOKEN` in the selected cache.
+        - Issuance timestamp stored under `aas_token_issued_at_<username>` for TTL learning.
+
+    Retry policy:
+        - Non-retryable auth failures (e.g., "BadAuthentication", "invalid_grant",
+          "unauthorized"/"forbidden") abort immediately.
+        - Transient errors (network/timeouts/library) retry with exponential backoff.
+
+    Args:
+        cache: Entry-scoped TokenCache.
+        retries: Number of retry attempts on transient failure.
+        backoff: Initial backoff delay in seconds for retries.
 
     Returns:
         The AAS token string.
     """
-    # Safe cache access - handle multi-entry scenarios during validation
-    try:
-        return await async_get_cached_value_or_set("aas_token", _generate_aas_token)
-    except Exception as e:  # noqa: BLE001
-        # Cache not available during validation - generate directly without caching
-        _LOGGER.debug("Cache not available for AAS token; generating directly: %s", e)
-        return await _generate_aas_token()
+    if cache is None:
+        raise ValueError("TokenCache instance is required for multi-account safety.")
+
+    # Check if AAS token already exists (for TTL tracking)
+    existing_token = await cache.get(DATA_AAS_TOKEN)
+    was_cached = existing_token is not None and isinstance(existing_token, str)
+
+    async def _gen_with_retries() -> str:
+        _LOGGER.info("AAS token: generating new token via OAuth exchange.")
+        last_exc: Exception | None = None
+        attempts = max(1, retries + 1)
+        max_retries = attempts - 1  # = retries parameter
+        for attempt in range(attempts):
+            try:
+                token = await _generate_aas_token(cache=cache)
+                _LOGGER.info("AAS token: successfully generated.")
+                return token
+            except Exception as exc:  # noqa: BLE001
+                last_exc = exc
+                retryable = not _is_non_retryable_auth(exc) and attempt < attempts - 1
+                # retry_num: first attempt (attempt=0) doesn't count
+                retry_num = attempt
+
+                if not retryable:
+                    if retry_num > 0:
+                        _LOGGER.error(
+                            "AAS token: generation failed (retry %d/%d). No more retries. "
+                            "Error: %s",
+                            retry_num,
+                            max_retries,
+                            exc,
+                        )
+                    else:
+                        _LOGGER.error("AAS token: generation failed. Error: %s", exc)
+                    break
+
+                sleep_s = backoff * (2**attempt)
+                if retry_num == 0:
+                    _LOGGER.warning(
+                        "AAS token: generation failed. Error: %s. Retrying...", exc
+                    )
+                else:
+                    _LOGGER.warning(
+                        "AAS token: generation failed (retry %d/%d). Error: %s. "
+                        "Retrying in %.0fs...",
+                        retry_num,
+                        max_retries,
+                        exc,
+                        sleep_s,
+                    )
+                await asyncio.sleep(sleep_s)
+        assert last_exc is not None
+        raise last_exc
+
+    token: str = await cache.get_or_set(DATA_AAS_TOKEN, _gen_with_retries)
+
+    # Record AAS token issuance timestamp if a fresh token was generated
+    # This enables TTL learning for proactive AAS refresh
+    if not was_cached:
+        username_val = await cache.get(username_string)
+        if isinstance(username_val, str) and username_val:
+            issued_key = f"aas_token_issued_at_{username_val.strip().lower()}"
+            try:
+                await cache.set(issued_key, time.time())
+                _LOGGER.debug(
+                    "Recorded AAS token issuance timestamp for TTL learning.",
+                    extra={"user": _mask_email_for_logs(username_val)},
+                )
+            except Exception as err:  # noqa: BLE001 - defensive cache write
+                _LOGGER.debug("Failed to record AAS issuance timestamp: %s", err)
+
+    return token
 
 
 # ----------------------- Legacy sync wrapper (unsupported) -----------------------
 
-def get_aas_token() -> str:  # pragma: no cover - legacy path kept for compatibility messaging
+
+def get_aas_token() -> (
+    str
+):  # pragma: no cover - legacy path kept for compatibility messaging
     """Legacy sync API is intentionally unsupported to prevent event loop deadlocks.
 
     Raises:
         NotImplementedError: Always. Use `await async_get_aas_token()` instead.
     """
     raise NotImplementedError(
-        "Use `await async_get_aas_token()` instead of the synchronous get_aas_token()."
+        "Use `await async_get_aas_token(cache=...)` instead of the synchronous get_aas_token()."
     )
