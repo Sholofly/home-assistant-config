@@ -428,30 +428,6 @@
       title: Antibiotica
     action: notify.mobile_app_telefoon_rudolf
   mode: single
-- id: '1654613094104'
-  alias: Meld restafval afhaling
-  description: ''
-  triggers:
-  - entity_id:
-    - sensor.aantal_ophalingen_restafval_dit_jaar
-    not_from: unknown
-    trigger: state
-  conditions:
-  - condition: template
-    value_template: '{{ trigger.from_state is not none and trigger.to_state is not
-      none}}'
-  actions:
-  - data:
-      title: Het restafval is opgehaald
-      message: 'Het restafval is dit jaar voor de {{ states(''sensor.aantal_ophalingen_restafval_dit_jaar'')}}e
-        keer opgehaald
-
-        '
-      data:
-        ttl: 0
-        priority: high
-    action: notify.family
-  mode: single
 - id: '1656497997657'
   alias: Badkamer - Knop rechts
   description: ''
@@ -659,7 +635,7 @@
             notification_icon: mdi:french-fries
         action: notify.mobile_app_telefoon_rudolf
       - variables:
-          originele_volume: '{{ state_attr(''media_player.woonkamer_google_home'',
+          originele_volume: '{{ state_attr(''media_player.woonkamer_google_home_mass'',
             ''volume_level'') }}'
       - action: media_player.volume_set
         metadata: {}
@@ -679,7 +655,7 @@
       - wait_for_trigger:
         - trigger: state
           entity_id:
-          - media_player.woonkamer_google_home
+          - media_player.woonkamer_google_home_mass
           to: idle
       - action: media_player.volume_set
         metadata: {}
@@ -717,6 +693,13 @@
             tag: frying
           message: clear_notification
         action: notify.mobile_app_telefoon_rudolf
+      - action: tts.cloud_say
+        metadata: {}
+        data:
+          cache: false
+          entity_id: media_player.speakers_beneden
+          language: nl-NL
+          message: De airfryer is klaar!
     - conditions:
       - condition: trigger
         id: long-off
@@ -1074,62 +1057,6 @@
       url: http://192.168.1.21:8123/wall-tablet
     action: fully_kiosk.load_url
   mode: single
-- id: '1715605589630'
-  alias: Schakel zonnepanelen uit bij negatieve stroomprijs
-  description: ''
-  triggers:
-  - entity_id:
-    - binary_sensor.negatieve_stroomprijzen
-    attribute: position
-    to:
-    - below
-    trigger: state
-  - entity_id:
-    - binary_sensor.negatieve_stroomprijzen
-    attribute: position
-    to: above
-    trigger: state
-  conditions: []
-  actions:
-  - if:
-    - condition: state
-      entity_id: binary_sensor.negatieve_stroomprijzen
-      state: 'on'
-    then:
-    - data:
-        value: '0'
-      target:
-        entity_id: number.solaredge_active_power_limit
-      action: number.set_value
-    - metadata: {}
-      data:
-        title: De zonnepanelen gaan uit
-        message: De stroomprijs is negatief!
-        data:
-          ttl: 0
-          priority: high
-          channel: HA Alarm
-          importance: max
-          notification_icon: mdi:solar-power-variant
-      action: notify.mobile_app_telefoon_rudolf
-    else:
-    - data:
-        value: '100'
-      target:
-        entity_id: number.solaredge_active_power_limit
-      action: number.set_value
-    - metadata: {}
-      data:
-        title: De zonnepanelen gaan weer aan
-        message: De stroomprijzen zijn weer positief.
-        data:
-          ttl: 0
-          priority: high
-          channel: HA Alarm
-          importance: max
-          notification_icon: mdi:solar-power-variant
-      action: notify.mobile_app_telefoon_rudolf
-  mode: single
 - id: '1726487429371'
   alias: Lichten uit bij verlaten huis
   description: ''
@@ -1169,7 +1096,7 @@
     at: '19:00:00'
     id: deken-aan
   - trigger: time
-    at: '20:00:00'
+    at: '20:30:00'
     id: deken-uit
   conditions: []
   actions:
@@ -1251,7 +1178,7 @@
   description: ''
   triggers:
   - trigger: time
-    at: input_datetime.datum_nieuw_tarief_eneco
+    at: input_datetime.datum_nieuw_tarief_eneco_stroom
   conditions: []
   actions:
   - action: input_number.set_value
@@ -1544,11 +1471,9 @@
   alias: Finish monthly Orisha registration
   description: ''
   triggers:
-  - trigger: state
-    entity_id:
-    - number.day_of_month
-    to:
-    - '1'
+  - trigger: template
+    value_template: '{{ now().day == 1 }}'
+    alias: When day of month becomes 1
   conditions: []
   actions:
   - action: shell_command.start_month_orisha
