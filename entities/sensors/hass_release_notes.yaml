@@ -1,4 +1,5 @@
 platform: rest
+unique_id: d396d0c5-a188-482b-999f-e02379235eac
 name: hass_release_notes
 resource: https://api.github.com/repos/home-assistant/core/releases/latest
 value_template: >

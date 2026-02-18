@@ -7,3 +7,4 @@ state: >
   {%- elif now().hour < 12 -%} morning
   {%- elif now().hour < 18 -%} afternoon
   {%- else -%} night {%- endif -%}
+unique_id: 7364da26-e3e4-49a0-882f-4974f6586054

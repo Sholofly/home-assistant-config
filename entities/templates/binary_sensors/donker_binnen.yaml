@@ -2,5 +2,6 @@
 ## Entities / Binary Sensors / Donker binnen
 ################################################
 name: "Donker binnen"
+unique_id: e25bd882-071b-4ada-aa17-b52641e0d249
 state: >-
   {{ states('sensor.voortuin_lichtsensor_illuminance') | float(300) < 300 | default(False) }}

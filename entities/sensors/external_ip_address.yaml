@@ -1,8 +1,9 @@
 ################################################
 ## Entities / Sensors / External IP Address
-################################################ 
+################################################
 platform: rest
+unique_id: d69a6869-5cc6-4f39-beab-eb39a47c8111
 resource: http://icanhazip.com
 name: External IP address
-value_template: '{{ value }}'
+value_template: "{{ value }}"
 scan_interval: 14400

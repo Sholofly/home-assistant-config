@@ -3,3 +3,4 @@
 ################################################
 state: "{{ (now() - as_local(states.sensor.electricity_meter_netto_power_consumption.last_changed)) < timedelta(minutes = 1, seconds = 30)  | default('on') }}"
 name: DSMR up-to-date
+unique_id: a05200c7-79f5-42a7-9a95-ccb3712c1bb1

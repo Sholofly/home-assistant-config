@@ -6,3 +6,4 @@ platform: group
 services:
   - service: mobile_app_telefoon_rudolf
   - service: mobile_app_telefoon_leny
+unique_id: 808beb57-8a3d-4565-9194-a022c5ea6d07

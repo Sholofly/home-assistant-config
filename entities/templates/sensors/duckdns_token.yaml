@@ -3,3 +3,4 @@
 ################################################
 name: DuckDNS Token
 state: !secret duckdns_token
+unique_id: dd3b4882-abe2-465f-9442-2570076f034f

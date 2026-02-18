@@ -7,3 +7,4 @@ availability:
 payload_on: "1"
 payload_off: "0"
 value_template: "{{ value_json }}"
+unique_id: 09ed16e5-ad92-4750-b717-866e40c6541c

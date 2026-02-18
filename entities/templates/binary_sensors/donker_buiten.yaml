@@ -2,5 +2,6 @@
 ## Entities / Binary Sensors / Donker buiten
 ################################################
 name: "Donker buiten"
+unique_id: 3e430457-0c7c-4716-97a6-d23e2f2ea028
 state: >-
   {{ states('sensor.voortuin_lichtsensor_illuminance') | float(30) < 30 | default(False) }}

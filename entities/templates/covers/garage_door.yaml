@@ -3,6 +3,7 @@
 ################################################
 name: Garage Garagedeur
 device_class: garage
+unique_id: f947b49f-12dd-4c66-a2f7-294ff3dcc3ad
 state: "{{ is_state('binary_sensor.garage_garagedeur_contact', 'on') }}"
 open_cover:
   service: button.press

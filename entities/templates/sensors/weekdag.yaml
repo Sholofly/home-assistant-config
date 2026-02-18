@@ -5,3 +5,4 @@ name: Weekdag
 state: >
   {% set days = ["Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag", "Zondag"] %}
   {{ days[now().weekday()] }}
+unique_id: 4b99e40f-c3e3-4d87-9e7c-2e24cfdf540c
