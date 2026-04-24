@@ -1,0 +1,121 @@
+blueprint:
+  name: IKEA Bilresa Remote (Zigbee2MQTT device; light control)
+  description: Automation made for IKEA Bilresa (E2489) for controlling HA lights.
+  domain: automation
+  author: Matei Asan
+  input:
+    remote_device:
+      name: Bilresa Remote
+      description: Select your Bilresa 2-button remote from Zigbee2MQTT.
+      selector:
+        device:
+          integration: mqtt
+          manufacturer: IKEA
+          model: BILRESA remote control with buttons
+          multiple: false
+    target_light:
+      name: Target Light
+      selector:
+        target:
+          entity:
+          - domain:
+            - light
+    transition_speed:
+      name: Transition Speed
+      description: Time (in seconds) for transition in brightness. Anything below
+        0.5s may cause issues. You may want to increase with higher brightness steps.
+      default: 0.5
+      selector:
+        number:
+          min: 0.1
+          max: 2.0
+          step: 0.1
+          unit_of_measurement: s
+          mode: slider
+    brightness_step:
+      name: Brightness Step
+      description: The percentage to increase or decrease brightness by in each step.
+      default: 10
+      selector:
+        number:
+          min: 1.0
+          max: 50.0
+          step: 1.0
+          unit_of_measurement: '%'
+          mode: slider
+  source_url: https://raw.githubusercontent.com/masanos1/my-hass-stuff/refs/heads/main/Blueprints/Bilresa%20Z2M%20Light%20Control.yaml
+mode: restart
+max_exceeded: silent
+trigger:
+- platform: device
+  domain: mqtt
+  device_id: !input remote_device
+  type: action
+  subtype: 'on'
+  id: 'on'
+- platform: device
+  domain: mqtt
+  device_id: !input remote_device
+  type: action
+  subtype: 'off'
+  id: 'off'
+- platform: device
+  domain: mqtt
+  device_id: !input remote_device
+  type: action
+  subtype: brightness_move_up
+  id: up
+- platform: device
+  domain: mqtt
+  device_id: !input remote_device
+  type: action
+  subtype: brightness_move_down
+  id: down
+- platform: device
+  domain: mqtt
+  device_id: !input remote_device
+  type: action
+  subtype: brightness_stop
+  id: stop
+action:
+- variables:
+    step_value: !input brightness_step
+    trans_speed: !input transition_speed
+- choose:
+  - conditions: '{{ trigger.id == ''on'' }}'
+    sequence:
+    - service: light.turn_on
+      target: !input target_light
+  - conditions: '{{ trigger.id == ''off'' }}'
+    sequence:
+    - service: light.turn_off
+      target: !input target_light
+  - conditions: '{{ trigger.id == ''up'' }}'
+    sequence:
+    - repeat:
+        while:
+        - condition: template
+          value_template: '{{ true }}'
+        sequence:
+        - service: light.turn_on
+          target: !input target_light
+          data:
+            brightness_step_pct: '{{ step_value }}'
+            transition: '{{ trans_speed }}'
+        - delay: '{{ trans_speed }}'
+  - conditions: '{{ trigger.id == ''down'' }}'
+    sequence:
+    - repeat:
+        while:
+        - condition: template
+          value_template: '{{ true }}'
+        sequence:
+        - service: light.turn_on
+          target: !input target_light
+          data:
+            brightness_step_pct: '{{ step_value * -1 }}'
+            transition: '{{ trans_speed }}'
+        - delay: '{{ trans_speed }}'
+  - conditions: '{{ trigger.id == ''stop'' }}'
+    sequence:
+    - stop: Button released

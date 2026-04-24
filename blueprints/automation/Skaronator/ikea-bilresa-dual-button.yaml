@@ -1,0 +1,302 @@
+mode: restart
+blueprint:
+  name: IKEA BILRESA Dual Button
+  author: Skaronator
+  description: "# IKEA BILRESA Dual Button Remote Automation\n\n## Current Version
+    2.0.1\n\n## Features\n\nSimple automation blueprint for IKEA BILRESA dual-button
+    remote.\n\n### Supported Actions for Each Button\n\n* Single Press\n* Double Press\n*
+    Long Press (on press and release)\n* While Holding (with configurable interval)\n\n###
+    Configuration Options\n\n* Configurable interval for \"while holding\" actions.\n*
+    Safety limit on maximum iterations for \"while holding\" actions to prevent infinite
+    loops.\n\n## Changelog\n\n### 2.0.1\n  - Removed Matter integration filter for
+    button event selector. This will allow users to use the Ikea BILRESA remote over
+    3rd party Matter integration.\n### 2.0.0\n  - Added support for selecting multiple
+    entities for each button. Allowing to have multiple remotes triggering the same
+    actions.\n  - See [these upgrade notes](https://community.home-assistant.io/t/ikea-bilresa-dual-button-remote/965815/28?u=skaronator)
+    for migrating existing automations using this blueprint.\n### 1.2.2\n  - Improved
+    descriptions and documentation.\n### 1.2.1\n  - Improved descriptions for blueprint
+    inputs.\n### 1.2.0\n  - Added max iterations setting for \"while holding\" actions
+    to prevent infinite loops.\n### 1.1.0\n  - Added \"while holding\" actions for
+    both buttons with configurable interval.\n### 1.0.0\n  - Initial release with
+    support for all button actions.\n\n## Support and Feedback\n\n* GitHub: [Skaronator/home-assistant-blueprints](https://github.com/Skaronator/home-assistant-blueprints)\n*
+    Blueprint Exchange: [IKEA BILRESA Dual Button](https://community.home-assistant.io/t/ikea-bilresa-dual-button-remote/965815)\n\nThank
+    you for using this blueprint! Your feedback and contributions are welcome. \U0001F49A\n"
+  domain: automation
+  source_url: https://raw.githubusercontent.com/Skaronator/home-assistant-blueprints/refs/heads/main/automation/ikea-bilresa-dual-button.yaml
+  homeassistant:
+    min_version: 2025.12.0
+  input:
+    setup:
+      name: ⚙️ Button Setup
+      description: 'Select the event entities for all 2 buttons on the IKEA BILRESA
+        dual-button remote.
+
+        '
+      collapsed: true
+      input:
+        button1_event:
+          name: Entity
+          description: 'Select the event entity for Button 1
+
+            '
+          selector:
+            entity:
+              multiple: true
+              filter:
+              - domain:
+                - event
+                device_class:
+                - button
+              reorder: false
+        button2_event:
+          name: Entity
+          description: 'Select the event entity for Button 2
+
+            '
+          selector:
+            entity:
+              multiple: true
+              filter:
+              - domain:
+                - event
+                device_class:
+                - button
+              reorder: false
+    button1:
+      name: '1️⃣ Button 1 Actions
+
+        '
+      description: 'Define actions when pressing Button 1.
+
+        '
+      collapsed: true
+      input:
+        button1_single:
+          name: Single Press
+          description: Action for Button 1 single press.
+          default: []
+          selector:
+            action: {}
+        button1_double:
+          name: Double Press
+          description: Action for Button 1 double press.
+          default: []
+          selector:
+            action: {}
+        button1_long_press:
+          name: Long Press (on press)
+          description: Action for Button 1 long press completion.
+          default: []
+          selector:
+            action: {}
+        button1_long_release:
+          name: Long Press (on release)
+          description: Action for Button 1 long press completion.
+          default: []
+          selector:
+            action: {}
+        button1_holding_interval:
+          name: Holding Interval (seconds)
+          description: Interval in seconds for repeating "while holding" actions.
+          default: 0.2
+          selector:
+            number:
+              min: 0.05
+              max: 2.0
+              step: 0.05
+              mode: slider
+        button1_holding_max_iterations:
+          name: Holding Max Iterations
+          description: Maximum number of iterations for "while holding" actions. This
+            is a safety limit to prevent infinite loops.
+          default: 100
+          selector:
+            number:
+              min: 1.0
+              max: 1000.0
+              step: 1.0
+              mode: slider
+        button1_while_holding:
+          name: While Holding
+          description: Action for Button 1 while holding. This action will be repeated
+            at the defined interval while the button is held down.
+          default: []
+          selector:
+            action: {}
+    button2:
+      name: '2️⃣ Button 2 Actions
+
+        '
+      description: 'Define actions when pressing Button 2.
+
+        '
+      collapsed: true
+      input:
+        button2_single:
+          name: Single Press
+          description: Action for Button 2 single press.
+          default: []
+          selector:
+            action: {}
+        button2_double:
+          name: Double Press
+          description: Action for Button 2 double press.
+          default: []
+          selector:
+            action: {}
+        button2_long_press:
+          name: Long Press (on press)
+          description: Action for Button 2 long press completion.
+          default: []
+          selector:
+            action: {}
+        button2_long_release:
+          name: Long Press (on release)
+          description: Action for Button 2 long press completion.
+          default: []
+          selector:
+            action: {}
+        button2_holding_interval:
+          name: Holding Interval (seconds)
+          description: Interval in seconds for repeating "while holding" actions.
+          default: 0.2
+          selector:
+            number:
+              min: 0.05
+              max: 2.0
+              step: 0.05
+              mode: slider
+        button2_holding_max_iterations:
+          name: Holding Max Iterations
+          description: Maximum number of iterations for "while holding" actions. This
+            is a safety limit to prevent infinite loops.
+          default: 100
+          selector:
+            number:
+              min: 1.0
+              max: 1000.0
+              step: 1.0
+              mode: slider
+        button2_while_holding:
+          name: While Holding
+          description: Action for Button 2 while holding. This action will be repeated
+            at the defined interval while the button is held down.
+          default: []
+          selector:
+            action: {}
+trigger:
+- platform: state
+  id: button1
+  entity_id: !input button1_event
+- platform: state
+  id: button2
+  entity_id: !input button2_event
+condition:
+- condition: template
+  value_template: '{{ trigger.from_state.state not in [''unknown'', ''unavailable'']
+    }}
+
+    '
+- condition: template
+  value_template: '{{ trigger.to_state.state not in [''unknown'', ''unavailable'']
+    }}
+
+    '
+- condition: template
+  value_template: '{{ trigger.from_state.state != trigger.to_state.state }}
+
+    '
+action:
+- variables:
+    trigger_id: '{{ trigger.id }}'
+    press_type: '{{ trigger.to_state.attributes.event_type }}'
+    button1_max_iterations: !input button1_holding_max_iterations
+    button2_max_iterations: !input button2_holding_max_iterations
+- parallel:
+  - repeat:
+      while:
+      - condition: template
+        value_template: '{{ press_type == ''long_press'' and trigger_id == ''button1''
+          and states(trigger.entity_id) == trigger.to_state.state }}
+
+          '
+      - condition: template
+        value_template: '{{ repeat.index|default(0) <= button1_max_iterations }}
+
+          '
+      sequence:
+      - sequence: !input button1_while_holding
+      - delay:
+          seconds: !input button1_holding_interval
+  - repeat:
+      while:
+      - condition: template
+        value_template: '{{ press_type == ''long_press'' and trigger_id == ''button2''
+          and states(trigger.entity_id) == trigger.to_state.state }}
+
+          '
+      - condition: template
+        value_template: '{{ repeat.index|default(0) <= button2_max_iterations }}
+
+          '
+      sequence:
+      - sequence: !input button2_while_holding
+      - delay:
+          seconds: !input button2_holding_interval
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{{ trigger_id == ''button1'' and press_type == ''multi_press_1''
+          }}
+
+          '
+      sequence: !input button1_single
+    - conditions:
+      - condition: template
+        value_template: '{{ trigger_id == ''button1'' and press_type == ''multi_press_2''
+          }}
+
+          '
+      sequence: !input button1_double
+    - conditions:
+      - condition: template
+        value_template: '{{ trigger_id == ''button1'' and press_type == ''long_press''
+          }}
+
+          '
+      sequence: !input button1_long_press
+    - conditions:
+      - condition: template
+        value_template: '{{ trigger_id == ''button1'' and press_type == ''long_release''
+          }}
+
+          '
+      sequence: !input button1_long_release
+    - conditions:
+      - condition: template
+        value_template: '{{ trigger_id == ''button2'' and press_type == ''multi_press_1''
+          }}
+
+          '
+      sequence: !input button2_single
+    - conditions:
+      - condition: template
+        value_template: '{{ trigger_id == ''button2'' and press_type == ''multi_press_2''
+          }}
+
+          '
+      sequence: !input button2_double
+    - conditions:
+      - condition: template
+        value_template: '{{ trigger_id == ''button2'' and press_type == ''long_press''
+          }}
+
+          '
+      sequence: !input button2_long_press
+    - conditions:
+      - condition: template
+        value_template: '{{ trigger_id == ''button2'' and press_type == ''long_release''
+          }}
+
+          '
+      sequence: !input button2_long_release
