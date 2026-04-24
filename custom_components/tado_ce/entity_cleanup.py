@@ -1,0 +1,509 @@
+"""Entity lifecycle cleanup for disabled feature toggles.
+
+Handles removal of entities from the HA entity registry when users
+disable feature toggles via the Options Flow UI.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+import logging
+import re
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from homeassistant.config_entries import ConfigEntry
+    from homeassistant.core import HomeAssistant
+    from homeassistant.helpers.entity_registry import EntityRegistry
+
+from homeassistant.helpers import device_registry as dr
+from homeassistant.helpers import entity_registry as er
+
+from .const import DOMAIN
+from .entity_registry import ENTITY_REGISTRY
+
+_LOGGER = logging.getLogger(__name__)
+
+
+# ---------------------------------------------------------------------------
+# FeatureGroupContext — cleanup context driven by EntityMeta.feature_group
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True, slots=True)
+class FeatureGroupContext:
+    """Represent cleanup context for a feature group."""
+
+    cleanup_flag: str
+    feature_group: str
+    label: str
+    legacy_suffixes: tuple[str, ...]
+    match_mode: str = "suffix"  # "suffix" or "contains"
+    platform_filter: str | None = None
+    remove_device: str | None = None
+    exclude_suffixes: tuple[str, ...] = ()
+    zone_only_suffixes: tuple[str, ...] = ()
+
+
+# ---------------------------------------------------------------------------
+# FEATURE_GROUP_CONTEXTS — replaces _CLEANUP_DEFINITIONS
+# Each entry maps a cleanup flag to its feature group and matching rules.
+# ---------------------------------------------------------------------------
+
+FEATURE_GROUP_CONTEXTS: tuple[FeatureGroupContext, ...] = (
+    # --- zone_config: all suffixes are legacy/dynamic (Note N1) ---
+    FeatureGroupContext(
+        cleanup_flag="_cleanup_zone_config",
+        feature_group="zone_config",
+        label="Zone Configuration",
+        legacy_suffixes=(
+            # v3.x suffixes (per-zone config entities, not in ENTITY_REGISTRY)
+            "_heat_emitter", "_ufh_buffer", "_adaptive_preheat", "_smart_comfort",
+            "_window_type", "_window_predicted_sensitivity",
+            "_min_temp", "_max_temp", "_temp_offset", "_surface_offset",
+            "_external_temp_sensor", "_external_humidity_sensor",
+            # v2.x suffixes (pre-migration unique_ids)
+            "_heating_type", "_smart_comfort_mode", "_surface_temp_offset",
+        ),
+        zone_only_suffixes=(
+            # These also exist at hub-level — only remove zone-level (Note N2)
+            "_overlay_mode",
+            "_overlay_timer",   # v3.x
+            "_timer_duration",  # v2.x
+        ),
+    ),
+    FeatureGroupContext(
+        cleanup_flag="_cleanup_zone_diagnostics",
+        feature_group="zone_diagnostics",
+        label="Zone Diagnostics",
+        legacy_suffixes=(),
+    ),
+    FeatureGroupContext(
+        cleanup_flag="_cleanup_device_controls",
+        feature_group="device_controls",
+        label="Device Controls",
+        legacy_suffixes=(),
+    ),
+    FeatureGroupContext(
+        cleanup_flag="_cleanup_boost_buttons",
+        feature_group="boost_buttons",
+        label="Boost Buttons",
+        legacy_suffixes=(),
+    ),
+    FeatureGroupContext(
+        cleanup_flag="_cleanup_environment_sensors",
+        feature_group="environment",
+        label="Environment Sensors",
+        legacy_suffixes=(
+            "_mold_risk_percentage", "_condensation_risk", "_surface_temperature",
+        ),
+    ),
+    FeatureGroupContext(
+        cleanup_flag="_cleanup_thermal_analytics",
+        feature_group="thermal",
+        label="Thermal Analytics",
+        legacy_suffixes=(
+            "_avg_heating_rate", "_analysis_confidence", "_heating_acceleration",
+        ),
+    ),
+    FeatureGroupContext(
+        cleanup_flag="_cleanup_smart_comfort",
+        feature_group="smart_comfort",
+        label="Smart Comfort",
+        legacy_suffixes=(
+            "_historical_deviation", "_next_schedule_time", "_next_schedule_temp",
+            "_smart_comfort_target",
+        ),
+    ),
+    FeatureGroupContext(
+        cleanup_flag="_cleanup_schedule_calendar",
+        feature_group="schedule_calendar",
+        label="Schedule Calendar",
+        legacy_suffixes=(),
+        exclude_suffixes=(
+            # v3.x smart comfort suffixes — protect when smart_comfort still enabled
+            "_next_schedule", "_next_sched_temp", "_schedule_deviation",
+            # v2.x smart comfort suffixes
+            "_next_schedule_time", "_next_schedule_temp",
+        ),
+        remove_device="heating_schedule",
+    ),
+    FeatureGroupContext(
+        cleanup_flag="_cleanup_weather",
+        feature_group="weather",
+        label="Weather",
+        legacy_suffixes=(),
+    ),
+    FeatureGroupContext(
+        cleanup_flag="_cleanup_mobile_devices",
+        feature_group="mobile_devices",
+        label="Mobile Devices",
+        legacy_suffixes=("_device_",),
+        match_mode="contains",
+        platform_filter="device_tracker",
+    ),
+    FeatureGroupContext(
+        cleanup_flag="_cleanup_bridge",
+        feature_group="bridge",
+        label="Bridge",
+        legacy_suffixes=("_bridge_", "_boiler_"),
+        match_mode="contains",
+    ),
+    FeatureGroupContext(
+        cleanup_flag="_cleanup_weather_compensation",
+        feature_group="weather_compensation",
+        label="Weather Compensation",
+        legacy_suffixes=(),
+    ),
+)
+
+
+# ---------------------------------------------------------------------------
+# Pure functions for registry-driven cleanup
+# ---------------------------------------------------------------------------
+
+
+def collect_suffixes_for_group(feature_group: str) -> frozenset[str]:
+    """Collect unique_id_suffix values from ENTITY_REGISTRY for a feature group.
+
+    Returns an empty frozenset for groups with no registry entries (e.g. zone_config).
+    """
+    return frozenset(
+        meta.unique_id_suffix
+        for meta in ENTITY_REGISTRY.values()
+        if meta.feature_group == feature_group
+    )
+
+
+def build_expected_suffixes(
+    registry_suffixes: frozenset[str],
+    legacy_suffixes: tuple[str, ...],
+) -> frozenset[str]:
+    """Merge registry suffixes with legacy suffixes into a single set."""
+    return registry_suffixes | frozenset(legacy_suffixes)
+
+
+# Pre-compiled placeholder patterns for suffix_to_pattern
+_PLACEHOLDER_SUBS: tuple[tuple[str, str], ...] = (
+    (r"\{zone_id\}", r"\d+"),
+    (r"\{duration\}", r"\d+"),
+    (r"\{serial\}", r".+"),
+    (r"\{device_id\}", r".+"),
+)
+
+
+def suffix_to_pattern(suffix: str) -> re.Pattern[str]:
+    r"""Convert a unique_id_suffix with placeholders to a compiled regex pattern.
+
+    Placeholders like {zone_id} become \d+, {serial} becomes .+, etc.
+    The pattern matches the suffix at the end of a unique_id string.
+    """
+    escaped = re.escape(suffix)
+    for placeholder, replacement in _PLACEHOLDER_SUBS:
+        escaped = escaped.replace(placeholder, replacement)
+    return re.compile(f".*{escaped}$")
+
+
+def match_entity_for_cleanup(
+    unique_id: str,
+    patterns: frozenset[re.Pattern[str]],
+    match_mode: str,
+    platform_filter: str | None,
+    entity_id: str,
+    exclude_patterns: frozenset[re.Pattern[str]] | None,
+    contains_substrings: tuple[str, ...] = (),
+) -> bool:
+    """Determine whether an entity should be removed during cleanup.
+
+    Pure function with no side effects.
+    """
+    if not unique_id.startswith("tado_ce_"):
+        return False
+
+    if platform_filter and not entity_id.startswith(f"{platform_filter}."):
+        return False
+
+    if match_mode == "contains":
+        return any(sub in unique_id for sub in contains_substrings)
+
+    # suffix mode — check excludes first
+    if exclude_patterns and any(p.search(unique_id) for p in exclude_patterns):
+        return False
+
+    return any(p.search(unique_id) for p in patterns)
+
+
+def match_zone_only_suffix(unique_id: str, zone_only_patterns: frozenset[re.Pattern[str]]) -> bool:
+    """Determine whether a zone-level entity matches zone_only_suffixes.
+
+    Only matches if unique_id contains '_zone_' (hub-level entities are protected).
+    """
+    if "_zone_" not in unique_id:
+        return False
+    return any(p.search(unique_id) for p in zone_only_patterns)
+
+
+# ---------------------------------------------------------------------------
+# Feature toggle → cleanup flag mapping
+# Used by config_flow (detect transitions) and cleanup handler (execute).
+# ---------------------------------------------------------------------------
+
+FEATURE_CLEANUP_MAP: list[tuple[str, str, bool]] = [
+    ("zone_configuration_enabled", "_cleanup_zone_config", True),
+    ("thermal_analytics_enabled", "_cleanup_thermal_analytics", False),
+    ("environment_sensors_enabled", "_cleanup_environment_sensors", True),
+    ("zone_diagnostics_enabled", "_cleanup_zone_diagnostics", True),
+    ("boost_buttons_enabled", "_cleanup_boost_buttons", True),
+    ("device_controls_enabled", "_cleanup_device_controls", True),
+    ("smart_comfort_enabled", "_cleanup_smart_comfort", False),
+    ("schedule_calendar_enabled", "_cleanup_schedule_calendar", False),
+    ("weather_enabled", "_cleanup_weather", False),
+    ("mobile_devices_enabled", "_cleanup_mobile_devices", False),
+    ("wc_enabled", "_cleanup_weather_compensation", False),
+]
+
+# ---------------------------------------------------------------------------
+# Internal cleanup application
+# ---------------------------------------------------------------------------
+
+
+def cleanup_orphan_device(
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+    device_suffix: str,
+) -> bool:
+    """Remove an orphan device from the device registry.
+
+    Removes a device whose identifier matches tado_ce_{home_id}_{device_suffix}
+    (or tado_ce_{device_suffix} for unknown home_id).
+
+    Args:
+        hass: Home Assistant instance.
+        entry: Config entry owning the device.
+        device_suffix: Suffix of the device identifier (e.g., "heating_schedule").
+
+    Returns:
+        True if a device was removed, False otherwise.
+    """
+    device_registry = dr.async_get(hass)
+    home_id = entry.data.get("home_id")
+
+    identifier = f"tado_ce_{home_id}_{device_suffix}" if home_id else f"tado_ce_{device_suffix}"
+
+    device_entry = device_registry.async_get_device(identifiers={(DOMAIN, identifier)})
+    if device_entry:
+        _LOGGER.info("  Removing orphan device: %s (identifier: %s)", device_entry.name, identifier)
+        device_registry.async_remove_device(device_entry.id)
+        return True
+    return False
+
+
+def cleanup_orphan_devices(
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+) -> int:
+    """Remove devices that have zero remaining entities after cleanup.
+
+    Scans all devices belonging to this config entry and removes any
+    that have no entities left in the entity registry. The hub device
+    is protected and never removed.
+
+    Args:
+        hass: Home Assistant instance.
+        entry: Config entry owning the devices.
+
+    Returns:
+        Number of orphan devices removed.
+    """
+    device_registry = dr.async_get(hass)
+    entity_registry = er.async_get(hass)
+    home_id = entry.data.get("home_id")
+
+    # Hub device identifier — never remove
+    hub_identifier = f"tado_ce_hub_{home_id}" if home_id else "tado_ce_hub"
+
+    removed = 0
+    for device_entry in list(device_registry.devices.values()):
+        # Only check devices belonging to this config entry
+        if entry.entry_id not in device_entry.config_entries:
+            continue
+
+        # Protect hub device
+        if (DOMAIN, hub_identifier) in device_entry.identifiers:
+            continue
+
+        # Check if device has any remaining entities
+        device_entities = er.async_entries_for_device(
+            entity_registry, device_entry.id, include_disabled_entities=True,
+        )
+        if not device_entities:
+            _LOGGER.info(
+                "  Removing orphan device: %s (id: %s, no remaining entities)",
+                device_entry.name,
+                device_entry.id,
+            )
+            device_registry.async_remove_device(device_entry.id)
+            removed += 1
+
+    return removed
+
+
+# ---------------------------------------------------------------------------
+# Public API
+# ---------------------------------------------------------------------------
+
+
+def detect_cleanup_flags(
+    prev_options: dict[str, Any],
+    new_options: dict[str, Any],
+) -> dict[str, bool]:
+    """Detect which feature toggles transitioned from enabled to disabled.
+
+    Args:
+        prev_options: Previous config entry options.
+        new_options: New config entry options (from user input).
+
+    Returns:
+        Dict of cleanup flag name to True for each feature that was disabled.
+    """
+    flags: dict[str, bool] = {}
+    for option_key, cleanup_flag, default in FEATURE_CLEANUP_MAP:
+        was_enabled = prev_options.get(option_key, default)
+        now_enabled = new_options.get(option_key, default)
+        if was_enabled and not now_enabled:
+            flags[cleanup_flag] = True
+            _LOGGER.info("%s disabled: cleanup scheduled", option_key)
+
+    # Bridge credentials: both serial AND auth_key must be present to be "enabled"
+    had_bridge = bool(prev_options.get("bridge_serial")) and bool(prev_options.get("bridge_auth_key"))
+    has_bridge = bool(new_options.get("bridge_serial")) and bool(new_options.get("bridge_auth_key"))
+    if had_bridge and not has_bridge:
+        flags["_cleanup_bridge"] = True
+        _LOGGER.info("Bridge credentials removed: cleanup scheduled")
+
+    return flags
+
+
+def _apply_cleanup_context(
+    entity_registry: EntityRegistry,
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+    ctx: FeatureGroupContext,
+) -> int:
+    """Apply a single FeatureGroupContext and remove matching entities.
+
+    Args:
+        entity_registry: HA entity registry.
+        hass: Home Assistant instance.
+        entry: Config entry being reloaded.
+        ctx: Cleanup context driven by EntityMeta.feature_group.
+
+    Returns:
+        Number of entities removed for this context.
+    """
+    removed = 0
+
+    # Build patterns from registry + legacy suffixes
+    registry_suffixes = collect_suffixes_for_group(ctx.feature_group)
+    all_suffixes = build_expected_suffixes(registry_suffixes, ctx.legacy_suffixes)
+    patterns = frozenset(suffix_to_pattern(s) for s in all_suffixes)
+
+    # Build exclude patterns if defined
+    exclude_patterns: frozenset[re.Pattern[str]] | None = None
+    if ctx.exclude_suffixes:
+        exclude_patterns = frozenset(
+            suffix_to_pattern(s) for s in ctx.exclude_suffixes
+        )
+
+    # Main pass — suffix or contains matching
+    for entity_id, entity_entry in list(entity_registry.entities.items()):
+        if entity_entry.platform != DOMAIN:
+            continue
+        unique_id = entity_entry.unique_id or ""
+        if match_entity_for_cleanup(
+            unique_id=unique_id,
+            patterns=patterns,
+            match_mode=ctx.match_mode,
+            platform_filter=ctx.platform_filter,
+            entity_id=entity_id,
+            exclude_patterns=exclude_patterns,
+            contains_substrings=ctx.legacy_suffixes if ctx.match_mode == "contains" else (),
+        ):
+            _LOGGER.debug("  Removing entity: %s (unique_id: %s)", entity_id, unique_id)
+            entity_registry.async_remove(entity_id)
+            removed += 1
+
+    # Zone-only pass — suffixes that need _zone_ guard (Note N2)
+    if ctx.zone_only_suffixes:
+        zone_only_patterns = frozenset(
+            suffix_to_pattern(s) for s in ctx.zone_only_suffixes
+        )
+        for entity_id, entity_entry in list(entity_registry.entities.items()):
+            if entity_entry.platform != DOMAIN:
+                continue
+            unique_id = entity_entry.unique_id or ""
+            if match_zone_only_suffix(unique_id, zone_only_patterns):
+                _LOGGER.debug(
+                    "  Removing zone entity: %s (unique_id: %s)",
+                    entity_id, unique_id,
+                )
+                entity_registry.async_remove(entity_id)
+                removed += 1
+
+    # Remove specific orphan device if defined (e.g., Heating Schedule device)
+    if ctx.remove_device:
+        cleanup_orphan_device(hass, entry, ctx.remove_device)
+
+    return removed
+
+
+def cleanup_disabled_feature_entities(
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+) -> int:
+    """Remove entities for features disabled via Options Flow.
+
+    Reads pending cleanup flags from the coordinator and removes matching
+    entities from the HA entity registry. Also removes orphan devices
+    when a feature's dedicated device has no remaining entities.
+
+    After all entity removals, performs a generic orphan device scan
+    to remove ANY device that has zero remaining entities (not just
+    devices with explicit ``remove_device`` definitions).
+
+    Args:
+        hass: Home Assistant instance.
+        entry: Config entry being reloaded.
+
+    Returns:
+        Total number of entities removed.
+    """
+    entity_registry = er.async_get(hass)
+
+    coordinator = getattr(entry, "runtime_data", None)
+    pending = getattr(coordinator, "_pending_cleanup", {}) if coordinator else {}
+    domain_data = pending.pop(entry.entry_id, {})
+    total_removed = 0
+
+    for ctx in FEATURE_GROUP_CONTEXTS:
+        if not domain_data.get(ctx.cleanup_flag, False):
+            continue
+
+        _LOGGER.info("Tado CE: %s disabled - removing entities", ctx.label)
+
+        removed = _apply_cleanup_context(entity_registry, hass, entry, ctx)
+        total_removed += removed
+        _LOGGER.info("  Removed %s %s entities", removed, ctx.label.lower())
+
+    # Generic orphan device cleanup — remove ANY device with zero entities
+    if total_removed > 0:
+        orphan_count = cleanup_orphan_devices(hass, entry)
+        if orphan_count:
+            _LOGGER.info("Tado CE: Removed %s orphan device(s)", orphan_count)
+
+    if total_removed > 0:
+        _LOGGER.info("Tado CE: Total entities removed: %s", total_removed)
+
+    return total_removed

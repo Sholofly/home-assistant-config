@@ -1,0 +1,251 @@
+{
+  "entity": {
+    "binary_sensor": {
+      "home": {
+        "default": "mdi:home",
+        "state": {
+          "on": "mdi:home-account",
+          "off": "mdi:home-outline"
+        }
+      },
+      "window": {
+        "default": "mdi:window-closed-variant",
+        "state": {
+          "on": "mdi:window-open-variant",
+          "off": "mdi:window-closed-variant"
+        }
+      },
+      "preheat_now": {
+        "default": "mdi:radiator-off",
+        "state": {
+          "on": "mdi:radiator",
+          "off": "mdi:radiator-off"
+        }
+      },
+      "window_predicted": {
+        "default": "mdi:window-closed-variant",
+        "state": {
+          "on": "mdi:window-open-variant",
+          "off": "mdi:window-closed-variant"
+        }
+      }
+    },
+    "button": {
+      "resume_all": {
+        "default": "mdi:calendar-refresh"
+      },
+      "refresh_ac": {
+        "default": "mdi:air-conditioner"
+      },
+      "refresh_schedule": {
+        "default": "mdi:calendar-refresh"
+      },
+      "boost": {
+        "default": "mdi:fire"
+      },
+      "smart_boost": {
+        "default": "mdi:fire-alert"
+      }
+    },
+    "calendar": {
+      "schedule": {
+        "default": "mdi:calendar-clock"
+      }
+    },
+    "number": {
+      "min_temp": {
+        "default": "mdi:thermometer-low"
+      },
+      "max_temp": {
+        "default": "mdi:thermometer-high"
+      },
+      "temp_offset": {
+        "default": "mdi:thermometer-plus"
+      },
+      "surface_offset": {
+        "default": "mdi:thermometer-minus"
+      },
+      "ufh_buffer": {
+        "default": "mdi:radiator"
+      }
+    },
+    "select": {
+      "presence_mode": {
+        "default": "mdi:home-account",
+        "state": {
+          "auto": "mdi:home-automation",
+          "home": "mdi:home-account",
+          "away": "mdi:home-export-outline"
+        }
+      },
+      "overlay_mode": {
+        "default": "mdi:timer-cog-outline"
+      },
+      "timer_duration": {
+        "default": "mdi:timer"
+      },
+      "heat_emitter": {
+        "default": "mdi:radiator"
+      },
+      "adaptive_preheat": {
+        "default": "mdi:clock-fast"
+      },
+      "smart_comfort": {
+        "default": "mdi:emoticon-happy"
+      },
+      "window_type": {
+        "default": "mdi:window-closed-variant"
+      },
+      "zone_overlay_mode": {
+        "default": "mdi:timer-cog-outline"
+      },
+      "zone_timer_duration": {
+        "default": "mdi:timer"
+      }
+    },
+    "sensor": {
+      "outside_temp": {
+        "default": "mdi:thermometer"
+      },
+      "solar_intensity": {
+        "default": "mdi:white-balance-sunny"
+      },
+      "weather": {
+        "default": "mdi:weather-partly-cloudy"
+      },
+      "heating": {
+        "default": "mdi:radiator"
+      },
+      "ac": {
+        "default": "mdi:air-conditioner"
+      },
+      "boiler_flow_temp": {
+        "default": "mdi:water-boiler"
+      },
+      "target_temp": {
+        "default": "mdi:thermometer-check"
+      },
+      "overlay": {
+        "default": "mdi:calendar-clock"
+      },
+      "power": {
+        "default": "mdi:power"
+      },
+      "thermal_inertia": {
+        "default": "mdi:timer-sand"
+      },
+      "heating_rate": {
+        "default": "mdi:trending-up"
+      },
+      "preheat_time": {
+        "default": "mdi:clock-fast"
+      },
+      "confidence": {
+        "default": "mdi:chart-line"
+      },
+      "heat_accel": {
+        "default": "mdi:chart-bell-curve-cumulative"
+      },
+      "approach_factor": {
+        "default": "mdi:target"
+      },
+      "battery": {
+        "default": "mdi:battery"
+      },
+      "connection": {
+        "default": "mdi:wifi"
+      },
+      "home_id": {
+        "default": "mdi:home"
+      },
+      "api_usage": {
+        "default": "mdi:api"
+      },
+      "api_reset": {
+        "default": "mdi:timer-refresh"
+      },
+      "api_limit": {
+        "default": "mdi:speedometer"
+      },
+      "api_status": {
+        "default": "mdi:api"
+      },
+      "token_status": {
+        "default": "mdi:key"
+      },
+      "zone_count": {
+        "default": "mdi:home-thermometer"
+      },
+      "last_sync": {
+        "default": "mdi:sync"
+      },
+      "next_sync": {
+        "default": "mdi:clock-outline"
+      },
+      "polling_interval": {
+        "default": "mdi:timer-outline"
+      },
+      "call_history": {
+        "default": "mdi:history"
+      },
+      "api_breakdown": {
+        "default": "mdi:chart-bar"
+      },
+      "home_insights": {
+        "default": "mdi:lightbulb-on"
+      },
+      "insights": {
+        "default": "mdi:lightbulb-on-outline"
+      },
+      "mold_risk": {
+        "default": "mdi:mushroom"
+      },
+      "mold_risk_pct": {
+        "default": "mdi:water-percent"
+      },
+      "condensation_risk": {
+        "default": "mdi:water-alert"
+      },
+      "comfort_level": {
+        "default": "mdi:air-filter"
+      },
+      "dew_point": {
+        "default": "mdi:water-thermometer"
+      },
+      "surface_temp": {
+        "default": "mdi:thermometer-lines"
+      },
+      "schedule_deviation": {
+        "default": "mdi:chart-timeline-variant"
+      },
+      "next_schedule": {
+        "default": "mdi:calendar-clock"
+      },
+      "next_sched_temp": {
+        "default": "mdi:thermometer-chevron-up"
+      },
+      "preheat_advisor": {
+        "default": "mdi:clock-start"
+      },
+      "comfort_target": {
+        "default": "mdi:thermometer-check"
+      }
+    },
+    "switch": {
+      "early_start": {
+        "default": "mdi:clock-fast",
+        "state": {
+          "on": "mdi:clock-fast",
+          "off": "mdi:clock-outline"
+        }
+      },
+      "child_lock": {
+        "default": "mdi:lock",
+        "state": {
+          "on": "mdi:lock",
+          "off": "mdi:lock-open"
+        }
+      }
+    }
+  }
+}

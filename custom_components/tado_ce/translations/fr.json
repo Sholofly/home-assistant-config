@@ -1,0 +1,1755 @@
+{
+  "entity": {
+    "binary_sensor": {
+      "home": {
+        "name": "Géofencing",
+        "state_attributes": {
+          "tado_mode": {
+            "name": "Mode Tado"
+          },
+          "presence_locked": {
+            "name": "Présence verrouillée"
+          },
+          "data_source": {
+            "name": "Source des données"
+          }
+        }
+      },
+      "window": {
+        "name": "Fenêtre",
+        "state_attributes": {
+          "detected_time": {
+            "name": "Temps de détection"
+          },
+          "expiry_time": {
+            "name": "Délai d'expiration"
+          }
+        }
+      },
+      "preheat_now": {
+        "name": "Préchauffer maintenant",
+        "state_attributes": {
+          "recommended_start": {
+            "name": "Démarrage recommandé"
+          },
+          "target_time": {
+            "name": "Temps cible"
+          },
+          "target_temperature": {
+            "name": "Température cible"
+          },
+          "current_temperature": {
+            "name": "Température actuelle"
+          },
+          "duration_minutes": {
+            "name": "Durée (minutes)"
+          },
+          "confidence": {
+            "name": "Confiance"
+          },
+          "zone_type": {
+            "name": "Type de zone"
+          }
+        }
+      },
+      "window_predicted": {
+        "name": "Fenêtre prévue",
+        "state_attributes": {
+          "confidence": {
+            "name": "Confiance"
+          },
+          "temp_drop": {
+            "name": "Chute de température"
+          },
+          "time_window_minutes": {
+            "name": "Fenêtre temporelle (minutes)"
+          },
+          "recommendation": {
+            "name": "Recommandation"
+          },
+          "zone_type": {
+            "name": "Type de zone"
+          },
+          "readings_count": {
+            "name": "Nombre de lectures"
+          },
+          "anomaly_readings": {
+            "name": "Relevés d'anomalies"
+          }
+        }
+      },
+      "bridge_connected": {
+        "name": "Pont connecté"
+      }
+    },
+    "button": {
+      "resume_all": {
+        "name": "Résumé Tous"
+      },
+      "refresh_ac": {
+        "name": "Rafraîchir AC"
+      },
+      "refresh_schedule": {
+        "name": "Calendrier de rafraîchissement"
+      },
+      "boost": {
+        "name": "Boost"
+      },
+      "smart_boost": {
+        "name": "Smart Boost"
+      }
+    },
+    "calendar": {
+      "schedule": {
+        "name": "Calendrier"
+      }
+    },
+    "climate": {
+      "heating": {
+        "state_attributes": {
+          "overlay_type": {
+            "name": "Type de superposition"
+          },
+          "heating_power": {
+            "name": "Puissance de chauffage"
+          },
+          "zone_id": {
+            "name": "ID de la zone"
+          },
+          "offset_celsius": {
+            "name": "Décalage (°C)"
+          }
+        }
+      },
+      "ac": {
+        "state_attributes": {
+          "overlay_type": {
+            "name": "Type de superposition"
+          },
+          "ac_power_percentage": {
+            "name": "Puissance AC (%)"
+          },
+          "zone_id": {
+            "name": "ID de la zone"
+          },
+          "zone_type": {
+            "name": "Type de zone"
+          }
+        }
+      }
+    },
+    "device_tracker": {
+      "mobile_device": {
+        "state_attributes": {
+          "device_id": {
+            "name": "ID de l'appareil"
+          },
+          "platform": {
+            "name": "Plate-forme"
+          },
+          "os_version": {
+            "name": "Version du système d'exploitation"
+          },
+          "model": {
+            "name": "Modèle"
+          },
+          "bearing": {
+            "name": "Palier"
+          },
+          "relative_distance": {
+            "name": "Distance relative"
+          }
+        }
+      }
+    },
+    "sensor": {
+      "temperature": {
+        "name": "Temp"
+      },
+      "humidity": {
+        "name": "Humidité"
+      },
+      "heating_power": {
+        "name": "Chauffage"
+      },
+      "ac_power": {
+        "name": "AC"
+      },
+      "boiler_flow_temp": {
+        "name": "Température du débit de la chaudière"
+      },
+      "target": {
+        "name": "Cible",
+        "state_attributes": {
+          "next_change": {
+            "name": "Changement suivant"
+          },
+          "next_temperature": {
+            "name": "Température suivante"
+          }
+        }
+      },
+      "overlay": {
+        "name": "Superposition",
+        "state_attributes": {
+          "source_zone": {
+            "name": "Zone source"
+          }
+        }
+      },
+      "power": {
+        "name": "Puissance"
+      },
+      "outside_temp": {
+        "name": "Température extérieure",
+        "state_attributes": {
+          "timestamp": {
+            "name": "Horodatage"
+          }
+        }
+      },
+      "solar_intensity": {
+        "name": "Intensité solaire",
+        "state_attributes": {
+          "timestamp": {
+            "name": "Horodatage"
+          }
+        }
+      },
+      "weather": {
+        "name": "Météo",
+        "state_attributes": {
+          "raw_state": {
+            "name": "État brut"
+          },
+          "timestamp": {
+            "name": "Horodatage"
+          }
+        }
+      },
+      "battery": {
+        "name": "Batterie",
+        "state_attributes": {
+          "device_serial": {
+            "name": "Série d'appareils"
+          },
+          "device_type": {
+            "name": "Type d'appareil"
+          },
+          "firmware_version": {
+            "name": "Version du micrologiciel"
+          },
+          "connection_state": {
+            "name": "État de la connexion"
+          },
+          "connection_timestamp": {
+            "name": "Horodatage de la connexion"
+          },
+          "recommendation": {
+            "name": "Recommandation"
+          }
+        }
+      },
+      "battery_suffixed": {
+        "name": "Batterie{device_suffix}",
+        "state_attributes": {
+          "device_serial": {
+            "name": "Série d'appareils"
+          },
+          "device_type": {
+            "name": "Type d'appareil"
+          },
+          "firmware_version": {
+            "name": "Version du micrologiciel"
+          },
+          "connection_state": {
+            "name": "État de la connexion"
+          },
+          "connection_timestamp": {
+            "name": "Horodatage de la connexion"
+          },
+          "recommendation": {
+            "name": "Recommandation"
+          }
+        }
+      },
+      "connection": {
+        "name": "Connexion",
+        "state_attributes": {
+          "device_serial": {
+            "name": "Série d'appareils"
+          },
+          "device_type": {
+            "name": "Type d'appareil"
+          },
+          "firmware_version": {
+            "name": "Version du micrologiciel"
+          },
+          "last_seen": {
+            "name": "Dernière observation"
+          },
+          "recommendation": {
+            "name": "Recommandation"
+          }
+        }
+      },
+      "connection_suffixed": {
+        "name": "Connexion{device_suffix}",
+        "state_attributes": {
+          "device_serial": {
+            "name": "Série d'appareils"
+          },
+          "device_type": {
+            "name": "Type d'appareil"
+          },
+          "firmware_version": {
+            "name": "Version du micrologiciel"
+          },
+          "last_seen": {
+            "name": "Dernière observation"
+          },
+          "recommendation": {
+            "name": "Recommandation"
+          }
+        }
+      },
+      "home_id": {
+        "name": "ID domicile"
+      },
+      "api_usage": {
+        "name": "Utilisation de l'API",
+        "state_attributes": {
+          "limit": {
+            "name": "Limite"
+          },
+          "remaining": {
+            "name": "Restant"
+          },
+          "percentage_used": {
+            "name": "Pourcentage utilisé"
+          },
+          "last_updated": {
+            "name": "Dernière mise à jour"
+          },
+          "status": {
+            "name": "Statut"
+          },
+          "test_mode": {
+            "name": "Mode test"
+          }
+        }
+      },
+      "api_reset": {
+        "name": "Réinitialisation de l'API",
+        "state_attributes": {
+          "time_until_reset": {
+            "name": "Délai avant réinitialisation"
+          },
+          "reset_seconds": {
+            "name": "Remise à zéro des secondes"
+          },
+          "reset_at": {
+            "name": "Remise à zéro"
+          },
+          "last_reset": {
+            "name": "Dernière réinitialisation"
+          },
+          "status": {
+            "name": "Statut"
+          },
+          "next_poll": {
+            "name": "Prochain sondage"
+          },
+          "current_interval_minutes": {
+            "name": "Intervalle actuel (min)"
+          },
+          "test_mode": {
+            "name": "Mode test"
+          }
+        }
+      },
+      "api_limit": {
+        "name": "Limite de l'API"
+      },
+      "api_status": {
+        "name": "Statut de l'API",
+        "state_attributes": {
+          "remaining_calls": {
+            "name": "Appels restants"
+          },
+          "total_calls": {
+            "name": "Total des appels"
+          },
+          "reset_time": {
+            "name": "Temps de réinitialisation"
+          },
+          "recommendation": {
+            "name": "Recommandation"
+          }
+        }
+      },
+      "token_status": {
+        "name": "Statut du jeton"
+      },
+      "zone_count": {
+        "name": "Comptage des zones",
+        "state_attributes": {
+          "heating_zones": {
+            "name": "Zones de chauffage"
+          },
+          "hot_water_zones": {
+            "name": "Zones d'eau chaude"
+          },
+          "ac_zones": {
+            "name": "Zones AC"
+          }
+        }
+      },
+      "last_sync": {
+        "name": "Dernière synchronisation"
+      },
+      "next_sync": {
+        "name": "Prochaine synchronisation",
+        "state_attributes": {
+          "countdown": {
+            "name": "Compte à rebours"
+          },
+          "current_interval_minutes": {
+            "name": "Intervalle actuel (min)"
+          }
+        }
+      },
+      "polling_interval": {
+        "name": "Intervalle d'interrogation",
+        "state_attributes": {
+          "source": {
+            "name": "Source"
+          },
+          "day_interval": {
+            "name": "Intervalle de jours"
+          },
+          "night_interval": {
+            "name": "Intervalle de nuit"
+          },
+          "is_night_mode": {
+            "name": "Mode nuit"
+          },
+          "test_mode": {
+            "name": "Mode test"
+          }
+        }
+      },
+      "call_history": {
+        "name": "Historique des appels",
+        "state_attributes": {
+          "history": {
+            "name": "L'histoire"
+          },
+          "history_period_days": {
+            "name": "Période historique (jours)"
+          },
+          "oldest_call": {
+            "name": "Appel le plus ancien"
+          },
+          "newest_call": {
+            "name": "Dernier appel"
+          },
+          "calls_per_hour": {
+            "name": "Appels par heure"
+          },
+          "calls_today": {
+            "name": "Appels aujourd'hui"
+          },
+          "most_called_endpoint": {
+            "name": "Point final le plus appelé"
+          }
+        }
+      },
+      "api_breakdown": {
+        "name": "Ventilation de l'API",
+        "state_attributes": {
+          "breakdown_24h": {
+            "name": "Dépannage (24h)"
+          },
+          "breakdown_today": {
+            "name": "Panne (aujourd'hui)"
+          },
+          "breakdown_total": {
+            "name": "Répartition (total)"
+          },
+          "top_3_types": {
+            "name": "Les 3 principaux types"
+          },
+          "chart_data": {
+            "name": "Données graphiques"
+          }
+        }
+      },
+      "home_insights": {
+        "name": "Home Insights",
+        "state_attributes": {
+          "summary": {
+            "name": "Résumé"
+          },
+          "actions_needed": {
+            "name": "Actions nécessaires"
+          },
+          "zones_ok": {
+            "name": "Zones OK"
+          },
+          "top_priority": {
+            "name": "Priorité absolue"
+          },
+          "top_recommendation": {
+            "name": "Recommandation de haut niveau"
+          },
+          "zones_with_issues": {
+            "name": "Zones à problèmes"
+          },
+          "cross_zone_insights": {
+            "name": "Aperçu des zones transversales"
+          },
+          "persistent_insights": {
+            "name": "Perspectives persistantes"
+          },
+          "insight_health_score": {
+            "name": "Score de santé Insight"
+          },
+          "weekly_digest": {
+            "name": "Bulletin hebdomadaire"
+          }
+        }
+      },
+      "insights": {
+        "name": "Perspectives",
+        "state_attributes": {
+          "top_priority": {
+            "name": "Priorité absolue"
+          },
+          "top_recommendation": {
+            "name": "Recommandation de haut niveau"
+          },
+          "insight_types": {
+            "name": "Types d'aperçus"
+          },
+          "recommendations": {
+            "name": "Recommandations"
+          }
+        }
+      },
+      "schedule_deviation": {
+        "name": "Écart de calendrier",
+        "state_attributes": {
+          "current_temperature": {
+            "name": "Température actuelle"
+          },
+          "historical_average": {
+            "name": "Moyenne historique"
+          },
+          "sample_count": {
+            "name": "Nombre d'échantillons"
+          },
+          "summary": {
+            "name": "Résumé"
+          },
+          "zone_type": {
+            "name": "Type de zone"
+          },
+          "recommendation": {
+            "name": "Recommandation"
+          }
+        }
+      },
+      "next_schedule": {
+        "name": "Calendrier suivant",
+        "state_attributes": {
+          "next_temperature": {
+            "name": "Température suivante"
+          },
+          "is_heating_on": {
+            "name": "Chauffage sur"
+          },
+          "is_tomorrow": {
+            "name": "Demain"
+          },
+          "minutes_until": {
+            "name": "Minutes jusqu'à"
+          },
+          "zone_type": {
+            "name": "Type de zone"
+          }
+        }
+      },
+      "next_sched_temp": {
+        "name": "Next Sched Temp",
+        "state_attributes": {
+          "schedule_time": {
+            "name": "Horaire de travail"
+          },
+          "is_heating_on": {
+            "name": "Chauffage sur"
+          },
+          "current_temperature": {
+            "name": "Température actuelle"
+          },
+          "temperature_difference": {
+            "name": "Différence de température"
+          },
+          "zone_type": {
+            "name": "Type de zone"
+          }
+        }
+      },
+      "preheat_advisor": {
+        "name": "Conseiller en matière de prophylaxie",
+        "state_attributes": {
+          "current_temperature": {
+            "name": "Température actuelle"
+          },
+          "target_temperature": {
+            "name": "Température cible"
+          },
+          "target_time": {
+            "name": "Temps cible"
+          },
+          "duration_minutes": {
+            "name": "Durée (minutes)"
+          },
+          "heating_rate": {
+            "name": "Taux de chauffage"
+          },
+          "confidence": {
+            "name": "Confiance"
+          },
+          "summary": {
+            "name": "Résumé"
+          },
+          "zone_type": {
+            "name": "Type de zone"
+          },
+          "cooling_rate": {
+            "name": "Taux de refroidissement"
+          },
+          "predicted_crossover_time": {
+            "name": "Temps de croisement prévu"
+          },
+          "is_cooling_prediction": {
+            "name": "Prévision de refroidissement"
+          }
+        }
+      },
+      "comfort_target": {
+        "name": "Objectif confort",
+        "state_attributes": {
+          "current_temperature": {
+            "name": "Température actuelle"
+          },
+          "outdoor_temperature": {
+            "name": "Température extérieure"
+          },
+          "humidity": {
+            "name": "Humidité"
+          },
+          "comfort_model": {
+            "name": "Modèle de confort"
+          },
+          "deviation_from_comfort": {
+            "name": "Écart par rapport au confort"
+          },
+          "zone_type": {
+            "name": "Type de zone"
+          }
+        }
+      },
+      "thermal_inertia": {
+        "name": "Inertie thermique",
+        "state_attributes": {
+          "cycle_count": {
+            "name": "Nombre de cycles"
+          },
+          "completed_count": {
+            "name": "Comptage terminé"
+          },
+          "confidence_score": {
+            "name": "Note de confiance"
+          }
+        }
+      },
+      "heating_rate": {
+        "name": "Taux de chauffage",
+        "state_attributes": {
+          "cycle_count": {
+            "name": "Nombre de cycles"
+          },
+          "completed_count": {
+            "name": "Comptage terminé"
+          },
+          "confidence_score": {
+            "name": "Note de confiance"
+          }
+        }
+      },
+      "preheat_time": {
+        "name": "Temps de préchauffage",
+        "state_attributes": {
+          "current_temp": {
+            "name": "Température actuelle"
+          },
+          "target_temp": {
+            "name": "Température cible"
+          },
+          "cycle_count": {
+            "name": "Nombre de cycles"
+          },
+          "completed_count": {
+            "name": "Comptage terminé"
+          },
+          "confidence_score": {
+            "name": "Note de confiance"
+          }
+        }
+      },
+      "confidence": {
+        "name": "Confiance",
+        "state_attributes": {
+          "cycle_count": {
+            "name": "Nombre de cycles"
+          },
+          "completed_count": {
+            "name": "Comptage terminé"
+          },
+          "recommendation": {
+            "name": "Recommandation"
+          }
+        }
+      },
+      "heat_accel": {
+        "name": "Accélération de la chaleur"
+      },
+      "approach_factor": {
+        "name": "Facteur d'approche",
+        "state_attributes": {
+          "cycle_count": {
+            "name": "Nombre de cycles"
+          },
+          "completed_count": {
+            "name": "Comptage terminé"
+          }
+        }
+      },
+      "mold_risk": {
+        "name": "Risques liés aux moisissures",
+        "state": {
+          "critical": "Critique",
+          "high": "Haut",
+          "medium": "Moyen",
+          "low": "Faible"
+        },
+        "state_attributes": {
+          "room_temperature": {
+            "name": "Température ambiante"
+          },
+          "effective_temperature": {
+            "name": "Température effective"
+          },
+          "humidity": {
+            "name": "Humidité"
+          },
+          "dew_point": {
+            "name": "Point de rosée"
+          },
+          "margin": {
+            "name": "Marge"
+          },
+          "mold_risk_percentage": {
+            "name": "Risque de moisissure (%)"
+          },
+          "temperature_source": {
+            "name": "Source de température",
+            "state": {
+              "surface_estimation": "Estimation de la surface",
+              "room_average": "Moyenne de la chambre"
+            }
+          },
+          "outdoor_temperature": {
+            "name": "Température extérieure"
+          },
+          "surface_temperature": {
+            "name": "Température de surface"
+          },
+          "surface_temp_offset": {
+            "name": "Décalage de la température de surface"
+          },
+          "zone_type": {
+            "name": "Type de zone"
+          },
+          "recommendation": {
+            "name": "Recommandation"
+          }
+        }
+      },
+      "mold_risk_pct": {
+        "name": "Risque de contamination par les moisissures (%)",
+        "state_attributes": {
+          "room_temperature": {
+            "name": "Température ambiante"
+          },
+          "effective_temperature": {
+            "name": "Température effective"
+          },
+          "humidity": {
+            "name": "Humidité"
+          },
+          "dew_point": {
+            "name": "Point de rosée"
+          },
+          "temperature_source": {
+            "name": "Source de température"
+          },
+          "zone_type": {
+            "name": "Type de zone"
+          }
+        }
+      },
+      "condensation_risk": {
+        "name": "Condensation",
+        "state_attributes": {
+          "room_temperature": {
+            "name": "Température ambiante"
+          },
+          "humidity": {
+            "name": "Humidité"
+          },
+          "indoor_dew_point": {
+            "name": "Point de rosée intérieur"
+          },
+          "surface_temperature": {
+            "name": "Température de surface"
+          },
+          "outdoor_temperature": {
+            "name": "Température extérieure"
+          },
+          "margin": {
+            "name": "Marge"
+          },
+          "window_type": {
+            "name": "Type de fenêtre"
+          },
+          "u_value": {
+            "name": "Valeur U"
+          },
+          "zone_type": {
+            "name": "Type de zone"
+          },
+          "recommendation": {
+            "name": "Recommandation"
+          },
+          "outdoor_humidity": {
+            "name": "Humidité extérieure"
+          },
+          "outdoor_dew_point": {
+            "name": "Point de rosée extérieur"
+          },
+          "window_outer_surface_temp": {
+            "name": "Température de la surface extérieure de la fenêtre"
+          }
+        }
+      },
+      "surface_temp": {
+        "name": "Température de surface",
+        "state_attributes": {
+          "room_temperature": {
+            "name": "Température ambiante"
+          },
+          "outdoor_temperature": {
+            "name": "Température extérieure"
+          },
+          "window_type": {
+            "name": "Type de fenêtre"
+          },
+          "u_value": {
+            "name": "Valeur U"
+          },
+          "offset_applied": {
+            "name": "Décalage appliqué"
+          },
+          "calculation_method": {
+            "name": "Méthode de calcul"
+          },
+          "zone_type": {
+            "name": "Type de zone"
+          }
+        }
+      },
+      "dew_point": {
+        "name": "Point de rosée",
+        "state_attributes": {
+          "room_temperature": {
+            "name": "Température ambiante"
+          },
+          "humidity": {
+            "name": "Humidité"
+          },
+          "calculation_method": {
+            "name": "Méthode de calcul"
+          },
+          "zone_type": {
+            "name": "Type de zone"
+          }
+        }
+      },
+      "comfort_level": {
+        "name": "Niveau de confort",
+        "state_attributes": {
+          "temperature": {
+            "name": "Température"
+          },
+          "humidity": {
+            "name": "Humidité"
+          },
+          "outdoor_temperature": {
+            "name": "Température extérieure"
+          },
+          "comfort_target": {
+            "name": "Objectif de confort"
+          },
+          "comfort_model": {
+            "name": "Modèle de confort"
+          },
+          "dew_point": {
+            "name": "Point de rosée"
+          },
+          "zone_type": {
+            "name": "Type de zone"
+          },
+          "recommendation": {
+            "name": "Recommandation"
+          }
+        }
+      },
+      "boiler_wiring_state": {
+        "name": "État du câblage de la chaudière",
+        "state": {
+          "ready": "Prêt",
+          "installed": "Installé",
+          "not_installed": "Non installé",
+          "installing": "Installation en cours",
+          "failed": "Échec"
+        }
+      },
+      "boiler_output_temperature": {
+        "name": "Température de sortie de la chaudière"
+      },
+      "bridge_wiring_state": {
+        "name": "État du câblage du pont"
+      },
+      "bridge_boiler_output_temp": {
+        "name": "Température de sortie de la chaudière à pont"
+      },
+      "bridge_boiler_output_temp_time": {
+        "name": "Bridge Boiler Output Temperature Time"
+      },
+      "bridge_boiler_flow_temp": {
+        "name": "Température de départ de la chaudière de Bridge"
+      },
+      "bridge_boiler_flow_temp_time": {
+        "name": "Bridge Boiler Flow Temperature Time"
+      },
+      "bridge_boiler_max_output_temp": {
+        "name": "Température de sortie maximale de la chaudière Bridge"
+      },
+      "bridge_connected_state": {
+        "name": "Pont connecté"
+      },
+      "bridge_hot_water_present": {
+        "name": "Pont Eau Chaude Présente"
+      },
+      "bridge_device_type": {
+        "name": "Type de dispositif de pont"
+      },
+      "bridge_device_serial": {
+        "name": "Bridge Device Serial"
+      },
+      "bridge_therm_interface_type": {
+        "name": "Bridge Therm Type d'interface"
+      },
+      "bridge_device_connected": {
+        "name": "Dispositif de pont connecté"
+      },
+      "bridge_capabilities": {
+        "name": "Capacités des ponts"
+      },
+      "bridge_schema_version": {
+        "name": "Version du schéma Bridge"
+      },
+      "wc_target_flow_temp": {
+        "name": "Objectif de la compensation météorologique"
+      },
+      "wc_status": {
+        "name": "Situation de l'indemnisation en fonction des conditions météorologiques"
+      }
+    },
+    "select": {
+      "presence_mode": {
+        "name": "Mode présence",
+        "state": {
+          "auto": "Auto (Geofencing)",
+          "home": "Accueil",
+          "away": "L'éloignement"
+        },
+        "state_attributes": {
+          "presence": {
+            "name": "Présence actuelle"
+          },
+          "presence_locked": {
+            "name": "Présence verrouillée"
+          },
+          "automatic_geofencing": {
+            "name": "Géofencing automatique"
+          },
+          "api_calls_per_change": {
+            "name": "Appels à l'API par changement"
+          }
+        }
+      },
+      "overlay_mode": {
+        "name": "Mode superposition",
+        "state": {
+          "tado_mode": "Tado Défaut",
+          "next_time_block": "Prochain bloc horaire",
+          "manual": "Manuel"
+        },
+        "state_attributes": {
+          "description": {
+            "name": "Description"
+          },
+          "tado_mode_info": {
+            "name": "Tado Mode info"
+          },
+          "next_time_block_info": {
+            "name": "Next Time Block info"
+          },
+          "timer_info": {
+            "name": "Informations sur la minuterie"
+          },
+          "manual_info": {
+            "name": "Informations manuelles"
+          },
+          "api_calls_per_change": {
+            "name": "Appels à l'API par changement"
+          }
+        }
+      },
+      "timer_duration": {
+        "name": "Minuterie de superposition",
+        "state_attributes": {
+          "description": {
+            "name": "Description"
+          },
+          "unit": {
+            "name": "Unité"
+          },
+          "api_calls_per_change": {
+            "name": "Appels à l'API par changement"
+          }
+        }
+      }
+    },
+    "switch": {
+      "early_start": {
+        "name": "Démarrage rapide",
+        "state_attributes": {
+          "zone_id": {
+            "name": "ID de la zone"
+          },
+          "zone": {
+            "name": "Zone"
+          },
+          "description": {
+            "name": "Description"
+          }
+        }
+      },
+      "child_lock": {
+        "name": "Verrouillage pour enfants",
+        "state_attributes": {
+          "serial": {
+            "name": "En série"
+          },
+          "device_type": {
+            "name": "Type d'appareil"
+          },
+          "zone": {
+            "name": "Zone"
+          }
+        }
+      },
+      "test_mode": {
+        "name": "Mode test"
+      },
+      "quota_reserve": {
+        "name": "Réserve de quotas"
+      }
+    },
+    "water_heater": {
+      "hot_water": {
+        "state_attributes": {
+          "overlay_type": {
+            "name": "Type de superposition"
+          },
+          "zone_id": {
+            "name": "ID de la zone"
+          }
+        }
+      }
+    },
+    "number": {
+      "boiler_max_output_temperature": {
+        "name": "Température maximale de sortie de la chaudière"
+      }
+    }
+  },
+  "services": {
+    "set_climate_timer": {
+      "name": "Régler la minuterie climatique",
+      "description": "Réglez le chauffage/refroidissement à l'aide d'une minuterie qui se termine automatiquement après la durée spécifiée ou jusqu'au prochain bloc de programmation. Compatible avec l'intégration officielle de Tado.",
+      "fields": {
+        "temperature": {
+          "name": "Température",
+          "description": "Température cible en degrés Celsius."
+        },
+        "time_period": {
+          "name": "Période de temps",
+          "description": "Durée avant le retour à l'horaire (format HH:MM:SS, par exemple \"01:30:00\" pour 90 minutes). Non requis lors de l'utilisation du mode superposition."
+        },
+        "overlay": {
+          "name": "Type de recouvrement",
+          "description": "Quand mettre fin à la dérogation. Utilisez 'next_time_block' pour terminer au prochain changement d'horaire, ou 'manual' pour une durée indéterminée. Lorsqu'il est défini, le paramètre time_period n'est pas nécessaire."
+        }
+      }
+    },
+    "set_water_heater_timer": {
+      "name": "Régler la minuterie du chauffe-eau",
+      "description": "L'eau chaude est activée grâce à une minuterie et à un réglage optionnel de la température.",
+      "fields": {
+        "time_period": {
+          "name": "Période de temps",
+          "description": "Durée avant l'extinction (format HH:MM:SS, par exemple \"01:30:00\" pour 90 minutes)."
+        },
+        "temperature": {
+          "name": "Température",
+          "description": "Température cible en degrés Celsius (en option, pour les systèmes de chauffe-eau solaires)."
+        }
+      }
+    },
+    "resume_schedule": {
+      "name": "Calendrier des CV",
+      "description": "Effacez toute dérogation manuelle et revenez à la programmation automatique."
+    },
+    "set_climate_temperature_offset": {
+      "name": "Régler le décalage de la température climatique",
+      "description": "Définir le décalage de température (étalonnage) pour un dispositif climatique Tado. Compatible avec l'intégration officielle de Tado.",
+      "fields": {
+        "entity_id": {
+          "name": "Entité",
+          "description": "L'entité climatique pour laquelle la compensation doit être mise en place."
+        },
+        "offset": {
+          "name": "Décalage",
+          "description": "Décalage de la température en Celsius (-10 à +10)."
+        }
+      }
+    },
+    "add_meter_reading": {
+      "name": "Ajouter le relevé de compteur",
+      "description": "Ajout d'un relevé de compteur d'énergie pour Energy IQ. Prise en charge de la spécification de la date pour les relevés historiques (amélioration de Tado CE).",
+      "fields": {
+        "reading": {
+          "name": "Lecture",
+          "description": "Valeur du relevé de compteur en m³ ou en kWh (sans décimales)."
+        },
+        "date": {
+          "name": "Date",
+          "description": "La date de la lecture (AAAA-MM-JJ). La valeur par défaut est aujourd'hui si elle n'est pas spécifiée. Cela permet d'ajouter des relevés historiques."
+        }
+      }
+    },
+    "identify_device": {
+      "name": "Identifier le dispositif",
+      "description": "Faire clignoter la LED d'un appareil Tado pour l'identifier.",
+      "fields": {
+        "device_serial": {
+          "name": "Appareil en série",
+          "description": "Le numéro de série abrégé de l'appareil (par exemple, VA1234567890)."
+        }
+      }
+    },
+    "set_away_configuration": {
+      "name": "Configuration de la mise à l'écart",
+      "description": "Configurez la température à utiliser lorsque tout le monde n'est pas à la maison.",
+      "fields": {
+        "entity_id": {
+          "name": "Entité",
+          "description": "L'entité climatique pour laquelle les paramètres d'éloignement doivent être configurés."
+        },
+        "mode": {
+          "name": "Mode",
+          "description": "Mode Absent - \"auto\" pour le réglage intelligent de Tado, \"manuel\" pour une température fixe, \"off\" pour éteindre le chauffage."
+        },
+        "temperature": {
+          "name": "Température",
+          "description": "Température cible en cas d'absence (uniquement pour le mode manuel)."
+        },
+        "comfort_level": {
+          "name": "Niveau de confort",
+          "description": "Niveau de confort pour le mode automatique (0=Eco, 50=Équilibre, 100=Confort)."
+        }
+      }
+    },
+    "get_temperature_offset": {
+      "name": "Obtenir le décalage de température",
+      "description": "Récupère le décalage de température actuel (calibration) pour un appareil climatique Tado. Renvoie la valeur du décalage pour utilisation dans les automatismes.",
+      "fields": {
+        "entity_id": {
+          "name": "Entité",
+          "description": "L'entité climatique pour laquelle il faut obtenir une compensation."
+        }
+      }
+    },
+    "activate_open_window": {
+      "name": "Activer la fenêtre ouverte (Auto-Assist)",
+      "description": "Confirme une fenêtre ouverte que Tado a déjà détectée — comme appuyer sur l'icône dans l'application Tado. Ne fonctionne que lorsque la détection intégrée de Tado a signalé un événement de fenêtre ouverte. Pour déclencher depuis des capteurs externes, utilisez 'Définir le mode fenêtre ouverte'."
+    },
+    "deactivate_open_window": {
+      "name": "Désactiver la fenêtre ouverte",
+      "description": "Désactive le mode fenêtre ouverte sur une zone climatique, rétablissant le chauffage/refroidissement normal. Fonctionne pour les modes détectés par Tado et déclenchés manuellement."
+    },
+    "set_open_window_mode": {
+      "name": "Définir le mode fenêtre ouverte",
+      "description": "Déclenche le mode fenêtre ouverte depuis des capteurs externes (Zigbee, Z-Wave, etc.). Règle la zone à la température de protection antigel avec minuterie — aucune détection Tado requise. La durée par défaut est le timeout de détection de fenêtre de la zone, ou 15 minutes.",
+      "fields": {
+        "duration": {
+          "name": "Durée",
+          "description": "Durée du mode fenêtre ouverte, en secondes (60–3600). Par défaut, le timeout de détection de fenêtre Tado de la zone."
+        },
+        "capture_state": {
+          "name": "État de capture",
+          "description": "Capture l'état actuel de la zone avant d'appliquer le mode fenêtre ouverte, ce qui permet de le restaurer ultérieurement via le service Restore Previous State (Restaurer l'état précédent). Activé par défaut."
+        }
+      }
+    },
+    "restore_previous_state": {
+      "name": "Rétablir l'état antérieur",
+      "description": "Rétablir une zone dans l'état où elle se trouvait avant la dernière opération de superposition. S'il n'y a pas d'état capturé, il y a reprise de la programmation."
+    }
+  },
+  "selector": {
+    "smart_comfort_mode": {
+      "options": {
+        "none": "Aucun (désactivé)",
+        "light": "Lumière",
+        "moderate": "Modéré",
+        "aggressive": "Agressif"
+      }
+    },
+    "mold_risk_window_type": {
+      "options": {
+        "single_pane": "Volet unique (U=5.0)",
+        "double_pane": "Double vitrage (U=2,7)",
+        "triple_pane": "Triple vitrage (U=1.0)",
+        "passive_house": "Maison passive (U=0,8)"
+      }
+    },
+    "window_predicted_mode": {
+      "options": {
+        "active": "Actif (dépendant du CVC)",
+        "passive": "Passif (indépendant du CVC)",
+        "auto": "Auto (recommandé)"
+      }
+    },
+    "adaptive_preheat_mode": {
+      "options": {
+        "off": "Arrêt",
+        "active": "Actif",
+        "passive": "Passif"
+      }
+    },
+    "wc_heating_system_preset": {
+      "options": {
+        "radiators_standard": "Radiateurs (standard)",
+        "radiators_low_temp": "Radiateurs (basse température)",
+        "underfloor": "Chauffage par le sol",
+        "custom": "Sur mesure"
+      }
+    },
+    "wc_smoothing_method": {
+      "options": {
+        "none": "Aucun (en temps réel)",
+        "ema": "EMA (Moyenne mobile exponentielle)",
+        "rolling_average": "Moyenne mobile"
+      }
+    },
+    "reset_scope": {
+      "options": {
+        "everything": "Tout réinitialiser",
+        "smart_comfort": "Confort intelligent",
+        "thermal_analytics": "Analyse thermique",
+        "weather_compensation": "Compensation météorologique",
+        "bridge": "Pont Internet",
+        "mobile_tracking": "Suivi des appareils mobiles",
+        "polling_api": "Interrogation et API"
+      }
+    }
+  },
+  "exceptions": {
+    "entity_not_found": {
+      "message": "L'entité {entité_id} n'a pas été trouvée dans le registre des entités"
+    },
+    "entity_not_tado_ce": {
+      "message": "L'entité {entity_id} n'est pas une entité Tado CE (platform={platform})"
+    },
+    "entity_no_config_entry": {
+      "message": "L'entité {entity_id} n'a pas d'association d'entrée de configuration"
+    },
+    "entry_not_loaded": {
+      "message": "Aucune entrée Tado CE chargée pour {entity_id} (config_entry_id={config_entry_id})"
+    },
+    "device_entry_not_loaded": {
+      "message": "Dispositif {device_serial} trouvé mais son entrée de configuration n'est pas chargée"
+    },
+    "device_not_found": {
+      "message": "Le périphérique {device_serial} n'a pas été trouvé dans le registre des périphériques. Vérifier que le numéro de série est correct."
+    },
+    "no_entries_loaded": {
+      "message": "Aucune entrée Tado CE n'est chargée"
+    },
+    "multiple_entries": {
+      "message": "Plusieurs foyers Tado configurés ({home_ids}). Veuillez utiliser un service qui cible une entité spécifique afin d'acheminer l'appel vers le bon foyer."
+    },
+    "api_quota_critically_low": {
+      "message": "Le quota de l'API est critiquement bas - action bloquée pour préserver la réserve d'amorçage. Veuillez attendre la réinitialisation de l'API."
+    },
+    "water_heater_not_found": {
+      "message": "L'entité chauffe-eau n'a pas été trouvée : {entity_id}"
+    },
+    "timer_set_failed": {
+      "message": "Échec de la mise en place de la minuterie {durée}min pour {nom_de_zone} : {erreur}"
+    },
+    "bridge_auth_failed": {
+      "message": "Code de série ou d'authentification du pont non valide"
+    }
+  },
+  "issues": {
+    "auth_token_expired": {
+      "title": "Tado CE : Authentification expirée",
+      "description": "Le jeton de rafraîchissement pour le foyer **{home_id}** a expiré. Veuillez reconfigurer l'intégration pour vous réauthentifier.\n\nAllez dans **Réglages → Appareils et services → Tado CE → Reconfigurer**."
+    },
+    "deprecated_yaml_config": {
+      "title": "Tado CE : Clé de configuration obsolète",
+      "description": "La clé de configuration **{key}** est obsolète et sera supprimée dans une prochaine version. Veuillez mettre à jour votre configuration."
+    }
+  },
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configuration de Tado CE",
+        "description": "Choisissez comment vous authentifier auprès de Tado.",
+        "menu_options": {
+          "device_auth": "Autorisation de l'appareil (recommandé)",
+          "manual_token": "Jeton manuel (avancé)"
+        }
+      },
+      "device_auth": {
+        "title": "Autorisation de l'appareil",
+        "description": "Cliquez sur Soumettre pour lancer la procédure d'autorisation."
+      },
+      "manual_token": {
+        "title": "Jeton manuel",
+        "description": "Si l'autorisation de l'appareil ne fonctionne pas (par exemple, problèmes de serveur Tado), vous pouvez coller un jeton de rafraîchissement manuellement. Ouvrez {tado_web_app} dans votre navigateur, connectez-vous, ouvrez Developer Tools (F12) → Application → Local Storage → {tado_web_app_url} → tado_token, et copiez la valeur refresh_token.",
+        "data": {
+          "refresh_token": "Jeton de rafraîchissement"
+        },
+        "data_description": {
+          "refresh_token": "Collez la valeur refresh_token de l'application web de Tado."
+        }
+      },
+      "authorize": {
+        "title": "Autoriser Tado",
+        "description": "**Étape 1:** Cliquez sur le lien ci-dessous pour vous connecter à Tado :\n\n**[Cliquez ici pour autoriser]({url})**\n\n**Étape 2:** Connectez-vous à votre compte Tado et autorisez la connexion.\n\n**Étape 3:** Après avoir vu \"Successfully connected\" (Connexion réussie) sur le site web de Tado, cliquez sur \"Submit\" (Soumettre) ci-dessous."
+      },
+      "select_home": {
+        "title": "Sélectionner la maison",
+        "description": "Plusieurs logements Tado trouvés. Veuillez sélectionner le logement à utiliser.",
+        "data": {
+          "home": "Accueil"
+        },
+        "data_description": {
+          "home": "La maison Tado à laquelle connecter cette intégration"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Ré-authentifier Tado CE",
+        "description": "Votre authentification Tado a expiré. Cliquez sur Soumettre pour lancer la réauthentification."
+      },
+      "reauth_authorize": {
+        "title": "Autoriser Tado",
+        "description": "**Étape 1:** Cliquez sur le lien ci-dessous pour vous connecter à Tado :\n\n**[Cliquez ici pour autoriser]({url})**\n\n**Étape 2:** Connectez-vous à votre compte Tado et autorisez la connexion.\n\n**Étape 3:** Après avoir vu \"Successfully connected\" (Connexion réussie) sur le site web de Tado, cliquez sur \"Submit\" (Soumettre) ci-dessous."
+      },
+      "reconfigure": {
+        "title": "Ré-authentifier Tado CE",
+        "description": "Cliquez sur Soumettre pour lancer la réauthentification. Cela actualisera vos informations d'identification Tado sans supprimer l'intégration."
+      },
+      "reconfigure_authorize": {
+        "title": "Autoriser Tado",
+        "description": "**Étape 1:** Cliquez sur le lien ci-dessous pour vous connecter à Tado :\n\n**[Cliquez ici pour autoriser]({url})**\n\n**Étape 2:** Connectez-vous à votre compte Tado et autorisez la connexion.\n\n**Étape 3:** Après avoir vu \"Successfully connected\" (Connexion réussie) sur le site web de Tado, cliquez sur \"Submit\" (Soumettre) ci-dessous."
+      },
+      "reconfigure_select_home": {
+        "title": "Sélectionner la maison",
+        "description": "Votre ancien logement n'est plus disponible. Veuillez sélectionner un nouveau logement.",
+        "data": {
+          "home": "Accueil"
+        }
+      }
+    },
+    "progress": {
+      "poll": "En attente d'autorisation... Veuillez compléter le login dans votre navigateur."
+    },
+    "abort": {
+      "already_configured": "Tado CE est déjà configuré",
+      "timeout": "L'autorisation a expiré. Veuillez réessayer.",
+      "authorization_failed": "L'autorisation a échoué. Veuillez réessayer.",
+      "no_homes": "Aucun foyer Tado n'a été trouvé pour ce compte.",
+      "reauth_successful": "Réauthentification réussie ! Vos informations d'identification ont été mises à jour.",
+      "reconfigure_successful": "Réauthentification réussie ! Vos nouvelles informations d'identification ont été enregistrées."
+    },
+    "error": {
+      "cannot_connect": "Échec de la connexion à Tado. Veuillez vérifier votre connexion internet.",
+      "invalid_token": "Jeton de rafraîchissement invalide ou expiré. Veuillez vérifier le jeton et réessayer.",
+      "auth_pending": "L'autorisation n'est pas encore terminée. Veuillez d'abord procéder à l'autorisation sur le site web de Tado, puis cliquez à nouveau sur Soumettre.",
+      "authorization_failed": "L'autorisation a échoué. Veuillez réessayer depuis le début."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Options Tado CE",
+        "description": "Personnalisez votre expérience Tado - construit par la communauté, pour la communauté.",
+        "menu_options": {
+          "zone_config": "Configuration des zones",
+          "general_settings": "Paramètres généraux",
+          "advanced_settings": "Paramètres avancés",
+          "reset_to_defaults": "Réinitialisation aux valeurs par défaut"
+        }
+      },
+      "zone_config": {
+        "title": "Configuration des zones",
+        "description": "Sélectionnez une zone à configurer.",
+        "data": {
+          "zone_id": "Zone"
+        }
+      },
+      "zone_sensor_config": {
+        "title": "Configuration de la zone - {nom_de_la_zone}",
+        "description": "Configurer les paramètres par zone. Les sections peuvent être développées pour révéler plus d'options.",
+        "sections": {
+          "heating_section": {
+            "name": "Chauffage",
+            "data": {
+              "heating_type": "Type d'émetteur de chaleur",
+              "ufh_buffer_minutes": "Tampon HNF (minutes)",
+              "adaptive_preheat": "Mode de préchauffage adaptatif"
+            },
+            "data_description": {
+              "heating_type": "Radiateur ou chauffage par le sol",
+              "ufh_buffer_minutes": "Minutes supplémentaires pour l'échauffement de l'UFH (0-60)",
+              "adaptive_preheat": "Éteint : désactivé. Actif : démarrage automatique du chauffage et capture de l'état pour restauration. Passif : démarrage automatique uniquement lorsqu'aucun recouvrement n'est actif."
+            }
+          },
+          "comfort_section": {
+            "name": "Confort",
+            "data": {
+              "smart_comfort_mode": "Mode confort intelligent",
+              "window_type": "Type de fenêtre",
+              "window_predicted_mode": "Mode de détection des fenêtres",
+              "window_predicted_sensitivity": "Sensibilité de la détection de la fenêtre"
+            },
+            "data_description": {
+              "smart_comfort_mode": "Ajuster la température cible en fonction des conditions extérieures",
+              "window_type": "Type de fenêtre pour le calcul du risque de moisissure",
+              "window_predicted_mode": "Actif : détection uniquement lorsque le système de chauffage, de ventilation et de climatisation fonctionne. Passif : la détection se fait quel que soit l'état du système de chauffage, de ventilation et de climatisation. Auto : utilise le mode actif lorsque le chauffage, la ventilation et la climatisation sont en marche, et le mode passif lorsqu'ils sont éteints.",
+              "window_predicted_sensitivity": "Sensibilité de la détection de l'ouverture prédite d'une fenêtre"
+            }
+          },
+          "sensor_section": {
+            "name": "Capteurs externes",
+            "data": {
+              "use_external_temp": "Utiliser un capteur de température externe",
+              "external_temp_sensor": "Capteur de température externe",
+              "use_external_humidity": "Utiliser un capteur d'humidité externe",
+              "external_humidity_sensor": "Capteur d'humidité externe"
+            },
+            "data_description": {
+              "use_external_temp": "Désactiver pour utiliser le capteur de température intégré de Tado",
+              "external_temp_sensor": "Sélectionnez une sonde de température pour remplacer la lecture de Tado",
+              "use_external_humidity": "Désactiver pour utiliser le capteur d'humidité intégré de Tado",
+              "external_humidity_sensor": "Sélectionnez un capteur d'humidité pour remplacer la lecture de Tado"
+            }
+          },
+          "overlay_section": {
+            "name": "Superposition",
+            "data": {
+              "overlay_mode": "Mode superposition",
+              "timer_duration": "Durée de la minuterie (minutes)"
+            },
+            "data_description": {
+              "overlay_mode": "Que se passe-t-il lorsque vous modifiez manuellement la température ?",
+              "timer_duration": "Durée du mode de superposition de la minuterie (15-180 min)"
+            }
+          },
+          "temperature_section": {
+            "name": "Température",
+            "data": {
+              "min_temp": "Température minimale",
+              "max_temp": "Température maximale",
+              "temp_offset": "Décalage de température",
+              "surface_temp_offset": "Décalage de la température de surface"
+            },
+            "data_description": {
+              "min_temp": "Température cible minimale autorisée (5-25°C)",
+              "max_temp": "Température cible maximale autorisée (15-30°C)",
+              "temp_offset": "Décalage appliqué à la température de consigne (-3 à +3°C)",
+              "surface_temp_offset": "Décalage pour le calcul de la température de surface du risque de moisissure (-5 à +5°C)"
+            }
+          }
+        },
+        "data": {
+          "external_temp_sensor": "Capteur de température externe",
+          "external_humidity_sensor": "Capteur d'humidité externe"
+        },
+        "data_description": {
+          "external_temp_sensor": "Remplacer la lecture de la température intégrée de Tado par une sonde externe",
+          "external_humidity_sensor": "Remplacer la mesure d'humidité intégrée de Tado par un capteur externe"
+        }
+      },
+      "general_settings": {
+        "description": "Permet d'activer ou de désactiver des fonctions. Tous les paramètres utilisent les valeurs par défaut recommandées. Utilisez les paramètres avancés pour affiner les réglages.",
+        "sections": {
+          "smart_features": {
+            "name": "Caractéristiques intelligentes",
+            "data": {
+              "smart_comfort_enabled": "Confort intelligent",
+              "thermal_analytics_enabled": "Analyse thermique",
+              "adaptive_preheat_enabled": "Préchauffage adaptatif",
+              "schedule_calendar_enabled": "Calendrier"
+            },
+            "data_description": {
+              "smart_comfort_enabled": "Capteurs de confort, de risque de moisissure, de condensation et de point de rosée pour chaque zone",
+              "thermal_analytics_enabled": "Suivez la vitesse à laquelle vos pièces se réchauffent et les performances de votre système au fil du temps.",
+              "adaptive_preheat_enabled": "Démarrage automatique du chauffage à l'avance pour que la pièce soit chaude au moment où l'horaire se met en place.",
+              "schedule_calendar_enabled": "Les programmes de chauffage de Tado sont affichés dans HA sous forme d'entrées de calendrier."
+            }
+          },
+          "connections": {
+            "name": "Connexions",
+            "data": {
+              "bridge_enabled": "Pont Internet",
+              "wc_enabled": "Compensation météorologique",
+              "homekit_enabled": "Contrôle local (HomeKit)"
+            },
+            "data_description": {
+              "bridge_enabled": "Connexion à votre pont Internet Tado pour les relevés de température de départ de la chaudière",
+              "wc_enabled": "Ajuster automatiquement la température de départ de votre chaudière en fonction des conditions météorologiques extérieures",
+              "homekit_enabled": "Contrôler le chauffage localement via HomeKit - fonctionne même lorsque le cloud de Tado est en panne."
+            }
+          },
+          "data_sources": {
+            "name": "Sources de données",
+            "data": {
+              "weather_enabled": "Données météorologiques",
+              "home_state_sync_enabled": "Synchronisation de l'État de résidence",
+              "mobile_devices_enabled": "Suivi des appareils mobiles",
+              "offset_enabled": "Décalages de température"
+            },
+            "data_description": {
+              "weather_enabled": "Température extérieure et intensité solaire de Tado (+1 appel API par sondage)",
+              "home_state_sync_enabled": "Synchroniser la présence globale de votre maison (Home/Away) à chaque sondage (+1 appel API par sondage)",
+              "mobile_devices_enabled": "Suivi de l'emplacement de chaque téléphone pour une présence par appareil. Mises à jour au redémarrage de l'HA uniquement - activer la synchronisation fréquente dans les paramètres avancés pour des mises à jour continues (+1 appel à l'API par sondage lorsque la fréquence est élevée).",
+              "offset_enabled": "Afficher le décalage d'étalonnage de la température sur les entités climatiques (+1 appel API par appareil au redémarrage)"
+            }
+          },
+          "per_zone": {
+            "name": "Par zone",
+            "data": {
+              "zone_configuration_enabled": "Configuration par zone"
+            },
+            "data_description": {
+              "zone_configuration_enabled": "Personnalisation des capteurs, des superpositions et du chauffage par zone"
+            }
+          }
+        },
+        "title": "Paramètres généraux"
+      },
+      "advanced_settings": {
+        "description": "Ajustez les fonctions activées. Pour activer ou désactiver des fonctionnalités, accédez aux Paramètres généraux.",
+        "title": "Paramètres avancés",
+        "sections": {
+          "smart_comfort": {
+            "name": "Confort intelligent",
+            "data": {
+              "use_outdoor_temp_entity": "Utiliser l'entité température extérieure",
+              "outdoor_temp_entity": "Entité température extérieure",
+              "hot_water_timer_duration": "Minuterie eau chaude (minutes)",
+              "smart_comfort_mode": "Mode confort intelligent",
+              "use_feels_like": "Utiliser la température ressentie",
+              "mold_risk_window_type": "Type de fenêtre",
+              "smart_comfort_history_days": "Historique des températures (jours)",
+              "heating_cycle_history_days": "Historique de l'analyse thermique (jours)",
+              "heating_cycle_min_cycles": "Cycles minimaux pour l'analyse",
+              "heating_cycle_inertia_threshold": "Seuil de détection de l'inertie"
+            },
+            "data_description": {
+              "use_outdoor_temp_entity": "Désactiver les fonctions qui ont besoin de la température extérieure (évaluation du confort, risque de moisissure)",
+              "outdoor_temp_entity": "Capteur fournissant la température extérieure (par exemple, weather.home ou un capteur local)",
+              "hot_water_timer_duration": "Durée pendant laquelle l'eau chaude reste allumée lorsque vous l'allumez manuellement (5-1440 min)",
+              "smart_comfort_mode": "L'agressivité avec laquelle il faut ajuster la température cible en fonction des conditions extérieures",
+              "use_feels_like": "Tenir compte du refroidissement éolien et de l'humidité au lieu de la température brute",
+              "mold_risk_window_type": "Votre type de fenêtre - affecte la façon dont la température de la surface est estimée pour le risque de moisissure.",
+              "smart_comfort_history_days": "Nombre de jours de données de température à utiliser pour l'estimation des taux de chauffage (1-30)",
+              "heating_cycle_history_days": "Nombre de jours de données sur le cycle de chauffage à conserver (1-30)",
+              "heating_cycle_min_cycles": "Attendre ce nombre de cycles de chauffage terminés avant d'afficher les analyses (1-10).",
+              "heating_cycle_inertia_threshold": "Les variations de température inférieures à cette valeur sont considérées comme \"réglées\" après l'arrêt du chauffage (0,05-0,5°C)."
+            }
+          },
+          "thermal_analytics": {
+            "name": "Analyse thermique",
+            "data": {
+              "thermal_analytics_zones": "Zones d'analyse thermique",
+              "heating_cycle_history_days": "Historique du cycle de chauffage (jours)",
+              "heating_cycle_min_cycles": "Cycles de chauffage minimum",
+              "heating_cycle_inertia_threshold": "Seuil d'inertie (°C)"
+            },
+            "data_description": {
+              "thermal_analytics_zones": "Choisir les zones qui affichent les capteurs d'analyse thermique (laisser vide pour toutes les zones)",
+              "heating_cycle_history_days": "Nombre de jours de données sur le cycle de chauffage à conserver (1-30)",
+              "heating_cycle_min_cycles": "Attendre ce nombre de cycles terminés avant d'afficher les résultats (1-10)",
+              "heating_cycle_inertia_threshold": "Les variations de température inférieures à cette valeur sont considérées comme \"réglées\" après l'arrêt du chauffage (0,05-0,5°C)."
+            }
+          },
+          "flow_temperature_control": {
+            "name": "Compensation météorologique",
+            "data": {
+              "bridge_enabled": "Activer le pont Internet",
+              "bridge_serial": "Numéro de série du pont",
+              "bridge_auth_key": "Code d'authentification du pont",
+              "wc_enabled": "Activer la compensation météorologique",
+              "wc_heating_system_preset": "Type de système de chauffage",
+              "wc_slope": "Pente de la courbe de chauffe",
+              "wc_design_outdoor_temp": "Température extérieure de référence",
+              "wc_max_flow_temp": "Température maximale d'écoulement",
+              "wc_min_flow_temp": "Température minimale d'écoulement",
+              "wc_shutoff_temp": "Température d'arrêt du chauffage",
+              "wc_smoothing_method": "Méthode de lissage de la température",
+              "wc_smoothing_window": "Fenêtre de lissage (minutes)",
+              "wc_room_compensation_enabled": "Activer la compensation de la pièce",
+              "wc_room_compensation_factor": "Facteur de compensation de la pièce",
+              "wc_step_size": "Température d'écoulement Taille de l'échelon",
+              "wc_hysteresis": "Modifier l'hystérésis"
+            },
+            "data_description": {
+              "bridge_enabled": "Connectez-vous à votre pont Internet Tado pour obtenir des données en temps réel sur la chaudière. Nécessite un pont v3+. La désactivation supprime les informations d'identification et les capteurs du pont.",
+              "bridge_serial": "Imprimé au bas de votre bridge (commence par IB, par exemple IB0123456789)",
+              "bridge_auth_key": "Code à 4 chiffres figurant sur l'autocollant apposé sur votre pont (à garder confidentiel)",
+              "wc_slope": "Augmentation de la température de départ à mesure que le temps se refroidit à l'extérieur. Plus élevé = chauffage plus agressif (0,3-3,0)",
+              "wc_design_outdoor_temp": "La température la plus froide à laquelle vous vous attendez dans votre région (-30 à 10°C)",
+              "wc_max_flow_temp": "Température de départ la plus élevée que votre chaudière devrait atteindre à la température extérieure la plus froide (25-80°C).",
+              "wc_min_flow_temp": "Température de départ la plus basse - également utilisée lorsque le chauffage s'arrête (25-60°C)",
+              "wc_shutoff_temp": "Arrêt du chauffage lorsque la température extérieure dépasse ce seuil (5-30°C)",
+              "wc_smoothing_method": "Comment la moyenne des relevés de température extérieure est calculée pour éviter les changements soudains ?",
+              "wc_smoothing_window": "Durée de la moyenne de la température extérieure (15-1440 min)",
+              "wc_room_compensation_factor": "De combien ajuster la température de départ lorsqu'une pièce est plus froide ou plus chaude que sa cible (1.0-5.0)",
+              "wc_step_size": "Arrondir la température de départ à cette taille de pas - des pas plus grands signifient moins de réglages de la chaudière (0,5-2,0°C).",
+              "wc_hysteresis": "N'envoyer une nouvelle température de départ que si elle diffère de la précédente d'au moins cette valeur (0,5-3,0 °C)."
+            }
+          },
+          "mobile_tracking": {
+            "name": "Suivi des appareils mobiles",
+            "data": {
+              "mobile_devices_frequent_sync": "Synchronisation fréquente"
+            },
+            "data_description": {
+              "mobile_devices_frequent_sync": "Mettre à jour l'emplacement des appareils à chaque cycle d'interrogation. Sans cela, les emplacements ne sont actualisés que lorsque l'HA redémarre (+1 appel à l'API par interrogation)."
+            }
+          },
+          "polling_api": {
+            "name": "Interrogation et API",
+            "data": {
+              "day_start_hour": "Jour Début Heure",
+              "night_start_hour": "Heure de début de nuit",
+              "custom_day_interval": "Intervalle de jour personnalisé (minutes)",
+              "custom_night_interval": "Intervalle de nuit personnalisé (minutes)",
+              "refresh_debounce_seconds": "Délai de rafraîchissement (secondes)",
+              "api_history_retention_days": "Conservation de l'historique de l'API (jours)",
+              "quota_reserve_enabled": "Protection de la réserve de quotas",
+              "smart_actions_debounce_seconds": "Délai du curseur de température",
+              "device_sync_delay_seconds": "Délai de synchronisation des appareils"
+            },
+            "data_description": {
+              "day_start_hour": "Lorsque l'interrogation de jour commence (0-23, par défaut : 7)",
+              "night_start_hour": "Quand les sondages nocturnes commencent - les sondages sont moins fréquents la nuit (0-23, valeur par défaut : 23)",
+              "custom_day_interval": "Remplacer l'interrogation automatique de jour par un intervalle fixe (1-1440 min, laisser vide pour automatique)",
+              "custom_night_interval": "Remplacer l'interrogation nocturne automatique par un intervalle fixe (1-1440 min, laisser vide pour automatique)",
+              "refresh_debounce_seconds": "Attendre ce temps après un changement avant de récupérer de nouvelles données de Tado (1-60s)",
+              "api_history_retention_days": "Nombre de jours de l'historique des appels API à conserver pour le graphique d'utilisation (0 = pour toujours)",
+              "quota_reserve_enabled": "Interrompt automatiquement l'interrogation lorsque votre quota d'API est faible. Ne le désactivez que si vous savez ce que vous faites.",
+              "smart_actions_debounce_seconds": "Lorsque vous déplacez le curseur de température, attendez ce temps avant d'envoyer la valeur finale (0 = envoi immédiat).",
+              "device_sync_delay_seconds": "Pause entre les opérations séquentielles de l'appareil, telles que le verrouillage de l'enfant ou les changements d'offset"
+            }
+          }
+        }
+      },
+      "bridge_setup": {
+        "description": "Saisissez vos informations d'identification pour le pont Internet Tado. Vous trouverez le numéro de série et le code d'authentification au dos de votre pont.",
+        "title": "Configuration du pont Internet",
+        "data": {
+          "bridge_serial": "Numéro de série",
+          "bridge_auth_key": "Code d'authentification"
+        },
+        "data_description": {
+          "bridge_serial": "Commence par IB (e.g. IB0123456789)",
+          "bridge_auth_key": "Code à 8 chiffres au dos du pont"
+        }
+      },
+      "wc_bridge_prompt": {
+        "description": "La compensation météorologique fonctionne mieux avec le pont Internet pour les données de température de départ en temps réel.",
+        "title": "Compensation météorologique",
+        "data": {
+          "also_enable_bridge": "Activez également le pont Internet"
+        },
+        "data_description": {
+          "also_enable_bridge": "Configurer les informations d'identification du pont à l'étape suivante"
+        }
+      },
+      "reset_to_defaults": {
+        "description": "Choisissez ce qui doit être réinitialisé. La réinitialisation par catégorie ne réinitialise que les paramètres de réglage - la fonction reste activée.",
+        "title": "Réinitialisation aux valeurs par défaut",
+        "data": {
+          "reset_scope": "Réinitialiser le champ d'application"
+        }
+      },
+      "reset_confirm": {
+        "description": "Vous en êtes sûr ? Cela ne peut pas être annulé.",
+        "title": "Confirmer la réinitialisation"
+      }
+    },
+    "abort": {
+      "no_zones": "Aucune zone n'est disponible pour la configuration."
+    },
+    "error": {
+      "interval_out_of_range": "L'intervalle d'interrogation doit être compris entre 1 et 1440 minutes.",
+      "invalid_number": "Veuillez saisir un numéro valide",
+      "bridge_auth_failed": "Code de série ou d'authentification du pont invalide - veuillez vérifier et réessayer",
+      "wc_min_exceeds_max": "La température minimale de départ ne peut pas dépasser la température maximale de départ",
+      "bridge_serial_invalid": "Seules les passerelles Internet v3+ (série commençant par IB) prennent en charge l'API locale. Votre numéro de série suggère un pont v2 (préfixe GW) qui n'a pas d'API locale. La compensation météorologique peut toujours être utilisée sans passerelle via les données du nuage."
+    }
+  }
+}
