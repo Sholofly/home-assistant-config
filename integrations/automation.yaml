@@ -1,4 +1,5 @@
 ################################################
 ## Integrations / Automations
+## Verwijst naar automations.yaml met alle automatiseringsregels
 ################################################
 automation: !include ../automations.yaml

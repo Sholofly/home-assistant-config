@@ -1,4 +1,5 @@
 ################################################
 ## Integrations / Cameras
+## Beveiligingscamera's binnen en buiten
 ################################################
 camera: !include_dir_list ../entities/cameras

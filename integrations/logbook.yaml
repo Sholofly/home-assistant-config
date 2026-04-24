@@ -1,5 +1,6 @@
 ################################################
 ## Integrations / Logbook
+## Filtert overbodige entries uit het logboek
 ################################################
 logbook:
   exclude:

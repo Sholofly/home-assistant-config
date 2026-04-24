@@ -1,4 +1,5 @@
 ################################################
 ## Integrations / Zones
+## Geografische zones zoals thuis, werk en school
 ################################################
 zone: !include_dir_list ../entities/zones

@@ -1,5 +1,6 @@
 ################################################
 ## Integrations / Lovelace
+## Dashboard instellingen, storage-modus actief
 ################################################
 lovelace:
   mode: storage

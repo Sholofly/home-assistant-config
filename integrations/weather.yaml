@@ -1,4 +1,5 @@
 ################################################
 ## Integrations / Weather
+## Weersvoorspelling via Buienradar
 ################################################
 weather: !include_dir_list ../entities/weather

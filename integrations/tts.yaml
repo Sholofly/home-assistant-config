@@ -1,4 +1,5 @@
 ################################################
 ## Integrations / TTS
+## Text-to-speech voor gesproken meldingen via speakers
 ################################################
 tts: !include_dir_list ../entities/tts

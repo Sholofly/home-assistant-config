@@ -1,4 +1,5 @@
 ################################################
 ## Integrations / Notify
+## Notificatiekanalen naar mobiele telefoons van gezinsleden
 ################################################
 notify: !include_dir_list ../entities/notifies

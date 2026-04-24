@@ -1,5 +1,6 @@
 ################################################
 ## Integrations / Home Assistant
+## Aanpassingen van entity namen, iconen en domeinen via customize
 ################################################
 homeassistant:
   # Lets me customize individual entities
@@ -10,4 +11,3 @@ homeassistant:
 
   # Lets me custimize entities based on a matching pattern
   customize_glob: !include_dir_merge_named ../customizations/globs
-  

@@ -1,4 +1,5 @@
 ################################################
 ## Integrations / Sensors
+## Alle meetwaarden zoals energie, temperatuur en systeemdata
 ################################################
 sensor: !include_dir_list ../entities/sensors

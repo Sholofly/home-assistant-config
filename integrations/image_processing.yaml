@@ -1,4 +1,5 @@
 ################################################
 ## Integrations / Image Processing
+## Beeldverwerking voor cameradetectie
 ################################################
 image_processing: !include_dir_list ../entities/image_processing

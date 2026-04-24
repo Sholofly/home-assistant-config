@@ -1,4 +1,5 @@
 ################################################
 ## Integrations / Default Config
+## Laadt de standaard HA integraties zoals energie, mobile app en meer
 ################################################
 default_config:

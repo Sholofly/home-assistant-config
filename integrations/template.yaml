@@ -1,3 +1,7 @@
+################################################
+## Integrations / Template
+## Berekende sensors, binaire sensoren en trigger-gebaseerde sensors
+################################################
 template:
   - sensor: !include_dir_list ../entities/templates/sensors
   - binary_sensor: !include_dir_list ../entities/templates/binary_sensors

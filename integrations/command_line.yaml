@@ -1,0 +1,17 @@
+################################################
+## Integrations / Command Line
+## Shell-sensor voor add-on statistieken (CPU, geheugen, aantal)
+################################################
+command_line:
+  - sensor:
+      name: "Add-on Stats"
+      unique_id: addon_stats_sensor
+      command: "python3 /config/scripts/addon_stats.py"
+      value_template: "{{ value_json.count }}"
+      json_attributes:
+        - addons
+        - total_cpu
+        - total_mem
+        - count
+      scan_interval: 300
+      command_timeout: 60

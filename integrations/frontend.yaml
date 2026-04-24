@@ -1,8 +1,10 @@
 ################################################
 ## Integrations / Frontend
+## Frontend instellingen, kiosk-mode en extra dashboard modules
 ################################################
 frontend:
   extra_module_url:
     - /hacsfiles/lovelace-card-mod/card-mod.js
     - /hacsfiles/custom-brand-icons/custom-brand-icons.js
+    - /local/kiosk-mode.js?v=12.0.0
   themes: !include_dir_merge_named ../themes/

@@ -1,0 +1,60 @@
+template:
+  - sensor: !include_dir_list ../entities/templates/sensors
+  - binary_sensor: !include_dir_list ../entities/templates/binary_sensors
+  - select: !include_dir_list ../entities/templates/selects
+  - cover: !include_dir_list ../entities/templates/covers
+  - trigger:
+      - trigger: event
+        event_type: bubble_card_update_modules
+    sensor:
+      - name: "Bubble Card Modules"
+        state: "saved"
+        icon: "mdi:puzzle"
+        attributes:
+          modules: "{{ trigger.event.data.modules }}"
+          last_updated: "{{ trigger.event.data.last_updated }}"
+  - trigger:
+      trigger: event
+      event_type: set_camera_description
+    sensor:
+      - unique_id: 4a4c8e53-9e68-4198-9cc5-b336e228ea4d
+        name: Camera detection
+        state: "{{trigger.event.data.key}}"
+        attributes:
+          full_description: "{{ trigger.event.data.value}}"
+  # Music Assistant queue sensor - fetches next track info
+  - trigger:
+      - trigger: state
+        entity_id: media_player.speakers_beneden
+        attribute: media_title
+      - trigger: state
+        entity_id: media_player.speakers_beneden
+        to: playing
+    action:
+      - action: music_assistant.get_queue
+        target:
+          entity_id: media_player.speakers_beneden
+        response_variable: queue
+        continue_on_error: true
+    sensor:
+      - unique_id: ma_queue_speakers_beneden
+        name: "MA Queue Speakers"
+        icon: "mdi:playlist-music"
+        state: >
+          {% set data = (queue | default({})).get('media_player.speakers_beneden', {}) %}
+          {{ data.get('items', 0) }}
+        attributes:
+          next_name: >
+            {% set data = (queue | default({})).get('media_player.speakers_beneden', {}) %}
+            {% set next = data.get('next_item') %}
+            {{ next.name if next else '' }}
+          next_image: >
+            {% set data = (queue | default({})).get('media_player.speakers_beneden', {}) %}
+            {% set next = data.get('next_item') %}
+            {{ next.media_item.image if next and next.media_item is defined and next.media_item else '' }}
+          current_index: >
+            {% set data = (queue | default({})).get('media_player.speakers_beneden', {}) %}
+            {{ data.get('current_index', 0) }}
+          queue_size: >
+            {% set data = (queue | default({})).get('media_player.speakers_beneden', {}) %}
+            {{ data.get('items', 0) }}

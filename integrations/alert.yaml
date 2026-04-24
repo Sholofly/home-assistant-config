@@ -1,4 +1,5 @@
 ################################################
 ## Integrations / Alert
-##############################################
+## Herhalende meldingen bij aanhoudende situaties zoals open ramen of hoge luchtvochtigheid
+################################################
 alert: !include_dir_named ../entities/alerts

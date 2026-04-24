@@ -1,4 +1,5 @@
 ################################################
-## Integrations / Climates
+## Integrations / Climate
+## Thermostaat en klimaatbeheersing via Tado
 ################################################
 climate: !include_dir_list ../entities/climates

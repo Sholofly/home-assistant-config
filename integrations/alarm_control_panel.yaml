@@ -1,4 +1,5 @@
 ################################################
-## Integrations / Alarm COntrol Panels
+## Integrations / Alarm Control Panel
+## Koppelt het alarmpaneel voor beveiliging van het huis
 ################################################
 alarm_control_panel: !include_dir_list ../entities/alarm_control_panels

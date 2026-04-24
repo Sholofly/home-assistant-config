@@ -1,4 +1,5 @@
 ################################################
 ## Integrations / System Health
+## Toont systeemstatussen van HA en gekoppelde services
 ################################################
 system_health:

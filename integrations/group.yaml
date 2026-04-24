@@ -1,4 +1,5 @@
 ################################################
 ## Integrations / Groups
+## Groepeert entities zoals ramen, lampen en personen
 ################################################
 group: !include_dir_merge_named ../entities/groups

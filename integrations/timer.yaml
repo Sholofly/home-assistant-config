@@ -1,4 +1,5 @@
 ################################################
-## Integrations / Sensors
+## Integrations / Timer
+## Timers voor tijdgestuurde automations
 ################################################
-timer: !include_dir_merge_named  ../entities/timers
+timer: !include_dir_merge_named ../entities/timers
