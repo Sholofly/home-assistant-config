@@ -1,10 +1,12 @@
 ################################################
 ## Integrations / Logger
+## Logniveaus en filters om ruis in de logs te onderdrukken
 ################################################
 logger:
   default: warning
   logs:
     homeassistant.components.waze_travel_time: error
+    ppadb: error
     #homeassistant.components.rest_command: debug
     # custom_components.lghorizon: debug
     # lghorizon: debug

@@ -1,6 +1,40 @@
 ################################################
 ## Integrations / Recorder
+## Bepaalt wat wel/niet wordt opgeslagen in de historiedatabase
 ################################################
 recorder:
   #db_url: !secret recorder_db_url
   purge_keep_days: 1
+  exclude:
+    # Domeinen zonder historische waarde
+    domains:
+      - button
+      - update
+      - event
+      - stt
+      - tts
+      - conversation
+      - notify
+      - input_button
+      - tag
+      - ai_task
+      - assist_satellite
+
+    # Netwerk/hardware diagnostiek sensors (Shelly/ESPHome)
+    entity_globs:
+      - sensor.*_uptime
+      - sensor.*_connected_ssid
+      - sensor.*_connected_bssid
+      - sensor.*_ip_address
+      - sensor.*_wi_fi_bssid
+      - sensor.*_wifi_bssid
+      - sensor.*_public_ip_address
+
+    # Losse entities zonder historische waarde
+    entities:
+      - sensor.external_ip_address
+      - sensor.media_player_beneden_channel
+      - sensor.media_player_boven_channel
+      - binary_sensor.home_assistant_versions_beta_update_available
+      - binary_sensor.home_assistant_website_update_available
+      - binary_sensor.home_assistant_versions_update_available
