@@ -1,5 +1,6 @@
 ################################################
 ## Entities / Zones / Moeders
+## Zone voor het adres van moeder, voor aanwezigheidsdetectie
 ################################################
 ---
 name: Moeders

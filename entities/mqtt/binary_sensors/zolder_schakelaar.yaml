@@ -1,3 +1,7 @@
+################################################
+## Entities / MQTT Binary Sensors / Zolder Schakelaar
+## Ingang van de zolderschakelaar via Shelly Dimmer MQTT
+################################################
 name: Zolder schakelaar
 state_topic: "shellies/shellydimmer-D479CB/input/1"
 availability:

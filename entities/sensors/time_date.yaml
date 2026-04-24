@@ -1,5 +1,6 @@
 ################################################
-## Entities /Sensors / Time Date
+## Entities / Sensors / Time Date
+## Tijd- en datumsensoren voor gebruik in dashboards en automations
 ################################################
 ---
 platform: time_date

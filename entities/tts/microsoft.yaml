@@ -1,5 +1,6 @@
 ################################################
-## Entities / TTS / Google Translate
+## Entities / TTS / Microsoft
+## Microsoft Azure text-to-speech met de Nederlandse stem ColetteNeural
 ################################################
 ---
 platform: microsoft

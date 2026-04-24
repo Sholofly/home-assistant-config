@@ -1,6 +1,7 @@
 ################################################
 ## Entities / Zones / WC De Vrijheid
-################################################ 
+## Zone voor de lokale supermarkt in Oosterwolde
+################################################
 ---
 name: WC De Vrijheid
 latitude: !secret vrijheid_latitude

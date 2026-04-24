@@ -1,5 +1,6 @@
 ################################################
 ## Entities / Groups / Parents
+## Groep met Rudolf en Leny, gebruikt voor aanwezigheidsdetectie en notificaties
 ################################################
 parents:
   name: Leny & Rudolf

@@ -1,3 +1,7 @@
+################################################
+## Entities / Alarm Control Panel / Home Alarm
+## Manueel alarmpaneel met pincode, vertrek- en inlooptijd
+################################################
 platform: manual
 name: Home Alarm
 code: !secret home_alarm_code

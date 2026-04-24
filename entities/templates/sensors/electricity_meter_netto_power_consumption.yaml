@@ -1,3 +1,7 @@
+################################################
+## Entities / Template Sensors / Electricity Meter Netto Power Consumption
+## Berekent het netto stroomverbruik (import minus export) in kW
+################################################
 unique_id: electricity_meter_netto_power_consumption
 name: Electricity Meter Netto Power Consumption
 state: "{{ states('sensor.electricity_meter_power_consumption') | float(0) - states('sensor.electricity_meter_power_production')|float(0)}}"

@@ -1,6 +1,8 @@
+################################################
+## Entities / Sensors / HA Release Notes
+## Haalt de laatste stabiele HA release op via de GitHub API, elke 6 uur
+################################################
 platform: rest
-unique_id: d396d0c5-a188-482b-999f-e02379235eac
-name: hass_release_notes
 resource: https://api.github.com/repos/home-assistant/core/releases/latest
 value_template: >
   {{ value_json.name }}

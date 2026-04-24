@@ -1,5 +1,6 @@
 ################################################
 ## Entities / Sensors / External IP Address
+## Haalt het publieke IP-adres op via icanhazip.com, elke 4 uur
 ################################################
 platform: rest
 unique_id: d69a6869-5cc6-4f39-beab-eb39a47c8111

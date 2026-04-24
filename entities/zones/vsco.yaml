@@ -1,6 +1,7 @@
 ################################################
 ## Entities / Zones / VSCO
-################################################ 
+## Zone voor de voetbalclub van de kinderen
+################################################
 ---
 name: VSCO
 latitude: !secret vsco_latitude

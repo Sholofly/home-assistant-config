@@ -1,3 +1,7 @@
+################################################
+## Entities / MQTT Sensors / Meterkast Watermeter Totaal
+## Cumulatieve waterstand in liters via MQTT watermeter sensor
+################################################
 name: "Meterkast Watermeter totaal"
 state_topic: "watermeter/reading/current_value"
 unique_id: meterkast_watermeter_total

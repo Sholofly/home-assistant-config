@@ -1,5 +1,6 @@
 ################################################
-## Entities / Binary Sensors / Donker buiten
+## Entities / Template Binary Sensors / Donker buiten
+## Geeft aan of het donker is buiten op basis van de voortuin lichtsensor
 ################################################
 name: "Donker buiten"
 unique_id: 3e430457-0c7c-4716-97a6-d23e2f2ea028

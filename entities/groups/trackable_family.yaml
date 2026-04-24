@@ -1,5 +1,6 @@
 ################################################
-## Entities / Groups / Trackable family
+## Entities / Groups / Trackable Family
+## Groep met alle gezinsleden waarvan de locatie gevolgd wordt
 ################################################
 trackable_family:
   name: Trackable Family

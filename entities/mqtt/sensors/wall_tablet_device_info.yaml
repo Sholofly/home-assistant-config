@@ -1,3 +1,7 @@
+################################################
+## Entities / MQTT Sensors / Wall Tablet Device Info
+## Apparaatinformatie van de wandtablet via Fully Kiosk MQTT
+################################################
 name: Wall Tablet Device Info
 state_topic: "fully/deviceInfo/963fde8f-6cb57e26"
 value_template: "OK"

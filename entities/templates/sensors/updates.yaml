@@ -1,3 +1,7 @@
+################################################
+## Entities / Template Sensors / Updates
+## Toont beschikbare updates voor ESPHome en Synology DSM als HTML-links
+################################################
 unique_id: updates
 state: template
 name: Total updates

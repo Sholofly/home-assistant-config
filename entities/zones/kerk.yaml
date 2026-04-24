@@ -1,6 +1,7 @@
 ################################################
 ## Entities / Zones / Kerk
-################################################ 
+## Zone voor de kerk, gebruikt om Leny's vertrek te detecteren
+################################################
 ---
 name: Kerk
 latitude: !secret kerk_latitude

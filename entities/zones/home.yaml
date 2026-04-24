@@ -1,5 +1,6 @@
 ################################################
 ## Entities / Zones / Home
+## Thuiszone, gebruikt voor aanwezigheidsdetectie van gezinsleden
 ################################################
 ---
 name: Home

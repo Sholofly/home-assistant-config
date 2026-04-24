@@ -1,5 +1,6 @@
 ################################################
 ## Entities / Zones / PostNL
+## Zone voor het PostNL-depot voor pakkettracking
 ################################################
 ---
 name: PostNL

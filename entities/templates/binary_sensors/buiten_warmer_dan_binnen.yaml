@@ -1,7 +1,8 @@
 ################################################
-## Entities / Binary Sensors / Buiten warmer dan binnen
+## Entities / Template Binary Sensors / Buiten warmer dan binnen
+## Detecteert of de buitentemperatuur hoger is dan de woonkamertemperatuur
 ################################################
 unique_id: 994533d9-fcde-411d-b786-cd0d8e87a36f
 name: "Buiten warmer dan binnen"
 state: >-
-  {{ (states('sensor.achtertuin_multisensor_temperature') | float(0) > states('sensor.woonkamer_temperatuur') | float(0)) | default(False)}}
+  {{ (states('sensor.achtertuin_multisensor_temperature') | float(0) > states('sensor.woonkamer_temperature') | float(0)) | default(False)}}

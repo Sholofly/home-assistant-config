@@ -1,3 +1,7 @@
+################################################
+## Entities / Template Sensors / Current Power Usage
+## Berekent het actuele stroomverbruik op basis van zonnepanelen, import en export
+################################################
 unique_id: current_power_usage
 name: Current power usage
 state: >

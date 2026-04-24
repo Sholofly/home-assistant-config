@@ -1,5 +1,6 @@
 ################################################
-## Entities / Template Sensors / DSMR Weekdag
+## Entities / Template Sensors / Weekdag
+## Geeft de huidige dag van de week terug in het Nederlands
 ################################################
 name: Weekdag
 state: >

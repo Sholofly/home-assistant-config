@@ -1,3 +1,7 @@
+################################################
+## Entities / MQTT Sensors / Zigbee2MQTT Network Map
+## Zigbee meshkaart van het netwerk via Zigbee2MQTT MQTT bridge
+################################################
 name: Zigbee2mqtt Networkmap
 # if you change base_topic of Zigbee2mqtt, change state_topic accordingly
 state_topic: zigbee2mqtt/bridge/response/networkmap

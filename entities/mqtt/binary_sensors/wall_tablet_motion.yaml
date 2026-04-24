@@ -1,3 +1,7 @@
+################################################
+## Entities / MQTT Binary Sensors / Wall Tablet Motion
+## Bewegingsdetectie van de keuken wandtablet via Fully Kiosk MQTT
+################################################
 name: "Wall Tablet Motion"
 unique_id: a59842b8-1fe9-4c61-8b00-0c3d8aff4839
 state_topic: "fully/event/onMotion/963fde8f-6cb57e26"

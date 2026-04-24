@@ -1,6 +1,7 @@
 ################################################
 ## Entities / Zones / PWA
-################################################ 
+## Zone voor de school van de kinderen
+################################################
 ---
 name: PWA
 latitude: !secret pwa_latitude

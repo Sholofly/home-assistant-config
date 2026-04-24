@@ -1,5 +1,6 @@
 ################################################
 ## Entities / Template Sensors / DuckDNS Token
+## Stelt het DuckDNS API-token beschikbaar als sensor voor gebruik in rest_command
 ################################################
 name: DuckDNS Token
 state: !secret duckdns_token

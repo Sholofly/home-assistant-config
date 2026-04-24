@@ -1,5 +1,6 @@
 ################################################
 ## Entities / Notifies / Family
+## Notificatiegroep die berichten stuurt naar zowel Rudolf als Leny
 ################################################
 name: family
 platform: group

@@ -1,5 +1,6 @@
 ################################################
-## Entities / Template / Covers / Garagedeur
+## Entities / Template Covers / Garagedeur
+## Template cover voor de garagedeur, bediend via de Shelly drukknop
 ################################################
 name: Garage Garagedeur
 device_class: garage

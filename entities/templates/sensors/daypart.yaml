@@ -1,5 +1,6 @@
 ################################################
-## Entities / Template Sensors / Day part
+## Entities / Template Sensors / Day Part
+## Geeft het dagdeel terug: nacht, ochtend of middag/avond
 ################################################
 name: Day part
 state: >

@@ -1,5 +1,6 @@
 ################################################
 ## Entities / Sensors / Current Power Usage Smooth
+## Gladgetrokken versie van het actuele stroomverbruik via voortschrijdend gemiddelde
 ################################################
 platform: filter
 unique_id: 8fcc8659-3fc6-41ba-b512-5ed4e016e03f
