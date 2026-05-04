@@ -1,0 +1,18 @@
+################################################
+## Entities / Template Sensors / WiFi AP Naam Noa
+## Geeft de naam van de Deco AP waar Noa op zit
+################################################
+name: "Telefoon Noa WiFi AP"
+unique_id: "wifi_ap_naam_noa"
+icon: "mdi:router-wireless"
+state: >
+  {% set aps = {
+    'gang':          'device_tracker.gang_deco_a13_van_noa',
+    'zolder':        'device_tracker.zolder_deco_a13_van_noa',
+    'slaapkamer':    'device_tracker.slaapkamer_deco_a13_van_noa',
+    'kleine_schuur': 'device_tracker.kleine_schuur_deco_a13_van_noa',
+    'grote_schuur':  'device_tracker.grote_schuur_deco_a13_van_noa'
+  } %}
+  {% for naam, entity in aps.items() %}
+    {% if is_state(entity, 'home') %}{{ naam | replace('_', ' ') | title }}{% endif %}
+  {% endfor %}

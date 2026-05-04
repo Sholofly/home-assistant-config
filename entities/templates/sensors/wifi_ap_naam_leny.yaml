@@ -1,0 +1,18 @@
+################################################
+## Entities / Template Sensors / WiFi AP Naam Leny
+## Geeft de naam van de Deco AP waar Leny op zit
+################################################
+name: "Telefoon Leny WiFi AP"
+unique_id: "wifi_ap_naam_leny"
+icon: "mdi:router-wireless"
+state: >
+  {% set aps = {
+    'gang':          'device_tracker.gang_deco_s23_van_leny',
+    'zolder':        'device_tracker.zolder_deco_s23_van_leny',
+    'slaapkamer':    'device_tracker.slaapkamer_deco_s23_van_leny',
+    'kleine_schuur': 'device_tracker.kleine_schuur_deco_s23_van_leny',
+    'grote_schuur':  'device_tracker.grote_schuur_deco_s23_van_leny'
+  } %}
+  {% for naam, entity in aps.items() %}
+    {% if is_state(entity, 'home') %}{{ naam | replace('_', ' ') | title }}{% endif %}
+  {% endfor %}

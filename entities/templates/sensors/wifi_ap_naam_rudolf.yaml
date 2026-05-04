@@ -1,0 +1,18 @@
+################################################
+## Entities / Template Sensors / WiFi AP Naam Rudolf
+## Geeft de naam van de Deco AP waar Rudolf op zit
+################################################
+name: "Telefoon Rudolf WiFi AP"
+unique_id: "wifi_ap_naam_rudolf"
+icon: "mdi:router-wireless"
+state: >
+  {% set aps = {
+    'gang':          'device_tracker.gang_deco_a54_van_rudolf',
+    'zolder':        'device_tracker.zolder_deco_a54_van_rudolf',
+    'slaapkamer':    'device_tracker.slaapkamer_deco_a54_van_rudolf',
+    'kleine_schuur': 'device_tracker.kleine_schuur_deco_a54_van_rudolf',
+    'grote_schuur':  'device_tracker.grote_schuur_deco_a54_van_rudolf'
+  } %}
+  {% for naam, entity in aps.items() %}
+    {% if is_state(entity, 'home') %}{{ naam | replace('_', ' ') | title }}{% endif %}
+  {% endfor %}
