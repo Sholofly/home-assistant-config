@@ -1,5 +1,0 @@
-################################################
-## Integrations / Input Select
-## Keuzelijst helpers voor modi en instellingen
-################################################
-input_select: !include_dir_merge_named ../entities/input_selects

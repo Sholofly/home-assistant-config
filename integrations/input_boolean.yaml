@@ -1,5 +1,0 @@
-################################################
-## Integrations / Input Boolean
-## Aan/uit helpers voor statusbeheer in automations
-################################################
-input_boolean: !include_dir_named ../entities/input_booleans

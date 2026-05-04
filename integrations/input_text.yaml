@@ -1,5 +1,0 @@
-################################################
-## Integrations / Input Text
-## Tekstveld helpers voor opslag van waarden in automations
-################################################
-input_text: !include_dir_merge_named ../entities/input_texts
