@@ -1,7 +1,0 @@
-################################################
-## Entities / TTS / Google Translate
-## Google Translate text-to-speech in het Nederlands
-################################################
----
-platform: google_translate
-language: nl
