@@ -9,55 +9,14 @@ from homeassistant.const import STATE_UNAVAILABLE, STATE_UNKNOWN
 from homeassistant.core import Context, HomeAssistant, State as CoreState
 from homeassistant.helpers.restore_state import DATA_RESTORE_STATE
 from homeassistant.helpers.service import async_get_all_descriptions
-
-try:
-    # HA >= 2026.5
-    from homeassistant.helpers.template.extensions.math import _SENTINEL as MATH_SENTINEL, MathExtension
-    from homeassistant.helpers.template.extensions.type_cast import (
-        _SENTINEL as TYPECAST_SENTINEL,
-        TypeCastExtension,
-    )
-    from homeassistant.helpers.template.helpers import (
-        _SENTINEL,
-        forgiving_boolean,
-        raise_no_default,
-    )
-except ImportError:
-    # HA < 2026.5
-    from homeassistant.helpers.template import (  # type: ignore[no-redef]
-        _SENTINEL,
-        forgiving_boolean,
-        forgiving_float as _forgiving_float,
-        forgiving_int as _forgiving_int,
-        forgiving_round as _forgiving_round,
-        raise_no_default,
-    )
-
-    TYPECAST_SENTINEL = _SENTINEL
-    MATH_SENTINEL = _SENTINEL
-
-    class TypeCastExtension:  # type: ignore[no-redef]
-        """Shim for older HA versions that export forgiving_* as module-level functions."""
-
-        @staticmethod
-        def forgiving_float(value, default=_SENTINEL):
-            """Shim for forgiving_float."""
-            return _forgiving_float(value, default=default)
-
-        @staticmethod
-        def forgiving_int(value, default=_SENTINEL, base=10):
-            """Shim for forgiving_int."""
-            return _forgiving_int(value, default=default, base=base)
-
-    class MathExtension:  # type: ignore[no-redef]
-        """Shim for older HA versions that export forgiving_round as a module-level function."""
-
-        @staticmethod
-        def forgiving_round(value, precision=0, method="common", default=_SENTINEL):
-            """Shim for forgiving_round."""
-            return _forgiving_round(value, precision=precision, method=method, default=default)
-
-
+from homeassistant.helpers.template import (
+    _SENTINEL,
+    forgiving_boolean,
+    forgiving_float,
+    forgiving_int,
+    forgiving_round,
+    raise_no_default,
+)
 from homeassistant.util import dt as dt_util
 
 from .const import LOGGER_PATH
@@ -82,21 +41,21 @@ class StateVal(str):
         new_var.last_reported = state.last_reported
         return new_var
 
-    def as_float(self, default: float = TYPECAST_SENTINEL) -> float:
+    def as_float(self, default: float = _SENTINEL) -> float:
         """Return the state converted to float via the forgiving helper."""
-        return TypeCastExtension.forgiving_float(self, default=default)
+        return forgiving_float(self, default=default)
 
-    def as_int(self, default: int = TYPECAST_SENTINEL, base: int = 10) -> int:
+    def as_int(self, default: int = _SENTINEL, base: int = 10) -> int:
         """Return the state converted to int via the forgiving helper."""
-        return TypeCastExtension.forgiving_int(self, default=default, base=base)
+        return forgiving_int(self, default=default, base=base)
 
     def as_bool(self, default: bool = _SENTINEL) -> bool:
         """Return the state converted to bool via the forgiving helper."""
         return forgiving_boolean(self, default=default)
 
-    def as_round(self, precision: int = 0, method: str = "common", default: float = MATH_SENTINEL) -> float:
+    def as_round(self, precision: int = 0, method: str = "common", default: float = _SENTINEL) -> float:
         """Return the rounded state value via the forgiving helper."""
-        return MathExtension.forgiving_round(self, precision=precision, method=method, default=default)
+        return forgiving_round(self, precision=precision, method=method, default=default)
 
     def as_datetime(self, default: datetime = _SENTINEL) -> datetime:
         """Return the state converted to a datetime, matching the forgiving template behaviour."""
