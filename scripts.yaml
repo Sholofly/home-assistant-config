@@ -23,7 +23,7 @@ deurbel:
         filename: /media/snapshots/snapshot_driveway.jpg
       action: camera.snapshot
       target:
-        device_id: bab1e93d08ca11eba583dba8001b4553
+        device_id: 3cf9bf2f72fa5b42af3a558448f660c6
     - action: ai_task.generate_data
       metadata: {}
       data:

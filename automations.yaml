@@ -434,24 +434,6 @@
         title: Antibiotica
       action: notify.mobile_app_telefoon_rudolf
   mode: single
-- id: "1656497997657"
-  alias: Badkamer - Knop rechts
-  description: ""
-  triggers:
-    - event_type: shelly.click
-      event_data:
-        device_id: 68fdce8d7ad08e466d7336ea1d4730a7
-        channel: 1
-        click_type: single_push
-        generation: 2
-      trigger: event
-  conditions: []
-  actions:
-    - data: {}
-      target:
-        entity_id: light.badkamer_wastafel
-      action: light.toggle
-  mode: single
 - id: "1671801460867"
   alias: Wasmachine - Status
   description: Status afhandeling wasmachine
@@ -1074,7 +1056,7 @@
     - target:
         device_id: f6b31284b6b269c52b5330a8f410eb5f
       data:
-        url: http://192.168.1.21:8123/wall-tablet
+        url: http://192.168.1.21:8123/wall-tablet-v2
       action: fully_kiosk.load_url
   mode: single
 - id: "1726487429371"
@@ -1872,7 +1854,7 @@
   actions:
     - variables:
         threshold: 20
-        battery_report: "{% set ns = namespace(unavail=[], low=[]) %} {% set sensors
+        battery_lines: "{% set ns = namespace(unavail=[], low=[]) %} {% set sensors
           = states.sensor\n  | selectattr('attributes.device_class', 'defined')\n  |
           selectattr('attributes.device_class', 'eq', 'battery')\n  | rejectattr('entity_id',
           'search', 'telefoon')\n  | rejectattr('entity_id', 'search', 'tablet')\n  |
@@ -1880,36 +1862,38 @@
           'lenovo')\n  | rejectattr('entity_id', 'search', '_battery_plus')\n  | list
           %}\n{% for s in sensors %}\n  {% set name = state_attr(s.entity_id, 'friendly_name')\n
           \   | default(s.entity_id)\n    | replace(' Battery', '')\n    | replace('
-          battery', '')\n    | replace(' Batterij', '') %}\n  {% set type_id = s.entity_id\n
-          \   | regex_replace('_battery(_\\\\d+)?$', '_battery_type') %}\n  {% set btype
-          = states(type_id) %}\n  {% set btype = btype if btype not in ['unknown', 'unavailable',
+          battery', '')\n    | replace(' Batterij', '') %}\n  {% set type_id = s.entity_id
+          | regex_replace('_battery(_\\d+)?$', '_battery_type') %}\n  {% set btype =
+          states(type_id) %}\n  {% set btype = btype if btype not in ['unknown', 'unavailable',
           'None', none] else '?' %}\n  {% if s.state in ['unavailable', 'unknown'] %}\n
-          \   {% set ns.unavail = ns.unavail + [\n      {'name': name, 'type': btype}]
-          %}\n  {% elif s.state | float(0) < threshold %}\n    {% set ns.low = ns.low
-          + [\n      {'name': name, 'level': s.state | float(0),\n       'display':
-          s.state | round(0) | int ~ '%', 'type': btype}] %}\n  {% endif %}\n{% endfor
-          %} {% set low_sorted = ns.low | sort(attribute='level') %} {% if ns.unavail
-          | length > 0 %} \U0001FAAB Unavailable ({{ ns.unavail | length }}): {% for
-          d in ns.unavail %} • {{ d.name }}  · {{ d.type }} {% endfor %} {% endif %}
-          {% if low_sorted | length > 0 %} \U0001F50B Laag ({{ low_sorted | length }}):
-          {% for d in low_sorted %} • {{ d.name }}  · {{ d.display }}  · {{ d.type }}
-          {% endfor %} {% endif %}"
+          \   {% set ns.unavail = ns.unavail + [{'name': name, 'type': btype}] %}\n
+          \ {% elif s.state | float(0) < threshold %}\n    {% set ns.low = ns.low +
+          [{'name': name, 'level': s.state | float(0), 'display': s.state | round(0)
+          | int ~ '%', 'type': btype}] %}\n  {% endif %}\n{% endfor %} {% set low_sorted
+          = ns.low | sort(attribute='level') %} {% set parts = namespace(val='') %}
+          {% if ns.unavail | length > 0 %}\n  {% set lines = ['\U0001FAAB Unavailable
+          (' ~ ns.unavail | length ~ '):'] + ns.unavail | map(attribute='name') | map('regex_replace',
+          '^(.+)$', '• \\\\1') | list %}\n  {% set parts.val = parts.val ~ lines | join('\\n')
+          %}\n{% endif %} {% if low_sorted | length > 0 %}\n  {% set lines = ['\U0001F50B
+          Laag (' ~ low_sorted | length ~ '):'] + low_sorted | map(attribute='name')
+          | map('regex_replace', '^(.+)$', '• \\\\1') | list %}\n  {% set parts.val
+          = parts.val ~ ('\\n\\n' if parts.val | length > 0 else '') ~ lines | join('\\n')
+          %}\n{% endif %} {{ parts.val }}"
     - condition: template
-      value_template: "{{ ns is not defined or\n   battery_report | trim | length >
-        0 }}"
+      value_template: "{{ battery_lines | trim | length > 0 }}"
     - action: notify.mobile_app_telefoon_rudolf
       data:
         title: "\U0001F50B Batterij rapport"
-        message: "{{ battery_report }}"
+        message: "{{ battery_lines | trim }}"
         data:
           clickAction: /mobile-dashboard/onderhoud
           url: /mobile-dashboard/onderhoud
           notification_icon: mdi:battery-heart
   mode: single
-
 - id: "1776900000001"
   alias: Log persoons-notificaties
-  description: "Logt elke notificatie naar een mobiele companion app als persistent notification"
+  description: Logt elke notificatie naar een mobiele companion app als persistent
+    notification
   initial_state: false
   triggers:
     - trigger: event
@@ -1918,19 +1902,95 @@
         domain: notify
   conditions:
     - condition: template
-      value_template: >-
-        {{ trigger.event.data.service is match('mobile_app_') }}
+      value_template: "{{ trigger.event.data.service is match('mobile_app_') }}"
   actions:
     - action: persistent_notification.create
       data:
-        title: "📲 Notificatie verzonden"
-        message: >-
-          **Naar:** {{ trigger.event.data.service | replace('mobile_app_', '') | replace('_', ' ') | title }}
-          {% if trigger.event.data.service_data.title is defined %}
-          **Titel:** {{ trigger.event.data.service_data.title }}
-          {% endif %}
-          **Bericht:** {{ trigger.event.data.service_data.message | default('(geen bericht)') }}
-          **Tijdstip:** {{ now().strftime('%d-%m-%Y %H:%M:%S') }}
-        notification_id: "notify_log_{{ now().strftime('%Y%m%d%H%M%S') }}"
+        title: "\U0001F4F2 Notificatie verzonden"
+        message: "**Naar:** {{ trigger.event.data.service | replace('mobile_app_',
+          '') | replace('_', ' ') | title }} {% if trigger.event.data.service_data.title
+          is defined %} **Titel:** {{ trigger.event.data.service_data.title }} {% endif
+          %} **Bericht:** {{ trigger.event.data.service_data.message | default('(geen
+          bericht)') }} **Tijdstip:** {{ now().strftime('%d-%m-%Y %H:%M:%S') }}"
+        notification_id: notify_log_{{ now().strftime('%Y%m%d%H%M%S') }}
   mode: queued
   max: 20
+- id: "1777000000001"
+  alias: Garage deur open bij vertrek
+  description: Stuurt een actionable notificatie als de garagedeur nog open staat
+    2 minuten nadat de laatste persoon het huis verlaat.
+  triggers:
+    - trigger: state
+      entity_id: zone.home
+      to: "0"
+  conditions:
+    - condition: state
+      entity_id: cover.garage_garagedeur
+      state: open
+  actions:
+    - delay:
+        minutes: 2
+    - condition: state
+      entity_id: cover.garage_garagedeur
+      state: open
+    - action: notify.mobile_app_telefoon_rudolf
+      data:
+        title: "\U0001F697 Garagedeur staat open"
+        message: Iedereen is weg maar de garagedeur staat nog open. Wil je hem sluiten?
+        data:
+          notification_icon: mdi:garage-open
+          clickAction: /mobile-dashboard/garden
+          url: /mobile-dashboard/garden
+          actions:
+            - action: GARAGE_SLUITEN
+              title: "\U0001F512 Sluit deur"
+            - action: GARAGE_NEGEREN
+              title: ✖ Negeer
+  mode: single
+- id: "1777000000002"
+  alias: Garage deur sluiten via notificatie
+  description: Sluit de garagedeur wanneer de gebruiker op 'Sluit deur' tikt in de
+    notificatie.
+  triggers:
+    - trigger: event
+      event_type: mobile_app_notification_action
+      event_data:
+        action: GARAGE_SLUITEN
+  actions:
+    - action: cover.close_cover
+      target:
+        entity_id: cover.garage_garagedeur
+  mode: single
+
+- id: "1777000000003"
+  alias: Ziggo beneden - reclame doorspolen
+  description: "Spoelt automatisch door naar het einde van een reclameblok zodra
+    ad_break_active op true gaat. Werkt alleen in nDVR modus."
+  triggers:
+    - trigger: template
+      value_template: "{{ state_attr('media_player.ziggo_beneden', 'ad_break_active') == true }}"
+  conditions:
+    - condition: template
+      value_template: "{{ state_attr('media_player.ziggo_beneden', 'play_mode') == 'nDVR' }}"
+  actions:
+    - variables:
+        current_pos: "{{ state_attr('media_player.ziggo_beneden', 'media_position') | float(0) }}"
+        ad_breaks: "{{ state_attr('media_player.ziggo_beneden', 'ad_breaks') }}"
+        ad_end: >-
+          {% set pos = state_attr('media_player.ziggo_beneden', 'media_position') | float(0) %}
+          {% set breaks = state_attr('media_player.ziggo_beneden', 'ad_breaks') %}
+          {% set end = namespace(val=pos) %}
+          {% for b in breaks %}
+            {% if b.start <= pos <= b.end %}
+              {% set end.val = b.end %}
+            {% endif %}
+          {% endfor %}
+          {{ end.val }}
+    - condition: template
+      value_template: "{{ ad_end | float(0) > current_pos }}"
+    - action: media_player.media_seek
+      target:
+        entity_id: media_player.ziggo_beneden
+      data:
+        seek_position: "{{ ad_end | float }}"
+  mode: single
