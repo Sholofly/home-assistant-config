@@ -1,0 +1,69 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "description": "Use the credentials for the admin web portal. See the documentation for setup details.",
+        "data": {
+          "host": "Host",
+          "username": "Username",
+          "password": "Password",
+          "scan_interval": "Seconds between updates",
+          "consider_home": "Seconds to wait before marking a device tracker as not home after it is no longer seen.",
+          "timeout_seconds": "Timeout seconds",
+          "timeout_error_retries": "Timeout error retry count",
+          "verify_ssl": "Verify SSL certificate is valid",
+          "client_prefix": "Client name prefix",
+          "client_postfix": "Client name postfix",
+          "deco_prefix": "Deco name prefix",
+          "deco_postfix": "Deco name postfix"
+        }
+      },
+      "reauth_confirm": {
+        "description": "Problem with login credentials. This may be caused by logging in on a separate device. See the documentation for login requirements.",
+        "data": {
+          "username": "Username",
+          "password": "Password"
+        }
+      }
+    },
+    "abort": {
+      "reauth_successful": "Reauthentication successful"
+    },
+    "error": {
+      "invalid_auth": "Invalid authentication",
+      "invalid_host": "Unable to connect to host.",
+      "timeout_connect": "Timeout establishing connection",
+      "unknown": "Unexpected error"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "description": "Use the credentials for the admin web portal. See the documentation for setup details.",
+        "data": {
+          "host": "Host",
+          "username": "Username",
+          "password": "Password",
+          "scan_interval": "Seconds between updates",
+          "consider_home": "Seconds to wait before marking a device tracker as not home after it is no longer seen.",
+          "timeout_seconds": "Timeout seconds",
+          "timeout_error_retries": "Timeout error retry count",
+          "verify_ssl": "Verify SSL certificate is valid",
+          "client_prefix": "Client name prefix",
+          "client_postfix": "Client name postfix",
+          "deco_prefix": "Deco name prefix",
+          "deco_postfix": "Deco name postfix"
+        }
+      }
+    },
+    "abort": {
+      "reauth_successful": "Reauthentication successful"
+    },
+    "error": {
+      "invalid_auth": "Invalid authentication",
+      "invalid_host": "Unable to connect to host.",
+      "timeout_connect": "Timeout establishing connection",
+      "unknown": "Unexpected error"
+    }
+  }
+}
