@@ -10,9 +10,11 @@ CONF_PROFILE_ID = "profile_id"
 CONF_CHANNEL_SORT = "channel_sort"
 CONF_EXCLUDED_CHANNELS = "excluded_channels"
 CONF_INTERRUPT_APP = "interrupt_app"
+CONF_SELECTED_DEVICES = "selected_devices"
 
 
 RECORD = "record"
 REWIND = "rewind"
 FAST_FORWARD = "fast_forward"
 REMOTE_KEY_PRESS = "remote_key_press"
+SKIP_AD_BREAK = "skip_ad_break"

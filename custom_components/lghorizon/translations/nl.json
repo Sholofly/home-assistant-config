@@ -10,12 +10,27 @@
           "username": "Gebruikersnaam"
         }
       },
+      "ssdp_confirm": {
+        "title": "LG Horizon apparaat gevonden",
+        "description": "Er is een LG Horizon apparaat gevonden op je netwerk:\n\n**{name}** ({model})\n\nWil je de LG Horizon integratie instellen?"
+      },
+      "ssdp_add_device": {
+        "title": "Apparaat toevoegen aan LG Horizon",
+        "description": "Er is een nieuw LG Horizon apparaat gevonden op je netwerk:\n\n**{name}** ({model})\n\nWil je dit apparaat toevoegen aan je bestaande integratie?"
+      },
       "credentials": {
         "title": "LG Horizon - Authenticatiegegevens",
         "description": "Vul de authenticatiegegevens van je Ziggo, Telenet, UPC/Sunrise, Magenta of Virgin account in.",
         "data": {
           "password": "Wachtwoord",
           "refresh_token": "Refreshtoken"
+        }
+      },
+      "devices": {
+        "title": "LG Horizon - Selecteer apparaten",
+        "description": "Selecteer welke settopboxen je wilt toevoegen aan Home Assistant.",
+        "data": {
+          "selected_devices": "Apparaten"
         }
       },
       "profile": {
@@ -41,7 +56,10 @@
     },
     "abort": {
       "already_configured": "Dit account is reeds toegevoegd.",
-      "reauth_successful": "Herauthenticatie geslaagd"
+      "reauth_successful": "Herauthenticatie geslaagd",
+      "incomplete_discovery": "Onvolledige discovery informatie.",
+      "device_added": "Het apparaat is toegevoegd aan je bestaande integratie.",
+      "device_not_found": "Het gevonden apparaat kon niet worden gekoppeld aan je account."
     }
   },
   "options": {
@@ -125,6 +143,16 @@
         "interrupt_app": {
           "name": "Bericht tijdens app‑weergave toestaan?",
           "description": "Mag er een bericht worden afgespeeld terwijl een app actief is? Let op: dit sluit de app af."
+        }
+      }
+    },
+    "skip_ad_break": {
+      "name": "Reclame overslaan",
+      "description": "Sla het huidige reclameblok over tijdens het afspelen van een opname.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity Id",
+          "description": "Entiteit ID van je mediabox."
         }
       }
     }

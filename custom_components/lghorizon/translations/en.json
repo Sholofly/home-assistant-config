@@ -10,12 +10,27 @@
           "username": "Username"
         }
       },
+      "ssdp_confirm": {
+        "title": "LG Horizon device discovered",
+        "description": "An LG Horizon device was found on your network:\n\n**{name}** ({model})\n\nDo you want to set up the LG Horizon integration?"
+      },
+      "ssdp_add_device": {
+        "title": "Add device to LG Horizon",
+        "description": "A new LG Horizon device was found on your network:\n\n**{name}** ({model})\n\nDo you want to add it to your existing integration?"
+      },
       "credentials": {
         "title": "LG Horizon - Authentication data",
         "description": "Enter the authentication data for your Ziggo, Telenet, UPC/Sunrise, Magenta or Virgin account.",
         "data": {
           "password": "Password",
           "refresh_token": "Refresh token"
+        }
+      },
+      "devices": {
+        "title": "LG Horizon - Select devices",
+        "description": "Select which set-top boxes you want to add to Home Assistant.",
+        "data": {
+          "selected_devices": "Devices"
         }
       },
       "profile": {
@@ -41,7 +56,10 @@
     },
     "abort": {
       "already_configured": "This account is already configured.",
-      "reauth_successful": "Reauthentication succesful."
+      "reauth_successful": "Reauthentication succesful.",
+      "incomplete_discovery": "Incomplete discovery information.",
+      "device_added": "The device has been added to your existing integration.",
+      "device_not_found": "The discovered device could not be matched to your account."
     }
   },
   "options": {
@@ -125,6 +143,16 @@
         "interrupt_app": {
           "name": "Interrupt App for Message?",
           "description": "May a message be played while an app is running? Note: This will cause the app to close."
+        }
+      }
+    },
+    "skip_ad_break": {
+      "name": "Skip ad break",
+      "description": "Skip to the end of the current ad break during nDVR playback.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity Id",
+          "description": "Id of your media box."
         }
       }
     }

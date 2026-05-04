@@ -7,7 +7,7 @@ from lghorizon import (
     LGHorizonRunningState,
     LGHorizonUIStateType,
 )
-from .const import DOMAIN, API, CONF_INTERRUPT_APP
+from .const import DOMAIN, API, CONF_INTERRUPT_APP, CONF_SELECTED_DEVICES
 
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
@@ -25,8 +25,12 @@ async def async_setup_entry(
     players = []
     api: LGHorizonApi = hass.data[DOMAIN][entry.entry_id][API]
     device_dic: dict[str, LGHorizonDevice] = await api.get_devices()
+
+    # Filter devices based on selection (empty/missing = all devices for backwards compat)
+    selected_devices = entry.data.get(CONF_SELECTED_DEVICES, [])
     for device in device_dic.values():
-        players.append(LGHorizonNotifyEntity(device, entry))
+        if not selected_devices or device.device_id in selected_devices:
+            players.append(LGHorizonNotifyEntity(device, entry))
     async_add_entities(players, True)
 
 
@@ -63,5 +67,5 @@ class LGHorizonNotifyEntity(NotifyEntity):
                 f"Message to box {self._box.device_friendly_name} suppressed. It's playing an app and interrupt app setting is 'False'."
             )
             return
-        await self._box.display_message(message, self._box.device_state.source_type)
+        await self._box.display_message(self._box.device_state.source_type.value, message)
         _LOGGER.debug(f"Message sent to box {self._box.device_friendly_name}.")

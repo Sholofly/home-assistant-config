@@ -8,6 +8,7 @@ from typing import Any
 import voluptuous as vol
 
 from homeassistant import config_entries
+from homeassistant.helpers.service_info.ssdp import SsdpServiceInfo
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers.typing import Mapping
@@ -45,6 +46,7 @@ from .const import (
     CONF_CHANNEL_SORT,
     CONF_EXCLUDED_CHANNELS,
     CONF_INTERRUPT_APP,
+    CONF_SELECTED_DEVICES,
 )
 
 
@@ -74,8 +76,12 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     customer: LGHorizonCustomer = None
     _channels = []
     _profiles = []
+    _devices = {}
     _username = ""
     _country_code = ""
+    _discovered_name = ""
+    _discovered_model = ""
+    _existing_entry: config_entries.ConfigEntry | None = None
 
     async def async_step_reauth(
         self, entry_data: Mapping[str, Any]
@@ -84,6 +90,121 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self._username = entry_data[CONF_USERNAME]
         self._country_code = entry_data[CONF_COUNTRY_CODE]
         return await self.async_step_reauth_confirm()
+
+    async def async_step_ssdp(
+        self, discovery_info: SsdpServiceInfo
+    ) -> config_entries.ConfigFlowResult:
+        """Handle discovery of an LG Horizon device via SSDP."""
+        _LOGGER.debug("SSDP discovery: %s", discovery_info)
+
+        friendly_name = discovery_info.upnp.get("friendlyName", "LG Horizon")
+        model_name = discovery_info.upnp.get("modelName", "")
+        self._discovered_name = friendly_name
+        self._discovered_model = model_name
+        self.context["title_placeholders"] = {"name": friendly_name}
+
+        existing_entries = self._async_current_entries()
+
+        if existing_entries:
+            # Integration already configured — offer to add this device
+            self._existing_entry = existing_entries[0]
+            selected = self._existing_entry.data.get(CONF_SELECTED_DEVICES, [])
+
+            if not selected:
+                # Empty list = all devices already included (backwards compat)
+                return self.async_abort(reason="already_configured")
+
+            # Use discovered name as flow unique ID to prevent duplicate notifications
+            await self.async_set_unique_id(f"{DOMAIN}_add_{friendly_name}")
+            self._abort_if_unique_id_configured()
+
+            return await self.async_step_ssdp_add_device()
+
+        # No existing entry — normal first-time setup flow
+        await self.async_set_unique_id(f"{DOMAIN}_{friendly_name}")
+        self._abort_if_unique_id_configured()
+
+        return await self.async_step_ssdp_confirm()
+
+    async def async_step_ssdp_confirm(
+        self, user_input: dict[str, Any] | None = None
+    ) -> config_entries.ConfigFlowResult:
+        """Confirm SSDP discovery and proceed to normal setup."""
+        if user_input is not None:
+            # Re-check: another SSDP flow may have completed in the meantime
+            existing_entries = self._async_current_entries()
+            if existing_entries:
+                self._existing_entry = existing_entries[0]
+                return await self.async_step_ssdp_add_device()
+            return await self.async_step_user()
+
+        return self.async_show_form(
+            step_id="ssdp_confirm",
+            description_placeholders={
+                "name": self._discovered_name,
+                "model": self._discovered_model,
+            },
+        )
+
+    async def async_step_ssdp_add_device(
+        self, user_input: dict[str, Any] | None = None
+    ) -> config_entries.ConfigFlowResult:
+        """Add an SSDP-discovered device to an existing integration entry."""
+        if user_input is not None:
+            entry = self._existing_entry
+            client_session = async_get_clientsession(self.hass)
+
+            try:
+                auth = LGHorizonAuth(
+                    client_session,
+                    entry.data[CONF_COUNTRY_CODE],
+                    entry.data.get(CONF_REFRESH_TOKEN),
+                    entry.data[CONF_USERNAME],
+                    entry.data.get(CONF_PASSWORD),
+                )
+                api = LGHorizonApi(auth, profile_id=entry.data.get(CONF_PROFILE_ID))
+                await api.initialize()
+                devices = await api.get_devices()
+                await api.disconnect()
+            except Exception:
+                _LOGGER.exception("Failed to connect while adding SSDP device")
+                return self.async_abort(reason="cannot_connect")
+
+            # Find the device matching the discovered friendlyName
+            matched_id = None
+            for device in devices.values():
+                if device.device_friendly_name == self._discovered_name:
+                    matched_id = device.device_id
+                    break
+
+            if not matched_id:
+                _LOGGER.info(
+                    "SSDP discovered '%s' not found in existing account, "
+                    "offering new integration setup",
+                    self._discovered_name,
+                )
+                return await self.async_step_ssdp_confirm()
+
+            # Check if already selected
+            selected = list(entry.data.get(CONF_SELECTED_DEVICES, []))
+            if matched_id in selected:
+                return self.async_abort(reason="already_configured")
+
+            # Add device and update the existing entry
+            selected.append(matched_id)
+            new_data = {**entry.data, CONF_SELECTED_DEVICES: selected}
+            self.hass.config_entries.async_update_entry(entry, data=new_data)
+            await self.hass.config_entries.async_reload(entry.entry_id)
+
+            return self.async_abort(reason="device_added")
+
+        return self.async_show_form(
+            step_id="ssdp_add_device",
+            description_placeholders={
+                "name": self._discovered_name,
+                "model": self._discovered_model,
+            },
+        )
 
     async def async_step_reauth_confirm(
         self, user_input: dict[str, Any] | None = None
@@ -229,7 +350,71 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             return self.async_show_form(
                 step_id="credentials", data_schema=cred_schema, errors=errors
             )
-        return await self.async_step_profile()
+
+        # SSDP flow: auto-match discovered device by friendlyName
+        if self._discovered_name:
+            matched_id = None
+            for device in self._devices.values():
+                if device.device_friendly_name == self._discovered_name:
+                    matched_id = device.device_id
+                    break
+            # If match found, auto-select that single device
+            if matched_id:
+                self.CONFIG_DATA[CONF_SELECTED_DEVICES] = [matched_id]
+            else:
+                # No match found — select all devices as fallback
+                _LOGGER.warning(
+                    "SSDP discovered '%s' but no matching device found in account. "
+                    "Adding all devices.",
+                    self._discovered_name,
+                )
+                self.CONFIG_DATA[CONF_SELECTED_DEVICES] = list(self._devices.keys())
+            return await self.async_step_profile()
+
+        # Manual flow: show device selection step
+        return await self.async_step_devices()
+
+    async def async_step_devices(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Select which set-top boxes to add."""
+        if user_input is not None:
+            _LOGGER.debug("Device step user_input: %s", user_input)
+            selected = user_input.get(CONF_SELECTED_DEVICES, [])
+            _LOGGER.debug("Selected devices: %s (from %d available)", selected, len(self._devices))
+            # If nothing selected, add all devices (safety net)
+            if not selected:
+                selected = list(self._devices.keys())
+            self.CONFIG_DATA[CONF_SELECTED_DEVICES] = selected
+            _LOGGER.debug("CONFIG_DATA selected_devices: %s", self.CONFIG_DATA[CONF_SELECTED_DEVICES])
+            return await self.async_step_profile()
+
+        device_selectors = [
+            SelectOptionDict(
+                value=device.device_id,
+                label=f"{device.device_friendly_name} ({device.model or 'unknown'})",
+            )
+            for device in self._devices.values()
+        ]
+
+        # Pre-select all devices by default
+        default_selected = list(self._devices.keys())
+
+        device_schema = vol.Schema(
+            {
+                vol.Required(
+                    CONF_SELECTED_DEVICES, default=default_selected
+                ): SelectSelector(
+                    SelectSelectorConfig(
+                        options=device_selectors,
+                        mode=SelectSelectorMode.LIST,
+                        multiple=True,
+                    ),
+                ),
+            }
+        )
+
+        return self.async_show_form(step_id="devices", data_schema=device_schema)
 
     async def async_step_profile(
         self, user_input: dict[str, Any] | None = None
@@ -283,8 +468,16 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         ):
             return self.async_show_form(step_id="profile", data_schema=profile_schema)
         self.CONFIG_DATA.update(user_input)
+        _LOGGER.debug(
+            "Creating entry with selected_devices=%s",
+            self.CONFIG_DATA.get(CONF_SELECTED_DEVICES),
+        )
+        provider_name = COUNTRY_SETTINGS.get(
+            self.CONFIG_DATA[CONF_COUNTRY_CODE], {}
+        ).get("name", "LG Horizon")
+        entry_title = f"{provider_name} ({self.CONFIG_DATA[CONF_USERNAME]})"
         return self.async_create_entry(
-            title=self.CONFIG_DATA[CONF_USERNAME], data=self.CONFIG_DATA
+            title=entry_title, data=self.CONFIG_DATA
         )
 
     async def validate_config(self, hass: HomeAssistant):
@@ -303,6 +496,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             profile_id = self.CONFIG_DATA[CONF_PROFILE_ID]
             self._profiles = await api.get_profiles()
             self._channels = await api.get_profile_channels(profile_id)
+            self._devices = await api.get_devices()
             await api.disconnect()
         except LGHorizonApiUnauthorizedError as lgau_err:
             raise InvalidAuth from lgau_err

@@ -1,11 +1,24 @@
 {
   "domain": "lghorizon",
   "name": "LG Horizon",
-  "codeowners": ["@Sholofly"],
+  "codeowners": [
+    "@Sholofly"
+  ],
   "config_flow": true,
+  "dependencies": [
+    "ssdp"
+  ],
   "documentation": "https://github.com/Sholofly/lghorizon",
   "iot_class": "cloud_push",
   "issue_tracker": "https://github.com/Sholofly/lghorizon/issues",
-  "requirements": ["lghorizon>=0.9.12"],
-  "version": "0.9.1"
+  "requirements": [
+    "lghorizon>=0.12.0"
+  ],
+  "ssdp": [
+    {
+      "st": "urn:dial-multiscreen-org:service:dial:1",
+      "manufacturer": "Mediabox"
+    }
+  ],
+  "version": "0.11.4"
 }

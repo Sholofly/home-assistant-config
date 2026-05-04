@@ -4,6 +4,7 @@ import asyncio
 import datetime as dt
 import logging
 import random
+import time
 from typing import cast
 
 
@@ -20,24 +21,31 @@ from homeassistant.components.media_player import (
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import STATE_UNAVAILABLE
-from homeassistant.core import HomeAssistant
+from homeassistant.core import CALLBACK_TYPE, HomeAssistant
 from homeassistant.helpers import config_validation as cv, entity_platform
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.util import dt as dt_util
 from lghorizon import (
     LGHorizonDevice,
+    LGHorizonEpg,
+    LGHorizonEpgEvent,
+    LGHorizonEventDetail,
     LGHorizonRecording,
     LGHorizonRecordingList,
     LGHorizonRecordingSeason,
     LGHorizonRecordingShow,
     LGHorizonRecordingSingle,
+    LGHorizonRecordingState,
     LGHorizonRecordingType,
+    LGHorizonReplayChannel,
     LGHorizonRunningState,
     LGHorizonShowRecordingList,
     LGHorizonUIStateType,
     LGHorizonApi,
     LGHorizonMediaType,
     LGHorizonSourceType,
+    MEDIA_KEY_TV,
 )
 
 from .const import (
@@ -45,14 +53,39 @@ from .const import (
     CONF_CHANNEL_SORT,
     CONF_EXCLUDED_CHANNELS,
     CONF_REMOTE_KEY,
+    CONF_SELECTED_DEVICES,
     DOMAIN,
     FAST_FORWARD,
     RECORD,
     REMOTE_KEY_PRESS,
     REWIND,
+    SKIP_AD_BREAK,
 )
 
 _LOGGER = logging.getLogger(__name__)
+
+# Refresh the EPG cache every 2 hours (segments are 6h each)
+EPG_REFRESH_INTERVAL = 7200
+
+
+def _find_now_next(
+    events: list[LGHorizonEpgEvent], now_ts: float
+) -> tuple[LGHorizonEpgEvent | None, LGHorizonEpgEvent | None]:
+    """Find the currently airing and next program from a list of EPG events.
+
+    Args:
+        events: Sorted list of EPG events for a channel.
+        now_ts: Current Unix timestamp in seconds.
+
+    Returns:
+        Tuple of (current_event, next_event). Either may be None.
+    """
+    for i, event in enumerate(events):
+        if event.start_time is not None and event.end_time is not None:
+            if event.start_time <= now_ts < event.end_time:
+                next_event = events[i + 1] if i + 1 < len(events) else None
+                return event, next_event
+    return None, None
 
 
 async def async_setup_entry(
@@ -62,8 +95,18 @@ async def async_setup_entry(
     players = []
     api: LGHorizonApi = hass.data[DOMAIN][entry.entry_id][API]
     device_dic: dict[str, LGHorizonDevice] = await api.get_devices()
+
+    # Filter devices based on selection (empty/missing = all devices for backwards compat)
+    selected_devices = entry.data.get(CONF_SELECTED_DEVICES, [])
+    _LOGGER.debug(
+        "Device filter: selected_devices=%s, available=%s",
+        selected_devices,
+        list(device_dic.keys()),
+    )
     for device in device_dic.values():
-        players.append(LGHorizonMediaPlayer(device, api, hass, entry))
+        if not selected_devices or device.device_id in selected_devices:
+            players.append(LGHorizonMediaPlayer(device, api, hass, entry))
+    _LOGGER.debug("Adding %d media players (of %d devices)", len(players), len(device_dic))
     async_add_entities(players, True)
 
     platform = entity_platform.async_get_current_platform()
@@ -84,6 +127,8 @@ async def async_setup_entry(
         elif call.service == REMOTE_KEY_PRESS:
             key = call.data[CONF_REMOTE_KEY]
             await device.send_key_to_box(key)
+        elif call.service == SKIP_AD_BREAK:
+            await device.skip_ad_break()
 
     platform.async_register_entity_service(
         RECORD,
@@ -108,6 +153,11 @@ async def async_setup_entry(
         key_schema,
         handle_default_services,
     )
+    platform.async_register_entity_service(
+        SKIP_AD_BREAK,
+        default_service_schema,
+        handle_default_services,
+    )
 
 
 class LGHorizonMediaPlayer(MediaPlayerEntity):
@@ -128,6 +178,9 @@ class LGHorizonMediaPlayer(MediaPlayerEntity):
         self.hass = hass
         self.entry = entry
         self._channels = {}
+        self._current_event_detail: LGHorizonEventDetail | None = None
+        self._ad_break_checker: CALLBACK_TYPE | None = None
+        self._ad_break_active: bool = False
 
     @property
     def unique_id(self):
@@ -188,12 +241,104 @@ class LGHorizonMediaPlayer(MediaPlayerEntity):
     @property
     def extra_state_attributes(self):
         """Return device specific state attributes."""
-        return {
+        attrs = {
             "ui_mode": self._device.device_state.ui_state_type,
             "play_mode": self._device.device_state.source_type,
             "channel": self._device.device_state.channel_name,
-            "recording_capacity": self._device.recording_capacity,
+            "local_recording_capacity": self._device.local_recording_capacity,
+            "has_pvr": self.api.has_pvr,
+            "has_local_dvr": self.api.has_local_dvr,
+            "has_recording": self.api.has_recording,
         }
+
+        # Ad break info (real-time via 1-second checker)
+        ad_breaks = self._device.device_state.ad_breaks
+        if ad_breaks:
+            attrs["ad_break_active"] = self._ad_break_active
+            if self._ad_break_active:
+                current_pos_s = self._get_realtime_position()
+                if current_pos_s is not None:
+                    pos_ms = int(current_pos_s * 1000)
+                    for ab in ad_breaks:
+                        if ab.start_ms <= pos_ms < ab.end_ms:
+                            attrs["ad_break_end_position"] = ab.end_s
+                            break
+            attrs["ad_break_count"] = len(ad_breaks)
+            attrs["ad_breaks"] = [
+                {"start": ab.start_s, "end": ab.end_s}
+                for ab in ad_breaks
+            ]
+        else:
+            attrs["ad_break_active"] = False
+
+        # Replay support for current channel
+        channel_id = self._device.device_state.channel_id
+        replay_ids = self.hass.data[DOMAIN][self.entry.entry_id].get("replay_channel_ids", set())
+        if channel_id:
+            attrs["replay_supported"] = channel_id in replay_ids
+
+        # EPG now/next
+        if self._epg and channel_id:
+            now_ts = time.time()
+            events = self._epg.get_channel_events(channel_id)
+            try:
+                current, next_prog = _find_now_next(events, now_ts)
+            except (TypeError, ValueError):
+                _LOGGER.exception("EPG _find_now_next failed")
+                current, next_prog = None, None
+            if current:
+                attrs["epg_now_title"] = current.title
+                attrs["epg_now_start"] = (
+                    dt_util.utc_from_timestamp(current.start_time).isoformat()
+                    if current.start_time
+                    else None
+                )
+                attrs["epg_now_end"] = (
+                    dt_util.utc_from_timestamp(current.end_time).isoformat()
+                    if current.end_time
+                    else None
+                )
+                # Progress as percentage
+                if current.start_time and current.end_time:
+                    duration = current.end_time - current.start_time
+                    if duration > 0:
+                        elapsed = now_ts - current.start_time
+                        attrs["epg_now_progress"] = round(
+                            max(0, min(elapsed / duration * 100, 100)), 1
+                        )
+                # Event detail enrichment
+                detail = self._current_event_detail
+                if detail and detail.event_id == current.event_id:
+                    if detail.description:
+                        attrs["epg_now_description"] = detail.description
+                    if detail.genres:
+                        attrs["epg_now_genres"] = ", ".join(detail.genres)
+                    if detail.episode_name:
+                        attrs["epg_now_episode_name"] = detail.episode_name
+                    if detail.actors:
+                        attrs["epg_now_actors"] = ", ".join(detail.actors)
+                    if detail.directors:
+                        attrs["epg_now_directors"] = ", ".join(detail.directors)
+            if not current and events:
+                _LOGGER.debug(
+                    "EPG no match for channel_id=%s at now_ts=%.0f",
+                    channel_id,
+                    now_ts,
+                )
+            if next_prog:
+                attrs["epg_next_title"] = next_prog.title
+                attrs["epg_next_start"] = (
+                    dt_util.utc_from_timestamp(next_prog.start_time).isoformat()
+                    if next_prog.start_time
+                    else None
+                )
+
+        return attrs
+
+    @property
+    def _epg(self) -> LGHorizonEpg | None:
+        """Return the shared EPG cache."""
+        return self.hass.data[DOMAIN][self.entry.entry_id].get("epg")
 
     @property
     def should_poll(self):
@@ -353,6 +498,14 @@ class LGHorizonMediaPlayer(MediaPlayerEntity):
                 ch for ch in channels if str(ch.channel_number) not in excluded_set
             ]
 
+        # Deduplicate by name: keep channel with the lowest number
+        seen: dict[str, object] = {}
+        for ch in channels:
+            num = int(ch.channel_number)
+            if ch.title not in seen or num < int(seen[ch.title].channel_number):
+                seen[ch.title] = ch
+        channels = list(seen.values())
+
         if sort_mode == "number":
             sorted_channels = sorted(channels, key=lambda ch: int(ch.channel_number))
         else:
@@ -363,13 +516,135 @@ class LGHorizonMediaPlayer(MediaPlayerEntity):
         """Use lifecycle hooks."""
 
         async def state_callback(box_id):
+            self._update_ad_break_checker()
+            self._ad_break_active = self._is_in_ad_break()
             self.schedule_update_ha_state(True)
 
         await self._device.set_callback(state_callback)
         self._channels = await self.api.get_profile_channels()
+        await self._refresh_epg()
+        await self._refresh_replay_channels()
+
+    async def async_will_remove_from_hass(self) -> None:
+        """Clean up when entity is removed."""
+        self._stop_ad_break_checker()
+
+    def _get_realtime_position(self) -> float | None:
+        """Calculate real-time playback position in seconds."""
+        ds = self._device.device_state
+        if ds.position is None or ds.last_position_update is None:
+            return None
+        elapsed = time.time() - ds.last_position_update
+        speed = ds.speed if ds.speed is not None else 1
+        if speed == 0:
+            return ds.position
+        return ds.position + (elapsed * speed)
+
+    def _is_in_ad_break(self) -> bool:
+        """Check if current real-time position is within an ad break."""
+        ds = self._device.device_state
+        if not ds.ad_breaks:
+            return False
+        current_pos_s = self._get_realtime_position()
+        if current_pos_s is None:
+            return False
+        pos_ms = int(current_pos_s * 1000)
+        return any(ab.start_ms <= pos_ms < ab.end_ms for ab in ds.ad_breaks)
+
+    def _update_ad_break_checker(self) -> None:
+        """Start or stop the 1-second ad break checker based on playback state."""
+        ds = self._device.device_state
+        needs_checker = (
+            ds.ad_breaks
+            and ds.source_type == LGHorizonSourceType.NDVR
+            and ds.speed is not None
+            and ds.speed > 0
+        )
+        if needs_checker and self._ad_break_checker is None:
+            self._ad_break_checker = async_track_time_interval(
+                self.hass, self._check_ad_break, dt.timedelta(seconds=1)
+            )
+        elif not needs_checker and self._ad_break_checker is not None:
+            self._stop_ad_break_checker()
+
+    def _stop_ad_break_checker(self) -> None:
+        """Stop the ad break checker interval."""
+        if self._ad_break_checker is not None:
+            self._ad_break_checker()
+            self._ad_break_checker = None
+
+    async def _check_ad_break(self, _now) -> None:
+        """Called every second to detect ad break transitions."""
+        currently_in = self._is_in_ad_break()
+        if currently_in != self._ad_break_active:
+            self._ad_break_active = currently_in
+            self.async_write_ha_state()
+
+    async def _refresh_replay_channels(self):
+        """Fetch replay channel IDs once."""
+        store = self.hass.data[DOMAIN][self.entry.entry_id]
+        if "replay_channel_ids" in store:
+            return
+        try:
+            channels = await self.api.get_replay_channels()
+            store["replay_channel_ids"] = {ch.id for ch in channels}
+            _LOGGER.debug(
+                "Replay channels loaded: %d channels support replay",
+                len(store["replay_channel_ids"]),
+            )
+        except Exception:
+            _LOGGER.warning("Failed to fetch replay channels", exc_info=True)
+            store["replay_channel_ids"] = set()
+
+    async def _refresh_epg(self):
+        """Fetch or refresh the shared EPG cache if stale."""
+        store = self.hass.data[DOMAIN][self.entry.entry_id]
+        now = time.time()
+        if now - store.get("epg_fetched_at", 0) < EPG_REFRESH_INTERVAL:
+            return
+        try:
+            store["epg"] = await self.api.get_epg()
+            store["epg_fetched_at"] = now
+            _LOGGER.debug(
+                "EPG refreshed: %d channels loaded",
+                len(store["epg"].entries) if store["epg"] else 0,
+            )
+        except Exception:
+            _LOGGER.warning("Failed to refresh EPG data", exc_info=True)
 
     async def async_update(self):
         """Update the box."""
+        await self._refresh_epg()
+        # Pre-fetch event detail for current program
+        channel_id = self._device.device_state.channel_id
+        if self._epg and channel_id:
+            events = self._epg.get_channel_events(channel_id)
+            try:
+                current, _ = _find_now_next(events, time.time())
+            except (TypeError, ValueError):
+                current = None
+            if current and current.event_id:
+                self._current_event_detail = await self._get_event_detail(current.event_id)
+            else:
+                self._current_event_detail = None
+        else:
+            self._current_event_detail = None
+
+    async def _get_event_detail(self, event_id: str) -> LGHorizonEventDetail | None:
+        """Fetch event detail with caching."""
+        store = self.hass.data[DOMAIN][self.entry.entry_id]
+        cache: dict = store.setdefault("event_detail_cache", {})
+        if event_id in cache:
+            return cache[event_id]
+        try:
+            detail = await self.api.get_event_detail(event_id)
+            if len(cache) > 10:
+                cache.clear()
+            cache[event_id] = detail
+            return detail
+        except Exception:
+            _LOGGER.warning("Failed to fetch event detail for %s", event_id, exc_info=True)
+            return None
 
     async def async_turn_on(self):
         """Turn the media player on."""
@@ -381,6 +656,16 @@ class LGHorizonMediaPlayer(MediaPlayerEntity):
 
     async def async_select_source(self, source: str) -> None:
         """Select a new source."""
+        # Find channel by name; if duplicates exist, pick the lowest number
+        match = None
+        for ch in self._channels.values():
+            if ch.title == source:
+                if match is None or int(ch.channel_number) < int(match.channel_number):
+                    match = ch
+        if match:
+            await self._device.set_channel_by_number(match.channel_number)
+            return
+        # Fallback to set_channel by name
         await self._device.set_channel(source)
 
     async def async_media_play(self):
@@ -423,22 +708,22 @@ class LGHorizonMediaPlayer(MediaPlayerEntity):
 
             if self._device.device_state.source_type != LGHorizonSourceType.LINEAR:
                 await asyncio.sleep(1)
-                await self._device.send_key_to_box("TV")
+                await self._device.send_key_to_box(MEDIA_KEY_TV)
 
             for digit in media_id:
-                await self._device.send_key_to_box(f"{digit}")
+                await self._device.send_key_to_box(digit)
 
         else:
             _LOGGER.error("Unsupported media type")
 
     async def async_browse_media(self, media_content_type=None, media_content_id=None):
         """Support browsing media."""
-        if media_content_type in [None, "main"]:
+        if media_content_type in [None, "main", "recordings"]:
             main = BrowseMedia(
                 title="Opnames",
                 media_class=MediaClass.DIRECTORY,
-                media_content_type="main",
-                media_content_id="main",
+                media_content_type="recordings",
+                media_content_id="recordings",
                 can_play=False,
                 can_expand=True,
                 children=[],
@@ -449,12 +734,13 @@ class LGHorizonMediaPlayer(MediaPlayerEntity):
             )
             recording: LGHorizonRecording
             for recording in recordings_list.recordings:
+                ongoing = recording.recording_state == LGHorizonRecordingState.ONGOING
                 match recording.type:
                     case LGHorizonRecordingType.SEASON:
                         recording.__class__ = LGHorizonRecordingSeason
                         season_recording = cast(LGHorizonRecordingSeason, recording)
                         show_media = BrowseMedia(
-                            title=season_recording.title,
+                            title=f"🔴 {season_recording.title}" if ongoing else season_recording.title,
                             media_class=MediaClass.TV_SHOW,
                             media_content_type=MediaType.TVSHOW,
                             media_content_id=f"{season_recording.show_id}|{recording.channel_id}",
@@ -465,11 +751,11 @@ class LGHorizonMediaPlayer(MediaPlayerEntity):
                             children_media_class=MediaClass.DIRECTORY,
                         )
                         main.children.append(show_media)
-                    case LGHorizonRecordingType.SEASON:
+                    case LGHorizonRecordingType.SHOW:
                         recording.__class__ = LGHorizonRecordingShow
                         show_recording = cast(LGHorizonRecordingShow, recording)
                         show_media = BrowseMedia(
-                            title=show_recording.title,
+                            title=f"🔴 {show_recording.title}" if ongoing else show_recording.title,
                             media_class=MediaClass.TV_SHOW,
                             media_content_type=MediaType.TVSHOW,
                             media_content_id=f"{show_recording.id}|{recording.channel_id}",
@@ -484,7 +770,7 @@ class LGHorizonMediaPlayer(MediaPlayerEntity):
                         recording.__class__ = LGHorizonRecordingSingle
                         single_recording = cast(LGHorizonRecordingSingle, recording)
                         show_media = BrowseMedia(
-                            title=single_recording.title,
+                            title=f"🔴 {single_recording.title}" if ongoing else single_recording.title,
                             media_class=MediaClass.EPISODE,
                             media_content_type=MediaType.EPISODE,
                             media_content_id=single_recording.id,
@@ -506,8 +792,10 @@ class LGHorizonMediaPlayer(MediaPlayerEntity):
                 single_show_recording = cast(
                     LGHorizonRecordingSingle, list_show_recording
                 )
+                ep_ongoing = list_show_recording.recording_state == LGHorizonRecordingState.ONGOING
+                ep_title = f"S{str(single_show_recording.season_number).zfill(2)}E{str(single_show_recording.episode_number).zfill(2)} {single_show_recording.episode_title or ''}"
                 show_media = BrowseMedia(
-                    title=f"S{str(single_show_recording.season_number).zfill(2)}E{str(single_show_recording.episode_number).zfill(2)} {single_show_recording.episode_title or ''}",
+                    title=f"🔴 {ep_title}" if ep_ongoing else ep_title,
                     media_class=MediaClass.EPISODE,
                     media_content_type=MediaType.EPISODE,
                     media_content_id=single_show_recording.episode_id,
