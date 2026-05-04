@@ -1,6 +1,5 @@
 ################################################
 ## Integrations / Scripts
-## Verwijst naar scripts.yaml en losse scriptbestanden
+## Verwijst naar scripts.yaml met alle scriptdefinities
 ################################################
 script: !include ../scripts.yaml
-script split: !include_dir_named ../scripts

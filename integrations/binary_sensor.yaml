@@ -1,5 +1,0 @@
-################################################
-## Integrations / Binary Sensors
-## Aan/uit sensoren zoals deuren, ramen, beweging en vocht
-################################################
-binary_sensor: !include_dir_list ../entities/binary_sensors

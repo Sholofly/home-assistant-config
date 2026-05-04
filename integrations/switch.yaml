@@ -1,5 +1,0 @@
-################################################
-## Integrations / Switch
-## Schakelaars voor slimme stopcontacten en apparaten
-################################################
-switch: !include_dir_list ../entities/switches

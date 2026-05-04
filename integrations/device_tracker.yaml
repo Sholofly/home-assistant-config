@@ -1,5 +1,0 @@
-################################################
-## Integrations / Device Tracker
-## Volgt de locatie van gezinsleden via telefoon en netwerk
-################################################
-device_tracker: !include_dir_list ../entities/device_trackers

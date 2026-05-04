@@ -1,5 +1,0 @@
-################################################
-## Integrations / Media Player
-## Mediaspelers zoals speakers, TV en Music Assistant
-################################################
-media_player: !include_dir_list ../entities/media_players
