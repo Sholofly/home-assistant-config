@@ -26,3 +26,43 @@ template:
         state: "{{trigger.event.data.key}}"
         attributes:
           full_description: "{{ trigger.event.data.value}}"
+  - trigger:
+      - trigger: time_pattern
+        hours: "/1"
+      - trigger: homeassistant
+        event: start
+    action:
+      - action: nordpool.get_prices_for_date
+        data:
+          config_entry: "01KQ0A415V5KZ7DZ05V7FAQ1H6"
+          date: "{{ now().date() | string }}"
+        response_variable: today_prices
+      - action: nordpool.get_prices_for_date
+        data:
+          config_entry: "01KQ0A415V5KZ7DZ05V7FAQ1H6"
+          date: "{{ (now().date() + timedelta(days=1)) | string }}"
+        response_variable: tomorrow_prices
+    sensor:
+      - name: "Nord Pool NL prijzen grafiek"
+        unique_id: "nordpool_nl_prijzen_grafiek"
+        unit_of_measurement: "EUR/kWh"
+        state_class: measurement
+        state: "{{ states('sensor.nord_pool_nl_huidige_prijs') }}"
+        attributes:
+          prijzen: >
+            {% set window_start = now() - timedelta(hours=1) %}
+            {% set window_end = now() + timedelta(hours=24) %}
+            {% set data = namespace(prices=[]) %}
+            {% for item in today_prices['NL'] %}
+              {% set start = item.start | as_datetime | as_local %}
+              {% if start >= window_start and start < window_end %}
+                {% set data.prices = data.prices + [{'start': item.start, 'end': item.end, 'price': (item.price / 1000) | round(5)}] %}
+              {% endif %}
+            {% endfor %}
+            {% for item in tomorrow_prices['NL'] %}
+              {% set start = item.start | as_datetime | as_local %}
+              {% if start >= window_start and start < window_end %}
+                {% set data.prices = data.prices + [{'start': item.start, 'end': item.end, 'price': (item.price / 1000) | round(5)}] %}
+              {% endif %}
+            {% endfor %}
+            {{ data.prices }}
