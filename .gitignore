@@ -11,6 +11,7 @@ __pycache__
 
 #Directory Ignores
 _backup
+.cache
 .cloud
 .storage
 deps
