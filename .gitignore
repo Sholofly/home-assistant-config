@@ -22,6 +22,9 @@ node-red
 
 
 #File ignores
+/.ha_run.lock
+/.HA_VERSION
+/zigbee2mqtt/coordinator_backup.json
 /secrets.yaml
 /.ps4-games.*.json
 /.google.token
