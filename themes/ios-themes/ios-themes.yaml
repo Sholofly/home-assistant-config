@@ -4,6 +4,8 @@
 # iOS Light Mode Theme - blue-red
 #
 ios-light-mode-blue-red-alternative:
+  modes:
+    light: {}
   # Global
   background-image: "center / cover no-repeat fixed url('/local/ios-themes/homekit-bg-blue-red.jpg')"
   lovelace-background: var(--background-image)
@@ -27,7 +29,7 @@ ios-light-mode-blue-red-alternative:
   sidebar-selected-icon-color: "#8e8e93"  # (light: systemGray5 from iOS light mode, dark: XXX)
   sidebar-selected-text-color: var(--sidebar-selected-icon-color)
   # States and Badges
-  state-icon-color: "#FFF"
+  state-icon-color: "#333333"
   state-icon-active-color: "#333333"  # or make light icons yellow when active: rgba(255, 214, 10, 1)
   state-icon-unavailable-color: var(--disabled-text-color)
   paper-item-icon-active-color: "#333333"  # see https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/30
@@ -73,6 +75,10 @@ ios-light-mode-blue-red-alternative:
   markdown-code-background-color: "#FFFFFF"
   code-editor-background-color: "#FFF"
   clear-background-color: var(--ha-card-background)  # see https://github.com/basnijholt/lovelace-ios-themes/issues/64
+  # Forms
+  ha-color-form-background: rgba(0, 0, 0, 0)  # HA 2026.4 ha-input background
+  ha-color-form-background-hover: rgba(255, 255, 255, 0.05)
+  ha-color-form-background-disabled: rgba(0, 0, 0, 0.1)
   # Custom
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
@@ -88,11 +94,25 @@ ios-light-mode-blue-red-alternative:
   input-idle-line-color: var(--secondary-text-color)
   input-hover-line-color: var(--secondary-text-color)
   codemirror-property: var(--accent-color)
+  # HA semantic primary palette
+  ha-color-primary-05: "#1a0800"
+  ha-color-primary-10: "#331100"
+  ha-color-primary-20: "#663300"
+  ha-color-primary-30: "#994400"
+  ha-color-primary-40: "#ff9409"
+  ha-color-primary-50: "#ff9f09"
+  ha-color-primary-60: "#ffb333"
+  ha-color-primary-70: "#ffcc66"
+  ha-color-primary-80: "#ffe099"
+  ha-color-primary-90: "#fff0cc"
+  ha-color-primary-95: "#fff8e6"
 
 #
 # iOS Light Mode Theme - blue-red
 #
 ios-light-mode-blue-red:
+  modes:
+    light: {}
   # Global
   background-image: "center / cover no-repeat fixed url('https://cdn.jsdelivr.net/gh/basnijholt/lovelace-ios-themes@a37376d918fcfe4785be99910dc9a7200ac37da9/themes/homekit-bg-blue-red.jpg')"
   lovelace-background: var(--background-image)
@@ -116,7 +136,7 @@ ios-light-mode-blue-red:
   sidebar-selected-icon-color: "#8e8e93"  # (light: systemGray5 from iOS light mode, dark: XXX)
   sidebar-selected-text-color: var(--sidebar-selected-icon-color)
   # States and Badges
-  state-icon-color: "#FFF"
+  state-icon-color: "#333333"
   state-icon-active-color: rgba(255, 214, 10, 1)  # or make light icons yellow when active: rgba(255, 214, 10, 1)
   state-icon-unavailable-color: var(--disabled-text-color)
   paper-item-icon-active-color: rgba(255, 214, 10, 1)  # see https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/30
@@ -162,6 +182,10 @@ ios-light-mode-blue-red:
   markdown-code-background-color: "#FFFFFF"
   code-editor-background-color: "#FFF"
   clear-background-color: var(--ha-card-background)  # see https://github.com/basnijholt/lovelace-ios-themes/issues/64
+  # Forms
+  ha-color-form-background: rgba(0, 0, 0, 0)  # HA 2026.4 ha-input background
+  ha-color-form-background-hover: rgba(255, 255, 255, 0.05)
+  ha-color-form-background-disabled: rgba(0, 0, 0, 0.1)
   # Custom
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
@@ -177,11 +201,25 @@ ios-light-mode-blue-red:
   input-idle-line-color: var(--secondary-text-color)
   input-hover-line-color: var(--secondary-text-color)
   codemirror-property: var(--accent-color)
+  # HA semantic primary palette
+  ha-color-primary-05: "#1a0800"
+  ha-color-primary-10: "#331100"
+  ha-color-primary-20: "#663300"
+  ha-color-primary-30: "#994400"
+  ha-color-primary-40: "#ff9409"
+  ha-color-primary-50: "#ff9f09"
+  ha-color-primary-60: "#ffb333"
+  ha-color-primary-70: "#ffcc66"
+  ha-color-primary-80: "#ffe099"
+  ha-color-primary-90: "#fff0cc"
+  ha-color-primary-95: "#fff8e6"
 
 #
 # iOS Dark Mode Theme - blue-red
 #
 ios-dark-mode-blue-red-alternative:
+  modes:
+    dark: {}
   # Global
   background-image: "center / cover no-repeat fixed url('/local/ios-themes/homekit-bg-blue-red.jpg')"
   lovelace-background: var(--background-image)
@@ -251,6 +289,10 @@ ios-dark-mode-blue-red-alternative:
   markdown-code-background-color: "#464646"
   code-editor-background-color: "#161616"
   clear-background-color: var(--ha-card-background)  # see https://github.com/basnijholt/lovelace-ios-themes/issues/64
+  # Forms
+  ha-color-form-background: rgba(0, 0, 0, 0)  # HA 2026.4 ha-input background
+  ha-color-form-background-hover: rgba(255, 255, 255, 0.05)
+  ha-color-form-background-disabled: rgba(0, 0, 0, 0.1)
   # Custom
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
@@ -266,11 +308,25 @@ ios-dark-mode-blue-red-alternative:
   input-idle-line-color: var(--secondary-text-color)
   input-hover-line-color: var(--secondary-text-color)
   codemirror-property: var(--accent-color)
+  # HA semantic primary palette
+  ha-color-primary-05: "#1a0800"
+  ha-color-primary-10: "#331100"
+  ha-color-primary-20: "#663300"
+  ha-color-primary-30: "#994400"
+  ha-color-primary-40: "#ff9409"
+  ha-color-primary-50: "#ff9f09"
+  ha-color-primary-60: "#ffb333"
+  ha-color-primary-70: "#ffcc66"
+  ha-color-primary-80: "#ffe099"
+  ha-color-primary-90: "#fff0cc"
+  ha-color-primary-95: "#fff8e6"
 
 #
 # iOS Dark Mode Theme - blue-red
 #
 ios-dark-mode-blue-red:
+  modes:
+    dark: {}
   # Global
   background-image: "center / cover no-repeat fixed url('https://cdn.jsdelivr.net/gh/basnijholt/lovelace-ios-themes@a37376d918fcfe4785be99910dc9a7200ac37da9/themes/homekit-bg-blue-red.jpg')"
   lovelace-background: var(--background-image)
@@ -340,6 +396,10 @@ ios-dark-mode-blue-red:
   markdown-code-background-color: "#464646"
   code-editor-background-color: "#161616"
   clear-background-color: var(--ha-card-background)  # see https://github.com/basnijholt/lovelace-ios-themes/issues/64
+  # Forms
+  ha-color-form-background: rgba(0, 0, 0, 0)  # HA 2026.4 ha-input background
+  ha-color-form-background-hover: rgba(255, 255, 255, 0.05)
+  ha-color-form-background-disabled: rgba(0, 0, 0, 0.1)
   # Custom
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
@@ -355,11 +415,25 @@ ios-dark-mode-blue-red:
   input-idle-line-color: var(--secondary-text-color)
   input-hover-line-color: var(--secondary-text-color)
   codemirror-property: var(--accent-color)
+  # HA semantic primary palette
+  ha-color-primary-05: "#1a0800"
+  ha-color-primary-10: "#331100"
+  ha-color-primary-20: "#663300"
+  ha-color-primary-30: "#994400"
+  ha-color-primary-40: "#ff9409"
+  ha-color-primary-50: "#ff9f09"
+  ha-color-primary-60: "#ffb333"
+  ha-color-primary-70: "#ffcc66"
+  ha-color-primary-80: "#ffe099"
+  ha-color-primary-90: "#fff0cc"
+  ha-color-primary-95: "#fff8e6"
 
 #
 # iOS Light Mode Theme - dark-blue
 #
 ios-light-mode-dark-blue-alternative:
+  modes:
+    light: {}
   # Global
   background-image: "center / cover no-repeat fixed url('/local/ios-themes/homekit-bg-dark-blue.jpg')"
   lovelace-background: var(--background-image)
@@ -383,7 +457,7 @@ ios-light-mode-dark-blue-alternative:
   sidebar-selected-icon-color: "#8e8e93"  # (light: systemGray5 from iOS light mode, dark: XXX)
   sidebar-selected-text-color: var(--sidebar-selected-icon-color)
   # States and Badges
-  state-icon-color: "#FFF"
+  state-icon-color: "#333333"
   state-icon-active-color: "#333333"  # or make light icons yellow when active: rgba(255, 214, 10, 1)
   state-icon-unavailable-color: var(--disabled-text-color)
   paper-item-icon-active-color: "#333333"  # see https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/30
@@ -429,6 +503,10 @@ ios-light-mode-dark-blue-alternative:
   markdown-code-background-color: "#FFFFFF"
   code-editor-background-color: "#FFF"
   clear-background-color: var(--ha-card-background)  # see https://github.com/basnijholt/lovelace-ios-themes/issues/64
+  # Forms
+  ha-color-form-background: rgba(0, 0, 0, 0)  # HA 2026.4 ha-input background
+  ha-color-form-background-hover: rgba(255, 255, 255, 0.05)
+  ha-color-form-background-disabled: rgba(0, 0, 0, 0.1)
   # Custom
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
@@ -444,11 +522,25 @@ ios-light-mode-dark-blue-alternative:
   input-idle-line-color: var(--secondary-text-color)
   input-hover-line-color: var(--secondary-text-color)
   codemirror-property: var(--accent-color)
+  # HA semantic primary palette
+  ha-color-primary-05: "#1a0800"
+  ha-color-primary-10: "#331100"
+  ha-color-primary-20: "#663300"
+  ha-color-primary-30: "#994400"
+  ha-color-primary-40: "#ff9409"
+  ha-color-primary-50: "#ff9f09"
+  ha-color-primary-60: "#ffb333"
+  ha-color-primary-70: "#ffcc66"
+  ha-color-primary-80: "#ffe099"
+  ha-color-primary-90: "#fff0cc"
+  ha-color-primary-95: "#fff8e6"
 
 #
 # iOS Light Mode Theme - dark-blue
 #
 ios-light-mode-dark-blue:
+  modes:
+    light: {}
   # Global
   background-image: "center / cover no-repeat fixed url('https://cdn.jsdelivr.net/gh/basnijholt/lovelace-ios-themes@a37376d918fcfe4785be99910dc9a7200ac37da9/themes/homekit-bg-dark-blue.jpg')"
   lovelace-background: var(--background-image)
@@ -472,7 +564,7 @@ ios-light-mode-dark-blue:
   sidebar-selected-icon-color: "#8e8e93"  # (light: systemGray5 from iOS light mode, dark: XXX)
   sidebar-selected-text-color: var(--sidebar-selected-icon-color)
   # States and Badges
-  state-icon-color: "#FFF"
+  state-icon-color: "#333333"
   state-icon-active-color: rgba(255, 214, 10, 1)  # or make light icons yellow when active: rgba(255, 214, 10, 1)
   state-icon-unavailable-color: var(--disabled-text-color)
   paper-item-icon-active-color: rgba(255, 214, 10, 1)  # see https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/30
@@ -518,6 +610,10 @@ ios-light-mode-dark-blue:
   markdown-code-background-color: "#FFFFFF"
   code-editor-background-color: "#FFF"
   clear-background-color: var(--ha-card-background)  # see https://github.com/basnijholt/lovelace-ios-themes/issues/64
+  # Forms
+  ha-color-form-background: rgba(0, 0, 0, 0)  # HA 2026.4 ha-input background
+  ha-color-form-background-hover: rgba(255, 255, 255, 0.05)
+  ha-color-form-background-disabled: rgba(0, 0, 0, 0.1)
   # Custom
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
@@ -533,11 +629,25 @@ ios-light-mode-dark-blue:
   input-idle-line-color: var(--secondary-text-color)
   input-hover-line-color: var(--secondary-text-color)
   codemirror-property: var(--accent-color)
+  # HA semantic primary palette
+  ha-color-primary-05: "#1a0800"
+  ha-color-primary-10: "#331100"
+  ha-color-primary-20: "#663300"
+  ha-color-primary-30: "#994400"
+  ha-color-primary-40: "#ff9409"
+  ha-color-primary-50: "#ff9f09"
+  ha-color-primary-60: "#ffb333"
+  ha-color-primary-70: "#ffcc66"
+  ha-color-primary-80: "#ffe099"
+  ha-color-primary-90: "#fff0cc"
+  ha-color-primary-95: "#fff8e6"
 
 #
 # iOS Dark Mode Theme - dark-blue
 #
 ios-dark-mode-dark-blue-alternative:
+  modes:
+    dark: {}
   # Global
   background-image: "center / cover no-repeat fixed url('/local/ios-themes/homekit-bg-dark-blue.jpg')"
   lovelace-background: var(--background-image)
@@ -607,6 +717,10 @@ ios-dark-mode-dark-blue-alternative:
   markdown-code-background-color: "#464646"
   code-editor-background-color: "#161616"
   clear-background-color: var(--ha-card-background)  # see https://github.com/basnijholt/lovelace-ios-themes/issues/64
+  # Forms
+  ha-color-form-background: rgba(0, 0, 0, 0)  # HA 2026.4 ha-input background
+  ha-color-form-background-hover: rgba(255, 255, 255, 0.05)
+  ha-color-form-background-disabled: rgba(0, 0, 0, 0.1)
   # Custom
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
@@ -622,11 +736,25 @@ ios-dark-mode-dark-blue-alternative:
   input-idle-line-color: var(--secondary-text-color)
   input-hover-line-color: var(--secondary-text-color)
   codemirror-property: var(--accent-color)
+  # HA semantic primary palette
+  ha-color-primary-05: "#1a0800"
+  ha-color-primary-10: "#331100"
+  ha-color-primary-20: "#663300"
+  ha-color-primary-30: "#994400"
+  ha-color-primary-40: "#ff9409"
+  ha-color-primary-50: "#ff9f09"
+  ha-color-primary-60: "#ffb333"
+  ha-color-primary-70: "#ffcc66"
+  ha-color-primary-80: "#ffe099"
+  ha-color-primary-90: "#fff0cc"
+  ha-color-primary-95: "#fff8e6"
 
 #
 # iOS Dark Mode Theme - dark-blue
 #
 ios-dark-mode-dark-blue:
+  modes:
+    dark: {}
   # Global
   background-image: "center / cover no-repeat fixed url('https://cdn.jsdelivr.net/gh/basnijholt/lovelace-ios-themes@a37376d918fcfe4785be99910dc9a7200ac37da9/themes/homekit-bg-dark-blue.jpg')"
   lovelace-background: var(--background-image)
@@ -696,6 +824,10 @@ ios-dark-mode-dark-blue:
   markdown-code-background-color: "#464646"
   code-editor-background-color: "#161616"
   clear-background-color: var(--ha-card-background)  # see https://github.com/basnijholt/lovelace-ios-themes/issues/64
+  # Forms
+  ha-color-form-background: rgba(0, 0, 0, 0)  # HA 2026.4 ha-input background
+  ha-color-form-background-hover: rgba(255, 255, 255, 0.05)
+  ha-color-form-background-disabled: rgba(0, 0, 0, 0.1)
   # Custom
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
@@ -711,11 +843,25 @@ ios-dark-mode-dark-blue:
   input-idle-line-color: var(--secondary-text-color)
   input-hover-line-color: var(--secondary-text-color)
   codemirror-property: var(--accent-color)
+  # HA semantic primary palette
+  ha-color-primary-05: "#1a0800"
+  ha-color-primary-10: "#331100"
+  ha-color-primary-20: "#663300"
+  ha-color-primary-30: "#994400"
+  ha-color-primary-40: "#ff9409"
+  ha-color-primary-50: "#ff9f09"
+  ha-color-primary-60: "#ffb333"
+  ha-color-primary-70: "#ffcc66"
+  ha-color-primary-80: "#ffe099"
+  ha-color-primary-90: "#fff0cc"
+  ha-color-primary-95: "#fff8e6"
 
 #
 # iOS Light Mode Theme - dark-green
 #
 ios-light-mode-dark-green-alternative:
+  modes:
+    light: {}
   # Global
   background-image: "center / cover no-repeat fixed url('/local/ios-themes/homekit-bg-dark-green.jpg')"
   lovelace-background: var(--background-image)
@@ -739,7 +885,7 @@ ios-light-mode-dark-green-alternative:
   sidebar-selected-icon-color: "#8e8e93"  # (light: systemGray5 from iOS light mode, dark: XXX)
   sidebar-selected-text-color: var(--sidebar-selected-icon-color)
   # States and Badges
-  state-icon-color: "#FFF"
+  state-icon-color: "#333333"
   state-icon-active-color: "#333333"  # or make light icons yellow when active: rgba(255, 214, 10, 1)
   state-icon-unavailable-color: var(--disabled-text-color)
   paper-item-icon-active-color: "#333333"  # see https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/30
@@ -785,6 +931,10 @@ ios-light-mode-dark-green-alternative:
   markdown-code-background-color: "#FFFFFF"
   code-editor-background-color: "#FFF"
   clear-background-color: var(--ha-card-background)  # see https://github.com/basnijholt/lovelace-ios-themes/issues/64
+  # Forms
+  ha-color-form-background: rgba(0, 0, 0, 0)  # HA 2026.4 ha-input background
+  ha-color-form-background-hover: rgba(255, 255, 255, 0.05)
+  ha-color-form-background-disabled: rgba(0, 0, 0, 0.1)
   # Custom
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
@@ -800,11 +950,25 @@ ios-light-mode-dark-green-alternative:
   input-idle-line-color: var(--secondary-text-color)
   input-hover-line-color: var(--secondary-text-color)
   codemirror-property: var(--accent-color)
+  # HA semantic primary palette
+  ha-color-primary-05: "#1a0800"
+  ha-color-primary-10: "#331100"
+  ha-color-primary-20: "#663300"
+  ha-color-primary-30: "#994400"
+  ha-color-primary-40: "#ff9409"
+  ha-color-primary-50: "#ff9f09"
+  ha-color-primary-60: "#ffb333"
+  ha-color-primary-70: "#ffcc66"
+  ha-color-primary-80: "#ffe099"
+  ha-color-primary-90: "#fff0cc"
+  ha-color-primary-95: "#fff8e6"
 
 #
 # iOS Light Mode Theme - dark-green
 #
 ios-light-mode-dark-green:
+  modes:
+    light: {}
   # Global
   background-image: "center / cover no-repeat fixed url('https://cdn.jsdelivr.net/gh/basnijholt/lovelace-ios-themes@a37376d918fcfe4785be99910dc9a7200ac37da9/themes/homekit-bg-dark-green.jpg')"
   lovelace-background: var(--background-image)
@@ -828,7 +992,7 @@ ios-light-mode-dark-green:
   sidebar-selected-icon-color: "#8e8e93"  # (light: systemGray5 from iOS light mode, dark: XXX)
   sidebar-selected-text-color: var(--sidebar-selected-icon-color)
   # States and Badges
-  state-icon-color: "#FFF"
+  state-icon-color: "#333333"
   state-icon-active-color: rgba(255, 214, 10, 1)  # or make light icons yellow when active: rgba(255, 214, 10, 1)
   state-icon-unavailable-color: var(--disabled-text-color)
   paper-item-icon-active-color: rgba(255, 214, 10, 1)  # see https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/30
@@ -874,6 +1038,10 @@ ios-light-mode-dark-green:
   markdown-code-background-color: "#FFFFFF"
   code-editor-background-color: "#FFF"
   clear-background-color: var(--ha-card-background)  # see https://github.com/basnijholt/lovelace-ios-themes/issues/64
+  # Forms
+  ha-color-form-background: rgba(0, 0, 0, 0)  # HA 2026.4 ha-input background
+  ha-color-form-background-hover: rgba(255, 255, 255, 0.05)
+  ha-color-form-background-disabled: rgba(0, 0, 0, 0.1)
   # Custom
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
@@ -889,11 +1057,25 @@ ios-light-mode-dark-green:
   input-idle-line-color: var(--secondary-text-color)
   input-hover-line-color: var(--secondary-text-color)
   codemirror-property: var(--accent-color)
+  # HA semantic primary palette
+  ha-color-primary-05: "#1a0800"
+  ha-color-primary-10: "#331100"
+  ha-color-primary-20: "#663300"
+  ha-color-primary-30: "#994400"
+  ha-color-primary-40: "#ff9409"
+  ha-color-primary-50: "#ff9f09"
+  ha-color-primary-60: "#ffb333"
+  ha-color-primary-70: "#ffcc66"
+  ha-color-primary-80: "#ffe099"
+  ha-color-primary-90: "#fff0cc"
+  ha-color-primary-95: "#fff8e6"
 
 #
 # iOS Dark Mode Theme - dark-green
 #
 ios-dark-mode-dark-green-alternative:
+  modes:
+    dark: {}
   # Global
   background-image: "center / cover no-repeat fixed url('/local/ios-themes/homekit-bg-dark-green.jpg')"
   lovelace-background: var(--background-image)
@@ -963,6 +1145,10 @@ ios-dark-mode-dark-green-alternative:
   markdown-code-background-color: "#464646"
   code-editor-background-color: "#161616"
   clear-background-color: var(--ha-card-background)  # see https://github.com/basnijholt/lovelace-ios-themes/issues/64
+  # Forms
+  ha-color-form-background: rgba(0, 0, 0, 0)  # HA 2026.4 ha-input background
+  ha-color-form-background-hover: rgba(255, 255, 255, 0.05)
+  ha-color-form-background-disabled: rgba(0, 0, 0, 0.1)
   # Custom
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
@@ -978,11 +1164,25 @@ ios-dark-mode-dark-green-alternative:
   input-idle-line-color: var(--secondary-text-color)
   input-hover-line-color: var(--secondary-text-color)
   codemirror-property: var(--accent-color)
+  # HA semantic primary palette
+  ha-color-primary-05: "#1a0800"
+  ha-color-primary-10: "#331100"
+  ha-color-primary-20: "#663300"
+  ha-color-primary-30: "#994400"
+  ha-color-primary-40: "#ff9409"
+  ha-color-primary-50: "#ff9f09"
+  ha-color-primary-60: "#ffb333"
+  ha-color-primary-70: "#ffcc66"
+  ha-color-primary-80: "#ffe099"
+  ha-color-primary-90: "#fff0cc"
+  ha-color-primary-95: "#fff8e6"
 
 #
 # iOS Dark Mode Theme - dark-green
 #
 ios-dark-mode-dark-green:
+  modes:
+    dark: {}
   # Global
   background-image: "center / cover no-repeat fixed url('https://cdn.jsdelivr.net/gh/basnijholt/lovelace-ios-themes@a37376d918fcfe4785be99910dc9a7200ac37da9/themes/homekit-bg-dark-green.jpg')"
   lovelace-background: var(--background-image)
@@ -1052,6 +1252,10 @@ ios-dark-mode-dark-green:
   markdown-code-background-color: "#464646"
   code-editor-background-color: "#161616"
   clear-background-color: var(--ha-card-background)  # see https://github.com/basnijholt/lovelace-ios-themes/issues/64
+  # Forms
+  ha-color-form-background: rgba(0, 0, 0, 0)  # HA 2026.4 ha-input background
+  ha-color-form-background-hover: rgba(255, 255, 255, 0.05)
+  ha-color-form-background-disabled: rgba(0, 0, 0, 0.1)
   # Custom
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
@@ -1067,11 +1271,25 @@ ios-dark-mode-dark-green:
   input-idle-line-color: var(--secondary-text-color)
   input-hover-line-color: var(--secondary-text-color)
   codemirror-property: var(--accent-color)
+  # HA semantic primary palette
+  ha-color-primary-05: "#1a0800"
+  ha-color-primary-10: "#331100"
+  ha-color-primary-20: "#663300"
+  ha-color-primary-30: "#994400"
+  ha-color-primary-40: "#ff9409"
+  ha-color-primary-50: "#ff9f09"
+  ha-color-primary-60: "#ffb333"
+  ha-color-primary-70: "#ffcc66"
+  ha-color-primary-80: "#ffe099"
+  ha-color-primary-90: "#fff0cc"
+  ha-color-primary-95: "#fff8e6"
 
 #
 # iOS Light Mode Theme - light-blue
 #
 ios-light-mode-light-blue-alternative:
+  modes:
+    light: {}
   # Global
   background-image: "center / cover no-repeat fixed url('/local/ios-themes/homekit-bg-light-blue.jpg')"
   lovelace-background: var(--background-image)
@@ -1095,7 +1313,7 @@ ios-light-mode-light-blue-alternative:
   sidebar-selected-icon-color: "#8e8e93"  # (light: systemGray5 from iOS light mode, dark: XXX)
   sidebar-selected-text-color: var(--sidebar-selected-icon-color)
   # States and Badges
-  state-icon-color: "#FFF"
+  state-icon-color: "#333333"
   state-icon-active-color: "#333333"  # or make light icons yellow when active: rgba(255, 214, 10, 1)
   state-icon-unavailable-color: var(--disabled-text-color)
   paper-item-icon-active-color: "#333333"  # see https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/30
@@ -1141,6 +1359,10 @@ ios-light-mode-light-blue-alternative:
   markdown-code-background-color: "#FFFFFF"
   code-editor-background-color: "#FFF"
   clear-background-color: var(--ha-card-background)  # see https://github.com/basnijholt/lovelace-ios-themes/issues/64
+  # Forms
+  ha-color-form-background: rgba(0, 0, 0, 0)  # HA 2026.4 ha-input background
+  ha-color-form-background-hover: rgba(255, 255, 255, 0.05)
+  ha-color-form-background-disabled: rgba(0, 0, 0, 0.1)
   # Custom
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
@@ -1156,11 +1378,25 @@ ios-light-mode-light-blue-alternative:
   input-idle-line-color: var(--secondary-text-color)
   input-hover-line-color: var(--secondary-text-color)
   codemirror-property: var(--accent-color)
+  # HA semantic primary palette
+  ha-color-primary-05: "#1a0800"
+  ha-color-primary-10: "#331100"
+  ha-color-primary-20: "#663300"
+  ha-color-primary-30: "#994400"
+  ha-color-primary-40: "#ff9409"
+  ha-color-primary-50: "#ff9f09"
+  ha-color-primary-60: "#ffb333"
+  ha-color-primary-70: "#ffcc66"
+  ha-color-primary-80: "#ffe099"
+  ha-color-primary-90: "#fff0cc"
+  ha-color-primary-95: "#fff8e6"
 
 #
 # iOS Light Mode Theme - light-blue
 #
 ios-light-mode-light-blue:
+  modes:
+    light: {}
   # Global
   background-image: "center / cover no-repeat fixed url('https://cdn.jsdelivr.net/gh/basnijholt/lovelace-ios-themes@a37376d918fcfe4785be99910dc9a7200ac37da9/themes/homekit-bg-light-blue.jpg')"
   lovelace-background: var(--background-image)
@@ -1184,7 +1420,7 @@ ios-light-mode-light-blue:
   sidebar-selected-icon-color: "#8e8e93"  # (light: systemGray5 from iOS light mode, dark: XXX)
   sidebar-selected-text-color: var(--sidebar-selected-icon-color)
   # States and Badges
-  state-icon-color: "#FFF"
+  state-icon-color: "#333333"
   state-icon-active-color: rgba(255, 214, 10, 1)  # or make light icons yellow when active: rgba(255, 214, 10, 1)
   state-icon-unavailable-color: var(--disabled-text-color)
   paper-item-icon-active-color: rgba(255, 214, 10, 1)  # see https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/30
@@ -1230,6 +1466,10 @@ ios-light-mode-light-blue:
   markdown-code-background-color: "#FFFFFF"
   code-editor-background-color: "#FFF"
   clear-background-color: var(--ha-card-background)  # see https://github.com/basnijholt/lovelace-ios-themes/issues/64
+  # Forms
+  ha-color-form-background: rgba(0, 0, 0, 0)  # HA 2026.4 ha-input background
+  ha-color-form-background-hover: rgba(255, 255, 255, 0.05)
+  ha-color-form-background-disabled: rgba(0, 0, 0, 0.1)
   # Custom
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
@@ -1245,11 +1485,25 @@ ios-light-mode-light-blue:
   input-idle-line-color: var(--secondary-text-color)
   input-hover-line-color: var(--secondary-text-color)
   codemirror-property: var(--accent-color)
+  # HA semantic primary palette
+  ha-color-primary-05: "#1a0800"
+  ha-color-primary-10: "#331100"
+  ha-color-primary-20: "#663300"
+  ha-color-primary-30: "#994400"
+  ha-color-primary-40: "#ff9409"
+  ha-color-primary-50: "#ff9f09"
+  ha-color-primary-60: "#ffb333"
+  ha-color-primary-70: "#ffcc66"
+  ha-color-primary-80: "#ffe099"
+  ha-color-primary-90: "#fff0cc"
+  ha-color-primary-95: "#fff8e6"
 
 #
 # iOS Dark Mode Theme - light-blue
 #
 ios-dark-mode-light-blue-alternative:
+  modes:
+    dark: {}
   # Global
   background-image: "center / cover no-repeat fixed url('/local/ios-themes/homekit-bg-light-blue.jpg')"
   lovelace-background: var(--background-image)
@@ -1319,6 +1573,10 @@ ios-dark-mode-light-blue-alternative:
   markdown-code-background-color: "#464646"
   code-editor-background-color: "#161616"
   clear-background-color: var(--ha-card-background)  # see https://github.com/basnijholt/lovelace-ios-themes/issues/64
+  # Forms
+  ha-color-form-background: rgba(0, 0, 0, 0)  # HA 2026.4 ha-input background
+  ha-color-form-background-hover: rgba(255, 255, 255, 0.05)
+  ha-color-form-background-disabled: rgba(0, 0, 0, 0.1)
   # Custom
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
@@ -1334,11 +1592,25 @@ ios-dark-mode-light-blue-alternative:
   input-idle-line-color: var(--secondary-text-color)
   input-hover-line-color: var(--secondary-text-color)
   codemirror-property: var(--accent-color)
+  # HA semantic primary palette
+  ha-color-primary-05: "#1a0800"
+  ha-color-primary-10: "#331100"
+  ha-color-primary-20: "#663300"
+  ha-color-primary-30: "#994400"
+  ha-color-primary-40: "#ff9409"
+  ha-color-primary-50: "#ff9f09"
+  ha-color-primary-60: "#ffb333"
+  ha-color-primary-70: "#ffcc66"
+  ha-color-primary-80: "#ffe099"
+  ha-color-primary-90: "#fff0cc"
+  ha-color-primary-95: "#fff8e6"
 
 #
 # iOS Dark Mode Theme - light-blue
 #
 ios-dark-mode-light-blue:
+  modes:
+    dark: {}
   # Global
   background-image: "center / cover no-repeat fixed url('https://cdn.jsdelivr.net/gh/basnijholt/lovelace-ios-themes@a37376d918fcfe4785be99910dc9a7200ac37da9/themes/homekit-bg-light-blue.jpg')"
   lovelace-background: var(--background-image)
@@ -1408,6 +1680,10 @@ ios-dark-mode-light-blue:
   markdown-code-background-color: "#464646"
   code-editor-background-color: "#161616"
   clear-background-color: var(--ha-card-background)  # see https://github.com/basnijholt/lovelace-ios-themes/issues/64
+  # Forms
+  ha-color-form-background: rgba(0, 0, 0, 0)  # HA 2026.4 ha-input background
+  ha-color-form-background-hover: rgba(255, 255, 255, 0.05)
+  ha-color-form-background-disabled: rgba(0, 0, 0, 0.1)
   # Custom
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
@@ -1423,11 +1699,25 @@ ios-dark-mode-light-blue:
   input-idle-line-color: var(--secondary-text-color)
   input-hover-line-color: var(--secondary-text-color)
   codemirror-property: var(--accent-color)
+  # HA semantic primary palette
+  ha-color-primary-05: "#1a0800"
+  ha-color-primary-10: "#331100"
+  ha-color-primary-20: "#663300"
+  ha-color-primary-30: "#994400"
+  ha-color-primary-40: "#ff9409"
+  ha-color-primary-50: "#ff9f09"
+  ha-color-primary-60: "#ffb333"
+  ha-color-primary-70: "#ffcc66"
+  ha-color-primary-80: "#ffe099"
+  ha-color-primary-90: "#fff0cc"
+  ha-color-primary-95: "#fff8e6"
 
 #
 # iOS Light Mode Theme - light-green
 #
 ios-light-mode-light-green-alternative:
+  modes:
+    light: {}
   # Global
   background-image: "center / cover no-repeat fixed url('/local/ios-themes/homekit-bg-light-green.jpg')"
   lovelace-background: var(--background-image)
@@ -1451,7 +1741,7 @@ ios-light-mode-light-green-alternative:
   sidebar-selected-icon-color: "#8e8e93"  # (light: systemGray5 from iOS light mode, dark: XXX)
   sidebar-selected-text-color: var(--sidebar-selected-icon-color)
   # States and Badges
-  state-icon-color: "#FFF"
+  state-icon-color: "#333333"
   state-icon-active-color: "#333333"  # or make light icons yellow when active: rgba(255, 214, 10, 1)
   state-icon-unavailable-color: var(--disabled-text-color)
   paper-item-icon-active-color: "#333333"  # see https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/30
@@ -1497,6 +1787,10 @@ ios-light-mode-light-green-alternative:
   markdown-code-background-color: "#FFFFFF"
   code-editor-background-color: "#FFF"
   clear-background-color: var(--ha-card-background)  # see https://github.com/basnijholt/lovelace-ios-themes/issues/64
+  # Forms
+  ha-color-form-background: rgba(0, 0, 0, 0)  # HA 2026.4 ha-input background
+  ha-color-form-background-hover: rgba(255, 255, 255, 0.05)
+  ha-color-form-background-disabled: rgba(0, 0, 0, 0.1)
   # Custom
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
@@ -1512,11 +1806,25 @@ ios-light-mode-light-green-alternative:
   input-idle-line-color: var(--secondary-text-color)
   input-hover-line-color: var(--secondary-text-color)
   codemirror-property: var(--accent-color)
+  # HA semantic primary palette
+  ha-color-primary-05: "#1a0800"
+  ha-color-primary-10: "#331100"
+  ha-color-primary-20: "#663300"
+  ha-color-primary-30: "#994400"
+  ha-color-primary-40: "#ff9409"
+  ha-color-primary-50: "#ff9f09"
+  ha-color-primary-60: "#ffb333"
+  ha-color-primary-70: "#ffcc66"
+  ha-color-primary-80: "#ffe099"
+  ha-color-primary-90: "#fff0cc"
+  ha-color-primary-95: "#fff8e6"
 
 #
 # iOS Light Mode Theme - light-green
 #
 ios-light-mode-light-green:
+  modes:
+    light: {}
   # Global
   background-image: "center / cover no-repeat fixed url('https://cdn.jsdelivr.net/gh/basnijholt/lovelace-ios-themes@a37376d918fcfe4785be99910dc9a7200ac37da9/themes/homekit-bg-light-green.jpg')"
   lovelace-background: var(--background-image)
@@ -1540,7 +1848,7 @@ ios-light-mode-light-green:
   sidebar-selected-icon-color: "#8e8e93"  # (light: systemGray5 from iOS light mode, dark: XXX)
   sidebar-selected-text-color: var(--sidebar-selected-icon-color)
   # States and Badges
-  state-icon-color: "#FFF"
+  state-icon-color: "#333333"
   state-icon-active-color: rgba(255, 214, 10, 1)  # or make light icons yellow when active: rgba(255, 214, 10, 1)
   state-icon-unavailable-color: var(--disabled-text-color)
   paper-item-icon-active-color: rgba(255, 214, 10, 1)  # see https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/30
@@ -1586,6 +1894,10 @@ ios-light-mode-light-green:
   markdown-code-background-color: "#FFFFFF"
   code-editor-background-color: "#FFF"
   clear-background-color: var(--ha-card-background)  # see https://github.com/basnijholt/lovelace-ios-themes/issues/64
+  # Forms
+  ha-color-form-background: rgba(0, 0, 0, 0)  # HA 2026.4 ha-input background
+  ha-color-form-background-hover: rgba(255, 255, 255, 0.05)
+  ha-color-form-background-disabled: rgba(0, 0, 0, 0.1)
   # Custom
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
@@ -1601,11 +1913,25 @@ ios-light-mode-light-green:
   input-idle-line-color: var(--secondary-text-color)
   input-hover-line-color: var(--secondary-text-color)
   codemirror-property: var(--accent-color)
+  # HA semantic primary palette
+  ha-color-primary-05: "#1a0800"
+  ha-color-primary-10: "#331100"
+  ha-color-primary-20: "#663300"
+  ha-color-primary-30: "#994400"
+  ha-color-primary-40: "#ff9409"
+  ha-color-primary-50: "#ff9f09"
+  ha-color-primary-60: "#ffb333"
+  ha-color-primary-70: "#ffcc66"
+  ha-color-primary-80: "#ffe099"
+  ha-color-primary-90: "#fff0cc"
+  ha-color-primary-95: "#fff8e6"
 
 #
 # iOS Dark Mode Theme - light-green
 #
 ios-dark-mode-light-green-alternative:
+  modes:
+    dark: {}
   # Global
   background-image: "center / cover no-repeat fixed url('/local/ios-themes/homekit-bg-light-green.jpg')"
   lovelace-background: var(--background-image)
@@ -1675,6 +2001,10 @@ ios-dark-mode-light-green-alternative:
   markdown-code-background-color: "#464646"
   code-editor-background-color: "#161616"
   clear-background-color: var(--ha-card-background)  # see https://github.com/basnijholt/lovelace-ios-themes/issues/64
+  # Forms
+  ha-color-form-background: rgba(0, 0, 0, 0)  # HA 2026.4 ha-input background
+  ha-color-form-background-hover: rgba(255, 255, 255, 0.05)
+  ha-color-form-background-disabled: rgba(0, 0, 0, 0.1)
   # Custom
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
@@ -1690,11 +2020,25 @@ ios-dark-mode-light-green-alternative:
   input-idle-line-color: var(--secondary-text-color)
   input-hover-line-color: var(--secondary-text-color)
   codemirror-property: var(--accent-color)
+  # HA semantic primary palette
+  ha-color-primary-05: "#1a0800"
+  ha-color-primary-10: "#331100"
+  ha-color-primary-20: "#663300"
+  ha-color-primary-30: "#994400"
+  ha-color-primary-40: "#ff9409"
+  ha-color-primary-50: "#ff9f09"
+  ha-color-primary-60: "#ffb333"
+  ha-color-primary-70: "#ffcc66"
+  ha-color-primary-80: "#ffe099"
+  ha-color-primary-90: "#fff0cc"
+  ha-color-primary-95: "#fff8e6"
 
 #
 # iOS Dark Mode Theme - light-green
 #
 ios-dark-mode-light-green:
+  modes:
+    dark: {}
   # Global
   background-image: "center / cover no-repeat fixed url('https://cdn.jsdelivr.net/gh/basnijholt/lovelace-ios-themes@a37376d918fcfe4785be99910dc9a7200ac37da9/themes/homekit-bg-light-green.jpg')"
   lovelace-background: var(--background-image)
@@ -1764,6 +2108,10 @@ ios-dark-mode-light-green:
   markdown-code-background-color: "#464646"
   code-editor-background-color: "#161616"
   clear-background-color: var(--ha-card-background)  # see https://github.com/basnijholt/lovelace-ios-themes/issues/64
+  # Forms
+  ha-color-form-background: rgba(0, 0, 0, 0)  # HA 2026.4 ha-input background
+  ha-color-form-background-hover: rgba(255, 255, 255, 0.05)
+  ha-color-form-background-disabled: rgba(0, 0, 0, 0.1)
   # Custom
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
@@ -1779,11 +2127,25 @@ ios-dark-mode-light-green:
   input-idle-line-color: var(--secondary-text-color)
   input-hover-line-color: var(--secondary-text-color)
   codemirror-property: var(--accent-color)
+  # HA semantic primary palette
+  ha-color-primary-05: "#1a0800"
+  ha-color-primary-10: "#331100"
+  ha-color-primary-20: "#663300"
+  ha-color-primary-30: "#994400"
+  ha-color-primary-40: "#ff9409"
+  ha-color-primary-50: "#ff9f09"
+  ha-color-primary-60: "#ffb333"
+  ha-color-primary-70: "#ffcc66"
+  ha-color-primary-80: "#ffe099"
+  ha-color-primary-90: "#fff0cc"
+  ha-color-primary-95: "#fff8e6"
 
 #
 # iOS Light Mode Theme - orange
 #
 ios-light-mode-orange-alternative:
+  modes:
+    light: {}
   # Global
   background-image: "center / cover no-repeat fixed url('/local/ios-themes/homekit-bg-orange.jpg')"
   lovelace-background: var(--background-image)
@@ -1807,7 +2169,7 @@ ios-light-mode-orange-alternative:
   sidebar-selected-icon-color: "#8e8e93"  # (light: systemGray5 from iOS light mode, dark: XXX)
   sidebar-selected-text-color: var(--sidebar-selected-icon-color)
   # States and Badges
-  state-icon-color: "#FFF"
+  state-icon-color: "#333333"
   state-icon-active-color: "#333333"  # or make light icons yellow when active: rgba(255, 214, 10, 1)
   state-icon-unavailable-color: var(--disabled-text-color)
   paper-item-icon-active-color: "#333333"  # see https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/30
@@ -1853,6 +2215,10 @@ ios-light-mode-orange-alternative:
   markdown-code-background-color: "#FFFFFF"
   code-editor-background-color: "#FFF"
   clear-background-color: var(--ha-card-background)  # see https://github.com/basnijholt/lovelace-ios-themes/issues/64
+  # Forms
+  ha-color-form-background: rgba(0, 0, 0, 0)  # HA 2026.4 ha-input background
+  ha-color-form-background-hover: rgba(255, 255, 255, 0.05)
+  ha-color-form-background-disabled: rgba(0, 0, 0, 0.1)
   # Custom
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
@@ -1868,11 +2234,25 @@ ios-light-mode-orange-alternative:
   input-idle-line-color: var(--secondary-text-color)
   input-hover-line-color: var(--secondary-text-color)
   codemirror-property: var(--accent-color)
+  # HA semantic primary palette
+  ha-color-primary-05: "#1a0800"
+  ha-color-primary-10: "#331100"
+  ha-color-primary-20: "#663300"
+  ha-color-primary-30: "#994400"
+  ha-color-primary-40: "#ff9409"
+  ha-color-primary-50: "#ff9f09"
+  ha-color-primary-60: "#ffb333"
+  ha-color-primary-70: "#ffcc66"
+  ha-color-primary-80: "#ffe099"
+  ha-color-primary-90: "#fff0cc"
+  ha-color-primary-95: "#fff8e6"
 
 #
 # iOS Light Mode Theme - orange
 #
 ios-light-mode-orange:
+  modes:
+    light: {}
   # Global
   background-image: "center / cover no-repeat fixed url('https://cdn.jsdelivr.net/gh/basnijholt/lovelace-ios-themes@a37376d918fcfe4785be99910dc9a7200ac37da9/themes/homekit-bg-orange.jpg')"
   lovelace-background: var(--background-image)
@@ -1896,7 +2276,7 @@ ios-light-mode-orange:
   sidebar-selected-icon-color: "#8e8e93"  # (light: systemGray5 from iOS light mode, dark: XXX)
   sidebar-selected-text-color: var(--sidebar-selected-icon-color)
   # States and Badges
-  state-icon-color: "#FFF"
+  state-icon-color: "#333333"
   state-icon-active-color: rgba(255, 214, 10, 1)  # or make light icons yellow when active: rgba(255, 214, 10, 1)
   state-icon-unavailable-color: var(--disabled-text-color)
   paper-item-icon-active-color: rgba(255, 214, 10, 1)  # see https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/30
@@ -1942,6 +2322,10 @@ ios-light-mode-orange:
   markdown-code-background-color: "#FFFFFF"
   code-editor-background-color: "#FFF"
   clear-background-color: var(--ha-card-background)  # see https://github.com/basnijholt/lovelace-ios-themes/issues/64
+  # Forms
+  ha-color-form-background: rgba(0, 0, 0, 0)  # HA 2026.4 ha-input background
+  ha-color-form-background-hover: rgba(255, 255, 255, 0.05)
+  ha-color-form-background-disabled: rgba(0, 0, 0, 0.1)
   # Custom
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
@@ -1957,11 +2341,25 @@ ios-light-mode-orange:
   input-idle-line-color: var(--secondary-text-color)
   input-hover-line-color: var(--secondary-text-color)
   codemirror-property: var(--accent-color)
+  # HA semantic primary palette
+  ha-color-primary-05: "#1a0800"
+  ha-color-primary-10: "#331100"
+  ha-color-primary-20: "#663300"
+  ha-color-primary-30: "#994400"
+  ha-color-primary-40: "#ff9409"
+  ha-color-primary-50: "#ff9f09"
+  ha-color-primary-60: "#ffb333"
+  ha-color-primary-70: "#ffcc66"
+  ha-color-primary-80: "#ffe099"
+  ha-color-primary-90: "#fff0cc"
+  ha-color-primary-95: "#fff8e6"
 
 #
 # iOS Dark Mode Theme - orange
 #
 ios-dark-mode-orange-alternative:
+  modes:
+    dark: {}
   # Global
   background-image: "center / cover no-repeat fixed url('/local/ios-themes/homekit-bg-orange.jpg')"
   lovelace-background: var(--background-image)
@@ -2031,6 +2429,10 @@ ios-dark-mode-orange-alternative:
   markdown-code-background-color: "#464646"
   code-editor-background-color: "#161616"
   clear-background-color: var(--ha-card-background)  # see https://github.com/basnijholt/lovelace-ios-themes/issues/64
+  # Forms
+  ha-color-form-background: rgba(0, 0, 0, 0)  # HA 2026.4 ha-input background
+  ha-color-form-background-hover: rgba(255, 255, 255, 0.05)
+  ha-color-form-background-disabled: rgba(0, 0, 0, 0.1)
   # Custom
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
@@ -2046,11 +2448,25 @@ ios-dark-mode-orange-alternative:
   input-idle-line-color: var(--secondary-text-color)
   input-hover-line-color: var(--secondary-text-color)
   codemirror-property: var(--accent-color)
+  # HA semantic primary palette
+  ha-color-primary-05: "#1a0800"
+  ha-color-primary-10: "#331100"
+  ha-color-primary-20: "#663300"
+  ha-color-primary-30: "#994400"
+  ha-color-primary-40: "#ff9409"
+  ha-color-primary-50: "#ff9f09"
+  ha-color-primary-60: "#ffb333"
+  ha-color-primary-70: "#ffcc66"
+  ha-color-primary-80: "#ffe099"
+  ha-color-primary-90: "#fff0cc"
+  ha-color-primary-95: "#fff8e6"
 
 #
 # iOS Dark Mode Theme - orange
 #
 ios-dark-mode-orange:
+  modes:
+    dark: {}
   # Global
   background-image: "center / cover no-repeat fixed url('https://cdn.jsdelivr.net/gh/basnijholt/lovelace-ios-themes@a37376d918fcfe4785be99910dc9a7200ac37da9/themes/homekit-bg-orange.jpg')"
   lovelace-background: var(--background-image)
@@ -2120,6 +2536,10 @@ ios-dark-mode-orange:
   markdown-code-background-color: "#464646"
   code-editor-background-color: "#161616"
   clear-background-color: var(--ha-card-background)  # see https://github.com/basnijholt/lovelace-ios-themes/issues/64
+  # Forms
+  ha-color-form-background: rgba(0, 0, 0, 0)  # HA 2026.4 ha-input background
+  ha-color-form-background-hover: rgba(255, 255, 255, 0.05)
+  ha-color-form-background-disabled: rgba(0, 0, 0, 0.1)
   # Custom
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
@@ -2135,11 +2555,25 @@ ios-dark-mode-orange:
   input-idle-line-color: var(--secondary-text-color)
   input-hover-line-color: var(--secondary-text-color)
   codemirror-property: var(--accent-color)
+  # HA semantic primary palette
+  ha-color-primary-05: "#1a0800"
+  ha-color-primary-10: "#331100"
+  ha-color-primary-20: "#663300"
+  ha-color-primary-30: "#994400"
+  ha-color-primary-40: "#ff9409"
+  ha-color-primary-50: "#ff9f09"
+  ha-color-primary-60: "#ffb333"
+  ha-color-primary-70: "#ffcc66"
+  ha-color-primary-80: "#ffe099"
+  ha-color-primary-90: "#fff0cc"
+  ha-color-primary-95: "#fff8e6"
 
 #
 # iOS Light Mode Theme - red
 #
 ios-light-mode-red-alternative:
+  modes:
+    light: {}
   # Global
   background-image: "center / cover no-repeat fixed url('/local/ios-themes/homekit-bg-red.jpg')"
   lovelace-background: var(--background-image)
@@ -2163,7 +2597,7 @@ ios-light-mode-red-alternative:
   sidebar-selected-icon-color: "#8e8e93"  # (light: systemGray5 from iOS light mode, dark: XXX)
   sidebar-selected-text-color: var(--sidebar-selected-icon-color)
   # States and Badges
-  state-icon-color: "#FFF"
+  state-icon-color: "#333333"
   state-icon-active-color: "#333333"  # or make light icons yellow when active: rgba(255, 214, 10, 1)
   state-icon-unavailable-color: var(--disabled-text-color)
   paper-item-icon-active-color: "#333333"  # see https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/30
@@ -2209,6 +2643,10 @@ ios-light-mode-red-alternative:
   markdown-code-background-color: "#FFFFFF"
   code-editor-background-color: "#FFF"
   clear-background-color: var(--ha-card-background)  # see https://github.com/basnijholt/lovelace-ios-themes/issues/64
+  # Forms
+  ha-color-form-background: rgba(0, 0, 0, 0)  # HA 2026.4 ha-input background
+  ha-color-form-background-hover: rgba(255, 255, 255, 0.05)
+  ha-color-form-background-disabled: rgba(0, 0, 0, 0.1)
   # Custom
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
@@ -2224,11 +2662,25 @@ ios-light-mode-red-alternative:
   input-idle-line-color: var(--secondary-text-color)
   input-hover-line-color: var(--secondary-text-color)
   codemirror-property: var(--accent-color)
+  # HA semantic primary palette
+  ha-color-primary-05: "#1a0800"
+  ha-color-primary-10: "#331100"
+  ha-color-primary-20: "#663300"
+  ha-color-primary-30: "#994400"
+  ha-color-primary-40: "#ff9409"
+  ha-color-primary-50: "#ff9f09"
+  ha-color-primary-60: "#ffb333"
+  ha-color-primary-70: "#ffcc66"
+  ha-color-primary-80: "#ffe099"
+  ha-color-primary-90: "#fff0cc"
+  ha-color-primary-95: "#fff8e6"
 
 #
 # iOS Light Mode Theme - red
 #
 ios-light-mode-red:
+  modes:
+    light: {}
   # Global
   background-image: "center / cover no-repeat fixed url('https://cdn.jsdelivr.net/gh/basnijholt/lovelace-ios-themes@a37376d918fcfe4785be99910dc9a7200ac37da9/themes/homekit-bg-red.jpg')"
   lovelace-background: var(--background-image)
@@ -2252,7 +2704,7 @@ ios-light-mode-red:
   sidebar-selected-icon-color: "#8e8e93"  # (light: systemGray5 from iOS light mode, dark: XXX)
   sidebar-selected-text-color: var(--sidebar-selected-icon-color)
   # States and Badges
-  state-icon-color: "#FFF"
+  state-icon-color: "#333333"
   state-icon-active-color: rgba(255, 214, 10, 1)  # or make light icons yellow when active: rgba(255, 214, 10, 1)
   state-icon-unavailable-color: var(--disabled-text-color)
   paper-item-icon-active-color: rgba(255, 214, 10, 1)  # see https://github.com/basnijholt/lovelace-ios-dark-mode-theme/issues/30
@@ -2298,6 +2750,10 @@ ios-light-mode-red:
   markdown-code-background-color: "#FFFFFF"
   code-editor-background-color: "#FFF"
   clear-background-color: var(--ha-card-background)  # see https://github.com/basnijholt/lovelace-ios-themes/issues/64
+  # Forms
+  ha-color-form-background: rgba(0, 0, 0, 0)  # HA 2026.4 ha-input background
+  ha-color-form-background-hover: rgba(255, 255, 255, 0.05)
+  ha-color-form-background-disabled: rgba(0, 0, 0, 0.1)
   # Custom
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
@@ -2313,11 +2769,25 @@ ios-light-mode-red:
   input-idle-line-color: var(--secondary-text-color)
   input-hover-line-color: var(--secondary-text-color)
   codemirror-property: var(--accent-color)
+  # HA semantic primary palette
+  ha-color-primary-05: "#1a0800"
+  ha-color-primary-10: "#331100"
+  ha-color-primary-20: "#663300"
+  ha-color-primary-30: "#994400"
+  ha-color-primary-40: "#ff9409"
+  ha-color-primary-50: "#ff9f09"
+  ha-color-primary-60: "#ffb333"
+  ha-color-primary-70: "#ffcc66"
+  ha-color-primary-80: "#ffe099"
+  ha-color-primary-90: "#fff0cc"
+  ha-color-primary-95: "#fff8e6"
 
 #
 # iOS Dark Mode Theme - red
 #
 ios-dark-mode-red-alternative:
+  modes:
+    dark: {}
   # Global
   background-image: "center / cover no-repeat fixed url('/local/ios-themes/homekit-bg-red.jpg')"
   lovelace-background: var(--background-image)
@@ -2387,6 +2857,10 @@ ios-dark-mode-red-alternative:
   markdown-code-background-color: "#464646"
   code-editor-background-color: "#161616"
   clear-background-color: var(--ha-card-background)  # see https://github.com/basnijholt/lovelace-ios-themes/issues/64
+  # Forms
+  ha-color-form-background: rgba(0, 0, 0, 0)  # HA 2026.4 ha-input background
+  ha-color-form-background-hover: rgba(255, 255, 255, 0.05)
+  ha-color-form-background-disabled: rgba(0, 0, 0, 0.1)
   # Custom
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
@@ -2402,11 +2876,25 @@ ios-dark-mode-red-alternative:
   input-idle-line-color: var(--secondary-text-color)
   input-hover-line-color: var(--secondary-text-color)
   codemirror-property: var(--accent-color)
+  # HA semantic primary palette
+  ha-color-primary-05: "#1a0800"
+  ha-color-primary-10: "#331100"
+  ha-color-primary-20: "#663300"
+  ha-color-primary-30: "#994400"
+  ha-color-primary-40: "#ff9409"
+  ha-color-primary-50: "#ff9f09"
+  ha-color-primary-60: "#ffb333"
+  ha-color-primary-70: "#ffcc66"
+  ha-color-primary-80: "#ffe099"
+  ha-color-primary-90: "#fff0cc"
+  ha-color-primary-95: "#fff8e6"
 
 #
 # iOS Dark Mode Theme - red
 #
 ios-dark-mode-red:
+  modes:
+    dark: {}
   # Global
   background-image: "center / cover no-repeat fixed url('https://cdn.jsdelivr.net/gh/basnijholt/lovelace-ios-themes@a37376d918fcfe4785be99910dc9a7200ac37da9/themes/homekit-bg-red.jpg')"
   lovelace-background: var(--background-image)
@@ -2476,6 +2964,10 @@ ios-dark-mode-red:
   markdown-code-background-color: "#464646"
   code-editor-background-color: "#161616"
   clear-background-color: var(--ha-card-background)  # see https://github.com/basnijholt/lovelace-ios-themes/issues/64
+  # Forms
+  ha-color-form-background: rgba(0, 0, 0, 0)  # HA 2026.4 ha-input background
+  ha-color-form-background-hover: rgba(255, 255, 255, 0.05)
+  ha-color-form-background-disabled: rgba(0, 0, 0, 0.1)
   # Custom
   mcg-title-letter-spacing: .15em
   mini-media-player-base-color: white
@@ -2491,3 +2983,15 @@ ios-dark-mode-red:
   input-idle-line-color: var(--secondary-text-color)
   input-hover-line-color: var(--secondary-text-color)
   codemirror-property: var(--accent-color)
+  # HA semantic primary palette
+  ha-color-primary-05: "#1a0800"
+  ha-color-primary-10: "#331100"
+  ha-color-primary-20: "#663300"
+  ha-color-primary-30: "#994400"
+  ha-color-primary-40: "#ff9409"
+  ha-color-primary-50: "#ff9f09"
+  ha-color-primary-60: "#ffb333"
+  ha-color-primary-70: "#ffcc66"
+  ha-color-primary-80: "#ffe099"
+  ha-color-primary-90: "#fff0cc"
+  ha-color-primary-95: "#fff8e6"
