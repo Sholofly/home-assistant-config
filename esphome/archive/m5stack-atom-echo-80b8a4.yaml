@@ -1,17 +1,15 @@
 substitutions:
   name: m5stack-atom-echo-80b8a4
-  friendly_name: Woonkamer Atom Echo
+  friendly_name: M5Stack Atom Echo 80b8a4
 packages:
-  m5stack.atom-echo-voice-assistant: 
-    url: https://github.com/esphome/firmware/tree/main/voice-assistant
-    file: m5stack-atom-echo.yaml
+  m5stack.atom-echo-voice-assistant: github://esphome/firmware/voice-assistant/m5stack-atom-echo.yaml@main
 esphome:
   name: ${name}
   name_add_mac_suffix: false
   friendly_name: ${friendly_name}
 api:
   encryption:
-    key: 785PQnt5oF5YQpIQ5j+IURkkx1FZtAzYn0CoUhsDcAo=
+    key: FbUt8bW1ptxVyZLaHsU8tnCJsVAR0GjOKQ6t05gRccM=
 
 
 wifi:
