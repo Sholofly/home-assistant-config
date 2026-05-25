@@ -1,4 +1,10 @@
-"""Tado CE Smart Comfort Sensors — schedule deviation, preheat advisor, etc."""
+"""Tado CE Smart Comfort sensors — schedule deviation, next-schedule preview, preheat advisor, target.
+
+Sensors here surface the Smart Comfort engine's per-zone state
+(historical comparison, scheduled vs. actual, when the next
+schedule change lands and to what target). Created only when
+Smart Comfort is enabled in config.
+"""
 
 from __future__ import annotations
 
@@ -14,6 +20,7 @@ from .calculations import (
     calculate_seasonal_comfort_target,
     estimate_cooling_crossover,
 )
+from .const import ENTITY_DATA_PREHEAT_ADVISOR
 from .entity_registry import ENTITY_REGISTRY, get_entity_category
 from .format_helpers import (
     format_comfort_model as _format_comfort_model,
@@ -31,6 +38,7 @@ if TYPE_CHECKING:
     from datetime import datetime
 
     from .coordinator import TadoDataUpdateCoordinator
+    from .smart_comfort import NextScheduleBlock, SmartComfortManager
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -43,10 +51,6 @@ _DEVIATION_ICON_HOT = 2  # °C — deviation above this shows "hot" icon
 
 
 class TadoScheduleDeviationSensor(TadoZoneSensor):
-    """Represent a Tado schedule deviation sensor."""
-
-    _attr_has_entity_name = True
-
     """Historical temperature comparison sensor.
 
     Compares current temperature to the 7-day average at the same time of day.
@@ -54,6 +58,8 @@ class TadoScheduleDeviationSensor(TadoZoneSensor):
 
     State: Difference from historical average (e.g., "+1.2" or "-0.8")
     """
+
+    _attr_has_entity_name = True
 
     def __init__(
         self, coordinator: TadoDataUpdateCoordinator, zone_id: str, zone_name: str, zone_type: str = "HEATING",
@@ -155,22 +161,25 @@ class TadoScheduleDeviationSensor(TadoZoneSensor):
 
             self._attr_available = True
 
-        except Exception as e:  # noqa: BLE001 — HA entity update pattern
-            _LOGGER.debug("Failed to update historical comparison for zone %s: %s", self._zone_id, e)
+        except Exception as e:
+            _LOGGER.debug(
+                "Smart Comfort Sensor: zone %s historical comparison "
+                "update failed (%s) — marking unavailable until the "
+                "next poll",
+                self._zone_id, e,
+            )
             self._attr_available = False
 
 
 class TadoNextScheduleTimeSensor(TadoZoneSensor):
-    """Represent a Tado next schedule change time sensor."""
-
-    _attr_has_entity_name = True
-
     """Next schedule time sensor.
 
     Shows when the next scheduled temperature change will occur.
 
     State: Next schedule time (e.g., "17:00" or "Tomorrow 07:00")
     """
+
+    _attr_has_entity_name = True
 
     def __init__(
         self, coordinator: TadoDataUpdateCoordinator, zone_id: str, zone_name: str, zone_type: str = "HEATING",
@@ -242,22 +251,25 @@ class TadoNextScheduleTimeSensor(TadoZoneSensor):
 
             self._attr_available = True
 
-        except Exception as e:  # noqa: BLE001 — HA entity update pattern
-            _LOGGER.debug("Failed to update next schedule for zone %s: %s", self._zone_id, e)
+        except Exception as e:
+            _LOGGER.debug(
+                "Smart Comfort Sensor: zone %s next schedule time "
+                "update failed (%s) — marking unavailable until the "
+                "next poll",
+                self._zone_id, e,
+            )
             self._attr_available = False
 
 
 class TadoNextScheduleTempSensor(TadoZoneSensor):
-    """Represent a Tado next schedule target temperature sensor."""
-
-    _attr_has_entity_name = True
-
     """Next schedule target temperature sensor.
 
     Shows the target temperature of the next scheduled block.
 
     State: Target temperature (°C) or "OFF"
     """
+
+    _attr_has_entity_name = True
 
     def __init__(
         self, coordinator: TadoDataUpdateCoordinator, zone_id: str, zone_name: str, zone_type: str = "HEATING",
@@ -353,16 +365,17 @@ class TadoNextScheduleTempSensor(TadoZoneSensor):
 
             self._attr_available = True
 
-        except Exception as e:  # noqa: BLE001 — HA entity update pattern
-            _LOGGER.debug("Failed to update next schedule temp for zone %s: %s", self._zone_id, e)
+        except Exception as e:
+            _LOGGER.debug(
+                "Smart Comfort Sensor: zone %s next schedule "
+                "temperature update failed (%s) — marking unavailable "
+                "until the next poll",
+                self._zone_id, e,
+            )
             self._attr_available = False
 
 
 class TadoPreheatAdvisorSensor(TadoZoneSensor):
-    """Represent a Tado preheat advisor sensor."""
-
-    _attr_has_entity_name = True
-
     """Preheat timing advisor sensor.
 
     Suggests optimal preheat start time based on historical heating rates.
@@ -370,6 +383,8 @@ class TadoPreheatAdvisorSensor(TadoZoneSensor):
 
     State: Recommended start time (e.g., "06:15")
     """
+
+    _attr_has_entity_name = True
 
     def __init__(
         self, coordinator: TadoDataUpdateCoordinator, zone_id: str, zone_name: str, zone_type: str = "HEATING",
@@ -468,9 +483,9 @@ class TadoPreheatAdvisorSensor(TadoZoneSensor):
             return None, None
         rate = zone_data_cycle.get("heating_rate")
         cycle_count = zone_data_cycle.get("cycle_count", 0)
-        if cycle_count >= 5:  # noqa: PLR2004
+        if cycle_count >= 5:
             confidence = "high"
-        elif cycle_count >= 3:  # noqa: PLR2004
+        elif cycle_count >= 3:
             confidence = "medium"
         else:
             confidence = "low"
@@ -483,12 +498,12 @@ class TadoPreheatAdvisorSensor(TadoZoneSensor):
             return 0
         heating_type = zone_config_mgr.get_zone_value(self._zone_id, "heating_type", "radiator")
         if heating_type == "ufh":
-            return zone_config_mgr.get_zone_value(self._zone_id, "ufh_buffer_minutes", 30)  # type: ignore[return-value]
+            return int(zone_config_mgr.get_zone_value(self._zone_id, "ufh_buffer_minutes", 30))
         return 0
 
     def _apply_preheat_timing(
         self,
-        start_dt: object,
+        start_dt: datetime,
         minutes_needed: int,
         heating_rate: float,
         confidence: str,
@@ -496,8 +511,8 @@ class TadoPreheatAdvisorSensor(TadoZoneSensor):
     ) -> None:
         """Apply preheat timing result to sensor state."""
         now = dt_util.now()
-        self._is_tomorrow = start_dt.date() > now.date()  # type: ignore[union-attr]
-        time_str = start_dt.strftime("%H:%M")  # type: ignore[union-attr]
+        self._is_tomorrow = start_dt.date() > now.date()
+        time_str = start_dt.strftime("%H:%M")
         self._attr_native_value = f"Tomorrow {time_str}" if self._is_tomorrow else time_str
         self._duration_minutes = minutes_needed
         self._heating_rate = heating_rate
@@ -512,7 +527,7 @@ class TadoPreheatAdvisorSensor(TadoZoneSensor):
             self._summary += f" (includes {ufh_buffer} min UFH buffer)"
         self._attr_available = True
 
-    def _check_active_cooling_preheat(self, zone_data: dict) -> bool:
+    def _check_active_cooling_preheat(self, zone_data: dict[str, Any]) -> bool:
         """Check if active setpoint needs proactive cooling-based preheat.
 
         Returns True if cooling preheat was applied (caller should return).
@@ -543,7 +558,7 @@ class TadoPreheatAdvisorSensor(TadoZoneSensor):
         self._apply_cooling_preheat(active_cooling["crossover_dt"], now)
         return True
 
-    def _calculate_preheat_from_block(self, next_block: object, manager: object) -> None:
+    def _calculate_preheat_from_block(self, next_block: NextScheduleBlock, manager: SmartComfortManager) -> None:
         """Calculate preheat timing from a schedule block with heating ON."""
         from datetime import timedelta
 
@@ -554,7 +569,7 @@ class TadoPreheatAdvisorSensor(TadoZoneSensor):
         if cycle_heating_rate is not None and cycle_heating_rate > _MIN_HEATING_RATE:
             temp_diff = self._target_temp - self._current_temp  # type: ignore[operator]
             minutes_needed = min(int((temp_diff / cycle_heating_rate) * 60) + ufh_buffer, 240)
-            recommended_start = next_block.start_time - timedelta(minutes=minutes_needed)  # type: ignore[union-attr]
+            recommended_start = next_block.start_time - timedelta(minutes=minutes_needed)
             self._apply_preheat_timing(
                 recommended_start, minutes_needed, cycle_heating_rate,
                 cycle_confidence, ufh_buffer,  # type: ignore[arg-type]
@@ -562,8 +577,10 @@ class TadoPreheatAdvisorSensor(TadoZoneSensor):
             return
 
         # Fallback to SmartComfortManager
-        advice = manager.get_preheat_advice(  # type: ignore[union-attr]
-            self._zone_id, self._target_temp, next_block.start_time, self._current_temp,  # type: ignore[union-attr]
+        if self._target_temp is None:
+            return
+        advice = manager.get_preheat_advice(
+            self._zone_id, self._target_temp, next_block.start_time, self._current_temp,
         )
 
         if advice is None:
@@ -577,7 +594,7 @@ class TadoPreheatAdvisorSensor(TadoZoneSensor):
 
         # Valid preheat recommendation — apply UFH buffer
         adjusted_duration = min(advice.estimated_duration_minutes + ufh_buffer, 240)
-        adjusted_start = next_block.start_time - timedelta(minutes=adjusted_duration)  # type: ignore[union-attr]
+        adjusted_start = next_block.start_time - timedelta(minutes=adjusted_duration)
 
         now = dt_util.now()
         self._is_tomorrow = adjusted_start.date() > now.date()
@@ -594,13 +611,13 @@ class TadoPreheatAdvisorSensor(TadoZoneSensor):
             self._summary += f" (includes {ufh_buffer} min UFH buffer)"
         self._attr_available = True
 
-    def _handle_schedule_block(self, next_block: object, manager: object) -> None:
+    def _handle_schedule_block(self, next_block: NextScheduleBlock, manager: SmartComfortManager) -> None:
         """Handle a schedule block — heating OFF, already at target, or preheat needed."""
         # Next block is heating OFF
-        if not next_block.is_heating_on or next_block.target_temp is None:  # type: ignore[union-attr]
+        if not next_block.is_heating_on or next_block.target_temp is None:
             now = dt_util.now()
-            self._is_tomorrow = next_block.start_time.date() > now.date()  # type: ignore[union-attr]
-            time_str = next_block.start_time.strftime("%H:%M")  # type: ignore[union-attr]
+            self._is_tomorrow = next_block.start_time.date() > now.date()
+            time_str = next_block.start_time.strftime("%H:%M")
             target_time = f"Tomorrow {time_str}" if self._is_tomorrow else time_str
             self._set_simple_status(
                 "Heating OFF", confidence="high",
@@ -609,15 +626,15 @@ class TadoPreheatAdvisorSensor(TadoZoneSensor):
             )
             return
 
-        self._target_temp = next_block.target_temp  # type: ignore[union-attr]
-        self._is_tomorrow = next_block.start_time.date() > dt_util.now().date()  # type: ignore[union-attr]
-        time_str = next_block.start_time.strftime("%H:%M")  # type: ignore[union-attr]
+        self._target_temp = next_block.target_temp
+        self._is_tomorrow = next_block.start_time.date() > dt_util.now().date()
+        time_str = next_block.start_time.strftime("%H:%M")
         self._target_time = f"Tomorrow {time_str}" if self._is_tomorrow else time_str
 
         # Already at or above target
-        if self._current_temp >= self._target_temp:
+        if self._current_temp is not None and self._current_temp >= self._target_temp:
             cooling_info = self._check_cooling_prediction(
-                self._target_temp, next_block.start_time, dt_util.now(),  # type: ignore[arg-type]
+                self._target_temp, next_block.start_time, dt_util.now(),
             )
             if cooling_info is None:
                 self._set_simple_status(
@@ -663,7 +680,7 @@ class TadoPreheatAdvisorSensor(TadoZoneSensor):
                 self._attr_available = False
                 return
 
-            # Suppress preheat when home is in AWAY mode (#171)
+            # Suppress preheat when home is in AWAY mode
             home_state = (self.coordinator.data or {}).get("home_state")
             if home_state and home_state.get("presence") != "HOME":
                 self._set_simple_status(
@@ -672,7 +689,7 @@ class TadoPreheatAdvisorSensor(TadoZoneSensor):
                 )
                 return
 
-            # Check cooling prediction against CURRENT active target (Discussion #163)
+            # Check cooling prediction against CURRENT active target
             if self._check_active_cooling_preheat(zone_data):
                 return
 
@@ -689,27 +706,32 @@ class TadoPreheatAdvisorSensor(TadoZoneSensor):
 
             self._handle_schedule_block(next_block, manager)
 
-        except Exception as e:  # noqa: BLE001 — HA entity update pattern
-            _LOGGER.debug("Failed to update preheat advice for zone %s: %s", self._zone_id, e)
+        except Exception as e:
+            _LOGGER.debug(
+                "Smart Comfort Sensor: zone %s preheat advisor update "
+                "failed (%s) — marking unavailable until the next poll",
+                self._zone_id, e,
+            )
             self._attr_available = False
         finally:
             # (used by TadoPreheatNowSensor and insight collector)
-            self.coordinator.publish_entity_data(
-                self._zone_id,
-                "preheat_advisor",
-                {
-                    "state": str(self._attr_native_value) if self._attr_native_value else None,
-                    "target_time": self._target_time,
-                    "target_temperature": self._target_temp,
-                    "current_temperature": self._current_temp,
-                    "duration_minutes": self._duration_minutes,
-                    "confidence": self._confidence,
-                    "is_tomorrow": self._is_tomorrow,
-                    "cooling_rate": self._cooling_rate,
-                    "predicted_crossover_time": self._predicted_crossover_time,
-                    "is_cooling_prediction": self._is_cooling_prediction,
-                },
-            )
+            if self._attr_available:
+                self.coordinator.publish_entity_data(
+                    self._zone_id,
+                    ENTITY_DATA_PREHEAT_ADVISOR,
+                    {
+                        "state": str(self._attr_native_value) if self._attr_native_value else None,
+                        "target_time": self._target_time,
+                        "target_temperature": self._target_temp,
+                        "current_temperature": self._current_temp,
+                        "duration_minutes": self._duration_minutes,
+                        "confidence": self._confidence,
+                        "is_tomorrow": self._is_tomorrow,
+                        "cooling_rate": self._cooling_rate,
+                        "predicted_crossover_time": self._predicted_crossover_time,
+                        "is_cooling_prediction": self._is_cooling_prediction,
+                    },
+                )
 
 
     def _apply_cooling_preheat(self, crossover_dt: datetime, now: datetime) -> None:
@@ -842,10 +864,6 @@ class TadoPreheatAdvisorSensor(TadoZoneSensor):
         }
 
 class TadoSmartComfortTargetSensor(TadoZoneSensor):
-    """Represent a Tado smart comfort target temperature sensor."""
-
-    _attr_has_entity_name = True
-
     """Smart Comfort Target Temperature sensor.
 
     Calculates the ideal target temperature using ASHRAE 55 Adaptive Comfort Model.
@@ -860,6 +878,8 @@ class TadoSmartComfortTargetSensor(TadoZoneSensor):
 
     State: Recommended target temperature (°C)
     """
+
+    _attr_has_entity_name = True
 
     def __init__(
         self, coordinator: TadoDataUpdateCoordinator, zone_id: str, zone_name: str, zone_type: str = "HEATING",
@@ -961,8 +981,12 @@ class TadoSmartComfortTargetSensor(TadoZoneSensor):
             self._attr_native_value = comfort_target
             self._attr_available = True
 
-        except Exception as e:  # noqa: BLE001 — HA entity update pattern
-            _LOGGER.debug("Failed to update Smart Comfort target for zone %s: %s", self._zone_id, e)
+        except Exception as e:
+            _LOGGER.debug(
+                "Smart Comfort Sensor: zone %s comfort target update "
+                "failed (%s) — marking unavailable until the next poll",
+                self._zone_id, e,
+            )
             self._attr_available = False
 
     def _calculate_comfort_target(self) -> float | None:

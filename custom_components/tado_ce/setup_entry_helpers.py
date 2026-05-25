@@ -1,9 +1,20 @@
-"""Tado CE setup entry helpers — optional per-entry component initialization."""
+"""Tado CE setup helpers — optional per-entry feature initialisers.
+
+Each feature (Smart Comfort, Heating Cycle Analysis, Adaptive
+Preheat, State Restore) gets its own `async_init_*` helper so the
+main setup flow stays readable. The Smart Comfort initialiser
+implements the 3-tier loading strategy (cache file → recorder
+history → long-term statistics baseline).
+"""
 
 from __future__ import annotations
 
 import logging
 from typing import TYPE_CHECKING, Any
+
+from homeassistant.util import slugify
+
+from .helpers import mask_serial
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
@@ -22,11 +33,11 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_log_file_system_state(hass: HomeAssistant) -> None:
-    """Log file system state for debugging (run in executor to avoid blocking I/O)."""
+    """Log which Tado CE data files exist on disk during setup."""
     from .const import CONFIG_FILE, DATA_DIR, ZONES_FILE, ZONES_INFO_FILE
 
     def _check() -> dict[str, Any]:
-        """Check file system state."""
+        """Check existence of Tado CE data files (executor — file I/O)."""
         return {
             "data_dir_exists": DATA_DIR.exists(),
             "config_file_exists": CONFIG_FILE.exists(),
@@ -35,10 +46,10 @@ async def async_log_file_system_state(hass: HomeAssistant) -> None:
         }
 
     fs_state = await hass.async_add_executor_job(_check)
-    _LOGGER.info(
-        "=== Setup File System State ===\n"
-        "  DATA_DIR: %s (exists: %s)\n  CONFIG_FILE: %s (exists: %s)\n"
-        "  ZONES_FILE: %s (exists: %s)\n  ZONES_INFO_FILE: %s (exists: %s)",
+    _LOGGER.debug(
+        "Setup: data file presence — DATA_DIR=%s (%s), "
+        "CONFIG_FILE=%s (%s), ZONES_FILE=%s (%s), "
+        "ZONES_INFO_FILE=%s (%s)",
         DATA_DIR,
         fs_state["data_dir_exists"],
         CONFIG_FILE,
@@ -56,9 +67,11 @@ async def async_init_smart_comfort(
     config_manager: ConfigurationManager,
     home_id: str | None,
 ) -> SmartComfortManager | None:
-    """Initialize Smart Comfort Manager if enabled.
+    """Build the Smart Comfort manager + load 2h cache + 24h recorder + 7d baselines.
 
-    Returns the manager instance, or None if disabled.
+    The 3-tier load strategy fills in successively older windows
+    so the manager has usable rates as soon as the first tier
+    completes.
     """
     if not config_manager.get_smart_comfort_enabled():
         return None
@@ -90,23 +103,22 @@ async def async_init_smart_comfort(
             use_feels_like=use_feels_like,
         )
 
-    # 3-Tier Loading Strategy
-    # Tier 1: Load from cache file (fastest, 2h detailed data)
+    # First tier — fastest, 2h of detailed data from the local cache.
     cache_readings = await smart_comfort_manager.async_load()
 
-    # Get zones_info for entity ID mapping
     zones_info = await hass.async_add_executor_job(data_loader.load_zones_info_file)
 
     if zones_info:
         entity_to_zone_id = {
-            zone.get("name", "").lower().replace(" ", "_"): str(zone.get("id"))
+            slugify(zone.get("name", "")): str(zone.get("id"))
             for zone in zones_info
             if zone.get("name") and zone.get("id")
         }
 
         climate_entity_ids = [f"climate.{entity_name}" for entity_name in entity_to_zone_id]
 
-        # Tier 2: Load from recorder history (24h detailed states)
+        # Second tier — last 24h of detailed states from the
+        # HA recorder, layered on top of the cache.
         recorder_readings = 0
         if climate_entity_ids:
             recorder_readings = await async_load_history_from_recorder(
@@ -116,9 +128,11 @@ async def async_init_smart_comfort(
                 entity_to_zone_id,
             )
 
-        # Tier 3: Load baseline rates from long-term statistics (7 days hourly)
+        # Third tier — 7d hourly baselines from long-term
+        # statistics, used when neither cache nor recorder has
+        # data for a given zone.
         zone_sensor_mapping = {
-            str(zone.get("id")): f"sensor.{zone.get('name', '').lower().replace(' ', '_')}_temperature"
+            str(zone.get("id")): f"sensor.{slugify(zone.get('name', ''))}_temperature"
             for zone in zones_info
             if zone.get("name") and zone.get("id")
         }
@@ -128,14 +142,15 @@ async def async_init_smart_comfort(
             zone_sensor_mapping,
         )
 
-        _LOGGER.info(
-            "Tado CE: Smart Comfort 3-tier loading complete - cache=%s, recorder=%s, baseline_zones=%s",
+        _LOGGER.debug(
+            "Setup: Smart Comfort load summary — cache=%s, "
+            "recorder=%s, baseline_zones=%s",
             cache_readings,
             recorder_readings,
             len(baseline_stats),
         )
 
-    _LOGGER.info("Tado CE: Smart Comfort Analytics enabled")
+    _LOGGER.info("Setup: Smart Comfort Analytics enabled")
     return smart_comfort_manager
 
 
@@ -144,11 +159,7 @@ async def async_init_heating_cycle(
     config_manager: ConfigurationManager,
     home_id: str | None,
 ) -> HeatingCycleCoordinator | None:
-    """Initialize Heating Cycle Coordinator.
-
-    Always enabled for HEATING zones.
-    Returns the coordinator instance, or None if no home_id.
-    """
+    """Build the Heating Cycle Coordinator (always enabled for HEATING zones)."""
     if not home_id:
         return None
 
@@ -163,8 +174,9 @@ async def async_init_heating_cycle(
             min_cycles=config_manager.get_heating_cycle_min_cycles(),
         )
 
-        _LOGGER.info(
-            "Tado CE: Heating Cycle Config - min_cycles=%d, history_days=%d, inertia_threshold=%.2f",
+        _LOGGER.debug(
+            "Setup: Heating Cycle config — min_cycles=%d, "
+            "history_days=%d, inertia_threshold=%.2f",
             heating_cycle_config.min_cycles,
             heating_cycle_config.rolling_window_days,
             heating_cycle_config.inertia_threshold_celsius,
@@ -177,10 +189,15 @@ async def async_init_heating_cycle(
         )
         await heating_cycle_coordinator.async_setup()
 
-        _LOGGER.info("Tado CE: Heating Cycle Analysis initialized")
+        _LOGGER.info("Setup: Heating Cycle Analysis ready")
         return heating_cycle_coordinator
     except Exception:
-        _LOGGER.exception("Tado CE: Failed to initialize Heating Cycle Analysis")
+        _LOGGER.warning(
+            "Setup: Heating Cycle Analysis init failed — feature "
+            "disabled this session, will retry on the next "
+            "integration reload",
+            exc_info=True,
+        )
         return None
 
 
@@ -192,10 +209,7 @@ async def async_init_adaptive_preheat(
     data_loader: DataLoader | None,
     zone_config_manager: ZoneConfigManager | None = None,
 ) -> AdaptivePreheatManager | None:
-    """Initialize Adaptive Preheat Manager if enabled.
-
-    Returns the manager instance, or None if disabled.
-    """
+    """Build the Adaptive Preheat manager when the feature is enabled."""
     if not config_manager.get_adaptive_preheat_enabled():
         return None
 
@@ -210,21 +224,24 @@ async def async_init_adaptive_preheat(
             zone_config_manager=zone_config_manager,
         )
         await apm.async_setup()
-        _LOGGER.info("Tado CE: Adaptive Preheat enabled")
+        _LOGGER.info("Setup: Adaptive Preheat ready")
         return apm
     except Exception:
-        _LOGGER.exception("Tado CE: Failed to initialize Adaptive Preheat")
+        _LOGGER.warning(
+            "Setup: Adaptive Preheat init failed — feature "
+            "disabled this session, will retry on the next "
+            "integration reload",
+            exc_info=True,
+        )
         return None
+
 
 async def async_init_state_restore(
     hass: HomeAssistant,
     config_manager: ConfigurationManager,
     data_loader: DataLoader,
 ) -> StateRestoreManager | None:
-    """Initialize State Restore Manager.
-
-    Returns the manager instance, or None on failure.
-    """
+    """Build the State Restore manager (resumes overlays after HA restart)."""
     try:
         from .state_restore_manager import StateRestoreManager
 
@@ -234,10 +251,15 @@ async def async_init_state_restore(
             data_loader,
         )
         await srm.async_setup()
-        _LOGGER.info("Tado CE: State Restore Manager enabled")
+        _LOGGER.info("Setup: State Restore manager ready")
         return srm
     except Exception:
-        _LOGGER.exception("Tado CE: Failed to initialize State Restore Manager")
+        _LOGGER.warning(
+            "Setup: State Restore manager init failed — overlays "
+            "will not auto-resume after this restart, will retry "
+            "on the next integration reload",
+            exc_info=True,
+        )
         return None
 
 
@@ -247,16 +269,10 @@ def schedule_heating_cycle_timeouts(
     coordinator: TadoDataUpdateCoordinator,
     heating_cycle_coordinator: HeatingCycleCoordinator,
 ) -> None:
-    """Schedule periodic heating cycle timeout checks.
+    """Run the heating-cycle timeout checker every 60 seconds.
 
-    Registers a 60-second interval timer that checks for timed-out
-    heating cycles and closes them. The cancel handle is stored on
-    the coordinator for cleanup during unload.
-
-    Args:
-        hass: Home Assistant instance.
-        coordinator: The data update coordinator.
-        heating_cycle_coordinator: The heating cycle coordinator to check.
+    The cancel handle lives on the coordinator so unload can
+    stop the timer cleanly.
     """
     from datetime import datetime as _dt
     from datetime import timedelta as _td
@@ -275,16 +291,13 @@ def schedule_heating_cycle_timeouts(
 
 
 async def async_load_insight_history(coordinator: TadoDataUpdateCoordinator) -> None:
-    """Load insight history from disk and prune stale entries.
-
-    Args:
-        coordinator: The data update coordinator with insight_history tracker.
-    """
+    """Load persisted insight history and drop stale entries."""
     loaded_count = await coordinator.insight_history.async_load()
     pruned_count = coordinator.insight_history.prune_old_entries()
     if loaded_count or pruned_count:
         _LOGGER.debug(
-            "Tado CE: Insight history loaded %d entries, pruned %d stale",
+            "Setup: insight history loaded %d entr(ies), pruned "
+            "%d stale",
             loaded_count,
             pruned_count,
         )
@@ -295,15 +308,12 @@ def register_bridge_devices(
     entry_id: str,
     zones_info: list[dict[str, Any]],
 ) -> None:
-    """Pre-register Tado bridge devices in the device registry.
+    """Pre-register Tado bridge devices so zone devices can reference them via_device.
 
-    Ensures bridge devices (IB01/IB02) exist before zone devices reference
-    them via via_device. This follows the HA official pattern.
-
-    Args:
-        hass: Home Assistant instance.
-        entry_id: The config entry ID.
-        zones_info: List of zone info dicts from coordinator data.
+    HA's device-registry contract is that `via_device` targets
+    must already exist; pre-registering the bridges avoids a
+    setup-time race where the zone devices would otherwise be
+    created without their parent.
     """
     from homeassistant.helpers import device_registry as dr
 
@@ -325,4 +335,7 @@ def register_bridge_devices(
                     name=device.get("serialNo", serial),
                     sw_version=device.get("currentFwVersion"),
                 )
-                _LOGGER.debug("Pre-registered Tado bridge: %s (%s)", serial, device_type)
+                _LOGGER.debug(
+                    "Setup: pre-registered Tado bridge %s (%s)",
+                    mask_serial(serial), device_type,
+                )

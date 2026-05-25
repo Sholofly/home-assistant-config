@@ -1,8 +1,4 @@
-"""Tado CE schedule helpers — schedule block lookup and target temperature extraction.
-
-Extracted from ``write_optimizer.py`` for module cohesion: these functions
-read schedule data but have no relationship to API write optimization.
-"""
+"""Tado CE schedule helpers — schedule block lookup and target temperature extraction."""
 
 from __future__ import annotations
 
@@ -15,7 +11,7 @@ if TYPE_CHECKING:
     from .data_loader import DataLoader
 
 
-# Day type mapping for schedule parsing (moved from smart_comfort.py)
+# Day type mapping for schedule parsing
 DAY_TYPE_MAP = {
     0: "MONDAY",
     1: "TUESDAY",
@@ -42,9 +38,9 @@ def _get_day_blocks(blocks: dict[str, Any], schedule_type: str, weekday: int) ->
     if schedule_type == "ONE_DAY":
         return blocks.get("MONDAY_TO_SUNDAY") or []
     if schedule_type == "THREE_DAY":
-        if weekday < 5:  # noqa: PLR2004 — weekday 0-4 = Mon-Fri
+        if weekday < 5:
             return blocks.get("MONDAY_TO_FRIDAY") or []
-        if weekday == 5:  # noqa: PLR2004 — weekday 5 = Saturday
+        if weekday == 5:
             return blocks.get("SATURDAY") or []
         return blocks.get("SUNDAY") or []
     # SEVEN_DAY

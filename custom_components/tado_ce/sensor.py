@@ -1,15 +1,9 @@
-"""Tado CE Sensors — platform entry point.
+"""Tado CE sensor platform — instantiate every sensor entity per config entry.
 
-Sub-modules:
-- sensor_zone.py: zone-level sensors (temperature, humidity, heating power, overlay)
-- sensor_environment.py: mold risk, condensation, comfort, dew point, surface temp
-- sensor_device.py: battery, connection sensors
-- sensor_hub.py: API usage, home info sensors
-- sensor_insight.py: home/zone insights sensors
-- sensor_insight_collector.py: insight collection logic
-- sensor_smart_comfort.py: smart comfort sensors
-- sensor_thermal.py: thermal analytics sensors
-- sensor_weather.py: weather sensors
+This module is the entry point: it pulls capability flags from
+the config manager, walks zones / devices / bridge data, and
+asks the topic-specific modules (`sensor_zone`, `sensor_hub`,
+`sensor_environment`, etc.) to build the actual entities.
 """
 
 from __future__ import annotations
@@ -32,7 +26,6 @@ from .sensor_bridge import TadoDynamicBridgeSensor
 # Device sensors (2 classes)
 from .sensor_device import (
     TadoBatterySensor,
-    TadoDeviceConnectionSensor,
 )
 
 # Environment sensors (6 classes)
@@ -45,7 +38,7 @@ from .sensor_environment import (
     TadoSurfaceTemperatureSensor,
 )
 
-# Hub sensors (12 classes)
+# Hub sensors (14 classes)
 from .sensor_hub import (
     TadoApiBreakdownSensor,
     TadoApiHistorySensor,
@@ -54,6 +47,8 @@ from .sensor_hub import (
     TadoApiStatusSensor,
     TadoApiUsageSensor,
     TadoHomeIdSensor,
+    TadoHomekitReadsSavedSensor,
+    TadoHomekitWritesSavedSensor,
     TadoLastSyncSensor,
     TadoNextSyncSensor,
     TadoPollingIntervalSensor,
@@ -98,7 +93,6 @@ from .sensor_zone import (
     TadoACPowerSensor,
     TadoBoilerFlowTemperatureSensor,
     TadoHeatingPowerSensor,
-    TadoHotWaterPowerSensor,
     TadoHumiditySensor,
     TadoOverlaySensor,
     TadoTargetTempSensor,
@@ -177,8 +171,9 @@ def _create_heating_zone_sensors(
     hcc = coordinator.heating_cycle_coordinator
     if not hcc:
         _LOGGER.warning(
-            "Zone %s has heatingPower but HeatingCycleCoordinator "
-            "not available - thermal analytics sensors not created",
+            "Sensor: zone %s reports heating power but the heating "
+            "cycle coordinator hasn't started yet — thermal analytics "
+            "sensors will be created on the next reload",
             zone_name,
         )
         return
@@ -205,7 +200,6 @@ def _create_hot_water_sensors(
     if has_temperature:
         sensors.append(TadoTemperatureSensor(coordinator, zone_id, zone_name, zone_type))
     sensors.append(TadoOverlaySensor(coordinator, zone_id, zone_name, zone_type))
-    sensors.append(TadoHotWaterPowerSensor(coordinator, zone_id, zone_name, zone_type))
 
 
 def _create_zone_sensors(
@@ -234,7 +228,10 @@ def _create_zone_sensors(
             zones_with_heating_power.add(zone_id)
 
     if zones_with_heating_power:
-        _LOGGER.debug("Zones with heatingPower data: %s", zones_with_heating_power)
+        _LOGGER.debug(
+            "Sensor: zones reporting heating power — %s",
+            zones_with_heating_power,
+        )
 
     for zone_id, zone_data in zone_states.items():
         zone_type = zone_types.get(zone_id, "HEATING")
@@ -304,10 +301,6 @@ def _create_device_sensors(
             sensors.append(
                 TadoBatterySensor(coordinator, zone_id, zone_name, zone_type, device, zones_info),
             )
-        if "connectionState" in device:
-            sensors.append(
-                TadoDeviceConnectionSensor(coordinator, zone_id, zone_name, zone_type, device, zones_info),
-            )
 
 
 def _create_bridge_sensors(
@@ -331,22 +324,30 @@ def _create_bridge_sensors(
                 sensors.append(TadoDynamicBridgeSensor(coordinator, entity))
                 bridge_sensor_count += 1
         _LOGGER.info(
-            "Bridge dynamic discovery — %d sensor entities from %d fields",
+            "Sensor: discovered %d bridge sensor(s) from %d bridge fields",
             bridge_sensor_count, len(fields),
         )
 
-    # Meta sensors — always create when bridge credentials configured
-    from .sensor_bridge_meta import (
+    # Meta sensors are always created once bridge credentials are
+    # present, even before the first bridge poll lands — they expose
+    # the capability / schema version state machine to users.
+    from .sensor_bridge import (
         TadoBridgeCapabilitiesSensor,
         TadoBridgeSchemaVersionSensor,
     )
 
     sensors.append(TadoBridgeCapabilitiesSensor(coordinator))
     sensors.append(TadoBridgeSchemaVersionSensor(coordinator))
-    _LOGGER.debug("Bridge meta sensors created (capabilities + schema version)")
+    _LOGGER.debug(
+        "Sensor: bridge meta sensors created (capabilities + schema version)",
+    )
 
     if not bridge_data:
-        _LOGGER.info("Bridge credentials found but no bridge data yet — sensors will appear after first poll")
+        _LOGGER.info(
+            "Sensor: bridge credentials configured but no bridge data "
+            "yet — dynamic bridge sensors will be created after the "
+            "next reload",
+        )
 
 
 async def async_setup_entry(
@@ -381,12 +382,17 @@ async def async_setup_entry(
     sensors.append(TadoApiBreakdownSensor(coordinator))
     sensors.append(TadoHomeInsightsSensor(coordinator))
 
-    # Boiler Flow Temperature sensor
     if await hass.async_add_executor_job(_has_boiler_flow_temperature_data, data_loader):
-        _LOGGER.info("Boiler flow temperature data detected - creating sensor")
+        _LOGGER.debug(
+            "Sensor: boiler flow temperature available — creating "
+            "TadoBoilerFlowTemperatureSensor",
+        )
         sensors.append(TadoBoilerFlowTemperatureSensor(coordinator))
     else:
-        _LOGGER.debug("No boiler flow temperature data found - sensor not created (requires OpenTherm)")
+        _LOGGER.debug(
+            "Sensor: no boiler flow temperature in zone data — boiler "
+            "flow sensor not created (requires an OpenTherm boiler)",
+        )
 
     # Weather sensors (optional)
     if config_manager.get_weather_enabled():
@@ -394,22 +400,35 @@ async def async_setup_entry(
         sensors.append(TadoSolarIntensitySensor(coordinator))
         sensors.append(TadoWeatherStateSensor(coordinator))
 
-    # Zone sensors
+    # HomeKit savings sensors (optional)
+    if config_manager.get_homekit_enabled():
+        sensors.append(TadoHomekitReadsSavedSensor(coordinator))
+        sensors.append(TadoHomekitWritesSavedSensor(coordinator))
+
     try:
         await hass.async_add_executor_job(
             _create_zone_sensors, coordinator, data_loader, config_manager, zone_names, sensors,
         )
     except Exception:
-        _LOGGER.exception("Failed to load zones")
+        _LOGGER.warning(
+            "Sensor: could not parse zone list while creating zone "
+            "sensors — zone-level sensors will retry on the next "
+            "reload",
+            exc_info=True,
+        )
 
-    # Device sensors (battery + connection)
     if config_manager.get_zone_diagnostics_enabled():
         try:
             await hass.async_add_executor_job(
                 _create_device_sensors, coordinator, data_loader, sensors,
             )
-        except Exception as e:  # noqa: BLE001 — defensive setup, must not block other sensors
-            _LOGGER.warning("Failed to load device info: %s", e)
+        except Exception as e:
+            _LOGGER.warning(
+                "Sensor: could not parse device list while creating "
+                "battery sensors (%s) — battery sensors will retry on "
+                "the next reload",
+                e,
+            )
 
     # Bridge sensors (dynamic discovery)
     bridge_serial = entry.options.get("bridge_serial")
@@ -427,14 +446,20 @@ async def async_setup_entry(
 
         sensors.append(TadoWeatherCompensationTargetSensor(coordinator))
         sensors.append(TadoWeatherCompensationStatusSensor(coordinator))
-        _LOGGER.debug("Weather compensation sensors created (target + status)")
+        _LOGGER.debug(
+            "Sensor: weather compensation sensors created (target + status)",
+        )
 
     async_add_entities(sensors, True)
-    _LOGGER.info("Tado CE sensors loaded: %s", len(sensors))
+    _LOGGER.info("Sensor: created %d sensor entity(ies)", len(sensors))
 
 
 def _has_boiler_flow_temperature_data(data_loader: DataLoader) -> bool:
-    """Check if any zone has boiler flow temperature data (requires OpenTherm)."""
+    """Return True when at least one zone reports boilerFlowTemperature.
+
+    OpenTherm boilers expose flow temperature; on/off boilers don't,
+    so the sensor only makes sense when a zone confirms the data.
+    """
     try:
         data = data_loader.load_zones_file()
         if not data:
@@ -445,10 +470,18 @@ def _has_boiler_flow_temperature_data(data_loader: DataLoader) -> bool:
             activity_data = zone_data.get("activityDataPoints") or {}
             flow_temp = (activity_data.get("boilerFlowTemperature") or {}).get("celsius")
             if flow_temp is not None:
-                _LOGGER.debug("Found boilerFlowTemperature in zone %s: %s°C", zone_id, flow_temp)
+                _LOGGER.debug(
+                    "Sensor: zone %s reports boiler flow %s°C — boiler "
+                    "flow sensor will be created",
+                    zone_id, flow_temp,
+                )
                 return True
 
         return False
-    except Exception as e:  # noqa: BLE001 — defensive check, must not block setup
-        _LOGGER.debug("Error checking boiler flow temperature data: %s", e)
+    except Exception as e:
+        _LOGGER.debug(
+            "Sensor: could not probe zone data for boiler flow "
+            "temperature (%s) — boiler flow sensor not created",
+            e,
+        )
         return False

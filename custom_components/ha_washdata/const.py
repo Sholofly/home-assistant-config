@@ -71,10 +71,14 @@ CONF_ANTI_WRINKLE_MAX_POWER = "anti_wrinkle_max_power"  # W threshold for anti-w
 CONF_ANTI_WRINKLE_MAX_DURATION = "anti_wrinkle_max_duration"  # Seconds to treat as anti-wrinkle
 CONF_ANTI_WRINKLE_EXIT_POWER = "anti_wrinkle_exit_power"  # W threshold for true-off exit
 CONF_DELAY_START_DETECT_ENABLED = "delay_start_detect_enabled"  # Enable delayed-start detection
-CONF_DELAY_DRAIN_MIN_POWER = "delay_drain_min_power"  # Min W for a drain spike to be recognised
-CONF_DELAY_DRAIN_MAX_POWER = "delay_drain_max_power"  # Max W for a drain spike (above = real start)
-CONF_DELAY_DRAIN_MAX_DURATION = "delay_drain_max_duration"  # Max seconds a drain spike may last
+CONF_DELAY_CONFIRM_SECONDS = "delay_confirm_seconds"  # Seconds power must stay in standby band before DELAY_WAIT engages
 CONF_DELAY_TIMEOUT_HOURS = "delay_timeout_hours"  # Safety timeout (hours) while waiting to start
+
+# Deprecated since 0.4.5: drain-spike model replaced by band-based DELAY_WAIT.
+# Kept only so older Store/options blobs don't raise KeyError during migration.
+CONF_DELAY_DRAIN_MIN_POWER = "delay_drain_min_power"
+CONF_DELAY_DRAIN_MAX_POWER = "delay_drain_max_power"
+CONF_DELAY_DRAIN_MAX_DURATION = "delay_drain_max_duration"
 
 
 NOTIFY_EVENT_START = "cycle_start"
@@ -167,11 +171,16 @@ DEFAULT_ANTI_WRINKLE_MAX_POWER = 400.0  # W
 DEFAULT_ANTI_WRINKLE_MAX_DURATION = 60.0  # s
 DEFAULT_ANTI_WRINKLE_EXIT_POWER = 0.8  # W
 
-# Delayed-start detection defaults (disabled by default)
+# Delayed-start detection defaults (disabled by default).
+#
+# The detector watches for sustained power between stop_threshold_w and
+# start_threshold_w (the "standby band"): a machine sitting in that band
+# for at least DEFAULT_DELAY_CONFIRM_SECONDS is in delayed-start mode, not
+# off and not running. Short menu-navigation peaks above the band are
+# ignored because they don't sustain long enough to satisfy the normal
+# start-duration gate.
 DEFAULT_DELAY_START_DETECT_ENABLED = False
-DEFAULT_DELAY_DRAIN_MIN_POWER = 10.0  # W — lower bound for a drain spike
-DEFAULT_DELAY_DRAIN_MAX_POWER = 80.0  # W — upper bound; power above this = real cycle start
-DEFAULT_DELAY_DRAIN_MAX_DURATION = 60.0  # s — drain must resolve within this window
+DEFAULT_DELAY_CONFIRM_SECONDS = 60.0  # s — sustained standby before DELAY_WAIT engages
 DEFAULT_DELAY_TIMEOUT_HOURS = 8.0  # h — give up waiting after this long
 
 # Pump Monitor settings (pump device type only)
@@ -229,6 +238,14 @@ DEVICE_TYPE_HEAT_PUMP = "heat_pump"
 DEVICE_TYPE_BREAD_MAKER = "bread_maker"
 DEVICE_TYPE_PUMP = "pump"
 DEVICE_TYPE_OVEN = "oven"
+# Generic / unsupported bucket. Ships intentionally generic defaults that are
+# not tuned for any specific appliance, so the user must configure thresholds,
+# timeouts, and matching parameters themselves. Also serves as the runtime
+# fallback when a deprecated device type is hard-removed (see
+# DEPRECATED_DEVICE_TYPE_FALLBACK below). No curated phase catalog and no
+# device-type-specific branches in the runtime, so behavior is whatever the
+# user dials in.
+DEVICE_TYPE_OTHER = "other"
 
 DEVICE_TYPES = {
     DEVICE_TYPE_WASHING_MACHINE: "Washing Machine",
@@ -242,7 +259,31 @@ DEVICE_TYPES = {
     DEVICE_TYPE_BREAD_MAKER: "Bread Maker",
     DEVICE_TYPE_PUMP: "Pump / Sump Pump",
     DEVICE_TYPE_OVEN: "Oven",
+    DEVICE_TYPE_OTHER: "Other (Advanced)",
 }
+
+# Device types that ship as deprecated. They fail one of WashData's three fit
+# tests (user-selected discrete program, reproducible power signature, clean
+# return to OFF) so profile matching and time-remaining estimation produce
+# noise rather than signal. Kept in DEVICE_TYPES so existing config entries
+# load unchanged; filtered out of the new-entry picker in the config flow,
+# shown with a "(deprecated)" suffix when an existing entry already uses one,
+# and surfaced via a one-shot persistent_notification on integration startup.
+# Planned hard removal: 0.4.6 (two release cycles after this deprecation).
+DEPRECATED_DEVICE_TYPES = frozenset({
+    DEVICE_TYPE_COFFEE_MACHINE,
+    DEVICE_TYPE_EV,
+    DEVICE_TYPE_HEAT_PUMP,
+    DEVICE_TYPE_OVEN,
+})
+
+# Fallback device_type used at runtime once a deprecated type is hard-removed.
+# "Other (Advanced)" intentionally ships generic defaults so the integration
+# does not silently pretend an orphaned entry behaves like a washing machine.
+# Stored options are preserved as-is, so a user who had hand-tuned thresholds
+# on the old deprecated type keeps those values; the integration just stops
+# layering device-specific defaults underneath them.
+DEPRECATED_DEVICE_TYPE_FALLBACK = DEVICE_TYPE_OTHER
 
 # Device Type Defaults
 # Device Type Defaults (Maps)
@@ -276,7 +317,13 @@ DEFAULT_MAX_DEFERRAL_SECONDS = 14400  # 4 hours max safe deferral
 # existing long_ending_tail path - this only governs the smart-termination
 # pre-arming).
 DISHWASHER_END_SPIKE_MIN_PROGRESS = 0.85
-DISHWASHER_END_SPIKE_WAIT_SECONDS = 300.0
+# Widened from 300s to 1800s after issue #43 follow-up:
+# real-world user reports showed Smart Termination misfiring ~4 min before the
+# end-of-cycle pump-out, and the original 5-min escape hatch wasn't generous
+# enough to cover that gap before the next reading arrived.  30 min is plenty
+# to capture even the latest pump-outs while still guaranteeing the cycle
+# closes eventually for dishwashers that have no pump-out at all.
+DISHWASHER_END_SPIKE_WAIT_SECONDS = 1800.0
 
 DEFAULT_OFF_DELAY_BY_DEVICE = {
     DEVICE_TYPE_DISHWASHER: 1800,  # 30 min (Drying)

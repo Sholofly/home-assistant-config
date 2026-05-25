@@ -2,16 +2,28 @@
 
 from __future__ import annotations
 
+from datetime import timedelta
 import os
 from pathlib import Path
-from typing import Final
+from typing import Any, Final
 
 DOMAIN = "tado_ce"
 MANUFACTURER = "Joe Yiu (@hiall-fyi)"
 
+# Dispatcher signal for HomeKit real-time entity updates
+SIGNAL_HOMEKIT_UPDATE = "tado_ce_homekit_update_{home_id}"
+
+# Bus event fired after first successful API sync and entity population
+EVENT_READY: Final[str] = "tado_ce_ready"
+
 # Tado bridge device models (Internet Bridge hardware)
 # Used for pre-registering bridge devices in the device registry before platform setup
 TADO_BRIDGE_MODELS = ["IB01", "IB02"]
+
+# Bridge API independent poll interval (seconds).
+# Bridge API uses its own auth key and does NOT count toward the Tado cloud API
+# quota, so it can poll more frequently than the main coordinator cycle.
+BRIDGE_POLL_INTERVAL_SECONDS: Final[float] = 60.0
 
 # Data directory (persistent storage)
 # Stored in .storage/tado_ce/ to prevent HACS upgrades from overwriting data files
@@ -33,7 +45,8 @@ PER_HOME_FILES = [
     "offsets",
     "ac_capabilities",
     "schedules",
-    "home_details",
+    "homekit_pairing",
+    "homekit_device_map",
 ]
 
 
@@ -91,7 +104,7 @@ AUTH_ENDPOINT_DEVICE = f"{TADO_AUTH_URL}/device_authorize"
 AUTH_ENDPOINT_TOKEN = f"{TADO_AUTH_URL}/token"
 
 # =============================================================================
-# Unit Conversion Constants
+# Weather Compensation & Smart Comfort Presets
 # =============================================================================
 
 # Weather compensation presets: (cold_threshold, cold_factor, warm_threshold, warm_factor)
@@ -106,73 +119,12 @@ WEATHER_COMPENSATION_PRESETS = {
     "aggressive": (0, 1.4, 10, 0.8),
 }
 
-# Smart Comfort Presets - comprehensive comfort optimization
-# Combines outdoor temp compensation, humidity adjustment, and preheat factors
-SMART_COMFORT_PRESETS = {
-    "none": {
-        # Outdoor temperature compensation
-        "outdoor_cold_threshold": None,  # °C - apply cold offset below this
-        "outdoor_cold_offset": 0.0,  # °C - add to target when cold
-        "outdoor_warm_threshold": None,  # °C - apply warm offset above this
-        "outdoor_warm_offset": 0.0,  # °C - subtract from target when warm
-        "outdoor_shutoff_threshold": None,  # °C - turn off heating above this
-        # Humidity compensation
-        "humidity_high_threshold": 70,  # % - apply high humidity offset above this
-        "humidity_high_offset": 0.0,  # °C - subtract when humid
-        "humidity_low_threshold": 35,  # % - apply low humidity offset below this
-        "humidity_low_offset": 0.0,  # °C - add when dry
-        # Preheat duration factors
-        "preheat_cold_factor": 1.0,  # Multiply preheat time when cold
-        "preheat_warm_factor": 1.0,  # Multiply preheat time when warm
-    },
-    "light": {
-        "outdoor_cold_threshold": 5,
-        "outdoor_cold_offset": 0.5,
-        "outdoor_warm_threshold": 15,
-        "outdoor_warm_offset": 0.5,
-        "outdoor_shutoff_threshold": None,
-        "humidity_high_threshold": 70,
-        "humidity_high_offset": 0.3,
-        "humidity_low_threshold": 35,
-        "humidity_low_offset": 0.3,
-        "preheat_cold_factor": 1.1,
-        "preheat_warm_factor": 0.95,
-    },
-    "moderate": {
-        "outdoor_cold_threshold": 5,
-        "outdoor_cold_offset": 1.0,
-        "outdoor_warm_threshold": 15,
-        "outdoor_warm_offset": 1.0,
-        "outdoor_shutoff_threshold": None,
-        "humidity_high_threshold": 70,
-        "humidity_high_offset": 0.5,
-        "humidity_low_threshold": 35,
-        "humidity_low_offset": 0.5,
-        "preheat_cold_factor": 1.2,
-        "preheat_warm_factor": 0.9,
-    },
-    "aggressive": {
-        "outdoor_cold_threshold": 5,
-        "outdoor_cold_offset": 1.5,
-        "outdoor_warm_threshold": 15,
-        "outdoor_warm_offset": 1.5,
-        "outdoor_shutoff_threshold": 18,  # Turn off heating when outdoor > 18°C
-        "humidity_high_threshold": 70,
-        "humidity_high_offset": 0.5,
-        "humidity_low_threshold": 35,
-        "humidity_low_offset": 0.5,
-        "preheat_cold_factor": 1.4,
-        "preheat_warm_factor": 0.8,
-    },
-}
-
 # Adaptive Smart Polling Constants
 # MIN_POLLING_INTERVAL is for adaptive calculation floor (sensible default)
 # Custom intervals can go as low as 1 minute when user explicitly sets them
 MIN_POLLING_INTERVAL = 5  # minutes (adaptive floor - prevents excessive polling by default)
 DEFAULT_DAY_INTERVAL = 30  # minutes (default day polling interval)
 DEFAULT_NIGHT_INTERVAL = 120  # minutes (default night polling interval)
-MIN_CUSTOM_INTERVAL = 1  # minutes (custom interval floor - allows 1-min for high-quota users)
 MAX_POLLING_INTERVAL = 120  # minutes (ensure reasonable updates even with low quota)
 MAX_CUSTOM_INTERVAL = 1440  # minutes (24 hours — maximum custom polling interval)
 POLLING_SAFETY_BUFFER = 0.90  # Reserve 10% quota for manual calls and unexpected usage
@@ -193,7 +145,7 @@ QUOTA_BOOTSTRAP_CALLS = 3  # Hard limit - never use these calls
 LOW_QUOTA_THRESHOLD = 100  # Trigger Smart Day/Night for low-quota users
 
 # Canonical window type to U-value mapping (W/m²K). Single source of truth for all
-# mold risk calculations. Previously duplicated as WINDOW_TYPE_U_VALUES (now removed).
+# mold risk calculations.
 WINDOW_U_VALUES = {
     "single_pane": 5.0,  # Single glazing (old buildings)
     "double_pane": 2.7,  # Double glazing (most common, default)
@@ -246,14 +198,19 @@ DEFAULT_ZONE_CONFIG = {
     "timer_duration": TIMER_DURATION_DEFAULT,  # 15-180 minutes (Heating + AC, when Timer)
     "min_temp": 5.0,  # 5-25°C (Heating + AC)
     "max_temp": 25.0,  # 15-30°C (Heating + AC)
-    "temp_offset": 0.0,  # -3.0 to +3.0°C (Heating + AC)
     "surface_temp_offset": 0.0,  # -5.0 to +5.0°C offset for mold risk calculation
+    "svc_mode": "off",  # off / valve_target / offset_sync (Heating only)
+    "svc_offset_min_change": 0.5,  # 0.5-3.0°C — minimum offset change before writing (Offset Sync)
 }
 
 # Surface temperature offset limits (for mold risk calibration)
 SURFACE_TEMP_OFFSET_MIN = -5.0
 SURFACE_TEMP_OFFSET_MAX = 5.0
 SURFACE_TEMP_OFFSET_STEP = 0.1
+
+# Per-zone temperature limits (user-configurable min/max setpoint bounds)
+ZONE_TEMP_MIN_FLOOR = 5.0    # Absolute minimum — frost protection
+ZONE_TEMP_MAX_CEILING = 30.0  # Absolute maximum — Tado hardware limit
 
 # Heating type values
 HEATING_TYPE_RADIATOR = "radiator"
@@ -262,17 +219,13 @@ HEATING_TYPE_OPTIONS = ["Radiator", "UFH"]
 # Smart comfort mode options (for per-zone select)
 SMART_COMFORT_MODE_OPTIONS = ["None", "Light", "Moderate", "Aggressive"]
 
-# Condensation risk thresholds (dew point in °C)
-CONDENSATION_RISK_NONE_THRESHOLD = 13.0  # Below this = None
-CONDENSATION_RISK_LOW_THRESHOLD = 15.5  # Below this = Low
-CONDENSATION_RISK_MODERATE_THRESHOLD = 18.0  # Below this = Moderate, above = High
-
 # Open window mode defaults
 OPEN_WINDOW_DEFAULT_TEMP = 5.0  # Frost protection temperature (°C)
 OPEN_WINDOW_DEFAULT_TIMEOUT = 900  # 15 minutes in seconds (Tado default)
 
 # Timer duration limits
 TIMER_DURATION_MIN = 15
+TIMER_DURATION_MAX = 180
 
 # Timer duration options (for per-zone select)
 TIMER_DURATION_OPTIONS = ["15", "30", "45", "60", "90", "120", "180"]
@@ -302,10 +255,52 @@ WINDOW_DETECTION_MODE_MAP = {
 WINDOW_DETECTION_MODE_REVERSE_MAP = {v: k for k, v in WINDOW_DETECTION_MODE_MAP.items()}
 WINDOW_DETECTION_MODE_DEFAULT = "auto"
 
-# Temperature offset limits (per-zone)
-TEMP_OFFSET_MIN = -3.0
-TEMP_OFFSET_MAX = 3.0
-TEMP_OFFSET_STEP = 0.5
+# Device offset sanity bounds — reject values outside this range.
+# Tado devices support roughly -10 to +10°C offsets; anything beyond
+# that is almost certainly a bad API response or automation feedback loop.
+DEVICE_OFFSET_MIN: float = -10.0
+DEVICE_OFFSET_MAX: float = 10.0
+
+
+# Insight runtime state (coordinator anomaly + humidity history persistence)
+INSIGHT_RUNTIME_STATE_KEY = "insight_runtime_state"
+
+
+def is_valid_device_offset(value: float | None) -> bool:
+    """Return True if value is a finite number within the valid offset range.
+
+    Consolidates the DEVICE_OFFSET_MIN <= x <= DEVICE_OFFSET_MAX check that
+    was duplicated at write, read, sync, and readback sites.
+    """
+    if value is None:
+        return False
+    try:
+        f = float(value)
+    except (TypeError, ValueError):
+        return False
+    return DEVICE_OFFSET_MIN <= f <= DEVICE_OFFSET_MAX
+
+# =============================================================================
+# Smart Valve Control Constants
+# =============================================================================
+
+SMART_VALVE_HYSTERESIS: Final[float] = 0.3       # °C dead zone around target
+SMART_VALVE_MIN_CHANGE: Final[float] = 0.5       # °C minimum write threshold
+SMART_VALVE_CLOUD_RATE_LIMIT: Final[float] = 300.0  # seconds (5 minutes)
+SMART_VALVE_DEBOUNCE_WINDOW: Final[float] = 3.0  # seconds (ActionDebouncer window)
+ABSOLUTE_MAX_VALVE_TARGET: Final[float] = 30.0   # °C absolute upper bound for valve target
+HOMEKIT_WRITE_GRACE_SECONDS: Final[float] = 60.0  # suppress manual override detection after write
+
+# SVC operating mode (per-zone select — mutually exclusive)
+SVC_MODE_OFF: Final[str] = "off"
+SVC_MODE_VALVE_TARGET: Final[str] = "valve_target"
+SVC_MODE_OFFSET_SYNC: Final[str] = "offset_sync"
+
+# Offset Sync — minimum offset change before writing to device
+SVC_OFFSET_MIN_CHANGE: Final[float] = 0.5  # °C (default)
+SVC_OFFSET_MIN_CHANGE_MIN: Final[float] = 0.5  # °C — lower bound for config
+SVC_OFFSET_MIN_CHANGE_MAX: Final[float] = 3.0  # °C — upper bound for config
+SVC_OFFSET_MIN_CHANGE_STEP: Final[float] = 0.5  # °C — step size in UI
 
 # =============================================================================
 # API Write Optimization Constants
@@ -331,10 +326,120 @@ RETRY_BASE_DELAY: Final = 2  # seconds — exponential: 2s, 4s, 8s
 MAX_RETRY_DELAY: Final = 30  # seconds — cap to prevent runaway delays
 
 # =============================================================================
+# Rate Limit / Quota Constants
+# =============================================================================
+
+# Quota warning threshold — log warning when usage exceeds this percentage
+QUOTA_WARNING_PERCENTAGE: Final[int] = 80
+
+# =============================================================================
 # Rate Limit Retry-After Constants (UpdateFailed(retry_after=N))
 # =============================================================================
 
 _RATE_LIMIT_MIN_S: Final = 10      # minimum wait (seconds)
 _RATE_LIMIT_MAX_S: Final = 300     # maximum wait (5 minutes)
 _RATE_LIMIT_DEFAULT_S: Final = 60  # default when no signal available
+
+# =============================================================================
+# HomeKit Timing Constants
+# =============================================================================
+
+# HomeKit cache older than this falls back to cloud
+HOMEKIT_STALENESS_THRESHOLD: Final[timedelta] = timedelta(minutes=5)
+
+# Periodic poll to keep cache fresh — must be < staleness threshold
+HOMEKIT_CACHE_REFRESH_SECONDS: Final[float] = HOMEKIT_STALENESS_THRESHOLD.total_seconds() * 0.4  # 120s (2 min)
+
+# Cloud sync interval when HomeKit is connected (user-configurable)
+DEFAULT_HOMEKIT_CLOUD_SYNC_MINUTES: Final[int] = 30
+MIN_HOMEKIT_CLOUD_SYNC_MINUTES: Final[int] = 5
+MAX_HOMEKIT_CLOUD_SYNC_MINUTES: Final[int] = 120
+
+# HomeKit write timeout — fallback to cloud if local write exceeds this
+HOMEKIT_WRITE_TIMEOUT_SECONDS: Final[float] = 3.0
+
+# Buffer added to optimistic window before cloud verification refresh
+CLOUD_VERIFICATION_BUFFER_SECONDS: Final[float] = 2.0
+
+# Write-side circuit breaker — skip HomeKit writes after consecutive failures
+WRITE_FAILURE_THRESHOLD: Final[int] = 3
+WRITE_CIRCUIT_OPEN_SECONDS: Final[float] = 300.0  # 5 minutes cooldown
+
+# Cache refresh failure threshold — trigger reconnect after consecutive failures
+CACHE_REFRESH_FAILURE_THRESHOLD: Final[int] = 3
+
+# HomeKit savings: detect API quota reset by observing a significant jump
+# in remaining calls. The jump must exceed both an absolute minimum and
+# a percentage of the total limit to avoid false positives from normal usage.
+HOMEKIT_SAVINGS_RESET_MIN_JUMP: Final[int] = 20
+HOMEKIT_SAVINGS_RESET_RATIO: Final[float] = 0.05
+
+# When HomeKit is connected, skip weather API calls if the last fetch
+# was less than this many minutes ago. Weather data changes slowly,
+# so reducing fetch frequency saves API quota.
+HOMEKIT_WEATHER_SKIP_MINUTES: Final[int] = 30
+
+# Periodic device-offset resync interval.
+#
+# Tado's own adaptive calibration can change a device offset without
+# Home Assistant having written it — e.g. the user changes the offset in
+# the Tado app, or the Tado backend nudges it as part of its own
+# learning loop. The Offset Sync controller's per-write readback gate
+# only proves "what we wrote landed"; it does not detect later
+# server-side drift, so the cached `offsets[zone_id]` value can still
+# diverge from Tado's stored value across a session.
+#
+# To bound that drift, the coordinator re-fetches every device offset
+# from Tado at least this often (in addition to the existing fetch on
+# the first poll after a restart). 30 minutes is a small fraction of an
+# Offset Sync evaluation cycle and adds at most one GET per zone every
+# half hour.
+OFFSET_DRIFT_REFRESH_SECONDS: Final[int] = 30 * 60
+
+# =============================================================================
+# Climate Zone Type Helper
+# =============================================================================
+
+CLIMATE_ZONE_TYPES: Final[frozenset[str]] = frozenset({"HEATING", "AIR_CONDITIONING"})
+
+# Outdoor temperature history — 14 days × 24 hourly readings
+OUTDOOR_TEMP_HISTORY_MAX: Final = 336
+
+# Entity freshness expiry — stale entries cleaned up after this many seconds
+ENTITY_FRESHNESS_EXPIRY_SECONDS: Final[int] = 60
+
+# Buffer added to debounce delay for optimistic window calculation
+OPTIMISTIC_WINDOW_BUFFER_SECONDS: Final[float] = 2.0
+
+# Default optimistic window when hass is unavailable (seconds)
+# = DEFAULT_REFRESH_DEBOUNCE_SECONDS (15) + OPTIMISTIC_WINDOW_BUFFER_SECONDS (2)
+DEFAULT_OPTIMISTIC_WINDOW_SECONDS: Final[float] = 17.0
+
+# Seconds per day — used for duration formatting
+SECONDS_PER_DAY: Final[int] = 86400
+
+# Insight escalation — days before an insight is considered long-standing
+INSIGHT_ESCALATION_DAYS: Final[int] = 14
+
+# Insight temperature reading throttle — minimum seconds between readings
+INSIGHT_READING_THROTTLE_SECONDS: Final[int] = 25
+
+# =============================================================================
+# Entity Data Keys — cross-component data sharing via coordinator.entity_data
+# =============================================================================
+
+ENTITY_DATA_CONDENSATION_RISK: Final[str] = "condensation_risk"
+ENTITY_DATA_WINDOW_PREDICTED: Final[str] = "window_predicted"
+ENTITY_DATA_PREHEAT_NOW: Final[str] = "preheat_now"
+ENTITY_DATA_PREHEAT_ADVISOR: Final[str] = "preheat_advisor"
+
+
+def is_climate_zone(zone_type: str) -> bool:
+    """Return True if zone_type is a climate-controlled zone (heating or AC)."""
+    return zone_type in CLIMATE_ZONE_TYPES
+
+
+def get_climate_zone_ids(zones_info: list[dict[str, Any]]) -> set[str]:
+    """Build a set of zone IDs for climate zones only."""
+    return {str(z.get("id")) for z in zones_info if z.get("type") in CLIMATE_ZONE_TYPES}
 

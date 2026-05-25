@@ -1,9 +1,15 @@
-"""Tado CE Hub Sensors — API status, home info, monitoring."""  # HA async_track_time_interval callback signature
+"""Tado CE hub-level sensors — home info, API status, monitoring, history.
+
+These are once-per-home sensors (not per-zone): home ID, API
+usage / limit / reset window, OAuth token status, polling /
+sync timing, recent call history. Helpful for users diagnosing
+quota or connectivity problems before they touch a thermostat.
+"""
 
 from __future__ import annotations
 
 import contextlib
-import json
+from datetime import datetime, timedelta
 import logging
 from typing import TYPE_CHECKING, Any
 
@@ -27,6 +33,10 @@ if TYPE_CHECKING:
 
 _LOGGER = logging.getLogger(__name__)
 
+# Cap history-list attributes to reduce recorder DB bloat.
+# Dashboards typically render only the last few entries.
+_ATTR_HISTORY_CAP = 10
+
 
 def _format_recent_calls(calls: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Format recent call entries with local timestamps."""
@@ -38,7 +48,10 @@ def _format_recent_calls(calls: list[dict[str, Any]]) -> list[dict[str, Any]]:
             local_ts = dt_util.as_local(ts)
             call_copy["timestamp"] = local_ts.strftime("%Y-%m-%d %H:%M:%S")
         except (ValueError, TypeError):
-            _LOGGER.debug("Failed to convert timestamp for history call entry")
+            _LOGGER.debug(
+                "Hub Sensor: dropped non-parseable timestamp on a "
+                "history call entry — keeping the rest of the entry",
+            )
         result.append(call_copy)
     return result
 
@@ -54,21 +67,27 @@ def _parse_call_time_range(
         newest = dt_util.as_local(newest_ts).strftime("%Y-%m-%d %H:%M:%S")
         return oldest, newest
     except (KeyError, TypeError, ValueError) as e:
-        _LOGGER.debug("Failed to parse oldest/newest timestamps: %s", e)
+        _LOGGER.debug(
+            "Hub Sensor: could not parse oldest / newest call "
+            "timestamps (%s) — call time range left blank",
+            e,
+        )
         return None, None
 
 
 def _calculate_calls_per_hour(all_calls: list[dict[str, Any]]) -> float | None:
     """Calculate average API calls per hour over the last 24h."""
     try:
-        from datetime import timedelta
-
         now = dt_util.utcnow()
         cutoff = now - timedelta(hours=24)
         last_24h = [c for c in all_calls if parse_iso_datetime(c["timestamp"]) > cutoff]
         return round(len(last_24h) / 24, 1) if last_24h else 0
     except (KeyError, TypeError, ValueError) as e:
-        _LOGGER.debug("Failed to calculate calls per hour: %s", e)
+        _LOGGER.debug(
+            "Hub Sensor: could not compute calls/hour from history "
+            "(%s) — value left blank",
+            e,
+        )
         return None
 
 
@@ -78,7 +97,11 @@ def _calculate_calls_today(history_data: dict[str, Any]) -> int | None:
         today_str = dt_util.utcnow().strftime("%Y-%m-%d")
         return len(history_data.get(today_str, []))
     except (KeyError, TypeError, ValueError) as e:
-        _LOGGER.debug("Failed to calculate calls today: %s", e)
+        _LOGGER.debug(
+            "Hub Sensor: could not compute today's call count from "
+            "history (%s) — value left blank",
+            e,
+        )
         return None
 
 
@@ -94,7 +117,11 @@ def _find_most_called_endpoint(all_calls: list[dict[str, Any]]) -> str | None:
             return f"{most_called[0]} ({most_called[1]} calls)"
         return None
     except (KeyError, TypeError, ValueError) as e:
-        _LOGGER.debug("Failed to find most called endpoint: %s", e)
+        _LOGGER.debug(
+            "Hub Sensor: could not pick most-called endpoint from "
+            "history (%s) — value left blank",
+            e,
+        )
         return None
 
 
@@ -155,7 +182,12 @@ class TadoHomeIdSensor(TadoHubSensor):
                 self._attr_available = True
             else:
                 self._attr_available = False
-        except Exception:  # noqa: BLE001 — HA entity update pattern
+        except Exception:
+            _LOGGER.debug(
+                "Hub Sensor: home ID update failed — marking "
+                "unavailable until the next poll",
+                exc_info=True,
+            )
             self._attr_available = False
 
 
@@ -183,33 +215,21 @@ class TadoApiUsageSensor(TadoHubSensor):
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         """Return extra state attributes."""
-        test_mode = self._data.get("test_mode", False)
-
-        attrs = {
+        attrs: dict[str, Any] = {
             "limit": self._data.get("limit"),
             "remaining": self._data.get("remaining"),
             "percentage_used": self._data.get("percentage_used"),
             "last_updated": self._data.get("last_updated"),
             "status": self._data.get("status"),
-            "test_mode": test_mode,
         }
 
-        if test_mode:
-            attrs["test_mode_info"] = "Simulated 100-call API tier"
-            test_mode_start = self._data.get("test_mode_start_time")
-            test_mode_used = self._data.get("test_mode_used")
-            if test_mode_start:
-                attrs["test_mode_start_time"] = test_mode_start
-            if test_mode_used is not None:
-                attrs["test_mode_used"] = test_mode_used
-
         if self._call_history:
-            attrs["call_history"] = self._call_history
+            attrs["call_history"] = self._call_history[:_ATTR_HISTORY_CAP]
 
         return attrs
 
     @staticmethod
-    def _parse_call_history(history_data: dict | None) -> list[dict[str, Any]]:
+    def _parse_call_history(history_data: dict[str, Any] | None) -> list[dict[str, Any]]:
         """Parse API call history from coordinator data into display format."""
         if not history_data or not isinstance(history_data, dict):
             return []
@@ -227,7 +247,10 @@ class TadoApiUsageSensor(TadoHubSensor):
                 local_ts = dt_util.as_local(ts)
                 call_copy["timestamp"] = local_ts.strftime("%Y-%m-%d %H:%M:%S")
             except (ValueError, TypeError):
-                _LOGGER.debug("Failed to convert timestamp for call history entry")
+                _LOGGER.debug(
+                    "Hub Sensor: dropped non-parseable timestamp on a "
+                    "call history entry — keeping the rest of the entry",
+                )
             result.append(call_copy)
         return result
 
@@ -250,17 +273,19 @@ class TadoApiUsageSensor(TadoHubSensor):
                 history_data = (self.coordinator.data or {}).get("api_call_history")
                 self._call_history = self._parse_call_history(history_data)
             except (KeyError, TypeError, ValueError) as e:
-                _LOGGER.debug("Failed to load call history: %s", e)
+                _LOGGER.debug(
+                    "Hub Sensor: could not load API call history "
+                    "(%s) — call history attribute left empty",
+                    e,
+                )
                 self._call_history = []
 
-        except FileNotFoundError:
-            _LOGGER.debug("Ratelimit file not found - first run or migration pending")
-        except PermissionError:
-            _LOGGER.exception("Permission denied reading ratelimit file")
-        except json.JSONDecodeError:
-            _LOGGER.exception("Invalid JSON in ratelimit file")
-        except Exception:  # noqa: BLE001 — HA entity update pattern
-            _LOGGER.exception("Unexpected error loading ratelimit data")
+        except Exception:
+            _LOGGER.warning(
+                "Hub Sensor: API usage update failed unexpectedly — "
+                "marking unavailable until the next poll",
+                exc_info=True,
+            )
 
 
 class TadoApiResetSensor(TadoHubSensor):
@@ -277,8 +302,6 @@ class TadoApiResetSensor(TadoHubSensor):
         self._status: str | None = None
         self._next_poll: str | None = None
         self._current_interval: int | None = None
-        self._test_mode: bool = False
-        self._test_mode_start_time: str | None = None  # Test Mode cycle start
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
@@ -287,17 +310,11 @@ class TadoApiResetSensor(TadoHubSensor):
             "time_until_reset": self._reset_human,
             "reset_seconds": self._reset_seconds,
             "reset_at": self._reset_at,
-            "last_reset": self._last_reset,  # When last reset happened
+            "last_reset": self._last_reset,
             "status": self._status,
             "next_poll": self._next_poll,
             "current_interval_minutes": self._current_interval,
-            "test_mode": self._test_mode,
         }
-
-        if self._test_mode:
-            attrs["test_mode_info"] = "Simulated 24h cycle from enable time"
-            if self._test_mode_start_time:
-                attrs["test_mode_start_time"] = self._test_mode_start_time
 
         return attrs
 
@@ -310,13 +327,15 @@ class TadoApiResetSensor(TadoHubSensor):
             dt_val = parse_iso_datetime(iso_str)
             return dt_util.as_local(dt_val).strftime("%Y-%m-%d %H:%M:%S")
         except (ValueError, TypeError) as e:
-            _LOGGER.debug("Failed to parse %s: %s", label, e)
+            _LOGGER.debug(
+                "Hub Sensor: could not parse %s timestamp (%s) — value "
+                "left blank",
+                label, e,
+            )
             return None
 
-    def _update_next_poll(self, data: dict) -> None:
+    def _update_next_poll(self, data: dict[str, Any]) -> None:
         """Calculate and set next poll time from ratelimit data."""
-        from datetime import timedelta
-
         try:
             last_updated = data.get("last_updated")
             if not last_updated:
@@ -329,14 +348,24 @@ class TadoApiResetSensor(TadoHubSensor):
 
             config_manager = self.coordinator.config_manager
             if config_manager:
-                self._current_interval = get_polling_interval(config_manager, cached_ratelimit=data)
+                homekit_connected = (
+                    self.coordinator.homekit_provider is not None
+                    and self.coordinator.homekit_provider.is_connected
+                )
+                self._current_interval = get_polling_interval(
+                    config_manager, cached_ratelimit=data, homekit_connected=homekit_connected,
+                )
                 next_poll_time = last_sync + timedelta(minutes=self._current_interval)
                 self._next_poll = dt_util.as_local(next_poll_time).strftime("%Y-%m-%d %H:%M:%S")
             else:
                 self._next_poll = None
                 self._current_interval = None
         except (KeyError, TypeError, ValueError) as e:
-            _LOGGER.debug("Failed to calculate next poll time: %s", e)
+            _LOGGER.debug(
+                "Hub Sensor: could not compute next poll time (%s) — "
+                "next_poll attribute left blank",
+                e,
+            )
             self._next_poll = None
             self._current_interval = None
 
@@ -347,15 +376,6 @@ class TadoApiResetSensor(TadoHubSensor):
             data = (self.coordinator.data or {}).get("ratelimit")
             if not data:
                 return
-
-            self._test_mode = data.get("test_mode", False)
-
-            if data.get("test_mode_start_time") and self._test_mode:
-                self._test_mode_start_time = self._parse_local_timestamp(
-                    data.get("test_mode_start_time"), "test_mode_start_time",
-                ) or data.get("test_mode_start_time")
-            else:
-                self._test_mode_start_time = None
 
             self._reset_human = data.get("reset_human")
             self._reset_seconds = data.get("reset_seconds")
@@ -369,7 +389,12 @@ class TadoApiResetSensor(TadoHubSensor):
                     self._attr_available = True
                     self._reset_at = dt_util.as_local(reset_time).strftime("%Y-%m-%d %H:%M:%S")
                 except (ValueError, TypeError) as e:
-                    _LOGGER.debug("Failed to parse reset_at: %s", e)
+                    _LOGGER.debug(
+                        "Hub Sensor: could not parse reset_at "
+                        "timestamp (%s) — reset_at attribute left "
+                        "blank",
+                        e,
+                    )
                     self._reset_at = None
             else:
                 self._reset_at = None
@@ -377,8 +402,12 @@ class TadoApiResetSensor(TadoHubSensor):
             self._last_reset = self._parse_local_timestamp(data.get("last_reset_utc"), "last_reset_utc")
             self._update_next_poll(data)
 
-        except Exception as e:  # noqa: BLE001 — HA entity update pattern
-            _LOGGER.debug("Failed to update API reset sensor: %s", e)
+        except Exception as e:
+            _LOGGER.debug(
+                "Hub Sensor: API reset update failed (%s) — last "
+                "values retained, will retry on the next poll",
+                e,
+            )
 
 
 class TadoApiLimitSensor(TadoHubSensor):
@@ -389,7 +418,6 @@ class TadoApiLimitSensor(TadoHubSensor):
         super().__init__(coordinator, "sensor_api_limit")
         self._attr_native_unit_of_measurement = "calls"
         self._attr_extra_state_attributes: dict[str, Any] = {}
-        self._test_mode: bool = False
 
     @callback
     def update(self) -> None:
@@ -399,21 +427,11 @@ class TadoApiLimitSensor(TadoHubSensor):
             if data:
                 self._attr_native_value = data.get("limit")
                 self._attr_available = self._attr_native_value is not None
-                self._test_mode = data.get("test_mode", False)
-            else:
-                self._test_mode = False
 
-            extra_attrs: dict[str, Any] = {
-                "test_mode": self._test_mode,
-            }
-
-            if self._test_mode and data:
-                extra_attrs["test_mode_info"] = "Simulated 100-call limit"
+            extra_attrs: dict[str, Any] = {}
 
             # Load recent API calls from history (last 100 calls only to avoid DB size issues)
             try:
-                from datetime import timedelta
-
                 history = (self.coordinator.data or {}).get("api_call_history")
                 if history:
                     all_calls = []
@@ -421,7 +439,7 @@ class TadoApiLimitSensor(TadoHubSensor):
                         all_calls.extend(calls)
 
                     all_calls.sort(key=lambda x: x["timestamp"], reverse=True)
-                    raw_recent_calls = all_calls[:100]
+                    raw_recent_calls = all_calls[:_ATTR_HISTORY_CAP]
 
                     recent_calls = []
                     for call in raw_recent_calls:
@@ -431,7 +449,11 @@ class TadoApiLimitSensor(TadoHubSensor):
                             local_ts = dt_util.as_local(ts)
                             call_copy["timestamp"] = local_ts.strftime("%Y-%m-%d %H:%M:%S")
                         except (ValueError, TypeError):
-                            _LOGGER.debug("Failed to convert timestamp for recent call entry")
+                            _LOGGER.debug(
+                                "Hub Sensor: dropped non-parseable "
+                                "timestamp on a recent call entry — "
+                                "keeping the rest of the entry",
+                            )
                         recent_calls.append(call_copy)
 
                     now = dt_util.utcnow()
@@ -451,7 +473,12 @@ class TadoApiLimitSensor(TadoHubSensor):
                         },
                     )
             except (KeyError, TypeError, ValueError) as e:
-                _LOGGER.debug("Failed to load API call history: %s", e)
+                _LOGGER.debug(
+                    "Hub Sensor: could not load API call history "
+                    "(%s) — recent_calls / last_24h_count attributes "
+                    "left empty",
+                    e,
+                )
                 extra_attrs.update(
                     {
                         "recent_calls": [],
@@ -462,7 +489,12 @@ class TadoApiLimitSensor(TadoHubSensor):
                 )
 
             self._attr_extra_state_attributes = extra_attrs
-        except Exception:  # noqa: BLE001 — HA entity update pattern
+        except Exception:
+            _LOGGER.debug(
+                "Hub Sensor: API limit update failed — marking "
+                "unavailable until the next poll",
+                exc_info=True,
+            )
             self._attr_available = False
 
 
@@ -517,7 +549,12 @@ class TadoApiStatusSensor(TadoHubSensor):
             else:
                 self._attr_native_value = "unknown"
                 self._attr_available = True
-        except Exception:  # noqa: BLE001 — HA entity update pattern
+        except Exception:
+            _LOGGER.debug(
+                "Hub Sensor: API status update failed — falling back "
+                "to 'error' state, will retry on the next poll",
+                exc_info=True,
+            )
             self._attr_native_value = "error"
             self._attr_available = True
 
@@ -540,15 +577,18 @@ class TadoTokenStatusSensor(TadoHubSensor):
     def update(self) -> None:
         """Update sensor state from coordinator data."""
         try:
-            # Check api_client's injected refresh token (from ConfigEntry.data)
-            # rather than config file which may have null refresh_token
             client = self.coordinator.api_client
-            if client._injected_refresh_token or client._access_token:
+            if client.has_valid_credentials:
                 self._attr_native_value = "valid"
             else:
                 self._attr_native_value = "missing"
             self._attr_available = True
-        except Exception:  # noqa: BLE001 — HA entity update pattern
+        except Exception:
+            _LOGGER.debug(
+                "Hub Sensor: token status update failed — falling "
+                "back to 'error' state, will retry on the next poll",
+                exc_info=True,
+            )
             self._attr_native_value = "error"
             self._attr_available = True
 
@@ -586,7 +626,12 @@ class TadoZoneCountSensor(TadoHubSensor):
                 self._attr_available = True
             else:
                 self._attr_available = False
-        except Exception:  # noqa: BLE001 — HA entity update pattern
+        except Exception:
+            _LOGGER.debug(
+                "Hub Sensor: zone count update failed — marking "
+                "unavailable until the next poll",
+                exc_info=True,
+            )
             self._attr_available = False
 
 
@@ -612,7 +657,12 @@ class TadoLastSyncSensor(TadoHubSensor):
                     self._attr_available = False
             else:
                 self._attr_available = False
-        except Exception:  # noqa: BLE001 — HA entity update pattern
+        except Exception:
+            _LOGGER.debug(
+                "Hub Sensor: last sync update failed — marking "
+                "unavailable until the next poll",
+                exc_info=True,
+            )
             self._attr_available = False
 
 
@@ -642,8 +692,6 @@ class TadoNextSyncSensor(TadoHubSensor):
         """Start periodic countdown refresh when added to HA."""
         await super().async_added_to_hass()
 
-        from datetime import timedelta as td
-
         from homeassistant.helpers.event import async_track_time_interval
 
         @callback
@@ -653,7 +701,7 @@ class TadoNextSyncSensor(TadoHubSensor):
             self.async_write_ha_state()
 
         self._countdown_unsub = async_track_time_interval(
-            self.hass, _refresh_countdown, td(seconds=30),
+            self.hass, _refresh_countdown, timedelta(seconds=30),
         )
 
     async def async_will_remove_from_hass(self) -> None:
@@ -665,8 +713,6 @@ class TadoNextSyncSensor(TadoHubSensor):
 
     def _recalculate_countdown(self) -> None:
         """Recalculate countdown from current native_value."""
-        from datetime import datetime
-
         native = self._attr_native_value
         if not isinstance(native, datetime):
             self._countdown = None
@@ -685,8 +731,6 @@ class TadoNextSyncSensor(TadoHubSensor):
     def update(self) -> None:
         """Update sensor state from coordinator data."""
         try:
-            from datetime import timedelta
-
             data = (self.coordinator.data or {}).get("ratelimit")
             if not data:
                 return
@@ -701,7 +745,13 @@ class TadoNextSyncSensor(TadoHubSensor):
 
             config_manager = self.coordinator.config_manager
             if config_manager:
-                self._current_interval = get_polling_interval(config_manager, cached_ratelimit=data)
+                homekit_connected = (
+                    self.coordinator.homekit_provider is not None
+                    and self.coordinator.homekit_provider.is_connected
+                )
+                self._current_interval = get_polling_interval(
+                    config_manager, cached_ratelimit=data, homekit_connected=homekit_connected,
+                )
 
                 next_sync_time = last_sync + timedelta(minutes=self._current_interval)
                 self._attr_native_value = next_sync_time
@@ -712,8 +762,12 @@ class TadoNextSyncSensor(TadoHubSensor):
                 self._current_interval = None
                 self._countdown = None
 
-        except Exception as e:  # noqa: BLE001 — HA entity update pattern
-            _LOGGER.debug("Failed to update Next Sync sensor: %s", e)
+        except Exception as e:
+            _LOGGER.debug(
+                "Hub Sensor: next sync update failed (%s) — last "
+                "value retained, will retry on the next poll",
+                e,
+            )
 
 
 class TadoPollingIntervalSensor(TadoHubSensor):
@@ -728,7 +782,6 @@ class TadoPollingIntervalSensor(TadoHubSensor):
         self._day_interval: int | None = None
         self._night_interval: int | None = None
         self._is_night_mode: bool | None = None
-        self._test_mode: bool = False
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
@@ -738,7 +791,6 @@ class TadoPollingIntervalSensor(TadoHubSensor):
             "day_interval": self._day_interval,
             "night_interval": self._night_interval,
             "is_night_mode": self._is_night_mode,
-            "test_mode": self._test_mode,
         }
 
     @staticmethod
@@ -774,16 +826,21 @@ class TadoPollingIntervalSensor(TadoHubSensor):
         """Update sensor state from coordinator data."""
         try:
             from .const import DEFAULT_DAY_INTERVAL, DEFAULT_NIGHT_INTERVAL
-            from .polling import _calculate_adaptive_interval, get_polling_interval
+            from .polling import calculate_adaptive_interval, get_polling_interval
 
             config_manager = self.coordinator.config_manager
             if not config_manager:
                 return
 
             ratelimit_data = (self.coordinator.data or {}).get("ratelimit")
-            self._test_mode = ratelimit_data.get("test_mode", False) if ratelimit_data else False
 
-            self._attr_native_value = get_polling_interval(config_manager, cached_ratelimit=ratelimit_data)
+            homekit_connected = (
+                self.coordinator.homekit_provider is not None
+                and self.coordinator.homekit_provider.is_connected
+            )
+            self._attr_native_value = get_polling_interval(
+                config_manager, cached_ratelimit=ratelimit_data, homekit_connected=homekit_connected,
+            )
             self._attr_available = True
 
             custom_day = config_manager.get_custom_day_interval()
@@ -800,7 +857,7 @@ class TadoPollingIntervalSensor(TadoHubSensor):
             adaptive_interval = None
             if ratelimit_data:
                 with contextlib.suppress(Exception):
-                    adaptive_interval = _calculate_adaptive_interval(ratelimit_data, config_manager)
+                    adaptive_interval = calculate_adaptive_interval(ratelimit_data, config_manager)
 
             baseline_interval = self._night_interval if self._is_night_mode else self._day_interval
 
@@ -811,8 +868,12 @@ class TadoPollingIntervalSensor(TadoHubSensor):
                 is_night_mode=self._is_night_mode, is_uniform_mode=is_uniform_mode,
             )
 
-        except Exception as e:  # noqa: BLE001 — HA entity update pattern
-            _LOGGER.debug("Failed to update Polling Interval sensor: %s", e)
+        except Exception as e:
+            _LOGGER.debug(
+                "Hub Sensor: polling interval update failed (%s) — "
+                "last value retained, will retry on the next poll",
+                e,
+            )
 
 
 class TadoApiHistorySensor(TadoHubSensor):
@@ -852,6 +913,11 @@ class TadoApiHistorySensor(TadoHubSensor):
                 _ed = self.coordinator
                 self._history_period_days = _ed.config_manager.get_api_history_retention_days()
             except (AttributeError, TypeError, KeyError):
+                _LOGGER.debug(
+                    "Hub Sensor: could not read API history retention "
+                    "from config — using 14-day default",
+                    exc_info=True,
+                )
                 self._history_period_days = 14
 
             history_data = (self.coordinator.data or {}).get("api_call_history")
@@ -875,14 +941,18 @@ class TadoApiHistorySensor(TadoHubSensor):
 
             self._attr_native_value = len(all_calls)
             self._attr_available = True
-            self._history = _format_recent_calls(all_calls[:100])
+            self._history = _format_recent_calls(all_calls[:_ATTR_HISTORY_CAP])
             self._oldest_call, self._newest_call = _parse_call_time_range(all_calls)
             self._calls_per_hour = _calculate_calls_per_hour(all_calls)
             self._calls_today = _calculate_calls_today(history_data)
             self._most_called_endpoint = _find_most_called_endpoint(all_calls)
 
-        except Exception:  # noqa: BLE001 — HA entity update pattern
-            _LOGGER.exception("Failed to update Call History sensor")
+        except Exception:
+            _LOGGER.warning(
+                "Hub Sensor: call history update failed unexpectedly "
+                "— last values retained, will retry on the next poll",
+                exc_info=True,
+            )
 
 
 class TadoApiBreakdownSensor(TadoHubSensor):
@@ -919,7 +989,7 @@ class TadoApiBreakdownSensor(TadoHubSensor):
         self._chart_data = []
 
     @staticmethod
-    def _count_by_type(calls: list[dict]) -> dict[str, int]:
+    def _count_by_type(calls: list[dict[str, Any]]) -> dict[str, int]:
         """Count API calls by type_name."""
         breakdown: dict[str, int] = {}
         for call in calls:
@@ -931,14 +1001,12 @@ class TadoApiBreakdownSensor(TadoHubSensor):
     def update(self) -> None:
         """Update sensor state from coordinator data."""
         try:
-            from datetime import timedelta
-
             history_data = (self.coordinator.data or {}).get("api_call_history")
             if not history_data:
                 self._set_empty_breakdown()
                 return
 
-            all_calls: list[dict] = []
+            all_calls: list[dict[str, Any]] = []
             for calls in history_data.values():
                 all_calls.extend(calls)
 
@@ -976,5 +1044,47 @@ class TadoApiBreakdownSensor(TadoHubSensor):
             ]
             self._attr_available = True
 
-        except Exception:  # noqa: BLE001 — HA entity update pattern
-            _LOGGER.exception("Failed to update API Call Breakdown sensor")
+        except Exception:
+            _LOGGER.warning(
+                "Hub Sensor: API call breakdown update failed "
+                "unexpectedly — last values retained, will retry on "
+                "the next poll",
+                exc_info=True,
+            )
+
+
+# ===================================================================
+# HomeKit Savings Sensors — track API calls saved by local control
+# ===================================================================
+
+
+class TadoHomekitReadsSavedSensor(TadoHubSensor):
+    """Sensor for HomeKit reads saved today."""
+
+    def __init__(self, coordinator: TadoDataUpdateCoordinator) -> None:
+        """Initialize the TadoHomekitReadsSavedSensor."""
+        super().__init__(coordinator, "sensor_homekit_reads_saved")
+        self._attr_native_unit_of_measurement = "reads"
+        self._attr_state_class = SensorStateClass.TOTAL_INCREASING
+
+    @callback
+    def update(self) -> None:
+        """Update sensor state from coordinator HomeKit savings counter."""
+        self._attr_native_value = self.coordinator.homekit_reads_saved
+        self._attr_available = self.coordinator.homekit_provider is not None
+
+
+class TadoHomekitWritesSavedSensor(TadoHubSensor):
+    """Sensor for HomeKit writes saved today."""
+
+    def __init__(self, coordinator: TadoDataUpdateCoordinator) -> None:
+        """Initialize the TadoHomekitWritesSavedSensor."""
+        super().__init__(coordinator, "sensor_homekit_writes_saved")
+        self._attr_native_unit_of_measurement = "writes"
+        self._attr_state_class = SensorStateClass.TOTAL_INCREASING
+
+    @callback
+    def update(self) -> None:
+        """Update sensor state from coordinator HomeKit savings counter."""
+        self._attr_native_value = self.coordinator.homekit_writes_saved
+        self._attr_available = self.coordinator.homekit_provider is not None

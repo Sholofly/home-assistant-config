@@ -1,8 +1,4 @@
-"""Bridge API field type inference engine — pure functions, zero HA dependency.
-
-Infers HA metadata (device_class, state_class, unit, icon) from field path
-and value type when a field has no enrichment registry entry.
-"""
+"""Bridge API field type inference engine — pure functions, zero HA dependency."""
 
 from __future__ import annotations
 

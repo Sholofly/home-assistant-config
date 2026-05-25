@@ -1,9 +1,4 @@
-"""Bridge API dynamic discovery engine — pure functions, zero HA dependency.
-
-Recursively flattens Bridge API JSON responses into dot-notation paths,
-resolves entity metadata via enrichment registry + type inference,
-diffs consecutive responses, and extracts wiring capabilities.
-"""
+"""Bridge API dynamic discovery engine — pure functions, zero HA dependency."""
 
 from __future__ import annotations
 

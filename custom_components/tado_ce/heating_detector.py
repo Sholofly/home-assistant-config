@@ -1,4 +1,12 @@
-"""Tado CE heating cycle detection logic — start/end detection, state machine."""
+"""Tado CE heating-cycle detector — per-zone state machine that delimits one heating cycle.
+
+Detects cycle start (setpoint increase or active-heating-on-restart),
+records temperature readings (deduplicated when HomeKit + cloud
+poll arrive within the same second), spots the inertia "first
+rise", and closes the cycle on target-reached or timeout. Each
+completed cycle gets persisted via `HeatingCycleStorage` for
+the analyzer's rolling window.
+"""
 
 from __future__ import annotations
 
@@ -42,7 +50,8 @@ class HeatingCycleDetector:
             True if a new cycle was started, False otherwise.
         """
         _LOGGER.debug(
-            "Zone %s: check_setpoint_change called - last_target=%s, new_target=%.1f, current_temp=%s",
+            "Heating Detector: zone %s check_setpoint_change — "
+            "last_target=%s, new_target=%.1f, current_temp=%s",
             self._zone_id,
             self._last_target_temp,
             new_target,
@@ -57,7 +66,9 @@ class HeatingCycleDetector:
             # zone is already heating - start a cycle
             if current_temp is not None and current_temp < new_target - 0.1:
                 _LOGGER.info(
-                    "Zone %s: Detected active heating after restart (current=%.1f°C < target=%.1f°C), starting cycle",
+                    "Heating Detector: zone %s active heating "
+                    "detected after restart (current %.1f°C < "
+                    "target %.1f°C) — starting cycle",
                     self._zone_id,
                     current_temp,
                     new_target,
@@ -79,19 +90,21 @@ class HeatingCycleDetector:
             return False
 
         if new_target > self._last_target_temp:
-            # Setpoint increased, start new cycle
             _LOGGER.debug(
-                "Zone %s: Setpoint increased from %.1f to %.1f, starting new cycle",
+                "Heating Detector: zone %s setpoint raised %.1f → "
+                "%.1f°C — starting a new cycle",
                 self._zone_id,
                 self._last_target_temp,
                 new_target,
             )
             if self._active_cycle:
-                # Interrupt existing cycle
+                # Mark the previous cycle as interrupted —
+                # downstream analyser ignores interrupted cycles.
                 self._active_cycle.interrupted = True
                 self._active_cycle.interrupt_reason = "manual_setpoint_change"
                 _LOGGER.debug(
-                    "Zone %s: Interrupted active cycle due to setpoint change",
+                    "Heating Detector: zone %s interrupted the "
+                    "previous active cycle (setpoint change)",
                     self._zone_id,
                 )
 
@@ -112,7 +125,8 @@ class HeatingCycleDetector:
             self._last_target_temp = new_target
 
             _LOGGER.info(
-                "Zone %s: Started new heating cycle, target=%.1f°C",
+                "Heating Detector: zone %s started a new cycle — "
+                "target %.1f°C",
                 self._zone_id,
                 new_target,
             )
@@ -126,35 +140,51 @@ class HeatingCycleDetector:
         if not self._active_cycle:
             return
 
-        # Set start_temp on first update
         if self._active_cycle.start_temp is None:
             self._active_cycle.start_temp = temp
             _LOGGER.debug(
-                "Zone %s: Set cycle start_temp=%.1f°C",
+                "Heating Detector: zone %s cycle start_temp set to "
+                "%.1f°C",
                 self._zone_id,
                 temp,
             )
 
-        # Add temperature reading (with limit to prevent memory leak)
-        if len(self._active_cycle.temperature_readings) < 100:  # noqa: PLR2004 — max readings per cycle to prevent memory leak
+        # Deduplicate: HomeKit events and cloud polls can land
+        # within the same second, creating duplicate timestamps
+        # that distort rate calculations. Update the last reading
+        # in-place when the gap is < 2s.
+        if self._active_cycle.temperature_readings:
+            last = self._active_cycle.temperature_readings[-1]
+            if abs((timestamp - last.time).total_seconds()) < 2:
+                self._active_cycle.temperature_readings[-1] = HeatingCycleReading(
+                    time=timestamp, temp=temp,
+                )
+                return
+
+        if len(self._active_cycle.temperature_readings) < 100:
             self._active_cycle.temperature_readings.append(
                 HeatingCycleReading(time=timestamp, temp=temp),
             )
         else:
-            # Update last reading in-place when at limit
+            # Cap at 100 readings to bound memory; once full,
+            # replace the last reading rather than dropping new
+            # data — keeps the most recent point fresh.
             self._active_cycle.temperature_readings[-1] = HeatingCycleReading(
                 time=timestamp,
                 temp=temp,
             )
 
-        # Detect first rise (inertia detection)
+        # Inertia / first-rise detection — once the temperature
+        # has climbed by `inertia_threshold_celsius`, record the
+        # timestamp so the analyser can compute lag.
         if self._active_cycle.first_rise_time is None and self._active_cycle.start_temp is not None:
             temp_increase = temp - self._active_cycle.start_temp
             if temp_increase >= self._config.inertia_threshold_celsius:
                 self._active_cycle.first_rise_time = timestamp
                 self._active_cycle.first_rise_temp = temp
                 _LOGGER.debug(
-                    "Zone %s: Detected first rise at %.1f°C (+%.2f°C)",
+                    "Heating Detector: zone %s first rise observed "
+                    "at %.1f°C (+%.2f°C from start)",
                     self._zone_id,
                     temp,
                     temp_increase,
@@ -189,16 +219,18 @@ class HeatingCycleDetector:
                 self._active_cycle = None
 
                 _LOGGER.info(
-                    "Zone %s: Cycle completed, duration=%.1f min, start=%.1f°C, target=%.1f°C",
+                    "Heating Detector: zone %s cycle completed — "
+                    "duration %.1f min, %.1f°C → %.1f°C",
                     self._zone_id,
                     (completed.end_time - completed.start_time).total_seconds() / 60,  # type: ignore[operator]
                     start_temp,
                     target_temp,
                 )
                 return completed
-            # Invalid cycle - was already at or above target, discard
             _LOGGER.debug(
-                "Zone %s: Discarding cycle - start_temp (%.1f°C) >= target (%.1f°C), no actual heating occurred",
+                "Heating Detector: zone %s discarding cycle — "
+                "start_temp (%.1f°C) was already at or above target "
+                "(%.1f°C), no actual heating occurred",
                 self._zone_id,
                 start_temp or 0,
                 target_temp,
@@ -223,8 +255,10 @@ class HeatingCycleDetector:
             self._active_cycle.interrupt_reason = "timeout"
             self._active_cycle.end_time = dt_util.utcnow()
 
-            _LOGGER.warning(
-                "Zone %s: Cycle timed out after %.1f hours",
+            _LOGGER.debug(
+                "Heating Detector: zone %s cycle timed out after "
+                "%.1f hour(s) — marking interrupted, expected target "
+                "never reached",
                 self._zone_id,
                 age.total_seconds() / 3600,
             )
@@ -235,12 +269,13 @@ class HeatingCycleDetector:
         return False
 
     def resume_cycle(self, cycle: HeatingCycle) -> None:
-        """Resume an active cycle after restart."""
+        """Re-attach an in-progress cycle after HA restart so analysis continues."""
         self._active_cycle = cycle
         self._last_target_temp = cycle.target_temp
 
         _LOGGER.info(
-            "Zone %s: Resumed active cycle from %s",
+            "Heating Detector: zone %s resumed in-progress cycle "
+            "started %s",
             self._zone_id,
             cycle.start_time.isoformat(),
         )

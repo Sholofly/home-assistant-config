@@ -1,8 +1,4 @@
-"""Environment insights — mold risk, comfort, condensation, humidity trend.
-
-Provides recommendation functions for environment-related conditions
-including mold risk, comfort levels, condensation, and humidity trends.
-"""
+"""Environment insights — mold risk, comfort, condensation, humidity trend."""
 
 from __future__ import annotations
 
@@ -37,7 +33,7 @@ def _mold_critical_recommendation(
         delta_t = round(target_temp - current_temp, 1)
         actions.append(f"increase heating by {delta_t}\u00b0C (to {target_temp:.0f}\u00b0C)")
     elif current_temp:
-        suggested = (target_temp + 2) if target_temp else (current_temp + 2)  # noqa: PLR2004
+        suggested = (target_temp + 2) if target_temp else (current_temp + 2)
         if suggested <= current_temp:
             actions.append("check wall/window insulation \u2014 room warm but surfaces cold")
         else:
@@ -65,7 +61,7 @@ def _mold_high_recommendation(
             f"(reduce by {delta_h}% to 55%) \u2014 dehumidifier or ventilate 15 min"
         )
     if margin is not None and margin < MOLD_MARGIN_HIGH:
-        needed = round(5 - margin, 1)  # noqa: PLR2004
+        needed = round(5 - margin, 1)
         base_temp = target_temp or current_temp
         if base_temp:
             suggested = base_temp + 1.5
@@ -95,7 +91,7 @@ def _mold_medium_recommendation(
             f"(reduce by {delta_h}% to 55%) \u2014 ventilate 10 min after cooking/showering"
         )
     if margin is not None and margin < MOLD_MARGIN_MEDIUM:
-        needed = round(7 - margin, 1)  # noqa: PLR2004
+        needed = round(7 - margin, 1)
         return (
             f"{zone_name} [{transition}]: Surface {margin:.1f}\u00b0C above dew point "
             f"(need +{needed}\u00b0C margin) \u2014 ensure adequate ventilation"
@@ -149,19 +145,19 @@ def _comfort_cold_recommendation(
                     f"Allow 15\u201330 min to reach {target_temp:.0f}\u00b0C"
                 )
             if hvac_action in ("idle", "off"):
-                suggested = min(target_temp + 1, 25)  # noqa: PLR2004
+                suggested = min(target_temp + 1, 25)
                 return (
                     f"{zone_name}: {current_temp:.1f}\u00b0C, "
                     f"{diff:.1f}\u00b0C below target but heating idle \u2014 "
                     f"increase setpoint to {suggested:.0f}\u00b0C"
                 )
-            suggested = min(target_temp + 1, 25)  # noqa: PLR2004
+            suggested = min(target_temp + 1, 25)
             return (
                 f"{zone_name}: {current_temp:.1f}\u00b0C, "
                 f"{diff:.1f}\u00b0C below target \u2014 "
                 f"increase setpoint to {suggested:.0f}\u00b0C if not warming up"
             )
-        suggested = current_temp + 2  # noqa: PLR2004
+        suggested = current_temp + 2
         return f"{zone_name}: {current_temp:.1f}\u00b0C feels cold \u2014 set heating to {suggested:.0f}\u00b0C"
     return f"{zone_name}: Room too cold \u2014 increase heating setpoint by 2\u00b0C"
 
@@ -186,7 +182,7 @@ def _comfort_hot_recommendation(
                 f"{over:.1f}°C above target \u2014 open window or reduce heating{hi_suffix}"
             )
         else:
-            suggested = max(current_temp - 2, 18)  # noqa: PLR2004
+            suggested = max(current_temp - 2, 18)
             rec = (
                 f"{zone_name}: {current_temp:.1f}°C too warm \u2014 "
                 f"reduce setpoint to {suggested:.0f}°C or open window{hi_suffix}"

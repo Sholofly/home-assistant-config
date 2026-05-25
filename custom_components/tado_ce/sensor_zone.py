@@ -1,4 +1,10 @@
-"""Tado CE Zone Sensors — temperature, humidity, heating power, overlay, etc."""
+"""Tado CE per-zone sensors — temperature, humidity, target, overlay, heating / AC power.
+
+Every entity is a `TadoZoneSensor` subclass — the base wires up
+the HomeKit live-update dispatcher and merges fresh HomeKit
+sensor readings into the cloud zone data so card values match
+what users see in the Tado app.
+"""
 
 from __future__ import annotations
 
@@ -12,12 +18,17 @@ from homeassistant.components.sensor import (
 )
 from homeassistant.const import PERCENTAGE, UnitOfTemperature
 from homeassistant.core import callback
+from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
+from .const import SIGNAL_HOMEKIT_UPDATE
 from .device_manager import get_hub_device_info, get_zone_device_info
 from .entity_registry import ENTITY_REGISTRY, get_entity_category
+from .helpers import get_zone_state, get_zone_states, merge_homekit_into_zone_data
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from .coordinator import TadoDataUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
@@ -27,8 +38,6 @@ class TadoZoneSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], SensorEntit
     """Represent a base Tado zone sensor."""
 
     _attr_has_entity_name = True
-
-    """Base class for Tado zone sensors (CoordinatorEntity pattern)."""
 
     def __init__(
         self, coordinator: TadoDataUpdateCoordinator, zone_id: str, zone_name: str, zone_type: str = "HEATING",
@@ -42,18 +51,50 @@ class TadoZoneSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], SensorEntit
         self._attr_available = False
         self._attr_native_value = None
         self._attr_device_info = get_zone_device_info(zone_id, zone_name, zone_type, coordinator.home_id)
+        self._unsub_homekit_signal: Callable[[], None] | None = None
+
+    async def async_added_to_hass(self) -> None:
+        """Register listeners when entity is added to hass."""
+        await super().async_added_to_hass()
+        self._unsub_homekit_signal = async_dispatcher_connect(
+            self.hass,
+            SIGNAL_HOMEKIT_UPDATE.format(home_id=self._home_id),
+            self._handle_homekit_signal,
+        )
+
+    async def async_will_remove_from_hass(self) -> None:
+        """Unregister listeners when entity is removed."""
+        if self._unsub_homekit_signal:
+            self._unsub_homekit_signal()
+            self._unsub_homekit_signal = None
+        await super().async_will_remove_from_hass()
+
+    @callback
+    def _handle_homekit_signal(self, zone_id: str) -> None:
+        """Handle HomeKit data update for this zone."""
+        if zone_id != self._zone_id:
+            return
+        self._handle_coordinator_update()
 
     def _get_zone_data(self) -> dict[str, Any] | None:
-        """Get zone data from coordinator data."""
+        """Read this zone's data, layering fresh HomeKit readings on top of cloud.
+
+        Only `sensorDataPoints` (temperature / humidity) get the
+        HomeKit overlay; activity / setting / overlayType stay
+        cloud-only because HomeKit doesn't carry them.
+        """
         try:
-            data = self.coordinator.data
-            if data:
-                zone_states = (data.get("zones") or {}).get("zoneStates") or {}
-                return zone_states.get(self._zone_id)
+            zone_data = get_zone_state(self.coordinator.data, self._zone_id)
+        except Exception:
+            _LOGGER.debug(
+                "Zone Sensor: could not read zone %s data — returning "
+                "None so the entity falls back to unavailable",
+                self._zone_id,
+            )
             return None
-        except Exception:  # noqa: BLE001 — defensive helper for entity update path
-            _LOGGER.debug("Failed to get zone data for zone %s", self._zone_id)
+        if zone_data is None:
             return None
+        return merge_homekit_into_zone_data(zone_data, self._zone_id, self.coordinator)
 
     @callback
     def _handle_coordinator_update(self) -> None:
@@ -83,8 +124,6 @@ class TadoTemperatureSensor(TadoZoneSensor):
 
     _attr_has_entity_name = True
 
-    """Current temperature sensor."""
-
     def __init__(
         self, coordinator: TadoDataUpdateCoordinator, zone_id: str, zone_name: str, zone_type: str = "HEATING",
     ) -> None:
@@ -96,6 +135,18 @@ class TadoTemperatureSensor(TadoZoneSensor):
         self._attr_device_class = SensorDeviceClass.TEMPERATURE
         self._attr_native_unit_of_measurement = UnitOfTemperature.CELSIUS
         self._attr_state_class = SensorStateClass.MEASUREMENT
+        self._attr_suggested_display_precision = 1
+        self._data_source: str = "cloud"
+        self._last_homekit_update: str | None = None
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return extra state attributes."""
+        attrs = self._base_zone_attributes
+        attrs["data_source"] = self._data_source
+        if self._last_homekit_update is not None:
+            attrs["last_homekit_update"] = self._last_homekit_update
+        return attrs
 
     @callback
     def _handle_coordinator_update(self) -> None:
@@ -103,6 +154,7 @@ class TadoTemperatureSensor(TadoZoneSensor):
         zone_data = self._get_zone_data()
         if zone_data:
             self._update_from_zone_data(zone_data)
+            self._update_homekit_attributes()
             self._attr_available = self._attr_native_value is not None
         else:
             self._attr_available = False
@@ -110,17 +162,40 @@ class TadoTemperatureSensor(TadoZoneSensor):
 
     @callback
     def _update_from_zone_data(self, zone_data: dict[str, Any]) -> None:
-        # Use 'or {}' pattern for null safety (API may return null for these fields)
         sensor_data = zone_data.get("sensorDataPoints") or {}
-        self._attr_native_value = (sensor_data.get("insideTemperature") or {}).get("celsius")
+        new_value = (sensor_data.get("insideTemperature") or {}).get("celsius")
+        if new_value != self._attr_native_value:
+            _LOGGER.debug(
+                "Zone Sensor: zone %s temperature %s → %s°C (source %s)",
+                self._zone_id, self._attr_native_value, new_value, self._data_source,
+            )
+        self._attr_native_value = new_value
+
+    def _update_homekit_attributes(self) -> None:
+        """Surface `data_source` + `last_homekit_update` for the user."""
+        try:
+            provider = self.coordinator.homekit_provider
+            reconciler = self.coordinator.state_reconciler
+            if provider and reconciler and provider.is_connected:
+                reconciler.local_provider = provider
+                result = reconciler.merge_zone_temperature(self._zone_id, None)
+                if isinstance(result, tuple) and len(result) == 2 and result[1] == "homekit":
+                    self._data_source = "homekit"
+                    _, _changed, observed = provider.get_temperature(self._zone_id)
+                    self._last_homekit_update = observed.isoformat() if observed else None
+                    return
+        except AttributeError:
+            # Coordinator / provider not fully initialised on first
+            # poll — fall through to the cloud default.
+            pass
+        self._data_source = "cloud"
+        self._last_homekit_update = None
 
 
 class TadoHumiditySensor(TadoZoneSensor):
     """Represent a Tado zone humidity sensor."""
 
     _attr_has_entity_name = True
-
-    """Humidity sensor."""
 
     def __init__(
         self, coordinator: TadoDataUpdateCoordinator, zone_id: str, zone_name: str, zone_type: str = "HEATING",
@@ -133,6 +208,17 @@ class TadoHumiditySensor(TadoZoneSensor):
         self._attr_device_class = SensorDeviceClass.HUMIDITY
         self._attr_native_unit_of_measurement = PERCENTAGE
         self._attr_state_class = SensorStateClass.MEASUREMENT
+        self._data_source: str = "cloud"
+        self._last_homekit_update: str | None = None
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return extra state attributes."""
+        attrs = self._base_zone_attributes
+        attrs["data_source"] = self._data_source
+        if self._last_homekit_update is not None:
+            attrs["last_homekit_update"] = self._last_homekit_update
+        return attrs
 
     @callback
     def _handle_coordinator_update(self) -> None:
@@ -140,6 +226,7 @@ class TadoHumiditySensor(TadoZoneSensor):
         zone_data = self._get_zone_data()
         if zone_data:
             self._update_from_zone_data(zone_data)
+            self._update_homekit_attributes()
             self._attr_available = self._attr_native_value is not None
         else:
             self._attr_available = False
@@ -147,17 +234,31 @@ class TadoHumiditySensor(TadoZoneSensor):
 
     @callback
     def _update_from_zone_data(self, zone_data: dict[str, Any]) -> None:
-        # Use 'or {}' pattern for null safety (API may return null for these fields)
         sensor_data = zone_data.get("sensorDataPoints") or {}
-        self._attr_native_value = (sensor_data.get("humidity") or {}).get("percentage")
+        new_value = (sensor_data.get("humidity") or {}).get("percentage")
+        if new_value != self._attr_native_value:
+            _LOGGER.debug(
+                "Zone Sensor: zone %s humidity %s → %s%% (source %s)",
+                self._zone_id, self._attr_native_value, new_value, self._data_source,
+            )
+        self._attr_native_value = new_value
+
+    def _update_homekit_attributes(self) -> None:
+        """Pin humidity source to cloud unless cloud is unavailable.
+
+        Bridge humidity tends to lag behind cloud humidity, so the
+        reconciler only falls back to HomeKit when cloud sync has
+        failed. Surface that as a stable `cloud` attribute by
+        default — the source label flips only when cloud is gone.
+        """
+        self._data_source = "cloud"
+        self._last_homekit_update = None
 
 
 class TadoHeatingPowerSensor(TadoZoneSensor):
     """Represent a Tado heating power percentage sensor."""
 
     _attr_has_entity_name = True
-
-    """Heating power sensor."""
 
     def __init__(
         self, coordinator: TadoDataUpdateCoordinator, zone_id: str, zone_name: str, zone_type: str = "HEATING",
@@ -174,7 +275,6 @@ class TadoHeatingPowerSensor(TadoZoneSensor):
 
     @callback
     def _update_from_zone_data(self, zone_data: dict[str, Any]) -> None:
-        # Use 'or {}' pattern for null safety (API may return null for these fields)
         activity_data = zone_data.get("activityDataPoints") or {}
         power = (activity_data.get("heatingPower") or {}).get("percentage")
         self._attr_native_value = power if power is not None else 0
@@ -184,8 +284,6 @@ class TadoACPowerSensor(TadoZoneSensor):
     """Represent a Tado AC power state sensor."""
 
     _attr_has_entity_name = True
-
-    """AC power sensor."""
 
     def __init__(
         self, coordinator: TadoDataUpdateCoordinator, zone_id: str, zone_name: str, zone_type: str = "AIR_CONDITIONING",
@@ -202,10 +300,11 @@ class TadoACPowerSensor(TadoZoneSensor):
 
     @callback
     def _update_from_zone_data(self, zone_data: dict[str, Any]) -> None:
-        # Use 'or {}' pattern for null safety (API may return null for these fields)
         activity_data = zone_data.get("activityDataPoints") or {}
         ac_power = activity_data.get("acPower") or {}
-        # Try percentage first (older API), then value (newer API returns 'ON'/'OFF')
+        # Newer firmware reports `value` ("ON" / "OFF"); older firmware
+        # reports `percentage`. Coerce to a percentage either way so
+        # the sensor stays a stable shape for users / dashboards.
         power = ac_power.get("percentage")
         if power is None:
             value = ac_power.get("value")
@@ -214,15 +313,15 @@ class TadoACPowerSensor(TadoZoneSensor):
 
 
 class TadoBoilerFlowTemperatureSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], SensorEntity):
-    """Represent a Tado boiler flow temperature sensor."""
+    """Hub-level boiler flow temperature, sourced from whichever zone reports it.
+
+    OpenTherm boilers expose flow temperature on a single zone's
+    activity data; on/off boilers don't. The sensor walks the
+    zone list and surfaces the first match, with the source zone
+    in `extra_state_attributes`.
+    """
 
     _attr_has_entity_name = True
-
-    """Boiler flow temperature sensor - reads from HEATING zones.
-
-    This is a Hub-level sensor that reads boilerFlowTemperature from
-    any HEATING zone that has this data available.
-    """
 
     def __init__(self, coordinator: TadoDataUpdateCoordinator) -> None:
         """Initialize the Boiler Flow Temperature Sensor."""
@@ -233,12 +332,13 @@ class TadoBoilerFlowTemperatureSensor(CoordinatorEntity["TadoDataUpdateCoordinat
         self._attr_device_class = SensorDeviceClass.TEMPERATURE
         self._attr_native_unit_of_measurement = UnitOfTemperature.CELSIUS
         self._attr_state_class = SensorStateClass.MEASUREMENT
+        self._attr_suggested_display_precision = 1
         self._attr_icon = _meta.icon
         self._attr_entity_category = get_entity_category(_meta)
         self._attr_device_info = get_hub_device_info(coordinator.home_id)
         self._attr_available = False
         self._attr_native_value = None
-        self._source_zone = None
+        self._source_zone: str | None = None
 
     @property
     def extra_state_attributes(self) -> dict[str, Any] | None:
@@ -257,7 +357,7 @@ class TadoBoilerFlowTemperatureSensor(CoordinatorEntity["TadoDataUpdateCoordinat
                 self.async_write_ha_state()
                 return
 
-            zone_states = (data.get("zones") or {}).get("zoneStates") or {}
+            zone_states = get_zone_states(data)
             for zone_id, zone_data in zone_states.items():
                 activity_data = zone_data.get("activityDataPoints") or {}
                 flow_temp = (activity_data.get("boilerFlowTemperature") or {}).get("celsius")
@@ -271,8 +371,12 @@ class TadoBoilerFlowTemperatureSensor(CoordinatorEntity["TadoDataUpdateCoordinat
             self._attr_native_value = None
             self._source_zone = None
             self._attr_available = False
-        except Exception:  # noqa: BLE001 — HA entity update pattern
-            _LOGGER.debug("Failed to update boiler flow temperature sensor")
+        except Exception:
+            _LOGGER.debug(
+                "Zone Sensor: boiler flow temperature update failed — "
+                "marking unavailable until the next poll",
+                exc_info=True,
+            )
             self._attr_available = False
         self.async_write_ha_state()
 
@@ -281,8 +385,6 @@ class TadoTargetTempSensor(TadoZoneSensor):
     """Represent a Tado target temperature sensor."""
 
     _attr_has_entity_name = True
-
-    """Target temperature sensor."""
 
     def __init__(
         self, coordinator: TadoDataUpdateCoordinator, zone_id: str, zone_name: str, zone_type: str = "HEATING",
@@ -294,15 +396,18 @@ class TadoTargetTempSensor(TadoZoneSensor):
         self._attr_unique_id = f"tado_ce_{coordinator.home_id}_{_meta.unique_id_suffix.format(zone_id=zone_id)}"
         self._attr_device_class = SensorDeviceClass.TEMPERATURE
         self._attr_native_unit_of_measurement = UnitOfTemperature.CELSIUS
+        self._attr_suggested_display_precision = 1
         self._attr_icon = _meta.icon
 
     @callback
     def _update_from_zone_data(self, zone_data: dict[str, Any]) -> None:
-        # Use 'or {}' pattern for null safety (API may return null for setting)
         setting = zone_data.get("setting") or {}
         if setting.get("power") == "ON":
             self._attr_native_value = (setting.get("temperature") or {}).get("celsius")
         else:
+            # Power-off zones have no meaningful target — exposing
+            # the last value would mislead users into thinking the
+            # zone is still aiming for it.
             self._attr_native_value = None
 
 
@@ -310,8 +415,6 @@ class TadoOverlaySensor(TadoZoneSensor):
     """Represent a Tado overlay mode sensor."""
 
     _attr_has_entity_name = True
-
-    """Overlay status sensor (Manual/Schedule)."""
 
     def __init__(
         self, coordinator: TadoDataUpdateCoordinator, zone_id: str, zone_name: str, zone_type: str = "HEATING",
@@ -354,7 +457,6 @@ class TadoOverlaySensor(TadoZoneSensor):
         else:
             self._attr_native_value = "Schedule"
 
-        # Extract overlay timer expiry if present
         overlay = zone_data.get("overlay") or {}
         termination = overlay.get("termination") or {}
         if termination.get("type") == "TIMER":
@@ -364,10 +466,12 @@ class TadoOverlaySensor(TadoZoneSensor):
             self._overlay_expiry = None
             self._overlay_remaining = None
 
-        # Next change: use overlay expiry for Timer overlays, otherwise next schedule change
         if self._overlay_expiry:
+            # Timer overlays revert to the schedule, but the schedule
+            # target at that moment isn't deterministic from the zone
+            # snapshot alone — leave next_temp blank.
             self._next_change = self._overlay_expiry
-            self._next_temp = None  # timer returns to schedule — no specific temp
+            self._next_temp = None
         else:
             next_change = zone_data.get("nextScheduleChange")
             if next_change:
@@ -382,27 +486,3 @@ class TadoOverlaySensor(TadoZoneSensor):
                 self._next_change = None
                 self._next_temp = None
 
-
-class TadoHotWaterPowerSensor(TadoZoneSensor):
-    """Represent a Tado hot water power state sensor."""
-
-    _attr_has_entity_name = True
-
-    """Hot water power sensor (ON/OFF)."""
-
-    def __init__(
-        self, coordinator: TadoDataUpdateCoordinator, zone_id: str, zone_name: str, zone_type: str = "HOT_WATER",
-    ) -> None:
-        """Initialize the Hot Water Power Sensor."""
-        super().__init__(coordinator, zone_id, zone_name, zone_type)
-        _meta = ENTITY_REGISTRY["sensor_power"]
-        self._attr_translation_key = _meta.translation_key
-        self._attr_unique_id = f"tado_ce_{coordinator.home_id}_{_meta.unique_id_suffix.format(zone_id=zone_id)}"
-        self._attr_icon = _meta.icon
-        self._attr_entity_category = get_entity_category(_meta)
-
-    @callback
-    def _update_from_zone_data(self, zone_data: dict[str, Any]) -> None:
-        setting = zone_data.get("setting") or {}
-        power = setting.get("power")
-        self._attr_native_value = power or "Unknown"

@@ -1,8 +1,14 @@
-"""Tado CE Insight Sensors — home and zone actionable insights."""
+"""Tado CE Insight sensors — actionable home + per-zone recommendations.
+
+Two entities: a home-level insight aggregator (battery alerts,
+schedule deviations, comfort score), and a per-zone insight that
+surfaces zone-specific recommendations from the insight
+collector. Both read from the coordinator's published entity-data
+cache so they don't run their own analysis loop.
+"""
 
 from __future__ import annotations
 
-from datetime import datetime
 import logging
 from typing import TYPE_CHECKING, Any
 
@@ -11,6 +17,7 @@ from homeassistant.core import callback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import dt as dt_util
 
+from .const import SECONDS_PER_DAY
 from .device_manager import get_hub_device_info, get_zone_device_info
 from .entity_registry import ENTITY_REGISTRY, get_entity_category
 from .format_helpers import (
@@ -28,6 +35,7 @@ from .format_helpers import (
 from .format_helpers import (
     format_priority as _format_priority,
 )
+from .helpers import get_zone_state
 from .insights_models import Insight
 from .insights_presenter import (
     aggregate_home_insights,
@@ -44,14 +52,13 @@ from .insights_presenter import (
 )
 from .sensor_insight_collector import (
     InsightContext,
-    collect_single_zone_insights,
-    collect_zone_insights,
     get_cross_zone_insights,
     get_hub_insights,
 )
 
 if TYPE_CHECKING:
     from .coordinator import TadoDataUpdateCoordinator
+    from .insight_history import InsightHistoryTracker
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -69,7 +76,7 @@ def _enhance_battery_duration(action: str, days: int, day_label: str) -> str:
             )
         if "TODAY" not in action:
             return f"{action} \u2014 {day_label} overdue, replace now"
-    elif days >= 7:  # noqa: PLR2004
+    elif days >= 7:
         if "within 1-2 weeks" in action:
             return action.replace("within 1-2 weeks", f"soon \u2014 reported {day_label} ago")
     else:
@@ -124,10 +131,6 @@ def _enhance_recommendation_with_duration(
 
 
 class TadoHomeInsightsSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], SensorEntity):
-    """Represent a Tado home-level actionable insights sensor."""
-
-    _attr_has_entity_name = True
-
     """Hub-level sensor aggregating actionable insights from all zones.
 
     Collects insights from zone sensors (mold risk, comfort,
@@ -140,6 +143,8 @@ class TadoHomeInsightsSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], Sen
 
     State: Total number of active insights (integer)
     """
+
+    _attr_has_entity_name = True
 
     def __init__(self, coordinator: TadoDataUpdateCoordinator) -> None:
         """Initialize the Home Insights Sensor."""
@@ -156,12 +161,12 @@ class TadoHomeInsightsSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], Sen
         # Weekly digest cache — recompute only when date changes
         self._weekly_digest: str = ""
         self._weekly_digest_date: str = ""
-        # Track per-zone heating anomaly start times for real duration measurement
-        self._anomaly_start_times: dict[str, datetime] = {}
-        # Per-zone humidity history for trend detection (in-memory only)
-        self._humidity_histories: dict[str, list[Any]] = {}
         # Escalated priority map for persistent_insights rendering
         self._escalated_priority_map: dict[tuple[str, str | None], int] = {}
+        # Cache of extra_state_attributes computed in update(), so the
+        # @property is a cheap dict return instead of running heavy formatting
+        # on every HA state read / template eval / frontend refresh.
+        self._cached_attrs: dict[str, Any] = {}
 
     @property
     def icon(self) -> str | None:
@@ -179,31 +184,8 @@ class TadoHomeInsightsSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], Sen
 
     @property
     def extra_state_attributes(self) -> dict[str, Any] | None:
-        """Return extra state attributes.
-
-        Always: summary, top_priority, insight_health_score.
-        Conditional (non-empty only): actions_needed, persistent_insights,
-        cross_zone_insights, weekly_digest.
-        """
-        raw_persistent = self.coordinator.insight_history.get_persistent_insights()
-        attrs: dict[str, Any] = {
-            "summary": self._aggregated.get("summary", ""),
-            "top_priority": _format_priority(self._aggregated.get("top_priority", "none")),
-            "insight_health_score": _format_health_score(self._health_score),
-        }
-        # Conditional attributes — only include when non-empty
-        for key, value in [
-            ("actions_needed", self._aggregated.get("actions_needed", [])),
-            ("persistent_insights", _format_persistent_insights_grouped(
-                raw_persistent,
-                escalated_priorities=self._escalated_priority_map,
-            )),
-            ("cross_zone_insights", self._aggregated.get("cross_zone_insights", [])),
-            ("weekly_digest", self._weekly_digest),
-        ]:
-            if value:
-                attrs[key] = value
-        return attrs
+        """Return cached extra state attributes (computed in update())."""
+        return self._cached_attrs or None
 
     @callback
     def _handle_coordinator_update(self) -> None:
@@ -213,14 +195,14 @@ class TadoHomeInsightsSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], Sen
     @staticmethod
     def _enhance_persistent_insights(
         zone_insights: dict[str, list[Insight]],
-        history: object,
+        history: InsightHistoryTracker,
     ) -> dict[str, list[Insight]]:
         """Append duration text for persistent insights (≥ 24h)."""
         for zone_key in zone_insights:
             for i, insight in enumerate(zone_insights[zone_key]):
-                dur = history.get_duration(insight.insight_type, insight.zone_name)  # type: ignore[union-attr]
-                if dur is not None and dur.total_seconds() >= 86400:  # noqa: PLR2004
-                    days = int(dur.total_seconds() // 86400)  # noqa: PLR2004
+                dur = history.get_duration(insight.insight_type, insight.zone_name)
+                if dur is not None and dur.total_seconds() >= SECONDS_PER_DAY:
+                    days = int(dur.total_seconds() // SECONDS_PER_DAY)
                     enhanced = _enhance_recommendation_with_duration(
                         insight.recommendation, insight.insight_type, days,
                     )
@@ -234,14 +216,14 @@ class TadoHomeInsightsSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], Sen
 
     @callback
     def update(self) -> None:
-        """Update home insights by collecting and aggregating zone data."""
+        """Update home insights by reading pre-computed zone insights from coordinator."""
         try:
             ctx = InsightContext.from_coordinator(self.coordinator)
 
-            zone_insights = collect_zone_insights(
-                self.hass, self.coordinator,
-                self._anomaly_start_times, self._humidity_histories,
-            )
+            # Zone insights are pre-computed once per poll by the coordinator
+            # (collector mutable state lives there too). dict(...) is a defensive
+            # copy because we add _hub / _cross_zone and rebuild entries below.
+            zone_insights = dict(self.coordinator.data.get("zone_insights") or {})
 
             cross_zone = get_cross_zone_insights(self.hass, self.coordinator, zone_insights, ctx)
             hub = get_hub_insights(self.hass, self.coordinator, ctx)
@@ -255,8 +237,9 @@ class TadoHomeInsightsSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], Sen
             for insights_list in zone_insights.values():
                 all_insights.extend(insights_list)
 
+            # insight_history.update() runs in the coordinator so duration
+            # tracking advances even if this sensor is disabled.
             now = dt_util.utcnow()
-            self.coordinator.insight_history.update(all_insights, now)
 
             history = self.coordinator.insight_history
             escalated = _escalate_priorities(all_insights, history, now)
@@ -290,18 +273,38 @@ class TadoHomeInsightsSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], Sen
                 i.recommendation for i in cross_zone if i.recommendation
             ]
 
+            # Build attributes once per update, cache for cheap property reads
+            raw_persistent = self.coordinator.insight_history.get_persistent_insights()
+            attrs: dict[str, Any] = {
+                "summary": self._aggregated.get("summary", ""),
+                "top_priority": _format_priority(self._aggregated.get("top_priority", "none")),
+                "insight_health_score": _format_health_score(self._health_score),
+            }
+            for attr_key, value in [
+                ("actions_needed", self._aggregated.get("actions_needed", [])),
+                ("persistent_insights", _format_persistent_insights_grouped(
+                    raw_persistent,
+                    escalated_priorities=self._escalated_priority_map,
+                )),
+                ("cross_zone_insights", self._aggregated.get("cross_zone_insights", [])),
+                ("weekly_digest", self._weekly_digest),
+            ]:
+                if value:
+                    attrs[attr_key] = value
+            self._cached_attrs = attrs
+
             self._attr_native_value = len(self._aggregated.get("actions_needed", []))
             self._attr_available = True
-        except Exception as e:  # noqa: BLE001 — HA entity update pattern
-            _LOGGER.debug("Failed to update home insights: %s", e)
+        except Exception as e:
+            _LOGGER.debug(
+                "Insight Sensor: home insights update failed (%s) — "
+                "marking unavailable until the next poll",
+                e,
+            )
             self._attr_available = False
 
 
 class TadoZoneInsightsSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], SensorEntity):
-    """Represent a Tado zone-level actionable insights sensor."""
-
-    _attr_has_entity_name = True
-
     """Per-zone sensor showing actionable insights for a single zone.
 
     Collects insights specific to this zone (mold risk, comfort,
@@ -310,6 +313,8 @@ class TadoZoneInsightsSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], Sen
 
     State: Number of active insights for this zone (integer)
     """
+
+    _attr_has_entity_name = True
 
     def __init__(self, coordinator: TadoDataUpdateCoordinator, zone_id: str, zone_name: str, zone_type: str) -> None:
         """Initialize the Zone Insights Sensor."""
@@ -325,8 +330,6 @@ class TadoZoneInsightsSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], Sen
         self._attr_available = False
         self._attr_native_value = 0
         self._insights: list[Any] = []
-        # Use dict for anomaly tracking (consistent with Home sensor)
-        self._anomaly_start_times: dict[str, datetime] = {}
 
     @property
     def icon(self) -> str | None:
@@ -361,38 +364,26 @@ class TadoZoneInsightsSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], Sen
 
     @callback
     def update(self) -> None:
-        """Collect insights for this zone using shared collector."""
+        """Read pre-computed insights for this zone from the coordinator cache."""
         try:
             coord_data = self.coordinator.data or {}
-            zones_data = coord_data.get("zones")
-            if not zones_data:
-                self._attr_available = False
-                return
-
-            zone_states = zones_data.get("zoneStates") or {}
-            zone_data = zone_states.get(self._zone_id)
+            zone_data = get_zone_state(coord_data, self._zone_id)
             if not zone_data:
                 self._attr_available = False
                 return
 
-            zones_info = coord_data.get("zones_info")
-
-            self._insights = collect_single_zone_insights(
-                hass=self.hass,
-                coordinator=self.coordinator,
-                zone_id=self._zone_id,
-                zone_name=self._zone_name,
-                zone_data=zone_data,
-                zones_info=zones_info,
-                anomaly_start_times=self._anomaly_start_times,
-            )
+            # Read pre-computed insights from coordinator cache instead of
+            # re-running the collector here. list(...) is a defensive copy so
+            # the duration enhancement below doesn't mutate the cached list.
+            zone_insights_map = coord_data.get("zone_insights") or {}
+            self._insights = list(zone_insights_map.get(self._zone_name, []))
 
             # Apply duration enhancement using insight history
             history = self.coordinator.insight_history
             for i, insight in enumerate(self._insights):
                 dur = history.get_duration(insight.insight_type, insight.zone_name)
-                if dur is not None and dur.total_seconds() >= 86400:  # noqa: PLR2004 — 86400s = 1 day
-                    days = int(dur.total_seconds() // 86400)  # noqa: PLR2004 — 86400s = 1 day
+                if dur is not None and dur.total_seconds() >= SECONDS_PER_DAY:
+                    days = int(dur.total_seconds() // SECONDS_PER_DAY)
                     enhanced = _enhance_recommendation_with_duration(
                         insight.recommendation, insight.insight_type, days,
                     )
@@ -405,6 +396,10 @@ class TadoZoneInsightsSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], Sen
 
             self._attr_native_value = len(self._insights)
             self._attr_available = True
-        except Exception as e:  # noqa: BLE001 — HA entity update pattern
-            _LOGGER.debug("Failed to update zone insights for %s: %s", self._zone_name, e)
+        except Exception as e:
+            _LOGGER.debug(
+                "Insight Sensor: zone %s insights update failed (%s) "
+                "— marking unavailable until the next poll",
+                self._zone_name, e,
+            )
             self._attr_available = False

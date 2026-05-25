@@ -1,4 +1,11 @@
-"""Tado CE Calendar Platform — zone heating schedules."""
+"""Tado CE calendar platform — read-only heating schedule view per zone.
+
+One calendar entity per HEATING zone, showing the cloud-side
+schedule blocks as `CalendarEvent`s. Schedules rarely change, so
+the platform serves cached values aggressively to avoid burning
+API quota on every entry-setup retry — a stale schedule is
+strictly better than no calendar.
+"""
 
 from __future__ import annotations
 
@@ -12,9 +19,8 @@ from homeassistant.helpers.entity import DeviceInfo  # type: ignore[attr-defined
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import dt as dt_util
 
-from .const import DOMAIN, MANUFACTURER, get_data_file
+from .const import DOMAIN, LOW_QUOTA_THRESHOLD, MANUFACTURER
 from .entity_registry import ENTITY_REGISTRY
-from .storage import load_json_sync, save_json_sync
 
 if TYPE_CHECKING:
     from homeassistant.core import Event
@@ -49,13 +55,7 @@ DAY_TYPE_TO_WEEKDAYS = {
 
 
 def get_schedule_device_info(home_id: str) -> DeviceInfo:
-    """Get device info for Heating Schedule device.
-
-    Uses home_id in identifiers and via_device for multi-home support.
-
-    Args:
-        home_id: The home ID (required).
-    """
+    """Build the HA `DeviceInfo` for the per-home Heating Schedule device."""
     schedule_identifier = f"tado_ce_{home_id}_heating_schedule" if home_id != "unknown" else "tado_ce_heating_schedule"
     hub_identifier = f"tado_ce_hub_{home_id}" if home_id != "unknown" else "tado_ce_hub"
 
@@ -81,20 +81,47 @@ async def async_setup_entry(
     zones_info = await hass.async_add_executor_job(data_loader.load_zones_info_file)
 
     if not zones_info:
-        _LOGGER.warning("No zones found for calendar setup")
+        _LOGGER.warning(
+            "Calendar: no zones available — calendar entities will "
+            "be created after the next successful zone fetch",
+        )
         return
 
-    # Fetch all schedules first
+    # Cached schedules are reused aggressively — see module
+    # docstring for the quota / staleness trade-off.
     client = coordinator.api_client
-    schedules = {}
+    cached_schedules = data_loader.load_schedules_file() or {}
+    ratelimit_data = data_loader.load_ratelimit_file() or {}
+    remaining = ratelimit_data.get("remaining", 100)
+    low_quota = remaining <= LOW_QUOTA_THRESHOLD
+
+    schedules: dict[str, Any] = {}
+    cached_hits = 0
+    fetched = 0
+    skipped_low_quota = 0
 
     for zone_data in zones_info:
         zone_id = str(zone_data.get("id", ""))
         zone_name = zone_data.get("name", f"Zone {zone_id}")
         zone_type = zone_data.get("type", "HEATING")
 
-        # Only fetch HEATING zones
         if zone_type != "HEATING":
+            continue
+
+        cached = cached_schedules.get(zone_id)
+        if cached:
+            schedules[zone_id] = cached
+            cached_hits += 1
+            continue
+
+        if low_quota:
+            skipped_low_quota += 1
+            _LOGGER.warning(
+                "Calendar: skipping schedule fetch for %s — only %s "
+                "API call(s) remaining. The schedule entity will be "
+                "created after the quota resets.",
+                zone_name, remaining,
+            )
             continue
 
         try:
@@ -103,14 +130,28 @@ async def async_setup_entry(
                 schedules[zone_id] = {
                     "name": zone_name,
                     "type": schedule_data.get("type", "ONE_DAY"),
-                    # Tado API may return null for existing keys; 'or {}' handles None correctly
                     "blocks": schedule_data.get("blocks") or {},
                 }
+                fetched += 1
         except Exception:
-            _LOGGER.exception("Failed to fetch schedule for %s", zone_name)
+            _LOGGER.warning(
+                "Calendar: schedule fetch for %s failed — zone "
+                "will be retried on the next setup",
+                zone_name,
+                exc_info=True,
+            )
 
-    # Save schedules to file
-    await _async_save_schedules(hass, schedules, home_id, data_loader=data_loader)
+    # Only persist if we actually fetched something new — a
+    # partial result after a low-quota bail would overwrite a
+    # good cache with worse data.
+    if fetched > 0:
+        await _async_save_schedules(hass, schedules, home_id, data_loader=data_loader)
+
+    _LOGGER.info(
+        "Calendar: %d zone(s) loaded — %d from cache, %d fetched, "
+        "%d skipped (quota low)",
+        len(schedules), cached_hits, fetched, skipped_low_quota,
+    )
 
     # Create calendar entity for each zone
     calendars = []
@@ -126,7 +167,6 @@ async def async_setup_entry(
         )
 
     async_add_entities(calendars)
-    _LOGGER.info("Added %s Tado schedule calendars", len(calendars))
 
 
 async def _async_save_schedules(
@@ -135,21 +175,13 @@ async def _async_save_schedules(
     home_id: str | None = None,
     data_loader: DataLoader | None = None,
 ) -> None:
-    """Save schedules to file using atomic write."""
-    schedules_file = get_data_file("schedules", home_id)
-
-    def _save() -> None:
-        save_json_sync(schedules_file, schedules)
-
-    await hass.async_add_executor_job(_save)
-
-    # Write-through: update DataLoader cache
+    """Persist the latest schedules dict via DataLoader's auxiliary store."""
     if data_loader is not None:
-        data_loader.update_cache("schedules", schedules)
+        await data_loader.async_update_store("schedules", schedules)
 
 
 class TadoZoneScheduleCalendar(CoordinatorEntity["TadoDataUpdateCoordinator"], CalendarEntity):
-    """Calendar entity for a single zone's heating schedule."""
+    """Read-only calendar surfacing one heating zone's schedule blocks as events."""
 
     _attr_has_entity_name = True
     _attr_supported_features = 0  # Read-only
@@ -182,21 +214,25 @@ class TadoZoneScheduleCalendar(CoordinatorEntity["TadoDataUpdateCoordinator"], C
         self._unsub_schedule_update = None
 
     async def async_added_to_hass(self) -> None:
-        """Register event listener when entity is added.
+        """Listen for the Refresh Schedule button's bus event.
 
-        CoordinatorEntity handles update subscription.
-        Bus event listener PRESERVED — this is how RefreshScheduleButton
-        communicates with calendar entities (not a coordinator update).
+        Bus events fire outside the coordinator's poll cycle —
+        the dedicated listener is how the Refresh Schedule
+        button asks the calendar to reload without forcing a
+        full integration refresh.
         """
         await super().async_added_to_hass()
 
         @callback
         def _handle_schedule_update(event: Event) -> None:
-            """Handle schedule update event from Refresh Schedule button."""
+            """Reload this zone when the Refresh Schedule button fires."""
             event_zone_id = event.data.get("zone_id")
             if event_zone_id == self._zone_id:
-                _LOGGER.debug("Schedule update event received for %s", self._zone_name)
-                # Reload schedule from file and trigger update
+                _LOGGER.debug(
+                    "Calendar: zone %s schedule refresh requested — "
+                    "reloading from cache",
+                    self._zone_name,
+                )
                 self.hass.async_create_task(self._async_reload_schedule())
 
         self._unsub_schedule_update = self.hass.bus.async_listen(  # type: ignore[assignment]
@@ -212,30 +248,28 @@ class TadoZoneScheduleCalendar(CoordinatorEntity["TadoDataUpdateCoordinator"], C
         await super().async_will_remove_from_hass()
 
     async def _async_reload_schedule(self) -> None:
-        """Reload schedule from DataLoader cache (or disk fallback)."""
+        """Pull the latest schedule for this zone from the DataLoader cache."""
         try:
-            # Prefer DataLoader cache (populated by button.py write-through)
+            # Cache is populated write-through by the Refresh
+            # Schedule button, so this read sees the freshest data
+            # without an extra API call.
             cached = self.coordinator.data_loader.get_cached("schedules")
             if cached and isinstance(cached, dict) and self._zone_id in cached:
                 self._schedule = cached[self._zone_id]
-                _LOGGER.info("Reloaded schedule for %s (from cache)", self._zone_name)
+                _LOGGER.debug(
+                    "Calendar: zone %s schedule reloaded from cache",
+                    self._zone_name,
+                )
                 self.async_write_ha_state()
                 return
 
-            # Fallback to disk read
-            def _load() -> dict[str, Any]:
-                home_id = self.coordinator.home_id
-                schedules_file = get_data_file("schedules", home_id)
-                data = load_json_sync(schedules_file)
-                return data if data is not None else {}  # type: ignore[return-value]
-
-            schedules = await self.hass.async_add_executor_job(_load)
-            if self._zone_id in schedules:
-                self._schedule = schedules[self._zone_id]
-                _LOGGER.info("Reloaded schedule for %s (from disk)", self._zone_name)
-                self.async_write_ha_state()
         except Exception:
-            _LOGGER.exception("Failed to reload schedule for %s", self._zone_name)
+            _LOGGER.warning(
+                "Calendar: zone %s schedule reload failed — keeping "
+                "the previous schedule until the next refresh",
+                self._zone_name,
+                exc_info=True,
+            )
 
     @property
     def event(self) -> CalendarEvent | None:
@@ -243,7 +277,7 @@ class TadoZoneScheduleCalendar(CoordinatorEntity["TadoDataUpdateCoordinator"], C
         return self._event
 
     async def async_update(self) -> None:
-        """Update the current event."""
+        """Refresh `event` to whichever block is current or next upcoming today."""
         now = dt_util.now()
         today = now.date()
 
@@ -261,7 +295,7 @@ class TadoZoneScheduleCalendar(CoordinatorEntity["TadoDataUpdateCoordinator"], C
         start_date: date,
         end_date: date,
     ) -> list[CalendarEvent]:
-        """Return calendar events within a datetime range."""
+        """Return all schedule events between `start_date` and `end_date`."""
         events = []
         timetable_type = self._schedule.get("type", "ONE_DAY")
         blocks_by_day = self._schedule.get("blocks") or {}
@@ -286,24 +320,24 @@ class TadoZoneScheduleCalendar(CoordinatorEntity["TadoDataUpdateCoordinator"], C
         timetable_type: str,
         blocks_by_day: dict[str, Any],
     ) -> list[dict[str, Any]]:
-        """Get schedule blocks for a specific weekday."""
+        """Pick the schedule blocks defined for this weekday under the timetable."""
         day_types = DAY_TYPES.get(timetable_type, ["MONDAY_TO_SUNDAY"])
 
         for day_type in day_types:
             weekdays = DAY_TYPE_TO_WEEKDAYS.get(day_type, [])
             if weekday in weekdays:
-                # Tado API may return null for existing keys; 'or []' handles None correctly
                 return blocks_by_day.get(day_type) or []
 
         return []
 
     def _block_to_event(self, block: dict[str, Any], event_date: date) -> CalendarEvent | None:
-        """Convert a schedule block to a calendar event."""
+        """Render a single schedule block as a `CalendarEvent`, or None to skip it."""
         start_time = block.get("start", "00:00")
         end_time = block.get("end", "00:00")
         setting = block.get("setting") or {}
 
-        # Skip OFF blocks
+        # OFF blocks are explicit "no heating" gaps in the schedule
+        # — they shouldn't appear as events on the calendar.
         power = setting.get("power", "OFF")
         if power != "ON":
             return None
@@ -319,6 +353,9 @@ class TadoZoneScheduleCalendar(CoordinatorEntity["TadoDataUpdateCoordinator"], C
         start_dt = datetime(event_date.year, event_date.month, event_date.day, start_h, start_m, tzinfo=tz)
 
         if end_time == "00:00" and start_time != "00:00":
+            # Tado encodes "ends at midnight" as 00:00 on the same
+            # day, which would compute as an empty interval — clamp
+            # to 23:59:59 instead.
             end_dt = datetime(event_date.year, event_date.month, event_date.day, 23, 59, 59, tzinfo=tz)
         else:
             end_dt = datetime(event_date.year, event_date.month, event_date.day, end_h, end_m, tzinfo=tz)
@@ -328,7 +365,6 @@ class TadoZoneScheduleCalendar(CoordinatorEntity["TadoDataUpdateCoordinator"], C
 
         temp_c = temp.get("celsius", 0)
 
-        # Include zone name in summary for calendar view
         return CalendarEvent(
             start=start_dt,
             end=end_dt,

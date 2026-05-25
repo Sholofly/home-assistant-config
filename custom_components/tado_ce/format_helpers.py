@@ -1,7 +1,4 @@
-"""Tado CE display formatting helpers — internal-to-display value conversions.
-
-All internal-to-display value conversions live here.
-"""
+"""Tado CE display formatting helpers — internal-to-display value conversions."""
 
 from __future__ import annotations
 
@@ -109,7 +106,6 @@ BATTERY_STATE_DISPLAY_MAP: dict[str, str] = {
 }
 
 
-CONNECTION_STATE_DISPLAY_MAP: dict[bool, str] = {True: "Online", False: "Offline"}
 CONNECTION_STATE_ATTR_MAP: dict[bool, str] = {True: "online", False: "offline"}
 
 
@@ -192,11 +188,6 @@ def format_battery_state(state: str) -> str:
     return _lookup(BATTERY_STATE_DISPLAY_MAP, state, lambda v: v.title())
 
 
-def format_connection_state(connected: bool | None) -> str:
-    """Convert connectionState.value (bool) to display value. True -> 'Online', False/None -> 'Offline'."""
-    return CONNECTION_STATE_DISPLAY_MAP.get(bool(connected) if connected is not None else False, "Offline")
-
-
 def format_connection_state_attr(connected: bool | None) -> str:
     """Convert connectionState.value (bool) to lowercase for extra_state_attributes."""
     return CONNECTION_STATE_ATTR_MAP.get(bool(connected) if connected is not None else False, "offline")
@@ -221,13 +212,13 @@ def format_health_score(score: int) -> str:
 
     Bands: 90-100 Excellent, 70-89 Good, 50-69 Fair, 25-49 Poor, 0-24 Critical.
     """
-    if score >= 90:  # noqa: PLR2004 — efficiency score band thresholds
+    if score >= 90:
         return f"🟢 {score} — Excellent"
-    if score >= 70:  # noqa: PLR2004 — efficiency score band thresholds
+    if score >= 70:
         return f"🟢 {score} — Good"
-    if score >= 50:  # noqa: PLR2004 — efficiency score band thresholds
+    if score >= 50:
         return f"🟡 {score} — Fair"
-    if score >= 25:  # noqa: PLR2004 — efficiency score band thresholds
+    if score >= 25:
         return f"🟠 {score} — Poor"
     return f"🔴 {score} — Critical"
 

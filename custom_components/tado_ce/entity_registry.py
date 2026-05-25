@@ -201,13 +201,6 @@ ENTITY_REGISTRY: dict[str, EntityMeta] = {
         icon="mdi:calendar-clock",
         legacy_name="Overlay",
     ),
-    "sensor_power": EntityMeta(
-        translation_key="power",
-        unique_id_suffix="zone_{zone_id}_power",
-        entity_category="diagnostic",
-        icon="mdi:power",
-        legacy_name="Power",
-    ),
     # ===================================================================
     # Smart Comfort Sensors (sensor_smart_comfort.py) — 5 entries
     # ===================================================================
@@ -377,7 +370,7 @@ ENTITY_REGISTRY: dict[str, EntityMeta] = {
         legacy_name="Insights",
     ),
     # ===================================================================
-    # Device Sensors (sensor_device.py) — 4 entries (2 base + 2 suffixed), all DIAGNOSTIC
+    # Device Sensors (sensor_device.py) — 2 entries (battery base + suffixed), all DIAGNOSTIC
     # ===================================================================
     "sensor_battery": EntityMeta(
         translation_key="battery",
@@ -395,24 +388,8 @@ ENTITY_REGISTRY: dict[str, EntityMeta] = {
         legacy_name="Battery{device_suffix}",
         feature_group="zone_diagnostics",
     ),
-    "sensor_connection": EntityMeta(
-        translation_key="connection",
-        unique_id_suffix="device_{serial}_connection",
-        entity_category="diagnostic",
-        icon="mdi:wifi",
-        legacy_name="Connection",
-        feature_group="zone_diagnostics",
-    ),
-    "sensor_connection_suffixed": EntityMeta(
-        translation_key="connection_suffixed",
-        unique_id_suffix="device_{serial}_connection",
-        entity_category="diagnostic",
-        icon="mdi:wifi",
-        legacy_name="Connection{device_suffix}",
-        feature_group="zone_diagnostics",
-    ),
     # ===================================================================
-    # Binary Sensors (binary_sensor.py) — 5 entries
+    # Binary Sensors (binary_sensor.py) — 7 entries
     # ===================================================================
     "binary_sensor_home": EntityMeta(
         translation_key="home",
@@ -449,6 +426,53 @@ ENTITY_REGISTRY: dict[str, EntityMeta] = {
         entity_category="diagnostic",
         icon=None,  # uses device_class CONNECTIVITY
         feature_group="bridge",
+    ),
+    "binary_sensor_connection": EntityMeta(
+        translation_key="connection",
+        unique_id_suffix="device_{serial}_connection",
+        entity_category="diagnostic",
+        icon=None,  # uses device_class CONNECTIVITY
+        legacy_name="Connection",
+        feature_group="zone_diagnostics",
+    ),
+    "binary_sensor_connection_suffixed": EntityMeta(
+        translation_key="connection_suffixed",
+        unique_id_suffix="device_{serial}_connection",
+        entity_category="diagnostic",
+        icon=None,  # uses device_class CONNECTIVITY
+        legacy_name="Connection{device_suffix}",
+        feature_group="zone_diagnostics",
+    ),
+    "binary_sensor_power": EntityMeta(
+        translation_key="power",
+        unique_id_suffix="zone_{zone_id}_power",
+        entity_category="diagnostic",
+        icon=None,  # uses device_class POWER
+        legacy_name="Power",
+    ),
+    "binary_sensor_homekit_connected": EntityMeta(
+        translation_key="homekit_connected",
+        unique_id_suffix="homekit_connected",  # hub-level
+        entity_category="diagnostic",
+        icon=None,  # uses device_class CONNECTIVITY
+        feature_group="homekit",
+    ),
+    # HomeKit savings sensors — track API calls saved by local control
+    "sensor_homekit_reads_saved": EntityMeta(
+        translation_key="homekit_reads_saved",
+        unique_id_suffix="homekit_reads_saved",  # hub-level
+        entity_category="diagnostic",
+        icon="mdi:book-open-outline",
+        enabled_default=False,
+        feature_group="homekit",
+    ),
+    "sensor_homekit_writes_saved": EntityMeta(
+        translation_key="homekit_writes_saved",
+        unique_id_suffix="homekit_writes_saved",  # hub-level
+        entity_category="diagnostic",
+        icon="mdi:pencil-outline",
+        enabled_default=False,
+        feature_group="homekit",
     ),
 
     # ===================================================================
@@ -505,7 +529,7 @@ ENTITY_REGISTRY: dict[str, EntityMeta] = {
     "select_presence_mode": EntityMeta(
         translation_key="presence_mode",
         unique_id_suffix="presence_mode",  # hub-level
-        entity_category=None,  # intentional — user-facing control (D4)
+        entity_category=None,
         icon=None,
         legacy_name="Presence Mode",
     ),
@@ -524,7 +548,7 @@ ENTITY_REGISTRY: dict[str, EntityMeta] = {
         legacy_name="Overlay Timer",
     ),
     # ===================================================================
-    # Switches (switch.py) — 4 entries (early_start, child_lock, test_mode, quota_reserve)
+    # Switches (switch.py) — 3 entries (early_start, child_lock, quota_reserve)
     # ===================================================================
     "switch_early_start": EntityMeta(
         translation_key="early_start",
@@ -541,13 +565,6 @@ ENTITY_REGISTRY: dict[str, EntityMeta] = {
         icon="mdi:lock",
         legacy_name="Child Lock",
         feature_group="device_controls",
-    ),
-    "switch_test_mode": EntityMeta(
-        translation_key="test_mode",
-        unique_id_suffix="test_mode_enabled",  # option_key used as suffix
-        entity_category="config",
-        icon=None,  # dynamic: mdi:test-tube / mdi:test-tube-off
-        legacy_name="Test Mode",
     ),
     "switch_quota_reserve": EntityMeta(
         translation_key="quota_reserve",
@@ -609,15 +626,15 @@ ENTITY_REGISTRY: dict[str, EntityMeta] = {
     # Bridge Number (bridge API — flow temperature control, hardcoded)
     # Dynamic bridge sensors get EntityMeta at runtime from enrichment.
     # ===================================================================
-    "number_boiler_max_output_temperature": EntityMeta(
-        translation_key="boiler_max_output_temperature",
-        unique_id_suffix="boiler_max_output_temperature",
+    "number_boiler_max_output_temp": EntityMeta(
+        translation_key="boiler_max_output_temp",
+        unique_id_suffix="boiler_max_output_temp",
         entity_category=None,
         icon="mdi:thermometer-water",
         feature_group="bridge",
     ),
     # ===================================================================
-    # Bridge Meta Sensors (sensor_bridge_meta.py) — 2 entries, DIAGNOSTIC
+    # Bridge Meta Sensors (sensor_bridge.py) — 2 entries, DIAGNOSTIC
     # ===================================================================
     "sensor_bridge_capabilities": EntityMeta(
         translation_key="bridge_capabilities",

@@ -1,4 +1,4 @@
-"""Tado CE Thermal Analysis Sensors — inertia, heating rate, preheat time, etc."""  # readability: named result
+"""Tado CE Thermal Analysis Sensors — inertia, heating rate, preheat time, etc."""
 
 from __future__ import annotations
 
@@ -9,6 +9,7 @@ from homeassistant.components.sensor import (
     SensorEntity,
     SensorStateClass,
 )
+from homeassistant.core import callback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .device_manager import get_zone_device_info
@@ -22,12 +23,10 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class TadoThermalInertiaSensor(CoordinatorEntity["HeatingCycleCoordinator"], SensorEntity):
-    """Represent a Tado thermal inertia sensor."""
+    """Sensor for thermal inertia time (delay before temperature rises)."""
 
     _attr_has_entity_name = True
     _attr_entity_registry_enabled_default = False
-
-    """Sensor for thermal inertia time (delay before temperature rises)."""
 
     def __init__(
         self, home_id: str, coordinator: HeatingCycleCoordinator, zone_id: str, zone_name: str, zone_type: str,
@@ -75,12 +74,10 @@ class TadoThermalInertiaSensor(CoordinatorEntity["HeatingCycleCoordinator"], Sen
 
 
 class TadoHeatingRateSensor(CoordinatorEntity["HeatingCycleCoordinator"], SensorEntity):
-    """Represent a Tado heating rate sensor."""
+    """Sensor for heating rate (°C per hour)."""
 
     _attr_has_entity_name = True
     _attr_entity_registry_enabled_default = False
-
-    """Sensor for heating rate (°C per hour)."""
 
     def __init__(
         self, home_id: str, coordinator: HeatingCycleCoordinator, zone_id: str, zone_name: str, zone_type: str,
@@ -128,12 +125,10 @@ class TadoHeatingRateSensor(CoordinatorEntity["HeatingCycleCoordinator"], Sensor
 
 
 class TadoPreheatTimeSensor(CoordinatorEntity["HeatingCycleCoordinator"], SensorEntity):
-    """Represent a Tado preheat time estimate sensor."""
+    """Sensor for estimated preheat time to reach target temperature."""
 
     _attr_has_entity_name = True
     _attr_entity_registry_enabled_default = False
-
-    """Sensor for estimated preheat time to reach target temperature."""
 
     def __init__(
         self, home_id: str, coordinator: HeatingCycleCoordinator, zone_id: str, zone_name: str, zone_type: str,
@@ -154,31 +149,42 @@ class TadoPreheatTimeSensor(CoordinatorEntity["HeatingCycleCoordinator"], Sensor
         self._attr_entity_category = get_entity_category(_meta)
         self._current_temp: float | None = None
         self._target_temp: float | None = None
+        self._estimated_preheat: float | None = None
 
-    @property
-    def native_value(self) -> float | None:
-        """Return sensor value from coordinator data."""
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        """Update cached values from coordinator data.
+
+        Moved computation here from @property native_value to ensure
+        idempotency — HA may read properties multiple times per tick.
+        """
         zone_state = self.coordinator.get_zone_state(self._zone_id)
         if not zone_state:
-            return None
+            self._current_temp = None
+            self._target_temp = None
+            self._estimated_preheat = None
+            self.async_write_ha_state()
+            return
 
         current_temp = zone_state.get("current_temp")
         target_temp = zone_state.get("target_temp")
 
-        if current_temp is None or target_temp is None:
-            return None
-
-        # Store for attributes
         self._current_temp = current_temp
         self._target_temp = target_temp
 
-        # Get estimate from coordinator
-        estimate = self.coordinator.estimate_preheat_time(
-            self._zone_id,
-            current_temp,
-            target_temp,
-        )
-        return estimate
+        if current_temp is not None and target_temp is not None:
+            self._estimated_preheat = self.coordinator.estimate_preheat_time(
+                self._zone_id, current_temp, target_temp,
+            )
+        else:
+            self._estimated_preheat = None
+
+        self.async_write_ha_state()
+
+    @property
+    def native_value(self) -> float | None:
+        """Return cached preheat time estimate."""
+        return self._estimated_preheat
 
     @property
     def available(self) -> bool:
@@ -204,12 +210,10 @@ class TadoPreheatTimeSensor(CoordinatorEntity["HeatingCycleCoordinator"], Sensor
 
 
 class TadoConfidenceSensor(CoordinatorEntity["HeatingCycleCoordinator"], SensorEntity):
-    """Represent a Tado thermal model confidence sensor."""
+    """Sensor for confidence score of preheat estimates (0-100%)."""
 
     _attr_has_entity_name = True
     _attr_entity_registry_enabled_default = False
-
-    """Sensor for confidence score of preheat estimates (0-100%)."""
 
     def __init__(
         self, home_id: str, coordinator: HeatingCycleCoordinator, zone_id: str, zone_name: str, zone_type: str,
@@ -267,16 +271,14 @@ class TadoConfidenceSensor(CoordinatorEntity["HeatingCycleCoordinator"], SensorE
 
 
 class TadoHeatingAccelerationSensor(CoordinatorEntity["HeatingCycleCoordinator"], SensorEntity):
-    """Represent a Tado heating acceleration sensor."""
-
-    _attr_has_entity_name = True
-    _attr_entity_registry_enabled_default = False
-
     """Sensor for heating acceleration (second-order analysis).
 
     Measures how quickly the heating rate increases after heating starts.
     Higher acceleration = faster response system.
     """
+
+    _attr_has_entity_name = True
+    _attr_entity_registry_enabled_default = False
 
     def __init__(
         self, home_id: str, coordinator: HeatingCycleCoordinator, zone_id: str, zone_name: str, zone_type: str,
@@ -323,11 +325,6 @@ class TadoHeatingAccelerationSensor(CoordinatorEntity["HeatingCycleCoordinator"]
 
 
 class TadoApproachFactorSensor(CoordinatorEntity["HeatingCycleCoordinator"], SensorEntity):
-    """Represent a Tado approach factor sensor."""
-
-    _attr_has_entity_name = True
-    _attr_entity_registry_enabled_default = False
-
     """Sensor for approach deceleration factor (second-order analysis).
 
     Measures how much the heating rate decreases as temperature
@@ -338,6 +335,9 @@ class TadoApproachFactorSensor(CoordinatorEntity["HeatingCycleCoordinator"], Sen
     - 50%: 50% deceleration, controlled approach
     - 0%: Complete stop before setpoint (rare)
     """
+
+    _attr_has_entity_name = True
+    _attr_entity_registry_enabled_default = False
 
     def __init__(
         self, home_id: str, coordinator: HeatingCycleCoordinator, zone_id: str, zone_name: str, zone_type: str,

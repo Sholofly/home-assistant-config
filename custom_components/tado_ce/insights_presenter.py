@@ -1,12 +1,4 @@
-"""Tado CE Insights Presenter — correlation, aggregation, and formatting.
-
-Handles all presentation-layer logic: correlating related insights,
-aggregating home-level summaries, building smart summaries, calculating
-health scores, escalating priorities, and producing weekly digests.
-
-Only depends on ``insights_models`` for shared types — no imports from
-domain calculation modules.
-"""
+"""Tado CE Insights Presenter — correlation, aggregation, and formatting."""
 
 from __future__ import annotations
 
@@ -15,6 +7,7 @@ from datetime import datetime, timedelta
 import re
 from typing import TYPE_CHECKING, Any
 
+from .const import INSIGHT_ESCALATION_DAYS
 from .helpers import parse_iso_datetime as _parse_iso_dt
 from .insights_models import (
     _INSIGHT_TO_GROUP,
@@ -385,7 +378,7 @@ def _narrative_zone_str(zones: list[str]) -> str:
         return ""
     if len(zones) == 1:
         return zones[0]
-    if len(zones) == 2:  # noqa: PLR2004
+    if len(zones) == 2:
         return f"{zones[0]} and {zones[1]}"
     return f"{', '.join(zones[:-1])}, and {zones[-1]}"
 
@@ -396,21 +389,21 @@ def _narrative_urgency_reason(label: str, grp: dict[str, Any]) -> str:
     dur = grp.get("max_duration_days", 0)
 
     if insight_type == "battery":
-        if dur >= 14:  # noqa: PLR2004
+        if dur >= INSIGHT_ESCALATION_DAYS:
             return f"first reported {dur} days ago"
-        if dur >= 2:  # noqa: PLR2004
+        if dur >= 2:
             return f"reported {dur} days ago"
         return "to avoid losing control"
 
     if insight_type == "mold_risk":
-        if dur >= 7:  # noqa: PLR2004
+        if dur >= 7:
             return f"ongoing for {dur} days"
-        if dur >= 2:  # noqa: PLR2004
+        if dur >= 2:
             return f"reported {dur} days ago"
         return "needs attention"
 
     # General fallback
-    if dur >= 2:  # noqa: PLR2004
+    if dur >= 2:
         return f"reported {dur} days ago"
     return ""
 
@@ -460,7 +453,7 @@ def _build_narrative_summary(
     top_label, top_grp = sorted_actions[0]
     primary = _narrative_build_primary(top_label, top_grp)
 
-    if len(sorted_actions) < 2:  # noqa: PLR2004
+    if len(sorted_actions) < 2:
         result = primary
     else:
         sec_label, sec_grp = sorted_actions[1]
@@ -502,9 +495,9 @@ def build_flat_action_list(
 
         # Consistent duration phrasing per insight type
         dur_suffix = ""
-        if dur >= 2:  # noqa: PLR2004 — show duration for 2+ days
+        if dur >= 2:
             insight_type = _reverse_action_label(label)
-            if insight_type == "battery" and dur >= 14:  # noqa: PLR2004 — 14 days = overdue battery
+            if insight_type == "battery" and dur >= INSIGHT_ESCALATION_DAYS:
                 dur_suffix = f" (overdue \u2014 {dur} days)"
             elif insight_type == "battery":
                 dur_suffix = f" ({dur} days)"
@@ -514,7 +507,7 @@ def build_flat_action_list(
         if zones:
             if len(zones) == 1:
                 zone_str = zones[0]
-            elif len(zones) == 2:  # noqa: PLR2004 — natural language "X and Y"
+            elif len(zones) == 2:
                 zone_str = f"{zones[0]} and {zones[1]}"
             else:
                 zone_str = f"{', '.join(zones[:-1])}, and {zones[-1]}"
@@ -849,7 +842,7 @@ def _natural_join(items: list[str]) -> str:
         return ""
     if len(items) == 1:
         return items[0]
-    if len(items) == 2:  # noqa: PLR2004
+    if len(items) == 2:
         return f"{items[0]} and {items[1]}"
     return f"{', '.join(items[:-1])}, and {items[-1]}"
 

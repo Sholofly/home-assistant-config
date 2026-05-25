@@ -1,18 +1,8 @@
 """Tado CE unified data models — shared dataclasses for temperature readings.
 
-Three dataclasses live here, each serving a distinct subsystem:
-
 - ``HeatingCycleReading``  — heating cycle tracker (time + temp only).
 - ``InsightTemperatureReading`` — insights engine (temp + humidity + timestamp).
 - ``SmartComfortReading``  — smart comfort analyser (temp + heating context).
-
-``HeatingCycleReading`` and ``InsightTemperatureReading`` look similar but carry
-different fields because their consumers need different data: the heating cycle
-tracker never uses humidity, while the insights engine requires it for mold /
-condensation calculations.
-
-Backward-compatible aliases are maintained in ``heating_models.py`` and
-``insights_models.py`` so existing imports continue to work.
 """
 
 from __future__ import annotations
@@ -59,8 +49,6 @@ class HeatingCycleReading(_SerializableMixin):
         UTC timestamp of the measurement.
     temp:
         Measured temperature in °C.
-
-    Migrated from ``heating_models.py`` ``TemperatureReading``.
     """
 
     time: datetime  # UTC
@@ -82,8 +70,6 @@ class InsightTemperatureReading:
         Relative humidity in %, or ``None`` when the zone has no humidity sensor.
     timestamp:
         UTC timestamp of the measurement.
-
-    Migrated from ``insights.py`` ``TemperatureReading``.
     """
 
     temperature: float
@@ -105,8 +91,6 @@ class SmartComfortReading(_SerializableMixin):
         ``True`` when the HVAC is actively heating or cooling.
     target_temperature:
         Current setpoint in °C, or ``None`` if unavailable.
-
-    Migrated from ``smart_comfort.py`` ``TemperatureReading``.
     """
 
     timestamp: datetime

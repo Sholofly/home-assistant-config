@@ -1,4 +1,9 @@
-"""Tado CE heating cycle storage — per-home persistence via HA Store."""
+"""Tado CE heating-cycle storage — per-home cycle history in HA Store + JSON migration.
+
+Persists completed heating cycles for the heating-cycle
+analyzer's rolling window. Uses HA Store with debounced saves
+plus a one-shot migration from the v3.x JSON file shape.
+"""
 
 from __future__ import annotations
 
@@ -13,7 +18,7 @@ from homeassistant.util import dt as dt_util
 
 from .heating_models import HeatingCycle
 from .helpers import parse_iso_datetime
-from .storage import load_json_sync
+from .storage import async_migrate_json_to_store
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
@@ -45,97 +50,65 @@ class HeatingCycleStorage:
         self._data: dict[str, Any] = {"zones": {}}
 
     async def async_load(self) -> None:
-        """Load cycle data from Store with migration from old JSON file."""
+        """Load cycle history from Store, migrating from the v3.x JSON file when needed."""
+        from .helpers import mask_home_id
+
         try:
             stored = await self._store.async_load()
             if stored is not None:
                 self._data = self._migrate_data_format(stored)
                 _LOGGER.debug(
-                    "Loaded heating cycle history for home %s: %d zones",
-                    self._home_id,
+                    "Heating Storage: loaded cycle history for home "
+                    "%s — %d zone(s)",
+                    mask_home_id(self._home_id),
                     len(self._data.get("zones", {})),
                 )
-                # Clean up old JSON file if it still exists
-                await self._cleanup_old_json()
                 return
 
-            # No Store data — try migrating from old JSON file
-            migrated = await self._migrate_from_json()
-            if migrated is not None:
+            migrated = await async_migrate_json_to_store(
+                self._hass, self._old_storage_path, self._store,
+                label="heating_cycles",
+            )
+            if migrated is not None and isinstance(migrated, dict):
+                migrated.pop("version", None)
                 self._data = self._migrate_data_format(migrated)
                 return
 
-            _LOGGER.debug("No existing heating cycle history found")
+            _LOGGER.debug(
+                "Heating Storage: no existing cycle history found "
+                "for home %s — starting fresh",
+                mask_home_id(self._home_id),
+            )
 
         except HomeAssistantError:
-            _LOGGER.exception("Corrupted heating cycle storage")
+            _LOGGER.warning(
+                "Heating Storage: cycle history Store is corrupt — "
+                "starting fresh for this session, will retry on next "
+                "reload",
+                exc_info=True,
+            )
             self._data = {"zones": {}}
         except OSError:
-            _LOGGER.exception("Failed to load heating cycle storage")
+            _LOGGER.warning(
+                "Heating Storage: cycle history could not be read "
+                "from disk — starting fresh for this session, will "
+                "retry on next reload",
+                exc_info=True,
+            )
             self._data = {"zones": {}}
 
-    async def _migrate_from_json(self) -> dict[str, Any] | None:
-        """Migrate old JSON file to Store.
-
-        Reads the old file, saves to Store, and renames old file to .json.migrated.
-        """
-        exists = await self._hass.async_add_executor_job(
-            self._old_storage_path.exists,
-        )
-        if not exists:
-            return None
-
-        old_data = await self._hass.async_add_executor_job(
-            load_json_sync, self._old_storage_path,
-        )
-        if old_data is None:
-            return None
-
-        # Remove "version" key — Store manages version externally
-        if isinstance(old_data, dict):
-            old_data.pop("version", None)
-
-        await self._store.async_save(old_data)
-
-        migrated_path = self._old_storage_path.with_suffix(".json.migrated")
-        await self._hass.async_add_executor_job(
-            self._old_storage_path.rename, migrated_path,
-        )
-        _LOGGER.info(
-            "Migrated heating cycle history → Store (old file renamed to %s)",
-            migrated_path,
-        )
-        return old_data  # type: ignore[return-value]
-
-    async def _cleanup_old_json(self) -> None:
-        """Rename old JSON file to .json.migrated if it still exists."""
-        exists = await self._hass.async_add_executor_job(
-            self._old_storage_path.exists,
-        )
-        if exists:
-            migrated_path = self._old_storage_path.with_suffix(".json.migrated")
-            await self._hass.async_add_executor_job(
-                self._old_storage_path.rename, migrated_path,
-            )
-            _LOGGER.info(
-                "Cleaned up old heating cycle file (renamed to %s)",
-                migrated_path,
-            )
-
     def _migrate_data_format(self, loaded_data: dict[str, Any]) -> dict[str, Any]:
-        """Migrate old data format to new format.
-
-        Old format: {"zone_id": [cycles], ...}
-        New format: {"zones": {"zone_id": {"cycles": [...]}, ...}}
-        """
-        # Check if already new format
+        """Lift old `{zone_id: [cycles]}` shape into new `{zones: {zone_id: {cycles: [...]}}}`."""
         if "zones" in loaded_data:
-            # Strip "version" if present (legacy Store data)
+            # Already new shape — drop the legacy "version" key
+            # if present so it doesn't leak into save_cycle.
             loaded_data.pop("version", None)
             return loaded_data
 
-        # Migrate old format
-        _LOGGER.info("Migrating heating cycle data from old format")
+        _LOGGER.info(
+            "Heating Storage: migrating cycle history from legacy "
+            "format",
+        )
         new_data: dict[str, Any] = {"zones": {}}
 
         for zone_id, cycles in loaded_data.items():
@@ -144,7 +117,8 @@ class HeatingCycleStorage:
             if isinstance(cycles, list):
                 new_data["zones"][zone_id] = {"cycles": cycles}
                 _LOGGER.debug(
-                    "Migrated zone %s with %d cycles",
+                    "Heating Storage: migrated zone %s with %d "
+                    "cycle(s)",
                     zone_id,
                     len(cycles),
                 )
@@ -155,7 +129,7 @@ class HeatingCycleStorage:
         """Schedule a debounced save to Store."""
         self._store.async_delay_save(lambda: self._data, SAVE_DELAY)
 
-    async def save_cycle(self, zone_id: str, cycle: HeatingCycle) -> None:
+    async def save_cycle(self, zone_id: str, cycle: HeatingCycle, *, window_days: int = 7) -> None:
         """Save completed cycle for a zone."""
         if zone_id not in self._data["zones"]:
             self._data["zones"][zone_id] = {"cycles": []}
@@ -163,7 +137,8 @@ class HeatingCycleStorage:
         self._data["zones"][zone_id]["cycles"].append(cycle.to_dict())
 
         _LOGGER.debug(
-            "Saved cycle for zone %s: %s -> %s (completed=%s, interrupted=%s)",
+            "Heating Storage: stored cycle for zone %s — %s → %s "
+            "(completed=%s, interrupted=%s)",
             zone_id,
             cycle.start_time.isoformat(),
             cycle.end_time.isoformat() if cycle.end_time else "active",
@@ -171,8 +146,8 @@ class HeatingCycleStorage:
             cycle.interrupted,
         )
 
-        # Cleanup old cycles (keep 2x rolling window)
-        await self._cleanup_old_cycles(zone_id)
+        # Cleanup old cycles (keep 2x configured rolling window)
+        await self._cleanup_old_cycles(zone_id, window_days)
 
         # Schedule debounced save
         self._schedule_save()
@@ -208,7 +183,11 @@ class HeatingCycleStorage:
                     break  # Only one active cycle per zone
 
         if active:
-            _LOGGER.info("Found %d active cycles to resume", len(active))
+            _LOGGER.info(
+                "Heating Storage: resuming %d active cycle(s) after "
+                "restart",
+                len(active),
+            )
 
         return active
 
@@ -216,9 +195,9 @@ class HeatingCycleStorage:
         """Get all zone IDs with stored cycle data."""
         return list(self._data["zones"].keys())
 
-    async def _cleanup_old_cycles(self, zone_id: str) -> None:
-        """Remove cycles older than 2x rolling window."""
-        cutoff = dt_util.utcnow() - timedelta(days=14)  # 2x default window
+    async def _cleanup_old_cycles(self, zone_id: str, window_days: int = 7) -> None:
+        """Remove cycles older than 2x configured rolling window."""
+        cutoff = dt_util.utcnow() - timedelta(days=window_days * 2)
 
         cycles = self._data["zones"][zone_id]["cycles"]
         original_count = len(cycles)
@@ -230,7 +209,7 @@ class HeatingCycleStorage:
         removed_count = original_count - len(self._data["zones"][zone_id]["cycles"])
         if removed_count > 0:
             _LOGGER.debug(
-                "Cleaned up %d old cycles for zone %s",
+                "Heating Storage: pruned %d old cycle(s) for zone %s",
                 removed_count,
                 zone_id,
             )

@@ -1,4 +1,11 @@
-"""Tado CE Switch Platform — child lock and early start."""
+"""Tado CE switch platform — early start, child lock, hub toggles.
+
+Per-zone Early Start, per-device Child Lock, and the home-level
+Quota Reserve toggle. Early Start / Child Lock writes go through
+the device-sync queue so the API rate-limit logic gets a single
+serialised stream of writes; Quota Reserve is a config-entry
+option (no cloud call).
+"""
 from __future__ import annotations
 
 import logging
@@ -13,7 +20,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from .const import DOMAIN
 from .device_manager import get_hub_device_info, get_zone_device_info
 from .entity_registry import ENTITY_REGISTRY, get_entity_category
-from .helpers import async_trigger_immediate_refresh
+from .helpers import async_trigger_immediate_refresh, mask_serial
 from .optimistic_helpers import OptimisticUpdateResult, clear_optimistic_state, resolve_optimistic_update
 from .ratelimit import async_check_bootstrap_reserve_or_raise as _check_bootstrap_reserve_or_raise
 from .write_optimizer import DeviceOperation
@@ -34,7 +41,7 @@ async def async_setup_entry(
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     """Set up Tado CE switches from a config entry."""
-    _LOGGER.debug("Tado CE switch: Setting up...")
+    _LOGGER.debug("Switch: setup starting")
     coordinator = entry.runtime_data
     data_loader = coordinator.data_loader
     home_id = coordinator.home_id
@@ -44,8 +51,6 @@ async def async_setup_entry(
     config_manager = coordinator.config_manager
 
     switches: list[SwitchEntity] = []
-
-    # Away Mode switch removed - replaced by select.tado_ce_presence_mode
 
     # Device controls (Early Start, Child Lock) controlled by feature toggle
     if config_manager.get_device_controls_enabled() and zones_info:
@@ -69,8 +74,8 @@ async def async_setup_entry(
                         ),
                     )
 
-            # Child Lock switches (per device)
-            # Tado API may return null for 'devices'; 'or []' handles None correctly
+            # `devices` can come back as null on a fresh zone —
+            # `or []` covers both null and missing-key cases.
             for device in zone.get("devices") or []:
                 if "childLockEnabled" in device:
                     serial = device.get("shortSerialNo")
@@ -91,15 +96,18 @@ async def async_setup_entry(
 
     if switches:
         async_add_entities(switches, True)
-        _LOGGER.info("Tado CE switches loaded: %s", len(switches))
+        _LOGGER.info(
+            "Switch: created %d zone / device switch(es)", len(switches),
+        )
     else:
-        _LOGGER.debug("Tado CE: No switches found (device_controls_enabled may be OFF)")
+        _LOGGER.debug(
+            "Switch: no zone / device switches created — device "
+            "controls are disabled in config",
+        )
 
-    # Hub control toggles (always created)
+    # Hub-level toggles always exist regardless of feature flags so
+    # users can flip Quota Reserve even when device controls are off.
     hub_switches: list[SwitchEntity] = [
-        TadoHubToggleSwitch(
-            coordinator, home_id, "switch_test_mode", "test_mode_enabled", "mdi:test-tube", "mdi:test-tube-off",
-        ),
         TadoHubToggleSwitch(
             coordinator, home_id, "switch_quota_reserve", "quota_reserve_enabled", "mdi:shield-check", "mdi:shield-off",
         ),
@@ -107,17 +115,17 @@ async def async_setup_entry(
     async_add_entities(hub_switches, True)
 
 
-
-# TadoAwayModeSwitch class REMOVED
-# Replaced by TadoPresenceModeSelect in select.py
-
-
 class TadoEarlyStartSwitch(CoordinatorEntity["TadoDataUpdateCoordinator"], SwitchEntity):
-    """TadoEarlyStartSwitch."""
+    """Toggle Tado's per-zone Early Start preheat.
+
+    Early Start tells the Tado cloud to start heating ahead of a
+    schedule block so the room reaches target on time. The cloud
+    is the source of truth — we surface the cached value and
+    optimistically reflect the user's flip while the write goes
+    through the device-sync queue.
+    """
 
     _attr_has_entity_name = True
-
-    """Tado CE Early Start Switch Entity."""
 
     def __init__(
         self,
@@ -144,7 +152,7 @@ class TadoEarlyStartSwitch(CoordinatorEntity["TadoDataUpdateCoordinator"], Switc
         self._attr_available = True
         self._attr_device_info = get_zone_device_info(zone_id, zone_name, zone_type, home_id)
 
-        # Optimistic update tracking (parity with climate entities)
+        # Optimistic update tracking
         self._optimistic_set_at: float | None = None
 
     @property
@@ -163,19 +171,17 @@ class TadoEarlyStartSwitch(CoordinatorEntity["TadoDataUpdateCoordinator"], Switc
 
     @callback
     def _handle_coordinator_update(self) -> None:
-        """Handle coordinator data update.
-
-        CoordinatorEntity calls this automatically.
-        """
+        """Reconcile Early Start state on every coordinator poll."""
         self.update()
         self.async_write_ha_state()
 
     @callback
     def update(self) -> None:
-        """Update early start state from API.
+        """Hold the optimistic value during its window; otherwise leave state unchanged.
 
-        Uses shared resolve_optimistic_update() for time-window protection.
-        Early start state is not in the cached files, so we keep the last known state.
+        Early Start isn't part of the cached zone snapshot, so a
+        normal poll has no fresh API value to compare against —
+        we hold the last known state until the next user toggle.
         """
         result = resolve_optimistic_update(
             self,
@@ -183,23 +189,19 @@ class TadoEarlyStartSwitch(CoordinatorEntity["TadoDataUpdateCoordinator"], Switc
             entry_id=self._entry_id,
         )
         if result == OptimisticUpdateResult.PRESERVE_OPTIMISTIC:
-            _LOGGER.debug("%s Early Start: Preserving optimistic state (within window)", self._zone_name)
+            _LOGGER.debug(
+                "Switch: zone %s Early Start holding optimistic "
+                "state — still inside the protection window",
+                self._zone_name,
+            )
             return
 
-        # Early start state is not in the cached files, so we keep the last known state
-
     async def async_turn_on(self, **kwargs: Any) -> None:
-        """Turn on early start - async.
-
-        Added optimistic tracking and proper rollback (parity with climate entities).
-        Added bootstrap reserve check - blocks action when quota critically low.
-        Routed through DeviceSyncQueue for sequential device operations.
-        """
+        """Enable Early Start for this zone."""
         await _check_bootstrap_reserve_or_raise(self.hass, f"Early Start {self._zone_name}", coordinator=self.coordinator)
 
         old_is_on = self._attr_is_on
 
-        # Optimistic update BEFORE API call
         self._attr_is_on = True
         self._optimistic_set_at = time.monotonic()
         self.async_write_ha_state()
@@ -207,7 +209,7 @@ class TadoEarlyStartSwitch(CoordinatorEntity["TadoDataUpdateCoordinator"], Switc
         async def _execute() -> bool:
             return await self._async_set_early_start(True)
 
-        enqueued = await self.coordinator.device_sync_queue.enqueue(
+        accepted, done = await self.coordinator.device_sync_queue.enqueue(
             DeviceOperation(
                 device_serial=self._zone_id,
                 operation_name="early_start_on",
@@ -215,10 +217,12 @@ class TadoEarlyStartSwitch(CoordinatorEntity["TadoDataUpdateCoordinator"], Switc
                 entity_id=self.entity_id,
             ),
         )
-        if enqueued:
-            await async_trigger_immediate_refresh(self.hass, self.entity_id, "early_start_on")
-        else:
-            _LOGGER.warning("Device Sync queue full, rejecting early start ON for %s", self._zone_name)
+        if not accepted:
+            _LOGGER.warning(
+                "Switch: zone %s Early Start ON rejected — device "
+                "sync queue full, will retry next time",
+                self._zone_name,
+            )
             self._attr_is_on = old_is_on
             clear_optimistic_state(self)
             self.async_write_ha_state()
@@ -227,13 +231,24 @@ class TadoEarlyStartSwitch(CoordinatorEntity["TadoDataUpdateCoordinator"], Switc
                 translation_domain=DOMAIN,
             )
 
-    async def async_turn_off(self, **kwargs: Any) -> None:
-        """Turn off early start - async.
+        await async_trigger_immediate_refresh(self.hass, self.entity_id, "early_start_on")
 
-        Added optimistic tracking and proper rollback (parity with climate entities).
-        Added bootstrap reserve check - blocks action when quota critically low.
-        Routed through DeviceSyncQueue for sequential device operations.
-        """
+        # Roll back the optimistic UI if the queued write later
+        # failed — without this the dashboard shows the wrong
+        # value until the next successful refresh, which may
+        # itself be rate-limited.
+        if not await done:
+            _LOGGER.warning(
+                "Switch: zone %s Early Start ON write failed — "
+                "reverted UI to previous state",
+                self._zone_name,
+            )
+            self._attr_is_on = old_is_on
+            clear_optimistic_state(self)
+            self.async_write_ha_state()
+
+    async def async_turn_off(self, **kwargs: Any) -> None:
+        """Disable Early Start for this zone."""
         await _check_bootstrap_reserve_or_raise(self.hass, f"Early Start {self._zone_name}", coordinator=self.coordinator)
 
         old_is_on = self._attr_is_on
@@ -245,7 +260,7 @@ class TadoEarlyStartSwitch(CoordinatorEntity["TadoDataUpdateCoordinator"], Switc
         async def _execute() -> bool:
             return await self._async_set_early_start(False)
 
-        enqueued = await self.coordinator.device_sync_queue.enqueue(
+        accepted, done = await self.coordinator.device_sync_queue.enqueue(
             DeviceOperation(
                 device_serial=self._zone_id,
                 operation_name="early_start_off",
@@ -253,10 +268,12 @@ class TadoEarlyStartSwitch(CoordinatorEntity["TadoDataUpdateCoordinator"], Switc
                 entity_id=self.entity_id,
             ),
         )
-        if enqueued:
-            await async_trigger_immediate_refresh(self.hass, self.entity_id, "early_start_off")
-        else:
-            _LOGGER.warning("Device Sync queue full, rejecting early start OFF for %s", self._zone_name)
+        if not accepted:
+            _LOGGER.warning(
+                "Switch: zone %s Early Start OFF rejected — device "
+                "sync queue full, will retry next time",
+                self._zone_name,
+            )
             self._attr_is_on = old_is_on
             clear_optimistic_state(self)
             self.async_write_ha_state()
@@ -265,33 +282,54 @@ class TadoEarlyStartSwitch(CoordinatorEntity["TadoDataUpdateCoordinator"], Switc
                 translation_domain=DOMAIN,
             )
 
+        await async_trigger_immediate_refresh(self.hass, self.entity_id, "early_start_off")
+
+        if not await done:
+            _LOGGER.warning(
+                "Switch: zone %s Early Start OFF write failed — "
+                "reverted UI to previous state",
+                self._zone_name,
+            )
+            self._attr_is_on = old_is_on
+            clear_optimistic_state(self)
+            self.async_write_ha_state()
+
     async def _async_set_early_start(self, enabled: bool) -> bool:
-        """Set early start state via async API."""
+        """Send the Early Start enable / disable to the cloud."""
         client = self.coordinator.api_client
 
-        # Early start uses a different endpoint format
         endpoint = f"zones/{self._zone_id}/earlyStart"
         result = await client.api_call(endpoint, method="PUT", data={"enabled": enabled})
 
         if result is not None:
             state_str = "enabled" if enabled else "disabled"
-            _LOGGER.info("Early Start %s for %s", state_str, self._zone_name)
+            _LOGGER.debug(
+                "Switch: zone %s Early Start %s", self._zone_name, state_str,
+            )
             self._attr_is_on = enabled
             self.async_write_ha_state()
             return True
 
-        _LOGGER.error("Failed to set early start for %s", self._zone_name)
+        _LOGGER.warning(
+            "Switch: zone %s Early Start write failed — keeping "
+            "previous state",
+            self._zone_name,
+        )
         return False
 
 
 
 
 class TadoChildLockSwitch(CoordinatorEntity["TadoDataUpdateCoordinator"], SwitchEntity):
-    """TadoChildLockSwitch."""
+    """Toggle child lock on a single Tado device.
+
+    Each Tado device that supports child lock (TRVs, smart
+    thermostats) gets its own switch. Reads the current value
+    from the cached zone data and writes via the device-sync
+    queue.
+    """
 
     _attr_has_entity_name = True
-
-    """Tado CE Child Lock Switch Entity."""
 
     def __init__(
         self,
@@ -323,7 +361,7 @@ class TadoChildLockSwitch(CoordinatorEntity["TadoDataUpdateCoordinator"], Switch
         self._attr_available = True
         self._attr_device_info = get_zone_device_info(zone_id, zone_name, zone_type, home_id)
 
-        # Optimistic update tracking (parity with climate entities)
+        # Optimistic update tracking
         self._optimistic_set_at: float | None = None
 
     @property
@@ -342,19 +380,13 @@ class TadoChildLockSwitch(CoordinatorEntity["TadoDataUpdateCoordinator"], Switch
 
     @callback
     def _handle_coordinator_update(self) -> None:
-        """Handle coordinator data update.
-
-        CoordinatorEntity calls this automatically.
-        """
+        """Reconcile child lock state on every coordinator poll."""
         self.update()
         self.async_write_ha_state()
 
     @callback
     def update(self) -> None:
-        """Update child lock state from JSON file.
-
-        Uses shared resolve_optimistic_update() for time-window protection.
-        """
+        """Pick up the cloud's `childLockEnabled` for this device, respecting optimistic writes."""
         result = resolve_optimistic_update(
             self,
             api_values={},
@@ -362,9 +394,9 @@ class TadoChildLockSwitch(CoordinatorEntity["TadoDataUpdateCoordinator"], Switch
         )
         if result == OptimisticUpdateResult.PRESERVE_OPTIMISTIC:
             _LOGGER.debug(
-                "%s Child Lock (%s): Preserving optimistic state (within window)",
-                self._zone_name,
-                self._serial,
+                "Switch: zone %s child lock (%s) holding optimistic "
+                "state — still inside the protection window",
+                self._zone_name, mask_serial(self._serial),
             )
             return
 
@@ -381,21 +413,21 @@ class TadoChildLockSwitch(CoordinatorEntity["TadoDataUpdateCoordinator"], Switch
                                 return
 
             self._attr_available = False
-        except Exception:  # noqa: BLE001 — HA entity update pattern
+        except Exception:
+            _LOGGER.debug(
+                "Switch: zone %s child lock (%s) update failed — "
+                "marking unavailable until the next poll",
+                self._zone_name, mask_serial(self._serial),
+                exc_info=True,
+            )
             self._attr_available = False
 
     async def async_turn_on(self, **kwargs: Any) -> None:
-        """Turn on child lock - async.
-
-        Added optimistic tracking and proper rollback (parity with climate entities).
-        Added bootstrap reserve check - blocks action when quota critically low.
-        Routed through DeviceSyncQueue for sequential device operations.
-        """
+        """Engage child lock on this device."""
         await _check_bootstrap_reserve_or_raise(self.hass, f"Child Lock {self._zone_name}", coordinator=self.coordinator)
 
         old_is_on = self._attr_is_on
 
-        # Optimistic update BEFORE API call
         self._attr_is_on = True
         self._optimistic_set_at = time.monotonic()
         self.async_write_ha_state()
@@ -403,7 +435,7 @@ class TadoChildLockSwitch(CoordinatorEntity["TadoDataUpdateCoordinator"], Switch
         async def _execute() -> bool:
             return await self._async_set_child_lock(True)
 
-        enqueued = await self.coordinator.device_sync_queue.enqueue(
+        accepted, done = await self.coordinator.device_sync_queue.enqueue(
             DeviceOperation(
                 device_serial=self._serial,
                 operation_name="child_lock_on",
@@ -411,10 +443,12 @@ class TadoChildLockSwitch(CoordinatorEntity["TadoDataUpdateCoordinator"], Switch
                 entity_id=self.entity_id,
             ),
         )
-        if enqueued:
-            await async_trigger_immediate_refresh(self.hass, self.entity_id, "child_lock_on")
-        else:
-            _LOGGER.warning("Device Sync queue full, rejecting child lock ON for %s", self._zone_name)
+        if not accepted:
+            _LOGGER.warning(
+                "Switch: zone %s child lock (%s) ON rejected — "
+                "device sync queue full, will retry next time",
+                self._zone_name, mask_serial(self._serial),
+            )
             self._attr_is_on = old_is_on
             clear_optimistic_state(self)
             self.async_write_ha_state()
@@ -423,13 +457,20 @@ class TadoChildLockSwitch(CoordinatorEntity["TadoDataUpdateCoordinator"], Switch
                 translation_domain=DOMAIN,
             )
 
-    async def async_turn_off(self, **kwargs: Any) -> None:
-        """Turn off child lock - async.
+        await async_trigger_immediate_refresh(self.hass, self.entity_id, "child_lock_on")
 
-        Added optimistic tracking and proper rollback (parity with climate entities).
-        Added bootstrap reserve check - blocks action when quota critically low.
-        Routed through DeviceSyncQueue for sequential device operations.
-        """
+        if not await done:
+            _LOGGER.warning(
+                "Switch: zone %s child lock (%s) ON write failed — "
+                "reverted UI to previous state",
+                self._zone_name, mask_serial(self._serial),
+            )
+            self._attr_is_on = old_is_on
+            clear_optimistic_state(self)
+            self.async_write_ha_state()
+
+    async def async_turn_off(self, **kwargs: Any) -> None:
+        """Release child lock on this device."""
         await _check_bootstrap_reserve_or_raise(self.hass, f"Child Lock {self._zone_name}", coordinator=self.coordinator)
 
         old_is_on = self._attr_is_on
@@ -441,7 +482,7 @@ class TadoChildLockSwitch(CoordinatorEntity["TadoDataUpdateCoordinator"], Switch
         async def _execute() -> bool:
             return await self._async_set_child_lock(False)
 
-        enqueued = await self.coordinator.device_sync_queue.enqueue(
+        accepted, done = await self.coordinator.device_sync_queue.enqueue(
             DeviceOperation(
                 device_serial=self._serial,
                 operation_name="child_lock_off",
@@ -449,10 +490,12 @@ class TadoChildLockSwitch(CoordinatorEntity["TadoDataUpdateCoordinator"], Switch
                 entity_id=self.entity_id,
             ),
         )
-        if enqueued:
-            await async_trigger_immediate_refresh(self.hass, self.entity_id, "child_lock_off")
-        else:
-            _LOGGER.warning("Device Sync queue full, rejecting child lock OFF for %s", self._zone_name)
+        if not accepted:
+            _LOGGER.warning(
+                "Switch: zone %s child lock (%s) OFF rejected — "
+                "device sync queue full, will retry next time",
+                self._zone_name, mask_serial(self._serial),
+            )
             self._attr_is_on = old_is_on
             clear_optimistic_state(self)
             self.async_write_ha_state()
@@ -461,13 +504,30 @@ class TadoChildLockSwitch(CoordinatorEntity["TadoDataUpdateCoordinator"], Switch
                 translation_domain=DOMAIN,
             )
 
+        await async_trigger_immediate_refresh(self.hass, self.entity_id, "child_lock_off")
+
+        if not await done:
+            _LOGGER.warning(
+                "Switch: zone %s child lock (%s) OFF write failed — "
+                "reverted UI to previous state",
+                self._zone_name, mask_serial(self._serial),
+            )
+            self._attr_is_on = old_is_on
+            clear_optimistic_state(self)
+            self.async_write_ha_state()
+
     async def _async_set_child_lock(self, enabled: bool) -> bool:
-        """Set child lock state via centralized API client."""
+        """Send the child lock enable / disable to the cloud."""
         return await self.coordinator.api_client.set_child_lock(self._serial, enabled)
 
 
 class TadoHubToggleSwitch(CoordinatorEntity["TadoDataUpdateCoordinator"], SwitchEntity):
-    """Handle a hub-level config toggle (Test Mode / Quota Reserve)."""
+    """Persist a hub-level config toggle (e.g. Quota Reserve) on the config entry.
+
+    No cloud call — flipping the switch updates the config-entry
+    options dict, which `ConfigurationManager` reads in real time
+    so the change applies on the next poll cycle.
+    """
 
     _attr_has_entity_name = True
 
@@ -519,25 +579,12 @@ class TadoHubToggleSwitch(CoordinatorEntity["TadoDataUpdateCoordinator"], Switch
         await self._async_set_option(False)
 
     async def _async_set_option(self, value: bool) -> None:
-        """Persist option to config entry and update state.
-
-        These options are read in real-time by config_manager, so the
-        change takes effect immediately without an integration reload.
-        For test_mode_enabled transitions, we also trigger an API refresh
-        to get real rate limit data when exiting test mode.
-        """
+        """Write the new toggle value to the config entry's options dict."""
         entry = self.coordinator.config_entry
         new_options = {**entry.options, self._option_key: value}
         self.hass.config_entries.async_update_entry(entry, options=new_options)
         self._attr_is_on = value
         self.async_write_ha_state()
-        _LOGGER.info("Tado CE: %s set to %s", self._option_key, value)
-
-        # Handle test mode transition (disable → need API refresh for real data)
-        if self._option_key == "test_mode_enabled":
-            from .migration import async_handle_test_mode_transition
-
-            try:
-                await async_handle_test_mode_transition(self.hass, entry)
-            except Exception as exc:  # noqa: BLE001 — transition handling must not block switch toggle
-                _LOGGER.debug("Tado CE: Test mode transition handling: %s", exc)
+        _LOGGER.info(
+            "Switch: %s set to %s", self._option_key, value,
+        )

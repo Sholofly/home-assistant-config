@@ -1,8 +1,4 @@
-"""Window detection insights — active and passive open-window detection.
-
-Provides detect_window_predicted (active HVAC mode) and
-detect_window_passive (rate-based multi-signal scoring) functions.
-"""
+"""Window detection insights — active and passive open-window detection."""
 
 from __future__ import annotations
 
@@ -175,7 +171,7 @@ def _calc_temp_rate_score(
     flat_tolerant=True: flat readings do not break streak (passive mode).
     flat_tolerant=False: flat readings break streak (active mode compat).
     """
-    if len(readings) < 2:  # noqa: PLR2004 — need at least 2 readings for rate
+    if len(readings) < 2:
         return 0.0, 0
 
     anomaly_count = 0
@@ -206,7 +202,7 @@ def _calc_temp_rate_score(
     time_span = (
         readings[-1].timestamp - readings[start_idx].timestamp
     ).total_seconds() / 60.0
-    if time_span <= 0:
+    if time_span <= 0.5:  # Less than 30 seconds — too short for reliable rate
         return 0.0, anomaly_count
 
     temp_rate = total_change / time_span

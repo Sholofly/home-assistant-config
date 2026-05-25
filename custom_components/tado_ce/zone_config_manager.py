@@ -1,5 +1,13 @@
-"""Tado CE zone configuration manager — per-zone settings storage and listener pattern."""  # generic config store, values are heterogeneous
-  # generic config store, values are heterogeneous
+"""Tado CE zone configuration manager — per-zone overrides + listener fan-out.
+
+Holds the per-zone settings users tweak in the Options Flow
+(window type, U-value, surface offset, Adaptive Preheat /
+Smart Valve mode, external sensor entity_ids, min/max temp).
+Storage is via DataLoader's auxiliary store; listeners are
+notified after every change so consumers (climate entities,
+SVC controllers) react in real time.
+"""
+
 from __future__ import annotations
 
 from contextlib import suppress
@@ -19,20 +27,10 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class ZoneConfigManager:
-    """Manage per-zone configuration.
-
-    Stores zone-specific settings via DataLoader Store infrastructure
-    and provides listener pattern for config changes.
-    """
+    """Per-zone settings store + listener fan-out, backed by DataLoader's auxiliary store."""
 
     def __init__(self, hass: HomeAssistant, home_id: str, data_loader: DataLoader) -> None:
-        """Initialize zone config manager.
-
-        Args:
-            hass: Home Assistant instance
-            home_id: Tado home ID for multi-home support
-            data_loader: DataLoader instance for Store-backed persistence
-        """
+        """Initialise the manager (does not load — call `async_load` after construction)."""
         self._hass = hass
         self._home_id = home_id
         self._data_loader = data_loader
@@ -40,7 +38,7 @@ class ZoneConfigManager:
         self._listeners: list[Callable[[str, str, Any], None]] = []
 
     async def async_load(self) -> None:
-        """Load zone configuration from Store."""
+        """Load and migrate the zone config dict from Store."""
         raw = await self._data_loader.async_load_auxiliary("zone_config")
         if raw and isinstance(raw, dict):
             zones = raw.get("zones", {})
@@ -48,74 +46,72 @@ class ZoneConfigManager:
         else:
             self._config = {}
 
-        # Cumulative migration: adaptive_preheat bool → str (persisted)
+        # Cumulative migrations applied on every load — cheap, and
+        # ensures users on older schemas get cleaned up the next
+        # time they open Options.
         migrated = False
         for zone_cfg in self._config.values():
             ap = zone_cfg.get("adaptive_preheat")
             if isinstance(ap, bool):
                 zone_cfg["adaptive_preheat"] = "active" if ap else "off"
                 migrated = True
+            # `temp_offset` was a v2.x key that never reached the
+            # cloud — strip on sight.
+            if "temp_offset" in zone_cfg:
+                del zone_cfg["temp_offset"]
+                migrated = True
+            # `smart_valve_control` (bool) → `svc_mode` (str) —
+            # the new shape supports `valve_target` / `cycle` /
+            # `off`, the old bool only covered on/off.
+            svc_bool = zone_cfg.pop("smart_valve_control", None)
+            if svc_bool is not None:
+                migrated = True
+                if "svc_mode" not in zone_cfg:
+                    zone_cfg["svc_mode"] = "valve_target" if svc_bool else "off"
         if migrated:
             await self.async_save()
-            _LOGGER.info("Migrated adaptive_preheat bool → str in zone config")
-        _LOGGER.debug("Loaded zone config for %s zones", len(self._config))
+            _LOGGER.info(
+                "Zone Config: applied cumulative migrations to "
+                "stored zone config",
+            )
+        _LOGGER.debug(
+            "Zone Config: loaded overrides for %d zone(s)",
+            len(self._config),
+        )
 
     async def async_save(self) -> None:
-        """Save zone configuration via Store (debounced)."""
+        """Schedule a debounced write of the current zone config to Store."""
         self._data_loader.save_auxiliary("zone_config", {"version": 1, "zones": self._config})
-        _LOGGER.debug("Saved zone config for %s zones", len(self._config))
+        _LOGGER.debug(
+            "Zone Config: queued save — %d zone(s)",
+            len(self._config),
+        )
 
     def get_zone_config(self, zone_id: str) -> dict[str, Any]:
-        """Get configuration for a zone, with defaults.
-
-        Args:
-            zone_id: Zone ID as string
-
-        Returns:
-            Zone config dict merged with defaults
-        """
+        """Return the merged config for a zone — defaults + user overrides."""
         zone_config = self._config.get(str(zone_id), {})
-        # Merge with defaults (zone config overrides defaults)
         merged = {**DEFAULT_ZONE_CONFIG, **zone_config}
-        # Cumulative migration: adaptive_preheat bool → str
+        # In-memory `adaptive_preheat` migration covers stale
+        # caches that were loaded before `async_load` ran.
         ap = merged.get("adaptive_preheat")
         if isinstance(ap, bool):
             merged["adaptive_preheat"] = "active" if ap else "off"
         return merged
 
     def has_zone_override(self, zone_id: str, key: str) -> bool:
-        """Check if a zone has an explicit user-set override for a key.
-
-        Returns True only if the user has explicitly saved a value
-        for this key in zone config (not just the default).
-        """
+        """True when the user has explicitly set this key (not merely inherited the default)."""
         zone_config = self._config.get(str(zone_id), {})
         return key in zone_config
 
     def get_zone_value(self, zone_id: str, key: str, default: Any = None) -> Any:
-        """Get a specific configuration value for a zone.
-
-        Args:
-            zone_id: Zone ID as string
-            key: Configuration key
-            default: Default value if not set (uses DEFAULT_ZONE_CONFIG if None)
-
-        Returns:
-            Configuration value
-        """
+        """Read one config key for a zone; falls back to `DEFAULT_ZONE_CONFIG[key]`."""
         config = self.get_zone_config(str(zone_id))
         if default is None:
             return config.get(key, DEFAULT_ZONE_CONFIG.get(key))
         return config.get(key, default)
 
     async def async_set_zone_value(self, zone_id: str, key: str, value: Any) -> None:
-        """Set a configuration value for a zone.
-
-        Args:
-            zone_id: Zone ID as string
-            key: Configuration key
-            value: Value to set
-        """
+        """Set one config key for a zone, persist, and notify listeners on change."""
         zone_id = str(zone_id)
         if zone_id not in self._config:
             self._config[zone_id] = {}
@@ -125,57 +121,42 @@ class ZoneConfigManager:
 
         await self.async_save()
 
-        # Notify listeners if value changed
         if old_value != value:
             for listener in self._listeners:
                 try:
                     listener(zone_id, key, value)
                 except Exception:
-                    _LOGGER.exception("Error in zone config listener")
+                    _LOGGER.warning(
+                        "Zone Config: listener raised while handling "
+                        "zone %s key %s — continuing with the next "
+                        "listener so other consumers still get the "
+                        "update",
+                        zone_id, key,
+                        exc_info=True,
+                    )
 
     def add_listener(self, callback: Callable[[str, str, Any], None]) -> Callable[[], None]:
-        """Add a listener for config changes.
-
-        Args:
-            callback: Function(zone_id, key, value) called on changes
-
-        Returns:
-            Function to remove the listener
-        """
+        """Subscribe `callback(zone_id, key, value)` to config changes — returns an unsubscribe."""
         self._listeners.append(callback)
 
         def _remove_listener() -> None:
-            """Remove listener with race condition protection."""
+            """Idempotent unsubscribe — `suppress(ValueError)` covers double-removal races."""
             with suppress(ValueError):
                 self._listeners.remove(callback)
 
         return _remove_listener
 
     def get_window_u_value(self, zone_id: str) -> float:
-        """Get window U-value for a zone based on window type.
-
-        Args:
-            zone_id: Zone ID as string
-
-        Returns:
-            U-value in W/m²K
-        """
+        """Resolve the U-value (W/m²K) for the zone's configured window type."""
         window_type = self.get_zone_value(zone_id, "window_type", "double_pane")
         return WINDOW_U_VALUES.get(window_type, 2.7)
 
     def get_surface_temp_offset(self, zone_id: str) -> float:
-        """Get surface temperature offset for mold risk calibration.
-
-        Args:
-            zone_id: Zone ID as string
-
-        Returns:
-            Offset in °C (negative = colder surface, positive = warmer)
-        """
+        """Return the user-set surface offset (°C) for mold-risk calibration."""
         return self.get_zone_value(zone_id, "surface_temp_offset", 0.0)  # type: ignore[no-any-return]
 
 
     @property
     def zones(self) -> dict[str, dict[str, Any]]:
-        """Get all zone configurations."""
+        """Return a defensive copy of the per-zone config dict."""
         return self._config.copy()

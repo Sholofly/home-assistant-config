@@ -1,4 +1,14 @@
-"""Tado CE Insight History Tracker — persistence for insight duration and trending."""
+"""Tado CE insight history tracker — duration-aware insight persistence + escalation.
+
+Tracks how long each insight has been active so messages can
+escalate ("low battery for 3 days") and so transient blips
+within `REAPPEARANCE_GRACE_HOURS` count as the same occurrence
+rather than two separate alerts. Uses HA Store with debounced
+writes — `async_delay_save` coalesces per-poll `last_seen`
+updates into one disk write per minute on HA OS to spare SD
+flash; HA's `FINAL_WRITE` event flushes on shutdown so nothing
+is lost.
+"""
 
 from __future__ import annotations
 
@@ -14,7 +24,7 @@ from homeassistant.util import dt as dt_util
 from .format_helpers import format_insight_type as _fmt_insight_type
 from .format_helpers import format_priority as _fmt_priority
 from .helpers import parse_iso_datetime
-from .storage import load_json_sync
+from .storage import async_migrate_json_to_store
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
@@ -26,6 +36,10 @@ _LOGGER = logging.getLogger(__name__)
 STORAGE_VERSION = "1.0"
 # Grace period: if an insight disappears for less than this, treat as same occurrence
 REAPPEARANCE_GRACE_HOURS = 1
+# Debounce delay for Store writes — coalesces per-poll `last_seen` updates to
+# reduce SD flash wear on HA OS installs. HA's EVENT_HOMEASSISTANT_FINAL_WRITE
+# flushes pending writes on shutdown, so no data loss.
+SAVE_DELAY_SECONDS = 60
 
 
 class InsightHistoryTracker:
@@ -71,104 +85,83 @@ class InsightHistoryTracker:
         return self._entries
 
     async def async_load(self) -> int:
-        """Load history from Store with migration from old JSON file.
+        """Load history from Store, migrating the v3.x JSON file when present.
 
-        Returns:
-            Number of entries loaded.
+        Returns the entry count so the caller can log a
+        sensible "loaded N" line at startup.
         """
         try:
-            data = await self._store.async_load()
+            data: dict[str, Any] | list[Any] | None = await self._store.async_load()
 
-            # Try migrating from old JSON file if Store is empty
+            # First-run / fresh-install path — try the legacy
+            # JSON before falling back to an empty history.
             if data is None:
-                data = await self._migrate_from_json()
-            else:
-                # Clean up old JSON file if it still exists
-                await self._cleanup_old_json()
+                data = await async_migrate_json_to_store(
+                    self._hass, self._old_storage_path, self._store,
+                    label="insight_history",
+                )
 
             if data is None:
-                _LOGGER.debug("No insight history file found, starting fresh")
+                _LOGGER.debug(
+                    "Insight History: no history file found — "
+                    "starting fresh",
+                )
                 return 0
-            self._entries = data.get("entries", {})  # type: ignore[union-attr]
+            if not isinstance(data, dict):
+                _LOGGER.warning(
+                    "Insight History: stored history has an "
+                    "unexpected shape — discarding it and starting "
+                    "fresh",
+                )
+                return 0
+            self._entries = data.get("entries", {})
             _LOGGER.debug(
-                "Loaded insight history: %d entries",
+                "Insight History: loaded %d entr(ies) from Store",
                 len(self._entries),
             )
             return len(self._entries)
         except (OSError, HomeAssistantError) as exc:
             _LOGGER.warning(
-                "Failed to load insight history, starting fresh: %s",
+                "Insight History: history load failed (%s) — "
+                "starting fresh, will retry on next reload",
                 exc,
             )
             self._entries = {}
             return 0
 
-    async def _migrate_from_json(self) -> dict[str, Any] | None:
-        """Migrate old JSON file to Store."""
-        exists = await self._hass.async_add_executor_job(
-            self._old_storage_path.exists,
-        )
-        if not exists:
-            return None
-
-        old_data = await self._hass.async_add_executor_job(
-            load_json_sync, self._old_storage_path,
-        )
-        if old_data is None or not isinstance(old_data, dict):
-            return None
-
-        await self._store.async_save(old_data)
-
-        migrated_path = self._old_storage_path.with_suffix(".json.migrated")
-        await self._hass.async_add_executor_job(
-            self._old_storage_path.rename, migrated_path,
-        )
-        _LOGGER.info(
-            "Migrated insight history → Store (old file renamed to %s)",
-            migrated_path,
-        )
-        return old_data
-
-    async def _cleanup_old_json(self) -> None:
-        """Rename old JSON file to .json.migrated if it still exists."""
-        exists = await self._hass.async_add_executor_job(
-            self._old_storage_path.exists,
-        )
-        if exists:
-            migrated_path = self._old_storage_path.with_suffix(".json.migrated")
-            await self._hass.async_add_executor_job(
-                self._old_storage_path.rename, migrated_path,
-            )
-            _LOGGER.info(
-                "Cleaned up old insight history file (renamed to %s)",
-                migrated_path,
-            )
+    def _serialize(self) -> dict[str, Any]:
+        """Serialise entries for Store write. Called by async_delay_save at write time."""
+        return {
+            "version": STORAGE_VERSION,
+            "saved_at": dt_util.utcnow().isoformat(),
+            "entries": self._entries,
+        }
 
     async def async_save(self) -> bool:
-        """Save history to Store. Only writes if dirty.
+        """Schedule a debounced Store write when the history has unsaved changes.
 
-        Returns:
-            True if saved successfully (or not dirty), False on error.
+        Returns False only when scheduling itself fails — a
+        clean "nothing to save" returns True.
         """
         if not self._dirty:
             return True
 
         try:
-            data = {
-                "version": STORAGE_VERSION,
-                "saved_at": dt_util.utcnow().isoformat(),
-                "entries": self._entries,
-            }
-            await self._store.async_save(data)
-
+            self._store.async_delay_save(self._serialize, SAVE_DELAY_SECONDS)
             self._dirty = False
             _LOGGER.debug(
-                "Saved insight history: %d entries",
+                "Insight History: queued debounced save — %d "
+                "entr(ies)",
                 len(self._entries),
             )
             return True
         except (OSError, HomeAssistantError):
-            _LOGGER.exception("Failed to save insight history")
+            _LOGGER.warning(
+                "Insight History: could not schedule debounced "
+                "save — keeping the dirty flag, will retry on next "
+                "save attempt",
+                exc_info=True,
+            )
             return False
 
     def update(self, current_insights: list[Insight], now: datetime) -> None:
@@ -330,7 +323,11 @@ class InsightHistoryTracker:
 
         if keys_to_remove:
             self._dirty = True
-            _LOGGER.debug("Pruned %d old insight history entries", len(keys_to_remove))
+            _LOGGER.debug(
+                "Insight History: pruned %d stale entr(ies) past "
+                "the retention window",
+                len(keys_to_remove),
+            )
 
         return len(keys_to_remove)
 

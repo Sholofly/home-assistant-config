@@ -1,7 +1,4 @@
-"""Miscellaneous insights — presence, schedule, weather.
-
-Merged from insights_presence.py, insights_schedule.py, insights_weather.py.
-"""
+"""Miscellaneous insights — presence, schedule, weather."""
 
 from __future__ import annotations
 

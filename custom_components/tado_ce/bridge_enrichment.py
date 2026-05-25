@@ -1,8 +1,4 @@
-"""Bridge API field enrichment registry — known field metadata mappings.
-
-Maps known Bridge API dot-notation field paths to rich HA metadata.
-Adding a new known field only requires adding one dict entry here.
-"""
+"""Bridge API field enrichment registry — known field metadata mappings."""
 
 from __future__ import annotations
 

@@ -1,12 +1,24 @@
-"""Tado CE API write optimization — debounce, guard, queue, coalesce."""  # fire-and-forget by design
-  # fail-forward: log and continue (AC-4.4)
-from __future__ import annotations  # fire-and-forget by design
+"""Tado CE API write optimisation — guard, debounce, queue, coalesce.
+
+Four primitives the climate / water_heater / switch entities use to
+keep redundant or rapid-fire calls off the cloud API: `ActionGuard`
+skips calls whose requested state already matches current state,
+`ActionDebouncer` collapses bursts within a per-zone window,
+`DeviceSyncQueue` serialises device-level writes with a configurable
+gap, `RefreshCoalescer` collapses post-write coordinator refreshes
+into one. All four are zone-/entity-scoped, none mutate state on
+their own.
+"""
+
+from __future__ import annotations
 
 import asyncio
 import contextlib
 from dataclasses import dataclass
 import logging
 from typing import TYPE_CHECKING
+
+from .helpers import get_zone_state
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable
@@ -19,13 +31,13 @@ _LOGGER = logging.getLogger(__name__)
 
 
 def _log_task_exception(task: asyncio.Task[object]) -> None:
-    """Log exceptions from fire-and-forget tasks."""
+    """Log uncaught exceptions from fire-and-forget tasks at warning level."""
     if not task.cancelled() and task.exception() is not None:
-        _LOGGER.warning("Background task failed: %s", task.exception())
+        _LOGGER.warning("Write Optimiser: background task failed — %s", task.exception())
 
 
 class ActionGuard:
-    """Skip redundant API calls when requested state matches current state."""
+    """Skip API calls whose requested state already matches current state."""
 
     @staticmethod
     def should_skip_temperature(
@@ -33,17 +45,16 @@ class ActionGuard:
         current_temp: float | None,
         requested_mode: HVACMode | None,
         current_mode: HVACMode | None,
+        *,
+        optimistic_active: bool = False,
     ) -> bool:
-        """Return True if temperature change is redundant.
-
-        Only skips when ALL requested attributes match current state (AC-2.9).
-        If either temp or mode differs, the call proceeds.
-        """
+        """Return True when the requested temperature + mode would be a no-op write."""
+        if optimistic_active:
+            return False
         if requested_temp is None:
             return False
         if current_temp is None:
             return False
-        # Both temp and mode must match to skip
         temp_matches = requested_temp == current_temp
         mode_matches = requested_mode == current_mode
         return temp_matches and mode_matches
@@ -52,8 +63,12 @@ class ActionGuard:
     def should_skip_hvac_mode(
         requested_mode: HVACMode,
         current_mode: HVACMode | None,
+        *,
+        optimistic_active: bool = False,
     ) -> bool:
-        """Return True if HVAC mode change is redundant."""
+        """Return True when the requested HVAC mode already matches current."""
+        if optimistic_active:
+            return False
         return requested_mode == current_mode
 
     @staticmethod
@@ -61,7 +76,7 @@ class ActionGuard:
         requested_fan: str,
         current_fan: str | None,
     ) -> bool:
-        """Return True if fan mode change is redundant."""
+        """Return True when the requested fan mode already matches current."""
         return requested_fan == current_fan
 
     @staticmethod
@@ -69,7 +84,7 @@ class ActionGuard:
         requested_swing: str,
         current_swing: str | None,
     ) -> bool:
-        """Return True if swing mode change is redundant."""
+        """Return True when the requested swing mode already matches current."""
         return requested_swing == current_swing
 
     @staticmethod
@@ -77,15 +92,15 @@ class ActionGuard:
         requested_preset: str,
         current_preset: str | None,
     ) -> bool:
-        """Return True if preset mode change is redundant."""
+        """Return True when the requested preset mode already matches current."""
         return requested_preset == current_preset
 
 
 class ActionDebouncer:
-    """Debounce zone-level write operations per zone."""
+    """Per-zone debouncer for write callbacks (collapses bursts within a window)."""
 
     def __init__(self, default_window: float = 3.0) -> None:
-        """Initialize the ActionDebouncer."""
+        """Initialise the debouncer with a default window in seconds."""
         self._pending: dict[str, asyncio.TimerHandle] = {}
         self._pending_coros: dict[str, Callable[[], Awaitable[None]]] = {}
         self._default_window: float = default_window
@@ -104,25 +119,24 @@ class ActionDebouncer:
         callback: Callable[[], Awaitable[None]],
         window: float | None = None,
     ) -> None:
-        """Schedule callback after debounce window, cancelling any pending call for same zone.
+        """Run `callback` after the debounce window, cancelling any pending call.
 
-        If window is 0 or negative, execute immediately without scheduling.
+        A non-positive window short-circuits the debounce and runs the
+        callback immediately — useful for tests and for callers that
+        want a synchronous "no debounce" path.
         """
         effective_window = window if window is not None else self._default_window
 
-        # Window <= 0 means no debounce — execute immediately
         if effective_window <= 0:
             await callback()
             return
 
-        # Cancel existing pending call for this zone
         self.cancel(zone_id)
 
         loop = self._get_loop()
         self._pending_coros[zone_id] = callback
 
         def _fire() -> None:
-            """Fire the debounced callback."""
             coro = self._pending_coros.pop(zone_id, None)
             self._pending.pop(zone_id, None)
             if coro is not None:
@@ -135,14 +149,21 @@ class ActionDebouncer:
         self._pending[zone_id] = handle
 
     def cancel(self, zone_id: str) -> None:
-        """Cancel pending debounce for a zone."""
+        """Cancel any pending debounced call for one zone."""
         handle = self._pending.pop(zone_id, None)
         if handle is not None:
             handle.cancel()
         self._pending_coros.pop(zone_id, None)
 
     def cancel_all(self) -> None:
-        """Cancel all pending debounces (cleanup on unload)."""
+        """Cancel every pending debounce (called during integration unload)."""
+        if self._pending:
+            _LOGGER.warning(
+                "Write Optimiser: shutdown dropped %d pending debounced "
+                "action(s) for zone(s) %s",
+                len(self._pending),
+                ", ".join(sorted(self._pending.keys())),
+            )
         for handle in self._pending.values():
             handle.cancel()
         self._pending.clear()
@@ -153,25 +174,33 @@ class ActionDebouncer:
 
     @property
     def pending_zones(self) -> set[str]:
-        """Return set of zone IDs with pending debounced calls."""
+        """Return the set of zone IDs with a pending debounced call."""
         return set(self._pending.keys())
 
 
 @dataclass
 class DeviceOperation:
-    """Represent a queued device operation."""
+    """One queued device-level API operation with a completion future.
+
+    `done` is resolved by `DeviceSyncQueue._process_queue` when the
+    callback finishes. Callers that care about the outcome — beyond
+    "was the operation accepted into the queue" — should await this
+    future; the queue itself no longer swallows False-return or
+    raised exceptions silently.
+    """
 
     device_serial: str
     operation_name: str
     callback: Callable[[], Awaitable[bool]]
-    entity_id: str  # for logging
+    entity_id: str
+    done: asyncio.Future[bool] | None = None
 
 
 class DeviceSyncQueue:
-    """Sequential execution queue for device-level API operations."""
+    """FIFO queue that runs device-level API operations one at a time."""
 
     def __init__(self, delay: float = 1.0, max_depth: int = 20) -> None:
-        """Initialize the DeviceSyncQueue."""
+        """Initialise the queue with the desired between-op delay and capacity."""
         self._queue: asyncio.Queue[DeviceOperation] = asyncio.Queue(maxsize=max_depth)
         self._delay: float = delay
         self._max_depth: int = max_depth
@@ -179,64 +208,82 @@ class DeviceSyncQueue:
         self._is_processing: bool = False
         self._shutdown_event: asyncio.Event = asyncio.Event()
 
-    async def enqueue(self, operation: DeviceOperation) -> bool:
-        """Add operation to queue.
+    async def enqueue(
+        self, operation: DeviceOperation,
+    ) -> tuple[bool, asyncio.Future[bool]]:
+        """Add an operation to the queue, returning (accepted, completion_future).
 
-        Returns False if queue is full (AC-4.5).
+        `accepted` is False when the queue is full — in that case the
+        completion future is already resolved to False so callers
+        awaiting it never block.
         """
+        loop = asyncio.get_running_loop()
+        done: asyncio.Future[bool] = loop.create_future()
+        operation.done = done
+
         try:
             self._queue.put_nowait(operation)
         except asyncio.QueueFull:
             _LOGGER.warning(
-                "Device Sync queue full (%s/%s), rejecting %s for %s",
+                "Write Optimiser: device-sync queue full (%s/%s) — "
+                "rejecting %s for %s, will retry on next user action",
                 self._queue.qsize(),
                 self._max_depth,
                 operation.operation_name,
                 operation.entity_id,
             )
-            return False
+            done.set_result(False)
+            return False, done
 
         _LOGGER.debug(
-            "Device Sync enqueued %s for %s (depth: %s)",
+            "Write Optimiser: enqueued %s for %s (queue depth %s)",
             operation.operation_name,
             operation.entity_id,
             self._queue.qsize(),
         )
 
-        # Start processor if not already running
         if self._processor_task is None or self._processor_task.done():
             self._shutdown_event.clear()
             self._processor_task = asyncio.create_task(self._process_queue())
 
-        return True
+        return True, done
 
     async def _process_queue(self) -> None:
-        """Process operations sequentially with delay between each (CP-4 FIFO, CP-5 fail-forward)."""
+        """Drain the queue FIFO with `_delay` between operations.
+
+        Fail-forward: a single operation raising or returning False
+        does not stop the queue — the next operation still runs.
+        """
         self._is_processing = True
         is_first = True
         try:
             while not self._queue.empty() and not self._shutdown_event.is_set():
                 operation = self._queue.get_nowait()
 
-                # Delay between operations (not before the first one)
                 if not is_first and self._delay > 0:
                     await asyncio.sleep(self._delay)
                 is_first = False
 
                 try:
-                    await operation.callback()
+                    result = await operation.callback()
                     _LOGGER.debug(
-                        "Device Sync completed %s for %s",
+                        "Write Optimiser: %s completed for %s (result=%s)",
                         operation.operation_name,
                         operation.entity_id,
+                        result,
                     )
-                except Exception:  # noqa: BLE001 — HA entity update pattern
+                    if operation.done is not None and not operation.done.done():
+                        operation.done.set_result(bool(result))
+                except Exception:
                     _LOGGER.warning(
-                        "Device Sync failed %s for %s",
+                        "Write Optimiser: %s failed for %s — operation "
+                        "will not be retried automatically",
                         operation.operation_name,
                         operation.entity_id,
                         exc_info=True,
                     )
+                    if operation.done is not None and not operation.done.done():
+                        operation.done.set_result(False)
                 finally:
                     self._queue.task_done()
         finally:
@@ -244,11 +291,11 @@ class DeviceSyncQueue:
 
     @property
     def queue_depth(self) -> int:
-        """Return current queue depth."""
+        """Return the current queue depth."""
         return self._queue.qsize()
 
     async def shutdown(self) -> None:
-        """Stop processing and clear queue."""
+        """Cancel the processor task and drop any remaining queued operations."""
         self._shutdown_event.set()
 
         if self._processor_task is not None and not self._processor_task.done():
@@ -257,19 +304,33 @@ class DeviceSyncQueue:
                 await self._processor_task
             self._processor_task = None
 
-        # Drain the queue
+        dropped_count = 0
         while not self._queue.empty():
             try:
-                self._queue.get_nowait()
+                op = self._queue.get_nowait()
+                _LOGGER.warning(
+                    "Write Optimiser: shutdown dropped queued operation "
+                    "%s for %s",
+                    op.operation_name,
+                    op.entity_id,
+                )
                 self._queue.task_done()
+                dropped_count += 1
             except asyncio.QueueEmpty:
                 break
+
+        if dropped_count:
+            _LOGGER.warning(
+                "Write Optimiser: shutdown dropped %d queued device "
+                "operation(s) in total",
+                dropped_count,
+            )
 
         self._is_processing = False
 
 
 class RefreshCoalescer:
-    """Coalesce multiple post-write coordinator refreshes into one."""
+    """Collapse multiple post-write coordinator refreshes into one debounced call."""
 
     def __init__(
         self,
@@ -278,7 +339,7 @@ class RefreshCoalescer:
         *,
         skip_when_fresh: bool = False,
     ) -> None:
-        """Initialize the RefreshCoalescer."""
+        """Initialise the coalescer with a window and freshness-skip toggle."""
         self._coordinator = coordinator
         self._window: float = window
         self._pending_timer: asyncio.TimerHandle | None = None
@@ -294,27 +355,26 @@ class RefreshCoalescer:
         return self._loop
 
     def schedule_refresh(self, entity_id: str | None = None) -> None:
-        """Schedule a coalesced refresh after the window expires.
+        """Schedule a coalesced refresh after the window, skipping when entity is fresh.
 
-        If entity_id is provided and the entity is fresh (and skip_when_fresh
-        is enabled), the refresh is skipped entirely — the next scheduled poll
-        will naturally sync the state.
+        When `skip_when_fresh` is enabled and the entity has had a
+        recent API call, the refresh is dropped entirely — the next
+        scheduled poll picks up the state without an extra request.
         """
-        # Conditional Refresh Skip (CP-8)
         if (
             entity_id
             and self._skip_when_fresh
             and self._coordinator.is_entity_fresh(entity_id)
         ):
             _LOGGER.debug(
-                "Conditional Refresh Skip: %s is fresh, deferring to next poll",
+                "Write Optimiser: %s is still fresh — skipping coalesced "
+                "refresh, next poll will pick it up",
                 entity_id,
             )
             return
 
         self._pending_count += 1
 
-        # Cancel existing pending refresh and reschedule
         if self._pending_timer is not None:
             self._pending_timer.cancel()
 
@@ -322,7 +382,7 @@ class RefreshCoalescer:
         self._pending_timer = loop.call_later(self._window, self._fire_refresh)
 
     def _fire_refresh(self) -> None:
-        """Execute the coalesced refresh."""
+        """Run the coalesced coordinator refresh."""
         self._pending_count = 0
         self._pending_timer = None
         task = asyncio.ensure_future(
@@ -332,7 +392,13 @@ class RefreshCoalescer:
         task.add_done_callback(_log_task_exception)
 
     def cancel(self) -> None:
-        """Cancel pending refresh (cleanup on unload)."""
+        """Cancel any pending coalesced refresh (called during integration unload)."""
+        if self._pending_count > 0:
+            _LOGGER.debug(
+                "Write Optimiser: shutdown cancelled coalesced refresh "
+                "(%d pending entity update(s))",
+                self._pending_count,
+            )
         if self._pending_timer is not None:
             self._pending_timer.cancel()
             self._pending_timer = None
@@ -343,25 +409,20 @@ class RefreshCoalescer:
 
     @property
     def pending_count(self) -> int:
-        """Return number of writes waiting for coalesced refresh."""
+        """Return the number of writes queued behind the current coalesce window."""
         return self._pending_count
 
 
 class ResumeGuard:
-    """Skip resume calls for zones without active overlays."""
+    """Skip schedule-resume calls for zones already running their schedule."""
 
     @staticmethod
     def should_skip_resume(
         coordinator: TadoDataUpdateCoordinator,
         zone_id: str,
     ) -> bool:
-        """Return True if zone has no active overlay (already following schedule).
-
-        Uses coordinator's cached zone state — no additional API call needed.
-        """
+        """Return True when the zone has no active overlay (no API call needed)."""
         coord_data = coordinator.data or {}
-        zones = coord_data.get("zones") or {}
-        zone_states = zones.get("zoneStates") or {}
-        zone_data = zone_states.get(zone_id) or {}
+        zone_data = get_zone_state(coord_data, zone_id) or {}
         overlay_type = zone_data.get("overlayType")
         return overlay_type is None

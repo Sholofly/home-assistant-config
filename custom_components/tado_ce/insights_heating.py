@@ -1,7 +1,4 @@
-"""Heating insights — anomaly, preheat, boiler flow, efficiency.
-
-Provides insight functions for heating-related conditions.
-"""
+"""Heating insights — anomaly, preheat, boiler flow, efficiency."""
 
 from __future__ import annotations
 

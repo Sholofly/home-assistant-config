@@ -1,7 +1,4 @@
-"""Device insights — battery, connection, device limitation, geofencing.
-
-Provides recommendation functions for device-related conditions.
-"""
+"""Device insights — battery, connection, device limitation, geofencing."""
 
 from __future__ import annotations
 

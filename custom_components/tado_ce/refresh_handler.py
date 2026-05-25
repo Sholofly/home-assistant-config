@@ -1,6 +1,10 @@
-"""Tado CE Immediate Refresh Handler — per-entity rate limiting and debounce.
+"""Tado CE immediate-refresh handler — debounces rapid state changes into one poll.
 
-Per-entity rate limiting and debounce for user-initiated state changes.
+Calls the coordinator's `async_request_refresh()` after a brief
+debounce so several user actions in quick succession (mode change +
+target temperature + presence) collapse into a single API call
+instead of N. Rate-limit gates and an exponential backoff sit in
+front of the refresh so a degrading API can't be hammered further.
 """
 
 from __future__ import annotations
@@ -32,82 +36,71 @@ MIN_QUOTA_PERCENTAGE_FOR_REFRESH = 0.10  # Minimum 10% remaining to allow refres
 
 
 class RefreshHandler:
-    """Handle immediate data refresh after user actions.
-
-    Accepts coordinator instead of hass/entry_id.
-    Uses coordinator.async_request_refresh() for data refresh — CoordinatorEntity
-    handles entity update propagation automatically.
-    """
+    """Coalesce post-action refreshes into one debounced coordinator call."""
 
     def __init__(self, coordinator: TadoDataUpdateCoordinator) -> None:
-        """Initialize immediate refresh handler.
-
-        Args:
-            coordinator: TadoDataUpdateCoordinator instance for this config entry.
-                         Provides hass, api_client, data_loader, config_manager access.
-        """
+        """Initialise the handler bound to one coordinator (one config entry)."""
         self._coordinator = coordinator
         self.hass = coordinator.hass
-        # Per-entity rate limiting
-        self._last_refresh_per_entity: dict[str, datetime] = {}
         self._global_last_refresh: datetime | None = None
         self._min_global_interval = 2
-        self._min_per_entity_interval = 2  # Per-entity minimum (seconds)
         self._consecutive_failures = 0
-        self._max_backoff_interval = 300  # Max 5 minutes backoff
+        self._max_backoff_interval = 300
 
-        # Debounce mechanism for batch updates
         self._pending_refresh: bool = False
-        self._pending_home_state_refresh: bool = False  # Track if home state refresh needed
-        self._debounce_task: object | None = None
-        self._debounce_delay = 15.0  # Configurable via options
+        self._pending_zone_only: bool = False
+        self._pending_force_zone_fetch: bool = False
+        self._debounce_task: asyncio.Task[None] | None = None
+        self._debounce_delay = 15.0
 
     def _get_debounce_delay(self) -> float:
-        """Get debounce delay from config or use default.
-
-        Configurable via Options > Refresh Debounce Delay
-        Direct coordinator.config_manager access.
-        """
+        """Return the configured debounce delay in seconds, defaulting on error."""
         try:
             return float(self._coordinator.config_manager.get_refresh_debounce_seconds())
-        except Exception as e:  # noqa: BLE001 — defensive config access, must not crash refresh
-            _LOGGER.debug("Could not get debounce config, using default: %s", e)
+        except Exception as e:
+            _LOGGER.debug(
+                "Refresh: could not read debounce delay from config (%s) — "
+                "using default %.0fs",
+                e, self._debounce_delay,
+            )
         return self._debounce_delay
 
     def cancel(self) -> None:
-        """Cancel pending debounce task and clean up."""
+        """Cancel any pending debounced refresh."""
         if self._debounce_task is not None:
-            self._debounce_task.cancel()  # type: ignore[union-attr]
+            self._debounce_task.cancel()
             self._debounce_task = None
 
-    async def _get_rate_limit_info(self) -> dict[str, Any]:
-        """Get current rate limit information.
+    def consume_pending_flags(self) -> tuple[bool, bool]:
+        """Atomically read and reset the pending zone-only / force-fetch flags.
 
-        Direct coordinator.data_loader access.
-
-        Returns:
-            Dictionary with rate limit info, or empty dict if unavailable
+        Called once per poll so the coordinator knows whether the
+        upcoming fetch was triggered by a write (zone data only) or a
+        general refresh, and resets the flags so the next poll starts
+        clean.
         """
+        zone_only = self._pending_zone_only
+        force_zone_fetch = self._pending_force_zone_fetch
+        self._pending_zone_only = False
+        self._pending_force_zone_fetch = False
+        return zone_only, force_zone_fetch
+
+    async def _get_rate_limit_info(self) -> dict[str, Any]:
+        """Read the latest rate-limit snapshot from the data loader cache."""
         try:
-            return (
-                await self.hass.async_add_executor_job(
-                    self._coordinator.data_loader.load_ratelimit_file,
-                )
-                or {}
+            return self._coordinator.data_loader.load_ratelimit_file() or {}
+        except Exception as e:
+            _LOGGER.debug(
+                "Refresh: could not read rate-limit snapshot (%s) — "
+                "treating quota as unknown",
+                e,
             )
-        except Exception as e:  # noqa: BLE001 — defensive I/O, must not crash refresh handler
-            _LOGGER.debug("Failed to read rate limit file: %s", e)
         return {}
 
     async def _check_quota_available(self) -> tuple[bool, str]:
-        """Check if sufficient API quota is available.
-
-        Returns:
-            Tuple of (can_refresh, reason)
-        """
+        """Return (can_refresh, reason) — fails open when quota info is missing."""
         rl_info = await self._get_rate_limit_info()
 
-        # If no rate limit info, allow refresh (fail open)
         if not rl_info:
             return True, "no_rate_limit_data"
 
@@ -115,16 +108,13 @@ class RefreshHandler:
         limit = rl_info.get("limit")
         status = rl_info.get("status")
 
-        # Check if rate limited
         if status == "rate_limited" or remaining == 0:
             return False, "rate_limited"
 
-        # Check percentage thresholds (dynamic based on actual limit)
         if limit and remaining is not None:
             percentage_remaining = remaining / limit
             percentage_used = 1 - percentage_remaining
 
-            # Skip refresh if less than 10% quota remaining
             if percentage_remaining < MIN_QUOTA_PERCENTAGE_FOR_REFRESH:
                 return False, f"quota_too_low ({int(percentage_remaining * 100)}% remaining)"
 
@@ -133,42 +123,29 @@ class RefreshHandler:
 
             if percentage_used >= QUOTA_WARNING_THRESHOLD:
                 _LOGGER.warning(
-                    "API quota warning: %s%% used (%s/%s remaining)",
-                    int(percentage_used * 100),
-                    remaining,
-                    limit,
+                    "Refresh: Tado API quota at %d%% used (%s of %s calls "
+                    "remaining) — immediate refreshes may start being skipped",
+                    int(percentage_used * 100), remaining, limit,
                 )
 
         return True, "ok"
 
     def _get_backoff_interval(self) -> int:
-        """Calculate backoff interval based on consecutive failures.
-
-        Returns:
-            Backoff interval in seconds
-        """
+        """Return the next backoff window — exponential, capped at 5 minutes."""
         if self._consecutive_failures == 0:
             return self._min_global_interval
 
-        # Exponential backoff: 10s, 20s, 40s, 80s, 160s, 300s (max)
         backoff = self._min_global_interval * (2**self._consecutive_failures)
         return min(backoff, self._max_backoff_interval)  # type: ignore[no-any-return]
 
     def should_refresh(self, entity_id: str) -> bool:
-        """Check if entity type should trigger immediate refresh.
-
-        Args:
-            entity_id: Entity ID (e.g., "climate.living_room")
-
-        Returns:
-            True if entity type should trigger refresh
-        """
+        """Return True when the entity's domain warrants an immediate refresh."""
         domain = entity_id.split(".", maxsplit=1)[0]
         return domain in REFRESH_ENTITY_TYPES
 
 
     async def _execute_debounced_refresh(self, reason: str, skip_debounce: bool) -> None:
-        """Execute the actual debounced refresh after delay."""
+        """Wait out the debounce, then run the refresh through the coordinator."""
         try:
             if not skip_debounce:
                 delay = self._get_debounce_delay()
@@ -184,26 +161,36 @@ class RefreshHandler:
                 global_elapsed = (now - self._global_last_refresh).total_seconds()
                 required_global = self._get_backoff_interval()
                 if global_elapsed < required_global:
-                    _LOGGER.debug("Global backoff active: %ss remaining", int(required_global - global_elapsed))
+                    _LOGGER.debug(
+                        "Refresh: global backoff active (%ds remaining)",
+                        int(required_global - global_elapsed),
+                    )
                     return
 
-            _LOGGER.info("Executing debounced refresh (triggered by: %s)", reason)
+            _LOGGER.debug(
+                "Refresh: running debounced refresh (triggered by %s)", reason,
+            )
 
             try:
                 await self._coordinator.async_request_refresh()
                 self._global_last_refresh = dt_util.utcnow()
 
                 if self._consecutive_failures > 0:
-                    _LOGGER.info("Immediate refresh recovered after %s failures", self._consecutive_failures)
+                    _LOGGER.info(
+                        "Refresh: recovered after %d consecutive failure(s)",
+                        self._consecutive_failures,
+                    )
                     self._consecutive_failures = 0
 
-                _LOGGER.debug("Immediate refresh completed via coordinator")
+                _LOGGER.debug("Refresh: coordinator refresh completed")
 
             except Exception:
                 self._consecutive_failures += 1
-                _LOGGER.exception(
-                    "Immediate refresh failed (attempt %s). Next backoff: %ss",
+                _LOGGER.warning(
+                    "Refresh: coordinator refresh failed (attempt %d) — "
+                    "next try in %ds",
                     self._consecutive_failures, self._get_backoff_interval(),
+                    exc_info=True,
                 )
         finally:
             self._debounce_task = None
@@ -214,40 +201,44 @@ class RefreshHandler:
         reason: str = "state_change",
         force: bool = False,
         skip_debounce: bool = False,
-        include_home_state: bool = False,
+        zone_only: bool = False,
     ) -> None:
-        """Trigger immediate refresh for an entity.
+        """Schedule a debounced coordinator refresh after a state-changing action.
 
-        Uses debouncing to batch multiple rapid changes into a single refresh.
-
-        Args:
-            entity_id: Entity ID that triggered the refresh
-            reason: Reason for refresh (for logging)
-            force: If True, skip entity type check (for buttons like Resume All Schedules)
-            skip_debounce: If True, execute refresh immediately without debounce delay
-            include_home_state: If True, also fetch home state (for presence mode changes)
+        `force=True` bypasses the entity-domain filter (used by buttons
+        like "Resume All Schedules"). `skip_debounce=True` runs
+        immediately, useful when the user expects an instant response.
+        `zone_only=True` narrows the next fetch to zone data,
+        skipping weather / mobile / insights work.
         """
         if not force and not self.should_refresh(entity_id):
-            _LOGGER.debug("Entity %s does not trigger immediate refresh", entity_id)
+            _LOGGER.debug(
+                "Refresh: %s is not in a domain that triggers immediate refresh",
+                entity_id,
+            )
             return
 
         can_refresh, quota_reason = await self._check_quota_available()
         if not can_refresh:
             _LOGGER.debug(
-                "Skipping immediate refresh for %s: %s. Will rely on normal polling.",
+                "Refresh: skipping immediate refresh for %s (%s) — "
+                "next normal poll will catch the change",
                 entity_id, quota_reason,
             )
             return
 
-        _LOGGER.debug("Scheduling debounced refresh for %s (reason: %s)", entity_id, reason)
+        _LOGGER.debug(
+            "Refresh: queued debounced refresh for %s (reason=%s)",
+            entity_id, reason,
+        )
 
         if self._debounce_task is not None:
-            self._debounce_task.cancel()  # type: ignore[attr-defined]
+            self._debounce_task.cancel()
             self._debounce_task = None
 
         self._pending_refresh = True
-        self._last_refresh_per_entity[entity_id] = dt_util.utcnow()
-        self._pending_home_state_refresh = include_home_state
+        self._pending_zone_only = zone_only
+        self._pending_force_zone_fetch = True
 
         self._debounce_task = asyncio.create_task(
             self._execute_debounced_refresh(reason, skip_debounce),

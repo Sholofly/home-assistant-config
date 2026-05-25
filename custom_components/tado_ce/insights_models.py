@@ -1,9 +1,4 @@
-"""Shared models and constants for the Tado CE insights engine.
-
-Contains all dataclasses, enums, type aliases, and threshold constants
-used across domain-specific insight calculation modules and the
-presentation layer.
-"""
+"""Shared models and constants for the Tado CE insights engine."""
 
 from __future__ import annotations
 

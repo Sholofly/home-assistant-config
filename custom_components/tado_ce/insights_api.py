@@ -1,7 +1,4 @@
-"""API insights — status, quota planning, usage spike, call rate.
-
-Provides insight functions for API-related conditions.
-"""
+"""API insights — status, quota planning, usage spike, call rate."""
 
 from __future__ import annotations
 
@@ -29,9 +26,9 @@ def _suggest_polling_interval(
     if not current_interval_minutes:
         return None
     if usage_percent >= API_USAGE_HIGH:
-        return max(current_interval_minutes * 2, 60)  # noqa: PLR2004
+        return max(current_interval_minutes * 2, 60)
     if usage_percent >= API_USAGE_WARNING:
-        return max(current_interval_minutes + 15, 30)  # noqa: PLR2004
+        return max(current_interval_minutes + 15, 30)
     return None
 
 

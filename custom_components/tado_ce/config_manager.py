@@ -1,12 +1,18 @@
-"""Tado CE Configuration Manager — config entry settings access and persistence.
+"""Tado CE configuration manager — typed reads from `config_entry.options` with validation.
 
-Manages user configuration settings stored in Home Assistant config entry.
+Reads live from `config_entry.options` (not a cached snapshot)
+so users get real-time effect when they flip a runtime-only
+toggle. Every getter validates type + range and falls back to
+the documented default with a warning when the stored value is
+unusable — covers users on old schemas and corrupted entries.
 """
 
 from __future__ import annotations
 
 import logging
 from typing import TYPE_CHECKING, Any
+
+from .const import MAX_CUSTOM_INTERVAL
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -21,13 +27,16 @@ DEFAULT_WEATHER_ENABLED = False
 DEFAULT_MOBILE_DEVICES_ENABLED = False
 DEFAULT_MOBILE_DEVICES_FREQUENT_SYNC = False
 DEFAULT_OFFSET_ENABLED = False
-DEFAULT_TEST_MODE_ENABLED = False
 DEFAULT_QUOTA_RESERVE_ENABLED = True  # Quota Reserve Protection default ON
 DEFAULT_DAY_START_HOUR = 7
 DEFAULT_NIGHT_START_HOUR = 23
+MIN_HOUR: int = 0
+MAX_HOUR: int = 23
 DEFAULT_API_HISTORY_RETENTION_DAYS = 14  # 0 = keep forever
 DEFAULT_HOT_WATER_TIMER_DURATION = 60  # minutes
 DEFAULT_REFRESH_DEBOUNCE_SECONDS = 15  # Debounce delay for immediate refresh
+MIN_REFRESH_DEBOUNCE_SECONDS: int = 1
+MAX_REFRESH_DEBOUNCE_SECONDS: int = 60
 DEFAULT_SCHEDULE_CALENDAR_ENABLED = False  # Schedule Calendar (opt-in)
 DEFAULT_SMART_COMFORT_ENABLED = False  # Smart Comfort analytics (opt-in)
 DEFAULT_OUTDOOR_TEMP_ENTITY = ""  # Outdoor temperature entity for weather compensation
@@ -64,7 +73,6 @@ class ConfigurationManager:
         self._config_entry = config_entry
         self._options: Mapping[str, Any] = config_entry.options or {}
         self._hass = hass
-        # Don't sync on init to avoid blocking - will be synced when needed
 
     def _get_option(self, key: str, default: Any) -> Any:
         """Get option value with real-time update support.
@@ -98,22 +106,31 @@ class ConfigurationManager:
             try:
                 value = int(float(value))
             except (ValueError, TypeError, OverflowError):
-                _LOGGER.warning("Invalid %s: %s, using default %s", key, value, default)
+                _LOGGER.warning(
+                    "Config: %s value %r could not be parsed as int "
+                    "— falling back to default %s",
+                    key, value, default,
+                )
                 return default
         if not isinstance(value, int) or value < min_val or value > max_val:
-            _LOGGER.warning("Invalid %s: %s, using default %s", key, value, default)
+            _LOGGER.warning(
+                "Config: %s value %r outside range %d–%d — falling "
+                "back to default %s",
+                key, value, min_val, max_val, default,
+            )
             return default
         return value
 
     def _get_float_option(self, key: str, default: float, min_val: float, max_val: float) -> float:
-        """Get float option with range validation.
-
-        Accepts int or float input. Out-of-range values return default with warning.
-        """
+        """Read a float option, falling back to `default` when missing or out of range."""
         value = self._get_option(key, default)
         if isinstance(value, (int, float)) and min_val <= value <= max_val:
             return float(value)
-        _LOGGER.warning("Invalid %s: %s, using default %s", key, value, default)
+        _LOGGER.warning(
+            "Config: %s value %r outside range %s–%s — falling back "
+            "to default %s",
+            key, value, min_val, max_val, default,
+        )
         return default
 
     @staticmethod
@@ -242,16 +259,6 @@ class ConfigurationManager:
         """
         return self._get_option("home_state_sync_enabled", False)  # type: ignore[no-any-return]
 
-    def get_test_mode_enabled(self) -> bool:
-        """Check if Test Mode is enabled (enforce 100 API limit).
-
-        Note: Uses _get_option() for real-time value after user toggles.
-
-        Returns:
-            True if Test Mode is active, False otherwise
-        """
-        return self._get_option("test_mode_enabled", DEFAULT_TEST_MODE_ENABLED)  # type: ignore[no-any-return]
-
     def get_quota_reserve_enabled(self) -> bool:
         """Check if Quota Reserve Protection is enabled.
 
@@ -270,7 +277,7 @@ class ConfigurationManager:
         Returns:
             Hour (0-23) when day period starts
         """
-        return self._get_int_option("day_start_hour", DEFAULT_DAY_START_HOUR, 0, 23)
+        return self._get_int_option("day_start_hour", DEFAULT_DAY_START_HOUR, MIN_HOUR, MAX_HOUR)
 
     def get_night_start_hour(self) -> int:
         """Get configured night start hour (default 11pm).
@@ -278,17 +285,10 @@ class ConfigurationManager:
         Returns:
             Hour (0-23) when night period starts
         """
-        return self._get_int_option("night_start_hour", DEFAULT_NIGHT_START_HOUR, 0, 23)
+        return self._get_int_option("night_start_hour", DEFAULT_NIGHT_START_HOUR, MIN_HOUR, MAX_HOUR)
 
     def _get_optional_interval(self, key: str) -> int | None:
-        """Get optional polling interval with float→int conversion and range validation.
-
-        Handles HA NumberSelector (float), legacy TextSelector (str),
-        None (not configured), and out-of-range values.
-
-        Returns:
-            Interval in minutes (1-1440), or None if not configured/invalid.
-        """
+        """Read an optional polling interval — `None` when missing, blank, or invalid."""
         interval = self._get_option(key, None)
         if interval is None:
             return None
@@ -301,11 +301,21 @@ class ConfigurationManager:
             try:
                 interval = int(float(interval))
             except (ValueError, TypeError, OverflowError):
-                _LOGGER.warning("Invalid %s: %s, ignoring", key, interval)
+                _LOGGER.warning(
+                    "Config: %s value %r could not be parsed as int "
+                    "— ignoring this interval, polling will use the "
+                    "automatic schedule",
+                    key, interval,
+                )
                 return None
 
-        if not isinstance(interval, int) or interval < 1 or interval > 1440:  # noqa: PLR2004 — 1440 min = 24h max interval
-            _LOGGER.warning("Invalid %s: %s, ignoring", key, interval)
+        if not isinstance(interval, int) or interval < 1 or interval > MAX_CUSTOM_INTERVAL:
+            _LOGGER.warning(
+                "Config: %s value %r outside range 1–%d — ignoring "
+                "this interval, polling will use the automatic "
+                "schedule",
+                key, interval, MAX_CUSTOM_INTERVAL,
+            )
             return None
         return interval
 
@@ -350,7 +360,7 @@ class ConfigurationManager:
         Returns:
             Debounce delay in seconds (1-60, default 15)
         """
-        return self._get_int_option("refresh_debounce_seconds", DEFAULT_REFRESH_DEBOUNCE_SECONDS, 1, 60)
+        return self._get_int_option("refresh_debounce_seconds", DEFAULT_REFRESH_DEBOUNCE_SECONDS, MIN_REFRESH_DEBOUNCE_SECONDS, MAX_REFRESH_DEBOUNCE_SECONDS)
 
     def get_schedule_calendar_enabled(self) -> bool:
         """Check if Schedule Calendar is enabled.
@@ -436,7 +446,8 @@ class ConfigurationManager:
 
         if window_type not in WINDOW_U_VALUES:
             _LOGGER.warning(
-                "Invalid mold_risk_window_type: %s, using default %s",
+                "Config: mold_risk_window_type value %r is not in "
+                "WINDOW_U_VALUES — falling back to default %s",
                 window_type,
                 DEFAULT_MOLD_RISK_WINDOW_TYPE,
             )
@@ -708,6 +719,33 @@ class ConfigurationManager:
             DEVICE_SYNC_DELAY_MAX,
         )
 
+    def get_homekit_enabled(self) -> bool:
+        """Check if HomeKit local control is enabled.
+
+        Returns:
+            True if HomeKit local control should be active
+        """
+        return self._get_option("homekit_enabled", False)  # type: ignore[no-any-return]
+
+    def get_homekit_cloud_sync_minutes(self) -> int:
+        """Get how often to check Tado's servers for cloud-only data when HomeKit is connected.
+
+        Returns:
+            Interval in minutes (5-120, default 30)
+        """
+        from .const import (
+            DEFAULT_HOMEKIT_CLOUD_SYNC_MINUTES,
+            MAX_HOMEKIT_CLOUD_SYNC_MINUTES,
+            MIN_HOMEKIT_CLOUD_SYNC_MINUTES,
+        )
+
+        return self._get_int_option(
+            "homekit_cloud_sync_minutes",
+            DEFAULT_HOMEKIT_CLOUD_SYNC_MINUTES,
+            MIN_HOMEKIT_CLOUD_SYNC_MINUTES,
+            MAX_HOMEKIT_CLOUD_SYNC_MINUTES,
+        )
+
     def get_all_config(self) -> dict[str, Any]:
         """Get all configuration values.
 
@@ -719,7 +757,6 @@ class ConfigurationManager:
             "mobile_devices_enabled": self.get_mobile_devices_enabled(),
             "mobile_devices_frequent_sync": self.get_mobile_devices_frequent_sync(),
             "offset_enabled": self.get_offset_enabled(),
-            "test_mode_enabled": self.get_test_mode_enabled(),
             "day_start_hour": self.get_day_start_hour(),
             "night_start_hour": self.get_night_start_hour(),
             "custom_day_interval": self.get_custom_day_interval(),

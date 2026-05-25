@@ -1,7 +1,9 @@
-"""Entity lifecycle cleanup for disabled feature toggles.
+"""Entity-registry cleanup when feature toggles are disabled in Options Flow.
 
-Handles removal of entities from the HA entity registry when users
-disable feature toggles via the Options Flow UI.
+Each cleanup pass walks the registry, removes entities whose
+unique_id matches a disabled feature's group, and finally
+sweeps any device that ends up with zero remaining entities.
+The hub device is always protected.
 """
 
 from __future__ import annotations
@@ -157,6 +159,12 @@ FEATURE_GROUP_CONTEXTS: tuple[FeatureGroupContext, ...] = (
         label="Weather Compensation",
         legacy_suffixes=(),
     ),
+    FeatureGroupContext(
+        cleanup_flag="_cleanup_homekit",
+        feature_group="homekit",
+        label="HomeKit",
+        legacy_suffixes=(),
+    ),
 )
 
 
@@ -262,6 +270,7 @@ FEATURE_CLEANUP_MAP: list[tuple[str, str, bool]] = [
     ("weather_enabled", "_cleanup_weather", False),
     ("mobile_devices_enabled", "_cleanup_mobile_devices", False),
     ("wc_enabled", "_cleanup_weather_compensation", False),
+    ("homekit_enabled", "_cleanup_homekit", False),
 ]
 
 # ---------------------------------------------------------------------------
@@ -274,19 +283,7 @@ def cleanup_orphan_device(
     entry: ConfigEntry,
     device_suffix: str,
 ) -> bool:
-    """Remove an orphan device from the device registry.
-
-    Removes a device whose identifier matches tado_ce_{home_id}_{device_suffix}
-    (or tado_ce_{device_suffix} for unknown home_id).
-
-    Args:
-        hass: Home Assistant instance.
-        entry: Config entry owning the device.
-        device_suffix: Suffix of the device identifier (e.g., "heating_schedule").
-
-    Returns:
-        True if a device was removed, False otherwise.
-    """
+    """Remove a single named device (e.g. `heating_schedule`) when its feature is disabled."""
     device_registry = dr.async_get(hass)
     home_id = entry.data.get("home_id")
 
@@ -294,7 +291,10 @@ def cleanup_orphan_device(
 
     device_entry = device_registry.async_get_device(identifiers={(DOMAIN, identifier)})
     if device_entry:
-        _LOGGER.info("  Removing orphan device: %s (identifier: %s)", device_entry.name, identifier)
+        _LOGGER.info(
+            "Entity Cleanup: removing orphan device %s (identifier %s)",
+            device_entry.name, identifier,
+        )
         device_registry.async_remove_device(device_entry.id)
         return True
     return False
@@ -304,19 +304,7 @@ def cleanup_orphan_devices(
     hass: HomeAssistant,
     entry: ConfigEntry,
 ) -> int:
-    """Remove devices that have zero remaining entities after cleanup.
-
-    Scans all devices belonging to this config entry and removes any
-    that have no entities left in the entity registry. The hub device
-    is protected and never removed.
-
-    Args:
-        hass: Home Assistant instance.
-        entry: Config entry owning the devices.
-
-    Returns:
-        Number of orphan devices removed.
-    """
+    """Sweep every device with zero remaining entities (hub device always protected)."""
     device_registry = dr.async_get(hass)
     entity_registry = er.async_get(hass)
     home_id = entry.data.get("home_id")
@@ -340,7 +328,8 @@ def cleanup_orphan_devices(
         )
         if not device_entities:
             _LOGGER.info(
-                "  Removing orphan device: %s (id: %s, no remaining entities)",
+                "Entity Cleanup: removing orphan device %s (id %s) "
+                "— it has no remaining entities",
                 device_entry.name,
                 device_entry.id,
             )
@@ -359,29 +348,30 @@ def detect_cleanup_flags(
     prev_options: dict[str, Any],
     new_options: dict[str, Any],
 ) -> dict[str, bool]:
-    """Detect which feature toggles transitioned from enabled to disabled.
-
-    Args:
-        prev_options: Previous config entry options.
-        new_options: New config entry options (from user input).
-
-    Returns:
-        Dict of cleanup flag name to True for each feature that was disabled.
-    """
+    """Build the set of cleanup flags for features the user just disabled."""
     flags: dict[str, bool] = {}
     for option_key, cleanup_flag, default in FEATURE_CLEANUP_MAP:
         was_enabled = prev_options.get(option_key, default)
         now_enabled = new_options.get(option_key, default)
         if was_enabled and not now_enabled:
             flags[cleanup_flag] = True
-            _LOGGER.info("%s disabled: cleanup scheduled", option_key)
+            _LOGGER.info(
+                "Entity Cleanup: %s disabled — entity removal "
+                "scheduled for next reload",
+                option_key,
+            )
 
-    # Bridge credentials: both serial AND auth_key must be present to be "enabled"
+    # Bridge credentials only count as "enabled" when both serial
+    # AND auth_key are present — losing either means we should
+    # tear down the bridge entities together.
     had_bridge = bool(prev_options.get("bridge_serial")) and bool(prev_options.get("bridge_auth_key"))
     has_bridge = bool(new_options.get("bridge_serial")) and bool(new_options.get("bridge_auth_key"))
     if had_bridge and not has_bridge:
         flags["_cleanup_bridge"] = True
-        _LOGGER.info("Bridge credentials removed: cleanup scheduled")
+        _LOGGER.info(
+            "Entity Cleanup: bridge credentials removed — bridge "
+            "entity removal scheduled for next reload",
+        )
 
     return flags
 
@@ -392,17 +382,7 @@ def _apply_cleanup_context(
     entry: ConfigEntry,
     ctx: FeatureGroupContext,
 ) -> int:
-    """Apply a single FeatureGroupContext and remove matching entities.
-
-    Args:
-        entity_registry: HA entity registry.
-        hass: Home Assistant instance.
-        entry: Config entry being reloaded.
-        ctx: Cleanup context driven by EntityMeta.feature_group.
-
-    Returns:
-        Number of entities removed for this context.
-    """
+    """Run one cleanup pass for a single feature group, returning the entity count removed."""
     removed = 0
 
     # Build patterns from registry + legacy suffixes
@@ -431,11 +411,16 @@ def _apply_cleanup_context(
             exclude_patterns=exclude_patterns,
             contains_substrings=ctx.legacy_suffixes if ctx.match_mode == "contains" else (),
         ):
-            _LOGGER.debug("  Removing entity: %s (unique_id: %s)", entity_id, unique_id)
+            _LOGGER.debug(
+                "Entity Cleanup: removing entity %s (unique_id %s)",
+                entity_id, unique_id,
+            )
             entity_registry.async_remove(entity_id)
             removed += 1
 
-    # Zone-only pass — suffixes that need _zone_ guard (Note N2)
+    # Zone-only pass — suffixes that also exist on the hub
+    # (e.g. overlay_mode), so we only strip the zone-level
+    # variants and leave the hub entity alone.
     if ctx.zone_only_suffixes:
         zone_only_patterns = frozenset(
             suffix_to_pattern(s) for s in ctx.zone_only_suffixes
@@ -446,13 +431,13 @@ def _apply_cleanup_context(
             unique_id = entity_entry.unique_id or ""
             if match_zone_only_suffix(unique_id, zone_only_patterns):
                 _LOGGER.debug(
-                    "  Removing zone entity: %s (unique_id: %s)",
+                    "Entity Cleanup: removing zone entity %s "
+                    "(unique_id %s)",
                     entity_id, unique_id,
                 )
                 entity_registry.async_remove(entity_id)
                 removed += 1
 
-    # Remove specific orphan device if defined (e.g., Heating Schedule device)
     if ctx.remove_device:
         cleanup_orphan_device(hass, entry, ctx.remove_device)
 
@@ -463,23 +448,7 @@ def cleanup_disabled_feature_entities(
     hass: HomeAssistant,
     entry: ConfigEntry,
 ) -> int:
-    """Remove entities for features disabled via Options Flow.
-
-    Reads pending cleanup flags from the coordinator and removes matching
-    entities from the HA entity registry. Also removes orphan devices
-    when a feature's dedicated device has no remaining entities.
-
-    After all entity removals, performs a generic orphan device scan
-    to remove ANY device that has zero remaining entities (not just
-    devices with explicit ``remove_device`` definitions).
-
-    Args:
-        hass: Home Assistant instance.
-        entry: Config entry being reloaded.
-
-    Returns:
-        Total number of entities removed.
-    """
+    """Run every pending cleanup pass and sweep orphan devices afterwards."""
     entity_registry = er.async_get(hass)
 
     coordinator = getattr(entry, "runtime_data", None)
@@ -491,19 +460,31 @@ def cleanup_disabled_feature_entities(
         if not domain_data.get(ctx.cleanup_flag, False):
             continue
 
-        _LOGGER.info("Tado CE: %s disabled - removing entities", ctx.label)
+        _LOGGER.info(
+            "Entity Cleanup: %s disabled — removing matching entities",
+            ctx.label,
+        )
 
         removed = _apply_cleanup_context(entity_registry, hass, entry, ctx)
         total_removed += removed
-        _LOGGER.info("  Removed %s %s entities", removed, ctx.label.lower())
+        _LOGGER.info(
+            "Entity Cleanup: removed %d %s entit(ies)",
+            removed, ctx.label.lower(),
+        )
 
-    # Generic orphan device cleanup — remove ANY device with zero entities
     if total_removed > 0:
         orphan_count = cleanup_orphan_devices(hass, entry)
         if orphan_count:
-            _LOGGER.info("Tado CE: Removed %s orphan device(s)", orphan_count)
+            _LOGGER.info(
+                "Entity Cleanup: removed %d orphan device(s)",
+                orphan_count,
+            )
 
     if total_removed > 0:
-        _LOGGER.info("Tado CE: Total entities removed: %s", total_removed)
+        _LOGGER.info(
+            "Entity Cleanup: %d entit(ies) removed across all "
+            "disabled features",
+            total_removed,
+        )
 
     return total_removed

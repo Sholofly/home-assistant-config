@@ -1,4 +1,10 @@
-"""Tado CE heating cycle analysis — extract metrics from cycle data."""
+"""Tado CE heating-cycle analyser — derive inertia + rate + preheat-time from completed cycles.
+
+Pure-function module. Filters to valid (completed, actual-heating)
+cycles, averages inertia time + heating rate, scores confidence
+from sample count + variance, and exposes `estimate_preheat_time`
+for the preheat advisor.
+"""
 
 from __future__ import annotations
 
@@ -27,21 +33,21 @@ class HeatingCycleAnalyzer:
         Returns:
             Dictionary with metrics, or None if insufficient data
         """
-        # Filter to only valid heating cycles:
-        # - completed=True
-        # - start_temp < target_temp (actual heating occurred)
-        # - positive temperature delta
+        # Valid = completed, real heating happened, positive
+        # delta. The 0.1°C floor filters cycles that finished
+        # the moment they started (e.g. setpoint matched current).
         valid_cycles = [
             c
             for c in cycles
             if c.completed
             and c.start_temp is not None
-            and c.start_temp < c.target_temp - 0.1  # At least 0.1°C heating needed
+            and c.start_temp < c.target_temp - 0.1
         ]
 
         if len(valid_cycles) < self._min_cycles:
             _LOGGER.debug(
-                "Insufficient valid heating cycles for analysis: %d valid out of %d total (need %d)",
+                "Heating Analyzer: insufficient valid cycles for "
+                "analysis — %d valid of %d total (need %d)",
                 len(valid_cycles),
                 len(cycles),
                 self._min_cycles,
@@ -68,7 +74,11 @@ class HeatingCycleAnalyzer:
                     heating_rates.append(rate)
 
         if not inertia_times or not heating_rates:
-            _LOGGER.debug("No valid metrics extracted from cycles")
+            _LOGGER.debug(
+                "Heating Analyzer: cycles passed filtering but no "
+                "inertia / rate values were extractable — returning "
+                "None",
+            )
             return None
 
         # Calculate averages
@@ -115,8 +125,15 @@ class HeatingCycleAnalyzer:
         inertia_time = metrics["inertia_time"]
         heating_rate = metrics["heating_rate"]
 
+        if heating_rate is None or inertia_time is None:
+            return None
+
         if heating_rate <= 0:
-            _LOGGER.warning("Invalid heating rate: %.3f", heating_rate)
+            _LOGGER.debug(
+                "Heating Analyzer: heating_rate %.3f °C/h is "
+                "non-positive — preheat estimation skipped",
+                heating_rate,
+            )
             return None
 
         # Preheat time = Inertia time + (ΔT / heating rate)
@@ -150,7 +167,7 @@ class HeatingCycleAnalyzer:
         # Consistency confidence from coefficient of variation (0.0-0.4)
         consistency_confidence = 0.0
 
-        if len(inertia_times) >= 2:  # noqa: PLR2004 — need at least 2 for CV
+        if len(inertia_times) >= 2:
             # Calculate coefficient of variation for inertia times
             mean_inertia = sum(inertia_times) / len(inertia_times)
             if mean_inertia > 0:
@@ -161,7 +178,7 @@ class HeatingCycleAnalyzer:
                 # Lower CV = higher confidence (CV < 0.2 = good, CV > 0.5 = poor)
                 consistency_confidence += max(0.0, 0.2 - cv_inertia * 0.4)
 
-        if len(heating_rates) >= 2:  # noqa: PLR2004 — need at least 2 for CV
+        if len(heating_rates) >= 2:
             # Calculate coefficient of variation for heating rates
             mean_rate = sum(heating_rates) / len(heating_rates)
             if mean_rate > 0:

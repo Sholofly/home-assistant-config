@@ -1,4 +1,11 @@
-"""Tado CE Insight Collector — standalone insight collection functions."""
+"""Tado CE insight collector — gathers per-zone, cross-zone, and hub insights.
+
+Pure-function module called by the home / zone insight sensors
+to assemble actionable recommendations from coordinator state
+and published entity data. Each collector returns an
+`InsightResult` dataclass; the caller renders it into entity
+state + attributes.
+"""
 
 from __future__ import annotations
 
@@ -10,7 +17,8 @@ from typing import TYPE_CHECKING, Any
 from homeassistant.util import dt as dt_util
 
 from .calculations import classify_comfort_level, classify_mold_risk_level
-from .helpers import parse_iso_datetime
+from .const import ENTITY_DATA_CONDENSATION_RISK, ENTITY_DATA_WINDOW_PREDICTED
+from .helpers import get_zone_states, merge_homekit_into_zone_data, parse_iso_datetime
 from .insights_api import (
     calculate_api_quota_planning_insight,
     calculate_api_usage_spike_insight,
@@ -185,20 +193,21 @@ def _collect_boiler_flow_insight(
 
 
 def _collect_humidity_trend_insight(
+    zone_id: str,
     zone_name: str,
     humidity: float,
     humidity_histories: dict[str, list[Any]],
     insights: list[Any],
 ) -> None:
     """Collect humidity trend insight, maintaining per-zone history."""
-    if zone_name not in humidity_histories:
-        humidity_histories[zone_name] = []
-    humidity_histories[zone_name].append(humidity)
-    if len(humidity_histories[zone_name]) > _HUMIDITY_HISTORY_MAX_SAMPLES:
-        humidity_histories[zone_name] = humidity_histories[zone_name][-_HUMIDITY_HISTORY_MAX_SAMPLES:]
+    if zone_id not in humidity_histories:
+        humidity_histories[zone_id] = []
+    humidity_histories[zone_id].append(humidity)
+    if len(humidity_histories[zone_id]) > _HUMIDITY_HISTORY_MAX_SAMPLES:
+        humidity_histories[zone_id] = humidity_histories[zone_id][-_HUMIDITY_HISTORY_MAX_SAMPLES:]
     insight = calculate_humidity_trend_insight(
         current_humidity=humidity,
-        humidity_history=humidity_histories[zone_name],
+        humidity_history=humidity_histories[zone_id],
         zone_name=zone_name,
     )
     if insight:
@@ -230,7 +239,7 @@ def _collect_optional_zone_insights(
             insights.append(insight)
 
     if ctx.environment_enabled and humidity_histories is not None and humidity is not None:
-        _collect_humidity_trend_insight(zone_name, humidity, humidity_histories, insights)
+        _collect_humidity_trend_insight(zone_id, zone_name, humidity, humidity_histories, insights)
 
 
 def collect_single_zone_insights(
@@ -247,9 +256,8 @@ def collect_single_zone_insights(
 ) -> list[Any]:
     """Collect all insights for a single zone.
 
-    Shared by both TadoHomeInsightsSensor (via collect_zone_insights)
-    and TadoZoneInsightsSensor (direct call). This eliminates the
-    "改啲唔改啲" risk of duplicated insight logic.
+    Shared by both TadoHomeInsightsSensor (via collect_zone_insights) and
+    TadoZoneInsightsSensor (direct call) so insight logic stays in one place.
 
     Args:
         hass: Home Assistant instance.
@@ -342,12 +350,11 @@ def collect_zone_insights(
     try:
         ctx = InsightContext.from_coordinator(coordinator)
         coord_data = coordinator.data or {}
-        zones_data = coord_data.get("zones")
         zones_info = coord_data.get("zones_info")
-        if not zones_data:
+        zone_states = get_zone_states(coord_data)
+        if not zone_states:
             return zone_insights
 
-        zone_states = zones_data.get("zoneStates") or {}
         schedules = coord_data.get("schedules")
 
         zone_name_map: dict[str, str] = {}
@@ -357,12 +364,14 @@ def collect_zone_insights(
 
         for zone_id, zone_data in zone_states.items():
             zone_name = zone_name_map.get(zone_id, f"Zone {zone_id}")
+            # Merge HomeKit data so insights use the freshest readings
+            merged_zone_data = merge_homekit_into_zone_data(zone_data, zone_id, coordinator)
             insights = collect_single_zone_insights(
                 hass=hass,
                 coordinator=coordinator,
                 zone_id=zone_id,
                 zone_name=zone_name,
-                zone_data=zone_data,
+                zone_data=merged_zone_data,
                 zones_info=zones_info,
                 anomaly_start_times=anomaly_start_times,
                 humidity_histories=humidity_histories,
@@ -372,8 +381,12 @@ def collect_zone_insights(
             if insights:
                 zone_insights[zone_name] = insights
 
-    except Exception as e:  # noqa: BLE001 — insight collection must not crash sensor
-        _LOGGER.debug("Failed to collect zone insights: %s", e)
+    except Exception as e:
+        _LOGGER.debug(
+            "Insight Collector: zone insight collection failed (%s) — "
+            "returning whatever insights were gathered so far",
+            e,
+        )
 
     return zone_insights
 
@@ -385,7 +398,7 @@ def _collect_condensation_insight(
     insights: list[Any],
 ) -> None:
     """Collect condensation risk insight for a zone."""
-    cond_data = coordinator.get_entity_data(zone_id, "condensation_risk")
+    cond_data = coordinator.get_entity_data(zone_id, ENTITY_DATA_CONDENSATION_RISK)
     if not cond_data:
         return
     cond_state = cond_data.get("state", "None")
@@ -409,7 +422,7 @@ def _collect_window_predicted_insight(
     insights: list[Any],
 ) -> None:
     """Collect window predicted insight for a zone."""
-    wp_data = coordinator.get_entity_data(zone_id, "window_predicted")
+    wp_data = coordinator.get_entity_data(zone_id, ENTITY_DATA_WINDOW_PREDICTED)
     if not wp_data or wp_data.get("state") != "on":
         return
     wp_rec = wp_data.get("recommendation", "") or f"{zone_name}: Possible open window detected"
@@ -459,6 +472,7 @@ def _collect_preheat_insight(
 
 def _collect_heating_anomaly_insight(
     zone_data: dict[str, Any],
+    zone_id: str,
     zone_name: str,
     inside_temp: float | None,
     anomaly_start_times: dict[str, datetime],
@@ -478,9 +492,9 @@ def _collect_heating_anomaly_insight(
             return
         temp_delta = abs(inside_temp - target)
         if power_pct >= _HEATING_ANOMALY_POWER_PCT and temp_delta < _HEATING_ANOMALY_TEMP_DELTA:
-            if zone_name not in anomaly_start_times:
-                anomaly_start_times[zone_name] = dt_util.utcnow()
-            elapsed = (dt_util.utcnow() - anomaly_start_times[zone_name]).total_seconds() / 60
+            if zone_id not in anomaly_start_times:
+                anomaly_start_times[zone_id] = dt_util.utcnow()
+            elapsed = (dt_util.utcnow() - anomaly_start_times[zone_id]).total_seconds() / 60
             ha_insight = calculate_heating_anomaly_insight(
                 heating_power_pct=power_pct,
                 temp_delta=temp_delta,
@@ -490,7 +504,7 @@ def _collect_heating_anomaly_insight(
             if ha_insight:
                 insights.append(ha_insight)
         else:
-            anomaly_start_times.pop(zone_name, None)
+            anomaly_start_times.pop(zone_id, None)
     except (ValueError, TypeError):
         pass
 
@@ -520,7 +534,7 @@ def _collect_ha_entity_insights(
         _collect_preheat_insight(coordinator, zone_id, zone_name, zone_data, insights)
 
     if ctx.thermal_enabled:
-        _collect_heating_anomaly_insight(zone_data, zone_name, inside_temp, anomaly_start_times, insights)
+        _collect_heating_anomaly_insight(zone_data, zone_id, zone_name, inside_temp, anomaly_start_times, insights)
 
 
 def _check_thermal_efficiency(
@@ -674,7 +688,7 @@ def _collect_cross_zone_windows(
     for z in zones_info:
         z_name = z.get("name", f"Zone {z.get('id')}")
         z_id = str(z.get("id"))
-        wp_data = coordinator.get_entity_data(z_id, "window_predicted")
+        wp_data = coordinator.get_entity_data(z_id, ENTITY_DATA_WINDOW_PREDICTED)
         if wp_data:
             zone_window_states[z_name] = wp_data.get("state") == "on"
     return aggregate_cross_zone_window_predicted(zone_window_states)
@@ -688,7 +702,7 @@ def _collect_cross_zone_condensation(
     for z in zones_info:
         z_name = z.get("name", f"Zone {z.get('id')}")
         z_id = str(z.get("id"))
-        cond_data = coordinator.get_entity_data(z_id, "condensation_risk")
+        cond_data = coordinator.get_entity_data(z_id, ENTITY_DATA_CONDENSATION_RISK)
         if cond_data:
             cond_state = cond_data.get("state", "None")
             if cond_state not in ("unavailable", "unknown"):
@@ -794,7 +808,6 @@ def get_cross_zone_insights(
 
     try:
         coord_data = coordinator.data or {}
-        zones_data = coord_data.get("zones")
         zones_info = coord_data.get("zones_info")
 
         zone_name_map: dict[str, str] = {}
@@ -802,12 +815,21 @@ def get_cross_zone_insights(
             for z in zones_info:
                 zone_name_map[str(z.get("id"))] = z.get("name", f"Zone {z.get('id')}")
 
-        zone_states = (zones_data.get("zoneStates") or {}) if zones_data else {}
+        zone_states = get_zone_states(coord_data)
 
-        return _collect_all_cross_zone(ctx, coordinator, zone_states, zone_name_map, zones_info)
+        # Merge HomeKit data into each zone for fresher readings
+        merged_states = {}
+        for zid, zdata in zone_states.items():
+            merged_states[zid] = merge_homekit_into_zone_data(zdata, zid, coordinator)
 
-    except Exception as e:  # noqa: BLE001 — insight collection must not crash sensor
-        _LOGGER.debug("Failed to collect cross-zone insights: %s", e)
+        return _collect_all_cross_zone(ctx, coordinator, merged_states, zone_name_map, zones_info)
+
+    except Exception as e:
+        _LOGGER.debug(
+            "Insight Collector: cross-zone insight collection failed "
+            "(%s) — returning whatever was gathered so far",
+            e,
+        )
 
     return []
 
@@ -928,8 +950,12 @@ def get_hub_insights(
         # --- API usage spike (always relevant) ---
         _collect_api_spike_insight(coord_data, hub_insights)
 
-    except Exception as e:  # noqa: BLE001 — insight collection must not crash sensor
-        _LOGGER.debug("Failed to collect hub insights: %s", e)
+    except Exception as e:
+        _LOGGER.debug(
+            "Insight Collector: hub insight collection failed (%s) — "
+            "returning whatever was gathered so far",
+            e,
+        )
 
     return hub_insights
 
@@ -981,12 +1007,11 @@ def _collect_presence_insights(
         return
 
     presence = home_state_data.get("presence")
-    zones_data = coord_data.get("zones")
     zones_info = coord_data.get("zones_info")
-    if not zones_data or not zones_info:
+    zone_states = get_zone_states(coord_data)
+    if not zone_states or not zones_info:
         return
 
-    zone_states = zones_data.get("zoneStates") or {}
     zone_name_map: dict[str, str] = {}
     for z in zones_info:
         zone_name_map[str(z.get("id"))] = z.get("name", f"Zone {z.get('id')}")

@@ -79,7 +79,76 @@
         }
       },
       "bridge_connected": {
-        "name": "Bridge Connected"
+        "name": "Bridge"
+      },
+      "connection": {
+        "name": "Connection",
+        "state_attributes": {
+          "device_serial": {
+            "name": "Device serial"
+          },
+          "device_type": {
+            "name": "Device type"
+          },
+          "firmware_version": {
+            "name": "Firmware version"
+          },
+          "last_seen": {
+            "name": "Last seen"
+          },
+          "offline_minutes": {
+            "name": "Offline minutes"
+          },
+          "recommendation": {
+            "name": "Recommendation"
+          }
+        }
+      },
+      "connection_suffixed": {
+        "name": "Connection{device_suffix}",
+        "state_attributes": {
+          "device_serial": {
+            "name": "Device serial"
+          },
+          "device_type": {
+            "name": "Device type"
+          },
+          "firmware_version": {
+            "name": "Firmware version"
+          },
+          "last_seen": {
+            "name": "Last seen"
+          },
+          "offline_minutes": {
+            "name": "Offline minutes"
+          },
+          "recommendation": {
+            "name": "Recommendation"
+          }
+        }
+      },
+      "power": {
+        "name": "Power"
+      },
+      "homekit_connected": {
+        "name": "HomeKit",
+        "state_attributes": {
+          "last_connected": {
+            "name": "Last connected"
+          },
+          "last_disconnected": {
+            "name": "Last disconnected"
+          },
+          "reconnect_count": {
+            "name": "Reconnect count"
+          },
+          "uptime": {
+            "name": "Uptime"
+          },
+          "status": {
+            "name": "Status"
+          }
+        }
       }
     },
     "button": {
@@ -138,33 +207,9 @@
         }
       }
     },
-    "device_tracker": {
-      "mobile_device": {
-        "state_attributes": {
-          "device_id": {
-            "name": "Device ID"
-          },
-          "platform": {
-            "name": "Platform"
-          },
-          "os_version": {
-            "name": "OS version"
-          },
-          "model": {
-            "name": "Model"
-          },
-          "bearing": {
-            "name": "Bearing"
-          },
-          "relative_distance": {
-            "name": "Relative distance"
-          }
-        }
-      }
-    },
     "sensor": {
       "temperature": {
-        "name": "Temp"
+        "name": "Temperature"
       },
       "humidity": {
         "name": "Humidity"
@@ -196,9 +241,6 @@
             "name": "Source zone"
           }
         }
-      },
-      "power": {
-        "name": "Power"
       },
       "outside_temp": {
         "name": "Outside Temp",
@@ -273,46 +315,6 @@
           }
         }
       },
-      "connection": {
-        "name": "Connection",
-        "state_attributes": {
-          "device_serial": {
-            "name": "Device serial"
-          },
-          "device_type": {
-            "name": "Device type"
-          },
-          "firmware_version": {
-            "name": "Firmware version"
-          },
-          "last_seen": {
-            "name": "Last seen"
-          },
-          "recommendation": {
-            "name": "Recommendation"
-          }
-        }
-      },
-      "connection_suffixed": {
-        "name": "Connection{device_suffix}",
-        "state_attributes": {
-          "device_serial": {
-            "name": "Device serial"
-          },
-          "device_type": {
-            "name": "Device type"
-          },
-          "firmware_version": {
-            "name": "Firmware version"
-          },
-          "last_seen": {
-            "name": "Last seen"
-          },
-          "recommendation": {
-            "name": "Recommendation"
-          }
-        }
-      },
       "home_id": {
         "name": "Home ID"
       },
@@ -333,9 +335,6 @@
           },
           "status": {
             "name": "Status"
-          },
-          "test_mode": {
-            "name": "Test mode"
           }
         }
       },
@@ -362,9 +361,6 @@
           },
           "current_interval_minutes": {
             "name": "Current interval (min)"
-          },
-          "test_mode": {
-            "name": "Test mode"
           }
         }
       },
@@ -433,9 +429,6 @@
           },
           "is_night_mode": {
             "name": "Night mode"
-          },
-          "test_mode": {
-            "name": "Test mode"
           }
         }
       },
@@ -581,7 +574,7 @@
         }
       },
       "next_sched_temp": {
-        "name": "Next Sched Temp",
+        "name": "Next Schedule Temperature",
         "state_attributes": {
           "schedule_time": {
             "name": "Schedule time"
@@ -724,7 +717,7 @@
         }
       },
       "heat_accel": {
-        "name": "Heat Accel"
+        "name": "Heating Acceleration"
       },
       "approach_factor": {
         "name": "Approach Factor",
@@ -768,7 +761,8 @@
             "name": "Temperature source",
             "state": {
               "surface_estimation": "Surface estimation",
-              "room_average": "Room average"
+              "room_average": "Room average",
+              "unknown": "Unknown"
             }
           },
           "outdoor_temperature": {
@@ -804,7 +798,12 @@
             "name": "Dew point"
           },
           "temperature_source": {
-            "name": "Temperature source"
+            "name": "Temperature source",
+            "state": {
+              "surface_estimation": "Surface estimation",
+              "room_average": "Room average",
+              "unknown": "Unknown"
+            }
           },
           "zone_type": {
             "name": "Zone type"
@@ -812,7 +811,7 @@
         }
       },
       "condensation_risk": {
-        "name": "Condensation",
+        "name": "Condensation Risk",
         "state_attributes": {
           "room_temperature": {
             "name": "Room temperature"
@@ -874,7 +873,13 @@
             "name": "Offset applied"
           },
           "calculation_method": {
-            "name": "Calculation method"
+            "name": "Calculation method",
+            "state": {
+              "surface_estimation": "Surface estimation",
+              "calibrated_surface": "Calibrated surface",
+              "room_average": "Room average",
+              "unknown": "Unknown"
+            }
           },
           "zone_type": {
             "name": "Zone type"
@@ -927,19 +932,6 @@
           }
         }
       },
-      "boiler_wiring_state": {
-        "name": "Boiler Wiring State",
-        "state": {
-          "ready": "Ready",
-          "installed": "Installed",
-          "not_installed": "Not Installed",
-          "installing": "Installing",
-          "failed": "Failed"
-        }
-      },
-      "boiler_output_temperature": {
-        "name": "Boiler Output Temperature"
-      },
       "bridge_wiring_state": {
         "name": "Bridge Wiring State"
       },
@@ -987,6 +979,12 @@
       },
       "wc_status": {
         "name": "Weather Compensation Status"
+      },
+      "homekit_reads_saved": {
+        "name": "HomeKit Reads Saved"
+      },
+      "homekit_writes_saved": {
+        "name": "HomeKit Writes Saved"
       }
     },
     "select": {
@@ -1084,9 +1082,6 @@
           }
         }
       },
-      "test_mode": {
-        "name": "Test Mode"
-      },
       "quota_reserve": {
         "name": "Quota Reserve"
       }
@@ -1104,8 +1099,8 @@
       }
     },
     "number": {
-      "boiler_max_output_temperature": {
-        "name": "Boiler Max Output Temperature"
+      "boiler_max_output_temp": {
+        "name": "Max Flow Temperature"
       }
     }
   },
@@ -1251,6 +1246,13 @@
         "passive": "Passive"
       }
     },
+    "svc_mode": {
+      "options": {
+        "off": "Off",
+        "offset_sync": "Offset Sync (recommended)",
+        "valve_target": "Valve Target (advanced)"
+      }
+    },
     "smart_comfort_mode": {
       "options": {
         "none": "None (disabled)",
@@ -1296,7 +1298,7 @@
         "thermal_analytics": "Thermal Analytics",
         "weather_compensation": "Weather Compensation",
         "bridge": "Internet Bridge",
-        "mobile_tracking": "Mobile Device Tracking",
+        "homekit": "HomeKit",
         "polling_api": "Polling & API"
       }
     }
@@ -1337,6 +1339,18 @@
     },
     "bridge_auth_failed": {
       "message": "Invalid bridge serial or auth code"
+    },
+    "offset_write_failed": {
+      "message": "Could not set temperature offset for {entity_id} — all {device_count} device(s) failed to accept the write. Check that the devices are online and try again."
+    },
+    "timer_set_failed_all": {
+      "message": "Timer could not be set on any of the {entity_count} zone(s). Reasons: {reasons}"
+    },
+    "state_restore_failed": {
+      "message": "State Restore failed for {entity_id} — the cloud rejected the call. The captured state was kept so you can try again."
+    },
+    "resume_schedule_failed": {
+      "message": "Resume Schedule failed for {entity_id} — the cloud rejected the call. Please try again."
     }
   },
   "issues": {
@@ -1347,6 +1361,10 @@
     "deprecated_yaml_config": {
       "title": "Tado CE: Deprecated configuration key",
       "description": "The configuration key **{key}** is deprecated and will be removed in a future version. Please update your configuration."
+    },
+    "svc_sensor_missing": {
+      "title": "Smart Valve Control disabled for {zone_name}",
+      "description": "Smart Valve Control ({mode}) for **{zone_name}** requires an external temperature sensor, but none is configured.\n\nThe feature has been automatically disabled for this zone until you pick a sensor.\n\n**To restore it:**\n\nGo to **Settings → Tado CE → Configure → Zone Configuration → {zone_name} → External Sensors** and select a temperature sensor.\n\nAlternatively, dismiss this notification to leave the feature disabled for this zone."
     }
   },
   "config": {
@@ -1365,7 +1383,7 @@
       },
       "manual_token": {
         "title": "Manual Token",
-        "description": "If device authorization is not working (e.g. Tado server issues), you can paste a refresh token obtained from the Tado web app.\n\n**How to get a token (Chrome):**\n1. Open [{tado_web_app}]({tado_web_app_url}) in Chrome\n2. Press `F12` to open Developer Tools → **Network** tab\n3. Type `token` in the filter bar\n4. Log in to your Tado account\n5. Click the `token` request → **Response** tab\n6. Copy the `refresh_token` value\n\n⚠️ This may not work if Tado has also changed their web app login flow.",
+        "description": "Paste a Tado refresh token to authenticate. Use this when the normal device authorization flow doesn't work. To get a token: log in at {tado_web_app_url}, open your browser's DevTools (F12) → Application → Local Storage → {tado_web_app} → find and copy the `refresh_token` value.",
         "data": {
           "refresh_token": "Refresh Token"
         },
@@ -1379,7 +1397,7 @@
       },
       "select_home": {
         "title": "Select Home",
-        "description": "Multiple Tado homes found. Please select which home to use.",
+        "description": "Multiple Tado homes detected — pick the one to monitor. Each home is a separate integration entry, so you can add the others later.",
         "data": {
           "home": "Home"
         },
@@ -1405,7 +1423,7 @@
       },
       "reconfigure_select_home": {
         "title": "Select Home",
-        "description": "Your previous home is no longer available. Please select a new home.",
+        "description": "Switch which Tado home this entry monitors.",
         "data": {
           "home": "Home"
         }
@@ -1426,7 +1444,8 @@
       "cannot_connect": "Failed to connect to Tado. Please check your internet connection.",
       "invalid_token": "Invalid or expired refresh token. Please check the token and try again.",
       "auth_pending": "Authorization not yet complete. Please authorize on Tado's website first, then click Submit again.",
-      "authorization_failed": "Authorization failed. Please try again from the beginning."
+      "authorization_failed": "Authorization failed. Please try again from the beginning.",
+      "rate_limited": "Tado's servers are temporarily limiting requests. Please wait a few minutes and try again."
     }
   },
   "options": {
@@ -1438,6 +1457,7 @@
           "general_settings": "General Settings",
           "advanced_settings": "Advanced Settings",
           "zone_config": "Zone Configuration",
+          "homekit_unpair": "Unpair HomeKit",
           "reset_to_defaults": "Reset to Defaults"
         }
       },
@@ -1445,56 +1465,60 @@
         "title": "General Settings",
         "description": "Toggle features on or off. All settings use recommended defaults. Use Advanced Settings to fine-tune.",
         "sections": {
-          "smart_features": {
-            "name": "Smart Features",
+          "tado_features": {
+            "name": "Tado Features",
+            "description": "Features Tado natively supports — enable what you want surfaced in Home Assistant.",
+            "data": {
+              "home_state_sync_enabled": "Home Presence (Home/Away)",
+              "weather_enabled": "Weather Data",
+              "mobile_devices_enabled": "Mobile Device Tracking",
+              "schedule_calendar_enabled": "Schedule Calendar",
+              "offset_enabled": "Device Temperature Offsets"
+            },
+            "data_description": {
+              "home_state_sync_enabled": "Sync your home's overall presence (Home/Away) every poll (+1 API call per poll)",
+              "weather_enabled": "Outside temperature and solar intensity from Tado (+1 API call per poll)",
+              "mobile_devices_enabled": "Track each phone's location for per-device presence. Updates on HA restart only — enable Frequent Sync in Advanced Settings for continuous updates (+1 API call per poll when frequent)",
+              "schedule_calendar_enabled": "See your Tado heating schedules as calendar entries in HA",
+              "offset_enabled": "Show the temperature calibration offset that appears in the Tado app on climate entities (+1 API call per device on restart)"
+            }
+          },
+          "hardware_connections": {
+            "name": "Hardware Connections",
+            "description": "Physical bridges that enable local and real-time control.",
+            "data": {
+              "bridge_enabled": "Internet Bridge",
+              "homekit_enabled": "Local Control (HomeKit)"
+            },
+            "data_description": {
+              "bridge_enabled": "Connect to your Tado Internet Bridge for boiler flow temperature readings (required for Weather Compensation)",
+              "homekit_enabled": "Control heating locally via HomeKit — works even when Tado's cloud is down"
+            }
+          },
+          "smart_automations": {
+            "name": "Smart Automations",
+            "description": "Tado CE enhancements — layered on top of Tado's own control.",
             "data": {
               "smart_comfort_enabled": "Smart Comfort",
               "thermal_analytics_enabled": "Thermal Analytics",
               "adaptive_preheat_enabled": "Adaptive Preheat",
-              "schedule_calendar_enabled": "Schedule Calendar"
+              "wc_enabled": "Weather Compensation"
             },
             "data_description": {
               "smart_comfort_enabled": "Comfort scoring, mold risk, condensation, and dew point sensors for each zone",
               "thermal_analytics_enabled": "Track how fast your rooms heat up and how your system performs over time",
-              "adaptive_preheat_enabled": "Automatically start heating early so your room is warm when the schedule kicks in",
-              "schedule_calendar_enabled": "See your Tado heating schedules as calendar entries in HA"
+              "adaptive_preheat_enabled": "Automatically start heating early so your room is warm when the schedule kicks in — replaces Tado's Early Start with local logic",
+              "wc_enabled": "Automatically adjust your boiler's flow temperature based on outdoor weather (requires Internet Bridge)"
             }
           },
-          "connections": {
-            "name": "Connections",
-            "data": {
-              "bridge_enabled": "Internet Bridge",
-              "wc_enabled": "Weather Compensation",
-              "homekit_enabled": "Local Control (HomeKit)"
-            },
-            "data_description": {
-              "bridge_enabled": "Connect to your Tado Internet Bridge for boiler flow temperature readings",
-              "wc_enabled": "Automatically adjust your boiler's flow temperature based on outdoor weather",
-              "homekit_enabled": "Control heating locally via HomeKit — works even when Tado's cloud is down"
-            }
-          },
-          "data_sources": {
-            "name": "Data Sources",
-            "data": {
-              "weather_enabled": "Weather Data",
-              "home_state_sync_enabled": "Home State Sync",
-              "mobile_devices_enabled": "Mobile Device Tracking",
-              "offset_enabled": "Temperature Offsets"
-            },
-            "data_description": {
-              "weather_enabled": "Outside temperature and solar intensity from Tado (+1 API call per poll)",
-              "home_state_sync_enabled": "Sync your home's overall presence (Home/Away) every poll (+1 API call per poll)",
-              "mobile_devices_enabled": "Track each phone's location for per-device presence. Updates on HA restart only — enable Frequent Sync in Advanced Settings for continuous updates (+1 API call per poll when frequent)",
-              "offset_enabled": "Show temperature calibration offset on climate entities (+1 API call per device on restart)"
-            }
-          },
-          "per_zone": {
-            "name": "Per-Zone",
+          "advanced": {
+            "name": "Advanced",
+            "description": "Power-user features for fine-grained per-zone control.",
             "data": {
               "zone_configuration_enabled": "Per-Zone Configuration"
             },
             "data_description": {
-              "zone_configuration_enabled": "Customise sensors, overlays, and heating per zone"
+              "zone_configuration_enabled": "Customise sensors, manual overrides, and heating per zone"
             }
           }
         }
@@ -1508,26 +1532,18 @@
             "data": {
               "use_outdoor_temp_entity": "Use Outdoor Temperature Entity",
               "outdoor_temp_entity": "Outdoor Temperature Entity",
-              "hot_water_timer_duration": "Hot Water Timer (minutes)",
               "smart_comfort_mode": "Smart Comfort Mode",
               "use_feels_like": "Use Feels-Like Temperature",
               "mold_risk_window_type": "Window Type",
-              "smart_comfort_history_days": "Temperature History (days)",
-              "heating_cycle_history_days": "Thermal Analytics History (days)",
-              "heating_cycle_min_cycles": "Minimum Cycles for Analysis",
-              "heating_cycle_inertia_threshold": "Inertia Detection Threshold"
+              "smart_comfort_history_days": "Temperature History (days)"
             },
             "data_description": {
               "use_outdoor_temp_entity": "Turn off to disable features that need outdoor temperature (comfort scoring, mold risk)",
               "outdoor_temp_entity": "Sensor providing outdoor temperature (e.g., weather.home or a local sensor)",
-              "hot_water_timer_duration": "How long hot water stays on when you turn it on manually (5–1440 min)",
-              "smart_comfort_mode": "How aggressively to adjust target temperature based on outdoor conditions",
+              "smart_comfort_mode": "How much Tado CE nudges zone target temperature toward comfort. Light = subtle, Aggressive = noticeable. Start with Light.",
               "use_feels_like": "Factor in wind chill and humidity instead of raw temperature",
               "mold_risk_window_type": "Your window type — affects how surface temperature is estimated for mold risk",
-              "smart_comfort_history_days": "How many days of temperature data to use for heating rate estimates (1–30)",
-              "heating_cycle_history_days": "How many days of heating cycle data to keep (1–30)",
-              "heating_cycle_min_cycles": "Wait for this many completed heating cycles before showing analytics (1–10)",
-              "heating_cycle_inertia_threshold": "Temperature change below this is considered 'settled' after heating stops (0.05–0.5°C)"
+              "smart_comfort_history_days": "How many days of temperature data to use for heating rate estimates (1–30)"
             }
           },
           "thermal_analytics": {
@@ -1545,13 +1561,20 @@
               "heating_cycle_inertia_threshold": "Temperature change below this is considered 'settled' after heating stops (0.05–0.5°C)"
             }
           },
-          "flow_temperature_control": {
+          "internet_bridge": {
+            "name": "Internet Bridge",
+            "data": {
+              "bridge_serial": "Bridge Serial Number",
+              "bridge_auth_key": "Bridge Auth Code"
+            },
+            "data_description": {
+              "bridge_serial": "Printed on the bottom of your bridge (starts with IB, e.g. IB0123456789)",
+              "bridge_auth_key": "4-digit code from the sticker on your bridge (keep confidential)"
+            }
+          },
+          "weather_compensation": {
             "name": "Weather Compensation",
             "data": {
-              "bridge_enabled": "Enable Internet Bridge",
-              "bridge_serial": "Bridge Serial Number",
-              "bridge_auth_key": "Bridge Auth Code",
-              "wc_enabled": "Enable Weather Compensation",
               "wc_heating_system_preset": "Heating System Type",
               "wc_slope": "Heating Curve Slope",
               "wc_design_outdoor_temp": "Design Outdoor Temperature",
@@ -1566,53 +1589,58 @@
               "wc_hysteresis": "Change Hysteresis"
             },
             "data_description": {
-              "bridge_enabled": "Connect to your Tado Internet Bridge for real-time boiler data. Requires a v3+ bridge. Disabling removes bridge credentials and sensors",
-              "bridge_serial": "Printed on the bottom of your bridge (starts with IB, e.g. IB0123456789)",
-              "bridge_auth_key": "4-digit code from the sticker on your bridge (keep confidential)",
-              "wc_slope": "How steeply flow temperature rises as it gets colder outside. Higher = more aggressive heating (0.3–3.0)",
+              "wc_slope": "How steeply flow temperature rises as it gets colder outside. Higher = more aggressive heating (0.3–3.0). Auto-adjusted by heating system preset above.",
               "wc_design_outdoor_temp": "The coldest temperature you expect in your area (-30 to 10°C)",
-              "wc_max_flow_temp": "Highest flow temperature your boiler should reach at the coldest outdoor temp (25–80°C)",
-              "wc_min_flow_temp": "Lowest flow temperature — also used when heating shuts off (25–60°C)",
+              "wc_max_flow_temp": "Highest flow temperature your boiler should reach at the coldest outdoor temp (25–80°C). Auto-adjusted by heating system preset above.",
+              "wc_min_flow_temp": "Lowest flow temperature — also used when heating shuts off (25–60°C). Auto-adjusted by heating system preset above.",
               "wc_shutoff_temp": "Stop heating when outdoor temperature rises above this (5–30°C)",
               "wc_smoothing_method": "How outdoor temperature readings are averaged to avoid sudden changes",
               "wc_smoothing_window": "How long to average outdoor temperature over (15–1440 min)",
               "wc_room_compensation_factor": "How much to adjust flow temperature when a room is colder or warmer than its target (1.0–5.0)",
               "wc_step_size": "Round flow temperature to this step size — larger steps mean fewer boiler adjustments (0.5–2.0°C)",
-              "wc_hysteresis": "Only send a new flow temperature when it differs from the last one by at least this much (0.5–3.0°C)"
+              "wc_hysteresis": "Only send a new flow temperature when it differs from the last one by at least this much (0.5–3.0°C)",
+              "wc_heating_system_preset": "Selecting a preset sets recommended defaults for slope and flow temperatures. Choose Custom to tune each field manually."
             }
           },
-          "mobile_tracking": {
-            "name": "Mobile Device Tracking",
+          "homekit": {
+            "name": "HomeKit",
             "data": {
-              "mobile_devices_frequent_sync": "Frequent Sync"
+              "homekit_cloud_sync_minutes": "Cloud Data Refresh",
+              "homekit_unpair": "Unpair HomeKit"
             },
             "data_description": {
-              "mobile_devices_frequent_sync": "Update device locations every poll cycle. Without this, locations only refresh when HA restarts (+1 API call per poll)"
-            }
+              "homekit_cloud_sync_minutes": "How often to fetch cloud data including humidity, heating power, and overlay status. Temperature uses HomeKit locally. Lower = fresher humidity but more API calls (5–120 min)",
+              "homekit_unpair": "Disconnect the local HomeKit connection and remove pairing credentials"
+            },
+            "description": "Connection status: {homekit_status}"
           },
           "polling_api": {
             "name": "Polling & API",
             "data": {
               "day_start_hour": "Day Start Hour",
               "night_start_hour": "Night Start Hour",
-              "custom_day_interval": "Custom Day Interval (minutes)",
-              "custom_night_interval": "Custom Night Interval (minutes)",
+              "custom_day_interval": "Custom Day Interval (leave empty for auto)",
+              "custom_night_interval": "Custom Night Interval (leave empty for auto)",
               "refresh_debounce_seconds": "Refresh Delay (seconds)",
               "api_history_retention_days": "API History Retention (days)",
               "quota_reserve_enabled": "Quota Reserve Protection",
               "smart_actions_debounce_seconds": "Temperature Slider Delay",
-              "device_sync_delay_seconds": "Device Sync Delay"
+              "device_sync_delay_seconds": "Device Sync Delay",
+              "mobile_devices_frequent_sync": "Frequent Mobile Sync",
+              "hot_water_timer_duration": "Hot Water Timer Default (minutes)"
             },
             "data_description": {
               "day_start_hour": "When daytime polling starts (0–23, default: 7)",
               "night_start_hour": "When nighttime polling starts — polls less often at night (0–23, default: 23)",
-              "custom_day_interval": "Override automatic daytime polling with a fixed interval (1–1440 min, leave empty for auto)",
-              "custom_night_interval": "Override automatic nighttime polling with a fixed interval (1–1440 min, leave empty for auto)",
+              "custom_day_interval": "Override automatic daytime polling with a fixed interval. Leave empty to let Tado CE adjust polling based on your API quota. (1–1440 min)",
+              "custom_night_interval": "Override automatic nighttime polling with a fixed interval. Leave empty to let Tado CE adjust polling based on your API quota. (1–1440 min)",
               "refresh_debounce_seconds": "Wait this long after a change before fetching fresh data from Tado (1–60s)",
               "api_history_retention_days": "How many days of API call history to keep for the usage chart (0 = forever)",
               "quota_reserve_enabled": "Automatically pause polling when your API quota is running low. Only disable if you know what you're doing.",
               "smart_actions_debounce_seconds": "When dragging the temperature slider, wait this long before sending the final value (0 = send immediately)",
-              "device_sync_delay_seconds": "Pause between sequential device operations like child lock or offset changes"
+              "device_sync_delay_seconds": "Pause between sequential device operations like child lock or offset changes",
+              "mobile_devices_frequent_sync": "Update device locations every poll cycle. Without this, locations only refresh when HA restarts (+1 API call per poll)",
+              "hot_water_timer_duration": "Default duration when you turn on hot water without specifying a timer (1–1440 min)"
             }
           }
         }
@@ -1648,7 +1676,7 @@
       },
       "reset_confirm": {
         "title": "Confirm Reset",
-        "description": "Are you sure? This cannot be undone."
+        "description": "This will reset all settings to their defaults. Your Tado account, bridge connection, and HomeKit pairing will be kept — you won't need to set those up again."
       },
       "zone_config": {
         "title": "Zone Configuration",
@@ -1686,33 +1714,37 @@
               "smart_comfort_mode": "Adjust target temp based on outdoor conditions",
               "window_type": "Window type for mold risk calculation",
               "window_predicted_mode": "Active: detects only when HVAC is running. Passive: detects regardless of HVAC state. Auto: uses Active when HVAC is on, Passive when off.",
-              "window_predicted_sensitivity": "Sensitivity for predicted window open detection"
+              "window_predicted_sensitivity": "How easily the window detection triggers. Higher sensitivity = more false positives but catches smaller drafts."
             }
           },
           "sensor_section": {
             "name": "External Sensors",
             "data": {
-              "use_external_temp": "Use External Temperature Sensor",
+              "use_external_temp": "Override Tado's Temperature Sensor",
               "external_temp_sensor": "External Temperature Sensor",
-              "use_external_humidity": "Use External Humidity Sensor",
-              "external_humidity_sensor": "External Humidity Sensor"
+              "use_external_humidity": "Override Tado's Humidity Sensor",
+              "external_humidity_sensor": "External Humidity Sensor",
+              "svc_mode": "Smart Valve Control Mode",
+              "svc_offset_min_change": "Offset Sync Sensitivity"
             },
             "data_description": {
-              "use_external_temp": "Turn off to use Tado's built-in temperature sensor",
-              "external_temp_sensor": "Select a temperature sensor to override Tado's reading",
-              "use_external_humidity": "Turn off to use Tado's built-in humidity sensor",
-              "external_humidity_sensor": "Select a humidity sensor to override Tado's reading"
+              "use_external_temp": "Turn off to temporarily revert to Tado's built-in sensor. Your selection stays saved — toggle back on anytime.",
+              "external_temp_sensor": "Select a sensor to override Tado's built-in reading. Disable the toggle above to pause without losing the selection.",
+              "use_external_humidity": "Turn off to temporarily revert to Tado's built-in humidity sensor. Your selection stays saved — toggle back on anytime.",
+              "external_humidity_sensor": "Select a humidity sensor to override Tado's built-in reading. Disable the toggle above to pause without losing the selection.",
+              "svc_mode": "Use your external sensor to improve TRV accuracy. Offset Sync (recommended) quietly corrects the TRV's temperature reading — works alongside Tado, better TRV battery life. Valve Target directly overrides the TRV setpoint — more aggressive, use only when Offset Sync isn't enough.",
+              "svc_offset_min_change": "How much the offset must change before writing to the TRV. Higher values mean fewer writes (better for battery life) but less precise temperature display in the Tado app"
             }
           },
           "overlay_section": {
-            "name": "Overlay",
+            "name": "Manual Temperature Override",
             "data": {
-              "overlay_mode": "Overlay Mode",
-              "timer_duration": "Timer Duration (minutes)"
+              "overlay_mode": "Override behaviour",
+              "timer_duration": "Override Timer Duration (minutes)"
             },
             "data_description": {
-              "overlay_mode": "What happens when you manually change temperature",
-              "timer_duration": "Duration for timer overlay mode (15-180 min)"
+              "overlay_mode": "When you change temperature from HA, the Tado app, or a service call — how long the change lasts before Tado’s schedule resumes.",
+              "timer_duration": "Duration for Timer override mode (15–180 min)"
             }
           },
           "temperature_section": {
@@ -1720,14 +1752,12 @@
             "data": {
               "min_temp": "Minimum Temperature",
               "max_temp": "Maximum Temperature",
-              "temp_offset": "Temperature Offset",
               "surface_temp_offset": "Surface Temp Offset"
             },
             "data_description": {
               "min_temp": "Minimum allowed target temperature (5-25°C)",
               "max_temp": "Maximum allowed target temperature (15-30°C)",
-              "temp_offset": "Offset applied to target temperature (-3 to +3°C)",
-              "surface_temp_offset": "Offset for mold risk surface temp calculation (-5 to +5°C)"
+              "surface_temp_offset": "Fine-tune mold risk surface temperature estimate. Adjust if your walls feel colder than Tado assumes. (-5 to +5°C)"
             }
           }
         },
@@ -1739,6 +1769,20 @@
           "external_temp_sensor": "Override Tado's built-in temperature reading with an external sensor",
           "external_humidity_sensor": "Override Tado's built-in humidity reading with an external sensor"
         }
+      },
+      "homekit_pairing": {
+        "title": "HomeKit Pairing",
+        "description": "Enter the 8-digit HomeKit PIN from your Tado bridge (format: XXX-XX-XXX). You can find it on the bridge label or in the Tado app. If your bridge is already paired with Apple Home, you need to unpair it first. You can re-expose climate entities to Apple Home via the HA HomeKit Bridge integration.",
+        "data": {
+          "homekit_pin": "HomeKit PIN"
+        },
+        "data_description": {
+          "homekit_pin": "8-digit code from your Tado Internet Bridge (e.g. 123-45-678)"
+        }
+      },
+      "homekit_unpair": {
+        "title": "Unpair HomeKit",
+        "description": "This will disconnect the local HomeKit connection and remove pairing credentials. You can re-pair later from the Connections settings."
       }
     },
     "abort": {
@@ -1749,7 +1793,13 @@
       "invalid_number": "Please enter a valid number",
       "bridge_auth_failed": "Invalid bridge serial or auth code — please check and try again",
       "bridge_serial_invalid": "Only v3+ Internet Bridges (serial starting with IB) support the local API. Your serial suggests a v2 bridge (GW prefix) which does not have a local API. Weather Compensation can still be used without a bridge via cloud data.",
-      "wc_min_exceeds_max": "Minimum flow temperature cannot exceed maximum flow temperature"
+      "wc_min_exceeds_max": "Minimum flow temperature cannot exceed maximum flow temperature",
+      "homekit_wrong_pin": "Incorrect HomeKit PIN — check the code on your bridge or in the Tado app",
+      "homekit_already_paired": "Bridge is already paired with another controller. Unpair from Apple Home first, then try again",
+      "homekit_network_error": "Could not reach the bridge on your network. Check it is powered on and connected",
+      "homekit_timeout": "Pairing timed out — the bridge did not respond in time",
+      "homekit_pairing_failed": "Pairing failed — please try again",
+      "svc_active_sensor_clear": "Smart Valve Control is enabled for this zone. Disabling the external temperature sensor will deactivate Smart Valve Control. Set Smart Valve Control Mode to Off first if you want to pause the sensor without stopping SVC."
     }
   }
 }

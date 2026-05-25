@@ -1,9 +1,10 @@
-"""Tado CE storage — atomic JSON persistence primitives.
+"""Tado CE storage primitives — atomic JSON I/O and JSON → HA Store migration helper.
 
-Thin wrappers around Home Assistant's native JSON helpers
-(``homeassistant.helpers.json.save_json`` / ``homeassistant.util.json.load_json``)
-that accept :class:`~pathlib.Path` objects, auto-create parent directories,
-and normalise file-not-found to ``None``.
+Sync / async wrappers around HA's `save_json` / `load_json` so
+the rest of the codebase doesn't repeat the executor plumbing,
+plus `async_migrate_json_to_store` for the v3.5.3 → v4.x file
+→ Store migration shared by DataLoader, HeatingCycleStorage,
+InsightHistoryTracker, and StateRestoreManager.
 """
 
 from __future__ import annotations
@@ -13,6 +14,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from homeassistant.helpers.json import save_json as ha_save_json
+from homeassistant.helpers.storage import Store
 from homeassistant.util.json import load_json as ha_load_json
 
 if TYPE_CHECKING:
@@ -25,38 +27,13 @@ _MISSING = object()
 
 
 def save_json_sync(file_path: Path, data: dict[str, Any] | list[Any]) -> None:
-    """Save data to JSON file atomically (sync — call from executor or sync context).
-
-    Delegates to :func:`homeassistant.helpers.json.save_json` which uses
-    ``write_utf8_file`` (tempfile + ``os.replace``).
-
-    Args:
-        file_path: Target file path.
-        data: JSON-serializable dict or list.
-
-    Raises:
-        HomeAssistantError: If serialisation or file I/O fails.
-
-    """
+    """Atomically write JSON to disk — call from executor or sync context only."""
     file_path.parent.mkdir(parents=True, exist_ok=True)
     ha_save_json(str(file_path), data)
 
 
 def load_json_sync(file_path: Path) -> dict[str, Any] | list[Any] | None:
-    """Load and deserialise a JSON file (sync — call from executor or sync context).
-
-    Delegates to :func:`homeassistant.util.json.load_json`.
-
-    Args:
-        file_path: Path to JSON file.
-
-    Returns:
-        Parsed data, or ``None`` if file does not exist.
-
-    Raises:
-        HomeAssistantError: If file contains invalid JSON or I/O fails.
-
-    """
+    """Read JSON from disk — `None` when the file is missing."""
     result = ha_load_json(str(file_path), default=_MISSING)  # type: ignore[arg-type]
     if result is _MISSING:
         return None
@@ -68,17 +45,7 @@ async def async_save_json(
     file_path: Path,
     data: dict[str, Any] | list[Any],
 ) -> None:
-    """Save data to JSON file atomically via executor.
-
-    Args:
-        hass: Home Assistant instance.
-        file_path: Target file path.
-        data: JSON-serializable dict or list.
-
-    Raises:
-        HomeAssistantError: If serialisation or file I/O fails.
-
-    """
+    """Async wrapper around `save_json_sync` (runs in executor)."""
     await hass.async_add_executor_job(save_json_sync, file_path, data)
 
 
@@ -86,17 +53,48 @@ async def async_load_json(
     hass: HomeAssistant,
     file_path: Path,
 ) -> dict[str, Any] | list[Any] | None:
-    """Load and deserialise a JSON file via executor.
-
-    Args:
-        hass: Home Assistant instance.
-        file_path: Path to JSON file.
-
-    Returns:
-        Parsed data, or ``None`` if file does not exist.
-
-    Raises:
-        HomeAssistantError: If file contains invalid JSON or I/O fails.
-
-    """
+    """Async wrapper around `load_json_sync` (runs in executor)."""
     return await hass.async_add_executor_job(load_json_sync, file_path)
+
+
+async def async_migrate_json_to_store(
+    hass: HomeAssistant,
+    old_path: Path,
+    store: Store[Any],
+    *,
+    label: str = "",
+) -> dict[str, Any] | list[Any] | None:
+    """Move legacy JSON-on-disk into an HA Store; rename the old file to `.json.migrated`.
+
+    Returns the migrated data on success; `None` when there's
+    no legacy file to migrate. The rename keeps the old file
+    around as evidence in case a debug session needs to compare.
+    """
+    exists = await hass.async_add_executor_job(old_path.exists)
+    if not exists:
+        _LOGGER.debug(
+            "Storage: JSON → Store migration skipped — %s not "
+            "present on disk",
+            label or old_path.stem,
+        )
+        return None
+
+    old_data = await hass.async_add_executor_job(load_json_sync, old_path)
+    if old_data is None:
+        _LOGGER.debug(
+            "Storage: JSON → Store migration skipped — %s loaded "
+            "as None (empty / unreadable)",
+            label or old_path.stem,
+        )
+        return None
+
+    await store.async_save(old_data)
+
+    migrated_path = old_path.with_suffix(".json.migrated")
+    await hass.async_add_executor_job(old_path.rename, migrated_path)
+    _LOGGER.info(
+        "Storage: migrated %s → Store, legacy file renamed to %s",
+        label or old_path.stem,
+        migrated_path,
+    )
+    return old_data

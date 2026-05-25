@@ -1,7 +1,4 @@
-"""Cross-zone insights — mold aggregation, window aggregation, condensation, efficiency.
-
-Provides insight functions for cross-zone aggregation conditions.
-"""
+"""Cross-zone insights — mold aggregation, window aggregation, condensation, efficiency."""
 
 from __future__ import annotations
 

@@ -1,4 +1,11 @@
-"""Tado CE Device Tracker — mobile device presence detection."""
+"""Tado CE device trackers — Tado mobile-app presence per registered phone.
+
+One tracker per mobile device that has Tado's geo-tracking
+enabled in the app. Source-of-truth is the cloud `mobile_devices`
+endpoint; the tracker reflects `atHome` plus the relative
+distance / bearing for users who want to surface the gradient
+rather than just home / not-home.
+"""
 
 from __future__ import annotations
 
@@ -12,6 +19,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .device_manager import get_hub_device_info
 from .entity_registry import ENTITY_REGISTRY, get_entity_category
+from .helpers import mask_serial
 
 if TYPE_CHECKING:
     from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
@@ -32,7 +40,7 @@ async def async_setup_entry(
     coordinator = entry.runtime_data
     data_loader = coordinator.data_loader
     home_id = coordinator.home_id
-    _LOGGER.debug("Tado CE device_tracker: Setting up...")
+    _LOGGER.debug("Device Tracker: setup starting")
     mobile_devices = await hass.async_add_executor_job(data_loader.load_mobile_devices_file)
 
     trackers = []
@@ -47,13 +55,23 @@ async def async_setup_entry(
             if settings.get("geoTrackingEnabled", False):
                 trackers.append(TadoDeviceTracker(coordinator, device_id, device_name, device, home_id))
             else:
-                _LOGGER.debug("Skipping %s - geoTrackingEnabled is False", device_name)
+                _LOGGER.debug(
+                    "Device Tracker: %s skipped — geo-tracking disabled "
+                    "in the Tado app for this device",
+                    device_name,
+                )
 
     if trackers:
         async_add_entities(trackers, True)
-        _LOGGER.info("Tado CE device trackers loaded: %s", len(trackers))
+        _LOGGER.info(
+            "Device Tracker: created %d tracker entity(ies)",
+            len(trackers),
+        )
     else:
-        _LOGGER.debug("Tado CE: No devices with geo tracking enabled")
+        _LOGGER.debug(
+            "Device Tracker: no mobile devices have geo-tracking "
+            "enabled — no tracker entities created",
+        )
 
 
 class TadoDeviceTracker(CoordinatorEntity["TadoDataUpdateCoordinator"], TrackerEntity):
@@ -120,7 +138,7 @@ class TadoDeviceTracker(CoordinatorEntity["TadoDataUpdateCoordinator"], TrackerE
         """Return extra state attributes."""
         metadata = self._device_data.get("deviceMetadata") or {}
         return {
-            "device_id": self._device_id,
+            "device_id": mask_serial(str(self._device_id)),
             "platform": metadata.get("platform"),
             "os_version": metadata.get("osVersion"),
             "model": metadata.get("model"),
@@ -130,7 +148,7 @@ class TadoDeviceTracker(CoordinatorEntity["TadoDataUpdateCoordinator"], TrackerE
 
     @callback
     def _update_from_coordinator(self) -> None:
-        """Update device tracker state from coordinator data."""
+        """Refresh presence + bearing + relative distance from the latest poll."""
         try:
             devices = (self.coordinator.data or {}).get("mobile_devices")
 
@@ -145,7 +163,9 @@ class TadoDeviceTracker(CoordinatorEntity["TadoDataUpdateCoordinator"], TrackerE
                             self._bearing = (location.get("bearingFromHome") or {}).get("degrees")
                             self._relative_distance = location.get("relativeDistanceFromHomeFence")
                         else:
-                            # No location data - device might not have geo tracking
+                            # No location block usually means the user
+                            # has the app open but background location
+                            # is currently denied — surface as unknown.
                             self._is_home = None
 
                         self._attr_available = True
@@ -153,5 +173,9 @@ class TadoDeviceTracker(CoordinatorEntity["TadoDataUpdateCoordinator"], TrackerE
 
             self._attr_available = False
         except (KeyError, TypeError, AttributeError) as err:
-            _LOGGER.debug("Device tracker update failed for %s: %s", self._device_name, err)
+            _LOGGER.debug(
+                "Device Tracker: %s update failed (%s) — marking "
+                "unavailable until the next poll",
+                self._device_name, err,
+            )
             self._attr_available = False
