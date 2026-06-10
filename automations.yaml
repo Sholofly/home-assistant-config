@@ -1678,8 +1678,8 @@
   mode: single
 - id: "1776883300000"
   alias: Plant verzorging
-  description: "Melding wanneer de woonkamerplant water nodig heeft of wanneer de
-    batterij van de sensor bijna leeg is.
+  description: "Monitort de Strelitzia (woonkamerplant): bodemvocht, temperatuur en
+    batterij status van de sensor.
 
     "
   triggers:
@@ -1693,6 +1693,22 @@
       entity_id: sensor.0xa4c1388c66aa748c_battery
       below: 10
       id: batterij
+    - trigger: numeric_state
+      entity_id: sensor.0xa4c1388c66aa748c_temperature
+      below: 15
+      for:
+        minutes: 60
+      id: koud
+    - trigger: numeric_state
+      entity_id: sensor.0xa4c1388c66aa748c_temperature
+      below: 10
+      id: vries
+    - trigger: numeric_state
+      entity_id: sensor.0xa4c1388c66aa748c_temperature
+      above: 35
+      for:
+        minutes: 30
+      id: heet
   conditions: []
   actions:
     - choose:
@@ -1702,9 +1718,9 @@
           sequence:
             - action: notify.mobile_app_telefoon_rudolf
               data:
-                title: Plant heeft dorst!
+                title: Strelitzia heeft dorst!
                 message:
-                  "De woonkamerplant heeft water nodig. Bodemvochtigheid: {{ states('sensor.0xa4c1388c66aa748c_soil_moisture')
+                  "De Strelitzia heeft water nodig. Bodemvochtigheid: {{ states('sensor.0xa4c1388c66aa748c_soil_moisture')
                   }}%."
                 data:
                   ttl: 0
@@ -1717,12 +1733,52 @@
             - action: notify.mobile_app_telefoon_rudolf
               data:
                 title: Plantsensor batterij bijna leeg!
-                message: De batterij van de woonkamer plantsensor is {{ states('sensor.0xa4c1388c66aa748c_battery')
+                message: De batterij van de Strelitzia sensor is {{ states('sensor.0xa4c1388c66aa748c_battery')
                   }}%. Vervang de batterij.
                 data:
                   ttl: 0
                   priority: high
                   notification_icon: mdi:battery-alert
+        - conditions:
+            - condition: trigger
+              id: koud
+          sequence:
+            - action: notify.mobile_app_telefoon_rudolf
+              data:
+                title: Strelitzia staat te koud!
+                message: "Temperatuur bij de Strelitzia is {{ states('sensor.0xa4c1388c66aa748c_temperature')
+                  }}°C. De plant kan koude schade oplopen bij langdurige blootstelling
+                  onder 15°C."
+                data:
+                  ttl: 0
+                  priority: high
+                  notification_icon: mdi:thermometer-alert
+        - conditions:
+            - condition: trigger
+              id: vries
+          sequence:
+            - action: notify.mobile_app_telefoon_rudolf
+              data:
+                title: Strelitzia bevriezingsgevaar!
+                message: "Temperatuur bij de Strelitzia is {{ states('sensor.0xa4c1388c66aa748c_temperature')
+                  }}°C. Verplaats de plant direct naar een warmere plek!"
+                data:
+                  ttl: 0
+                  priority: high
+                  notification_icon: mdi:snowflake-alert
+        - conditions:
+            - condition: trigger
+              id: heet
+          sequence:
+            - action: notify.mobile_app_telefoon_rudolf
+              data:
+                title: Strelitzia staat te heet!
+                message: "Temperatuur bij de Strelitzia is {{ states('sensor.0xa4c1388c66aa748c_temperature')
+                  }}°C. Zet de plant uit direct zonlicht en zorg voor ventilatie."
+                data:
+                  ttl: 0
+                  priority: high
+                  notification_icon: mdi:thermometer-alert
   mode: single
 - id: "1776883400000"
   alias: Schimmel en ventilatie alert
