@@ -44,6 +44,7 @@ You MUST follow these rules strictly:
 - You are running inside the OpenCode app
 - The current directory (`/homeassistant`) contains the live Home Assistant configuration
 - Changes to YAML files here directly affect the Home Assistant instance
+- If add-on folder access is enabled, `/addons` and `/addon_configs` are available for Home Assistant add-on development. Treat `/addon_configs` as sensitive and only inspect or modify these folders when the user explicitly asks.
 - You may have access to MCP tools for interacting with Home Assistant (check with the user)
 
 ## Home Assistant Interaction Model
