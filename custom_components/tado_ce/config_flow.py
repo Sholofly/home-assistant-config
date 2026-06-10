@@ -1,16 +1,4 @@
-"""Tado CE config flow — OAuth device authorisation + manual-token + reauth flow.
-
-Three entry points:
-
-- `async_step_user` walks new users through Tado's device-code
-  flow (poll Tado's auth endpoint, copy the code, return when
-  authorised).
-- The manual-token branch lets advanced users paste a valid
-  refresh token directly — useful when the device flow can't
-  complete (e.g. headless install, throttled quota).
-- The reauth flow re-runs the device-code dance against an
-  existing config entry when the stored refresh token expires.
-"""
+"""Tado CE config flow — OAuth device authorisation + manual-token + reauth flow."""
 
 from __future__ import annotations
 
@@ -68,12 +56,7 @@ class TadoCEConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return TadoCEOptionsFlow(config_entry)
 
     async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
-        """Handle the initial step - show auth method menu.
-
-        Note: unique_id is set later in _create_entry() after we know the home_id.
-        """
-        # Don't set unique_id here - we don't know home_id yet
-        # unique_id will be set in _create_entry() as tado_ce_{home_id}
+        """Handle the initial step — show auth method menu (unique_id set later in _create_entry)."""
         return self.async_show_menu(
             step_id="user",
             menu_options=["device_auth", "manual_token"],
@@ -110,7 +93,6 @@ class TadoCEConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             if not refresh_token:
                 errors["base"] = "invalid_token"
             else:
-                # Try to use the refresh token to get an access token
                 session = async_get_clientsession(self.hass)
                 try:
                     async with session.post(
@@ -309,12 +291,7 @@ class TadoCEConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             return "error"
 
     async def _fetch_homes(self) -> None:
-        """Fetch available homes from Tado API with retry on transient errors.
-
-        Retries on HTTP 429, 5xx, TimeoutError, and ClientConnectionError
-        using exponential backoff with jitter. Raises TadoRateLimitError on
-        429 exhaustion so callers can surface a specific error message.
-        """
+        """Fetch available homes from Tado API with retry (429/5xx/timeout); raises TadoRateLimitError on 429 exhaustion."""
         session = async_get_clientsession(self.hass)
 
         for attempt in range(1, MAX_RETRY_ATTEMPTS + 1):
@@ -400,12 +377,11 @@ class TadoCEConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def _create_entry(self, home_id: str, home_name: str) -> ConfigFlowResult:
         """Create the config entry and save credentials."""
-        # Set unique_id based on home_id for multi-home support
         await self.async_set_unique_id(f"tado_ce_{home_id}")
         self._abort_if_unique_id_configured()
 
         # home_name is user-set in the Tado app — safe to log;
-        # home_id goes through `mask_home_id` per CLAUDE.md §11.
+        # home_id goes through `mask_home_id`.
         _LOGGER.info(
             "Config Flow: saved credentials for home %s (id %s)",
             home_name, mask_home_id(home_id),
@@ -494,12 +470,10 @@ class TadoCEConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             mask_home_id(home_id),
         )
 
-        # Dismiss auth repair issue
         from .repair_helpers import async_dismiss_auth_issue
 
         async_dismiss_auth_issue(self.hass, home_id)
 
-        # Update entry data with new refresh token
         new_data = {**reauth_entry.data, "refresh_token": self._refresh_token}
         self.hass.config_entries.async_update_entry(reauth_entry, data=new_data)
 
@@ -568,11 +542,9 @@ class TadoCEConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def async_step_reconfigure_confirm(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         """Save new credentials and finish reconfigure."""
-        # Get the existing config entry
         reconfigure_entry = self._get_reconfigure_entry()
         home_id = reconfigure_entry.data.get("home_id")
 
-        # If we have homes from the new auth, verify the home still exists
         if self._homes:
             home_exists = any(str(h["id"]) == str(home_id) for h in self._homes)
             if not home_exists:
@@ -585,16 +557,13 @@ class TadoCEConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             mask_home_id(home_id),
         )
 
-        # Dismiss auth repair issue on successful re-auth
         from .repair_helpers import async_dismiss_auth_issue
 
         async_dismiss_auth_issue(self.hass, home_id)
 
-        # Store refresh_token in entry.data for HA-standard recovery
         new_data = {**reconfigure_entry.data, "refresh_token": self._refresh_token}
         self.hass.config_entries.async_update_entry(reconfigure_entry, data=new_data)
 
-        # Finish reconfigure - this updates the existing entry
         return self.async_abort(reason="reconfigure_successful")
 
     async def async_step_reconfigure_select_home(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
@@ -611,7 +580,6 @@ class TadoCEConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 mask_home_id(home_id),
             )
 
-            # Store refresh_token in entry.data for HA-standard recovery
             reconfigure_entry = self._get_reconfigure_entry()
             new_data = {**reconfigure_entry.data, "home_id": str(home_id), "refresh_token": self._refresh_token}
             self.hass.config_entries.async_update_entry(reconfigure_entry, data=new_data)

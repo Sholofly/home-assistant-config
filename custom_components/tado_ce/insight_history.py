@@ -1,14 +1,4 @@
-"""Tado CE insight history tracker — duration-aware insight persistence + escalation.
-
-Tracks how long each insight has been active so messages can
-escalate ("low battery for 3 days") and so transient blips
-within `REAPPEARANCE_GRACE_HOURS` count as the same occurrence
-rather than two separate alerts. Uses HA Store with debounced
-writes — `async_delay_save` coalesces per-poll `last_seen`
-updates into one disk write per minute on HA OS to spare SD
-flash; HA's `FINAL_WRITE` event flushes on shutdown so nothing
-is lost.
-"""
+"""Tado CE insight history tracker — duration-aware insight persistence + escalation."""
 
 from __future__ import annotations
 
@@ -43,17 +33,7 @@ SAVE_DELAY_SECONDS = 60
 
 
 class InsightHistoryTracker:
-    """Track insight appearance/disappearance for duration-aware messages and escalation.
-
-    Storage: .storage/tado_ce/insight_history_{home_id}.json
-
-    Each entry is keyed by "{insight_type}:{zone_name}" (or "{insight_type}:_hub"
-    for hub-level insights) and tracks first_seen, last_seen, base_priority,
-    and occurrence_count.
-
-    Follows the same storage pattern as ThermalStorage — sync file I/O
-    via hass.async_add_executor_job, atomic writes via temp file + rename.
-    """
+    """Track insight appearance/disappearance for duration-aware messages and escalation."""
 
     def __init__(self, hass: HomeAssistant, home_id: str) -> None:
         """Initialize tracker."""
@@ -64,7 +44,6 @@ class InsightHistoryTracker:
             1,
             f"tado_ce/insight_history_{home_id}",
         )
-        # Old file path for migration
         self._old_storage_path = Path(
             hass.config.path(
                 f".storage/tado_ce/insight_history_{home_id}.json",
@@ -85,11 +64,7 @@ class InsightHistoryTracker:
         return self._entries
 
     async def async_load(self) -> int:
-        """Load history from Store, migrating the v3.x JSON file when present.
-
-        Returns the entry count so the caller can log a
-        sensible "loaded N" line at startup.
-        """
+        """Load history from Store, migrating the v3.x JSON file when present."""
         try:
             data: dict[str, Any] | list[Any] | None = await self._store.async_load()
 
@@ -138,11 +113,7 @@ class InsightHistoryTracker:
         }
 
     async def async_save(self) -> bool:
-        """Schedule a debounced Store write when the history has unsaved changes.
-
-        Returns False only when scheduling itself fails — a
-        clean "nothing to save" returns True.
-        """
+        """Schedule a debounced Store write when the history has unsaved changes."""
         if not self._dirty:
             return True
 
@@ -165,20 +136,7 @@ class InsightHistoryTracker:
             return False
 
     def update(self, current_insights: list[Insight], now: datetime) -> None:
-        """Update history with current poll cycle's insights.
-
-        For each current insight:
-        - If key exists: update last_seen (same occurrence continues)
-        - If key is new: set first_seen = last_seen = now
-
-        For entries NOT in current insights:
-        - If last_seen was > REAPPEARANCE_GRACE_HOURS ago: remove (resolved)
-        - Otherwise: keep (transient fluctuation grace period)
-
-        Args:
-            current_insights: List of Insight objects from current poll cycle.
-            now: Current UTC datetime.
-        """
+        """Update history with current poll cycle's insights."""
         now_iso = now.isoformat()
         current_keys: set[str] = set()
 
@@ -187,11 +145,9 @@ class InsightHistoryTracker:
             current_keys.add(key)
 
             if key in self._entries:
-                # Existing entry — update last_seen
                 self._entries[key]["last_seen"] = now_iso
                 self._dirty = True
             else:
-                # New entry
                 self._entries[key] = {
                     "first_seen": now_iso,
                     "last_seen": now_iso,
@@ -202,7 +158,6 @@ class InsightHistoryTracker:
                 }
                 self._dirty = True
 
-        # Check for resolved insights (absent from current cycle)
         grace_cutoff = now - timedelta(hours=REAPPEARANCE_GRACE_HOURS)
         keys_to_remove = []
         for key in self._entries:
@@ -226,15 +181,7 @@ class InsightHistoryTracker:
         insight_type: str,
         zone_name: str | None = None,
     ) -> timedelta | None:
-        """Get how long an insight has been active.
-
-        Args:
-            insight_type: The insight type string.
-            zone_name: Zone name, or None for hub-level.
-
-        Returns:
-            timedelta from first_seen to last_seen, or None if not tracked.
-        """
+        """Get how long an insight has been active."""
         key = self._make_key(insight_type, zone_name)
         entry = self._entries.get(key)
         if not entry:
@@ -248,15 +195,7 @@ class InsightHistoryTracker:
             return None
 
     def get_persistent_insights(self, threshold_hours: int = 24) -> list[dict[str, Any]]:
-        """Return insights that are currently active AND have been active for >= threshold_hours.
-
-        Only returns entries present in the current poll cycle. Entries kept
-        solely by the reappearance grace period (resolved but not yet pruned)
-        are excluded — they are no longer active issues.
-
-        Returns:
-            List of dicts with insight_type, zone_name, duration_hours, base_priority.
-        """
+        """Return insights currently active AND active for >= threshold_hours."""
         result = []
         threshold = timedelta(hours=threshold_hours)
 
@@ -298,14 +237,7 @@ class InsightHistoryTracker:
         return result
 
     def prune_old_entries(self, max_age_days: int = 30) -> int:
-        """Remove entries with last_seen older than max_age_days.
-
-        Args:
-            max_age_days: Maximum age in days before pruning.
-
-        Returns:
-            Number of entries removed.
-        """
+        """Remove entries with last_seen older than max_age_days."""
         cutoff = dt_util.utcnow() - timedelta(days=max_age_days)
         keys_to_remove = []
 

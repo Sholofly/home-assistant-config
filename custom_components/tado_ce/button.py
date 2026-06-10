@@ -1,14 +1,7 @@
-"""Tado CE button platform — resume schedules, refresh caches, timer, boost.
-
-Hub-level buttons (`Resume All Schedules`, `Refresh AC
-Capabilities`) plus per-zone buttons (water heater timer
-presets, Boost / Smart Boost for heating zones, Refresh Schedule
-for heating zones when the calendar feature is enabled).
-"""
+"""Tado CE button platform — resume schedules, refresh caches, timer, boost."""
 
 from __future__ import annotations
 
-import asyncio
 import logging
 from typing import TYPE_CHECKING, Any
 
@@ -27,6 +20,7 @@ from .helpers import (
     merge_homekit_into_zone_data,
 )
 from .ratelimit import async_check_bootstrap_reserve_or_raise as _check_bootstrap_reserve_or_raise
+from .services_helpers import run_service_call
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
@@ -59,7 +53,6 @@ async def async_setup_entry(
     # Get config manager to check feature toggles
     config_manager = coordinator.config_manager
     schedule_calendar_enabled = config_manager.get_schedule_calendar_enabled() if config_manager else False
-    boost_buttons_enabled = config_manager.get_boost_buttons_enabled() if config_manager else True
 
     buttons: list[ButtonEntity] = []
 
@@ -84,8 +77,8 @@ async def async_setup_entry(
                     for duration in DEFAULT_TIMER_PRESETS
                 )
 
-            # Create boost buttons for heating zones (controlled by boost_buttons_enabled)
-            if zone_type == "HEATING" and boost_buttons_enabled:
+            # Create boost buttons for heating zones
+            if zone_type == "HEATING":
                 # Boost button (official Tado-style: max temp for 30 min)
                 buttons.append(
                     TadoBoostButton(coordinator, zone_id, zone_name, home_id),
@@ -221,25 +214,15 @@ class TadoRefreshACCapabilitiesButton(CoordinatorEntity[TadoDataUpdateCoordinato
         self._attr_icon = _meta.icon
 
     async def async_press(self) -> None:
-        """Drop the cached `ac_capabilities` file and re-fetch from the cloud."""
-        from .const import get_data_file
-
+        """Mark the `ac_capabilities` cache dirty and re-fetch from the cloud."""
         _LOGGER.debug("Button: Refresh AC Capabilities pressed")
 
-        home_id = self.coordinator.home_id
-        ac_caps_file = get_data_file("ac_capabilities", home_id)
-
-        def _delete_cache() -> None:
-            if ac_caps_file.exists():
-                ac_caps_file.unlink()
-                _LOGGER.debug("Button: deleted AC capabilities cache")
-
-        await self.hass.async_add_executor_job(_delete_cache)
+        self.coordinator.data_loader.mark_cache_dirty("ac_capabilities")
 
         client = self.coordinator.api_client
-        zones_info = await self.hass.async_add_executor_job(self.coordinator.data_loader.load_zones_info_file)
+        zones_info = self.coordinator.data_loader.get_cached("zones_info")
 
-        if not zones_info:
+        if not zones_info or not isinstance(zones_info, list):
             _LOGGER.warning(
                 "Button: Refresh AC Capabilities — no zones available "
                 "yet, will retry after the next zone fetch",
@@ -253,8 +236,6 @@ class TadoRefreshACCapabilitiesButton(CoordinatorEntity[TadoDataUpdateCoordinato
                 "pick up the new shape on the next coordinator update",
             )
 
-            # Trigger a coordinator refresh so AC entities pick up
-            # the new capabilities via _handle_coordinator_update.
             await self.coordinator.async_request_refresh()
             _LOGGER.debug(
                 "Button: triggered coordinator refresh after AC "
@@ -481,10 +462,6 @@ class TadoBoostButton(CoordinatorEntity[TadoDataUpdateCoordinator], ButtonEntity
 
         _LOGGER.debug("Button: Boost pressed for %s", self._zone_name)
 
-        await self.coordinator.async_capture_state(
-            self._zone_id, "climate_heating", "boost",
-        )
-
         client = self.coordinator.api_client
 
         setting = {
@@ -494,23 +471,16 @@ class TadoBoostButton(CoordinatorEntity[TadoDataUpdateCoordinator], ButtonEntity
         }
         termination = build_timer_termination(duration_minutes=BOOST_DURATION_MINUTES)
 
-        api_success = False
-        try:
-            async with asyncio.timeout(10):
-                api_success = await client.set_zone_overlay(self._zone_id, setting, termination)
-        except TimeoutError:
-            _LOGGER.warning(
-                "Button: boost write for %s timed out after 10s — "
-                "the boost did not activate",
-                self._zone_name,
-            )
-        except Exception:
-            _LOGGER.warning(
-                "Button: boost write for %s failed — the boost did "
-                "not activate",
-                self._zone_name,
-                exc_info=True,
-            )
+        api_success = await run_service_call(
+            hass=self.hass,
+            coordinator=self.coordinator,
+            zone_id=self._zone_id,
+            entity_type="climate_heating",
+            api_coro=client.set_zone_overlay(self._zone_id, setting, termination),
+            capture_source="boost",
+            refresh_entity_id=self.entity_id,
+            reason="boost",
+        )
 
         if api_success:
             _LOGGER.info(
@@ -519,7 +489,6 @@ class TadoBoostButton(CoordinatorEntity[TadoDataUpdateCoordinator], ButtonEntity
                 BOOST_TEMPERATURE,
                 BOOST_DURATION_MINUTES,
             )
-            await async_trigger_immediate_refresh(self.hass, self.entity_id, "boost_activated")
         else:
             _LOGGER.warning(
                 "Button: boost for %s could not be activated — "
@@ -595,10 +564,6 @@ class TadoSmartBoostButton(CoordinatorEntity[TadoDataUpdateCoordinator], ButtonE
 
         _LOGGER.debug("Button: Smart Boost pressed for %s", self._zone_name)
 
-        await self.coordinator.async_capture_state(
-            self._zone_id, "climate_heating", "smart_boost",
-        )
-
         coord_data = self.coordinator.data or {}
         zone_states = get_zone_states(coord_data)
         zone_data = zone_states.get(self._zone_id) or zone_states.get(str(self._zone_id))
@@ -671,23 +636,16 @@ class TadoSmartBoostButton(CoordinatorEntity[TadoDataUpdateCoordinator], ButtonE
         }
         termination = build_timer_termination(duration_minutes=duration_minutes)
 
-        api_success = False
-        try:
-            async with asyncio.timeout(10):
-                api_success = await client.set_zone_overlay(self._zone_id, setting, termination)
-        except TimeoutError:
-            _LOGGER.warning(
-                "Button: smart boost write for %s timed out after "
-                "10s — the boost did not activate",
-                self._zone_name,
-            )
-        except Exception:
-            _LOGGER.warning(
-                "Button: smart boost write for %s failed — the "
-                "boost did not activate",
-                self._zone_name,
-                exc_info=True,
-            )
+        api_success = await run_service_call(
+            hass=self.hass,
+            coordinator=self.coordinator,
+            zone_id=self._zone_id,
+            entity_type="climate_heating",
+            api_coro=client.set_zone_overlay(self._zone_id, setting, termination),
+            capture_source="smart_boost",
+            refresh_entity_id=self.entity_id,
+            reason="smart_boost",
+        )
 
         if api_success:
             _LOGGER.info(
@@ -698,7 +656,6 @@ class TadoSmartBoostButton(CoordinatorEntity[TadoDataUpdateCoordinator], ButtonE
                 duration_minutes,
                 heating_rate,
             )
-            await async_trigger_immediate_refresh(self.hass, self.entity_id, "smart_boost_activated")
         else:
             _LOGGER.warning(
                 "Button: smart boost for %s could not be activated "

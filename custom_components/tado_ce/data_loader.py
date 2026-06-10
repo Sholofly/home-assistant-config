@@ -49,6 +49,9 @@ _LOGGER = logging.getLogger(__name__)
 _CACHE_MISSING = object()
 """Sentinel for negative cache entries (store empty / file not found)."""
 
+_CACHE_DIRTY = object()
+"""Sentinel marking a cache entry as stale; treated like missing on read but signals 'refetch'."""
+
 # Store configuration: name -> save_delay_seconds
 # delay=0 means immediate save (async_save), used for API data.
 # delay>0 means debounced save (async_delay_save), used for auxiliary data.
@@ -123,9 +126,13 @@ class DataLoader:
     def get_cached(self, base_name: str) -> dict[str, Any] | list[Any] | None:
         """Return the cached value, or None when missing or negatively cached."""
         result = self._cache.get(base_name)
-        if result is _CACHE_MISSING:
+        if result is _CACHE_MISSING or result is _CACHE_DIRTY:
             return None
         return result
+
+    def mark_cache_dirty(self, base_name: str) -> None:
+        """Mark a cache entry as needing refetch on the next read."""
+        self._cache[base_name] = _CACHE_DIRTY
 
     # --- API Data Store Operations ---
 

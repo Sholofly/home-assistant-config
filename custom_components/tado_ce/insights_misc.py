@@ -22,16 +22,7 @@ def calculate_away_heating_active_insight(
     presence: str | None = None,
     active_zones: list[Any] | None = None,
 ) -> Insight | None:
-    """Detect energy waste: home is AWAY but zones still heating/cooling.
-
-    Args:
-        presence: Home presence state ("HOME", "AWAY", etc.)
-        active_zones: List of dicts with keys: zone_name, power_pct, zone_type
-            Only zones with power > 0 should be included.
-
-    Returns:
-        Insight if AWAY with active heating/cooling, None otherwise
-    """
+    """Detect energy waste: home is AWAY but zones still heating/cooling."""
     if presence is None or presence.upper() != "AWAY":
         return None
     if not active_zones:
@@ -61,18 +52,7 @@ def calculate_home_all_off_insight(
     coldest_zone_temp: float | None = None,
     coldest_zone_target: float | None = None,
 ) -> Insight | None:
-    """Detect when someone is home but all heating is off and rooms are cold.
-
-    Args:
-        presence: Home presence state
-        all_zones_off: Whether all zones have power=OFF
-        coldest_zone_name: Name of the coldest zone
-        coldest_zone_temp: Temperature of the coldest zone
-        coldest_zone_target: Scheduled target of the coldest zone
-
-    Returns:
-        Insight if HOME with all zones off and cold, None otherwise
-    """
+    """Detect when someone is home but all heating is off and rooms are cold."""
     if presence is None or presence.upper() != "HOME":
         return None
     if not all_zones_off:
@@ -108,22 +88,7 @@ def calculate_schedule_gap_insight(
     longest_off_hours: float | None = None,
     zone_name: str = "",
 ) -> Insight | None:
-    """Detect long OFF gaps in schedule while room is cold.
-
-    Triggers when the schedule has a long continuous OFF period and the
-    current room temperature is below the next scheduled target.
-
-    Args:
-        schedule_blocks: List of schedule block dicts (not used directly,
-                but indicates schedule exists)
-        current_temp: Current room temperature
-        next_target_temp: Next scheduled target temperature
-        longest_off_hours: Duration of longest OFF period in hours
-        zone_name: Name of the zone
-
-    Returns:
-        Insight if significant gap found, None otherwise
-    """
+    """Detect long OFF gaps in schedule while room is cold."""
     if schedule_blocks is None or current_temp is None:
         return None
     if next_target_temp is None or longest_off_hours is None:
@@ -158,19 +123,7 @@ def calculate_weather_impact_insight(
     avg_outdoor_temp_7d: float | None = None,
     zone_name: str = "",
 ) -> Insight | None:
-    """Calculate weather impact insight.
-
-    Triggers when current outdoor temp is > 5C colder than 7-day average,
-    estimating increased heating demand.
-
-    Args:
-        current_outdoor_temp: Current outdoor temperature
-        avg_outdoor_temp_7d: 7-day average outdoor temperature
-        zone_name: Name of the zone (or empty for home-level)
-
-    Returns:
-        Insight if significant weather impact, None otherwise
-    """
+    """Calculate weather impact insight (cold-snap heating demand)."""
     if current_outdoor_temp is None or avg_outdoor_temp_7d is None:
         return None
 
@@ -202,14 +155,7 @@ def calculate_weather_impact_insight(
 def calculate_frost_risk_insight(
     outdoor_temp: float | None = None,
 ) -> Insight | None:
-    """Warn about frost/pipe freezing risk when outdoor temp near freezing.
-
-    Args:
-        outdoor_temp: Current outdoor temperature in °C
-
-    Returns:
-        Insight if frost risk detected, None otherwise
-    """
+    """Warn about frost/pipe freezing risk when outdoor temp near freezing."""
     if outdoor_temp is None:
         return None
     if outdoor_temp > FROST_RISK_TEMP:

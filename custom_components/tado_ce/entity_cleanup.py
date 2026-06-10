@@ -1,10 +1,4 @@
-"""Entity-registry cleanup when feature toggles are disabled in Options Flow.
-
-Each cleanup pass walks the registry, removes entities whose
-unique_id matches a disabled feature's group, and finally
-sweeps any device that ends up with zero remaining entities.
-The hub device is always protected.
-"""
+"""Entity-registry cleanup when feature toggles are disabled in Options Flow (hub device always protected)."""
 
 from __future__ import annotations
 
@@ -49,13 +43,9 @@ class FeatureGroupContext:
     zone_only_suffixes: tuple[str, ...] = ()
 
 
-# ---------------------------------------------------------------------------
-# FEATURE_GROUP_CONTEXTS — replaces _CLEANUP_DEFINITIONS
 # Each entry maps a cleanup flag to its feature group and matching rules.
-# ---------------------------------------------------------------------------
 
 FEATURE_GROUP_CONTEXTS: tuple[FeatureGroupContext, ...] = (
-    # --- zone_config: all suffixes are legacy/dynamic (Note N1) ---
     FeatureGroupContext(
         cleanup_flag="_cleanup_zone_config",
         feature_group="zone_config",
@@ -70,7 +60,7 @@ FEATURE_GROUP_CONTEXTS: tuple[FeatureGroupContext, ...] = (
             "_heating_type", "_smart_comfort_mode", "_surface_temp_offset",
         ),
         zone_only_suffixes=(
-            # These also exist at hub-level — only remove zone-level (Note N2)
+            # These also exist at hub-level — only remove the zone-level variants.
             "_overlay_mode",
             "_overlay_timer",   # v3.x
             "_timer_duration",  # v2.x
@@ -174,10 +164,7 @@ FEATURE_GROUP_CONTEXTS: tuple[FeatureGroupContext, ...] = (
 
 
 def collect_suffixes_for_group(feature_group: str) -> frozenset[str]:
-    """Collect unique_id_suffix values from ENTITY_REGISTRY for a feature group.
-
-    Returns an empty frozenset for groups with no registry entries (e.g. zone_config).
-    """
+    """Collect unique_id_suffix values from ENTITY_REGISTRY for a feature group (empty when group has no entries)."""
     return frozenset(
         meta.unique_id_suffix
         for meta in ENTITY_REGISTRY.values()
@@ -203,11 +190,7 @@ _PLACEHOLDER_SUBS: tuple[tuple[str, str], ...] = (
 
 
 def suffix_to_pattern(suffix: str) -> re.Pattern[str]:
-    r"""Convert a unique_id_suffix with placeholders to a compiled regex pattern.
-
-    Placeholders like {zone_id} become \d+, {serial} becomes .+, etc.
-    The pattern matches the suffix at the end of a unique_id string.
-    """
+    r"""Convert a unique_id_suffix with placeholders ({zone_id}/{serial}/...) to a compiled regex anchored at end."""
     escaped = re.escape(suffix)
     for placeholder, replacement in _PLACEHOLDER_SUBS:
         escaped = escaped.replace(placeholder, replacement)
@@ -223,10 +206,7 @@ def match_entity_for_cleanup(
     exclude_patterns: frozenset[re.Pattern[str]] | None,
     contains_substrings: tuple[str, ...] = (),
 ) -> bool:
-    """Determine whether an entity should be removed during cleanup.
-
-    Pure function with no side effects.
-    """
+    """Determine whether an entity should be removed during cleanup (pure function)."""
     if not unique_id.startswith("tado_ce_"):
         return False
 
@@ -244,10 +224,7 @@ def match_entity_for_cleanup(
 
 
 def match_zone_only_suffix(unique_id: str, zone_only_patterns: frozenset[re.Pattern[str]]) -> bool:
-    """Determine whether a zone-level entity matches zone_only_suffixes.
-
-    Only matches if unique_id contains '_zone_' (hub-level entities are protected).
-    """
+    """Determine whether a zone-level entity matches zone_only_suffixes (hub-level entities are protected)."""
     if "_zone_" not in unique_id:
         return False
     return any(p.search(unique_id) for p in zone_only_patterns)
@@ -261,10 +238,6 @@ def match_zone_only_suffix(unique_id: str, zone_only_patterns: frozenset[re.Patt
 FEATURE_CLEANUP_MAP: list[tuple[str, str, bool]] = [
     ("zone_configuration_enabled", "_cleanup_zone_config", True),
     ("thermal_analytics_enabled", "_cleanup_thermal_analytics", False),
-    ("environment_sensors_enabled", "_cleanup_environment_sensors", True),
-    ("zone_diagnostics_enabled", "_cleanup_zone_diagnostics", True),
-    ("boost_buttons_enabled", "_cleanup_boost_buttons", True),
-    ("device_controls_enabled", "_cleanup_device_controls", True),
     ("smart_comfort_enabled", "_cleanup_smart_comfort", False),
     ("schedule_calendar_enabled", "_cleanup_schedule_calendar", False),
     ("weather_enabled", "_cleanup_weather", False),
@@ -314,15 +287,12 @@ def cleanup_orphan_devices(
 
     removed = 0
     for device_entry in list(device_registry.devices.values()):
-        # Only check devices belonging to this config entry
         if entry.entry_id not in device_entry.config_entries:
             continue
 
-        # Protect hub device
         if (DOMAIN, hub_identifier) in device_entry.identifiers:
             continue
 
-        # Check if device has any remaining entities
         device_entities = er.async_entries_for_device(
             entity_registry, device_entry.id, include_disabled_entities=True,
         )
@@ -385,19 +355,16 @@ def _apply_cleanup_context(
     """Run one cleanup pass for a single feature group, returning the entity count removed."""
     removed = 0
 
-    # Build patterns from registry + legacy suffixes
     registry_suffixes = collect_suffixes_for_group(ctx.feature_group)
     all_suffixes = build_expected_suffixes(registry_suffixes, ctx.legacy_suffixes)
     patterns = frozenset(suffix_to_pattern(s) for s in all_suffixes)
 
-    # Build exclude patterns if defined
     exclude_patterns: frozenset[re.Pattern[str]] | None = None
     if ctx.exclude_suffixes:
         exclude_patterns = frozenset(
             suffix_to_pattern(s) for s in ctx.exclude_suffixes
         )
 
-    # Main pass — suffix or contains matching
     for entity_id, entity_entry in list(entity_registry.entities.items()):
         if entity_entry.platform != DOMAIN:
             continue

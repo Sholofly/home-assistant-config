@@ -66,6 +66,36 @@
         "default": "mdi:calendar-clock"
       }
     },
+    "climate": {
+      "ac": {
+        "state_attributes": {
+          "swing_mode": {
+            "state": {
+              "auto": "mdi:auto-mode",
+              "off": "mdi:circle-small",
+              "on": "mdi:swap-vertical",
+              "up": "mdi:arrow-up",
+              "mid_up": "mdi:arrow-up-thin",
+              "mid": "mdi:minus",
+              "mid_down": "mdi:arrow-down-thin",
+              "down": "mdi:arrow-down"
+            }
+          },
+          "swing_horizontal_mode": {
+            "state": {
+              "auto": "mdi:auto-mode",
+              "off": "mdi:circle-small",
+              "on": "mdi:swap-horizontal",
+              "left": "mdi:arrow-left",
+              "mid_left": "mdi:arrow-left-thin",
+              "mid": "mdi:minus",
+              "mid_right": "mdi:arrow-right-thin",
+              "right": "mdi:arrow-right"
+            }
+          }
+        }
+      }
+    },
     "number": {
       "boiler_max_output_temp": {
         "default": "mdi:thermometer-water"

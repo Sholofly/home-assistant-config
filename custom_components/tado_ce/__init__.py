@@ -1,10 +1,4 @@
-"""Tado CE integration entry point — platform setup, multi-home, options reload.
-
-Owns the per-config-entry lifecycle: data layer init → optional
-feature managers → coordinator construction → HomeKit wiring →
-platform forwarding → service registration. Reload is split into
-"runtime-only" (no platform reload) and full reload paths.
-"""
+"""Tado CE integration entry point — platform setup, multi-home, options reload."""
 
 from __future__ import annotations
 
@@ -289,35 +283,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if not should_continue:
         return False
 
-    # One-time entity platform migration (sensor → binary_sensor for connection/power)
     from .migration import async_migrate_entity_platforms
 
     await async_migrate_entity_platforms(hass, entry)
 
-    from homeassistant.helpers import entity_registry as er
-
-    ent_reg = er.async_get(hass)
-    home_id = entry.data.get("home_id", "")
-    test_mode_uid = f"tado_ce_{home_id}_test_mode_enabled"
-    test_mode_entity = ent_reg.async_get_entity_id("switch", "tado_ce", test_mode_uid)
-    if test_mode_entity:
-        ent_reg.async_remove(test_mode_entity)
-        _LOGGER.info(
-            "Setup: removed deprecated Test Mode entity (%s)",
-            test_mode_entity,
-        )
-
-    if "test_mode_enabled" in entry.options:
-        new_options = {k: v for k, v in entry.options.items() if k != "test_mode_enabled"}
-        hass.config_entries.async_update_entry(entry, options=new_options)
-        _LOGGER.info(
-            "Setup: removed deprecated test_mode_enabled option key",
-        )
-
     def _ensure_data_dir() -> None:
         try:
             DATA_DIR.mkdir(parents=True, exist_ok=True)
-        except Exception:
+        except OSError:
             _LOGGER.warning(
                 "Setup: could not create DATA_DIR — Tado CE data "
                 "files cannot be persisted, will retry on next "
@@ -343,7 +316,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             entry.entry_id,
         )
 
-    # Initialize data layer and entry components
     data_loader, zone_config_manager, overlay_mode, timer_duration, components = (
         await _async_init_data_layer(hass, entry, config_manager, home_id)
     )
@@ -356,7 +328,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             mask_home_id(home_id) if home_id else "default",
         )
 
-    # Initialize optional per-entry components
     optional = await _async_init_optional_components(
         hass, config_manager, data_loader, zone_config_manager, components, home_id,
     )
@@ -375,7 +346,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         state_restore_manager=optional["state_restore_manager"],
     )
 
-    # Wire HomeKit components to coordinator (if enabled)
     homekit_client = components.get("homekit_client")
     if homekit_client is not None:
         from .homekit_provider import HomeKitLocalProvider
@@ -383,12 +353,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         from .write_health_tracker import WriteHealthTracker
 
         coordinator.homekit_client = homekit_client
+        coordinator.homekit_controller = components.get("homekit_controller")
         provider = HomeKitLocalProvider(homekit_client, hass, coordinator.home_id)
         coordinator.homekit_provider = provider
         coordinator.state_reconciler = StateReconciler()
         coordinator.write_health_tracker = WriteHealthTracker()
 
-        # Subscribe to events and refresh accessories if connected
         if homekit_client.is_connected:
             await provider.async_refresh_accessories()
             await provider.async_subscribe_events()
@@ -416,18 +386,42 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     await _async_finalize_entry(hass, entry, coordinator, config_manager)
 
-    # Fire ready event — entities are populated with real data from the API
-    zones_info = coordinator.data.get("zones_info") or []
-    hass.bus.async_fire(EVENT_READY, {
-        "home_id": coordinator.home_id,
-        "entry_id": entry.entry_id,
-        "zone_count": len(zones_info),
-    })
+    _async_schedule_ready_event(hass, coordinator, entry)
 
     _LOGGER.info(
         "Setup: entry %s loaded successfully", entry.entry_id,
     )
     return True
+
+
+def _async_schedule_ready_event(
+    hass: HomeAssistant,
+    coordinator: TadoDataUpdateCoordinator,
+    entry: ConfigEntry,
+) -> None:
+    """Fire `tado_ce_ready` once HA itself is running so boot-time automation triggers can catch it."""
+    from homeassistant.const import EVENT_HOMEASSISTANT_STARTED
+    from homeassistant.core import CoreState, callback
+
+    @callback
+    def _fire(_event: object | None = None) -> None:
+        zones_info = (coordinator.data or {}).get("zones_info") or []
+        hass.bus.async_fire(EVENT_READY, {
+            "home_id": coordinator.home_id,
+            "entry_id": entry.entry_id,
+            "zone_count": len(zones_info),
+        })
+        _LOGGER.info(
+            "Fired %s for home %s (%d zones) — boot automations can now trigger",
+            EVENT_READY,
+            mask_home_id(coordinator.home_id),
+            len(zones_info),
+        )
+
+    if hass.state is CoreState.running:
+        _fire()
+    else:
+        hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, _fire)
 
 
 # Tracks options per entry to distinguish real options changes from data-only mutations
@@ -569,7 +563,6 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     await async_cleanup_entry_components(hass, coordinator)
 
-    # Determine platforms to unload
     config_manager = getattr(coordinator, "config_manager", None) if coordinator else None
     platforms_to_unload = list(BASE_PLATFORMS)
     if coordinator and hasattr(coordinator, "loaded_platforms"):
@@ -579,7 +572,6 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     unload_ok = await hass.config_entries.async_unload_platforms(entry, platforms_to_unload)
 
-    # Unregister services if this is the last entry
     other_entries = [e for e in hass.config_entries.async_entries(DOMAIN) if e.entry_id != entry.entry_id]
     if len(other_entries) == 0:
         _unregister_all_services(hass)
@@ -615,7 +607,6 @@ async def async_remove_config_entry_device(
     if (DOMAIN, hub_identifier) in device_entry.identifiers:
         return False
 
-    # Zone devices — removable if zone no longer exists
     zones_info = coordinator.data.get("zones_info") or []
     active_zone_ids = {str(z.get("id")) for z in zones_info}
 
@@ -624,7 +615,6 @@ async def async_remove_config_entry_device(
             continue
         value = identifier[1]
 
-        # Zone device: tado_ce_{home_id}_zone_{zone_id}
         prefix = f"tado_ce_{home_id}_zone_"
         if value.startswith(prefix):
             zone_id = value[len(prefix) :]

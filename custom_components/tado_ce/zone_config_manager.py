@@ -1,12 +1,4 @@
-"""Tado CE zone configuration manager — per-zone overrides + listener fan-out.
-
-Holds the per-zone settings users tweak in the Options Flow
-(window type, U-value, surface offset, Adaptive Preheat /
-Smart Valve mode, external sensor entity_ids, min/max temp).
-Storage is via DataLoader's auxiliary store; listeners are
-notified after every change so consumers (climate entities,
-SVC controllers) react in real time.
-"""
+"""Tado CE zone configuration manager — per-zone overrides + listener fan-out."""
 
 from __future__ import annotations
 

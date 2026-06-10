@@ -153,11 +153,7 @@ class TadoPreheatTimeSensor(CoordinatorEntity["HeatingCycleCoordinator"], Sensor
 
     @callback
     def _handle_coordinator_update(self) -> None:
-        """Update cached values from coordinator data.
-
-        Moved computation here from @property native_value to ensure
-        idempotency — HA may read properties multiple times per tick.
-        """
+        """Update cached values from coordinator data."""
         zone_state = self.coordinator.get_zone_state(self._zone_id)
         if not zone_state:
             self._current_temp = None
@@ -271,11 +267,7 @@ class TadoConfidenceSensor(CoordinatorEntity["HeatingCycleCoordinator"], SensorE
 
 
 class TadoHeatingAccelerationSensor(CoordinatorEntity["HeatingCycleCoordinator"], SensorEntity):
-    """Sensor for heating acceleration (second-order analysis).
-
-    Measures how quickly the heating rate increases after heating starts.
-    Higher acceleration = faster response system.
-    """
+    """Sensor for heating acceleration (°C/h² — higher = faster-response system)."""
 
     _attr_has_entity_name = True
     _attr_entity_registry_enabled_default = False

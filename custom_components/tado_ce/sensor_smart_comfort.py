@@ -1,10 +1,4 @@
-"""Tado CE Smart Comfort sensors — schedule deviation, next-schedule preview, preheat advisor, target.
-
-Sensors here surface the Smart Comfort engine's per-zone state
-(historical comparison, scheduled vs. actual, when the next
-schedule change lands and to what target). Created only when
-Smart Comfort is enabled in config.
-"""
+"""Tado CE Smart Comfort sensors — schedule deviation, next-schedule preview, preheat advisor, target."""
 
 from __future__ import annotations
 
@@ -51,13 +45,7 @@ _DEVIATION_ICON_HOT = 2  # °C — deviation above this shows "hot" icon
 
 
 class TadoScheduleDeviationSensor(TadoZoneSensor):
-    """Historical temperature comparison sensor.
-
-    Compares current temperature to the 7-day average at the same time of day.
-    Helps identify unusual temperature patterns.
-
-    State: Difference from historical average (e.g., "+1.2" or "-0.8")
-    """
+    """Historical temperature comparison sensor (state = ΔT from 7-day same-hour average)."""
 
     _attr_has_entity_name = True
 
@@ -172,12 +160,7 @@ class TadoScheduleDeviationSensor(TadoZoneSensor):
 
 
 class TadoNextScheduleTimeSensor(TadoZoneSensor):
-    """Next schedule time sensor.
-
-    Shows when the next scheduled temperature change will occur.
-
-    State: Next schedule time (e.g., "17:00" or "Tomorrow 07:00")
-    """
+    """Next schedule time sensor (state = next scheduled change e.g. "17:00" or "Tomorrow 07:00")."""
 
     _attr_has_entity_name = True
 
@@ -262,12 +245,7 @@ class TadoNextScheduleTimeSensor(TadoZoneSensor):
 
 
 class TadoNextScheduleTempSensor(TadoZoneSensor):
-    """Next schedule target temperature sensor.
-
-    Shows the target temperature of the next scheduled block.
-
-    State: Target temperature (°C) or "OFF"
-    """
+    """Next schedule target temperature sensor (state = target °C or "OFF")."""
 
     _attr_has_entity_name = True
 
@@ -376,13 +354,7 @@ class TadoNextScheduleTempSensor(TadoZoneSensor):
 
 
 class TadoPreheatAdvisorSensor(TadoZoneSensor):
-    """Preheat timing advisor sensor.
-
-    Suggests optimal preheat start time based on historical heating rates.
-    Uses the next scheduled target temperature from Tado schedule.
-
-    State: Recommended start time (e.g., "06:15")
-    """
+    """Preheat timing advisor sensor (state = recommended start time, e.g. "06:15")."""
 
     _attr_has_entity_name = True
 
@@ -528,10 +500,7 @@ class TadoPreheatAdvisorSensor(TadoZoneSensor):
         self._attr_available = True
 
     def _check_active_cooling_preheat(self, zone_data: dict[str, Any]) -> bool:
-        """Check if active setpoint needs proactive cooling-based preheat.
-
-        Returns True if cooling preheat was applied (caller should return).
-        """
+        """Check if active setpoint needs proactive cooling-based preheat (returns True if applied)."""
         from datetime import timedelta
 
         active_setting = zone_data.get("setting") or {}
@@ -651,14 +620,7 @@ class TadoPreheatAdvisorSensor(TadoZoneSensor):
 
     @callback
     def update(self) -> None:
-        """Update preheat advice based on schedule and heating rate.
-
-        Logic:
-        1. Get next schedule block from schedules.json
-        2. If next block has heating ON with target temp > current temp, calculate preheat time
-        3. If already at or above target, show "Ready"
-        4. If no schedule or heating OFF, show appropriate status
-        """
+        """Update preheat advice based on schedule and heating rate."""
         try:
             from .smart_comfort import get_next_schedule_change
 
@@ -735,15 +697,7 @@ class TadoPreheatAdvisorSensor(TadoZoneSensor):
 
 
     def _apply_cooling_preheat(self, crossover_dt: datetime, now: datetime) -> None:
-        """Apply cooling-based preheat timing to sensor state.
-
-        Resolves heating rate, inertia, and UFH buffer to calculate
-        when preheat should start before the predicted crossover.
-
-        Args:
-            crossover_dt: Predicted datetime when temp crosses below target.
-            now: Current datetime.
-        """
+        """Apply cooling-based preheat timing (heating rate + inertia + UFH buffer before crossover)."""
         from datetime import timedelta
 
         heating_rate = None
@@ -811,16 +765,7 @@ class TadoPreheatAdvisorSensor(TadoZoneSensor):
         deadline: datetime,
         now: datetime,
     ) -> dict[str, Any] | None:
-        """Check if cooling rate predicts temperature will cross target before deadline.
-
-        Args:
-            target_temp: Target temperature to check crossover against.
-            deadline: Deadline datetime (schedule start + buffer).
-            now: Current datetime.
-
-        Returns:
-            Dict with crossover info if preheat needed, None if "Ready" is appropriate.
-        """
+        """Check if cooling rate predicts temperature will cross target before deadline."""
         from datetime import timedelta
 
         manager = self.coordinator.smart_comfort_manager
@@ -864,20 +809,7 @@ class TadoPreheatAdvisorSensor(TadoZoneSensor):
         }
 
 class TadoSmartComfortTargetSensor(TadoZoneSensor):
-    """Smart Comfort Target Temperature sensor.
-
-    Calculates the ideal target temperature using ASHRAE 55 Adaptive Comfort Model.
-    This is the temperature at which the zone would be "Comfortable" according to
-    the Comfort Level sensor.
-
-    Formula: Comfort Temp = 0.31 × Outdoor_Temp + 17.8°C
-
-    This provides a scientifically-validated, location-aware target that adapts
-    to outdoor conditions. When outdoor temp is not available, falls back to
-    seasonal thresholds based on latitude.
-
-    State: Recommended target temperature (°C)
-    """
+    """Smart Comfort Target Temperature sensor (ASHRAE 55 — 0.31×outdoor + 17.8°C, seasonal fallback)."""
 
     _attr_has_entity_name = True
 

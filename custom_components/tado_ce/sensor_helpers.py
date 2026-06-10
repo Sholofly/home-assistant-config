@@ -1,10 +1,4 @@
-"""Tado CE sensor helpers — outdoor temperature lookup + effective temperature for mold risk.
-
-Used by mold-risk sensors and Smart Comfort to read a configured
-outdoor source (HA weather entity or plain sensor) and to derive a
-zone's effective temperature via surface-temperature estimation
-when the user has supplied window-type / U-value config.
-"""
+"""Tado CE sensor helpers — outdoor temperature lookup + effective temperature for mold risk."""
 
 from __future__ import annotations
 
@@ -23,13 +17,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 def get_outdoor_temperature(hass: HomeAssistant, entity_id: str, use_feels_like: bool = False) -> float | None:
-    """Read outdoor temperature from a weather entity or plain sensor.
-
-    For `weather.*` entities the value comes from the
-    `temperature` attribute (or `apparent_temperature` /
-    `feels_like` when `use_feels_like=True`); for any other
-    entity it's the state value coerced to float.
-    """
+    """Read outdoor temperature from a weather entity or plain sensor."""
     if not hass or not entity_id:
         return None
 
@@ -73,13 +61,7 @@ def get_effective_temperature(
     config_manager: ConfigurationManager = None,  # type: ignore[assignment]
     zone_config_manager: ZoneConfigManager = None,  # type: ignore[assignment]
 ) -> tuple[Any, ...]:
-    """Pick the temperature mold-risk math should use for this zone.
-
-    Prefers surface-temperature estimation when the user has
-    configured an outdoor source + window U-value; otherwise
-    falls back to the room temperature so mold-risk still has
-    *something* to work with.
-    """
+    """Pick the temperature mold-risk math should use for this zone."""
     from .const import DEFAULT_WINDOW_TYPE, WINDOW_U_VALUES
 
     fallback = (room_temp, None, None, "room_average", 0.0)

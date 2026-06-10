@@ -1,12 +1,4 @@
-"""Tado CE API auth mixin — OAuth refresh-token flow with idempotent retry.
-
-ConfigEntry is the source of truth for `refresh_token`; the host
-class (`TadoApiClient`) injects it at construction time and we
-persist any rotated token back through `async_update_entry`.
-Retries are limited to the OAuth-idempotent shapes (403 CDN/WAF
-blocks, network errors). 401 / invalid_grant never retries — that
-hands control to HA's reauth flow.
-"""
+"""Tado CE API auth mixin — OAuth refresh-token flow with idempotent retry."""
 
 from __future__ import annotations
 
@@ -94,9 +86,9 @@ class TadoAuthMixin:
         """Persist a rotated refresh token to ConfigEntry and refresh the runtime cache.
 
         ConfigEntry is the sole source of truth for auth credentials.
-        The DataLoader "config" cache is updated in-memory for
-        runtime consumers but its Store entry is not touched — the
-        Store only exists for v3.5.3 → v4.x migration bootstrap.
+        The DataLoader "config" cache is updated in-memory for runtime
+        consumers but its Store entry is not touched — the Store only
+        exists for v3.5.3 → v4.x migration bootstrap.
         """
         if self._hass and self._config_entry:
             new_data = {**self._config_entry.data, **config}
@@ -110,12 +102,7 @@ class TadoAuthMixin:
     # --- Token Management ---
 
     async def get_access_token(self: _AuthHost) -> str | None:
-        """Return a valid access token, refreshing under lock when expired.
-
-        The 10-second buffer covers clock skew between HA and the
-        Tado auth server. The lock keeps concurrent callers from
-        firing two refresh calls in parallel.
-        """
+        """Return a valid access token, refreshing under lock when expired."""
         async with self._refresh_lock:
             if self._access_token and self._token_expiry:
                 if datetime.now(UTC) < (self._token_expiry - timedelta(seconds=10)):
@@ -170,11 +157,7 @@ class TadoAuthMixin:
         refresh_token: str,
         attempt: int,
     ) -> str | None:
-        """Run one HTTP refresh attempt; return token on success or None on retryable 403.
-
-        Raises `TadoAuthError` for 401 / invalid_grant (caller hands
-        off to HA's reauth flow) and for exhausted 403 retries.
-        """
+        """Run one HTTP refresh attempt; return token on success or None on retryable 403."""
         async with self._session.post(
             f"{TADO_AUTH_URL}/token",
             data={
@@ -218,6 +201,17 @@ class TadoAuthMixin:
                 )
                 raise TadoAuthError(f"Token refresh failed after {MAX_RETRY_ATTEMPTS} attempts (403)")
 
+            if 400 <= resp.status < 500:
+                _LOGGER.warning(
+                    "Auth: refresh request rejected (HTTP %s) — %s",
+                    resp.status, error_text[:200],
+                )
+                # WHY: 4xx-non-401-non-403 means the refresh shape is wrong, not a
+                # transient CDN block. Retrying won't help. Raise so coordinator
+                # triggers reauth.
+                raise TadoAuthError(
+                    f"Token refresh rejected (HTTP {resp.status}): {error_text[:80]}",
+                )
             _LOGGER.warning(
                 "Auth: refresh failed with HTTP %s — %s",
                 resp.status, error_text[:200],
@@ -225,12 +219,7 @@ class TadoAuthMixin:
             return None
 
     async def _refresh_token(self: _AuthHost) -> str | None:
-        """Refresh the access token, retrying transient 403 / network errors with backoff.
-
-        OAuth2 refresh requests are idempotent so retry is safe.
-        401 / invalid_grant never retries — that path raises
-        `TadoAuthError` which the caller hands to HA's reauth flow.
-        """
+        """Refresh the access token, retrying transient 403 / network errors with backoff."""
         config = await self._load_config()
         refresh_token = config.get("refresh_token")
 

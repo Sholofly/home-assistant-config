@@ -438,27 +438,11 @@ def build_timer_termination(
 ) -> dict[str, Any]:
     """Build termination dict for set_timer / set_overlay calls.
 
-    Consolidates the duplicated termination-building logic from:
-    - TadoClimate.async_set_timer (heating.py)
-    - TadoACClimate.async_set_timer (ac.py)
-    - TadoACClimate._async_set_ac_overlay (ac.py)
-
     Priority:
-    1. If duration_minutes provided → TIMER termination
-    2. If overlay == 'next_time_block' → TADO_MODE termination
-    3. If overlay == 'manual' → MANUAL termination
-    4. Otherwise → per-zone overlay termination (from config)
-
-    Args:
-        duration_minutes: Timer duration in minutes (takes highest priority)
-        overlay: Overlay type string ('next_time_block', 'manual', or None)
-        hass: Home Assistant instance (needed for per-zone config fallback)
-        zone_id: Zone ID (needed for per-zone config fallback)
-        entry_id: Config entry ID (needed for per-zone config fallback)
-
-    Returns:
-        Termination dict for Tado API, e.g. {"type": "TIMER", "durationInSeconds": 3600}
-
+    1. duration_minutes → TIMER
+    2. overlay='next_time_block' → TADO_MODE
+    3. overlay='manual' → MANUAL
+    4. fallback → per-zone overlay termination
     """
     if duration_minutes:
         return {"type": "TIMER", "durationInSeconds": duration_minutes * 60}
@@ -477,3 +461,39 @@ def build_timer_termination(
 
     # Ultimate fallback
     return {"type": "MANUAL"}
+
+
+def prune_zone_keyed_dict(
+    d: dict[str, Any],
+    current_zones: frozenset[str],
+) -> int:
+    """Drop entries whose zone_id is no longer in current_zones; return removed count.
+
+    Recognised key shapes:
+    - "zone_id"           — DataLoader dict stores
+    - "zone_id:entity"    — state_restore key shape (split on first colon)
+    """
+    to_drop = {k for k in d if k.split(":", 1)[0] not in current_zones}
+    for k in to_drop:
+        d.pop(k, None)
+    return len(to_drop)
+
+
+def retry_after_to_minutes(seconds: int) -> str:
+    """Format retry-after seconds as minute count for user-facing messages."""
+    # WHY: floor at 1 — a 30-second cooldown still reads "Try again in 1 min."
+    return str(max(1, seconds // 60))
+
+
+def low_quota_threshold(daily_limit: int | None) -> int:
+    """Return the low-quota threshold scaled to the daily-limit tier."""
+    # WHY: max(absolute floor, percent of daily limit). Floor keeps the
+    # 100-call free tier on existing behaviour; percent scales the gate so
+    # 1,000-call transitional and 20,000-call legacy tiers fire with
+    # proportional cushion (10%) rather than the same absolute cushion as
+    # the free tier (which would mean fires at 99% used on the legacy tier).
+    from .const import LOW_QUOTA_RESERVE_FLOOR, LOW_QUOTA_RESERVE_PERCENT
+
+    if daily_limit is None or daily_limit <= 0:
+        return LOW_QUOTA_RESERVE_FLOOR
+    return max(LOW_QUOTA_RESERVE_FLOOR, int(daily_limit * LOW_QUOTA_RESERVE_PERCENT))

@@ -124,15 +124,7 @@ _HEALTH_DEDUCTIONS: dict[InsightPriority, int] = {
 
 
 def get_insight_priority(insight_type: str, severity: str) -> InsightPriority:
-    """Get priority level for an insight based on type and severity.
-
-    Args:
-        insight_type: Type of insight (window_predicted, mold_risk, etc.)
-        severity: Severity level (critical, high, medium, low)
-
-    Returns:
-        InsightPriority enum value
-    """
+    """Get priority level for an insight based on type and severity."""
     priority_map = {
         ("window_predicted", "high"): InsightPriority.HIGH,
         ("window_predicted", "medium"): InsightPriority.MEDIUM,
@@ -275,11 +267,7 @@ def _build_causal_recommendation(
     grp_key: str,
     members: list[Insight],
 ) -> str:
-    """Build a causal-analysis recommendation for correlated insights.
-
-    Uses CAUSAL_TEMPLATES when available; falls back to label joining
-    for unknown group keys.
-    """
+    """Build a causal-analysis recommendation for correlated insights."""
     template = CAUSAL_TEMPLATES.get(grp_key)
     if template is None:
         # Fallback: join action labels (legacy behaviour)
@@ -307,17 +295,7 @@ def _build_causal_recommendation(
 def correlate_insights(
     zone_insights: dict[str, list[Insight]],
 ) -> dict[str, list[Insight]]:
-    """Correlate related insights within each zone for home-level aggregation.
-
-    For each zone, if multiple insights belong to the same correlation group,
-    merge them into a single Insight with causal analysis.
-
-    Cross-zone insights (zone_name starting with "_") are never correlated.
-    Insight types not in any correlation group pass through unchanged.
-    Single-member groups also pass through unchanged.
-
-    Returns new dict — does not mutate input.
-    """
+    """Correlate related insights within each zone for home-level aggregation (returns new dict)."""
     result: dict[str, list[Insight]] = {}
 
     for zone_name, insights in zone_insights.items():
@@ -441,12 +419,7 @@ def _narrative_build_secondary(label: str, grp: dict[str, Any]) -> str:
 def _build_narrative_summary(
     sorted_actions: list[tuple[str, dict[str, Any]]],
 ) -> str:
-    """Build a narrative summary focusing on the single most urgent action.
-
-    Produces a readable sentence describing the highest-priority action group
-    with duration context and urgency reason.  An optional secondary mention
-    (max 1 extra action) is appended when space allows.
-    """
+    """Build a narrative summary focusing on the single most urgent action."""
     if not sorted_actions:
         return "All zones are running well \u2014 no issues detected."
 
@@ -473,18 +446,7 @@ def _build_narrative_summary(
 def build_flat_action_list(
     action_groups: dict[str, dict[str, Any]],
 ) -> list[str]:
-    """Build narrative action list sorted by priority.
-
-    Each item is a readable sentence like
-    ``"Replace batteries in Guest and Lounge."``.
-
-    Args:
-        action_groups: Dict mapping action labels to group dicts with
-            ``zones`` (list[str]) and ``priority`` (InsightPriority int).
-
-    Returns:
-        Flat list of action strings sorted by priority desc, then alphabetical.
-    """
+    """Build narrative action list sorted by priority."""
     if not action_groups:
         return []
 
@@ -612,17 +574,7 @@ def _group_insights_by_action(
 def aggregate_home_insights(
     zone_insights: dict[str, list[Insight]],
 ) -> dict[str, Any]:
-    """Aggregate insights from all zones into action-based home summary.
-
-    Groups insights by action type across zones, producing a flat list of
-    actionable items with category emoji prefixes.
-
-    Args:
-        zone_insights: Dict mapping zone names to lists of Insight objects
-
-    Returns:
-        Dict with keys: total_insights, top_priority, summary, actions_needed.
-    """
+    """Aggregate insights from all zones into action-based home summary."""
     empty_result: dict[str, Any] = {
         "total_insights": 0,
         "top_priority": "none",
@@ -723,18 +675,7 @@ def calculate_historical_deviation_recommendation(
     historical_avg: float | None = None,
     sample_count: int = 0,
 ) -> str:
-    """Calculate SMART recommendation for historical temperature deviation.
-
-    Args:
-        deviation: Temperature difference from historical average (degrees C)
-        zone_name: Name of the zone
-        current_temp: Current room temperature
-        historical_avg: 7-day average temperature at this time
-        sample_count: Number of historical samples used
-
-    Returns:
-        SMART recommendation string (empty if deviation is normal)
-    """
+    """Calculate SMART recommendation for historical temperature deviation."""
     if deviation is None or sample_count < TEMP_DEVIATION_MIN_SAMPLES:
         return ""
 
@@ -780,12 +721,7 @@ def _collect_weekly_stats(
     week_start: datetime,
     now: datetime,
 ) -> _WeeklyStats:
-    """Collect weekly insight statistics from history entries.
-
-    Iterates over entries, filtering to the window [week_start, now],
-    and accumulates type/zone counts, longest-persisting insight, and
-    resolved count.
-    """
+    """Collect weekly insight statistics from history entries."""
     type_counts: dict[str, int] = {}
     zone_counts: dict[str, int] = {}
     longest: tuple[str, str | None, float] | None = None
@@ -865,11 +801,7 @@ def _group_keys_by_type(keys: set[str]) -> dict[str, list[str]]:
 
 
 def _describe_issue_keys(keys: set[str]) -> str:
-    """Describe a set of issue keys as a readable phrase.
-
-    Groups by insight type and lists affected zones.
-    E.g. ``"mold risk in Ensuite"`` or ``"battery in Guest and Lounge"``.
-    """
+    """Describe a set of issue keys as a readable phrase grouped by insight type."""
     type_zones = _group_keys_by_type(keys)
 
     fragments: list[str] = []
@@ -884,11 +816,7 @@ def _describe_issue_keys(keys: set[str]) -> str:
 
 
 def _describe_resolved_keys(keys: set[str]) -> str:
-    """Describe resolved issue keys as a readable sentence.
-
-    Groups by insight type for concise output.
-    E.g. ``"2 battery issues were resolved."``
-    """
+    """Describe resolved issue keys as a readable sentence grouped by insight type."""
     type_counts: dict[str, int] = {}
     for key in keys:
         itype = key.split(":", 1)[0]
@@ -915,19 +843,7 @@ def build_trend_digest(
     history: InsightHistoryTracker,
     now: datetime,
 ) -> str:
-    """Build a pure-trend weekly digest for the Home Insights attribute.
-
-    Compares the current week (last 7 days) with the previous week (7-14
-    days ago) and reports count comparison, new issues, and resolved issues.
-    No "most frequent", "most affected", "longest-running", or health score.
-
-    Args:
-        history: InsightHistoryTracker instance (uses .entries property).
-        now: Current UTC datetime.
-
-    Returns:
-        Human-readable trend string for the weekly digest attribute.
-    """
+    """Build a pure-trend weekly digest comparing this week vs previous week."""
     week_ago = now - timedelta(days=7)
     two_weeks_ago = now - timedelta(days=14)
 
@@ -941,7 +857,6 @@ def build_trend_digest(
     cur = current_stats.active_count
     prev = previous_stats.active_count
 
-    # --- count comparison --------------------------------------------------
     label = "insight" if cur == 1 else "insights"
 
     if cur == 0 and prev == 0:
@@ -958,7 +873,6 @@ def build_trend_digest(
     else:
         header = f"{cur} {label} this week, same as last week."
 
-    # --- new / resolved detection ------------------------------------------
     new_keys = current_stats.active_keys - previous_stats.active_keys
     resolved_keys = previous_stats.active_keys - current_stats.active_keys
 

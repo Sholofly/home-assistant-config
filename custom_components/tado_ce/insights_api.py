@@ -90,21 +90,7 @@ def calculate_api_quota_planning_insight(
     hours_until_reset: float | None = None,
     current_interval_minutes: float | None = None,
 ) -> Insight | None:
-    """Calculate API quota planning insight.
-
-    Triggers when projected exhaustion is < 6 hours before reset,
-    suggesting polling interval adjustment.
-
-    Args:
-        remaining_calls: Remaining API calls
-        total_calls: Total daily API call limit
-        calls_per_hour: Current average calls per hour
-        hours_until_reset: Hours until quota resets
-        current_interval_minutes: Current polling interval in minutes
-
-    Returns:
-        Insight if quota exhaustion projected, None otherwise
-    """
+    """Calculate API quota planning insight (exhaustion projected before reset)."""
     if remaining_calls is None or calls_per_hour is None or hours_until_reset is None:
         return None
     if calls_per_hour <= 0:
@@ -117,7 +103,6 @@ def calculate_api_quota_planning_insight(
     if buffer_hours < API_QUOTA_BUFFER_HOURS:
         return None
 
-    # Suggest new interval
     if hours_until_reset > 0 and remaining_calls > 0:
         safe_calls_per_hour = remaining_calls / hours_until_reset * 0.8  # 20% safety margin
         suggested_interval = max(60 / safe_calls_per_hour, 5) if safe_calls_per_hour > 0 else 30
@@ -144,17 +129,7 @@ def calculate_api_usage_spike_insight(
     current_hour_calls: int | None = None,
     avg_calls_per_hour: float | None = None,
 ) -> Insight | None:
-    """Detect abnormal API usage spikes.
-
-    Triggers when current hour's calls significantly exceed the average.
-
-    Args:
-        current_hour_calls: Number of API calls in the current hour
-        avg_calls_per_hour: Average calls per hour from history
-
-    Returns:
-        Insight if usage spike detected, None otherwise
-    """
+    """Detect abnormal API usage spikes."""
     if current_hour_calls is None or avg_calls_per_hour is None:
         return None
     if avg_calls_per_hour <= 0:
@@ -179,14 +154,7 @@ def calculate_api_usage_spike_insight(
 
 
 def calculate_calls_per_hour(history: list[Any]) -> float | None:
-    """Calculate average API calls per hour from call history.
-
-    Args:
-        history: List of call history dicts with "timestamp" key (ISO format)
-
-    Returns:
-        Calls per hour as float, or None if insufficient data
-    """
+    """Calculate average API calls per hour from call history."""
     if not history or len(history) < CALLS_PER_HOUR_MIN_SAMPLES:
         return None
     try:

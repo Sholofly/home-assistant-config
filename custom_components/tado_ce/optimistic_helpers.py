@@ -28,7 +28,7 @@ _OPTIMISTIC_FIELDS = (
     "_optimistic_set_at",
     "_optimistic_sequence",
     "_optimistic_preserved",
-    # Climate entities (heating.py, ac.py)
+    # Climate entities (climate_heating.py, climate_ac.py)
     "_expected_hvac_mode",
     "_expected_hvac_action",
     "_expected_target_temperature",

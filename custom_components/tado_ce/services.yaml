@@ -193,3 +193,5 @@ restore_previous_state:
       domain:
         - climate
         - water_heater
+
+turn_off_all_zones:

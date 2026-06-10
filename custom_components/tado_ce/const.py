@@ -89,6 +89,7 @@ SERVICE_ACTIVATE_OPEN_WINDOW = "activate_open_window"
 SERVICE_DEACTIVATE_OPEN_WINDOW = "deactivate_open_window"
 SERVICE_SET_OPEN_WINDOW_MODE = "set_open_window_mode"
 SERVICE_RESTORE_PREVIOUS_STATE = "restore_previous_state"
+SERVICE_TURN_OFF_ALL_ZONES = "turn_off_all_zones"
 
 # API Base URLs
 TADO_API_BASE = "https://my.tado.com/api/v2"
@@ -120,9 +121,13 @@ WEATHER_COMPENSATION_PRESETS = {
 }
 
 # Adaptive Smart Polling Constants
-# MIN_POLLING_INTERVAL is for adaptive calculation floor (sensible default)
-# Custom intervals can go as low as 1 minute when user explicitly sets them
-MIN_POLLING_INTERVAL = 5  # minutes (adaptive floor - prevents excessive polling by default)
+# MIN_POLLING_INTERVAL is the adaptive floor: the fastest cadence the adaptive
+# math will ever pick on its own. It is deliberately tier-agnostic — zone
+# temperature does not change any faster on a bigger quota, so a high daily
+# limit does not buy a faster automatic cadence. Anyone who wants faster sets
+# a custom polling interval explicitly; the adaptive math still backs off above
+# this floor whenever the budget can't sustain it.
+MIN_POLLING_INTERVAL = 5  # minutes (uniform adaptive floor — see note above)
 DEFAULT_DAY_INTERVAL = 30  # minutes (default day polling interval)
 DEFAULT_NIGHT_INTERVAL = 120  # minutes (default night polling interval)
 MAX_POLLING_INTERVAL = 120  # minutes (ensure reasonable updates even with low quota)
@@ -139,10 +144,25 @@ QUOTA_RESERVE_PERCENT = 0.05  # Reserve 5% of daily limit (whichever is larger)
 # Even manual actions are blocked when remaining <= QUOTA_BOOTSTRAP_CALLS
 QUOTA_BOOTSTRAP_CALLS = 3  # Hard limit - never use these calls
 
-# Low Quota Threshold for Smart Day/Night
-# Users with remaining <= this threshold get special handling to ensure 24h coverage
-# Smart Day/Night: Night uses MAX_POLLING_INTERVAL, Day uses remaining quota
-LOW_QUOTA_THRESHOLD = 100  # Trigger Smart Day/Night for low-quota users
+# Low Quota Threshold for Smart Day/Night — scales with the daily limit
+# Users with remaining <= threshold get Smart Day/Night handling. The threshold
+# is a proportion of the daily limit the API reports (max of an absolute floor
+# and a percentage), so it tracks whatever quota Tado grants without hardcoding
+# any tier breakpoint. A 100-call budget stays at the 100-call floor; a
+# 1,000-call budget fires at 100 (10% = floor); a 20,000-call budget fires at
+# 2,000 (10% > floor, proportional cushion). Use helpers.low_quota_threshold().
+LOW_QUOTA_RESERVE_PERCENT = 0.10  # 10% of daily limit
+LOW_QUOTA_RESERVE_FLOOR = 100      # Floor (one full day's worth on a 100-call budget)
+
+# Backwards-compat alias, scheduled for removal in v5.0.0.
+LOW_QUOTA_THRESHOLD = LOW_QUOTA_RESERVE_FLOOR
+
+# Per-data-type minimum refresh intervals (minutes). Slow-changing cloud data
+# gates on its own floor independent of the zone-state cycle, so a fast zone
+# cadence doesn't drag weather/presence along.
+WEATHER_MIN_REFRESH_MINUTES = 30          # weather changes hourly
+PRESENCE_MIN_REFRESH_MINUTES = 5          # home_state — sporadic
+MOBILE_DEVICES_MIN_REFRESH_MINUTES = 5    # geofencing — sporadic
 
 # Canonical window type to U-value mapping (W/m²K). Single source of truth for all
 # mold risk calculations.
@@ -374,10 +394,11 @@ CACHE_REFRESH_FAILURE_THRESHOLD: Final[int] = 3
 HOMEKIT_SAVINGS_RESET_MIN_JUMP: Final[int] = 20
 HOMEKIT_SAVINGS_RESET_RATIO: Final[float] = 0.05
 
-# When HomeKit is connected, skip weather API calls if the last fetch
-# was less than this many minutes ago. Weather data changes slowly,
-# so reducing fetch frequency saves API quota.
-HOMEKIT_WEATHER_SKIP_MINUTES: Final[int] = 30
+# Former weather-skip floor when HomeKit connected; v4.0.2 replaced it with
+# the per-type WEATHER_MIN_REFRESH_MINUTES floor (applied in all cadence
+# states, not just HomeKit). No consumers remain — kept for backwards-compat,
+# scheduled for removal in v5.0.0.
+HOMEKIT_WEATHER_SKIP_MINUTES: Final[int] = 30  # legacy — superseded by WEATHER_MIN_REFRESH_MINUTES
 
 # Periodic device-offset resync interval.
 #
@@ -395,6 +416,19 @@ HOMEKIT_WEATHER_SKIP_MINUTES: Final[int] = 30
 # Offset Sync evaluation cycle and adds at most one GET per zone every
 # half hour.
 OFFSET_DRIFT_REFRESH_SECONDS: Final[int] = 30 * 60
+
+# Without a periodic refresh, `connectionState` / `currentFwVersion` /
+# `batteryState` freeze at boot — they only land in zone-info, not in
+# per-cycle zone state. Free-tier interval is longer so the refresh
+# stays under ~6% of daily quota.
+ZONES_INFO_REFRESH_SECONDS_PAID: Final[int] = 60 * 60
+ZONES_INFO_REFRESH_SECONDS_FREE: Final[int] = 4 * 60 * 60
+# Free-tier detection sentinel: the 100-call free tier reports limit=100, so
+# `limit <= 200` reliably distinguishes it from the 1,000-call transitional
+# and 20,000-call legacy tiers without false-positives. 200 is padding so a
+# slight Tado-side adjustment to the free-tier limit (say 150) wouldn't break
+# detection.
+ZONES_INFO_FREE_TIER_THRESHOLD: Final[int] = 200
 
 # =============================================================================
 # Climate Zone Type Helper

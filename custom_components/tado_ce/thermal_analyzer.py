@@ -1,11 +1,4 @@
-"""Tado CE thermal analyzer — second-order heating dynamics for preheat estimation.
-
-Computes two derived metrics from completed heating cycles:
-heating acceleration (how fast the heating rate ramps up) and
-approach factor (how much the rate decelerates near setpoint).
-Used by the thermal-analytics sensors to predict overshoot and
-preheat time more accurately than a flat constant.
-"""
+"""Tado CE thermal analyzer — second-order heating dynamics (acceleration + approach factor) for preheat estimation."""
 
 from __future__ import annotations
 

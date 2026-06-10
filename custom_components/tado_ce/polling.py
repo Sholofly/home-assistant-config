@@ -18,14 +18,13 @@ from homeassistant.util import dt as dt_util
 from .const import (
     DEFAULT_DAY_INTERVAL,
     DEFAULT_NIGHT_INTERVAL,
-    LOW_QUOTA_THRESHOLD,
     MAX_POLLING_INTERVAL,
     MIN_POLLING_INTERVAL,
     POLLING_SAFETY_BUFFER,
     QUOTA_RESERVE_CALLS,
     QUOTA_RESERVE_PERCENT,
 )
-from .helpers import parse_iso_datetime
+from .helpers import low_quota_threshold, parse_iso_datetime
 
 if TYPE_CHECKING:
     from .config_manager import ConfigurationManager
@@ -49,6 +48,7 @@ class _PollingContext:
     calls_per_sync: int
     night_duration: int
     day_duration: int
+    daily_limit: int | None
 
 
 def _get_calls_per_sync(
@@ -88,6 +88,8 @@ def _build_polling_context(
     """
     _remaining = ratelimit_data.get("remaining")
     remaining: int = int(_remaining) if _remaining is not None else 100
+    _limit = ratelimit_data.get("limit")
+    daily_limit: int | None = int(_limit) if _limit is not None else None
     _reset_sec = ratelimit_data.get("reset_seconds")
     reset_seconds: int = int(_reset_sec) if _reset_sec is not None else 86400
     last_reset_utc = ratelimit_data.get("last_reset_utc")
@@ -131,6 +133,7 @@ def _build_polling_context(
         calls_per_sync=calls_per_sync,
         night_duration=night_duration,
         day_duration=day_duration,
+        daily_limit=daily_limit,
     )
 
 
@@ -262,17 +265,28 @@ def calculate_adaptive_interval(
     if ctx.is_uniform_mode:
         return _calculate_uniform_interval(ctx)
 
-    if ctx.remaining <= LOW_QUOTA_THRESHOLD:
+    if ctx.remaining <= low_quota_threshold(ctx.daily_limit):
         return _calculate_low_quota_interval(ctx)
 
     return _calculate_day_night_interval(ctx, config_manager)
-def should_pause_polling(ratelimit_data: dict[str, Any], config_manager: ConfigurationManager) -> tuple[bool, str]:
+def should_pause_polling(
+    ratelimit_data: dict[str, Any],
+    config_manager: ConfigurationManager,
+    *,
+    was_paused: bool = False,
+) -> tuple[bool, str]:
     """Return (should_pause, user_facing_reason) when quota is too low to keep polling.
 
     Pausing reserves the last few calls so the user can still set
     temperature, change mode, etc. Resumes automatically once the
     reset time has passed so we can detect the actual reset from the
     next API response.
+
+    `was_paused` lets the caller suppress the "resuming polling" INFO
+    line when polling was never actually paused (e.g. high-tier user
+    with plenty of quota). Without it, the INFO line would fire every
+    cycle once the expected reset window had passed but the API
+    response hadn't yet refreshed `last_reset_utc`.
     """
     if not config_manager.get_quota_reserve_enabled():
         return False, ""
@@ -285,11 +299,12 @@ def should_pause_polling(ratelimit_data: dict[str, Any], config_manager: Configu
             now_utc = dt_util.utcnow()
 
             if now_utc >= next_reset:
-                _LOGGER.info(
-                    "Polling: expected reset time %s UTC has passed — "
-                    "resuming polling to pick up the actual reset",
-                    next_reset.strftime("%H:%M"),
-                )
+                if was_paused:
+                    _LOGGER.info(
+                        "Polling: expected reset time %s UTC has passed — "
+                        "resuming polling to pick up the actual reset",
+                        next_reset.strftime("%H:%M"),
+                    )
                 return False, ""
         except (ValueError, TypeError) as e:
             _LOGGER.debug(
@@ -384,6 +399,19 @@ def get_polling_interval(
         custom_interval = custom_night_interval
         user_set_custom = True
 
+    # Layer 1 — HomeKit defer. When HomeKit provides live local data and the
+    # user hasn't pinned a custom interval, the cloud-sync dial IS the cadence.
+    # Don't run quota math: the dial already encodes the user's freshness vs.
+    # quota trade-off. Without this, adaptive could pick a far faster cadence
+    # and silently override the dial the user set.
+    if homekit_connected and not user_set_custom:
+        cloud_sync = config_manager.get_homekit_cloud_sync_minutes()
+        _LOGGER.debug(
+            "Polling: HomeKit connected, no custom interval — using "
+            "cloud-sync dial %s min", cloud_sync,
+        )
+        return cloud_sync
+
     adaptive_interval = None
     try:
         ratelimit_data = None
@@ -403,22 +431,27 @@ def get_polling_interval(
             e,
         )
 
-    # Honour the user's explicit custom interval (even below
-    # MIN_POLLING_INTERVAL — the adaptive clamp would otherwise
-    # silently override high-quota users' sub-5-min targets). Only
-    # override when adaptive shows quota is *genuinely* insufficient
-    # (adaptive > custom AND adaptive > MIN_POLLING_INTERVAL, i.e.
-    # not just bumping into the clamp floor).
+    # Honour the user's explicit custom interval unless adaptive math shows the
+    # quota genuinely cannot sustain it. A custom interval is an explicit user
+    # choice, so the adaptive floor (which caps only the *automatic* cadence)
+    # must not bump it up. The override therefore fires only when the adaptive
+    # value sits ABOVE the floor — that means the quota math itself widened the
+    # cadence, a real constraint. When adaptive is clamped down onto the floor
+    # the quota is healthy, so a faster custom interval (even below the floor)
+    # is honoured as-is.
     if user_set_custom and custom_interval is not None:
-        if adaptive_interval is not None:
-            if adaptive_interval > custom_interval and adaptive_interval > MIN_POLLING_INTERVAL:
-                _LOGGER.warning(
-                    "Polling: custom interval %s min would burn through "
-                    "the remaining quota — using adaptive %s min instead "
-                    "to protect the day's calls",
-                    custom_interval, adaptive_interval,
-                )
-                return adaptive_interval
+        if (
+            adaptive_interval is not None
+            and adaptive_interval > custom_interval
+            and adaptive_interval > MIN_POLLING_INTERVAL
+        ):
+            _LOGGER.warning(
+                "Polling: custom interval %s min would burn through "
+                "the remaining quota — using adaptive %s min instead "
+                "to protect the day's calls",
+                custom_interval, adaptive_interval,
+            )
+            return adaptive_interval
         _LOGGER.debug(
             "Polling: using custom %s interval %s min",
             "day" if daytime else "night",

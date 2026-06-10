@@ -194,11 +194,7 @@ def format_connection_state_attr(connected: bool | None) -> str:
 
 
 def strip_zone_prefix(text: str, zone_name: str) -> str:
-    """Remove redundant zone name prefix from recommendation text.
-
-    Per-zone entities already belong to a zone, so "Dining: ..." is redundant
-    when displayed inside the Dining entity. Home-level aggregation keeps the prefix.
-    """
+    """Remove redundant `<zone>: ` prefix from per-zone entity recommendation text (home-level keeps prefix)."""
     prefix = f"{zone_name}: "
     if text.startswith(prefix):
         # Capitalise first char after stripping
@@ -334,12 +330,7 @@ def build_zone_insight_attributes(
     insights: list[Any],
     zone_name: str,
 ) -> dict[str, Any]:
-    """Build extra_state_attributes for a zone insight sensor.
-
-    Conditional (non-empty only): insight_types, recommendations.
-    Removed: top_priority (redundant — no context which insight is top),
-    top_recommendation (redundant with recommendations list).
-    """
+    """Build extra_state_attributes for a zone insight sensor (only includes non-empty `insight_types` / `recommendations`)."""
     if not insights:
         return {}
 

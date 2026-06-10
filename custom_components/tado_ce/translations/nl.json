@@ -153,10 +153,10 @@
     },
     "button": {
       "resume_all": {
-        "name": "Alle hervatten"
+        "name": "Alle schema’s hervatten"
       },
       "refresh_ac": {
-        "name": "AC verversen"
+        "name": "Vernieuw de mogelijkheden van de airconditioning"
       },
       "refresh_schedule": {
         "name": "Vernieuwingsschema"
@@ -203,6 +203,32 @@
           },
           "zone_type": {
             "name": "Type zone"
+          },
+          "swing_mode": {
+            "name": "Schommel (verticaal)",
+            "state": {
+              "auto": "Auto",
+              "off": "Uit",
+              "on": "Aan",
+              "up": "Omhoog",
+              "mid_up": "Midden (omhoog)",
+              "mid": "Midden",
+              "mid_down": "Midden (omlaag)",
+              "down": "Omlaag"
+            }
+          },
+          "swing_horizontal_mode": {
+            "name": "Schommel (horizontaal)",
+            "state": {
+              "auto": "Auto",
+              "off": "Uit",
+              "on": "Aan",
+              "left": "Links",
+              "mid_left": "Midden (links)",
+              "mid": "Midden",
+              "mid_right": "Midden (rechts)",
+              "right": "Rechts"
+            }
           }
         }
       }
@@ -783,7 +809,7 @@
         }
       },
       "mold_risk_pct": {
-        "name": "Schimmel Risico %",
+        "name": "Indicator voor schimmelrisico",
         "state_attributes": {
           "room_temperature": {
             "name": "Kamertemperatuur"
@@ -1217,7 +1243,7 @@
     },
     "deactivate_open_window": {
       "name": "Open venster deactiveren",
-      "description": "Deactiveer de modus Open Venster op een klimaatzone en hervat de normale verwarming/koeling. Werkt voor zowel door Tado gedetecteerde als handmatig geactiveerde modi."
+      "description": "Sluit een open raam dat Tado zelf heeft gedetecteerd, of een raam dat u hebt bevestigd met 'Open raam activeren', en hervat de normale verwarming/koeling. Hiermee wordt de modus 'Open raam instellen' niet uitgeschakeld. Deze modus zorgt ervoor dat er een vorstwaarschuwing wordt weergegeven; schakel deze modus daarom uit met 'Schema hervatten' of 'Vorige status herstellen'."
     },
     "set_open_window_mode": {
       "name": "Open venster modus instellen",
@@ -1236,6 +1262,10 @@
     "restore_previous_state": {
       "name": "Vorige staat herstellen",
       "description": "Herstelt een zone naar de toestand van voor de laatste overlay-bewerking. Als er geen vastgelegde staat bestaat, wordt het schema hervat."
+    },
+    "turn_off_all_zones": {
+      "name": "Alle kamers uitschakelen",
+      "description": "Zet elke klimaatzone (verwarming + airco) handmatig op UIT. Dit werkt net als de knop 'Alle kamers uitschakelen' in de Tado-app — de schema’s blijven uitgeschakeld totdat je elke zone handmatig weer inschakelt."
     }
   },
   "selector": {
@@ -1351,6 +1381,21 @@
     },
     "resume_schedule_failed": {
       "message": "Het opnieuw plannen van de taak is mislukt voor {entity_id} — de cloud heeft de aanvraag afgewezen. Probeer het nog eens."
+    },
+    "turn_off_all_no_climate_zones": {
+      "message": "Er zijn geen verwarmings- of airconditioningzones gevonden in dit Tado-huis — er valt niets uit te schakelen."
+    },
+    "turn_off_all_failed_all": {
+      "message": "Het is niet gelukt om een zone uit te schakelen. De cloud van Tado heeft alle verzoeken in deze cyclus afgewezen. Redenen: {reasons}. Controleer de API-quota van de integratie of probeer het opnieuw."
+    },
+    "auth_required": {
+      "message": "Tado-verificatie vereist — verifieer de integratie opnieuw."
+    },
+    "cloud_write_failed": {
+      "message": "Het schrijven naar de Tado-cloud is mislukt — de cloud heeft het verzoek afgewezen. Probeer het opnieuw."
+    },
+    "rate_limited": {
+      "message": "De Tado API heeft een limiet op het aantal verzoeken. Probeer het over {retry_after_minutes} min. opnieuw."
     }
   },
   "issues": {
@@ -1358,13 +1403,13 @@
       "title": "Tado CE: Authenticatie verlopen",
       "description": "Het verversingstoken voor home **{home_id}** is verlopen. Configureer de integratie opnieuw om opnieuw te authenticeren.\n\nGa naar **Instellingen → Apparaten & Diensten → Tado CE → Herconfiguratie**."
     },
-    "deprecated_yaml_config": {
-      "title": "Tado CE: Afgeschreven configuratiesleutel",
-      "description": "De configuratiesleutel **{key}** is verouderd en zal in een toekomstige versie worden verwijderd. Werk uw configuratie bij."
-    },
     "svc_sensor_missing": {
       "title": "Slimme klepregeling uitgeschakeld voor {zone_name}",
       "description": "Voor de functie 'Smart Valve Control' ({mode}) van **de {zone_name}** is een externe temperatuursensor vereist, maar er is er geen geconfigureerd.\n\nDe functie is automatisch uitgeschakeld voor deze zone totdat je een sensor selecteert.\n\n**Om de functie weer in te schakelen:**\n\nGa naar **Instellingen → Tado CE → Configureren → Zoneconfiguratie → {zone_name} → Externe sensoren** en selecteer een temperatuursensor.\n\nJe kunt deze melding ook negeren om de functie voor deze zone uitgeschakeld te laten."
+    },
+    "rate_limited": {
+      "title": "Tado CE: Beperkte bandbreedte in de cloud",
+      "description": "De Tado-cloud-API heeft een limiet op het aantal verzoeken voor de **{home_id}**. Het opvragen van gegevens wordt over {retry_after_minutes} minuten hervat."
     }
   },
   "config": {
@@ -1543,14 +1588,6 @@
               "surface_temp_offset": "Verfijn de schatting van de oppervlakterisicotemperatuur. Pas deze aan als je muren kouder aanvoelen dan Tado veronderstelt. (-5 tot +5 °C)"
             }
           }
-        },
-        "data": {
-          "external_temp_sensor": "Externe temperatuursensor",
-          "external_humidity_sensor": "Externe vochtigheidssensor"
-        },
-        "data_description": {
-          "external_temp_sensor": "Overschrijf de ingebouwde temperatuurmeting van Tado met een externe sensor",
-          "external_humidity_sensor": "Overschrijf de ingebouwde vochtigheidsmeting van Tado met een externe sensor"
         }
       },
       "general_settings": {
@@ -1568,9 +1605,9 @@
               "offset_enabled": "Temperatuurafwijkingen van apparaten"
             },
             "data_description": {
-              "home_state_sync_enabled": "Synchroniseer de algemene status van je woning (Thuis/Afwezig) bij elke peiling (+1 API-aanroep per peiling)",
-              "weather_enabled": "Buitentemperatuur en zonnestraling van Tado (+1 API-aanroep per peiling)",
-              "mobile_devices_enabled": "Volg de locatie van elke telefoon om de aanwezigheid per apparaat bij te houden. Er worden alleen updates doorgevoerd bij het herstarten van HA — schakel ‘Frequent Sync’ in bij de geavanceerde instellingen voor doorlopende updates (+1 API-aanroep per poll bij ‘Frequent’)",
+              "home_state_sync_enabled": "Stel de algemene aanwezigheidsstatus van je woning in (Thuis/Afwezig). Wordt maximaal elke 5 minuten vernieuwd, met ongeveer 1 API-aanroep per keer",
+              "weather_enabled": "Buitentemperatuur en zonnestraling van Tado. Wordt maximaal elke 30 minuten vernieuwd, met ongeveer 1 API-aanroep per keer",
+              "mobile_devices_enabled": "Volg de locatie van elke telefoon om de aanwezigheid per apparaat bij te houden. Er worden alleen updates doorgevoerd bij het herstarten van HA. Als je de gegevens op de achtergrond wilt vernieuwen, schakel je deze optie in, sla je de instellingen op en schakel je vervolgens 'Frequent Mobile Sync' in onder 'Polling en API' in de geavanceerde instellingen.",
               "schedule_calendar_enabled": "Bekijk je Tado-verwarmingsschema’s als agenda-items in HA",
               "offset_enabled": "Geef de temperatuurkalibratie-offset weer die in de Tado-app wordt weergegeven bij klimaatentiteiten (+1 API-aanroep per apparaat bij het opnieuw opstarten)"
             }
@@ -1662,7 +1699,6 @@
               "custom_night_interval": "Aangepast nachtinterval (leeg laten voor automatisch)",
               "refresh_debounce_seconds": "Verversingsvertraging (seconden)",
               "api_history_retention_days": "API geschiedenis retentie (dagen)",
-              "quota_reserve_enabled": "Bescherming quotareserve",
               "smart_actions_debounce_seconds": "Temperatuur schuifvertraging",
               "device_sync_delay_seconds": "Apparaat synchronisatievertraging",
               "mobile_devices_frequent_sync": "Frequente mobiele synchronisatie",
@@ -1675,10 +1711,9 @@
               "custom_night_interval": "Overschrijf de automatische nachtelijke polling met een vast interval. Laat dit veld leeg om Tado CE de polling te laten aanpassen op basis van je API-quotum. (1–1440 min)",
               "refresh_debounce_seconds": "Wacht zo lang na een wijziging voordat nieuwe gegevens van Tado worden opgehaald (1-60s)",
               "api_history_retention_days": "Hoeveel dagen API oproepgeschiedenis bij te houden voor de gebruiksgrafiek (0 = voor altijd)",
-              "quota_reserve_enabled": "Pauzeer polling automatisch wanneer je API-quota bijna op is. Alleen uitschakelen als je weet wat je doet.",
               "smart_actions_debounce_seconds": "Wanneer u de temperatuurschuifregelaar versleept, wacht dan zo lang voordat u de eindwaarde verzendt (0 = onmiddellijk verzenden)",
-              "device_sync_delay_seconds": "Pauze tussen opeenvolgende apparaatbewerkingen zoals kinderslot of offsetwijzigingen",
-              "mobile_devices_frequent_sync": "Apparaatlocaties elke poll-cyclus bijwerken. Zonder dit worden locaties alleen vernieuwd wanneer HA opnieuw wordt gestart (+1 API-aanroep per peiling)",
+              "device_sync_delay_seconds": "Hoe lang moet er worden gewacht tussen opeenvolgende wijzigingen die naar hetzelfde apparaat worden verzonden (zoals kinderslot of temperatuurcorrectie)? Verhoog deze waarde als snelle wijzigingen niet allemaal onmiddellijk van kracht worden (0,5–5 s, standaard 1).",
+              "mobile_devices_frequent_sync": "Zorg ervoor dat de locaties van apparaten op de achtergrond worden vernieuwd (maximaal elke 5 minuten) in plaats van alleen bij het herstarten van HA. Ongeveer 1 API-aanroep per keer",
               "hot_water_timer_duration": "Standaardduur wanneer u warm water aanzet zonder een timer in te stellen (1–1440 min)"
             }
           },
@@ -1746,7 +1781,7 @@
         },
         "data_description": {
           "bridge_serial": "Begint met IB (bijv. IB0123456789)",
-          "bridge_auth_key": "8-cijferige code op de achterkant van de brug"
+          "bridge_auth_key": "4-cijferige code van de sticker op uw brug (vertrouwelijk)"
         }
       },
       "wc_bridge_prompt": {

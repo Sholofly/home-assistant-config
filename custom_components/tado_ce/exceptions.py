@@ -35,8 +35,9 @@ class TadoBridgeApiError(HomeAssistantError):
 
 
 class TadoRateLimitError(HomeAssistantError):
-    """Raised when the Tado API returns HTTP 429 and retries are exhausted.
+    """Raised when the Tado API returns HTTP 429 and retries are exhausted."""
 
-    The config flow catches this and shows a "rate_limited" error message,
-    telling the user to wait before trying again.
-    """
+    def __init__(self, *args: object, retry_after: int = 0) -> None:
+        """Store retry_after seconds for the coordinator's UpdateFailed dispatch."""
+        super().__init__(*args)
+        self.retry_after = retry_after

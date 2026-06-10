@@ -1,10 +1,4 @@
-"""Tado CE sensor platform — instantiate every sensor entity per config entry.
-
-This module is the entry point: it pulls capability flags from
-the config manager, walks zones / devices / bridge data, and
-asks the topic-specific modules (`sensor_zone`, `sensor_hub`,
-`sensor_environment`, etc.) to build the actual entities.
-"""
+"""Tado CE sensor platform — instantiate every sensor entity per config entry."""
 
 from __future__ import annotations
 
@@ -20,15 +14,10 @@ if TYPE_CHECKING:
     from .coordinator import TadoConfigEntry, TadoDataUpdateCoordinator
     from .data_loader import DataLoader
 
-# Bridge sensors (dynamic discovery)
 from .sensor_bridge import TadoDynamicBridgeSensor
-
-# Device sensors (2 classes)
 from .sensor_device import (
     TadoBatterySensor,
 )
-
-# Environment sensors (6 classes)
 from .sensor_environment import (
     TadoComfortLevelSensor,
     TadoCondensationRiskSensor,
@@ -37,8 +26,6 @@ from .sensor_environment import (
     TadoMoldRiskSensor,
     TadoSurfaceTemperatureSensor,
 )
-
-# Hub sensors (14 classes)
 from .sensor_hub import (
     TadoApiBreakdownSensor,
     TadoApiHistorySensor,
@@ -55,14 +42,10 @@ from .sensor_hub import (
     TadoTokenStatusSensor,
     TadoZoneCountSensor,
 )
-
-# Insight sensors (2 classes)
 from .sensor_insight import (
     TadoHomeInsightsSensor,
     TadoZoneInsightsSensor,
 )
-
-# Smart Comfort sensors (5 classes)
 from .sensor_smart_comfort import (
     TadoNextScheduleTempSensor,
     TadoNextScheduleTimeSensor,
@@ -70,8 +53,6 @@ from .sensor_smart_comfort import (
     TadoScheduleDeviationSensor,
     TadoSmartComfortTargetSensor,
 )
-
-# Thermal sensors (6 classes)
 from .sensor_thermal import (
     TadoApproachFactorSensor,
     TadoConfidenceSensor,
@@ -80,15 +61,11 @@ from .sensor_thermal import (
     TadoPreheatTimeSensor,
     TadoThermalInertiaSensor,
 )
-
-# Weather sensors (3 classes)
 from .sensor_weather import (
     TadoOutsideTemperatureSensor,
     TadoSolarIntensitySensor,
     TadoWeatherStateSensor,
 )
-
-# Zone sensors (base + 8 classes)
 from .sensor_zone import (
     TadoACPowerSensor,
     TadoBoilerFlowTemperatureSensor,
@@ -119,17 +96,16 @@ def _create_common_zone_sensors(
         TadoOverlaySensor(coordinator, zone_id, zone_name, zone_type),
     ]
     sensors.append(TadoZoneInsightsSensor(coordinator, zone_id, zone_name, zone_type))
-    if config_manager.get_environment_sensors_enabled():
-        sensors.extend(
-            [
-                TadoMoldRiskSensor(coordinator, zone_id, zone_name, zone_type),
-                TadoMoldRiskPercentageSensor(coordinator, zone_id, zone_name, zone_type),
-                TadoComfortLevelSensor(coordinator, zone_id, zone_name, zone_type),
-                TadoCondensationRiskSensor(coordinator, zone_id, zone_name, zone_type),
-                TadoSurfaceTemperatureSensor(coordinator, zone_id, zone_name, zone_type),
-                TadoDewPointSensor(coordinator, zone_id, zone_name, zone_type),
-            ],
-        )
+    sensors.extend(
+        [
+            TadoMoldRiskSensor(coordinator, zone_id, zone_name, zone_type),
+            TadoMoldRiskPercentageSensor(coordinator, zone_id, zone_name, zone_type),
+            TadoComfortLevelSensor(coordinator, zone_id, zone_name, zone_type),
+            TadoCondensationRiskSensor(coordinator, zone_id, zone_name, zone_type),
+            TadoSurfaceTemperatureSensor(coordinator, zone_id, zone_name, zone_type),
+            TadoDewPointSensor(coordinator, zone_id, zone_name, zone_type),
+        ],
+    )
     if config_manager.get_smart_comfort_enabled():
         sensors.extend(
             [
@@ -156,8 +132,7 @@ def _create_heating_zone_sensors(
     sensors.extend(
         _create_common_zone_sensors(coordinator, zone_id, zone_name, zone_type, config_manager),
     )
-    if config_manager.get_zone_diagnostics_enabled():
-        sensors.append(TadoHeatingPowerSensor(coordinator, zone_id, zone_name, zone_type))
+    sensors.append(TadoHeatingPowerSensor(coordinator, zone_id, zone_name, zone_type))
 
     thermal_analytics_zones = config_manager.get_thermal_analytics_zones()
     zone_thermal_enabled = (not thermal_analytics_zones) or (zone_id in thermal_analytics_zones)
@@ -365,7 +340,6 @@ async def async_setup_entry(
 
     sensors: list[SensorEntity] = []
 
-    # Hub sensors (API status, home info)
     sensors.append(TadoHomeIdSensor(coordinator))
     sensors.append(TadoApiUsageSensor(coordinator))
     sensors.append(TadoApiLimitSensor(coordinator))
@@ -375,7 +349,6 @@ async def async_setup_entry(
     sensors.append(TadoZoneCountSensor(coordinator))
     sensors.append(TadoLastSyncSensor(coordinator))
 
-    # API Monitoring Sensors
     sensors.append(TadoNextSyncSensor(coordinator))
     sensors.append(TadoPollingIntervalSensor(coordinator))
     sensors.append(TadoApiHistorySensor(coordinator))
@@ -417,18 +390,17 @@ async def async_setup_entry(
             exc_info=True,
         )
 
-    if config_manager.get_zone_diagnostics_enabled():
-        try:
-            await hass.async_add_executor_job(
-                _create_device_sensors, coordinator, data_loader, sensors,
-            )
-        except Exception as e:
-            _LOGGER.warning(
-                "Sensor: could not parse device list while creating "
-                "battery sensors (%s) — battery sensors will retry on "
-                "the next reload",
-                e,
-            )
+    try:
+        await hass.async_add_executor_job(
+            _create_device_sensors, coordinator, data_loader, sensors,
+        )
+    except Exception as e:
+        _LOGGER.warning(
+            "Sensor: could not parse device list while creating "
+            "battery sensors (%s) — battery sensors will retry on "
+            "the next reload",
+            e,
+        )
 
     # Bridge sensors (dynamic discovery)
     bridge_serial = entry.options.get("bridge_serial")
@@ -455,11 +427,7 @@ async def async_setup_entry(
 
 
 def _has_boiler_flow_temperature_data(data_loader: DataLoader) -> bool:
-    """Return True when at least one zone reports boilerFlowTemperature.
-
-    OpenTherm boilers expose flow temperature; on/off boilers don't,
-    so the sensor only makes sense when a zone confirms the data.
-    """
+    """Return True when at least one zone reports boilerFlowTemperature."""
     try:
         data = data_loader.load_zones_file()
         if not data:

@@ -128,10 +128,7 @@ def _detect_value_type(value: object) -> str:
 
 
 def _split_camel(name: str) -> str:
-    """Split camelCase into space-separated words.
-
-    e.g. "outputTemperature" -> "Output Temperature"
-    """
+    """Split camelCase into space-separated words."""
     return _CAMEL_RE.sub(" ", name).strip()
 
 
@@ -141,11 +138,7 @@ def _split_camel(name: str) -> str:
 
 
 def generate_entity_name(path: str) -> str:
-    """Convert dot-notation path to human-readable name.
-
-    e.g. "boiler.outputTemperature.celsius" -> "Boiler Output Temperature Celsius"
-    Handles camelCase splitting and title-casing each segment.
-    """
+    """Convert dot-notation path to human-readable name."""
     parts: list[str] = []
     for segment in path.split("."):
         expanded = _split_camel(segment)
@@ -154,11 +147,7 @@ def generate_entity_name(path: str) -> str:
 
 
 def flatten_response(data: dict[str, object], prefix: str = "") -> list[DiscoveredField]:
-    """Recursively flatten JSON response to leaf-value DiscoveredField list.
-
-    Nested dicts are expanded with dot-notation keys.
-    Lists and non-dict containers are treated as leaf values (stringified).
-    """
+    """Recursively flatten JSON response to leaf-value DiscoveredField list."""
     fields: list[DiscoveredField] = []
     for key, value in data.items():
         path = f"{prefix}.{key}" if prefix else key
@@ -179,11 +168,7 @@ def get_unique_id_suffix(
     path: str,
     legacy_map: dict[str, str] | None = None,
 ) -> str:
-    """Get unique_id suffix, respecting legacy mappings for backward compat.
-
-    If the field path matches a legacy mapping, return the old suffix.
-    Otherwise return the new dynamic format: bridge_{path_with_underscores}.
-    """
+    """Get unique_id suffix, respecting legacy mappings for backward compat."""
     if legacy_map:
         for legacy_suffix, legacy_path in legacy_map.items():
             if path == legacy_path:
@@ -197,13 +182,7 @@ def resolve_entities(
     legacy_map: dict[str, str] | None = None,
     skip_paths: frozenset[str] = frozenset(),
 ) -> list[ResolvedEntity]:
-    """Apply enrichment + type inference to produce ResolvedEntity list.
-
-    For each discovered field:
-    1. If path is in skip_paths, skip it.
-    2. If path has an enrichment entry, use enrichment metadata.
-    3. Otherwise, use type inference from bridge_type_inference module.
-    """
+    """Apply enrichment + type inference to produce ResolvedEntity list."""
     # Lazy import to avoid circular dependency — inference is a separate module
     from .bridge_type_inference import format_display_value, infer_metadata
 
@@ -295,17 +274,14 @@ def extract_capabilities(fields: list[DiscoveredField]) -> BridgeCapabilities:
     has_max_temp = "boilerMaxOutputTemperatureInCelsius" in paths
     has_temp_monitoring = has_flow or has_output
 
-    # Determine wiring type from state field
     state_field = next((f for f in fields if f.path == "state"), None)
     state_val = str(state_field.value) if state_field else ""
 
-    # Determine device type
     device_type_field = next(
         (f for f in fields if f.path == "deviceWiredToBoiler.type"), None,
     )
     device_type = str(device_type_field.value) if device_type_field else None
 
-    # Infer wiring type from available data
     wiring_type = _infer_wiring_type(paths, state_val)
 
     return BridgeCapabilities(
@@ -325,13 +301,6 @@ def _infer_wiring_type(paths: set[str], state_val: str) -> str:
 
     if not has_boiler:
         return "Relay"
-
-    # Check for interface type hint
-    iface_field_present = "deviceWiredToBoiler.thermInterfaceType" in paths
-    if iface_field_present:
-        # We can't read the value here directly, but the presence of
-        # flow vs output temperature is a strong signal
-        pass
 
     has_flow = any(p.startswith("boiler.flowTemperature") for p in paths)
     has_output = any(p.startswith("boiler.outputTemperature") for p in paths)

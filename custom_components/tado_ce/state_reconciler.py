@@ -15,9 +15,6 @@ if TYPE_CHECKING:
 
 _LOGGER = logging.getLogger(__name__)
 
-# Re-exported for tests that imported it before the rename.
-LOCAL_STALENESS_THRESHOLD = HOMEKIT_STALENESS_THRESHOLD
-
 # After a local write, ignore cloud values that conflict for this long
 # so the bridge's stale post-write read can't overwrite the user's
 # fresh setpoint.
@@ -89,11 +86,7 @@ class StateReconciler:
         new_source: str,
         value: float | int | None,
     ) -> None:
-        """Log only when the merge source for a zone characteristic changes.
-
-        Logging every poll would drown the debug log; only the
-        cloud→homekit / homekit→cloud transitions are interesting.
-        """
+        """Log only when the merge source for a zone characteristic changes."""
         key = f"{zone_id}_{characteristic}"
         prev_source = self._prev_sources.get(key)
         if prev_source != new_source:

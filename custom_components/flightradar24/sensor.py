@@ -157,9 +157,16 @@ SENSOR_TYPES: tuple[FlightRadar24SensorEntityDescription, ...] = (
         translation_key="airport_departures",
         icon="mdi:airplane-takeoff",
         state_class=SensorStateClass.TOTAL,
-        value=lambda coord: len(coord.airport.departures) if coord.airport.departures is not None else None,
-        attributes=lambda coord: ({'flights': coord.airport.departures}
-                                  if coord.airport.departures is not None else None),
+        value=lambda coord: (
+            len(coord.airport.departures)
+            if coord.airport.departures is not None
+            else None
+        ),
+        attributes=lambda coord: (
+            {"flights": coord.airport.departures}
+            if coord.airport.departures is not None
+            else None
+        ),
     ),
 )
 
@@ -170,7 +177,7 @@ RESTORE_SENSOR_TYPES: tuple[FlightRadar24SensorEntityDescription, ...] = (
         icon="mdi:airplane",
         state_class=SensorStateClass.TOTAL,
         value=lambda coord: len(coord.flight.tracked_list),
-        attributes=lambda coord: {'flights': coord.flight.tracked_list},
+        attributes=lambda coord: {"flights": coord.flight.tracked_list},
     ),
 )
 
@@ -183,9 +190,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     for description in SENSOR_TYPES + RESTORE_SENSOR_TYPES:
         old_unique_id = f"{coordinator.unique_id}_{DOMAIN}_{description.key}"
         new_unique_id = f"{entry.entry_id}_{DOMAIN}_{description.key}"
-        # If an existing entity is found under the old coordinate-based ID, migrate it to the entry_id format!
         if entity_id := ent_reg.async_get_entity_id("sensor", DOMAIN, old_unique_id):
-            ent_reg.async_update_entity(entity_id, new_unique_id=new_unique_id)
+            # Bulletproof check: Only migrate if the new ID isn't already taken!
+            if not ent_reg.async_get_entity_id("sensor", DOMAIN, new_unique_id):
+                try:
+                    ent_reg.async_update_entity(entity_id, new_unique_id=new_unique_id)
+                except ValueError:
+                    pass
+    # -----------------------------------------------------------
 
     sensors = []
     for description in SENSOR_TYPES:
@@ -198,6 +210,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
 class FlightRadar24Sensor(CoordinatorEntity[FlightRadar24Coordinator], SensorEntity):
     _attr_has_entity_name = True
     entity_description: FlightRadar24SensorEntityDescription
+
+    # TELL THE RECORDER TO IGNORE THE MASSIVE FLIGHTS ARRAY
+    _unrecorded_attributes = frozenset({"flights"})
 
     def __init__(
             self,
@@ -228,6 +243,10 @@ class FlightRadar24Sensor(CoordinatorEntity[FlightRadar24Coordinator], SensorEnt
 
 
 class FlightRadar24RestoreSensor(FlightRadar24Sensor, RestoreSensor):
+
+    # WE MUST RECORD THIS SPECIFIC SENSOR TO RESTORE TRACKED FLIGHTS ON REBOOT
+    _unrecorded_attributes = frozenset()
+
     async def async_added_to_hass(self):
         """Restore state on startup."""
         await super().async_added_to_hass()

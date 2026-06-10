@@ -1,12 +1,4 @@
-"""Tado CE heating-cycle detector — per-zone state machine that delimits one heating cycle.
-
-Detects cycle start (setpoint increase or active-heating-on-restart),
-records temperature readings (deduplicated when HomeKit + cloud
-poll arrive within the same second), spots the inertia "first
-rise", and closes the cycle on target-reached or timeout. Each
-completed cycle gets persisted via `HeatingCycleStorage` for
-the analyzer's rolling window.
-"""
+"""Tado CE heating-cycle detector — per-zone state machine delimiting one heating cycle (start → inertia → target/timeout)."""
 
 from __future__ import annotations
 
@@ -39,16 +31,7 @@ class HeatingCycleDetector:
         timestamp: datetime,
         current_temp: float | None = None,
     ) -> bool:
-        """Check if setpoint increased (potential cycle start).
-
-        Args:
-            new_target: New target temperature
-            timestamp: Time of the change
-            current_temp: Current room temperature (optional, used for restart detection)
-
-        Returns:
-            True if a new cycle was started, False otherwise.
-        """
+        """Check if setpoint increased (potential cycle start); returns True when a cycle was started."""
         _LOGGER.debug(
             "Heating Detector: zone %s check_setpoint_change — "
             "last_target=%s, new_target=%.1f, current_temp=%s",
@@ -191,11 +174,7 @@ class HeatingCycleDetector:
                 )
 
     def check_cycle_complete(self) -> HeatingCycle | None:
-        """Check if active cycle is complete.
-
-        Returns:
-            Completed cycle if target reached, None otherwise.
-        """
+        """Check if active cycle is complete; returns the completed cycle when target is reached, None otherwise."""
         if not self._active_cycle:
             return None
 
@@ -241,11 +220,7 @@ class HeatingCycleDetector:
         return None
 
     def check_cycle_timeout(self) -> bool:
-        """Check if active cycle has timed out.
-
-        Returns:
-            True if cycle was timed out, False otherwise.
-        """
+        """Check if active cycle has timed out; returns True when timed out and cycle was closed."""
         if not self._active_cycle:
             return False
 

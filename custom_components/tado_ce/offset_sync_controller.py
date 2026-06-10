@@ -1,10 +1,4 @@
-"""Offset Sync Controller — per-zone device offset synchronisation.
-
-Writes device temperature offsets so the Tado API (and app) displays the
-external sensor's reading instead of the TRV's built-in sensor. With
-accurate temperature data, Tado's own modulation algorithm works
-correctly without external compensation.
-"""
+"""Offset Sync Controller — per-zone device offset synchronisation so Tado sees the external sensor's reading."""
 
 from __future__ import annotations
 
@@ -13,6 +7,8 @@ from dataclasses import dataclass, field
 import logging
 import time
 from typing import TYPE_CHECKING, Any
+
+import aiohttp
 
 from .const import (
     DEVICE_OFFSET_MAX,
@@ -28,6 +24,7 @@ if TYPE_CHECKING:
     from .coordinator import TadoDataUpdateCoordinator
 
 from .climate_helpers import SensorProxy, subscribe_external_sensors
+from .exceptions import TadoAuthError, TadoRateLimitError
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -42,6 +39,7 @@ class OffsetSyncRuntime:
     last_written_offset: float | None = None
     last_offset_write_ts: float | None = None
     pending_offset: float | None = None
+    pending_clamp: str = "none"
     paused_until_ts: float | None = None
     unsub_external_sensors: list[CALLBACK_TYPE] = field(default_factory=list)
     # Set in async_deactivate before unsub/cancel so in-flight sensor
@@ -296,8 +294,22 @@ class OffsetSyncController:
 
         if self.is_rate_limited():
             self._runtime.pending_offset = desired_offset
+            self._runtime.pending_clamp = calc.clamp_direction
             self._log_decision(
                 trigger, outcome="eval_rate_limited",
+                power=power, target=target, ext=external_temp,
+                trv=inside_temperature, current_offset=current_device_offset,
+                last_written=self._runtime.last_written_offset,
+                desired=desired_offset, min_change=min_change,
+                clamp=calc.clamp_direction,
+            )
+            return
+
+        if self._coordinator.is_cloud_backoff_active():
+            self._runtime.pending_offset = desired_offset
+            self._runtime.pending_clamp = calc.clamp_direction
+            self._log_decision(
+                trigger, outcome="eval_backoff_held",
                 power=power, target=target, ext=external_temp,
                 trv=inside_temperature, current_offset=current_device_offset,
                 last_written=self._runtime.last_written_offset,
@@ -315,8 +327,19 @@ class OffsetSyncController:
             clamp=calc.clamp_direction,
         )
 
-        await self._async_write_offset(desired_offset, calc.clamp_direction)
-        await self._async_flush_pending()
+        try:
+            await self._async_write_offset(desired_offset, calc.clamp_direction)
+            await self._async_flush_pending()
+        except (TadoAuthError, TadoRateLimitError) as e:
+            from .error_dispatch import handle_background_write_error
+
+            self._runtime.pending_offset = desired_offset
+            self._runtime.pending_clamp = calc.clamp_direction
+            handle_background_write_error(
+                e, self._coordinator.config_entry, self._coordinator, self._hass,
+                f"Offset Sync: zone {self._zone_id} write failed — "
+                "starting recovery; will retry on next sensor change",
+            )
 
     async def _async_flush_pending(self) -> None:
         """Write the queued offset once the rate-limit window has expired."""
@@ -327,8 +350,10 @@ class OffsetSyncController:
         if self.is_rate_limited():
             return
 
+        clamp = self._runtime.pending_clamp
         self._runtime.pending_offset = None
-        await self._async_write_offset(pending)
+        self._runtime.pending_clamp = "none"
+        await self._async_write_offset(pending, clamp)
 
     # ------------------------------------------------------------------
     # Write operations
@@ -429,6 +454,7 @@ class OffsetSyncController:
         self._runtime.last_written_offset = readback
         self._runtime.last_offset_write_ts = time.monotonic()
         self._runtime.pending_offset = None
+        self._runtime.pending_clamp = "none"
 
         raw_offsets = self._coordinator.data_loader.get_cached("offsets")
         cached_offsets: dict[str, float] = (
@@ -601,7 +627,15 @@ class OffsetSyncController:
                     "Offset Sync: zone %s loaded current offset %.1f°C from Tado",
                     self._zone_id, offset,
                 )
-        except Exception:
+        except (TadoAuthError, TadoRateLimitError) as e:
+            from .error_dispatch import handle_background_write_error
+
+            handle_background_write_error(
+                e, self._coordinator.config_entry, self._coordinator, self._hass,
+                f"Offset Sync: zone {self._zone_id} could not read offset — "
+                "starting recovery; starting with offset 0.0°C",
+            )
+        except (TimeoutError, aiohttp.ClientError):
             _LOGGER.warning(
                 "Offset Sync: zone %s could not read offset from Tado — "
                 "starting with offset 0.0°C",

@@ -1,13 +1,4 @@
-"""Tado CE API client — async HTTP with rate-limit accounting and per-entry isolation.
-
-Wraps the Tado cloud API for one config entry (one home). Reads the
-`RateLimit-Policy` / `RateLimit` headers on every response, runs four
-strategies to estimate the daily reset time when the cloud doesn't
-provide one, retries idempotent calls on transient 403 / 5xx /
-network errors, and rotates refresh tokens through the `TadoAuthMixin`.
-Multi-home setups get one client instance per entry, each scoped
-to its own `home_id`.
-"""
+"""Tado CE API client — async HTTP with rate-limit accounting and per-entry isolation."""
 
 from __future__ import annotations
 
@@ -43,7 +34,7 @@ from .const import (
     is_climate_zone,
     is_valid_device_offset,
 )
-from .exceptions import TadoAuthError, TadoSyncError
+from .exceptions import TadoAuthError, TadoRateLimitError, TadoSyncError
 from .helpers import mask_serial, parse_iso_datetime, retry_delay
 
 if TYPE_CHECKING:
@@ -137,19 +128,14 @@ class TadoApiClient(TadoAuthMixin):
     def _parse_ratelimit_headers(self, headers: dict[str, Any]) -> None:
         """Parse Tado's `RateLimit-Policy` and `RateLimit` response headers.
 
-        Tado uses RFC 8030-style headers:
-
-        - `RateLimit-Policy: "perday";q=5000;w=86400` → daily quota
-        - `RateLimit: "perday";r=4962;t=xxxxx` → calls remaining
-          (`t=` is unreliable on 200 responses — see below)
-
-        On 200 responses, `t=` often points to midnight UTC rather
-        than the actual ~11:24 UTC reset, and `w=86400` is the window
-        size, not time-to-reset. We clear `reset_seconds` here so
-        save_ratelimit falls back to one of the other reset strategies.
-        Exception: if a prior 429 set `reset_seconds` via Retry-After
-        (RFC 6585 — reliable), the `_from_429` flag preserves it
-        across this parse and gets consumed.
+        Tado uses RFC 8030-style headers. On 200 responses, `t=` often
+        points to midnight UTC rather than the actual ~11:24 UTC
+        reset, and `w=86400` is the window size, not time-to-reset.
+        We clear `reset_seconds` here so save_ratelimit falls back to
+        one of the other reset strategies. Exception: if a prior 429
+        set `reset_seconds` via Retry-After (RFC 6585 — reliable),
+        the `_from_429` flag preserves it across this parse and gets
+        consumed.
         """
         policy = ""
         ratelimit = ""
@@ -238,15 +224,7 @@ class TadoApiClient(TadoAuthMixin):
         last_reset_utc: str | None,
         used: int,
     ) -> tuple[int | None, str | None]:
-        """Resolve seconds-until-reset using four strategies in order of accuracy.
-
-        1. API-provided `reset_seconds` (only present after 429 Retry-After).
-        2. Rolling 24 h from a known previous reset.
-        3. Extrapolation from current usage rate.
-        4. Mode of first-call-of-day timestamps in the call history.
-
-        Returns `(seconds_until_reset, possibly_updated_last_reset_utc)`.
-        """
+        """Resolve seconds-until-reset using four strategies in order of accuracy."""
         calculated: int | None = None
 
         if api_reset_seconds and api_reset_seconds > 0:
@@ -386,12 +364,7 @@ class TadoApiClient(TadoAuthMixin):
         return sum(minutes_in_hour) // len(minutes_in_hour)
 
     def _reset_from_call_history(self, now_utc: datetime) -> int | None:
-        """Strategy 4 — pick the modal first-call-of-day hour from 14 d of call history.
-
-        Filters out outliers like HA restarts at odd hours, which
-        would otherwise drag the average. Returns None when there
-        aren't at least two days agreeing on the same reset hour.
-        """
+        """Strategy 4 — pick the modal first-call-of-day hour from 14 d of call history."""
         tracker = self._api_tracker
         if not tracker:
             return None
@@ -445,7 +418,6 @@ class TadoApiClient(TadoAuthMixin):
         now_utc = dt_util.utcnow()
         prev_data = await self._load_ratelimit()
 
-        # Get real API values from parsed headers
         real_limit = self._rate_limit.get("limit", 5000)
         real_remaining = self._rate_limit.get("remaining", 5000)
         reset_seconds = self._rate_limit.get("reset_seconds", 0)
@@ -463,7 +435,6 @@ class TadoApiClient(TadoAuthMixin):
         percentage_used = result["percentage_used"]
         last_reset_utc = result.get("last_reset_utc", last_reset_utc)
 
-        # Calculate reset time
         calculated_reset_seconds, last_reset_utc = self._calculate_reset_seconds(
             now_utc, reset_seconds, last_reset_utc, used,
         )
@@ -471,7 +442,6 @@ class TadoApiClient(TadoAuthMixin):
             now_utc, calculated_reset_seconds, reset_seconds,
         )
 
-        # Update status based on usage
         if remaining == 0:
             status = "rate_limited"
         elif percentage_used > QUOTA_WARNING_PERCENTAGE:
@@ -520,13 +490,15 @@ class TadoApiClient(TadoAuthMixin):
             self._access_token = None
             self._token_expiry = None
             return True
-        _LOGGER.warning(
-            "API: token expired on %s %s — not retrying, will refresh on next call",
-            method, endpoint,
-        )
         self._access_token = None
         self._token_expiry = None
-        return False
+        _LOGGER.warning(
+            "API: token expired on %s %s — non-retryable, surfacing for reauth",
+            method, endpoint,
+        )
+        raise TadoAuthError(
+            f"Token rejected on non-retryable call {method} {endpoint}",
+        )
 
     async def _handle_403(
         self, method: str, endpoint: str, attempt: int,
@@ -548,11 +520,16 @@ class TadoApiClient(TadoAuthMixin):
         self._access_token = None
         self._token_expiry = None
         _LOGGER.warning(
-            "API: HTTP 403 after %s retry attempts on %s %s — clearing "
-            "token to force a refresh on the next call",
+            "API: HTTP 403 after %s retry attempts on %s %s — credentials "
+            "likely revoked, surfacing to coordinator for reauth",
             MAX_RETRY_ATTEMPTS, method, endpoint,
         )
-        return False
+        # WHY: persistent 403 after retries means transient-WAF-block hypothesis is
+        # exhausted. Per ha-coordinator-pattern.md §2.2, raise TadoAuthError so
+        # coordinator dispatches reauth instead of falling through to cache fallback.
+        raise TadoAuthError(
+            f"Persistent 403 after {MAX_RETRY_ATTEMPTS} retries on {method} {endpoint}",
+        )
 
     async def _resolve_api_url(self, endpoint: str, full_url: str | None) -> str | None:
         """Resolve the absolute URL — prefer `full_url` when given, else build from home ID."""
@@ -561,12 +538,9 @@ class TadoApiClient(TadoAuthMixin):
         config = await self._load_config()
         home_id = config.get("home_id")
         if not home_id:
-            _LOGGER.warning(
-                "API: no home_id configured — cannot resolve %s, "
-                "re-authenticate to fix",
-                endpoint,
+            raise TadoAuthError(
+                f"Home ID missing — cannot resolve {endpoint}, re-authenticate to fix",
             )
-            return None
         return f"{TADO_API_BASE}/homes/{home_id}/{endpoint}"
 
     async def _handle_error_status(
@@ -610,11 +584,16 @@ class TadoApiClient(TadoAuthMixin):
             return "return_success"
 
         if status == HTTPStatus.TOO_MANY_REQUESTS:
+            retry_after_seconds = self._rate_limit.get("reset_seconds", 0) or 0
             _LOGGER.warning(
-                "API: rate limit exceeded on %s — backing off until quota resets",
-                endpoint,
+                "API: HTTP 429 on %s %s — surfacing to coordinator for "
+                "honoured backoff (retry_after=%ss)",
+                method, endpoint, retry_after_seconds,
             )
-            return "return_none"
+            raise TadoRateLimitError(
+                f"Rate-limited on {method} {endpoint}",
+                retry_after=retry_after_seconds,
+            )
 
         if status >= HTTPStatus.INTERNAL_SERVER_ERROR and is_safe_to_retry:
             if attempt < MAX_RETRY_ATTEMPTS:
@@ -675,11 +654,7 @@ class TadoApiClient(TadoAuthMixin):
         tracker: APICallTracker | None,
         call_type: int | None,
     ) -> tuple[dict[str, Any] | None, bool]:
-        """Execute a single API attempt. Returns (result, should_continue).
-
-        Returns (data, False) on success, (None, True) on retryable error,
-        (None, False) on terminal error.
-        """
+        """Execute a single API attempt. Returns (result, should_continue)."""
         async with self._session.request(
             method, url,
             headers={"Authorization": f"Bearer {token}"},
@@ -696,7 +671,6 @@ class TadoApiClient(TadoAuthMixin):
                     return {}, False
                 return await resp.json(), False
 
-            # Read response body for error logging
             try:
                 response_body = await resp.text()
             except Exception:
@@ -704,7 +678,6 @@ class TadoApiClient(TadoAuthMixin):
                 # the request status, so an empty body is acceptable.
                 response_body = ""
 
-            # Parse Retry-After header on 429
             if resp.status == HTTPStatus.TOO_MANY_REQUESTS:
                 retry_after_header = resp.headers.get("Retry-After")
                 if retry_after_header:
@@ -734,11 +707,11 @@ class TadoApiClient(TadoAuthMixin):
     ) -> dict[str, Any] | None:
         """Authenticated request with transient-403 retry on idempotent methods.
 
-        GET / PUT / DELETE retry on 403 (typically a CDN / WAF
-        block). POST never retries — non-idempotent. A 401 on the
-        first attempt of an idempotent method triggers a single
-        token refresh + retry; on subsequent attempts or on POST
-        it's a hard failure.
+        GET / PUT / DELETE retry on 403 (typically a CDN / WAF block).
+        POST never retries — non-idempotent. A 401 on the first
+        attempt of an idempotent method triggers a single token
+        refresh + retry; on POST or subsequent attempts it's a hard
+        failure.
         """
         url = await self._resolve_api_url(endpoint, full_url)
         if url is None:
@@ -773,6 +746,15 @@ class TadoApiClient(TadoAuthMixin):
                 if not await self._should_retry_network_error(attempt, "network error", method, endpoint):
                     return None
             except TadoAuthError:
+                raise
+            except TadoRateLimitError:
+                # Quota exhaustion must reach the coordinator dispatch
+                # (repair issue + retry-after backoff) and the background
+                # write dispatcher — never collapse to a None return.
+                raise
+            except TadoSyncError:
+                # Transient sync errors are the coordinator's to classify;
+                # swallowing here would mislabel them as a generic failure.
                 raise
             except Exception:
                 _LOGGER.warning(
@@ -1003,11 +985,7 @@ class TadoApiClient(TadoAuthMixin):
         offset_enabled: bool = False,
         home_state_sync_enabled: bool = False,
     ) -> None:
-        """Run one cycle of cloud data fetches, raising typed errors for the coordinator.
-
-        - `TadoAuthError` → `ConfigEntryAuthFailed` (HA reauth flow).
-        - `TadoSyncError` → `UpdateFailed` (coordinator retries on next poll).
-        """
+        """Run one cycle of cloud data fetches, raising typed errors for the coordinator."""
         sync_type = "quick" if quick else "full"
         _LOGGER.debug("API: starting %s sync", sync_type)
         await self._ensure_home_id()
@@ -1061,6 +1039,9 @@ class TadoApiClient(TadoAuthMixin):
             raise
         except TadoSyncError:
             raise
+        except TadoRateLimitError:
+            await self.save_ratelimit("error")
+            raise
         except aiohttp.ClientError as e:
             _LOGGER.warning(
                 "API: %s sync hit a network error — coordinator will "
@@ -1069,28 +1050,20 @@ class TadoApiClient(TadoAuthMixin):
             )
             await self.save_ratelimit("error")
             raise TadoSyncError(f"Network error during sync: {e}") from e
-        except Exception as e:
-            _LOGGER.warning(
-                "API: %s sync raised an unexpected error — coordinator "
-                "will retry on next poll",
-                sync_type, exc_info=True,
-            )
-            await self.save_ratelimit("error")
-            raise TadoSyncError(f"Sync failed: {e}") from e
 
-    async def async_resync_offsets(self, zones_info: list[Any]) -> None:
+    async def async_resync_offsets(self, zones_info: list[Any]) -> int:
         """Public wrapper around `_sync_offsets` for the coordinator's drift-refresh path.
 
-        Called on `OFFSET_DRIFT_REFRESH_SECONDS` cadence so the
-        cached offsets stay close to Tado's stored values even when
-        Tado's adaptive calibration walks them behind our back.
-        Idempotent.
+        Called on `OFFSET_DRIFT_REFRESH_SECONDS` cadence so the cached
+        offsets stay close to Tado's stored values even when Tado's
+        adaptive calibration walks them behind our back.
         """
-        await self._sync_offsets(zones_info)
+        return await self._sync_offsets(zones_info)
 
-    async def _sync_offsets(self, zones_info: list[Any]) -> None:
+    async def _sync_offsets(self, zones_info: list[Any]) -> int:
         """Refresh the device-offset cache for every heating / AC zone."""
         offsets = {}
+        calls_made = 0
 
         for zone in zones_info:
             zone_id = str(zone.get("id"))
@@ -1104,6 +1077,7 @@ class TadoApiClient(TadoAuthMixin):
                 serial = device.get("shortSerialNo")
                 if serial:
                     try:
+                        calls_made += 1
                         offset = await self.get_device_offset(serial)
                         if offset is not None:
                             if not is_valid_device_offset(offset):
@@ -1134,12 +1108,10 @@ class TadoApiClient(TadoAuthMixin):
                 await self._data_loader.async_update_store("offsets", offsets)
             _LOGGER.debug("API: offsets saved for %s zone(s)", len(offsets))
 
-    async def _sync_ac_capabilities(self, zones_info: list[Any]) -> None:
-        """Cache the per-zone AC capabilities — skipped when the cache is already populated.
+        return calls_made
 
-        Capabilities don't change over the lifetime of the device,
-        so there's no value in re-fetching every poll.
-        """
+    async def _sync_ac_capabilities(self, zones_info: list[Any]) -> None:
+        """Cache the per-zone AC capabilities — skipped when the cache is already populated."""
         if self._data_loader is not None:
             cached = self._data_loader.get_cached("ac_capabilities")
             if cached is not None:
@@ -1227,7 +1199,6 @@ class TadoApiClient(TadoAuthMixin):
         comfort_level: int = 50,
     ) -> bool:
         """Set the zone's away configuration (mode = "auto" / "manual" / "off")."""
-        # Build payload based on mode
         if mode == "auto":
             payload: dict[str, Any] = {
                 "type": "HEATING",

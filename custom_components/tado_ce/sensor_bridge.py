@@ -1,12 +1,4 @@
-"""Tado CE bridge sensors — dynamic field discovery + capabilities + schema tracking.
-
-Each Tado bridge exposes a different subset of API fields depending
-on wiring (relay-only, OpenTherm, etc.). Rather than hard-coding a
-sensor per field, this module discovers fields at runtime from the
-bridge response, formats values via a named-formatter registry,
-and tracks schema drift between polls so the user can see when
-Tado adds or removes fields.
-"""
+"""Tado CE bridge sensors — dynamic field discovery + capabilities + schema tracking."""
 
 from __future__ import annotations
 
@@ -72,10 +64,7 @@ def _get_formatter_registry() -> dict[str, Any]:
 
 
 def _resolve_dot_path(data: dict[str, object], path: str) -> object | None:
-    """Navigate nested dict by dot-notation path.
-
-    Returns None if any key is missing along the path.
-    """
+    """Navigate nested dict by dot-notation path (None on any missing key)."""
     current: object = data
     for key in path.split("."):
         if not isinstance(current, dict):
@@ -106,11 +95,7 @@ def _format_value(
     value_type: str,
     formatter_name: str | None,
 ) -> str | float:
-    """Format a raw value using a named formatter or type inference fallback.
-
-    For numeric sensor values (temperature etc.), returns float directly
-    so HA can apply unit conversion. For everything else, returns a string.
-    """
+    """Format a raw value using a named formatter or type inference fallback."""
     # Named formatter takes priority — defined fields use it; inferred
     # fields fall through to format_display_value.
     if formatter_name:
@@ -128,7 +113,6 @@ def _format_value(
     if isinstance(value, (int, float)) and not isinstance(value, bool):
         return float(value)
 
-    # Fallback to type inference display formatting
     return format_display_value(value, value_type, path)
 
 
@@ -159,7 +143,6 @@ class TadoDynamicBridgeSensor(
         self._attr_available = False
         self._attr_native_value = None
 
-        # Unique ID
         self._attr_unique_id = f"tado_ce_{coordinator.home_id}_{resolved.unique_id_suffix}"
 
         # Translation key (enriched fields have one, inferred fields use suggested_name)
@@ -170,23 +153,18 @@ class TadoDynamicBridgeSensor(
 
         self._attr_entity_registry_enabled_default = resolved.enabled_default
 
-        # Device class
         if resolved.device_class:
             self._attr_device_class = SensorDeviceClass(resolved.device_class)
 
-        # State class
         if resolved.state_class:
             self._attr_state_class = SensorStateClass(resolved.state_class)
 
-        # Unit
         if resolved.unit_of_measurement:
             self._attr_native_unit_of_measurement = resolved.unit_of_measurement
 
-        # Icon
         if resolved.icon:
             self._attr_icon = resolved.icon
 
-        # Entity category
         if resolved.entity_category:
             self._attr_entity_category = EntityCategory(resolved.entity_category)
 

@@ -1,11 +1,4 @@
-"""Tado CE insight collector — gathers per-zone, cross-zone, and hub insights.
-
-Pure-function module called by the home / zone insight sensors
-to assemble actionable recommendations from coordinator state
-and published entity data. Each collector returns an
-`InsightResult` dataclass; the caller renders it into entity
-state + attributes.
-"""
+"""Tado CE insight collector — gathers per-zone, cross-zone, and hub insights."""
 
 from __future__ import annotations
 
@@ -75,12 +68,7 @@ _OUTDOOR_TEMP_MIN_SAMPLES = 48  # minimum outdoor temp readings for 7-day averag
 
 @dataclass(frozen=True)
 class InsightContext:
-    """Immutable config snapshot for gating insights per poll cycle.
-
-    Each boolean reflects whether the corresponding feature is enabled
-    in the user's config. Insight collectors check these flags before
-    producing insights, so disabled features never generate noise.
-    """
+    """Immutable config snapshot for gating insights per poll cycle."""
 
     environment_enabled: bool
     preheat_enabled: bool
@@ -92,14 +80,7 @@ class InsightContext:
 
     @classmethod
     def from_coordinator(cls, coordinator: TadoDataUpdateCoordinator) -> InsightContext:
-        """Build context from coordinator config and API state.
-
-        Args:
-            coordinator: The data update coordinator.
-
-        Returns:
-            Frozen InsightContext snapshot.
-        """
+        """Build context from coordinator config and API state."""
         cfg = coordinator.config_manager
 
         # Geofencing is active only when presence sync is on AND
@@ -111,7 +92,10 @@ class InsightContext:
         )
 
         return cls(
-            environment_enabled=cfg.get_environment_sensors_enabled(),
+            # Environment sensors are always on (the old config toggle was
+            # never user-reachable); keep the gate field for the collector's
+            # per-cycle insight gating, which other features still share.
+            environment_enabled=True,
             preheat_enabled=cfg.get_adaptive_preheat_enabled(),
             thermal_enabled=cfg.get_thermal_analytics_enabled(),
             schedule_enabled=cfg.get_schedule_calendar_enabled(),
@@ -254,26 +238,7 @@ def collect_single_zone_insights(
     schedules: dict[str, Any] | None = None,
     ctx: InsightContext | None = None,
 ) -> list[Any]:
-    """Collect all insights for a single zone.
-
-    Shared by both TadoHomeInsightsSensor (via collect_zone_insights) and
-    TadoZoneInsightsSensor (direct call) so insight logic stays in one place.
-
-    Args:
-        hass: Home Assistant instance.
-        coordinator: TadoDataUpdateCoordinator instance.
-        zone_id: Zone ID string.
-        zone_name: Human-readable zone name.
-        zone_data: Zone state dict from zoneStates.
-        zones_info: List of zone info dicts (for battery/connection/device).
-        anomaly_start_times: Mutable dict tracking per-zone anomaly start.
-        humidity_histories: Mutable dict for humidity trend (Home sensor only).
-        schedules: Pre-loaded schedules dict (None = skip schedule gap).
-        ctx: Config context for gating insights. Built automatically if None.
-
-    Returns:
-        List of Insight objects for this zone.
-    """
+    """Collect all insights for a single zone."""
     if ctx is None:
         ctx = InsightContext.from_coordinator(coordinator)
 
@@ -334,17 +299,7 @@ def collect_zone_insights(
     anomaly_start_times: dict[str, datetime],
     humidity_histories: dict[str, list[Any]],
 ) -> dict[str, list[Any]]:
-    """Collect insights from all zones by reading zone data files.
-
-    Args:
-        hass: Home Assistant instance.
-        coordinator: TadoDataUpdateCoordinator instance.
-        anomaly_start_times: Mutable dict tracking per-zone anomaly start times.
-        humidity_histories: Mutable dict tracking per-zone humidity history.
-
-    Returns:
-        Dict mapping zone names to lists of Insight objects.
-    """
+    """Collect insights from all zones by reading zone data files."""
     zone_insights: dict[str, list[Any]] = {}
 
     try:
@@ -519,13 +474,7 @@ def _collect_ha_entity_insights(
     insights: list[Any],
     ctx: InsightContext,
 ) -> None:
-    """Collect insights using coordinator data instead of hass.states.get().
-
-    Reads condensation risk and window predicted from coordinator.entity_data
-    (published by entity update() methods). Reads heating power directly from
-    zone_data (already in coordinator.data). Reads preheat time from
-    HeatingCycleCoordinator.
-    """
+    """Collect insights using coordinator data instead of hass.states.get()."""
     if ctx.environment_enabled:
         _collect_condensation_insight(coordinator, zone_id, zone_name, insights)
         _collect_window_predicted_insight(coordinator, zone_id, zone_name, insights)
@@ -542,10 +491,7 @@ def _check_thermal_efficiency(
     zone_id: str,
     zone_name: str,
 ) -> dict[str, Any] | None:
-    """Check poor thermal efficiency insight.
-
-    Reads thermal analytics from HeatingCycleCoordinator — no hass.states.get() needed.
-    """
+    """Check poor thermal efficiency insight (reads thermal analytics from HeatingCycleCoordinator)."""
     hcc = coordinator.heating_cycle_coordinator
     if not hcc:
         return None
@@ -766,10 +712,7 @@ def _collect_all_cross_zone(
     zone_name_map: dict[str, str],
     zones_info: list[Any] | None,
 ) -> list[Any]:
-    """Collect all cross-zone insights based on context flags.
-
-    Returns list of non-None insights.
-    """
+    """Collect all cross-zone insights based on context flags."""
     candidates: list[Any] = []
 
     if ctx.environment_enabled and zone_states:
@@ -797,12 +740,7 @@ def get_cross_zone_insights(
     zone_insights: dict[str, list[Any]],
     ctx: InsightContext | None = None,
 ) -> list[Any]:
-    """Get cross-zone aggregation insights.
-
-    Checks for whole-house mold risk, multiple open windows,
-    condensation aggregation, efficiency comparison, temperature
-    and humidity imbalance.
-    """
+    """Get cross-zone aggregation insights (mold, windows, condensation, efficiency, imbalance)."""
     if ctx is None:
         ctx = InsightContext.from_coordinator(coordinator)
 
@@ -900,16 +838,7 @@ def get_hub_insights(
     coordinator: TadoDataUpdateCoordinator,
     ctx: InsightContext | None = None,
 ) -> list[Any]:
-    """Get hub-level insights (API quota, weather, presence).
-
-    Args:
-        hass: Home Assistant instance.
-        coordinator: TadoDataUpdateCoordinator instance.
-        ctx: Config context for gating insights. Built automatically if None.
-
-    Returns:
-        List of hub-level Insight objects.
-    """
+    """Get hub-level insights (API quota, weather, presence)."""
     if ctx is None:
         ctx = InsightContext.from_coordinator(coordinator)
 
@@ -918,18 +847,14 @@ def get_hub_insights(
     try:
         coord_data = coordinator.data or {}
 
-        # --- API quota planning (always relevant) ---
         _collect_api_quota_insight(coord_data, hub_insights)
 
-        # --- Weather impact + frost risk (weather) ---
         if ctx.weather_enabled:
             _collect_weather_insights(coordinator, coord_data, hub_insights)
 
-        # --- Away + heating active / Home + all off (presence) ---
         if ctx.presence_enabled:
             _collect_presence_insights(hass, coordinator, hub_insights)
 
-        # --- Geofencing device offline (geofencing active) ---
         if ctx.geofencing_active:
             mobile_devices = coord_data.get("mobile_devices")
             if mobile_devices:
@@ -947,7 +872,6 @@ def get_hub_insights(
                 if geo_insight:
                     hub_insights.append(geo_insight)
 
-        # --- API usage spike (always relevant) ---
         _collect_api_spike_insight(coord_data, hub_insights)
 
     except Exception as e:
@@ -963,10 +887,7 @@ def get_hub_insights(
 def _scan_zone_presence_data(
     zone_states: dict[str, Any], zone_name_map: dict[str, str],
 ) -> tuple[list[dict[str, Any]], bool, str | None, float | None, float | None]:
-    """Scan zone states for presence insight data.
-
-    Returns (active_zones, all_off, coldest_name, coldest_temp, coldest_target).
-    """
+    """Scan zone states for presence insight data."""
     active_zones: list[dict[str, Any]] = []
     all_off = True
     coldest_name: str | None = None

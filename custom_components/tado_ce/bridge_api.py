@@ -1,9 +1,4 @@
-"""Tado CE bridge API client — read boiler wiring state, set flow temperature.
-
-Wraps the per-bridge `homeByBridge/<serial>` endpoints. Operates with
-the bridge's own auth key, independent of the cloud OAuth flow, and
-does not count toward the daily cloud API quota.
-"""
+"""Tado CE bridge API client — read boiler wiring state, set flow temperature."""
 
 from __future__ import annotations
 

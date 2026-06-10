@@ -236,18 +236,7 @@ def calculate_condensation_recommendation(
     ac_setpoint: float | None = None,
     current_temp: float | None = None,
 ) -> str:
-    """Calculate SMART recommendation for condensation risk (AC zones).
-
-    Args:
-        risk_level: Current risk level (Critical, High, Medium, Low, Minimal)
-        zone_name: Name of the zone
-        margin: Temperature margin above dew point
-        ac_setpoint: Current AC setpoint temperature
-        current_temp: Current room temperature
-
-    Returns:
-        SMART recommendation string (empty if no action needed)
-    """
+    """Calculate SMART recommendation for condensation risk (AC zones)."""
     if risk_level in ("Minimal", "Low"):
         return ""
 
@@ -285,26 +274,7 @@ def calculate_heating_condensation_recommendation(
     surface_temp: float | None = None,
     dew_point: float | None = None,
 ) -> str:
-    """Calculate SMART recommendation for condensation risk (HEATING zones).
-
-    For heating zones, condensation forms on the INSIDE of windows when
-    indoor humidity is high and window inner surface temp drops below
-    indoor dew point.
-
-    All values are calculated from current conditions — NO hardcoded
-    temperature or humidity thresholds.
-
-    Args:
-        risk_level: Current risk level (Critical, High, Medium, Low, None)
-        zone_name: Name of the zone
-        margin: Temperature margin (surface_temp - dew_point)
-        humidity: Current indoor humidity percentage
-        surface_temp: Estimated window inner surface temperature
-        dew_point: Indoor dew point temperature
-
-    Returns:
-        SMART recommendation string (empty if no action needed)
-    """
+    """Calculate SMART recommendation for condensation risk on heating-zone window inner surfaces."""
     if risk_level in ("None", "Low"):
         return ""
 
@@ -343,19 +313,7 @@ def calculate_humidity_trend_insight(
     humidity_history: list[Any] | None = None,
     zone_name: str = "",
 ) -> Insight | None:
-    """Detect rising humidity trend in a zone.
-
-    Compares current humidity to the average of recent history to detect
-    a significant upward trend.
-
-    Args:
-        current_humidity: Current humidity percentage
-        humidity_history: List of recent humidity readings (floats)
-        zone_name: Name of the zone
-
-    Returns:
-        Insight if humidity trending upward significantly, None otherwise
-    """
+    """Detect rising humidity trend in a zone (current vs recent average)."""
     if current_humidity is None or not humidity_history:
         return None
     if len(humidity_history) < HUMIDITY_TREND_MIN_SAMPLES:

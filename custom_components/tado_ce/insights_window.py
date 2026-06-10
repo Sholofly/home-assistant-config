@@ -59,18 +59,12 @@ def detect_window_predicted(
     readings: list[InsightTemperatureReading],
     hvac_active: bool,
     zone_name: str = "Room",
-    temp_threshold: float = 1.5,
     time_window_minutes: int = 5,
-    humidity_check: bool = True,
     hvac_mode: str = "heating",
     consecutive_drops: int = 2,
     sensitivity: str = "medium",
 ) -> WindowPredictedResult:
-    """Detect possible open window via heating/cooling anomaly detection.
-
-    When HVAC is active but temperature moves in the wrong direction across
-    consecutive polling readings, an open window is the most likely cause.
-    """
+    """Detect possible open window via heating/cooling anomaly detection."""
     _not_detected = WindowPredictedResult(
         detected=False, confidence="none", temp_drop=0.0,
         time_window_minutes=time_window_minutes, recommendation="", anomaly_readings=0,
@@ -120,11 +114,7 @@ def _redistribute_weights(
     has_humidity: bool,
     has_outdoor: bool,
 ) -> tuple[float, float, float]:
-    """Redistribute signal weights when signals are unavailable.
-
-    Returns (temp_weight, humidity_weight, outdoor_weight) summing to 1.0.
-    Missing signal weight is distributed proportionally to remaining signals.
-    """
+    """Redistribute signal weights proportionally when signals are unavailable (sum=1.0)."""
     if has_humidity and has_outdoor:
         return PASSIVE_WEIGHT_TEMP, PASSIVE_WEIGHT_HUMIDITY, PASSIVE_WEIGHT_OUTDOOR
 
@@ -271,16 +261,7 @@ def detect_window_passive(
     window_u_value: float = 2.7,
     seasonal_baseline: float | None = None,
 ) -> WindowPredictedResult:
-    """Detect open window using rate-based multi-signal scoring.
-
-    Unlike detect_window_predicted() (active mode), this function
-    does NOT require hvac_active. It analyzes temperature drop RATE
-    and humidity changes to distinguish open-window cooling from
-    natural cooling.
-
-    Flat readings (temp unchanged) do NOT break the anomaly streak.
-    Only temperature rises break the streak (for heating mode).
-    """
+    """Detect open window via rate-based multi-signal scoring (no hvac_active required)."""
     preset = WINDOW_PASSIVE_SENSITIVITY_PRESETS.get(
         sensitivity, WINDOW_PASSIVE_SENSITIVITY_PRESETS["medium"],
     )

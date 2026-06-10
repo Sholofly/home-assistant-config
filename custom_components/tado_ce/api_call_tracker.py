@@ -87,14 +87,12 @@ class APICallTracker:
         self.home_id = home_id
         self._config_manager = config_manager
 
-        # HA Store for persistent storage
         self._store: Store[dict[str, Any]] = Store(
             hass,
             1,
             f"tado_ce/api_call_tracker_{home_id or 'default'}",
         )
 
-        # Old JSON file path for migration
         from .const import get_data_file  # avoid circular import
 
         self._old_json_path = get_data_file("api_call_history", home_id)

@@ -19,17 +19,7 @@ from .insights_models import (
 def aggregate_cross_zone_mold_risk(
     zone_mold_risks: dict[str, str],
 ) -> Insight | None:
-    """Aggregate mold risk across zones.
-
-    Triggers when 3+ zones have Medium/High/Critical mold risk,
-    suggesting a whole-house humidity problem.
-
-    Args:
-        zone_mold_risks: Dict mapping zone names to risk levels
-
-    Returns:
-        Insight if whole-house issue detected, None otherwise
-    """
+    """Aggregate mold risk across zones (whole-house humidity problem)."""
     if not zone_mold_risks:
         return None
 
@@ -45,7 +35,6 @@ def aggregate_cross_zone_mold_risk(
         f"check ventilation system"
     )
 
-    # Priority based on worst zone
     has_critical = any(zone_mold_risks[z] == "Critical" for z in affected)
     priority = InsightPriority.CRITICAL if has_critical else InsightPriority.HIGH
 
@@ -60,17 +49,7 @@ def aggregate_cross_zone_mold_risk(
 def aggregate_cross_zone_window_predicted(
     zone_window_states: dict[str, bool],
 ) -> Insight | None:
-    """Aggregate window predicted across zones.
-
-    Triggers when 2+ zones have window_predicted=on,
-    suggesting multiple windows are open simultaneously.
-
-    Args:
-        zone_window_states: Dict mapping zone names to window predicted state
-
-    Returns:
-        Insight if multiple windows detected, None otherwise
-    """
+    """Aggregate window predicted across zones (multiple windows open simultaneously)."""
     if not zone_window_states:
         return None
 
@@ -93,17 +72,7 @@ def aggregate_cross_zone_window_predicted(
 def aggregate_cross_zone_condensation(
     zone_condensation_states: dict[str, Any],
 ) -> Insight | None:
-    """Aggregate condensation risk across zones.
-
-    Triggers when 3+ zones have condensation risk, suggesting a
-    whole-house ventilation issue.
-
-    Args:
-        zone_condensation_states: Dict mapping zone_name -> risk_level string
-
-    Returns:
-        Insight if whole-house condensation issue, None otherwise
-    """
+    """Aggregate condensation risk across zones (whole-house ventilation issue)."""
     if not zone_condensation_states:
         return None
 
@@ -134,16 +103,7 @@ def aggregate_cross_zone_condensation(
 def calculate_cross_zone_efficiency_insight(
     zone_heating_rates: dict[str, Any],
 ) -> Insight | None:
-    """Compare heating efficiency across zones.
-
-    Triggers when one zone heats significantly slower than the average.
-
-    Args:
-        zone_heating_rates: Dict mapping zone_name -> heating_rate (°C/h)
-
-    Returns:
-        Insight if significant efficiency difference found, None otherwise
-    """
+    """Compare heating efficiency across zones (slowest vs average)."""
     if not zone_heating_rates or len(zone_heating_rates) < CROSS_ZONE_EFFICIENCY_MIN_ZONES:
         return None
 
@@ -152,7 +112,6 @@ def calculate_cross_zone_efficiency_insight(
     if avg_rate <= 0:
         return None
 
-    # Find the slowest zone
     slowest_zone = min(zone_heating_rates, key=zone_heating_rates.get)  # type: ignore[arg-type]
     slowest_rate = zone_heating_rates[slowest_zone]
 
@@ -177,15 +136,7 @@ def calculate_cross_zone_efficiency_insight(
 def calculate_temperature_imbalance_insight(
     zone_temperatures: dict[str, Any],
 ) -> Insight | None:
-    """Detect large temperature differences between active zones.
-
-    Args:
-        zone_temperatures: Dict mapping zone_name -> temperature (°C)
-            Only include zones where power is ON.
-
-    Returns:
-        Insight if significant imbalance found, None otherwise
-    """
+    """Detect large temperature differences between active zones."""
     if not zone_temperatures or len(zone_temperatures) < CROSS_ZONE_EFFICIENCY_MIN_ZONES:
         return None
 
@@ -215,21 +166,13 @@ def calculate_temperature_imbalance_insight(
 def calculate_humidity_imbalance_insight(
     zone_humidities: dict[str, Any],
 ) -> Insight | None:
-    """Detect when one zone has significantly higher humidity than others.
-
-    Args:
-        zone_humidities: Dict mapping zone_name -> humidity (%)
-
-    Returns:
-        Insight if significant humidity imbalance found, None otherwise
-    """
+    """Detect when one zone has significantly higher humidity than others."""
     if not zone_humidities or len(zone_humidities) < CROSS_ZONE_EFFICIENCY_MIN_ZONES:
         return None
 
     values = list(zone_humidities.values())
     avg_humidity = sum(values) / len(values)
 
-    # Find the most humid zone
     most_humid_zone = max(zone_humidities, key=zone_humidities.get)  # type: ignore[arg-type]
     most_humid_val = zone_humidities[most_humid_zone]
 

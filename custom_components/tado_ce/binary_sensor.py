@@ -1,13 +1,4 @@
-"""Tado CE binary sensors — home / away, open window, preheat now, connectivity.
-
-Each entity surfaces a discrete on/off state derived from
-coordinator data: home occupancy, Tado-detected open windows,
-Smart Comfort preheat-now flag, bridge / HomeKit connectivity,
-and per-device cloud connection state. Window detection layers
-a passive + predicted strategy on top of Tado's own signal so
-zones without OpenWindowDetection licenses still get a useful
-indicator.
-"""
+"""Tado CE binary sensors — home / away, open window, preheat now, connectivity."""
 
 from __future__ import annotations
 
@@ -96,10 +87,8 @@ async def async_setup_entry(
 
     sensors: list[BinarySensorEntity] = []
 
-    # Home/Away sensor (global)
     sensors.append(TadoHomeSensor(coordinator))
 
-    # Open Window sensors (per zone that supports it)
     if zones_info:
         for zone in zones_info:
             zone_id = str(zone.get("id"))
@@ -127,8 +116,8 @@ async def async_setup_entry(
         sensors.append(TadoBridgeConnectedSensor(coordinator))
         _LOGGER.debug("Binary Sensor: bridge connected sensor created")
 
-    # Device connection sensors (per device, when zone_diagnostics enabled)
-    if config_manager.get_zone_diagnostics_enabled() and zones_info:
+    # Device connection sensors (per device)
+    if zones_info:
         _create_device_connection_sensors(coordinator, zones_info, sensors)
 
     # Hot water power sensors (per HOT_WATER zone)
@@ -180,12 +169,7 @@ def _create_device_connection_sensors(
 
 
 class TadoHomeSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], BinarySensorEntity):
-    """Binary sensor for Tado Home/Away status.
-
-    Reads from home_state.json (source of truth for presence) instead of
-    zones.json tadoMode. Falls back to zones.json if home_state is not
-    available (e.g., home_state_sync_enabled=false).
-    """
+    """Binary sensor for Tado Home/Away status (reads home_state.json with zones.json fallback)."""
 
     _attr_has_entity_name = True
 
@@ -222,11 +206,7 @@ class TadoHomeSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], BinarySenso
 
     @callback
     def update(self) -> None:
-        """Update from home_state.json (primary) or zones.json (fallback).
-
-        Changed to read from home_state.json as source of truth.
-        Falls back to zones.json tadoMode if home_state is not available.
-        """
+        """Update from home_state.json (primary) or zones.json (fallback)."""
         try:
             coord_data = self.coordinator.data or {}
 
@@ -347,14 +327,7 @@ class TadoOpenWindowSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], Binar
 
 
 class TadoPreheatNowSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], BinarySensorEntity):
-    """Binary sensor indicating when to start preheating.
-
-    Turns ON when current time >= recommended preheat start time.
-    Uses data from TadoPreheatAdvisorSensor to determine timing.
-
-    UFH buffer is already applied in TadoPreheatAdvisorSensor,
-    so this sensor just reads the adjusted time directly.
-    """
+    """Binary sensor indicating when to start preheating (turns ON at recommended start time)."""
 
     _attr_has_entity_name = True
 
@@ -418,13 +391,7 @@ class TadoPreheatNowSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], Binar
 
     @callback
     def update(self) -> None:
-        """Update preheat now status.
-
-        Logic:
-        1. Get preheat advisor data from coordinator.entity_data (no hass.states.get)
-        2. If recommended start time exists and is valid
-        3. Turn ON if current time >= recommended start time
-        """
+        """Update preheat now status."""
         try:
             from datetime import datetime
 
@@ -605,14 +572,7 @@ def _restore_window_detection_state(
 
 
 class TadoWindowPredictedSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], BinarySensorEntity):
-    """Binary sensor for early open window detection.
-
-    Detects possible open windows using local temperature analysis,
-    providing early warning before Tado's cloud detection triggers.
-
-    This is a PREDICTIVE sensor - it does NOT replace Tado's confirmed
-    Window binary sensor (binary_sensor.{zone}_window).
-    """
+    """Binary sensor for early open window detection (predictive — does not replace Tado's openWindow)."""
 
     _attr_has_entity_name = True
 
@@ -805,11 +765,7 @@ class TadoWindowPredictedSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], 
         return sum(recent) / len(recent)
 
     def _apply_cooldown(self, result: WindowPredictedResult) -> WindowPredictedResult:
-        """Apply cooldown/hysteresis to prevent flickering.
-
-        After detection clears, require N consecutive non-anomaly readings
-        before actually clearing. N depends on sensitivity preset.
-        """
+        """Apply cooldown/hysteresis (require N consecutive clears before flipping off)."""
         if result.detected:
             self._cooldown_counter = 0
             return result
@@ -879,15 +835,7 @@ class TadoWindowPredictedSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], 
 
     @callback
     def update(self) -> None:
-        """Update window predicted detection via heating anomaly algorithm.
-
-        Logic:
-        1. Get current temperature and humidity from zone data
-        2. Add to rolling history
-        3. Determine HVAC state and mode (heating vs cooling)
-        4. Dispatch to active or passive detection based on mode config
-        5. Apply cooldown, fire events, update history
-        """
+        """Update window predicted detection via heating anomaly algorithm."""
         try:
             coord_data = self.coordinator.data or {}
             zone_data = get_zone_state(coord_data, self._zone_id)

@@ -101,13 +101,7 @@ class HeatingCycleCoordinator(DataUpdateCoordinator):
         current_temp: float,
         timestamp: datetime | None = None,
     ) -> None:
-        """Atomically apply a setpoint + temperature update for one zone.
-
-        Handles both halves under a single lock so a setpoint change and
-        the temperature reading that triggered it can't interleave with
-        another zone's update. Order: check / start cycle on setpoint,
-        record the reading, then check whether the cycle completed.
-        """
+        """Atomically apply a setpoint + temperature update for one zone (single lock prevents interleaving)."""
         if timestamp is None:
             timestamp = dt_util.utcnow()
 
@@ -211,11 +205,7 @@ class HeatingCycleCoordinator(DataUpdateCoordinator):
         return self._zone_data.get(zone_id)
 
     def get_zone_state(self, zone_id: str) -> dict[str, Any] | None:
-        """Return the cached current/target temperature snapshot for one zone.
-
-        Lets sensors read the latest reading synchronously from
-        native_value without blocking on storage I/O.
-        """
+        """Return cached current/target temperature snapshot — lets sensors read sync without blocking on storage."""
         return self._zone_states.get(zone_id)
 
     async def get_cycles(self, zone_id: str) -> list[HeatingCycle]:

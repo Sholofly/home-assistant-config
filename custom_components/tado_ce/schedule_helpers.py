@@ -24,16 +24,7 @@ DAY_TYPE_MAP = {
 
 
 def _get_day_blocks(blocks: dict[str, Any], schedule_type: str, weekday: int) -> list[Any]:
-    """Get schedule blocks for a specific weekday.
-
-    Args:
-        blocks: Schedule blocks dict from schedule data
-        schedule_type: ONE_DAY, THREE_DAY, or SEVEN_DAY
-        weekday: 0=Monday, 6=Sunday
-
-    Returns:
-        List of blocks for that day
-    """
+    """Get schedule blocks for a specific weekday (handles ONE_DAY / THREE_DAY / SEVEN_DAY layouts)."""
     # Tado API may return null for existing keys; 'or []' handles None correctly
     if schedule_type == "ONE_DAY":
         return blocks.get("MONDAY_TO_SUNDAY") or []
@@ -62,11 +53,7 @@ def _find_current_block(
     day_blocks: list[Any],
     current_time_str: str,
 ) -> dict[str, Any] | None:
-    """Find the schedule block covering the given time.
-
-    Blocks are assumed sorted by start time. The current block is the last
-    one whose start <= *current_time_str*.
-    """
+    """Find the schedule block covering the given time (assumes blocks are sorted by start)."""
     current_block: dict[str, Any] | None = None
     for block in day_blocks:
         block_start: str = block.get("start", "00:00")
@@ -93,14 +80,7 @@ def get_current_schedule_target(
     data_loader: DataLoader | None = None,
     current_time: datetime | None = None,
 ) -> float | None:
-    """Get the scheduled target temperature for the current time block.
-
-    Returns the target temperature from the active schedule block that
-    covers the current time, or None if no schedule data is available
-    or heating is OFF in the current block.
-
-    Uses the local ``_get_day_blocks`` for schedule-type resolution.
-    """
+    """Get scheduled target temperature for the current time block (None when no schedule or block is OFF)."""
     if data_loader is None:
         return None
 

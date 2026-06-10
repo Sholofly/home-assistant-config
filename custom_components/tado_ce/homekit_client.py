@@ -1,11 +1,4 @@
-"""Tado CE HomeKit client — pairing, connection lifecycle, exponential-backoff reconnect.
-
-Wraps `aiohomekit`'s Controller and IpPairing for one Tado bridge:
-two-step pairing flow (used by the config flow), persistence of
-the pairing credentials in HA Store, automatic reconnect with
-exponential backoff plus jitter, and post-reconnect callbacks
-(re-subscribe events, reset write-health circuit).
-"""
+"""Tado CE HomeKit client — pairing, connection lifecycle, exponential-backoff reconnect."""
 
 from __future__ import annotations
 
@@ -44,6 +37,30 @@ CHAR_MODEL: Final = "21"
 _STORE_VERSION = 1
 
 
+async def async_create_controller(hass: HomeAssistant) -> Any:
+    """Build and start an aiohomekit Controller on the shared zeroconf instance.
+
+    The aiohomekit import triggers lark grammar loading (blocking file I/O),
+    so the import runs off the event loop. The returned controller is already
+    started — its _hap browser begins warming the discovery cache immediately.
+    """
+    from homeassistant.components.zeroconf import async_get_async_instance
+
+    zeroconf = await async_get_async_instance(hass)
+
+    def _create_controller() -> Any:
+        from aiohomekit import Controller
+        return Controller
+
+    controller_cls = await hass.async_add_executor_job(_create_controller)
+    controller = controller_cls(
+        async_zeroconf_instance=zeroconf,
+        char_cache={},
+    )
+    await controller.async_start()
+    return controller
+
+
 class HomeKitClient:
     """Per-home HomeKit connection wrapper around aiohomekit's Controller + IpPairing."""
 
@@ -52,28 +69,35 @@ class HomeKitClient:
         hass: HomeAssistant,
         home_id: str,
         pairing_path: Path | None = None,
+        controller: Any | None = None,
     ) -> None:
-        """Initialise the client. `pairing_path` is accepted for legacy compatibility but ignored."""
+        """Initialise the client. `pairing_path` is accepted for legacy compatibility but ignored.
+
+        `controller` is an optional shared, already-started aiohomekit
+        Controller. When supplied, this client uses it and never builds or
+        stops its own — the owner (the entry) manages its lifecycle.
+        """
         self._hass = hass
         self._home_id = home_id
         self._store: Store[dict[str, Any]] = Store(
             hass, _STORE_VERSION, f"tado_ce/homekit_pairing_{home_id}",
         )
-        # Old JSON path for migration
         from .const import get_data_file
 
         self._old_pairing_path = get_data_file("homekit_pairing", home_id)
-        self._controller: Any | None = None  # aiohomekit Controller
+        self._controller: Any | None = controller  # aiohomekit Controller
+        # True only when this client built the controller itself and is
+        # therefore responsible for stopping it. False for an injected
+        # shared controller (the entry owns that one).
+        self._owns_controller: bool = controller is None
         self._pairing: Any | None = None  # aiohomekit IpPairing
         self._is_connected = False
         self._reconnect_task: asyncio.Task[None] | None = None
         self._closing = False
 
-        # Zone mapping (set after pairing/connect)
         self._serial_to_zone: dict[str, str] = {}
         self._zone_to_aids: dict[str, list[int]] = {}
 
-        # Connection stats
         self._last_connected: str | None = None
         self._last_disconnected: str | None = None
         self._reconnect_count = 0
@@ -123,24 +147,10 @@ class HomeKitClient:
         return self._zone_to_aids.get(zone_id, [])
 
     async def _ensure_controller(self) -> Any:
-        """Lazily build the aiohomekit Controller, off the event loop where possible."""
+        """Return the aiohomekit Controller, building one off the loop only if not injected."""
         if self._controller is None:
-            from homeassistant.components.zeroconf import async_get_async_instance
-
-            zeroconf = await async_get_async_instance(self._hass)
-
-            # aiohomekit's import path triggers lark grammar loading,
-            # which does blocking file I/O — stay off the event loop.
-            def _create_controller() -> Any:
-                from aiohomekit import Controller
-                return Controller
-
-            controller_cls = await self._hass.async_add_executor_job(_create_controller)
-            self._controller = controller_cls(
-                async_zeroconf_instance=zeroconf,
-                char_cache={},
-            )
-            await self._controller.async_start()
+            self._controller = await async_create_controller(self._hass)
+            self._owns_controller = True
         return self._controller
 
     async def async_connect(self) -> bool:
@@ -196,6 +206,16 @@ class HomeKitClient:
             self._is_connected = False
             return False
 
+    async def async_has_pairing(self) -> bool:
+        """Return True when a HomeKit pairing is stored for this home.
+
+        Single source of truth for "is HomeKit paired?" — reads the same
+        Store the pairing is written to, so callers never drift from the
+        real location (the bug this method exists to kill).
+        """
+        data = await self._store.async_load()
+        return bool(data) and isinstance(data, dict)
+
     async def async_disconnect(self) -> None:
         """Disconnect, cancel any reconnect loop, and release the pairing."""
         self._closing = True
@@ -224,6 +244,22 @@ class HomeKitClient:
             "HomeKit: disconnected from bridge for home %s",
             mask_home_id(self._home_id),
         )
+
+    async def async_stop_controller(self) -> None:
+        """Stop the aiohomekit controller, but only if this client owns it.
+
+        An injected shared controller is left running — its owner (the
+        entry) stops it. A self-built controller is stopped and cleared.
+        """
+        if self._controller is not None and self._owns_controller:
+            try:
+                await self._controller.async_stop()
+            except Exception:
+                _LOGGER.debug(
+                    "HomeKit: error stopping controller — proceeding",
+                    exc_info=True,
+                )
+            self._controller = None
 
     async def async_reconnect(self) -> None:
         """Schedule a background reconnect with exponential backoff (idempotent)."""
@@ -285,18 +321,13 @@ class HomeKitClient:
         pin: str,
         bridge_hkid: str | None = None,
     ) -> dict[str, Any]:
-        """Run the HomeKit two-step pairing flow with `pin`, returning the credentials.
-
-        When `bridge_hkid` is None we discover the first unpaired
-        Tado bridge on the network. Raises on wrong PIN, already
-        paired, or network errors so the config flow can map to the
-        right user-facing error.
-        """
+        """Run the HomeKit two-step pairing flow with `pin`, returning the credentials."""
         controller = await self._ensure_controller()
 
         if bridge_hkid is None:
             from aiohomekit.model.status_flags import StatusFlags
 
+            saw_paired_bridge = False
             async for discovery in controller.async_discover():
                 if discovery.description.status_flags & StatusFlags.UNPAIRED:
                     bridge_hkid = discovery.description.id
@@ -305,9 +336,22 @@ class HomeKitClient:
                         bridge_hkid,
                     )
                     break
+                saw_paired_bridge = True
 
             if bridge_hkid is None:
-                msg = "No unpaired HomeKit bridge found on the network"
+                if saw_paired_bridge:
+                    msg = (
+                        "Found a HomeKit bridge but it is already paired. "
+                        "Reset the bridge (hold the reset button until the "
+                        "LED flashes) before pairing again."
+                    )
+                else:
+                    msg = (
+                        "No unpaired HomeKit bridge found. Put the bridge in "
+                        "pairing mode (the LED flashes about 5 times after a "
+                        "reset) and make sure it is on the same network as "
+                        "Home Assistant."
+                    )
                 raise RuntimeError(msg)
 
         discovery = await controller.async_find(bridge_hkid)
@@ -394,15 +438,23 @@ class HomeKitClient:
 # ---------------------------------------------------------------------------
 
 
+def _shared_controller(flow: TadoCEOptionsFlow) -> Any | None:
+    """Return the entry's shared HomeKit controller if one exists, else None.
+
+    When HomeKit is already enabled, the entry holds a warm long-lived
+    controller on its coordinator (entry.runtime_data); reusing it means the
+    pairing discovery cache is already populated. None when enabling from
+    scratch — the client then self-builds and the warm-up loop covers it.
+    """
+    coordinator = getattr(flow.config_entry, "runtime_data", None)
+    return getattr(coordinator, "homekit_controller", None)
+
+
 async def async_step_homekit_pairing(
     flow: TadoCEOptionsFlow,
     user_input: dict[str, Any] | None = None,
 ) -> ConfigFlowResult:
-    """Drive the options-flow HomeKit pairing sub-step.
-
-    First call shows the PIN form; second call runs the pairing,
-    builds the serial-to-zone mapping, and persists both.
-    """
+    """Drive the options-flow HomeKit pairing sub-step."""
     from homeassistant.helpers.selector import TextSelector, TextSelectorConfig, TextSelectorType
     import voluptuous as vol
 
@@ -412,18 +464,20 @@ async def async_step_homekit_pairing(
         pin = user_input.get("homekit_pin", "").strip()
         if pin:
             try:
-                from .homekit_mapping import build_serial_mapping, save_device_mapping
+                from .homekit_mapping import async_rebuild_and_save_mapping
 
                 home_id = flow.config_entry.data.get("home_id") or "default"
-                client = HomeKitClient(flow.hass, home_id)
+                client = HomeKitClient(
+                    flow.hass, home_id, controller=_shared_controller(flow),
+                )
 
                 try:
                     await client.async_pair(pin)
 
-                    accessories = await client.async_list_accessories()
                     zones_info = flow.config_entry.runtime_data.data.get("zones_info") or []
-                    mapping = build_serial_mapping(accessories, zones_info)
-                    await save_device_mapping(flow.hass, home_id, mapping)
+                    await async_rebuild_and_save_mapping(
+                        flow.hass, client, home_id, zones_info,
+                    )
                 finally:
                     await client.async_disconnect()
 
@@ -475,17 +529,18 @@ async def async_step_homekit_unpair(
 ) -> ConfigFlowResult:
     """Drive the options-flow HomeKit unpairing sub-step.
 
-    First call shows confirmation; second call performs the unpair
-    and clears local credentials, even if the bridge can't be
-    contacted (so a permanently-offline bridge doesn't trap the
-    user with no recovery path).
+    Performs the unpair and clears local credentials, even if the
+    bridge can't be contacted (so a permanently-offline bridge
+    doesn't trap the user with no recovery path).
     """
     import voluptuous as vol
 
     if user_input is not None:
         try:
             home_id = flow.config_entry.data.get("home_id") or "default"
-            client = HomeKitClient(flow.hass, home_id)
+            client = HomeKitClient(
+                flow.hass, home_id, controller=_shared_controller(flow),
+            )
 
             # Connect first so the unpair can also clear the bridge's
             # side of the pairing — best-effort, falls through on

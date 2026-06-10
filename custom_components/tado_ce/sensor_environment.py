@@ -1,11 +1,4 @@
-"""Tado CE environment sensors — mold risk, condensation, comfort, dew point, surface temp.
-
-Each entity computes a derived environmental indicator from the
-zone's temperature + humidity (and an optional outdoor source).
-The `_extract_mold_risk_data` helper is the shared input for the
-mold-related sensors so they all see the same effective
-temperature / dew point / margin numbers.
-"""
+"""Tado CE environment sensors — mold risk, condensation, comfort, dew point, surface temp."""
 
 from __future__ import annotations
 
@@ -80,14 +73,7 @@ _HUMIDITY_HUMID_THRESHOLD = 70  # % — above this is "Humid"
 
 
 def _classify_comfort_deviation(deviation: float) -> str:
-    """Classify comfort level based on temperature deviation from target.
-
-    Args:
-        deviation: Temperature deviation in °C (positive = warmer than target).
-
-    Returns:
-        Comfort level string.
-    """
+    """Classify comfort level based on temperature deviation from target."""
     if deviation < _COMFORT_FREEZING_THRESHOLD:
         return "Freezing"
     if deviation < _COMFORT_COLD_THRESHOLD:
@@ -105,21 +91,16 @@ def _classify_comfort_deviation(deviation: float) -> str:
 
 def _extract_mold_risk_data(
     zone_data: dict[str, Any], hass: HomeAssistant, zone_id: str, coordinator: TadoDataUpdateCoordinator,
-) -> dict[str, Any]:
-    """Extract shared mold risk data (humidity, temps, dew point) from zone data.
-
-    Returns:
-        Tuple of (humidity, room_temp, effective_temp, outdoor_temp, surface_temp,
-                  temperature_source, surface_temp_offset, dew_point) or None if data unavailable.
-    """
+) -> tuple[float, float, float, float | None, float | None, str, float, float] | None:
+    """Extract shared mold risk data (humidity, temps, dew point) from zone data."""
     sensor_data = zone_data.get("sensorDataPoints") or {}
     humidity = (sensor_data.get("humidity") or {}).get("percentage")
     if humidity is None:
-        return None  # type: ignore[return-value]
+        return None
 
     room_temp = (sensor_data.get("insideTemperature") or {}).get("celsius")
     if room_temp is None:
-        return None  # type: ignore[return-value]
+        return None
 
     (effective_temp, outdoor_temp, surface_temp, temperature_source, surface_temp_offset) = _get_effective_temp(
         hass,
@@ -136,7 +117,7 @@ def _extract_mold_risk_data(
         room_temp,
         effective_temp,
         outdoor_temp,
-        surface_temp,  # type: ignore[return-value]
+        surface_temp,
         temperature_source,
         surface_temp_offset,
         dew_point,
@@ -144,22 +125,13 @@ def _extract_mold_risk_data(
 
 
 class TadoMoldRiskSensor(TadoZoneSensor):
-    """Mold risk indicator sensor.
-
-    Enhanced with 2-tier temperature source strategy:
-    - Tier 1: U-value surface temperature estimation (if outdoor temp available)
-    - Tier 2: Room average temperature (fallback)
-
-    Calculates dew point from temperature and humidity using Magnus-Tetens formula,
-    then assesses mold risk based on the margin between temperature and dew point.
+    """Mold risk indicator sensor (state = Critical / High / Medium / Low).
 
     Risk Levels (based on condensation margin):
     - Critical: <3°C margin (high mold risk, condensation likely)
     - High: 3-5°C margin (elevated risk, monitor closely)
     - Medium: 5-7°C margin (moderate risk, improve ventilation)
     - Low: >7°C margin (safe, good conditions)
-
-    State: Risk level text (Critical/High/Medium/Low)
     """
 
     _attr_has_entity_name = True
@@ -228,10 +200,7 @@ class TadoMoldRiskSensor(TadoZoneSensor):
 
     @callback
     def update(self) -> None:
-        """Update mold risk based on temperature and humidity.
-
-        Uses 2-tier temperature source strategy for more accurate assessment.
-        """
+        """Update mold risk based on temperature and humidity."""
         try:
             zone_data = self._get_zone_data()
             if not zone_data:
@@ -252,10 +221,10 @@ class TadoMoldRiskSensor(TadoZoneSensor):
                 self._temperature_source,
                 self._surface_temp_offset,
                 self._dew_point,
-            ) = result  # type: ignore[assignment]
+            ) = result
 
             # Calculate margin (difference between effective/surface temperature and dew point)
-            margin_exact = self._effective_temp - self._dew_point  # type: ignore[operator]
+            margin_exact = self._effective_temp - self._dew_point
             self._margin = round(margin_exact, 1)  # Rounded for display only
 
             # Determine risk level using exact margin to preserve monotonicity
@@ -289,19 +258,7 @@ class TadoMoldRiskSensor(TadoZoneSensor):
 
 
 class TadoMoldRiskPercentageSensor(TadoZoneSensor):
-    """Mold risk percentage sensor - surface relative humidity.
-
-    Exposes the mold risk percentage (surface RH) as a dedicated sensor
-    for historical tracking and graphing in Home Assistant.
-
-    Uses the same calculation as TadoMoldRiskSensor:
-    - 2-tier temperature source (surface estimation or room average)
-    - Magnus-Tetens formula for dew point and surface RH
-
-    State: Surface relative humidity as percentage (0-100)
-
-    Mold typically grows when surface RH exceeds ~70-80%.
-    """
+    """Mold risk percentage sensor — surface relative humidity (mold grows above ~70-80%)."""
 
     _attr_has_entity_name = True
 
@@ -348,10 +305,7 @@ class TadoMoldRiskPercentageSensor(TadoZoneSensor):
 
     @callback
     def update(self) -> None:
-        """Update mold risk percentage based on temperature and humidity.
-
-        Uses the same 2-tier temperature source strategy as TadoMoldRiskSensor.
-        """
+        """Update mold risk percentage based on temperature and humidity."""
         try:
             zone_data = self._get_zone_data()
             if not zone_data:
@@ -372,7 +326,7 @@ class TadoMoldRiskPercentageSensor(TadoZoneSensor):
                 self._temperature_source,
                 _,
                 self._dew_point,
-            ) = result  # type: ignore[assignment]
+            ) = result
 
             # Calculate surface RH (mold risk percentage)
             surface_rh = (
@@ -500,11 +454,7 @@ class TadoCondensationRiskSensor(TadoZoneSensor):
 
     @callback
     def update(self) -> None:
-        """Update condensation risk based on zone type.
-
-        AC zones — outdoor dew point vs window outer surface temp.
-        HEATING zones — indoor dew point vs window inner surface temp.
-        """
+        """Update condensation risk based on zone type."""
         try:
             zone_data = self._get_zone_data()
             if not zone_data:
@@ -566,12 +516,7 @@ class TadoCondensationRiskSensor(TadoZoneSensor):
 
     @callback
     def _update_heating(self, sensor_data: dict[str, Any], config_manager: ConfigurationManager) -> None:
-        """Update condensation risk for HEATING zones.
-
-        Physics: indoor humidity → indoor dew point → compare with window
-        inner surface temperature. Condensation forms on the INSIDE of
-        windows when surface temp drops below indoor dew point.
-        """
+        """Update condensation risk for HEATING zones (indoor dew point vs window inner surface)."""
         # Get indoor humidity from zone sensor data
         humidity = (sensor_data.get("humidity") or {}).get("percentage")
         if humidity is None:
@@ -634,12 +579,7 @@ class TadoCondensationRiskSensor(TadoZoneSensor):
 
     @callback
     def _update_ac(self, config_manager: ConfigurationManager) -> None:
-        """Update condensation risk for AC zones.
-
-        Physics: outdoor humidity → outdoor dew point → compare with window
-        outer surface temperature. Condensation forms on the OUTSIDE of
-        windows when AC cools the room.
-        """
+        """Update condensation risk for AC zones (outdoor dew point vs window outer surface)."""
         # Get outdoor temperature
         outdoor_entity = config_manager.get_outdoor_temp_entity()
         if not outdoor_entity:
@@ -691,12 +631,7 @@ class TadoCondensationRiskSensor(TadoZoneSensor):
         self._attr_available = True
 
     def _get_outdoor_humidity(self, entity_id: str) -> float | None:
-        """Read outdoor humidity from a weather entity or companion sensor.
-
-        For `weather.*` entities the humidity attribute is direct;
-        for `sensor.*_temperature` patterns we look for a sibling
-        `sensor.*_humidity` to pair the temperature source with.
-        """
+        """Read outdoor humidity from a weather entity or companion sensor."""
         if not self.hass or not entity_id:
             return None
 
@@ -740,20 +675,7 @@ class TadoCondensationRiskSensor(TadoZoneSensor):
 
 
 class TadoSurfaceTemperatureSensor(TadoZoneSensor):
-    """Surface temperature sensor for calibration workflows.
-
-    Exposes calculated cold spot temperature as standalone sensor.
-
-    Uses the same 2-tier temperature source strategy as TadoMoldRiskSensor:
-    - Tier 1: U-value surface temperature estimation (if outdoor temp available)
-    - Tier 2: Room average temperature (fallback)
-
-    Primary use case: Calibrating mold risk calculation with laser thermometer.
-    HA 2024.x hides attributes in a separate panel, making calibration tedious.
-    This standalone sensor allows real-time feedback during calibration.
-
-    State: Calculated surface temperature in °C
-    """
+    """Surface temperature sensor for calibration workflows (laser thermometer cross-check)."""
 
     _attr_has_entity_name = True
 
@@ -900,20 +822,7 @@ class TadoSurfaceTemperatureSensor(TadoZoneSensor):
 
 
 class TadoDewPointSensor(TadoZoneSensor):
-    """Dew point temperature sensor for automation workflows.
-
-    Exposes calculated dew point as standalone sensor.
-
-    Uses Magnus-Tetens formula to calculate dew point from room temperature
-    and humidity. Same calculation as used in mold risk sensor.
-
-    Primary use cases:
-    - Dehumidifier control automation
-    - Condensation prevention alerts
-    - HVAC optimization
-
-    State: Calculated dew point temperature in °C
-    """
+    """Dew point temperature sensor (Magnus-Tetens, °C — for automation workflows)."""
 
     _attr_has_entity_name = True
 
@@ -984,22 +893,11 @@ class TadoDewPointSensor(TadoZoneSensor):
 
 
 class TadoComfortLevelSensor(TadoZoneSensor):
-    """Comfort level sensor using Adaptive Comfort model.
+    """Comfort level sensor using ASHRAE 55 adaptive comfort (with humidity suffix).
 
-    Based on ASHRAE 55 adaptive comfort standard, which adjusts comfort
-    expectations based on outdoor temperature. Also considers humidity.
-
-    Comfort Calculation:
-    1. If outdoor temp available: Use adaptive comfort model
-       - Comfort temp = 0.31 * outdoor_temp + 17.8°C
-       - Acceptable range = ±3°C (90% acceptability)
-    2. If no outdoor temp: Use latitude-based seasonal thresholds
-       - Adjusts for hemisphere and climate zone
-
-    Temperature States: Freezing, Cold, Cool, Comfortable, Warm, Hot, Sweltering
-    Humidity Suffix: Dry (<35%), Humid (>70%)
-
-    State: Combined comfort text (e.g., "Comfortable", "Cool Dry")
+    Comfort target = 0.31 * outdoor_temp + 17.8°C, ±3°C acceptable band (90% acceptability).
+    Falls back to latitude-based seasonal thresholds when outdoor temp unavailable.
+    State: combined comfort text (e.g., "Comfortable", "Cool Dry").
     """
 
     _attr_has_entity_name = True
@@ -1154,34 +1052,16 @@ class TadoComfortLevelSensor(TadoZoneSensor):
             self._attr_available = False
 
     def _calculate_adaptive_comfort(self) -> str:
-        """Calculate comfort using ASHRAE 55 Adaptive Comfort model.
-
-        Formula: Comfort temp = 0.31 * outdoor_temp + 17.8°C
-        Acceptable range: ±3°C for 90% acceptability
-
-        Returns:
-            Comfort level text
-        """
-        # Calculate neutral comfort temperature
+        """Calculate comfort using ASHRAE 55 Adaptive Comfort model (0.31*outdoor + 17.8°C, ±3°C band)."""
         self._comfort_temp = round(calculate_ashrae_comfort_temp(self._outdoor_temp), 1)  # type: ignore[arg-type]
 
-        # Calculate deviation from comfort
         effective_temp = self._heat_index if self._heat_index is not None else self._temperature
         deviation = effective_temp - self._comfort_temp  # type: ignore[operator]
 
-        # Determine comfort level based on deviation
         return _classify_comfort_deviation(deviation)
 
     def _calculate_seasonal_comfort(self) -> str:
-        """Calculate comfort using latitude-based seasonal thresholds.
-
-        Uses calculate_seasonal_comfort_target() for target temperature,
-        then applies deviation-based classification (same ranges as adaptive).
-
-        Returns:
-            Comfort level text
-        """
-        # Get latitude from HA config
+        """Calculate comfort using latitude-based seasonal thresholds."""
         latitude = 51.5  # Default to London if not available
         if self.hass:
             latitude = self.hass.config.latitude or 51.5
@@ -1191,19 +1071,13 @@ class TadoComfortLevelSensor(TadoZoneSensor):
         comfort_target = calculate_seasonal_comfort_target(latitude, month)
         self._comfort_temp = comfort_target
 
-        # Calculate deviation from comfort target
         effective_temp = self._heat_index if self._heat_index is not None else self._temperature
         deviation = effective_temp - comfort_target  # type: ignore[operator]
 
-        # Determine comfort level based on deviation (same ranges as adaptive)
         return _classify_comfort_deviation(deviation)
 
     def _get_humidity_suffix(self) -> str:
-        """Get humidity suffix for comfort display.
-
-        Returns:
-            Humidity suffix: " Dry" (<35%), " Humid" (>70%), or "" (normal)
-        """
+        """Get humidity suffix for comfort display (Dry <35%, Humid >70%)."""
         if self._humidity is None:
             return ""
 

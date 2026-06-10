@@ -5,6 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
+from .exceptions import TadoBridgeApiError
+
 if TYPE_CHECKING:
     from datetime import timedelta
 
@@ -498,73 +500,71 @@ async def async_run_wc_cycle(
 
     _LOGGER = logging.getLogger(__name__)
 
-    try:
-        config = _build_wc_config(config_manager)
-        outdoor_temp = _resolve_outdoor_temp(hass, config_manager, weather_data)
+    # No catch-all here: WC isolation (a failed cycle must not break the
+    # main poll) is the coordinator caller's responsibility — see
+    # TadoDataUpdateCoordinator._async_run_weather_compensation. Keeping
+    # this cycle free of a broad except means a bridge failure stays
+    # isolated (handled below) while a programmer bug propagates instead
+    # of being silently downgraded to a debug log.
+    config = _build_wc_config(config_manager)
+    outdoor_temp = _resolve_outdoor_temp(hass, config_manager, weather_data)
 
-        indoor_temp: float | None = None
-        target_temp: float | None = None
-        if config.room_compensation_enabled:
-            indoor_temp, target_temp = _resolve_indoor_temps(zone_data)
+    indoor_temp: float | None = None
+    target_temp: float | None = None
+    if config.room_compensation_enabled:
+        indoor_temp, target_temp = _resolve_indoor_temps(zone_data)
 
-        current_flow: float | None = None
-        if bridge_data:
-            raw_flow = bridge_data.get("boilerMaxOutputTemperatureInCelsius")
-            if raw_flow is not None:
-                current_flow = float(raw_flow)
+    current_flow: float | None = None
+    if bridge_data:
+        raw_flow = bridge_data.get("boilerMaxOutputTemperatureInCelsius")
+        if raw_flow is not None:
+            current_flow = float(raw_flow)
 
-        poll_min = 5.0
-        if update_interval is not None:
-            poll_min = update_interval.total_seconds() / 60.0
+    poll_min = 5.0
+    if update_interval is not None:
+        poll_min = update_interval.total_seconds() / 60.0
 
-        result = evaluate(
-            config,
-            wc_state,
-            outdoor_temp,
-            indoor_temp,
-            target_temp,
-            current_flow,
-            time.monotonic(),
-            poll_min,
-        )
+    result = evaluate(
+        config,
+        wc_state,
+        outdoor_temp,
+        indoor_temp,
+        target_temp,
+        current_flow,
+        time.monotonic(),
+        poll_min,
+    )
 
-        if result.should_send and result.target_flow_temp is not None:
-            try:
-                await bridge_api_client.async_set_max_output_temperature(
-                    result.target_flow_temp,
-                )
-                _LOGGER.debug(
-                    "Weather Compensation: set flow temp to %.1f°C "
-                    "(outdoor %.1f°C, preset %s)",
-                    result.target_flow_temp,
-                    result.smoothed_outdoor_temp or 0.0,
-                    result.heating_system_preset,
-                )
-            except Exception:
-                _LOGGER.warning(
-                    "Weather Compensation: bridge call failed — will "
-                    "retry on the next cycle",
-                )
-                # Reset send-state so the next cycle re-sends instead
-                # of skipping due to idempotency check.
-                wc_state.last_sent_flow_temp = None
-                wc_state.last_adjustment_time = 0.0
+    if result.should_send and result.target_flow_temp is not None:
+        try:
+            await bridge_api_client.async_set_max_output_temperature(
+                result.target_flow_temp,
+            )
+            _LOGGER.debug(
+                "Weather Compensation: set flow temp to %.1f°C "
+                "(outdoor %.1f°C, preset %s)",
+                result.target_flow_temp,
+                result.smoothed_outdoor_temp or 0.0,
+                result.heating_system_preset,
+            )
+        except TadoBridgeApiError:
+            _LOGGER.warning(
+                "Weather Compensation: bridge call failed — will "
+                "retry on the next cycle",
+            )
+            # Reset send-state so the next cycle re-sends instead
+            # of skipping due to idempotency check.
+            wc_state.last_sent_flow_temp = None
+            wc_state.last_adjustment_time = 0.0
 
-        return {
-            "target_flow_temp": result.target_flow_temp,
-            "status": result.status,
-            "smoothed_outdoor_temp": result.smoothed_outdoor_temp,
-            "raw_outdoor_temp": result.raw_outdoor_temp,
-            "smoothing_method": result.smoothing_method,
-            "smoothing_window": result.smoothing_window,
-            "room_compensation_offset": result.room_compensation_offset,
-            "heating_system_preset": result.heating_system_preset,
-            "should_send": result.should_send,
-        }
-    except Exception:
-        _LOGGER.debug(
-            "Weather Compensation: evaluation failed — main coordinator "
-            "update unaffected",
-            exc_info=True,
-        )
-        return None
+    return {
+        "target_flow_temp": result.target_flow_temp,
+        "status": result.status,
+        "smoothed_outdoor_temp": result.smoothed_outdoor_temp,
+        "raw_outdoor_temp": result.raw_outdoor_temp,
+        "smoothing_method": result.smoothing_method,
+        "smoothing_window": result.smoothing_window,
+        "room_compensation_offset": result.room_compensation_offset,
+        "heating_system_preset": result.heating_system_preset,
+        "should_send": result.should_send,
+    }

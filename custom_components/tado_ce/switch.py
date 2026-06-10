@@ -47,13 +47,10 @@ async def async_setup_entry(
     home_id = coordinator.home_id
     zones_info = await hass.async_add_executor_job(data_loader.load_zones_info_file)
 
-    # Get config manager for feature toggles
-    config_manager = coordinator.config_manager
-
     switches: list[SwitchEntity] = []
 
-    # Device controls (Early Start, Child Lock) controlled by feature toggle
-    if config_manager.get_device_controls_enabled() and zones_info:
+    # Device controls (Early Start, Child Lock)
+    if zones_info:
         for zone in zones_info:
             zone_id = str(zone.get("id"))
             zone_name = zone.get("name", f"Zone {zone.get('id')}")

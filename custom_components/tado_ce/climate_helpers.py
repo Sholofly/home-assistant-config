@@ -9,6 +9,7 @@ once and covers every climate type.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 import logging
 from typing import TYPE_CHECKING, Any
 
@@ -60,7 +61,7 @@ def update_offset(
                 return None
             return value  # type: ignore[no-any-return]
         return None
-    except Exception:
+    except (KeyError, TypeError, AttributeError):
         # Caller keeps its previous offset — better than crashing the
         # climate entity over a transient cache read failure.
         return None
@@ -104,7 +105,7 @@ def update_preset_mode(coordinator: TadoDataUpdateCoordinator) -> str | None:
         if home_state:
             presence = home_state.get("presence", "HOME")
             return PRESET_HOME if presence == "HOME" else PRESET_AWAY
-    except Exception:
+    except (KeyError, AttributeError):
         _LOGGER.debug(
             "Climate: could not derive preset mode from home state — "
             "keeping previous value",
@@ -189,6 +190,108 @@ def read_external_sensor(
         return None
 
 
+@dataclass(slots=True)
+class RollbackPlan:
+    """Optimistic-write + rollback plan applied by `_attempt_with_rollback`."""
+
+    optimistic: dict[str, Any]
+    rollback: dict[str, Any]
+    expected: dict[str, Any]
+    preserved_attrs: dict[str, Any] | None
+    refresh_signal: str
+    reason: str
+    capture_source: str | None = None
+    capture_zone_id: str | None = None
+    capture_entity_type: str | None = None
+    log_prefix: str = "Climate"
+
+
+async def _attempt_with_rollback(
+    entity: Any,
+    api_coro: Coroutine,  # type: ignore[type-arg]
+    plan: RollbackPlan,
+) -> bool:
+    """Run `api_coro` with optimistic UI, rollback on failure, and capture-on-success."""
+    import asyncio
+
+    from .helpers import async_trigger_immediate_refresh
+
+    for attr, value in plan.optimistic.items():
+        setattr(entity, attr, value)
+
+    await set_optimistic_fields(
+        entity, entity.coordinator,
+        expected=plan.expected,
+        preserved_attrs=plan.preserved_attrs,
+    )
+    entity.async_write_ha_state()
+
+    import aiohttp
+
+    from .error_dispatch import dispatch_to_service_call
+    from .exceptions import TadoAuthError, TadoRateLimitError
+
+    api_success = False
+    try:
+        async with asyncio.timeout(10):
+            api_success = await api_coro
+    except TimeoutError:
+        _LOGGER.warning(
+            "%s: %s — %s timed out after 10s, rolling back optimistic "
+            "state so the entity reflects the actual zone state",
+            plan.log_prefix, entity._zone_name, plan.reason,
+        )
+    except (TadoAuthError, TadoRateLimitError) as e:
+        for attr, value in plan.rollback.items():
+            setattr(entity, attr, value)
+        clear_optimistic_state(entity)
+        entity.async_write_ha_state()
+        dispatch_to_service_call(e, entity.coordinator.config_entry, entity.hass)
+    except aiohttp.ClientError as e:
+        _LOGGER.warning(
+            "%s: %s — %s network error (%s), rolling back optimistic state",
+            plan.log_prefix, entity._zone_name, plan.reason, e,
+        )
+
+    if api_success:
+        _LOGGER.debug(
+            "%s: %s — %s succeeded",
+            plan.log_prefix, entity._zone_name, plan.reason,
+        )
+        if entity.coordinator.state_reconciler:
+            entity.coordinator.state_reconciler.record_local_write(entity._zone_id)
+        if plan.capture_source is not None and plan.capture_zone_id is not None:
+            try:
+                await entity.coordinator.async_capture_state(
+                    plan.capture_zone_id,
+                    plan.capture_entity_type or "climate",
+                    plan.capture_source,
+                )
+            except Exception as e:
+                _LOGGER.warning(
+                    "%s: %s — capture-on-success failed (%s); "
+                    "user write succeeded, restoration may be unavailable",
+                    plan.log_prefix, entity._zone_name, e,
+                )
+        await async_trigger_immediate_refresh(
+            entity.hass, entity.entity_id, plan.refresh_signal,
+        )
+        return True
+
+    _LOGGER.warning(
+        "%s: %s — %s failed, reverted to previous state",
+        plan.log_prefix, entity._zone_name, plan.reason,
+    )
+    for attr, value in plan.rollback.items():
+        setattr(entity, attr, value)
+    clear_optimistic_state(entity)
+    entity.async_write_ha_state()
+    raise HomeAssistantError(
+        translation_domain=DOMAIN,
+        translation_key="cloud_write_failed",
+    )
+
+
 async def api_call_with_rollback(
     entity: Any,
     api_coro: Coroutine,  # type: ignore[type-arg]
@@ -198,78 +301,38 @@ async def api_call_with_rollback(
     overlay_type: str | None = "MANUAL",
     target_temp: float | None = None,
     reason: str,
+    capture_source: str | None = None,
 ) -> bool:
-    """Run an API call wrapped in optimistic-update + rollback for climate entities.
-
-    Saves the entity's old state, applies the optimistic update,
-    fires the API call with a 10-second timeout, then either
-    confirms (refresh + record local write) or rolls back to the
-    saved state and raises `HomeAssistantError` so the user sees
-    the failure surface in the HA UI.
-    """
-    import asyncio
-
-    from .helpers import async_trigger_immediate_refresh
-
-    old_mode = entity._attr_hvac_mode
-    old_action = entity._attr_hvac_action
-    old_overlay = entity._overlay_type
-
-    entity._attr_hvac_mode = hvac_mode
-    entity._attr_hvac_action = hvac_action
-    entity._overlay_type = overlay_type
-    await set_optimistic_fields(
-        entity, entity.coordinator,
+    """Climate-flavoured optimistic-write + rollback shim around `_attempt_with_rollback`."""
+    _ = target_temp
+    plan = RollbackPlan(
+        optimistic={
+            "_attr_hvac_mode": hvac_mode,
+            "_attr_hvac_action": hvac_action,
+            "_overlay_type": overlay_type,
+        },
+        rollback={
+            "_attr_hvac_mode": entity._attr_hvac_mode,
+            "_attr_hvac_action": entity._attr_hvac_action,
+            "_overlay_type": entity._overlay_type,
+        },
         expected={"hvac_mode": hvac_mode, "hvac_action": hvac_action},
-        preserved_attrs={
-            "fan_mode": getattr(entity, "_attr_fan_mode", None),
-            "swing_mode": getattr(entity, "_attr_swing_mode", None),
-        } if hasattr(entity, "_attr_fan_mode") else None,
+        preserved_attrs=(
+            {
+                "fan_mode": getattr(entity, "_attr_fan_mode", None),
+                "swing_mode": getattr(entity, "_attr_swing_mode", None),
+                "swing_horizontal_mode": getattr(entity, "_attr_swing_horizontal_mode", None),
+            }
+            if hasattr(entity, "_attr_fan_mode") else None
+        ),
+        refresh_signal="hvac_mode_change",
+        reason=reason,
+        capture_source=capture_source,
+        capture_zone_id=getattr(entity, "_zone_id", None),
+        capture_entity_type=getattr(entity, "_entity_type", "climate"),
+        log_prefix="Climate",
     )
-    entity.async_write_ha_state()
-
-    api_success = False
-    try:
-        async with asyncio.timeout(10):
-            api_success = await api_coro
-    except TimeoutError:
-        _LOGGER.warning(
-            "Climate: %s — %s timed out after 10s, rolling back optimistic "
-            "state so the entity reflects the actual zone state",
-            entity._zone_name, reason,
-        )
-    except Exception as e:
-        _LOGGER.warning(
-            "Climate: %s — %s failed (%s), rolling back optimistic state",
-            entity._zone_name, reason, e,
-        )
-
-    if api_success:
-        _LOGGER.debug(
-            "Climate: %s — %s succeeded", entity._zone_name, reason,
-        )
-        # Record the local write so the HomeKit bridge can't push a
-        # stale value over the optimistic state during the protection
-        # window.
-        if entity.coordinator.state_reconciler:
-            entity.coordinator.state_reconciler.record_local_write(entity._zone_id)
-        await async_trigger_immediate_refresh(entity.hass, entity.entity_id, "hvac_mode_change")
-    else:
-        _LOGGER.warning(
-            "Climate: %s — %s failed, reverted to previous state",
-            entity._zone_name, reason,
-        )
-        entity._attr_hvac_mode = old_mode
-        entity._attr_hvac_action = old_action
-        entity._overlay_type = old_overlay
-        clear_optimistic_state(entity)
-        entity.async_write_ha_state()
-        raise HomeAssistantError(
-            f"{entity._zone_name}: {reason} failed",
-            translation_domain=DOMAIN,
-        )
-
-    return api_success
+    return await _attempt_with_rollback(entity, api_coro, plan)
 
 
 class SensorProxy:
@@ -343,13 +406,7 @@ def setup_climate_external_sensor_subscription(
     *,
     label: str = "",
 ) -> list[CALLBACK_TYPE]:
-    """Subscribe a climate entity to external temperature + humidity sensor changes.
-
-    Shared by `TadoClimate` (heating) and `TadoACClimate` (AC).
-    On every external-sensor update, refreshes the entity's
-    `current_temperature`, `current_humidity`, and source tracking
-    attrs and writes the new HA state.
-    """
+    """Subscribe a climate entity to external temperature + humidity sensor changes."""
     unsubscribe_external_sensors(unsub_list)
 
     zcm = entity.coordinator.zone_config_manager

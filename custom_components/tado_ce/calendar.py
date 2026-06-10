@@ -19,8 +19,9 @@ from homeassistant.helpers.entity import DeviceInfo  # type: ignore[attr-defined
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import dt as dt_util
 
-from .const import DOMAIN, LOW_QUOTA_THRESHOLD, MANUFACTURER
+from .const import DOMAIN, MANUFACTURER
 from .entity_registry import ENTITY_REGISTRY
+from .helpers import low_quota_threshold
 
 if TYPE_CHECKING:
     from homeassistant.core import Event
@@ -93,7 +94,8 @@ async def async_setup_entry(
     cached_schedules = data_loader.load_schedules_file() or {}
     ratelimit_data = data_loader.load_ratelimit_file() or {}
     remaining = ratelimit_data.get("remaining", 100)
-    low_quota = remaining <= LOW_QUOTA_THRESHOLD
+    limit = ratelimit_data.get("limit")
+    low_quota = remaining <= low_quota_threshold(limit)
 
     schedules: dict[str, Any] = {}
     cached_hits = 0

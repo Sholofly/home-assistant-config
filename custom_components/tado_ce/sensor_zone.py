@@ -1,10 +1,4 @@
-"""Tado CE per-zone sensors — temperature, humidity, target, overlay, heating / AC power.
-
-Every entity is a `TadoZoneSensor` subclass — the base wires up
-the HomeKit live-update dispatcher and merges fresh HomeKit
-sensor readings into the cloud zone data so card values match
-what users see in the Tado app.
-"""
+"""Tado CE per-zone sensors — temperature, humidity, target, overlay, heating / AC power."""
 
 from __future__ import annotations
 
@@ -77,12 +71,7 @@ class TadoZoneSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], SensorEntit
         self._handle_coordinator_update()
 
     def _get_zone_data(self) -> dict[str, Any] | None:
-        """Read this zone's data, layering fresh HomeKit readings on top of cloud.
-
-        Only `sensorDataPoints` (temperature / humidity) get the
-        HomeKit overlay; activity / setting / overlayType stay
-        cloud-only because HomeKit doesn't carry them.
-        """
+        """Read this zone's data, layering fresh HomeKit readings on top of cloud."""
         try:
             zone_data = get_zone_state(self.coordinator.data, self._zone_id)
         except Exception:
@@ -244,13 +233,7 @@ class TadoHumiditySensor(TadoZoneSensor):
         self._attr_native_value = new_value
 
     def _update_homekit_attributes(self) -> None:
-        """Pin humidity source to cloud unless cloud is unavailable.
-
-        Bridge humidity tends to lag behind cloud humidity, so the
-        reconciler only falls back to HomeKit when cloud sync has
-        failed. Surface that as a stable `cloud` attribute by
-        default — the source label flips only when cloud is gone.
-        """
+        """Pin humidity source to cloud (bridge humidity lags; reconciler only flips on cloud failure)."""
         self._data_source = "cloud"
         self._last_homekit_update = None
 
@@ -313,13 +296,7 @@ class TadoACPowerSensor(TadoZoneSensor):
 
 
 class TadoBoilerFlowTemperatureSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], SensorEntity):
-    """Hub-level boiler flow temperature, sourced from whichever zone reports it.
-
-    OpenTherm boilers expose flow temperature on a single zone's
-    activity data; on/off boilers don't. The sensor walks the
-    zone list and surfaces the first match, with the source zone
-    in `extra_state_attributes`.
-    """
+    """Hub-level boiler flow temperature, sourced from whichever zone reports it."""
 
     _attr_has_entity_name = True
 

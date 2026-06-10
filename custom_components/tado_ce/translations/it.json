@@ -153,10 +153,10 @@
     },
     "button": {
       "resume_all": {
-        "name": "Riprendi tutto"
+        "name": "Riprendi tutte le pianificazioni"
       },
       "refresh_ac": {
-        "name": "Aggiorna AC"
+        "name": "Aggiornamento delle funzionalità del climatizzatore"
       },
       "refresh_schedule": {
         "name": "Programma di aggiornamento"
@@ -203,6 +203,32 @@
           },
           "zone_type": {
             "name": "Tipo di zona"
+          },
+          "swing_mode": {
+            "name": "Altalena (verticale)",
+            "state": {
+              "auto": "Auto",
+              "off": "Spento",
+              "on": "Acceso",
+              "up": "Su",
+              "mid_up": "Centro (in alto)",
+              "mid": "A metà",
+              "mid_down": "Centro (in basso)",
+              "down": "Giù"
+            }
+          },
+          "swing_horizontal_mode": {
+            "name": "Altalena (orizzontale)",
+            "state": {
+              "auto": "Auto",
+              "off": "Spento",
+              "on": "Acceso",
+              "left": "Sinistra",
+              "mid_left": "Centro (sinistra)",
+              "mid": "A metà",
+              "mid_right": "Centro (a destra)",
+              "right": "Destra"
+            }
           }
         }
       }
@@ -783,7 +809,7 @@
         }
       },
       "mold_risk_pct": {
-        "name": "Rischio di muffa %",
+        "name": "Indicatore di rischio muffa",
         "state_attributes": {
           "room_temperature": {
             "name": "Temperatura ambiente"
@@ -1217,7 +1243,7 @@
     },
     "deactivate_open_window": {
       "name": "Disattiva finestra aperta",
-      "description": "Disattiva la modalità finestra aperta su una zona climatica, ripristinando il normale riscaldamento/raffreddamento. Funziona sia per i modi rilevati da Tado che attivati manualmente."
+      "description": "Chiudi una finestra aperta rilevata automaticamente da Tado o da te confermata con \"Attiva modalità finestra aperta\" e riprendi il normale funzionamento del riscaldamento/raffreddamento. Questa operazione non disattiva la \"Modalità finestra aperta\". Poiché tale modalità attiva una sovrapposizione antigelo, per disattivarla utilizza invece \"Riprendi programma\" o \"Ripristina stato precedente\"."
     },
     "set_open_window_mode": {
       "name": "Imposta modalità finestra aperta",
@@ -1236,6 +1262,10 @@
     "restore_previous_state": {
       "name": "Ripristino dello stato precedente",
       "description": "Ripristina lo stato di una zona prima dell'ultima operazione di sovrapposizione. Se non esiste uno stato catturato, riprende la pianificazione."
+    },
+    "turn_off_all_zones": {
+      "name": "Disattiva tutte le stanze",
+      "description": "Imposta ogni zona climatica (riscaldamento + aria condizionata) su \"OFF\" manuale. Questa funzione riproduce il pulsante \"Spegni tutte le stanze\" dell'app Tado: le programmazioni rimangono disattivate finché non si riattiva manualmente ciascuna zona."
     }
   },
   "selector": {
@@ -1351,6 +1381,21 @@
     },
     "resume_schedule_failed": {
       "message": "Impossibile riprendere la pianificazione per {entity_id}: il cloud ha rifiutato la richiesta. Riprovare."
+    },
+    "turn_off_all_no_climate_zones": {
+      "message": "In questa casa Tado non sono state rilevate zone di riscaldamento o climatizzazione: non c'è nulla da spegnere."
+    },
+    "turn_off_all_failed_all": {
+      "message": "Impossibile disattivare alcuna zona. Il cloud di Tado ha rifiutato tutte le richieste in questo ciclo. Motivi: {reasons}. Controlla la quota API dell'integrazione o riprova."
+    },
+    "auth_required": {
+      "message": "È richiesta l'autenticazione Tado: si prega di eseguire nuovamente l'autenticazione dell'integrazione."
+    },
+    "cloud_write_failed": {
+      "message": "Errore durante la scrittura sul cloud di Tado: il cloud ha rifiutato la richiesta, riprovare."
+    },
+    "rate_limited": {
+      "message": "L'API di Tado ha raggiunto il limite di richieste. Riprova tra un{retry_after_minutes}i."
     }
   },
   "issues": {
@@ -1358,13 +1403,13 @@
       "title": "Tado CE: Autenticazione scaduta",
       "description": "Il token di aggiornamento per la casa **{home_id}** è scaduto. Si prega di riconfigurare l'integrazione per effettuare nuovamente l'autenticazione.\n\nAccedere a **Impostazioni → Dispositivi e servizi → Tado CE → Riconfigura**."
     },
-    "deprecated_yaml_config": {
-      "title": "Tado CE: Chiave di configurazione deprecata",
-      "description": "La chiave di configurazione **{key}** è deprecata e sarà rimossa in una versione futura. Aggiornare la configurazione."
-    },
     "svc_sensor_missing": {
       "title": "Controllo intelligente delle valvole disattivato per l'{zone_name}",
       "description": "La funzione \"Smart Valve Control\" ({mode}) per **la {zone_name}** richiede un sensore di temperatura esterno, ma non ne è stato configurato nessuno.\n\nLa funzione è stata disattivata automaticamente per questa zona finché non verrà selezionato un sensore.\n\n**Per riattivarla:**\n\nAccedere a **Impostazioni → Tado CE → Configura → Configurazione zona → {zone_name} → Sensori esterni** e selezionare un sensore di temperatura.\n\nIn alternativa, è possibile chiudere questa notifica per lasciare la funzione disattivata per questa zona."
+    },
+    "rate_limited": {
+      "title": "Tado CE: Velocità limitata sul cloud",
+      "description": "L'API cloud di Tado è soggetta a limiti di frequenza per l'accesso da casa **{home_id}**. Il polling riprenderà tra {retry_after_minutes} minuti."
     }
   },
   "config": {
@@ -1543,14 +1588,6 @@
               "surface_temp_offset": "Regola con precisione la stima della temperatura superficiale in base al rischio di muffa. Modifica il valore se le pareti risultano più fredde rispetto a quanto ipotizzato da Tado. (da -5 a +5 °C)"
             }
           }
-        },
-        "data": {
-          "external_temp_sensor": "Sensore di temperatura esterno",
-          "external_humidity_sensor": "Sensore di umidità esterno"
-        },
-        "data_description": {
-          "external_temp_sensor": "Sostituire la lettura della temperatura incorporata in Tado con un sensore esterno.",
-          "external_humidity_sensor": "Sovrascrivere la lettura dell'umidità incorporata di Tado con un sensore esterno"
         }
       },
       "general_settings": {
@@ -1568,9 +1605,9 @@
               "offset_enabled": "Compensazioni di temperatura dei dispositivi"
             },
             "data_description": {
-              "home_state_sync_enabled": "Sincronizza lo stato generale della tua casa (A casa/Fuori casa) ad ogni interrogazione (+1 chiamata API per interrogazione)",
-              "weather_enabled": "Temperatura esterna e intensità solare da Tado (+1 chiamata API per ogni interrogazione)",
-              "mobile_devices_enabled": "Tieni traccia della posizione di ogni telefono per verificare la presenza per singolo dispositivo. Aggiornamenti solo al riavvio di HA — abilita la sincronizzazione frequente nelle impostazioni avanzate per aggiornamenti continui (+1 chiamata API per ogni polling quando la sincronizzazione è frequente)",
+              "home_state_sync_enabled": "Sincronizza lo stato di presenza generale della tua abitazione (A casa/Fuori casa). L'aggiornamento avviene al massimo ogni 5 minuti, con circa una chiamata API per ogni operazione",
+              "weather_enabled": "Temperatura esterna e intensità solare fornite da Tado. Aggiornamento ogni 30 minuti al massimo, con circa una chiamata API per ogni aggiornamento",
+              "mobile_devices_enabled": "Traccia la posizione di ogni telefono per verificare la presenza per singolo dispositivo. Gli aggiornamenti avvengono solo al riavvio di HA. Per eseguire l'aggiornamento in background, attiva questa opzione, salva, quindi abilita la sincronizzazione mobile frequente nella sezione \"Polling e API\" delle impostazioni avanzate.",
               "schedule_calendar_enabled": "Visualizza i tuoi programmi di riscaldamento Tado come voci del calendario in HA",
               "offset_enabled": "Mostra l'offset di calibrazione della temperatura visualizzato nell'app Tado per i dispositivi di climatizzazione (+1 chiamata API per dispositivo al riavvio)"
             }
@@ -1662,7 +1699,6 @@
               "custom_night_interval": "Intervallo notturno personalizzato (lasciare vuoto per l'impostazione automatica)",
               "refresh_debounce_seconds": "Ritardo di aggiornamento (secondi)",
               "api_history_retention_days": "Conservazione della cronologia API (giorni)",
-              "quota_reserve_enabled": "Protezione della riserva di quote",
               "smart_actions_debounce_seconds": "Ritardo del cursore della temperatura",
               "device_sync_delay_seconds": "Ritardo di sincronizzazione del dispositivo",
               "mobile_devices_frequent_sync": "Sincronizzazione mobile frequente",
@@ -1675,10 +1711,9 @@
               "custom_night_interval": "Sostituisci l'interrogazione automatica notturna con un intervallo fisso. Lascia il campo vuoto per consentire a Tado CE di regolare l'interrogazione in base alla tua quota API. (1–1440 min)",
               "refresh_debounce_seconds": "Attendere questo tempo dopo una modifica prima di recuperare nuovi dati da Tado (1-60s)",
               "api_history_retention_days": "Quanti giorni di cronologia delle chiamate API conservare per il grafico di utilizzo (0 = per sempre)",
-              "quota_reserve_enabled": "Sospende automaticamente il polling quando la quota API si sta esaurendo. Disattivare solo se si sa cosa si sta facendo.",
               "smart_actions_debounce_seconds": "Quando si trascina il cursore della temperatura, attendere questo tempo prima di inviare il valore finale (0 = inviare immediatamente)",
-              "device_sync_delay_seconds": "Pausa tra le operazioni sequenziali del dispositivo, come il blocco del bambino o la modifica dell'offset.",
-              "mobile_devices_frequent_sync": "Aggiornare le posizioni dei dispositivi a ogni ciclo di polling. Senza questa opzione, le posizioni vengono aggiornate solo al riavvio dell'HA (+1 chiamata API per poll).",
+              "device_sync_delay_seconds": "Quanto tempo deve trascorrere tra due modifiche consecutive inviate allo stesso dispositivo (ad esempio, blocco bambini o compensazione della temperatura). Aumentare questo valore se le modifiche rapide non vengono tutte applicate (0,5–5 s, valore predefinito 1).",
+              "mobile_devices_frequent_sync": "Assicurati che l'aggiornamento della posizione dei dispositivi avvenga in background (al massimo ogni 5 minuti) anziché solo al riavvio di HA. Circa 1 chiamata API ogni volta",
               "hot_water_timer_duration": "Durata predefinita quando si apre il rubinetto dell'acqua calda senza impostare un timer (1–1440 min)"
             }
           },
@@ -1746,7 +1781,7 @@
         },
         "data_description": {
           "bridge_serial": "Inizia con IB (ad es. IB0123456789)",
-          "bridge_auth_key": "Codice a 8 cifre sul retro del ponte"
+          "bridge_auth_key": "Codice a 4 cifre riportato sull'adesivo presente sul ponte (da mantenere riservato)"
         }
       },
       "wc_bridge_prompt": {

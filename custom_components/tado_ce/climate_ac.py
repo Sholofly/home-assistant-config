@@ -20,7 +20,6 @@ from homeassistant.components.climate.const import (
     FAN_HIGH,
     FAN_LOW,
     FAN_MEDIUM,
-    SWING_ON,
     ClimateEntityFeature,
     HVACAction,
     HVACMode,
@@ -193,10 +192,7 @@ def build_fan_mapping(fan_levels: set[Any]) -> tuple[dict[str, Any], dict[str, A
 def _build_fan_modes(
     ac_caps: dict[str, Any], zone_id: str,
 ) -> tuple[dict[str, Any], dict[str, Any], list[str]]:
-    """Build fan mode mappings from AC capabilities.
-
-    Returns (tado_to_ha, ha_to_tado, fan_modes_list).
-    """
+    """Build fan mode mappings from AC capabilities."""
     fan_levels: set[str] = set()
     for mode_caps in ac_caps.values():
         if isinstance(mode_caps, dict):
@@ -217,36 +213,51 @@ def _build_fan_modes(
     return dict(TADO_TO_HA_FAN), dict(HA_TO_TADO_FAN), [FAN_AUTO, FAN_LOW, FAN_MEDIUM, FAN_HIGH]
 
 
-def _build_swing_modes(ac_caps: dict[str, Any], zone_id: str) -> list[str]:
-    """Build swing mode list from AC capabilities."""
-    all_v_swings: set[str] = set()
-    all_h_swings: set[str] = set()
-    for mode in ("COOL", "HEAT", "DRY", "FAN", "AUTO"):
-        mode_caps = ac_caps.get(mode) or {}
-        if "verticalSwing" in mode_caps:
-            all_v_swings.update(mode_caps["verticalSwing"])
-        if "horizontalSwing" in mode_caps:
-            all_h_swings.update(mode_caps["horizontalSwing"])
+# Physical louver-position ordering, matching the Tado app and most AC
+# remotes: top-to-bottom for vertical, left-to-right for horizontal,
+# with `auto` first and `on` (continuous oscillation) last. The cloud
+# returns capability values as an unordered set, so without an explicit
+# order the dropdown renders alphabetically — which spaces "Down /
+# Mid / Mid (down) / Mid (up) / Up" in a sequence the user can't
+# correlate to physical position. Unknown values fall through to the
+# tail in alphabetical order so a new value Tado adds remains visible.
+_VERTICAL_SWING_ORDER = (
+    "auto", "up", "mid_up", "mid", "mid_down", "down", "off", "on",
+)
+_HORIZONTAL_SWING_ORDER = (
+    "auto", "left", "mid_left", "mid", "mid_right", "right", "off", "on",
+)
 
-    swing_modes: list[str] = []
-    has_v_off = "OFF" in all_v_swings
-    has_h_off = "OFF" in all_h_swings
-    has_v_on = any(v != "OFF" for v in all_v_swings)
-    has_h_on = any(h != "OFF" for h in all_h_swings)
 
-    if has_v_off or has_h_off or (not all_v_swings and not all_h_swings):
-        swing_modes.append("off")
-    if has_v_on:
-        swing_modes.append("vertical")
-    if has_h_on:
-        swing_modes.append("horizontal")
-    if has_v_on and has_h_on:
-        swing_modes.append("both")
+def _build_swing_axis_modes(
+    ac_caps: dict[str, Any],
+    axis: str,
+    zone_id: str,
+) -> list[str] | None:
+    """Build the swing-mode list for one axis from the union of supported values across all AC modes.
 
-    result = swing_modes or ["off"]
+    `axis` is `"verticalSwing"` or `"horizontalSwing"`. Returns `None`
+    when the axis isn't supported by any mode — the caller uses that
+    to decide whether to advertise the corresponding `SWING_MODE` /
+    `SWING_HORIZONTAL_MODE` feature flag.
+    """
+    all_values: set[str] = set()
+    for mode_caps in ac_caps.values():
+        if isinstance(mode_caps, dict) and axis in mode_caps:
+            all_values.update(mode_caps[axis])
+    if not all_values:
+        return None
+    lowered = {v.lower() for v in all_values}
+    canonical_order = (
+        _HORIZONTAL_SWING_ORDER if axis == "horizontalSwing"
+        else _VERTICAL_SWING_ORDER
+    )
+    ordered = [v for v in canonical_order if v in lowered]
+    unknown = sorted(lowered - set(canonical_order))
+    result = ordered + unknown
     _LOGGER.debug(
-        "Climate AC: zone %s swing modes %s (vertical=%s, horizontal=%s)",
-        zone_id, result, all_v_swings, all_h_swings,
+        "Climate AC: zone %s %s modes %s (raw=%s)",
+        zone_id, axis, result, all_values,
     )
     return result
 
@@ -314,12 +325,12 @@ class TadoACClimate(CoordinatorEntity["TadoDataUpdateCoordinator"], ClimateEntit
         )
         if has_fan:
             features |= ClimateEntityFeature.FAN_MODE
-        has_swing = any(
-            (ac_caps.get(mode) or {}).get("verticalSwing") or (ac_caps.get(mode) or {}).get("horizontalSwing")
-            for mode in ["COOL", "HEAT", "DRY", "FAN", "AUTO"]
-        )
-        if has_swing:
+        v_modes = _build_swing_axis_modes(ac_caps, "verticalSwing", zone_id)
+        h_modes = _build_swing_axis_modes(ac_caps, "horizontalSwing", zone_id)
+        if v_modes is not None:
             features |= ClimateEntityFeature.SWING_MODE
+        if h_modes is not None:
+            features |= ClimateEntityFeature.SWING_HORIZONTAL_MODE
         self._attr_supported_features = features
 
         self._attr_hvac_modes = self._build_hvac_modes(ac_caps)
@@ -329,7 +340,8 @@ class TadoACClimate(CoordinatorEntity["TadoDataUpdateCoordinator"], ClimateEntit
         )
 
         self._tado_to_ha_fan, self._ha_to_tado_fan, self._attr_fan_modes = _build_fan_modes(ac_caps, zone_id)
-        self._attr_swing_modes = _build_swing_modes(ac_caps, zone_id) if has_swing else None
+        self._attr_swing_modes = v_modes
+        self._attr_swing_horizontal_modes = h_modes
 
         self._attr_min_temp, self._attr_max_temp, self._attr_target_temperature_step = self._extract_temp_range(ac_caps)
 
@@ -338,7 +350,8 @@ class TadoACClimate(CoordinatorEntity["TadoDataUpdateCoordinator"], ClimateEntit
         self._attr_hvac_mode = None
         self._attr_hvac_action = None
         self._attr_fan_mode = self._attr_fan_modes[0] if self._attr_fan_modes else None
-        self._attr_swing_mode = self._attr_swing_modes[0] if self._attr_swing_modes else None
+        self._attr_swing_mode = v_modes[0] if v_modes else None
+        self._attr_swing_horizontal_mode = h_modes[0] if h_modes else None
         self._attr_available = False
         self._attr_current_humidity = None
 
@@ -427,11 +440,7 @@ class TadoACClimate(CoordinatorEntity["TadoDataUpdateCoordinator"], ClimateEntit
         return HVACAction.IDLE
 
     async def async_added_to_hass(self) -> None:
-        """Restore last target temperature and wire HomeKit / config listeners.
-
-        CoordinatorEntity already subscribes to the coordinator, so we
-        only attach the zone-config and HomeKit-update listeners here.
-        """
+        """Restore last target temperature and wire HomeKit / config listeners."""
         await super().async_added_to_hass()
 
         # Restore last known target temperature across HA restarts
@@ -618,13 +627,7 @@ class TadoACClimate(CoordinatorEntity["TadoDataUpdateCoordinator"], ClimateEntit
 
     @callback
     def _handle_coordinator_update(self) -> None:
-        """Handle coordinator data update.
-
-        Replaces manual SIGNAL_ZONES_UPDATED and
-        SIGNAL_AC_CAPABILITIES_UPDATED handlers. CoordinatorEntity calls
-        this automatically after each coordinator poll.
-        Also reloads AC capabilities from coordinator.data if changed.
-        """
+        """Handle coordinator data update; reload AC capabilities if changed."""
         # Reload AC capabilities from coordinator data (replaces SIGNAL_AC_CAPABILITIES_UPDATED)
         coord_data = self.coordinator.data or {}
         ac_caps_all = coord_data.get("ac_capabilities") or {}
@@ -669,20 +672,11 @@ class TadoACClimate(CoordinatorEntity["TadoDataUpdateCoordinator"], ClimateEntit
         fan_level = setting.get("fanLevel") or setting.get("fanSpeed")
         self._attr_fan_mode = self._tado_to_ha_fan.get(fan_level) or TADO_TO_HA_FAN.get(fan_level, FAN_AUTO)  # type: ignore[arg-type]
 
-        # Swing - map to unified swing mode: off/vertical/horizontal/both
-        vertical_swing = setting.get("verticalSwing")
-        horizontal_swing = setting.get("horizontalSwing")
-        v_on = vertical_swing is not None and vertical_swing != "OFF"
-        h_on = horizontal_swing is not None and horizontal_swing != "OFF"
-
-        if v_on and h_on:
-            self._attr_swing_mode = "both"
-        elif v_on:
-            self._attr_swing_mode = "vertical"
-        elif h_on:
-            self._attr_swing_mode = "horizontal"
-        else:
-            self._attr_swing_mode = self._attr_swing_modes[0] if self._attr_swing_modes else "off"
+        # Swing — raw axis values, mapped lower-case for HA display
+        v_swing = setting.get("verticalSwing")
+        h_swing = setting.get("horizontalSwing")
+        self._attr_swing_mode = v_swing.lower() if v_swing else None
+        self._attr_swing_horizontal_mode = h_swing.lower() if h_swing else None
 
         self._overlay_type = zone_data.get("overlayType")
 
@@ -717,6 +711,8 @@ class TadoACClimate(CoordinatorEntity["TadoDataUpdateCoordinator"], ClimateEntit
                     self._attr_fan_mode = self._optimistic_preserved["fan_mode"]
                 if self._optimistic_preserved.get("swing_mode") is not None:
                     self._attr_swing_mode = self._optimistic_preserved["swing_mode"]
+                if self._optimistic_preserved.get("swing_horizontal_mode") is not None:
+                    self._attr_swing_horizontal_mode = self._optimistic_preserved["swing_horizontal_mode"]
             _LOGGER.debug(
                 "Climate AC: %s holding optimistic state — mode=%s "
                 "action=%s target=%s",
@@ -916,8 +912,8 @@ class TadoACClimate(CoordinatorEntity["TadoDataUpdateCoordinator"], ClimateEntit
         """Set the target temperature, optionally folding in an HVAC mode change.
 
         Bundles temperature + mode into a single overlay write when
-        both are supplied so the cloud sees one transition rather
-        than two.
+        both are supplied so the cloud sees one transition rather than
+        two.
         """
         temperature = kwargs.get(ATTR_TEMPERATURE)
         hvac_mode = kwargs.get(ATTR_HVAC_MODE)
@@ -969,7 +965,7 @@ class TadoACClimate(CoordinatorEntity["TadoDataUpdateCoordinator"], ClimateEntit
                 "hvac_action": new_hvac_action,
                 "target_temperature": temperature,
             },
-            preserved_attrs={"fan_mode": self._attr_fan_mode, "swing_mode": self._attr_swing_mode},
+            preserved_attrs={"fan_mode": self._attr_fan_mode, "swing_mode": self._attr_swing_mode, "swing_horizontal_mode": self._attr_swing_horizontal_mode},
         )
         self.async_write_ha_state()
 
@@ -1050,6 +1046,7 @@ class TadoACClimate(CoordinatorEntity["TadoDataUpdateCoordinator"], ClimateEntit
             return
 
         api_success = False
+        logged_failure = False
         try:
             async with asyncio.timeout(10):
                 api_success = await self._async_set_ac_overlay(temperature=temperature, mode=tado_mode)
@@ -1059,12 +1056,14 @@ class TadoACClimate(CoordinatorEntity["TadoDataUpdateCoordinator"], ClimateEntit
                 "rolling back optimistic state",
                 self._zone_name,
             )
+            logged_failure = True
         except Exception as e:
             _LOGGER.warning(
                 "Climate AC: %s temperature write failed (%s) — rolling "
                 "back optimistic state",
                 self._zone_name, e,
             )
+            logged_failure = True
 
         if api_success:
             self._last_write_source = "cloud"
@@ -1079,11 +1078,12 @@ class TadoACClimate(CoordinatorEntity["TadoDataUpdateCoordinator"], ClimateEntit
             )
             await async_trigger_immediate_refresh(self.hass, self.entity_id, "temperature_change")
         else:
-            _LOGGER.warning(
-                "Climate AC: %s temperature write failed — reverted to "
-                "previous state",
-                self._zone_name,
-            )
+            if not logged_failure:
+                _LOGGER.warning(
+                    "Climate AC: %s temperature write rejected by Tado — "
+                    "rolling back optimistic state",
+                    self._zone_name,
+                )
             self._attr_target_temperature = old_temp
             self._attr_hvac_mode = old_mode
             self._attr_hvac_action = old_action
@@ -1113,10 +1113,6 @@ class TadoACClimate(CoordinatorEntity["TadoDataUpdateCoordinator"], ClimateEntit
         client = self.coordinator.api_client
 
         if hvac_mode == HVACMode.OFF:
-            await self.coordinator.async_capture_state(
-                self._zone_id, self._entity_type, "set_hvac_mode",
-            )
-
             setting = {
                 "type": "AIR_CONDITIONING",
                 "power": "OFF",
@@ -1128,6 +1124,7 @@ class TadoACClimate(CoordinatorEntity["TadoDataUpdateCoordinator"], ClimateEntit
                 hvac_mode=HVACMode.OFF,
                 hvac_action=HVACAction.OFF,
                 reason="set OFF mode",
+                capture_source="set_hvac_mode",
             )
             self._last_write_source = "cloud"
 
@@ -1149,7 +1146,6 @@ class TadoACClimate(CoordinatorEntity["TadoDataUpdateCoordinator"], ClimateEntit
             old_mode = self._attr_hvac_mode
             old_temp = self._attr_target_temperature
             old_fan = self._attr_fan_mode
-            old_swing = self._attr_swing_mode
             old_action = self._attr_hvac_action
 
             self._attr_hvac_mode = hvac_mode
@@ -1180,11 +1176,12 @@ class TadoACClimate(CoordinatorEntity["TadoDataUpdateCoordinator"], ClimateEntit
             await set_optimistic_fields(
                 self, self.coordinator,
                 expected={"hvac_mode": hvac_mode, "hvac_action": new_hvac_action},
-                preserved_attrs={"fan_mode": self._attr_fan_mode, "swing_mode": self._attr_swing_mode},
+                preserved_attrs={"fan_mode": self._attr_fan_mode, "swing_mode": self._attr_swing_mode, "swing_horizontal_mode": self._attr_swing_horizontal_mode},
             )
             self.async_write_ha_state()
 
             api_success = False
+            logged_failure = False
             try:
                 async with asyncio.timeout(10):
                     api_success = await self._async_set_ac_overlay(mode=tado_mode)
@@ -1194,12 +1191,14 @@ class TadoACClimate(CoordinatorEntity["TadoDataUpdateCoordinator"], ClimateEntit
                     "rolling back optimistic state",
                     self._zone_name, hvac_mode,
                 )
+                logged_failure = True
             except Exception as e:
                 _LOGGER.warning(
                     "Climate AC: %s %s mode write failed (%s) — rolling "
                     "back optimistic state",
                     self._zone_name, hvac_mode, e,
                 )
+                logged_failure = True
 
             if api_success:
                 self._last_write_source = "cloud"
@@ -1211,15 +1210,15 @@ class TadoACClimate(CoordinatorEntity["TadoDataUpdateCoordinator"], ClimateEntit
                 )
                 await async_trigger_immediate_refresh(self.hass, self.entity_id, "hvac_mode_change")
             else:
-                _LOGGER.warning(
-                    "Climate AC: %s %s mode write failed — reverted to "
-                    "previous state",
-                    self._zone_name, hvac_mode,
-                )
+                if not logged_failure:
+                    _LOGGER.warning(
+                        "Climate AC: %s %s mode write rejected by Tado — "
+                        "rolling back optimistic state",
+                        self._zone_name, hvac_mode,
+                    )
                 self._attr_hvac_mode = old_mode
                 self._attr_target_temperature = old_temp
                 self._attr_fan_mode = old_fan
-                self._attr_swing_mode = old_swing
                 self._attr_hvac_action = old_action
                 clear_optimistic_state(self)
                 self.async_write_ha_state()
@@ -1262,7 +1261,7 @@ class TadoACClimate(CoordinatorEntity["TadoDataUpdateCoordinator"], ClimateEntit
         await set_optimistic_fields(
             self, self.coordinator,
             expected={"hvac_mode": self._attr_hvac_mode, "hvac_action": new_hvac_action},
-            preserved_attrs={"fan_mode": self._attr_fan_mode, "swing_mode": self._attr_swing_mode},
+            preserved_attrs={"fan_mode": self._attr_fan_mode, "swing_mode": self._attr_swing_mode, "swing_horizontal_mode": self._attr_swing_horizontal_mode},
         )
         self.async_write_ha_state()
 
@@ -1276,6 +1275,7 @@ class TadoACClimate(CoordinatorEntity["TadoDataUpdateCoordinator"], ClimateEntit
             tado_fan = "AUTO"
 
         api_success = False
+        logged_failure = False
         try:
             async with asyncio.timeout(10):
                 api_success = await self._async_set_ac_overlay(fan_level=tado_fan)
@@ -1285,12 +1285,14 @@ class TadoACClimate(CoordinatorEntity["TadoDataUpdateCoordinator"], ClimateEntit
                 "rolling back optimistic state",
                 self._zone_name,
             )
+            logged_failure = True
         except Exception as e:
             _LOGGER.warning(
                 "Climate AC: %s fan mode write failed (%s) — rolling "
                 "back optimistic state",
                 self._zone_name, e,
             )
+            logged_failure = True
 
         if api_success:
             _LOGGER.debug(
@@ -1299,11 +1301,12 @@ class TadoACClimate(CoordinatorEntity["TadoDataUpdateCoordinator"], ClimateEntit
             )
             await async_trigger_immediate_refresh(self.hass, self.entity_id, "fan_mode_change")
         else:
-            _LOGGER.warning(
-                "Climate AC: %s fan mode write failed — reverted to "
-                "previous state",
-                self._zone_name,
-            )
+            if not logged_failure:
+                _LOGGER.warning(
+                    "Climate AC: %s fan mode write rejected by Tado — "
+                    "rolling back optimistic state",
+                    self._zone_name,
+                )
             self._attr_fan_mode = old_fan
             self._attr_hvac_mode = old_mode
             self._attr_hvac_action = old_action
@@ -1315,12 +1318,26 @@ class TadoACClimate(CoordinatorEntity["TadoDataUpdateCoordinator"], ClimateEntit
             )
 
     async def async_set_swing_mode(self, swing_mode: str) -> None:
-        """Set the AC swing direction (off / vertical / horizontal / both).
+        """Set the AC vertical-axis swing position (raw capability value, e.g. 'up', 'mid_down', 'on')."""
+        # Compat shim — accept v4.0 unified values for one cycle.
+        legacy = self._migrate_legacy_swing_mode(swing_mode)
+        if legacy is not None:
+            v_value, h_value = legacy
+            if (
+                v_value.lower() == self._attr_swing_mode
+                and h_value.lower() == self._attr_swing_horizontal_mode
+            ):
+                _LOGGER.debug(
+                    "Climate AC: %s skipping legacy swing_mode '%s' — "
+                    "already in target state",
+                    self._zone_name, swing_mode,
+                )
+                return
+            await self._async_apply_axis_change(
+                v_swing=v_value, h_swing=h_value, source_label=swing_mode,
+            )
+            return
 
-        Single dropdown matching the official Tado app — translated
-        into the cloud's separate `verticalSwing` / `horizontalSwing`
-        fields when the overlay is built.
-        """
         if ActionGuard.should_skip_swing_mode(swing_mode, self._attr_swing_mode):
             _LOGGER.debug(
                 "Climate AC: %s skipping set_swing_mode — already %s "
@@ -1329,31 +1346,54 @@ class TadoACClimate(CoordinatorEntity["TadoDataUpdateCoordinator"], ClimateEntit
             )
             return
 
-        await _check_bootstrap_reserve_or_raise(self.hass, f"AC {self._zone_name}", coordinator=self.coordinator)
+        await self._async_apply_axis_change(
+            v_swing=swing_mode.upper(),
+            h_swing=None,
+            source_label=swing_mode,
+        )
+
+    async def async_set_swing_horizontal_mode(self, swing_horizontal_mode: str) -> None:
+        """Set the AC horizontal-axis swing position."""
+        if ActionGuard.should_skip_swing_mode(
+            swing_horizontal_mode, self._attr_swing_horizontal_mode,
+        ):
+            _LOGGER.debug(
+                "Climate AC: %s skipping set_swing_horizontal_mode — "
+                "already %s (Action Guard)",
+                self._zone_name, swing_horizontal_mode,
+            )
+            return
+
+        await self._async_apply_axis_change(
+            v_swing=None,
+            h_swing=swing_horizontal_mode.upper(),
+            source_label=swing_horizontal_mode,
+        )
+
+    async def _async_apply_axis_change(
+        self,
+        v_swing: str | None,
+        h_swing: str | None,
+        source_label: str,
+    ) -> None:
+        """Apply a one-or-both-axis swing change with optimistic state + rollback on failure."""
+        await _check_bootstrap_reserve_or_raise(
+            self.hass, f"AC {self._zone_name}", coordinator=self.coordinator,
+        )
 
         await self.coordinator.async_capture_state(
             self._zone_id, self._entity_type, "set_swing_mode",
         )
 
-        if swing_mode == "off":
-            v_swing, h_swing = "OFF", "OFF"
-        elif swing_mode == "vertical":
-            v_swing, h_swing = "ON", "OFF"
-        elif swing_mode == "horizontal":
-            v_swing, h_swing = "OFF", "ON"
-        elif swing_mode == "both":
-            v_swing, h_swing = "ON", "ON"
-        else:
-            # Older HA versions still send the legacy SWING_ON / SWING_OFF
-            # constants from generic dashboards — accept those too.
-            v_swing = "ON" if swing_mode == SWING_ON else "OFF"
-            h_swing = "OFF"
-
         old_swing = self._attr_swing_mode
+        old_h_swing = self._attr_swing_horizontal_mode
         old_mode = self._attr_hvac_mode
         old_action = self._attr_hvac_action
 
-        self._attr_swing_mode = swing_mode
+        if v_swing is not None:
+            self._attr_swing_mode = v_swing.lower()
+        if h_swing is not None:
+            self._attr_swing_horizontal_mode = h_swing.lower()
 
         # Touching swing on an OFF AC also powers it on — default to
         # COOL so the unit has a usable mode while the user adjusts.
@@ -1367,48 +1407,85 @@ class TadoACClimate(CoordinatorEntity["TadoDataUpdateCoordinator"], ClimateEntit
         await set_optimistic_fields(
             self, self.coordinator,
             expected={"hvac_mode": self._attr_hvac_mode, "hvac_action": new_hvac_action},
-            preserved_attrs={"fan_mode": self._attr_fan_mode, "swing_mode": self._attr_swing_mode},
+            preserved_attrs={
+                "fan_mode": self._attr_fan_mode,
+                "swing_mode": self._attr_swing_mode,
+                "swing_horizontal_mode": self._attr_swing_horizontal_mode,
+            },
         )
         self.async_write_ha_state()
 
         api_success = False
+        logged_failure = False
         try:
             async with asyncio.timeout(10):
-                api_success = await self._async_set_ac_overlay(vertical_swing=v_swing, horizontal_swing=h_swing)
+                api_success = await self._async_set_ac_overlay(
+                    vertical_swing=v_swing, horizontal_swing=h_swing,
+                )
         except TimeoutError:
             _LOGGER.warning(
                 "Climate AC: %s swing mode write timed out after 10s — "
                 "rolling back optimistic state",
                 self._zone_name,
             )
+            logged_failure = True
         except Exception as e:
             _LOGGER.warning(
                 "Climate AC: %s swing mode write failed (%s) — rolling "
                 "back optimistic state",
                 self._zone_name, e,
             )
+            logged_failure = True
 
         if api_success:
             _LOGGER.debug(
-                "Climate AC: %s set swing mode to %s",
-                self._zone_name, swing_mode,
+                "Climate AC: %s set swing %s",
+                self._zone_name, source_label,
             )
             await async_trigger_immediate_refresh(self.hass, self.entity_id, "swing_mode_change")
-        else:
+            return
+
+        if not logged_failure:
             _LOGGER.warning(
-                "Climate AC: %s swing mode write failed — reverted to "
-                "previous state",
+                "Climate AC: %s swing mode write rejected by Tado — "
+                "rolling back optimistic state",
                 self._zone_name,
             )
-            self._attr_swing_mode = old_swing
-            self._attr_hvac_mode = old_mode
-            self._attr_hvac_action = old_action
-            clear_optimistic_state(self)
-            self.async_write_ha_state()
-            raise HomeAssistantError(
-                f"AC {self._zone_name}: Set swing mode failed",
-                translation_domain=DOMAIN,
-            )
+        self._attr_swing_mode = old_swing
+        self._attr_swing_horizontal_mode = old_h_swing
+        self._attr_hvac_mode = old_mode
+        self._attr_hvac_action = old_action
+        clear_optimistic_state(self)
+        self.async_write_ha_state()
+        raise HomeAssistantError(
+            f"AC {self._zone_name}: Set swing mode failed",
+            translation_domain=DOMAIN,
+        )
+
+    def _migrate_legacy_swing_mode(self, swing_mode: str) -> tuple[str, str] | None:
+        """Translate v4.0 unified values to (v_swing, h_swing); returns None for raw axis values.
+
+        `'on'` is intentionally NOT in the legacy set — it collides with the
+        HA Core `SWING_ON` constant, which is also a valid v4.1 raw axis
+        value. Treating `'on'` as legacy would silently set both axes when
+        the user clicks "On" in the v4.1 dropdown for a single axis.
+        """
+        legacy = {
+            "off": ("OFF", "OFF"),
+            "vertical": ("ON", "OFF"),
+            "horizontal": ("OFF", "ON"),
+            "both": ("ON", "ON"),
+        }
+        if swing_mode not in legacy:
+            return None
+        _LOGGER.warning(
+            "Climate AC: %s received legacy swing_mode '%s'. Update your "
+            "automations to call set_swing_mode (vertical) and "
+            "set_swing_horizontal_mode separately. The compat shim will "
+            "be removed in v4.2.",
+            self._zone_name, swing_mode,
+        )
+        return legacy[swing_mode]
 
     def _resolve_fan_level(
         self,
@@ -1455,28 +1532,6 @@ class TadoACClimate(CoordinatorEntity["TadoDataUpdateCoordinator"], ClimateEntit
             return fan_key, supported[0]
         return None, None
 
-    @staticmethod
-    def _resolve_swing_value(
-        supported: list[str],
-        explicit: str | None,
-        swing_mode: str | None,
-        swing_direction: str,
-    ) -> str | None:
-        """Pick the value for one swing axis given the unified swing dropdown.
-
-        Returns `None` when this axis shouldn't be sent at all (the
-        AC mode doesn't expose it).
-        """
-        if explicit is not None:
-            return explicit if explicit in supported else None
-        if swing_mode in (swing_direction, "both"):
-            if "ON" in supported:
-                return "ON"
-            return supported[0] if supported else None
-        if "OFF" in supported:
-            return "OFF"
-        return None
-
     def _resolve_ac_mode(self, mode: str | None) -> str:
         """Pick the Tado mode string to send in the overlay payload."""
         if mode:
@@ -1515,15 +1570,18 @@ class TadoACClimate(CoordinatorEntity["TadoDataUpdateCoordinator"], ClimateEntit
         if fan_key and fan_value:
             setting[fan_key] = fan_value
 
-        # Swing
-        for swing_dir, swing_explicit in [("verticalSwing", vertical_swing), ("horizontalSwing", horizontal_swing)]:
-            if swing_dir in mode_caps:
-                value = self._resolve_swing_value(
-                    mode_caps.get(swing_dir) or [], swing_explicit,
-                    self._attr_swing_mode, swing_dir.replace("Swing", "").lower(),
-                )
-                if value is not None:
-                    setting[swing_dir] = value
+        # Swing — pass explicit raw axis values straight through; skip
+        # axes the current AC mode doesn't expose, or values not in
+        # the capability set
+        for swing_dir, swing_explicit in [
+            ("verticalSwing", vertical_swing),
+            ("horizontalSwing", horizontal_swing),
+        ]:
+            if swing_explicit is None:
+                continue
+            supported = mode_caps.get(swing_dir) or []
+            if swing_explicit in supported:
+                setting[swing_dir] = swing_explicit
 
         return setting
 
@@ -1570,31 +1628,25 @@ class TadoACClimate(CoordinatorEntity["TadoDataUpdateCoordinator"], ClimateEntit
         """
         await _check_bootstrap_reserve_or_raise(self.hass, f"AC {self._zone_name}", coordinator=self.coordinator)
 
-        await self.coordinator.async_capture_state(
-            self._zone_id, self._entity_type, "set_timer",
+        client = self.coordinator.api_client
+        setting = self._build_ac_setting(
+            temperature, None, None, None, None,
+        )
+        termination = build_timer_termination(
+            duration_minutes=duration_minutes, overlay=overlay,
+            hass=self.hass, zone_id=self._zone_id, entry_id=self._entry_id,
         )
 
-        api_success = False
         try:
-            async with asyncio.timeout(10):
-                api_success = await self._async_set_ac_overlay(
-                    temperature=temperature,
-                    mode=None,
-                    duration_minutes=duration_minutes,
-                    overlay=overlay,
-                )
-        except TimeoutError:
-            _LOGGER.warning(
-                "Climate AC: %s set_timer write timed out after 10s",
-                self._zone_name,
+            await api_call_with_rollback(
+                self,
+                client.set_zone_overlay(self._zone_id, setting, termination),
+                hvac_mode=self._attr_hvac_mode or HVACMode.COOL,
+                hvac_action=self._calculate_hvac_action(),
+                target_temp=temperature,
+                reason=f"set timer at {temperature}°C",
+                capture_source="set_timer",
             )
-        except Exception as e:
-            _LOGGER.warning(
-                "Climate AC: %s set_timer write failed (%s)",
-                self._zone_name, e,
-            )
-
-        if api_success:
-            await async_trigger_immediate_refresh(self.hass, self.entity_id, "set_timer")
-
-        return api_success
+        except HomeAssistantError:
+            return False
+        return True

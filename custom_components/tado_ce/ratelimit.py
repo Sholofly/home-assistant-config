@@ -173,7 +173,7 @@ async def async_check_bootstrap_reserve(
             return False, ""
 
         return should_block_manual_action(ratelimit_data, config_manager)
-    except Exception as e:
+    except (OSError, ValueError, KeyError, TypeError) as e:
         _LOGGER.debug(
             "Rate Limit: bootstrap check raised an exception (%s) — "
             "letting the action through to be safe",

@@ -1,10 +1,4 @@
-"""Tado CE heating-cycle analyser — derive inertia + rate + preheat-time from completed cycles.
-
-Pure-function module. Filters to valid (completed, actual-heating)
-cycles, averages inertia time + heating rate, scores confidence
-from sample count + variance, and exposes `estimate_preheat_time`
-for the preheat advisor.
-"""
+"""Tado CE heating-cycle analyser — derive inertia + rate + preheat-time from completed cycles."""
 
 from __future__ import annotations
 
@@ -25,14 +19,7 @@ class HeatingCycleAnalyzer:
         self._min_cycles = min_cycles
 
     def analyze_cycles(self, cycles: list[HeatingCycle]) -> dict[str, Any] | None:
-        """Analyze completed cycles and return metrics.
-
-        Args:
-            cycles: List of completed, non-interrupted cycles
-
-        Returns:
-            Dictionary with metrics, or None if insufficient data
-        """
+        """Analyze completed cycles and return metrics, or None if insufficient data."""
         # Valid = completed, real heating happened, positive
         # delta. The 0.1°C floor filters cycles that finished
         # the moment they started (e.g. setpoint matched current).
@@ -106,16 +93,7 @@ class HeatingCycleAnalyzer:
         target_temp: float,
         metrics: dict[str, Any],
     ) -> float | None:
-        """Estimate preheat time to reach target temperature.
-
-        Args:
-            current_temp: Current zone temperature
-            target_temp: Target temperature
-            metrics: Analysis metrics from analyze_cycles()
-
-        Returns:
-            Estimated preheat time in minutes, or None if insufficient data
-        """
+        """Estimate preheat time to reach target temperature in minutes (None if insufficient data)."""
         if not metrics:
             return None
 

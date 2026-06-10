@@ -156,18 +156,7 @@ _RESET_SCOPE_OPTIONS = [
 
 
 class TadoCEOptionsFlow(config_entries.OptionsFlow):
-    """Handle options flow for Tado CE with menu-based navigation.
-
-    Menu options:
-    - Global Settings: 4 collapsed sections (CE Exclusive, Tado Data, Settings, Polling & API)
-    - Zone Sensor Config: Per-zone external sensor picker with EntitySelector
-
-    CORE features (always ON, not in UI):
-    - Zone Diagnostics, Device Controls, Boost Buttons, Environment Sensors
-
-    Removed (Per-Zone handles these):
-    - ufh_buffer_minutes, ufh_zones, adaptive_preheat_zones
-    """
+    """Handle options flow for Tado CE with menu-based navigation."""
 
     def __init__(self, config_entry: ConfigEntry) -> None:
         """Initialize options flow."""
@@ -190,18 +179,7 @@ class TadoCEOptionsFlow(config_entries.OptionsFlow):
         )
 
     def _build_general_schema(self) -> vol.Schema:
-        """Build the General Settings form schema — toggles only.
-
-        12 BooleanSelector fields grouped in 4 sections by feature
-        origin / user mental model:
-        - Tado Features (Tado-native: weather, home state, mobile,
-          offsets, schedule calendar)
-        - Hardware Connections (physical bridges: Internet Bridge,
-          HomeKit)
-        - Smart Automations (tado_ce value-add: Smart Comfort,
-          Thermal Analytics, Adaptive Preheat, Weather Compensation)
-        - Advanced (Per-Zone Configuration)
-        """
+        """Build the General Settings form schema — toggles grouped by mental model (Tado / hardware / automation / advanced)."""
         opt = self.config_entry.options.get
         return vol.Schema(
             {
@@ -292,12 +270,9 @@ class TadoCEOptionsFlow(config_entries.OptionsFlow):
     def _build_advanced_schema(
         self,
         zones_with_heating_power: list[dict[str, str]],
+        has_homekit_pairing: bool = False,
     ) -> vol.Schema:
-        """Build the Advanced Settings form schema — conditional tuning only.
-
-        Only includes sections for features currently enabled in General Settings.
-        Polling & API section is always visible.
-        """
+        """Build the Advanced Settings form — conditional tuning per enabled feature; Polling & API always visible."""
         options = self.config_entry.options
         opt = options.get
         sections: dict[vol.Required, Any] = {}
@@ -395,7 +370,10 @@ class TadoCEOptionsFlow(config_entries.OptionsFlow):
         # Connection status is surfaced in the section description via
         # description_placeholders (see async_step_advanced_settings) —
         # NOT via a pseudo-editable TextSelector field.
-        if opt("homekit_enabled", False):
+        # Show the HomeKit section (carrying the unpair toggle) whenever a
+        # pairing exists — not only when enabled — so a disabled-but-paired
+        # zone can still be unpaired.
+        if has_homekit_pairing:
             sections[vol.Required("homekit")] = data_entry_flow.section(
                 vol.Schema({
                     vol.Optional(
@@ -453,12 +431,7 @@ class TadoCEOptionsFlow(config_entries.OptionsFlow):
         user_input: dict[str, Any],
         processed: dict[str, Any],
     ) -> None:
-        """Flatten General Settings section dicts to top-level toggle keys.
-
-        Section keys are by mental-model grouping (Tado-native vs
-        tado_ce value-add vs hardware), not storage structure — the
-        toggles themselves keep their legacy keys for migration safety.
-        """
+        """Flatten General Settings section dicts to top-level toggle keys (sections are mental-model only)."""
         for section_key in (
             "tado_features",
             "hardware_connections",
@@ -473,29 +446,24 @@ class TadoCEOptionsFlow(config_entries.OptionsFlow):
             if key not in processed:
                 processed[key] = value
 
-    def _detect_first_enable(self, new_options: dict[str, Any]) -> str | None:
-        """Detect if a feature was just enabled for the first time.
-
-        Returns the step_id to redirect to, or None if no sub-flow needed.
-        """
+    async def _detect_first_enable(self, new_options: dict[str, Any]) -> str | None:
+        """Detect if a feature was just enabled — return sub-flow step_id, or None if no sub-flow needed."""
         prev = self.config_entry.options
 
         # Bridge: first enable AND no credentials stored
         if new_options.get("bridge_enabled") and not prev.get("bridge_serial"):
             return "bridge_setup"
 
-        # HomeKit: first enable AND no pairing stored
+        # HomeKit: first enable AND no pairing stored. Ask HomeKitClient
+        # (the Store owner) so the check can't drift from where the pairing
+        # actually lives.
         if new_options.get("homekit_enabled") and not prev.get("homekit_enabled"):
-            from .const import get_data_file
+            from .homekit_client import HomeKitClient
 
-            pairing_path = get_data_file(
-                "homekit_pairing",
-                self.config_entry.data.get("home_id"),
+            client = HomeKitClient(
+                self.hass, self.config_entry.data.get("home_id") or "default",
             )
-            try:
-                if not pairing_path.exists():
-                    return "homekit_pairing"
-            except OSError:
+            if not await client.async_has_pairing():
                 return "homekit_pairing"
 
         # WC: first enable AND bridge not enabled
@@ -521,7 +489,7 @@ class TadoCEOptionsFlow(config_entries.OptionsFlow):
 
             if not errors:
                 # Check for first-enable sub-flows
-                redirect = self._detect_first_enable(processed_input)
+                redirect = await self._detect_first_enable(processed_input)
                 if redirect:
                     self._pending_general_options = processed_input
                     return await getattr(self, f"async_step_{redirect}")()  # type: ignore[no-any-return]
@@ -602,7 +570,16 @@ class TadoCEOptionsFlow(config_entries.OptionsFlow):
                 return self.async_create_entry(title="", data=processed_input)
 
         zones_with_heating_power = await self._load_zones_with_heating_power()
-        schema = self._build_advanced_schema(zones_with_heating_power)
+
+        from .homekit_client import HomeKitClient
+
+        hk_client = HomeKitClient(
+            self.hass, self.config_entry.data.get("home_id") or "default",
+        )
+        has_homekit_pairing = await hk_client.async_has_pairing()
+        schema = self._build_advanced_schema(
+            zones_with_heating_power, has_homekit_pairing=has_homekit_pairing,
+        )
 
         # Compute HomeKit connection status for the section description
         # (rendered via strings.json placeholder {homekit_status}).
@@ -702,10 +679,7 @@ class TadoCEOptionsFlow(config_entries.OptionsFlow):
         )
 
     def _apply_reset(self, scope: str) -> dict[str, Any]:
-        """Apply reset defaults for the given scope.
-
-        Returns new options dict with defaults applied.
-        """
+        """Apply reset defaults for the given scope, returning new options dict."""
         current = dict(self.config_entry.options)
         if scope == "everything":
             for toggle in _ALL_TOGGLE_KEYS:

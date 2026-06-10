@@ -1,11 +1,4 @@
-"""Tado CE Smart Comfort — per-zone heating-rate analytics and preheat advice.
-
-Tracks rolling temperature history, derives heating/cooling rates with
-weather compensation, and produces preheat recommendations so a zone
-reaches its scheduled target on time. Persists per-zone history through
-the integration's DataLoader store and seeds rates from the HA
-recorder + long-term statistics on startup.
-"""
+"""Tado CE Smart Comfort — per-zone heating-rate analytics and preheat advice (3-tier load: cache → recorder → statistics)."""
 
 from __future__ import annotations
 
@@ -66,8 +59,6 @@ MIDNIGHT_WRAPAROUND_MINUTES = 720  # 12 hours — threshold for midnight wraparo
 CONFIDENCE_HIGH_READINGS = 10  # readings needed for high confidence
 CONFIDENCE_MEDIUM_READINGS = 5  # readings needed for medium confidence
 BASELINE_CHANGE_THRESHOLD = 0.05  # °C/h — minimum change for baseline calculation
-
-# WEATHER_COMPENSATION_PRESETS imported from const.py
 
 from .schedule_helpers import _get_day_blocks
 

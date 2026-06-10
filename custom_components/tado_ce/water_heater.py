@@ -9,7 +9,6 @@ don't, solar / store systems do).
 
 from __future__ import annotations
 
-import asyncio
 import json
 import logging
 from typing import TYPE_CHECKING, Any
@@ -35,6 +34,7 @@ from .optimistic_helpers import (
     set_optimistic_fields,
 )
 from .ratelimit import async_check_bootstrap_reserve_or_raise as _check_bootstrap_reserve_or_raise
+from .water_heater_helpers import api_call_with_rollback_wh
 
 if TYPE_CHECKING:
     from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
@@ -302,11 +302,7 @@ class TadoWaterHeater(CoordinatorEntity["TadoDataUpdateCoordinator"], WaterHeate
             self._attr_available = False
 
     async def _execute_operation_mode(self, operation_mode: str) -> bool:
-        """Execute a single attempt to set the operation mode via API.
-
-        Returns:
-            True if successful, False otherwise.
-        """
+        """Execute a single attempt to set the operation mode via API."""
         client = self.coordinator.api_client
         if operation_mode == STATE_AUTO:
             success = await client.delete_zone_overlay(self._zone_id)
@@ -401,11 +397,7 @@ class TadoWaterHeater(CoordinatorEntity["TadoDataUpdateCoordinator"], WaterHeate
             )
 
     def set_operation_mode(self, operation_mode: str) -> None:
-        """Set new operation mode (sync wrapper for backward compatibility).
-
-        Home Assistant will call async_set_operation_mode() directly.
-        This is kept for backward compatibility only.
-        """
+        """Sync stub kept for back-compat; HA calls async_set_operation_mode directly."""
         # Home Assistant handles async methods automatically
 
     def _get_timer_duration(self) -> int:
@@ -525,36 +517,9 @@ class TadoWaterHeater(CoordinatorEntity["TadoDataUpdateCoordinator"], WaterHeate
 
         await _check_bootstrap_reserve_or_raise(self.hass, f"hot water {self._zone_name}", coordinator=self.coordinator)
 
-        # Capture state before temperature overlay
-        await self.coordinator.async_capture_state(
-            self._zone_id, self._entity_type, "manual_override",
-        )
-
-        old_temp = self._attr_target_temperature
-        old_operation = self._attr_current_operation
-        old_overlay = self._overlay_type
-
-        self._attr_target_temperature = temperature
-        self._attr_current_operation = STATE_HEAT
         self._overlay_type = "MANUAL"  # type: ignore[assignment]
 
-        # Set optimistic fields using shared helper
-        await set_optimistic_fields(
-            self, self.coordinator,
-            expected={"operation": STATE_HEAT, "temperature": temperature},
-        )
-
-        _LOGGER.debug(
-            "Water Heater: %s optimistic state set — temp=%s°C, seq=%s",
-            self._zone_name,
-            temperature,
-            self._optimistic_sequence,
-        )
-
-        self.async_write_ha_state()
-
         client = self.coordinator.api_client
-
         setting = {
             "type": "HOT_WATER",
             "power": "ON",
@@ -562,41 +527,11 @@ class TadoWaterHeater(CoordinatorEntity["TadoDataUpdateCoordinator"], WaterHeate
         }
         termination = build_timer_termination(overlay="manual")
 
-        api_success = False
-        try:
-            async with asyncio.timeout(10):
-                api_success = await client.set_zone_overlay(self._zone_id, setting, termination)
-        except TimeoutError:
-            _LOGGER.warning(
-                "Water Heater: %s set-temperature timed out after 10s — "
-                "rolling back to previous value",
-                self._zone_name,
-            )
-        except Exception as e:
-            _LOGGER.warning(
-                "Water Heater: %s set-temperature failed (%s) — rolling "
-                "back to previous value",
-                self._zone_name, e,
-            )
-
-        if api_success:
-            _LOGGER.debug(
-                "Water Heater: %s temperature set to %s°C",
-                self._zone_name, temperature,
-            )
-            await async_trigger_immediate_refresh(self.hass, self.entity_id, "hot_water_temperature")
-        else:
-            _LOGGER.warning(
-                "Water Heater: %s temperature change failed — reverted to "
-                "previous state",
-                self._zone_name,
-            )
-            self._attr_target_temperature = old_temp
-            self._attr_current_operation = old_operation
-            self._overlay_type = old_overlay
-            clear_optimistic_state(self)
-            self.async_write_ha_state()
-            raise HomeAssistantError(
-                f"Hot water {self._zone_name}: Set temperature to {temperature}°C failed",
-                translation_domain=DOMAIN,
-            )
+        await api_call_with_rollback_wh(
+            self,
+            client.set_zone_overlay(self._zone_id, setting, termination),
+            operation=STATE_HEAT,
+            target_temp=temperature,
+            reason=f"set hot water to {temperature}°C",
+            capture_source="manual_override",
+        )

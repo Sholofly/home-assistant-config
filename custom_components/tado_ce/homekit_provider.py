@@ -1,13 +1,4 @@
-"""Tado CE HomeKit local provider — push-driven cache + write path through the bridge.
-
-Subscribes to characteristic events (current temperature, humidity,
-target temperature, HVAC state) on every mapped accessory so the
-bridge pushes updates instead of the integration polling them.
-A periodic refresh runs alongside the subscription to advance
-`last_observed_at` even when values are stable — without it, the
-state reconciler would treat a steady reading as stale and fall
-back to the cloud value.
-"""
+"""Tado CE HomeKit local provider — push-driven cache + write path through the bridge."""
 
 from __future__ import annotations
 
@@ -48,10 +39,9 @@ def _find_char_iid(
 ) -> int | None:
     """Return the characteristic iid for `(aid, char_type)`, or None when absent.
 
-    aiohomekit normalises type UUIDs to the full
-    0000XXXX-0000-1000-8000-0026BB765291 form, so we strip the
-    suffix and compare as ints to handle leading-zero variants
-    (e.g. "0F" vs "F").
+    aiohomekit normalises type UUIDs to the full UUID form, so we
+    strip the suffix and compare as ints to handle leading-zero
+    variants (e.g. "0F" vs "F").
     """
     for acc in accessories:
         if acc.get("aid") != aid:
@@ -348,13 +338,7 @@ class HomeKitLocalProvider:
         )
 
     def _on_event_callback(self, event_data: dict[tuple[int, int], dict[str, Any]]) -> None:
-        """Apply pushed event values to the cache and fan out one signal per zone.
-
-        `event_data` is keyed by `(aid, iid)`; `_event_map` translates
-        each key back to `(zone_id, char_type)`. Only one dispatcher
-        signal fires per zone even when multiple characteristics
-        update in the same event batch.
-        """
+        """Apply pushed event values to the cache and fan out one signal per zone."""
         updated_zones: set[str] = set()
         for key, data in event_data.items():
             mapping = self._event_map.get(key)
@@ -379,12 +363,10 @@ class HomeKitLocalProvider:
     async def _periodic_cache_refresh(self) -> None:
         """Periodically poll subscribed characteristics so stable values still age fresh.
 
-        The HomeKit bridge only pushes events on value change. When
-        a temperature is stable, cache timestamps would otherwise go
-        stale (> 5 min) and the state reconciler would fall back to
-        cloud. This poll refreshes `last_observed_at` even when
-        values haven't changed, and triggers a reconnect after
-        `CACHE_REFRESH_FAILURE_THRESHOLD` consecutive failures.
+        The HomeKit bridge only pushes events on value change. Without
+        this poll, stable readings would go stale (> 5 min) and the
+        state reconciler would fall back to cloud. Triggers a reconnect
+        after `CACHE_REFRESH_FAILURE_THRESHOLD` consecutive failures.
         """
         consecutive_failures = 0
         first_refresh = True

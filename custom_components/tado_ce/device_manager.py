@@ -1,11 +1,4 @@
-"""Tado CE device-info builders — hub / zone DeviceInfo + multi-device name suffixing.
-
-Identifiers are home-id scoped (`tado_ce_hub_{home_id}` /
-`tado_ce_{home_id}_zone_{zone_id}`) so multi-home users get
-distinct devices per home. Zones with multiple physical devices
-(e.g. 1 thermostat + 2 valves) get name suffixes via
-`get_device_name_suffix` so the entity names disambiguate.
-"""
+"""Tado CE device-info builders — hub / zone DeviceInfo + multi-device name suffixing (identifiers are home-id scoped)."""
 
 from __future__ import annotations
 
@@ -24,12 +17,7 @@ _LOGGER = logging.getLogger(__name__)
 
 @lru_cache(maxsize=1)
 def load_version() -> str:
-    """Read the integration version from `manifest.json` (cached after first call).
-
-    Blocking file I/O — must be called from an executor on the
-    async path. The cache is global because the manifest version
-    is immutable at runtime; HA restart re-runs the module load.
-    """
+    """Read the integration version from `manifest.json` (cached); blocking file I/O — call via executor."""
     try:
         manifest_path = Path(__file__).parent / "manifest.json"
         with manifest_path.open() as f:
@@ -45,11 +33,7 @@ def load_version() -> str:
 
 
 def _get_cached_version() -> str:
-    """Read the cached version without forcing a manifest load.
-
-    Returns "unknown" when `load_version()` hasn't run yet — the
-    DeviceInfo factories are sync and can't trigger blocking I/O.
-    """
+    """Read the cached version without forcing a manifest load; returns 'unknown' when `load_version()` hasn't run."""
     if load_version.cache_info().currsize == 0:
         return "unknown"
     return load_version()
@@ -102,13 +86,7 @@ def get_zone_type_display(zone_type: str) -> str:
 
 
 def get_device_name_suffix(zone_id: str, device_serial: str, device_type: str, zones_info: list[Any]) -> str:
-    """Compute a name suffix when a zone hosts multiple physical devices.
-
-    Returns "" for single-device zones; ` VA02` when device
-    types differ; ` VA02 (1)` / ` VA02 (2)` when the same type
-    appears more than once. Lets the entity registry surface
-    distinct, recognisable names for every device in a zone.
-    """
+    """Compute a name suffix for multi-device zones — `""` / ` VA02` / ` VA02 (n)` so entities disambiguate."""
     zone = next((z for z in zones_info if str(z.get("id")) == str(zone_id)), None)
     if not zone:
         return ""

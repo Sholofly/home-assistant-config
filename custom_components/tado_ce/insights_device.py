@@ -18,20 +18,10 @@ def calculate_battery_recommendation(
     zone_name: str,
     device_type: str | None = None,
 ) -> str:
-    """Calculate SMART recommendation for battery status.
-
-    Args:
-        battery_state: Current battery state (Normal, Low, Critical)
-        zone_name: Name of the zone
-        device_type: Type of device (TRV, Thermostat, etc.)
-
-    Returns:
-        SMART recommendation string (empty if battery is normal)
-    """
+    """Calculate SMART recommendation for battery status."""
     if battery_state.upper() == "NORMAL":
         return ""
 
-    # Determine battery type based on device
     battery_type = "AA batteries"
     if device_type:
         device_lower = device_type.lower()
@@ -55,22 +45,11 @@ def calculate_connection_recommendation(
     last_seen: str | None = None,
     offline_minutes: int | None = None,
 ) -> str:
-    """Calculate SMART recommendation for device connection status.
-
-    Args:
-        connection_state: Current connection state (Online, Offline)
-        zone_name: Name of the zone
-        last_seen: Last seen timestamp string
-        offline_minutes: Minutes since device was last seen
-
-    Returns:
-        SMART recommendation string (empty if connected)
-    """
+    """Calculate SMART recommendation for device connection status."""
     if connection_state.upper() == "ONLINE":
         return ""
 
     if connection_state.upper() == "OFFLINE":
-        # Provide time-specific recommendations
         if offline_minutes is not None:
             if offline_minutes < OFFLINE_RECENT_MINUTES:
                 return f"{zone_name}: Device offline {offline_minutes} min \u2014 may be temporary, wait 30 minutes"
@@ -99,14 +78,7 @@ def calculate_connection_recommendation(
 def calculate_geofencing_device_offline_insight(
     devices: list[Any] | None = None,
 ) -> Insight | None:
-    """Detect when a geofencing mobile device has location tracking disabled.
-
-    Args:
-        devices: List of dicts with keys: name, location_enabled (bool)
-
-    Returns:
-        Insight if any geofencing device is offline, None otherwise
-    """
+    """Detect when a geofencing mobile device has location tracking disabled."""
     if not devices:
         return None
 

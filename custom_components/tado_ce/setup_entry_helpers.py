@@ -1,11 +1,4 @@
-"""Tado CE setup helpers — optional per-entry feature initialisers.
-
-Each feature (Smart Comfort, Heating Cycle Analysis, Adaptive
-Preheat, State Restore) gets its own `async_init_*` helper so the
-main setup flow stays readable. The Smart Comfort initialiser
-implements the 3-tier loading strategy (cache file → recorder
-history → long-term statistics baseline).
-"""
+"""Tado CE setup helpers — optional per-entry feature initialisers (Smart Comfort uses 3-tier load: cache → recorder → statistics)."""
 
 from __future__ import annotations
 
@@ -37,7 +30,6 @@ async def async_log_file_system_state(hass: HomeAssistant) -> None:
     from .const import CONFIG_FILE, DATA_DIR, ZONES_FILE, ZONES_INFO_FILE
 
     def _check() -> dict[str, Any]:
-        """Check existence of Tado CE data files (executor — file I/O)."""
         return {
             "data_dir_exists": DATA_DIR.exists(),
             "config_file_exists": CONFIG_FILE.exists(),
@@ -67,12 +59,7 @@ async def async_init_smart_comfort(
     config_manager: ConfigurationManager,
     home_id: str | None,
 ) -> SmartComfortManager | None:
-    """Build the Smart Comfort manager + load 2h cache + 24h recorder + 7d baselines.
-
-    The 3-tier load strategy fills in successively older windows
-    so the manager has usable rates as soon as the first tier
-    completes.
-    """
+    """Build the Smart Comfort manager and run 3-tier load (2h cache → 24h recorder → 7d statistics)."""
     if not config_manager.get_smart_comfort_enabled():
         return None
 
@@ -91,7 +78,6 @@ async def async_init_smart_comfort(
     )
     smart_comfort_manager.enable()
 
-    # Configure weather compensation
     outdoor_temp_entity = config_manager.get_outdoor_temp_entity()
     weather_compensation = config_manager.get_smart_comfort_mode()
     use_feels_like = config_manager.get_use_feels_like()
@@ -103,7 +89,7 @@ async def async_init_smart_comfort(
             use_feels_like=use_feels_like,
         )
 
-    # First tier — fastest, 2h of detailed data from the local cache.
+    # Tier 1 — 2h cache (fastest)
     cache_readings = await smart_comfort_manager.async_load()
 
     zones_info = await hass.async_add_executor_job(data_loader.load_zones_info_file)
@@ -117,8 +103,7 @@ async def async_init_smart_comfort(
 
         climate_entity_ids = [f"climate.{entity_name}" for entity_name in entity_to_zone_id]
 
-        # Second tier — last 24h of detailed states from the
-        # HA recorder, layered on top of the cache.
+        # Tier 2 — 24h recorder (layered on top of cache)
         recorder_readings = 0
         if climate_entity_ids:
             recorder_readings = await async_load_history_from_recorder(
@@ -128,9 +113,7 @@ async def async_init_smart_comfort(
                 entity_to_zone_id,
             )
 
-        # Third tier — 7d hourly baselines from long-term
-        # statistics, used when neither cache nor recorder has
-        # data for a given zone.
+        # Tier 3 — 7d hourly baselines (fallback when zones have no cache/recorder data)
         zone_sensor_mapping = {
             str(zone.get("id")): f"sensor.{slugify(zone.get('name', ''))}_temperature"
             for zone in zones_info
@@ -280,7 +263,6 @@ def schedule_heating_cycle_timeouts(
     from homeassistant.helpers.event import async_track_time_interval as _track
 
     async def _check_cycle_timeouts(_now: _dt) -> None:
-        """Check for timed-out heating cycles and close them."""
         await heating_cycle_coordinator.check_timeouts()
 
     coordinator._heating_cycle_timeout_cancel = _track(
@@ -308,13 +290,7 @@ def register_bridge_devices(
     entry_id: str,
     zones_info: list[dict[str, Any]],
 ) -> None:
-    """Pre-register Tado bridge devices so zone devices can reference them via_device.
-
-    HA's device-registry contract is that `via_device` targets
-    must already exist; pre-registering the bridges avoids a
-    setup-time race where the zone devices would otherwise be
-    created without their parent.
-    """
+    """Pre-register Tado bridge devices so zone devices can reference them via_device (HA registry contract)."""
     from homeassistant.helpers import device_registry as dr
 
     from .const import DOMAIN, TADO_BRIDGE_MODELS

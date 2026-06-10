@@ -29,20 +29,7 @@ def calculate_heating_anomaly_insight(
     duration_minutes: int = 0,
     zone_name: str = "",
 ) -> Insight | None:
-    """Detect heating power anomaly.
-
-    Triggers when heating_power >= 80% AND temp_delta < 0.5C for 60+ min,
-    indicating the heating system may not be working effectively.
-
-    Args:
-        heating_power_pct: Current heating power percentage (0-100)
-        temp_delta: Temperature change over the monitoring period
-        duration_minutes: How long the condition has persisted
-        zone_name: Name of the zone
-
-    Returns:
-        Insight with HIGH priority if anomaly detected, None otherwise
-    """
+    """Detect heating power anomaly (high power + low temp delta = blocked / air-locked)."""
     if heating_power_pct is None or temp_delta is None:
         return None
     if duration_minutes < HEATING_ANOMALY_MIN_MINUTES:
@@ -70,25 +57,12 @@ def calculate_preheat_timing_insight(
     next_schedule_time: str | None = None,
     zone_name: str = "",
 ) -> Insight | None:
-    """Calculate preheat timing insight.
-
-    Combines Thermal Analytics preheat_time with Smart Comfort
-    next_schedule_time to advise when preheating should start.
-
-    Args:
-        preheat_time_minutes: Estimated preheat time in minutes
-        next_schedule_time: Next schedule change time (ISO format or HH:MM)
-        zone_name: Name of the zone
-
-    Returns:
-        Insight if preheat timing is relevant, None otherwise
-    """
+    """Calculate preheat timing insight (combines preheat_time + next schedule change)."""
     if preheat_time_minutes is None or next_schedule_time is None:
         return None
     if preheat_time_minutes <= 0:
         return None
 
-    # Parse time string
     time_str = str(next_schedule_time)
     rec = (
         f"{zone_name}: Preheat takes ~{preheat_time_minutes:.0f} min. "
@@ -113,23 +87,10 @@ def calculate_boiler_flow_anomaly_insight(
     heating_power_pct: float | None = None,
     zone_name: str = "",
 ) -> Insight | None:
-    """Detect boiler flow temperature anomaly relative to heating demand.
-
-    Triggers when flow temp is high but heating demand is low, or
-    flow temp is low but heating demand is high.
-
-    Args:
-        flow_temp: Boiler flow temperature in \u00b0C
-        heating_power_pct: Current heating power percentage (0-100)
-        zone_name: Name of the zone (or empty for hub-level)
-
-    Returns:
-        Insight if flow temp anomaly detected, None otherwise
-    """
+    """Detect boiler flow temperature anomaly relative to heating demand."""
     if flow_temp is None or heating_power_pct is None:
         return None
 
-    # High flow temp but low demand
     if flow_temp > BOILER_FLOW_HIGH_TEMP and heating_power_pct < BOILER_FLOW_LOW_DEMAND:
         rec = (
             f"Boiler flow temp is {flow_temp:.0f}\u00b0C but heating demand "
@@ -143,7 +104,6 @@ def calculate_boiler_flow_anomaly_insight(
             zone_name=zone_name or None,
         )
 
-    # Low flow temp but high demand
     if flow_temp < BOILER_FLOW_LOW_TEMP and heating_power_pct > BOILER_FLOW_HIGH_DEMAND:
         rec = (
             f"Boiler flow temp is only {flow_temp:.0f}\u00b0C but heating "
@@ -166,20 +126,7 @@ def calculate_poor_thermal_efficiency_insight(
     confidence_score: float | None = None,
     zone_name: str = "",
 ) -> Insight | None:
-    """Detect poor thermal efficiency from Thermal Analytics data.
-
-    Triggers when thermal inertia is high or heating rate is very low,
-    suggesting insulation or radiator issues.
-
-    Args:
-        thermal_inertia: Thermal inertia in minutes
-        heating_rate: Heating rate in \u00b0C/hour
-        confidence_score: Analysis confidence (0.0-1.0)
-        zone_name: Name of the zone
-
-    Returns:
-        Insight if poor efficiency detected, None otherwise
-    """
+    """Detect poor thermal efficiency from Thermal Analytics data."""
     if confidence_score is not None and confidence_score < THERMAL_EFFICIENCY_MIN_CONFIDENCE:
         return None
     if thermal_inertia is None and heating_rate is None:
@@ -211,17 +158,7 @@ def calculate_heating_off_cold_room_insight(
     target_temp: float | None = None,
     zone_name: str = "",
 ) -> Insight | None:
-    """Detect when heating is OFF but room has dropped significantly below target.
-
-    Args:
-        power_state: Zone power state ("ON", "OFF")
-        current_temp: Current room temperature
-        target_temp: Last known or scheduled target temperature
-        zone_name: Name of the zone
-
-    Returns:
-        Insight if room is cold with heating off, None otherwise
-    """
+    """Detect when heating is OFF but room has dropped significantly below target."""
     if power_state is None or power_state.upper() != "OFF":
         return None
     if current_temp is None or target_temp is None:
@@ -251,17 +188,7 @@ def calculate_confidence_recommendation(
     cycle_count: int = 0,
     completed_count: int = 0,
 ) -> str:
-    """Calculate SMART recommendation for thermal analysis confidence.
-
-    Args:
-        confidence_percent: Confidence score as percentage (0-100)
-        zone_name: Name of the zone
-        cycle_count: Total heating cycles detected
-        completed_count: Completed heating cycles analyzed
-
-    Returns:
-        SMART recommendation string (empty if confidence is adequate)
-    """
+    """Calculate SMART recommendation for thermal analysis confidence."""
     if confidence_percent is None:
         return ""
 

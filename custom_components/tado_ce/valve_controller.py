@@ -1,19 +1,15 @@
-"""Smart Valve Controller — per-zone proportional-offset TRV control.
-
-Adjusts each TRV's target temperature using an external sensor so the
-room reaches the user's desired temperature instead of the temperature
-the TRV's built-in sensor reads. Writes go directly to the TRV via
-HomeKit (preferred) or the cloud API (fallback), bypassing the climate
-entity pipeline.
-"""
+"""Smart Valve Controller — per-zone proportional-offset TRV control via external sensor; writes via HomeKit (preferred) or cloud."""
 
 from __future__ import annotations
 
+import asyncio
 from dataclasses import dataclass, field
 from enum import StrEnum
 import logging
 import time
 from typing import TYPE_CHECKING, Any
+
+import aiohttp
 
 from .const import (
     ABSOLUTE_MAX_VALVE_TARGET,
@@ -30,6 +26,8 @@ if TYPE_CHECKING:
     from .coordinator import TadoDataUpdateCoordinator
 
 from .climate_helpers import SensorProxy, subscribe_external_sensors
+from .error_dispatch import handle_background_write_error
+from .exceptions import TadoAuthError, TadoRateLimitError
 from .helpers import get_zone_overlay_termination, mask_serial
 
 _LOGGER = logging.getLogger(__name__)
@@ -256,7 +254,7 @@ class SmartValveController:
                     self._runtime.overlay_set_by_controller = True
                     self._runtime.last_evaluation_ts = time.monotonic()
                     return True
-            except Exception:
+            except (TimeoutError, aiohttp.ClientError, OSError):
                 _LOGGER.warning(
                     "Smart Valve: zone %s HomeKit write failed — falling "
                     "back to cloud",
@@ -275,6 +273,15 @@ class SmartValveController:
             _LOGGER.debug(
                 "Smart Valve: zone %s cloud write rate-limited — queued "
                 "target %.1f°C for next window",
+                self._zone_id, valve_target,
+            )
+            return False
+
+        if self._coordinator.is_cloud_backoff_active():
+            self._runtime.pending_cloud_target = valve_target
+            _LOGGER.debug(
+                "Smart Valve: zone %s cloud write held — Tado quota "
+                "backoff active, queued target %.1f°C",
                 self._zone_id, valve_target,
             )
             return False
@@ -305,7 +312,15 @@ class SmartValveController:
                 self._zone_id,
             )
             return False
-        except Exception:
+        except (TadoAuthError, TadoRateLimitError) as e:
+            self._runtime.pending_cloud_target = valve_target
+            handle_background_write_error(
+                e, self._coordinator.config_entry, self._coordinator, self._hass,
+                f"Smart Valve: zone {self._zone_id} cloud write failed — "
+                "starting recovery; will retry on next sensor change",
+            )
+            return False
+        except (TimeoutError, aiohttp.ClientError):
             _LOGGER.warning(
                 "Smart Valve: zone %s cloud write raised an exception — "
                 "will retry on next sensor change",
@@ -330,7 +345,14 @@ class SmartValveController:
                 self._zone_id,
             )
             return False
-        except Exception:
+        except (TadoAuthError, TadoRateLimitError) as e:
+            handle_background_write_error(
+                e, self._coordinator.config_entry, self._coordinator, self._hass,
+                f"Smart Valve: zone {self._zone_id} clearing overlay failed — "
+                "starting recovery; will retry next cycle",
+            )
+            return False
+        except (TimeoutError, aiohttp.ClientError):
             _LOGGER.warning(
                 "Smart Valve: zone %s clearing overlay raised an exception — "
                 "will retry next cycle",
@@ -699,7 +721,7 @@ class SmartValveController:
                         "accurate results.",
                         self._zone_id, mask_serial(serial), float(offset),
                     )
-        except Exception:
+        except (KeyError, TypeError, AttributeError):
             _LOGGER.debug(
                 "Smart Valve: zone %s could not check device offset — "
                 "continuing without the warning",

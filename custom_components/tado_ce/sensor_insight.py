@@ -1,11 +1,4 @@
-"""Tado CE Insight sensors — actionable home + per-zone recommendations.
-
-Two entities: a home-level insight aggregator (battery alerts,
-schedule deviations, comfort score), and a per-zone insight that
-surfaces zone-specific recommendations from the insight
-collector. Both read from the coordinator's published entity-data
-cache so they don't run their own analysis loop.
-"""
+"""Tado CE Insight sensors — actionable home + per-zone recommendations."""
 
 from __future__ import annotations
 
@@ -131,18 +124,7 @@ def _enhance_recommendation_with_duration(
 
 
 class TadoHomeInsightsSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], SensorEntity):
-    """Hub-level sensor aggregating actionable insights from all zones.
-
-    Collects insights from zone sensors (mold risk, comfort,
-    battery, connection, window predicted, preheat timing, schedule
-    deviation, heating anomaly) and aggregates them into a single
-    home-level summary with priority-based recommendations.
-
-    Also includes cross-zone aggregation (mold risk, window predicted),
-    hub-level insights (API quota planning, weather impact).
-
-    State: Total number of active insights (integer)
-    """
+    """Hub-level sensor aggregating actionable insights from all zones (state = active insight count)."""
 
     _attr_has_entity_name = True
 
@@ -305,14 +287,7 @@ class TadoHomeInsightsSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], Sen
 
 
 class TadoZoneInsightsSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], SensorEntity):
-    """Per-zone sensor showing actionable insights for a single zone.
-
-    Collects insights specific to this zone (mold risk, comfort,
-    battery, connection, window predicted, preheat timing, heating anomaly)
-    and presents them as a zone-level summary.
-
-    State: Number of active insights for this zone (integer)
-    """
+    """Per-zone sensor showing actionable insights for a single zone (state = active insight count)."""
 
     _attr_has_entity_name = True
 
@@ -350,11 +325,7 @@ class TadoZoneInsightsSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], Sen
 
     @property
     def extra_state_attributes(self) -> dict[str, Any] | None:
-        """Return extra state attributes via shared helper.
-
-        Always: top_priority.
-        Conditional (non-empty only): insight_types, recommendations.
-        """
+        """Return extra state attributes via shared helper."""
         return _build_zone_insight_attributes(self._insights, self._zone_name)
 
     @callback

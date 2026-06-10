@@ -1,10 +1,4 @@
-"""Tado CE per-device battery sensor.
-
-One entity per Tado device serial. The native state is the
-human-friendly battery level (`Normal` / `Low` / `Critical`); a
-recommendation attribute carries an actionable message when the
-device is approaching empty.
-"""
+"""Tado CE per-device battery sensor."""
 
 from __future__ import annotations
 
@@ -71,14 +65,12 @@ class TadoBatterySensor(CoordinatorEntity["TadoDataUpdateCoordinator"], SensorEn
         self._attr_native_value = _format_battery_state(device.get("batteryState", "unknown"))
         self._attr_device_info = get_zone_device_info(zone_id, zone_name, zone_type, coordinator.home_id)
 
-        # Add device suffix to distinguish multiple devices in the same zone
         suffix = get_device_name_suffix(zone_id, self._device_serial, self._device_type, zones_info or [])
         if suffix:
             _meta_suffixed = ENTITY_REGISTRY["sensor_battery_suffixed"]
             self._attr_translation_key = _meta_suffixed.translation_key
             self._attr_translation_placeholders = {"device_suffix": suffix}
 
-        # Extra attributes
         self._firmware = device.get("currentFwVersion")
         self._connection_state = (device.get("connectionState") or {}).get("value")
         self._connection_timestamp = (device.get("connectionState") or {}).get("timestamp")

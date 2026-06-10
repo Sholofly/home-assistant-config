@@ -1,9 +1,4 @@
-"""Tado CE unified data models — shared dataclasses for temperature readings.
-
-- ``HeatingCycleReading``  — heating cycle tracker (time + temp only).
-- ``InsightTemperatureReading`` — insights engine (temp + humidity + timestamp).
-- ``SmartComfortReading``  — smart comfort analyser (temp + heating context).
-"""
+"""Tado CE unified data models — shared dataclasses for temperature readings."""
 
 from __future__ import annotations
 
@@ -41,15 +36,7 @@ class _SerializableMixin:
 
 @dataclass
 class HeatingCycleReading(_SerializableMixin):
-    """Single temperature measurement during a heating cycle.
-
-    Attributes:
-    ----------
-    time:
-        UTC timestamp of the measurement.
-    temp:
-        Measured temperature in °C.
-    """
+    """Single temperature measurement during a heating cycle."""
 
     time: datetime  # UTC
     temp: float
@@ -57,20 +44,7 @@ class HeatingCycleReading(_SerializableMixin):
 
 @dataclass
 class InsightTemperatureReading:
-    """A temperature reading with timestamp for the insights engine.
-
-    Includes humidity because mold-risk, condensation, and window-detection
-    calculations all depend on it.
-
-    Attributes:
-    ----------
-    temperature:
-        Measured temperature in °C.
-    humidity:
-        Relative humidity in %, or ``None`` when the zone has no humidity sensor.
-    timestamp:
-        UTC timestamp of the measurement.
-    """
+    """A temperature reading with humidity for the insights engine (mold/condensation/window detection)."""
 
     temperature: float
     humidity: float | None
@@ -79,19 +53,7 @@ class InsightTemperatureReading:
 
 @dataclass
 class SmartComfortReading(_SerializableMixin):
-    """A single temperature reading with heating context for comfort analysis.
-
-    Attributes:
-    ----------
-    timestamp:
-        UTC timestamp of the measurement.
-    temperature:
-        Measured temperature in °C.
-    is_heating:
-        ``True`` when the HVAC is actively heating or cooling.
-    target_temperature:
-        Current setpoint in °C, or ``None`` if unavailable.
-    """
+    """A single temperature reading with heating context for comfort analysis."""
 
     timestamp: datetime
     temperature: float

@@ -32,8 +32,8 @@ async def async_migrate_config_json(
 ) -> None:
     """One-time move of `config_{home_id}.json` settings into `config_entry.options`.
 
-    Existing options on the entry win on conflict so the user
-    can't lose hand-edited settings to the file's stale values.
+    Existing options on the entry win on conflict so the user can't
+    lose hand-edited settings to the file's stale values.
     """
     from .const import get_data_file
     from .storage import async_load_json
@@ -89,9 +89,9 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry) ->
     """Step a config entry forward to the current schema version.
 
     v11 → v12 is the only live step (older paths require an
-    intermediate v3.x install). A `None` version is treated as
-    a recovery from a previously-aborted migration — we snap
-    forward and let the entry resume.
+    intermediate v3.x install). A `None` version is treated as a
+    recovery from a previously-aborted migration — we snap forward
+    and let the entry resume.
     """
     target_version = 12
     initial_version = config_entry.version
@@ -145,12 +145,10 @@ async def async_deduplicate_entries(
 
     all_entries = hass.config_entries.async_entries(DOMAIN)
 
-    # Group entries by unique_id
     entries_by_uid: dict[str | None, list[Any]] = defaultdict(list)
     for e in all_entries:
         entries_by_uid[e.unique_id].append(e)
 
-    # Find the group that THIS entry belongs to
     my_group = entries_by_uid.get(entry.unique_id, [entry])
 
     if len(my_group) > 1:
@@ -270,14 +268,14 @@ async def async_migrate_entity_platforms(
         uid = entity_entry.unique_id
         old_eid = entity_entry.entity_id
 
-        # Connection sensor → binary_sensor
-        # unique_id pattern: tado_ce_{home_id}_device_{serial}_connection
+        # Connection sensor → binary_sensor; unique_id pattern:
+        # tado_ce_{home_id}_device_{serial}_connection
         should_remove = False
         if "_connection" in uid and "device_" in uid:
             should_remove = True
 
-        # Hot water power sensor → binary_sensor
-        # unique_id pattern: tado_ce_{home_id}_zone_{zone_id}_power
+        # Hot water power sensor → binary_sensor; unique_id pattern:
+        # tado_ce_{home_id}_zone_{zone_id}_power
         elif (
             "_power" in uid
             and "zone_" in uid

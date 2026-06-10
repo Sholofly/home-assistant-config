@@ -1,10 +1,4 @@
-"""Tado CE hub-level sensors — home info, API status, monitoring, history.
-
-These are once-per-home sensors (not per-zone): home ID, API
-usage / limit / reset window, OAuth token status, polling /
-sync timing, recent call history. Helpful for users diagnosing
-quota or connectivity problems before they touch a thermostat.
-"""
+"""Tado CE hub-level sensors — home info, API status, monitoring, history."""
 
 from __future__ import annotations
 
@@ -126,14 +120,7 @@ def _find_most_called_endpoint(all_calls: list[dict[str, Any]]) -> str | None:
 
 
 class TadoHubSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], SensorEntity):
-    """Base class for Tado CE hub sensors.
-
-    Provides common init (device_info, available, native_value, entity registry
-    metadata) and the standard _handle_coordinator_update -> update() pattern.
-    Subclasses pass a ``registry_key`` and only set sensor-specific attrs
-    (e.g. ``native_unit_of_measurement``, ``device_class``) in their own
-    ``__init__``.
-    """
+    """Base class for Tado CE hub sensors."""
 
     _attr_has_entity_name = True
 
@@ -215,12 +202,31 @@ class TadoApiUsageSensor(TadoHubSensor):
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         """Return extra state attributes."""
+        rate_limited_until = self.coordinator._rate_limited_until
+
+        def _min_ago(stamp: datetime | None) -> float | None:
+            if stamp is None:
+                return None
+            return round((dt_util.utcnow() - stamp).total_seconds() / 60, 1)
+
         attrs: dict[str, Any] = {
             "limit": self._data.get("limit"),
             "remaining": self._data.get("remaining"),
             "percentage_used": self._data.get("percentage_used"),
             "last_updated": self._data.get("last_updated"),
             "status": self._data.get("status"),
+            "rate_limited_until": (
+                rate_limited_until.isoformat() if rate_limited_until is not None else None
+            ),
+            "weather_last_fetched_min_ago": _min_ago(
+                getattr(self.coordinator, "_last_weather_fetch", None)
+            ),
+            "presence_last_fetched_min_ago": _min_ago(
+                getattr(self.coordinator, "_last_home_state_fetch", None)
+            ),
+            "mobile_devices_last_fetched_min_ago": _min_ago(
+                getattr(self.coordinator, "_last_mobile_devices_fetch", None)
+            ),
         }
 
         if self._call_history:

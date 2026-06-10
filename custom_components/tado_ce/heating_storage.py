@@ -1,9 +1,4 @@
-"""Tado CE heating-cycle storage — per-home cycle history in HA Store + JSON migration.
-
-Persists completed heating cycles for the heating-cycle
-analyzer's rolling window. Uses HA Store with debounced saves
-plus a one-shot migration from the v3.x JSON file shape.
-"""
+"""Tado CE heating-cycle storage — per-home cycle history in HA Store with one-shot migration from v3.x JSON file."""
 
 from __future__ import annotations
 

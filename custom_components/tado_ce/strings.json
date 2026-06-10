@@ -153,10 +153,10 @@
     },
     "button": {
       "resume_all": {
-        "name": "Resume All"
+        "name": "Resume All Schedules"
       },
       "refresh_ac": {
-        "name": "Refresh AC"
+        "name": "Refresh AC Capabilities"
       },
       "refresh_schedule": {
         "name": "Refresh Schedule"
@@ -203,6 +203,32 @@
           },
           "zone_type": {
             "name": "Zone type"
+          },
+          "swing_mode": {
+            "name": "Swing (vertical)",
+            "state": {
+              "auto": "Auto",
+              "off": "Off",
+              "on": "On",
+              "up": "Up",
+              "mid_up": "Mid (up)",
+              "mid": "Mid",
+              "mid_down": "Mid (down)",
+              "down": "Down"
+            }
+          },
+          "swing_horizontal_mode": {
+            "name": "Swing (horizontal)",
+            "state": {
+              "auto": "Auto",
+              "off": "Off",
+              "on": "On",
+              "left": "Left",
+              "mid_left": "Mid (left)",
+              "mid": "Mid",
+              "mid_right": "Mid (right)",
+              "right": "Right"
+            }
           }
         }
       }
@@ -783,7 +809,7 @@
         }
       },
       "mold_risk_pct": {
-        "name": "Mold Risk %",
+        "name": "Mold Risk Indicator",
         "state_attributes": {
           "room_temperature": {
             "name": "Room temperature"
@@ -1217,7 +1243,7 @@
     },
     "deactivate_open_window": {
       "name": "Deactivate Open Window",
-      "description": "Deactivate Open Window mode on a climate zone, resuming normal heating/cooling. Works for both Tado-detected and manually triggered open window modes."
+      "description": "Cancel an open window that Tado detected itself, or one you confirmed with 'Activate Open Window', and resume normal heating/cooling. This does not clear 'Set Open Window Mode'. That mode writes a frost overlay, so clear it with 'Resume Schedule' or 'Restore Previous State' instead."
     },
     "set_open_window_mode": {
       "name": "Set Open Window Mode",
@@ -1236,6 +1262,10 @@
     "restore_previous_state": {
       "name": "Restore Previous State",
       "description": "Restore a zone to its state before the last overlay operation. If no captured state exists, falls back to resuming the schedule."
+    },
+    "turn_off_all_zones": {
+      "name": "Turn Off All Rooms",
+      "description": "Place every climate zone (heating + AC) into a manual OFF overlay. Mirrors the Tado app's 'Turn OFF all rooms' button — schedules stay suppressed until you manually resume each zone."
     }
   },
   "selector": {
@@ -1351,6 +1381,21 @@
     },
     "resume_schedule_failed": {
       "message": "Resume Schedule failed for {entity_id} — the cloud rejected the call. Please try again."
+    },
+    "turn_off_all_no_climate_zones": {
+      "message": "No heating or AC zones found in this Tado home — there is nothing to turn off."
+    },
+    "turn_off_all_failed_all": {
+      "message": "Failed to turn off any zone. Tado's cloud rejected every call this cycle. Reasons: {reasons}. Check the integration's API quota or try again."
+    },
+    "auth_required": {
+      "message": "Tado authentication required — please re-authenticate the integration."
+    },
+    "cloud_write_failed": {
+      "message": "Tado cloud write failed — the cloud rejected the request, please retry."
+    },
+    "rate_limited": {
+      "message": "Tado API rate-limited. Try again in {retry_after_minutes} min."
     }
   },
   "issues": {
@@ -1358,9 +1403,9 @@
       "title": "Tado CE: Authentication expired",
       "description": "The refresh token for home **{home_id}** has expired. Please reconfigure the integration to re-authenticate.\n\nGo to **Settings → Devices & Services → Tado CE → Reconfigure**."
     },
-    "deprecated_yaml_config": {
-      "title": "Tado CE: Deprecated configuration key",
-      "description": "The configuration key **{key}** is deprecated and will be removed in a future version. Please update your configuration."
+    "rate_limited": {
+      "title": "Tado CE: Cloud rate-limited",
+      "description": "The Tado cloud API is rate-limited for home **{home_id}**. Polling will resume in {retry_after_minutes} minutes."
     },
     "svc_sensor_missing": {
       "title": "Smart Valve Control disabled for {zone_name}",
@@ -1476,9 +1521,9 @@
               "offset_enabled": "Device Temperature Offsets"
             },
             "data_description": {
-              "home_state_sync_enabled": "Sync your home's overall presence (Home/Away) every poll (+1 API call per poll)",
-              "weather_enabled": "Outside temperature and solar intensity from Tado (+1 API call per poll)",
-              "mobile_devices_enabled": "Track each phone's location for per-device presence. Updates on HA restart only — enable Frequent Sync in Advanced Settings for continuous updates (+1 API call per poll when frequent)",
+              "home_state_sync_enabled": "Sync your home's overall presence (Home/Away). Refreshes at most every 5 minutes, about 1 API call each time",
+              "weather_enabled": "Outside temperature and solar intensity from Tado. Refreshes at most every 30 minutes, about 1 API call each time",
+              "mobile_devices_enabled": "Track each phone's location for per-device presence. Updates on HA restart only. To refresh in the background, turn this on, save, then enable Frequent Mobile Sync in the Advanced Settings 'Polling and API' section.",
               "schedule_calendar_enabled": "See your Tado heating schedules as calendar entries in HA",
               "offset_enabled": "Show the temperature calibration offset that appears in the Tado app on climate entities (+1 API call per device on restart)"
             }
@@ -1623,7 +1668,6 @@
               "custom_night_interval": "Custom Night Interval (leave empty for auto)",
               "refresh_debounce_seconds": "Refresh Delay (seconds)",
               "api_history_retention_days": "API History Retention (days)",
-              "quota_reserve_enabled": "Quota Reserve Protection",
               "smart_actions_debounce_seconds": "Temperature Slider Delay",
               "device_sync_delay_seconds": "Device Sync Delay",
               "mobile_devices_frequent_sync": "Frequent Mobile Sync",
@@ -1636,10 +1680,9 @@
               "custom_night_interval": "Override automatic nighttime polling with a fixed interval. Leave empty to let Tado CE adjust polling based on your API quota. (1–1440 min)",
               "refresh_debounce_seconds": "Wait this long after a change before fetching fresh data from Tado (1–60s)",
               "api_history_retention_days": "How many days of API call history to keep for the usage chart (0 = forever)",
-              "quota_reserve_enabled": "Automatically pause polling when your API quota is running low. Only disable if you know what you're doing.",
               "smart_actions_debounce_seconds": "When dragging the temperature slider, wait this long before sending the final value (0 = send immediately)",
-              "device_sync_delay_seconds": "Pause between sequential device operations like child lock or offset changes",
-              "mobile_devices_frequent_sync": "Update device locations every poll cycle. Without this, locations only refresh when HA restarts (+1 API call per poll)",
+              "device_sync_delay_seconds": "How long to wait between back-to-back changes sent to the same device (such as child lock or temperature offset). Raise it if rapid changes don't all take effect (0.5–5s, default 1).",
+              "mobile_devices_frequent_sync": "Keep device locations refreshing in the background (at most every 5 minutes) instead of only on HA restart. About 1 API call each time",
               "hot_water_timer_duration": "Default duration when you turn on hot water without specifying a timer (1–1440 min)"
             }
           }
@@ -1654,7 +1697,7 @@
         },
         "data_description": {
           "bridge_serial": "Starts with IB (e.g. IB0123456789)",
-          "bridge_auth_key": "8-digit code on the back of the bridge"
+          "bridge_auth_key": "4-digit code from the sticker on your bridge (keep confidential)"
         }
       },
       "wc_bridge_prompt": {
@@ -1760,14 +1803,6 @@
               "surface_temp_offset": "Fine-tune mold risk surface temperature estimate. Adjust if your walls feel colder than Tado assumes. (-5 to +5°C)"
             }
           }
-        },
-        "data": {
-          "external_temp_sensor": "External Temperature Sensor",
-          "external_humidity_sensor": "External Humidity Sensor"
-        },
-        "data_description": {
-          "external_temp_sensor": "Override Tado's built-in temperature reading with an external sensor",
-          "external_humidity_sensor": "Override Tado's built-in humidity reading with an external sensor"
         }
       },
       "homekit_pairing": {

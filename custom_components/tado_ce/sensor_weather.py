@@ -1,11 +1,4 @@
-"""Tado CE home-level weather sensors.
-
-Three entities sourced from Tado's `/weather` endpoint:
-outside temperature, solar intensity, and weather state. They
-exist alongside the user's own outdoor source (HA weather
-entity) — these are convenience reflections of what Tado itself
-sees, useful for cross-checking the cloud's own decisions.
-"""
+"""Tado CE home-level weather sensors."""
 
 from __future__ import annotations
 
