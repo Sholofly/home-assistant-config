@@ -1,0 +1,8 @@
+################################################
+## Entities / Template Sensors / CPU Model
+## Toont de CPU modelnaam van de server
+################################################
+unique_id: cpu_model
+name: CPU Model
+icon: mdi:cpu-64-bit
+state: "Intel(R) Core(TM) i3-8109U CPU @ 3.00GHz"

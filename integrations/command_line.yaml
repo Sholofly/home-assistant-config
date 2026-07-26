@@ -1,6 +1,7 @@
 ################################################
 ## Integrations / Command Line
 ## Shell-sensor voor add-on statistieken (CPU, geheugen, aantal)
+## en opslaguitsplitsing per categorie
 ################################################
 command_line:
   - sensor:
@@ -15,3 +16,18 @@ command_line:
         - count
       scan_interval: 300
       command_timeout: 60
+  - sensor:
+      name: "Storage Usage"
+      unique_id: storage_usage
+      command: "python3 /config/scripts/storage_usage.py"
+      value_template: "{{ value_json.state }}"
+      json_attributes:
+        - ha_config_gb
+        - database_gb
+        - frigate_gb
+        - other_addons_gb
+        - media_gb
+        - other_gb
+        - free_gb
+      scan_interval: 3600
+      command_timeout: 30
