@@ -1,4 +1,4 @@
-"""Tado CE immediate-refresh handler — debounces rapid state changes into one poll.
+"""Tado CE immediate-refresh handler: debounces rapid state changes into one poll.
 
 Calls the coordinator's `async_request_refresh()` after a brief
 debounce so several user actions in quick succession (mode change +
@@ -59,7 +59,7 @@ class RefreshHandler:
             return float(self._coordinator.config_manager.get_refresh_debounce_seconds())
         except Exception as e:
             _LOGGER.debug(
-                "Refresh: could not read debounce delay from config (%s) — "
+                "Refresh: could not read debounce delay from config (%s), "
                 "using default %.0fs",
                 e, self._debounce_delay,
             )
@@ -91,14 +91,14 @@ class RefreshHandler:
             return self._coordinator.data_loader.load_ratelimit_file() or {}
         except Exception as e:
             _LOGGER.debug(
-                "Refresh: could not read rate-limit snapshot (%s) — "
+                "Refresh: could not read rate-limit snapshot (%s), "
                 "treating quota as unknown",
                 e,
             )
         return {}
 
     async def _check_quota_available(self) -> tuple[bool, str]:
-        """Return (can_refresh, reason) — fails open when quota info is missing."""
+        """Return (can_refresh, reason); fails open when quota info is missing."""
         rl_info = await self._get_rate_limit_info()
 
         if not rl_info:
@@ -124,14 +124,14 @@ class RefreshHandler:
             if percentage_used >= QUOTA_WARNING_THRESHOLD:
                 _LOGGER.warning(
                     "Refresh: Tado API quota at %d%% used (%s of %s calls "
-                    "remaining) — immediate refreshes may start being skipped",
+                    "remaining), immediate refreshes may start being skipped",
                     int(percentage_used * 100), remaining, limit,
                 )
 
         return True, "ok"
 
     def _get_backoff_interval(self) -> int:
-        """Return the next backoff window — exponential, capped at 5 minutes."""
+        """Return the next backoff window: exponential, capped at 5 minutes."""
         if self._consecutive_failures == 0:
             return self._min_global_interval
 
@@ -187,7 +187,7 @@ class RefreshHandler:
             except Exception:
                 self._consecutive_failures += 1
                 _LOGGER.warning(
-                    "Refresh: coordinator refresh failed (attempt %d) — "
+                    "Refresh: coordinator refresh failed (attempt %d), "
                     "next try in %ds",
                     self._consecutive_failures, self._get_backoff_interval(),
                     exc_info=True,
@@ -221,7 +221,7 @@ class RefreshHandler:
         can_refresh, quota_reason = await self._check_quota_available()
         if not can_refresh:
             _LOGGER.debug(
-                "Refresh: skipping immediate refresh for %s (%s) — "
+                "Refresh: skipping immediate refresh for %s (%s), "
                 "next normal poll will catch the change",
                 entity_id, quota_reason,
             )

@@ -48,7 +48,7 @@ class BridgeHealthState:
             try:
                 state.last_successful_poll = parse_iso_datetime(poll_str)
             except (ValueError, TypeError):
-                pass  # Corrupt timestamp — keep default None
+                pass  # Corrupt timestamp: keep default None
         if isinstance(data.get("last_error"), str):
             state.last_error = data["last_error"]  # type: ignore[assignment]
         if isinstance(data.get("last_response_time_ms"), (int, float)):

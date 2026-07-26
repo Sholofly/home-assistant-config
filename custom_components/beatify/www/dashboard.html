@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <!-- #824: cache-bust i18n JSON fetches. See admin.html for rationale. -->
+    <meta name="beatify-version" content="{{VERSION}}">
+    <meta name="beatify-asset-version" content="{{ASSET_VER}}">
+    <!-- Self-healing SW recovery — see admin.html for the rationale.
+         Mirrored here because dashboards run on always-on TVs that rarely
+         get hard-refreshed, so a stale SW serving rc(N-1) assets is the
+         most likely upgrade-loss surface. Inline + first script in head
+         so it runs before any other script that depends on fresh code. -->
+    <script>
+        (function() {
+            if (!('serviceWorker' in navigator)) return;
+            var meta = document.querySelector('meta[name=beatify-version]');
+            var current = meta && meta.content;
+            if (!current) return;
+            var seen = null;
+            try { seen = localStorage.getItem('beatify_sw_version'); } catch (e) {}
+            if (seen === current) return;
+            if (!navigator.serviceWorker.controller) {
+                try { localStorage.setItem('beatify_sw_version', current); } catch (e) {}
+                return;
+            }
+            navigator.serviceWorker.getRegistrations()
+                .then(function(regs) {
+                    return Promise.all(regs.map(function(r) { return r.unregister(); }));
+                })
+                .then(function() {
+                    try { localStorage.setItem('beatify_sw_version', current); } catch (e) {}
+                    location.reload();
+                })
+                .catch(function() { /* best-effort; reload will retry */ });
+        })();
+    </script>
+    <title data-i18n="dashboard.title">Beatify - Dashboard</title>
+    <!-- Preconnect for faster font loading (Story 9.8) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700;900&display=swap" rel="stylesheet">
+    <!-- Story 18.4: Use minified CSS in production -->
+    <link rel="stylesheet" href="/beatify/static/css/styles.css?v={{ASSET_VER}}">
+    <link rel="stylesheet" href="/beatify/static/css/dashboard.min.css?v={{ASSET_VER}}">
+    <!-- Confetti library for celebrations (Story 14.5) -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <!-- Wake-Lock banner styles (#1285, design option 2). Inline + self-contained
+         so the dezenter Bottom-Banner ships with the directly-served HTML and
+         introduces no dashboard.css / dashboard.min.css drift. Uses the same
+         brand tokens (accent-primary pink, dark surface, radii) as the rest of
+         the dark theme. -->
+    <style>
+        .dashboard-wakelock-banner {
+            position: fixed;
+            left: 50%;
+            bottom: 24px;
+            transform: translateX(-50%);
+            z-index: 2147483000;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            max-width: min(560px, calc(100vw - 32px));
+            padding: 14px 16px;
+            background: rgba(20, 20, 28, 0.92);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--radius-xl, 16px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            animation: wakelock-banner-in 320ms ease-out;
+        }
+        .dashboard-wakelock-banner.hidden { display: none; }
+        @keyframes wakelock-banner-in {
+            from { opacity: 0; transform: translateX(-50%) translateY(12px); }
+            to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+        .dashboard-wakelock-icon {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-lg, 12px);
+            background: linear-gradient(135deg, var(--color-accent-primary, #ff2d6a), #ff5e8a);
+            color: #fff;
+        }
+        .dashboard-wakelock-text {
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+        .dashboard-wakelock-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            line-height: 1.25;
+        }
+        .dashboard-wakelock-body {
+            margin-top: 2px;
+            font-size: 0.78rem;
+            line-height: 1.3;
+            color: rgba(255, 255, 255, 0.62);
+        }
+        .dashboard-wakelock-activate {
+            flex: 0 0 auto;
+            border: none;
+            cursor: pointer;
+            padding: 9px 18px;
+            border-radius: var(--radius-full, 9999px);
+            background: linear-gradient(135deg, var(--color-accent-primary, #ff2d6a), #ff5e8a);
+            color: #fff;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: filter var(--transition-normal, 300ms) ease, transform 120ms ease;
+        }
+        .dashboard-wakelock-activate:hover { filter: brightness(1.08); }
+        .dashboard-wakelock-activate:active { transform: scale(0.97); }
+        .dashboard-wakelock-dismiss {
+            flex: 0 0 auto;
+            border: none;
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            border-radius: var(--radius-full, 9999px);
+            background: rgba(255, 255, 255, 0.06);
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1.1rem;
+            line-height: 1;
+            transition: background 120ms ease, color 120ms ease;
+        }
+        .dashboard-wakelock-dismiss:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .dashboard-wakelock-banner { animation: none; }
+            .dashboard-wakelock-activate { transition: none; }
+        }
+    </style>
+</head>
+<body class="theme-dark dashboard-body">
+    <!-- Portrait orientation message (AC 10.4.6) -->
+    <div id="rotate-message" class="dashboard-rotate-message">
+        <div class="rotate-content">
+            <div class="rotate-icon">
+                <svg viewBox="0 0 24 24" width="64" height="64" fill="currentColor">
+                    <path d="M7.34 6.41L.86 12.9l6.49 6.48 6.49-6.48-6.5-6.49zM3.69 12.9l3.66-3.66L11 12.9l-3.66 3.66-3.65-3.66zm15.67-6.26A8.95 8.95 0 0 0 13 4V.76L8.76 5 13 9.24V6c1.79 0 3.58.68 4.95 2.05a7.007 7.007 0 0 1 0 9.9 6.973 6.973 0 0 1-7.79 1.44l-1.49 1.49C10.02 21.62 11.51 22 13 22c2.3 0 4.61-.88 6.36-2.64a8.98 8.98 0 0 0 0-12.72z"/>
+                </svg>
+            </div>
+            <h1 data-i18n="dashboard.pleaseRotate">Please Rotate</h1>
+            <p data-i18n="dashboard.landscapeHint">This dashboard works best in landscape mode</p>
+        </div>
+    </div>
+
+    <!-- Main dashboard content -->
+    <main class="dashboard-container">
+        <!-- Loading state -->
+        <div id="dashboard-loading" class="dashboard-view">
+            <div class="dashboard-loading-content">
+                <h1 class="wordmark wordmark-hero logo-loading">
+                    <span class="wordmark-beat">Beat</span><span class="wordmark-gradient">ify</span>
+                </h1>
+                <p class="loading-text" data-i18n="dashboard.connecting">Connecting to game...</p>
+            </div>
+        </div>
+
+        <!-- Cold-start bridge (#1287): animated vinyl disc while MA connects the
+             speaker and round 1 loads (~10-15s). Auto-replaced by the first
+             PLAYING state broadcast. -->
+        <div id="dashboard-starting" class="dashboard-view hidden">
+            <div class="vinyl-starting">
+                <div class="vinyl-row">
+                    <div class="vinyl-loader" aria-hidden="true">
+                        <div class="vinyl-disc">
+                            <div class="vinyl-ring"></div>
+                            <div class="vinyl-hole"></div>
+                        </div>
+                    </div>
+                    <div class="vinyl-copy">
+                        <h1 class="wordmark wordmark-hero">
+                            <span class="wordmark-beat">Beat</span><span class="wordmark-gradient">ify</span>
+                        </h1>
+                        <h2 class="vinyl-headline" data-i18n="starting.headline">Here we go!</h2>
+                        <p class="vinyl-sub" data-i18n="starting.sub">Connecting the speaker and loading round one. Grab your buzzer.</p>
+                        <div class="vinyl-dots" aria-hidden="true">
+                            <span></span><span></span><span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- No game state -->
+        <div id="dashboard-no-game" class="dashboard-view hidden">
+            <div class="dashboard-centered">
+                <h1 class="wordmark wordmark-hero">
+                    <span class="wordmark-beat">Beat</span><span class="wordmark-gradient">ify</span>
+                </h1>
+                <p class="dashboard-message" data-i18n="dashboard.noActiveGame">No active game</p>
+                <p class="dashboard-hint" data-i18n="dashboard.startFromAdmin">Start a game from the admin page</p>
+            </div>
+        </div>
+
+        <!-- Lobby view (AC 10.4.2) -->
+        <div id="dashboard-lobby" class="dashboard-view hidden">
+            <header class="dashboard-header">
+                <h1 class="wordmark">
+                    <span class="wordmark-beat">Beat</span><span class="wordmark-gradient">ify</span>
+                </h1>
+                <!-- Game settings indicator (top-right corner) -->
+                <div id="dashboard-game-settings" class="dashboard-game-settings"></div>
+            </header>
+            <div class="dashboard-lobby-content">
+                <!-- QR Code Section (left) -->
+                <div class="lobby-qr-section">
+                    <div id="dashboard-qr-code" class="dashboard-qr-code">
+                        <!-- QR code rendered here -->
+                    </div>
+                    <p id="dashboard-player-count" class="dashboard-player-count">0 players joined</p>
+                </div>
+                <!-- Player List Section (right) -->
+                <div class="lobby-players-section">
+                    <h2 class="players-title" data-i18n="dashboard.players">Players</h2>
+                    <div id="dashboard-player-list" class="dashboard-player-list">
+                        <!-- Player cards rendered by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Playing view (AC 10.4.3) — v3.2.1 Arcade -->
+        <div id="dashboard-playing" class="dashboard-view hidden">
+            <!-- Top chip strip: intro badge (or closest-wins) / round / submissions meter -->
+            <div class="dashboard-chip-strip">
+                <span id="dashboard-intro-badge" class="chip-badge chip-badge--intro hidden">
+                    <span class="chip-badge-icon" aria-hidden="true">⚡</span>
+                    <span data-i18n="game.introRound">INTRO ROUND</span>
+                </span>
+                <span id="dashboard-closest-wins-badge" class="chip-badge chip-badge--closest hidden">
+                    <span class="chip-badge-icon" aria-hidden="true">🎯</span>
+                    <span data-i18n="game.closestWins">CLOSEST WINS</span>
+                </span>
+                <div class="chip-round">
+                    <span data-i18n="game.roundLabel">Round</span>
+                    <strong id="dashboard-current-round">1</strong>
+                    <span data-i18n="game.ofLabel">of</span>
+                    <strong id="dashboard-total-rounds">10</strong>
+                </div>
+                <div id="dashboard-submissions-meter" class="chip-meter" data-submissions="0/0">
+                    <div class="chip-meter-fill" style="width:0%"></div>
+                    <div class="chip-meter-label">
+                        <span data-i18n="dashboard.submissions">Submissions</span>
+                        <span id="dashboard-submissions">0/0</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Legacy round-stats block — hidden via CSS but JS still writes to IDs -->
+            <div id="dashboard-round-stats" class="dashboard-round-stats" aria-hidden="true">
+                <span id="dashboard-time-remaining">--</span>
+            </div>
+
+            <div class="dashboard-playing-content">
+                <!-- Left side: Album art ringed by cyan timer progress -->
+                <div class="playing-left-section">
+                    <div class="dashboard-album-container">
+                        <svg class="dashboard-album-ring-svg" viewBox="0 0 480 480" aria-hidden="true">
+                            <circle class="dashboard-album-ring-track" cx="240" cy="240" r="230"/>
+                            <circle id="dashboard-album-ring-fill" class="dashboard-album-ring-fill" cx="240" cy="240" r="230" stroke-dashoffset="0"/>
+                        </svg>
+                        <img id="dashboard-album-art"
+                             src="/beatify/static/img/no-artwork.svg"
+                             alt="Album Cover"
+                             class="dashboard-album-art dashboard-album-art--playing">
+                    </div>
+                    <div id="dashboard-timer" class="dashboard-timer" role="timer" aria-live="polite">30</div>
+                    <div class="playing-caption" data-i18n="dashboard.nowPlaying">Now Playing</div>
+                </div>
+
+                <!-- Right side: Leaderboard (v3.2.1: grid rows with rank circle + delta badge) -->
+                <div class="playing-right-section">
+                    <h2 class="leaderboard-title" data-i18n="leaderboard.title">Leaderboard</h2>
+                    <div id="dashboard-leaderboard" class="dashboard-leaderboard">
+                        <!-- Leaderboard entries rendered by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reveal view (AC 10.4.4) — v3.2.1 Arcade -->
+        <div id="dashboard-reveal" class="dashboard-view hidden">
+            <!-- Top chip strip: REVEAL badge / round / motivator -->
+            <div class="dashboard-chip-strip">
+                <span class="chip-badge chip-badge--reveal">
+                    <span class="chip-badge-dot" aria-hidden="true"></span>
+                    <span data-i18n="dashboard.reveal">Reveal</span>
+                </span>
+                <div class="chip-round">
+                    <span data-i18n="game.roundLabel">Round</span>
+                    <strong class="reveal-round-num">1</strong>
+                    <span data-i18n="game.ofLabel">of</span>
+                    <strong class="reveal-total-num">10</strong>
+                </div>
+                <div id="reveal-motivational" class="chip-motivator motivational-message hidden">
+                    <span class="chip-motivator-icon motivational-icon" aria-hidden="true">🔥</span>
+                    <span class="motivational-text"></span>
+                </div>
+                <!-- #1185: Auto-advance countdown ring (hidden when reveal_auto_advance==0 or idle_halt) -->
+                <div id="reveal-countdown" class="chip-countdown hidden" aria-hidden="true">
+                    <span class="chip-countdown-ring">
+                        <svg viewBox="0 0 60 60" class="chip-countdown-svg">
+                            <circle class="chip-countdown-bg" cx="30" cy="30" r="25"></circle>
+                            <circle class="chip-countdown-fg" cx="30" cy="30" r="25"></circle>
+                        </svg>
+                        <span class="chip-countdown-num" id="reveal-countdown-num">0</span>
+                    </span>
+                    <span class="chip-countdown-label" data-i18n="dashboard.autoAdvance">Auto-Weiter</span>
+                </div>
+            </div>
+
+            <!-- "Broadcast Lower-Third" reveal (design-shotgun C): upper stage
+                 (now-revealing card + standings + this-round results), with a
+                 full-width lower-third band that announces the answer — the
+                 YEAR (year mode) or the TITLE + ARTIST (Name the Tune). Element
+                 IDs are preserved so the existing renderers keep working. -->
+            <div class="dashboard-reveal-content reveal-broadcast">
+                <div class="reveal-stage">
+                    <!-- Now-revealing card: cinematic cover + song identity -->
+                    <div class="reveal-nowcard">
+                        <div class="dashboard-album-container dashboard-album-container--reveal">
+                            <img id="reveal-album-art"
+                                 src="/beatify/static/img/no-artwork.svg"
+                                 alt="Album Cover"
+                                 class="dashboard-album-art dashboard-album-art--reveal">
+                        </div>
+                        <div class="reveal-song-info">
+                            <div class="reveal-nowkicker" data-i18n="dashboard.nowRevealing">Now revealing</div>
+                            <div id="reveal-title" class="reveal-title">Unknown Song</div>
+                            <div id="reveal-artist" class="reveal-artist">Unknown Artist</div>
+                            <div id="song-difficulty" class="song-difficulty hidden"></div>
+                            <!-- Year-mode artist-challenge result (🎤 who guessed the artist) -->
+                            <div id="reveal-artist-challenge" class="reveal-artist-challenge hidden"></div>
+                        </div>
+                    </div>
+
+                    <!-- Standings card (top-right) -->
+                    <div class="reveal-standings-card">
+                        <h2 class="leaderboard-title" data-i18n="leaderboard.standings">Standings</h2>
+                        <div id="reveal-leaderboard" class="dashboard-leaderboard">
+                            <!-- Leaderboard entries rendered by JS -->
+                        </div>
+                    </div>
+
+                    <!-- This round: per-player results + (TA board) + fun fact -->
+                    <div class="reveal-results">
+                        <h2 class="top-guesses-title" data-i18n="dashboard.topGuesses">Top Guesses This Round</h2>
+                        <div id="reveal-top-guesses-list" class="top-guesses-list">
+                            <!-- Top guesses rendered by JS -->
+                        </div>
+                        <div id="dashboard-fun-fact" class="dashboard-fun-fact hidden">
+                            <span class="fun-fact-icon">&#128161;</span>
+                            <span id="dashboard-fun-fact-text" class="fun-fact-text"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lower-third announce band. Year mode → the year hero.
+                     Name the Tune → the title+artist answer + Crowd Court. -->
+                <div class="reveal-lowerthird">
+                    <div id="reveal-year-row" class="reveal-year-row">
+                        <span class="reveal-year-label" data-i18n="game.yearLabel">Year</span>
+                        <div id="reveal-year" class="reveal-year">1984</div>
+                    </div>
+
+                    <!-- Title & Artist mode banner (#1180) -->
+                    <div id="dashboard-ta-banner" class="dashboard-ta-banner hidden">
+                        <div class="dashboard-ta-answer">
+                            <span id="dashboard-ta-title" class="dashboard-ta-title"></span>
+                            <span class="dashboard-ta-sep" aria-hidden="true">—</span>
+                            <span id="dashboard-ta-artist" class="dashboard-ta-artist"></span>
+                        </div>
+                        <div id="dashboard-ta-voting" class="dashboard-ta-voting hidden" data-i18n="titleArtist.dashboardVoting">Voting on close calls…</div>
+                        <div id="dashboard-ta-live" class="dashboard-ta-live hidden"></div>
+                        <div id="dashboard-ta-outcomes" class="dashboard-ta-outcomes hidden"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- End view (AC 10.4.5) -->
+        <div id="dashboard-end" class="dashboard-view hidden">
+            <!-- "Podium Stage" game-over layout (design-shotgun A): header, a
+                 3-column stage (full standings · winner podium · highlights
+                 reel), and a superlatives award row. No Share Results card —
+                 sharing is a player-phone action. -->
+            <div class="dashboard-end-content end-stage-layout">
+                <header class="end-header">
+                    <h1 class="end-title" data-i18n="leaderboard.gameOver">Game Over</h1>
+                    <div class="end-meta">
+                        <span id="end-meta-rounds">🎵 0</span>
+                        <span class="end-meta-dot" aria-hidden="true"></span>
+                        <span id="end-meta-players">👥 0</span>
+                    </div>
+                    <!-- Stats comparison (Story 14.4) — slim pill in the header -->
+                    <div id="end-stats-comparison" class="stats-comparison hidden">
+                        <span class="stats-comparison-icon"></span>
+                        <span class="stats-comparison-text"></span>
+                    </div>
+                </header>
+
+                <div class="end-stage">
+                    <!-- LEFT: full standings -->
+                    <section class="end-panel end-panel--standings">
+                        <h2 class="end-panel-title">
+                            <span class="end-panel-ic" aria-hidden="true">📋</span>
+                            <span data-i18n="leaderboard.fullRankings">Full Rankings</span>
+                        </h2>
+                        <div id="end-leaderboard" class="dashboard-leaderboard dashboard-leaderboard--final">
+                            <!-- Final leaderboard entries rendered by JS -->
+                        </div>
+                    </section>
+
+                    <!-- CENTER: winner podium (AC 10.4.5) -->
+                    <div class="end-podium-wrap">
+                        <div class="dashboard-podium">
+                            <div class="podium-place podium-2">
+                                <div class="podium-info">
+                                    <div class="podium-avatar" id="end-podium-2-avatar" aria-hidden="true"></div>
+                                    <div class="podium-name" id="end-podium-2-name">---</div>
+                                    <div class="podium-score"><span id="end-podium-2-score">0</span><span class="podium-pts">PTS</span></div>
+                                </div>
+                                <div class="podium-stand">
+                                    <span class="podium-medal">🥈</span>
+                                    <span class="podium-place-lbl">2</span>
+                                </div>
+                            </div>
+                            <div class="podium-place podium-1">
+                                <div class="podium-info">
+                                    <div class="podium-crown" aria-hidden="true">👑</div>
+                                    <div class="podium-avatar" id="end-podium-1-avatar" aria-hidden="true"></div>
+                                    <div class="podium-name" id="end-podium-1-name">---</div>
+                                    <div class="podium-score"><span id="end-podium-1-score">0</span><span class="podium-pts">PTS</span></div>
+                                </div>
+                                <div class="podium-stand">
+                                    <span class="podium-medal">🥇</span>
+                                    <span class="podium-place-lbl">1</span>
+                                </div>
+                            </div>
+                            <div class="podium-place podium-3">
+                                <div class="podium-info">
+                                    <div class="podium-avatar" id="end-podium-3-avatar" aria-hidden="true"></div>
+                                    <div class="podium-name" id="end-podium-3-name">---</div>
+                                    <div class="podium-score"><span id="end-podium-3-score">0</span><span class="podium-pts">PTS</span></div>
+                                </div>
+                                <div class="podium-stand">
+                                    <span class="podium-medal">🥉</span>
+                                    <span class="podium-place-lbl">3</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT: game highlights reel (Issue #75) -->
+                    <section class="end-panel end-panel--highlights">
+                        <h2 class="end-panel-title">
+                            <span class="end-panel-ic" aria-hidden="true">🎬</span>
+                            <span data-i18n="highlights.highlightsTab">Highlights</span>
+                        </h2>
+                        <div id="end-highlights" class="end-highlights">
+                            <!-- Rendered by JS: highlight cards -->
+                        </div>
+                    </section>
+                </div>
+
+                <!-- BOTTOM: superlatives / fun awards (Story 15.2) -->
+                <div id="superlatives-container" class="superlatives-container hidden">
+                    <!-- Rendered by JS: award cards with emoji, title, player name, value -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Paused view -->
+        <div id="dashboard-paused" class="dashboard-view hidden">
+            <div class="dashboard-centered">
+                <div class="paused-icon">||</div>
+                <h1 data-i18n="game.paused">Game Paused</h1>
+                <p class="dashboard-message" data-i18n="game.waitingForHost">Waiting for host to reconnect...</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Wake-Lock activation banner (#1285, design option 2) — dezenter
+         Bottom-Banner. Hidden by default; dashboard.js reveals it only when the
+         native screen wake lock could not engage without a user gesture (passive
+         iOS TV/dashboard displays). The tap on "Aktivieren" re-runs
+         requestWakeLock() inside a trusted gesture so the lock can take hold. -->
+    <div id="dashboard-wakelock-banner" class="dashboard-wakelock-banner hidden" role="dialog" aria-live="polite">
+        <div class="dashboard-wakelock-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/>
+            </svg>
+        </div>
+        <div class="dashboard-wakelock-text">
+            <div class="dashboard-wakelock-title" data-i18n="dashboard.wakeLockTitle">Bildschirm wachhalten?</div>
+            <div class="dashboard-wakelock-body" data-i18n="dashboard.wakeLockBody">Verhindert, dass sich das TV-Display während des Spiels abschaltet.</div>
+        </div>
+        <button id="dashboard-wakelock-activate" type="button" class="dashboard-wakelock-activate" data-i18n="dashboard.wakeLockActivate">Aktivieren</button>
+        <button id="dashboard-wakelock-dismiss" type="button" class="dashboard-wakelock-dismiss" data-i18n-title="dashboard.wakeLockDismiss" title="Schließen" aria-label="Schließen">&times;</button>
+    </div>
+
+    <!-- Reaction Container (Story 18.9) - floating reactions from players -->
+    <div id="reaction-container" class="reaction-container"></div>
+
+    <script src="/beatify/static/js/vendor/qrcode.min.js?v={{ASSET_VER}}"></script>
+    <!-- Story 18.4: Use minified JS in production with fallback to source -->
+    <!-- Version query strings prevent browser caching issues -->
+    <script src="/beatify/static/js/i18n.js?v={{ASSET_VER}}"></script>
+    <script src="/beatify/static/js/utils.js?v={{ASSET_VER}}"></script>
+    <!-- #1122 rc7: NoSleep.js Layer 2 fallback for iOS Companion WKWebView,
+         loaded before dashboard.min.js so window.NoSleep is available when
+         requestWakeLock() runs on dashboard init. -->
+    <script src="/beatify/static/js/vendor/no-sleep.min.js?v={{ASSET_VER}}"></script>
+    <script src="/beatify/static/js/dashboard.min.js?v={{ASSET_VER}}"></script>
+    <!-- v3.2.1 Arcade shims: submission meter fill, album ring progress, reveal round mirror.
+         Pure view-layer helpers — no state, no API calls. Safe to remove if dashboard.js
+         ever takes these over directly. -->
+    <script>
+    (function(){
+        // Submission meter fill — watches #dashboard-submissions text ("N/M") and
+        // updates the .chip-meter-fill width on its parent #dashboard-submissions-meter.
+        var subs = document.getElementById('dashboard-submissions');
+        var meter = document.getElementById('dashboard-submissions-meter');
+        if (subs && meter) {
+            var fill = meter.querySelector('.chip-meter-fill');
+            var applySubs = function(){
+                var m = (subs.textContent || '').match(/(\d+)\s*\/\s*(\d+)/);
+                if (!m || !fill) return;
+                var n = parseInt(m[1], 10), d = parseInt(m[2], 10);
+                var pct = d > 0 ? Math.max(0, Math.min(100, (n / d) * 100)) : 0;
+                fill.style.width = pct + '%';
+                meter.dataset.submissions = m[1] + '/' + m[2];
+            };
+            new MutationObserver(applySubs).observe(subs, { childList: true, characterData: true, subtree: true });
+            applySubs();
+        }
+
+        // Album ring timer progress — watches #dashboard-timer + #dashboard-total-rounds
+        // to compute a stroke-dashoffset on the ring. We need a sense of "seconds total"
+        // to know the ring's denominator. Dashboard.js initializes #dashboard-timer with
+        // the round duration before counting down, so we snapshot the first non-zero value
+        // per round as the max, and drive the ring from current/max.
+        var timerEl = document.getElementById('dashboard-timer');
+        var ringFill = document.getElementById('dashboard-album-ring-fill');
+        if (timerEl && ringFill) {
+            var ringCircumference = 1445; // 2*pi*r with r=230, pre-computed (matches stroke-dasharray)
+            var roundMax = 0;
+            var lastVal = null;
+            var applyTimer = function(){
+                var txt = (timerEl.textContent || '').trim();
+                var val = parseInt(txt, 10);
+                if (isNaN(val)) return;
+                // Reset snapshot when value JUMPS up (new round starts).
+                if (lastVal !== null && val > lastVal + 2) roundMax = val;
+                if (val > roundMax) roundMax = val;
+                lastVal = val;
+                var pct = roundMax > 0 ? (val / roundMax) : 0;
+                ringFill.style.strokeDashoffset = (ringCircumference * (1 - pct)).toFixed(1);
+            };
+            new MutationObserver(applyTimer).observe(timerEl, { childList: true, characterData: true, subtree: true });
+            applyTimer();
+        }
+
+        // Reveal round number mirror — copy #dashboard-current-round / #dashboard-total-rounds
+        // into the reveal view's .reveal-round-num / .reveal-total-num so the round chip
+        // stays in sync without touching dashboard.js.
+        var mirror = function(srcId, cls){
+            var src = document.getElementById(srcId);
+            if (!src) return;
+            var targets = document.querySelectorAll('.' + cls);
+            if (!targets.length) return;
+            var apply = function(){
+                var t = src.textContent;
+                targets.forEach(function(el){ el.textContent = t; });
+            };
+            new MutationObserver(apply).observe(src, { childList: true, characterData: true, subtree: true });
+            apply();
+        };
+        mirror('dashboard-current-round', 'reveal-round-num');
+        mirror('dashboard-total-rounds', 'reveal-total-num');
+    })();
+    </script>
+</body>
+</html>

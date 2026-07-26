@@ -1,4 +1,4 @@
-"""Environment insights — mold risk, comfort, condensation, humidity trend."""
+"""Environment insights: mold risk, comfort, condensation, humidity trend."""
 
 from __future__ import annotations
 
@@ -168,13 +168,30 @@ def _comfort_hot_recommendation(
     target_temp: float | None,
     heat_index: float | None,
     heat_risk_level: str | None,
+    is_cooling_zone: bool = False,
 ) -> str:
     """Build comfort recommendation for hot states."""
     hi_suffix = ""
     if heat_index is not None and heat_risk_level is not None and heat_risk_level != "None":
-        hi_suffix = f" (feels like {heat_index:.1f}°C — {heat_risk_level})"
+        hi_suffix = f" (feels like {heat_index:.1f}°C, {heat_risk_level})"
 
-    if current_temp is not None:
+    if is_cooling_zone:
+        if current_temp is not None and target_temp is not None and current_temp > target_temp:
+            over = round(current_temp - target_temp, 1)
+            suggested = max(round(target_temp - 1), 16)
+            rec = (
+                f"{zone_name}: {current_temp:.1f}°C, "
+                f"{over:.1f}°C above target \u2014 lower AC setpoint to {suggested:.0f}°C{hi_suffix}"
+            )
+        elif current_temp is not None:
+            suggested = max(round(current_temp - 4), 16)
+            rec = (
+                f"{zone_name}: {current_temp:.1f}°C too warm \u2014 "
+                f"turn on cooling or lower AC setpoint to {suggested:.0f}°C{hi_suffix}"
+            )
+        else:
+            rec = f"{zone_name}: Room too hot \u2014 turn on cooling or lower AC setpoint{hi_suffix}"
+    elif current_temp is not None:
         if target_temp is not None and current_temp > target_temp:
             over = round(current_temp - target_temp, 1)
             rec = (
@@ -182,7 +199,7 @@ def _comfort_hot_recommendation(
                 f"{over:.1f}°C above target \u2014 open window or reduce heating{hi_suffix}"
             )
         else:
-            suggested = max(current_temp - 2, 18)
+            suggested = max(round(current_temp - 2), 18)
             rec = (
                 f"{zone_name}: {current_temp:.1f}°C too warm \u2014 "
                 f"reduce setpoint to {suggested:.0f}°C or open window{hi_suffix}"
@@ -191,7 +208,7 @@ def _comfort_hot_recommendation(
         rec = f"{zone_name}: Room too hot \u2014 reduce heating setpoint by 2°C or open window{hi_suffix}"
 
     if heat_risk_level in ("Danger", "Extreme Danger"):
-        rec = f"⚠️ {zone_name}: Heat risk {heat_risk_level} — {rec[len(zone_name) + 2:]}"
+        rec = f"⚠️ {zone_name}: Heat risk {heat_risk_level}, {rec[len(zone_name) + 2:]}"
     return rec
 
 
@@ -205,6 +222,7 @@ def calculate_comfort_recommendation(
     hvac_action: str | None = None,
     heat_index: float | None = None,
     heat_risk_level: str | None = None,
+    is_cooling_zone: bool = False,
 ) -> str:
     """Calculate SMART recommendation for comfort level with time frame."""
     if comfort_state == "Comfortable":
@@ -214,7 +232,9 @@ def calculate_comfort_recommendation(
         return _comfort_cold_recommendation(zone_name, current_temp, target_temp, hvac_mode, hvac_action)
 
     if comfort_state in ("Too Hot", "Hot", "Warm", "Sweltering"):
-        return _comfort_hot_recommendation(zone_name, current_temp, target_temp, heat_index, heat_risk_level)
+        return _comfort_hot_recommendation(
+            zone_name, current_temp, target_temp, heat_index, heat_risk_level, is_cooling_zone,
+        )
 
     if comfort_state == "Too Humid":
         if humidity is not None:
@@ -279,7 +299,7 @@ def calculate_heating_condensation_recommendation(
         return ""
 
     if risk_level == "Critical":
-        parts = [f"{zone_name}: URGENT — condensation forming on windows"]
+        parts = [f"{zone_name}: URGENT, condensation forming on windows"]
         if surface_temp is not None and dew_point is not None and margin is not None:
             parts.append(
                 f"Surface temp {surface_temp:.1f}°C is {abs(margin):.1f}°C below dew point {dew_point:.1f}°C",
@@ -297,7 +317,7 @@ def calculate_heating_condensation_recommendation(
         return ". ".join(parts)
 
     if risk_level == "Medium":
-        parts = [f"{zone_name}: Monitor — condensation possible"]
+        parts = [f"{zone_name}: Monitor, condensation possible"]
         if margin is not None and dew_point is not None:
             parts.append(
                 f"Surface temp {margin:.1f}°C above dew point {dew_point:.1f}°C",

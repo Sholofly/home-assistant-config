@@ -46,7 +46,7 @@ async def run_service_call(
         )
         return False
     except (TadoAuthError, TadoRateLimitError) as e:
-        dispatch_to_service_call(e, coordinator.config_entry, hass)
+        dispatch_to_service_call(e, coordinator.config_entry, hass, coordinator)
     except aiohttp.ClientError as e:
         _LOGGER.warning(
             "Services: %s for zone %s network error (%s)",

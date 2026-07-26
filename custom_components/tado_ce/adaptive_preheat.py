@@ -1,4 +1,4 @@
-"""Tado CE Adaptive Preheat Manager — local Early Start replacement."""
+"""Tado CE Adaptive Preheat Manager: local Early Start replacement."""
 
 from __future__ import annotations
 
@@ -50,7 +50,7 @@ class AdaptivePreheatManager:
     def set_coordinator(self, coordinator: TadoDataUpdateCoordinator) -> None:
         """Wire the coordinator back-reference once it has been created.
 
-        Resolves the chicken-and-egg setup order — the manager is built
+        Resolves the chicken-and-egg setup order: the manager is built
         before the coordinator exists.
         """
         self._coordinator = coordinator
@@ -59,12 +59,12 @@ class AdaptivePreheatManager:
         """Load zone info and start monitoring if adaptive preheat is enabled."""
         self._enabled = self._config_manager.get_adaptive_preheat_enabled()
         if not self._enabled:
-            _LOGGER.debug("Adaptive Preheat: disabled in config — skipping setup")
+            _LOGGER.debug("Adaptive Preheat: disabled in config, skipping setup")
             return
 
         if not self._config_manager.get_smart_comfort_enabled():
             _LOGGER.warning(
-                "Adaptive Preheat: needs Smart Comfort to be enabled — "
+                "Adaptive Preheat: needs Smart Comfort to be enabled, "
                 "turn Smart Comfort on in integration options to use "
                 "Adaptive Preheat",
             )
@@ -75,12 +75,12 @@ class AdaptivePreheatManager:
             zones_info = await self._hass.async_add_executor_job(self._data_loader.load_zones_info_file)
         else:
             _LOGGER.warning(
-                "Adaptive Preheat: zone data not available yet — skipping setup",
+                "Adaptive Preheat: zone data not available yet, skipping setup",
             )
             return
 
         if not zones_info:
-            _LOGGER.warning("Adaptive Preheat: no zones found in zone data — skipping setup")
+            _LOGGER.warning("Adaptive Preheat: no zones found in zone data, skipping setup")
             return
 
         for zone in zones_info:
@@ -183,7 +183,7 @@ class AdaptivePreheatManager:
 
         if self._is_home_away():
             _LOGGER.debug(
-                "Adaptive Preheat: home is in away mode — skipping initial preheat check",
+                "Adaptive Preheat: home is in away mode, skipping initial preheat check",
             )
             return
 
@@ -191,7 +191,7 @@ class AdaptivePreheatManager:
             preheat_data = self._coordinator.get_entity_data(zone_id, ENTITY_DATA_PREHEAT_NOW)
             if preheat_data and preheat_data.get("state") == "on":
                 _LOGGER.info(
-                    "Adaptive Preheat: %s already needs preheat at startup — "
+                    "Adaptive Preheat: %s already needs preheat at startup, "
                     "triggering now",
                     self._zone_info[zone_id]["name"],
                 )
@@ -215,7 +215,7 @@ class AdaptivePreheatManager:
         zd = self._get_zone_state(zone_id)
         if zd and zd.get("overlay") is not None:
             _LOGGER.info(
-                "Adaptive Preheat: %s skipped in passive mode — zone "
+                "Adaptive Preheat: %s skipped in passive mode, zone "
                 "already has an active overlay (%s)",
                 zone_name,
                 zd["overlay"].get("type", "unknown"),
@@ -228,7 +228,7 @@ class AdaptivePreheatManager:
         preheat_data = self._coordinator.get_entity_data(zone_id, ENTITY_DATA_PREHEAT_ADVISOR)  # type: ignore[union-attr]
         if not preheat_data:
             _LOGGER.warning(
-                "Adaptive Preheat: %s preheat advisor data not available — "
+                "Adaptive Preheat: %s preheat advisor data not available, "
                 "skipping this trigger",
                 zone_name,
             )
@@ -238,7 +238,7 @@ class AdaptivePreheatManager:
         if not raw:
             _LOGGER.warning(
                 "Adaptive Preheat: %s next schedule block has no heating "
-                "target — skipping this trigger",
+                "target, skipping this trigger",
                 zone_name,
             )
             return None
@@ -248,7 +248,7 @@ class AdaptivePreheatManager:
         except (ValueError, TypeError):
             _LOGGER.warning(
                 "Adaptive Preheat: %s could not read target temperature "
-                "(value was %r) — skipping this trigger",
+                "(value was %r), skipping this trigger",
                 zone_name, raw,
             )
             return None
@@ -266,7 +266,7 @@ class AdaptivePreheatManager:
         current_temp = (sensor_data.get("insideTemperature") or {}).get("celsius")
         if current_temp is not None and current_temp >= target_temp - 0.5:
             _LOGGER.debug(
-                "Adaptive Preheat: %s already at target (%.1f°C ≥ %.1f°C) — "
+                "Adaptive Preheat: %s already at target (%.1f°C ≥ %.1f°C), "
                 "no preheat needed",
                 zone_name, current_temp, target_temp,
             )
@@ -281,18 +281,18 @@ class AdaptivePreheatManager:
 
         zone_name = zone_info["name"]
 
-        # Defence-in-depth — preheat must not fire while the home is
+        # Defence-in-depth: preheat must not fire while the home is
         # AWAY, even if a stale preheat_now signal slipped through.
         if self._is_home_away():
             _LOGGER.info(
-                "Adaptive Preheat: %s skipped — home is in away mode",
+                "Adaptive Preheat: %s skipped, home is in away mode",
                 zone_name,
             )
             return
 
         if zone_id in self._active_overlays:
             _LOGGER.debug(
-                "Adaptive Preheat: %s already preheating — leaving the "
+                "Adaptive Preheat: %s already preheating, leaving the "
                 "current overlay in place",
                 zone_name,
             )
@@ -334,7 +334,7 @@ class AdaptivePreheatManager:
             client = self._api_client
             if client is None:
                 _LOGGER.warning(
-                    "Adaptive Preheat: %s preheat skipped — Tado API "
+                    "Adaptive Preheat: %s preheat skipped. Tado API "
                     "client not available, will retry on next sensor change",
                     zone_name,
                 )
@@ -361,14 +361,14 @@ class AdaptivePreheatManager:
                 )
             else:
                 _LOGGER.warning(
-                    "Adaptive Preheat: %s could not start heating — Tado "
+                    "Adaptive Preheat: %s could not start heating. Tado "
                     "rejected the overlay, will retry on next sensor change",
                     zone_name,
                 )
 
         except Exception:
             _LOGGER.exception(
-                "Adaptive Preheat: %s overlay write raised an exception — "
+                "Adaptive Preheat: %s overlay write raised an exception, "
                 "will retry on next sensor change",
                 zone_name,
             )
@@ -389,14 +389,14 @@ class AdaptivePreheatManager:
         if zone_id not in self._active_overlays:
             _LOGGER.debug(
                 "Adaptive Preheat: %s preheat_now turned off but no overlay "
-                "was tracked — nothing to clean up",
+                "was tracked, nothing to clean up",
                 zone_name,
             )
             return
 
         del self._active_overlays[zone_id]
         _LOGGER.info(
-            "Adaptive Preheat: %s preheat ended — heating will stop at the "
+            "Adaptive Preheat: %s preheat ended, heating will stop at the "
             "next schedule block",
             zone_name,
         )

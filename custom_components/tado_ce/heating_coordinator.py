@@ -1,4 +1,4 @@
-"""Tado CE heating cycle coordinator — cross-zone analysis."""
+"""Tado CE heating cycle coordinator: cross-zone analysis."""
 
 from __future__ import annotations
 
@@ -33,7 +33,7 @@ class HeatingCycleCoordinator(DataUpdateCoordinator):
         home_id: str,
         config: HeatingCycleConfig,
     ) -> None:
-        """Initialise the coordinator (manual updates only — no polling)."""
+        """Initialise the coordinator (manual updates only, no polling)."""
         super().__init__(
             hass,
             _LOGGER,
@@ -51,7 +51,7 @@ class HeatingCycleCoordinator(DataUpdateCoordinator):
         self._lock = asyncio.Lock()
 
     async def _async_update_data(self) -> dict[str, Any]:
-        """Return cached zone data — DataUpdateCoordinator hook (manual updates only)."""
+        """Return cached zone data: DataUpdateCoordinator hook (manual updates only)."""
         return self._zone_data
 
     async def async_setup(self) -> None:
@@ -106,7 +106,7 @@ class HeatingCycleCoordinator(DataUpdateCoordinator):
             timestamp = dt_util.utcnow()
 
         _LOGGER.debug(
-            "Heating Cycle: zone %s update — target=%.1f°C, current=%.1f°C",
+            "Heating Cycle: zone %s update, target=%.1f°C, current=%.1f°C",
             zone_id, target_temp, current_temp,
         )
 
@@ -172,7 +172,7 @@ class HeatingCycleCoordinator(DataUpdateCoordinator):
                 "approach_factor": approach_factor,
             }
             _LOGGER.debug(
-                "Heating Cycle: zone %s metrics — inertia=%.1f min, "
+                "Heating Cycle: zone %s metrics, inertia=%.1f min, "
                 "rate=%.2f °C/h, accel=%s °C/h², approach=%s%%, "
                 "confidence=%.2f",
                 zone_id,
@@ -193,7 +193,7 @@ class HeatingCycleCoordinator(DataUpdateCoordinator):
                 "approach_factor": None,
             }
             _LOGGER.debug(
-                "Heating Cycle: zone %s has only %d cycle(s) — not enough "
+                "Heating Cycle: zone %s has only %d cycle(s), not enough "
                 "data for metrics yet",
                 zone_id, len(cycles),
             )
@@ -205,7 +205,7 @@ class HeatingCycleCoordinator(DataUpdateCoordinator):
         return self._zone_data.get(zone_id)
 
     def get_zone_state(self, zone_id: str) -> dict[str, Any] | None:
-        """Return cached current/target temperature snapshot — lets sensors read sync without blocking on storage."""
+        """Return cached current/target temperature snapshot: lets sensors read sync without blocking on storage."""
         return self._zone_states.get(zone_id)
 
     async def get_cycles(self, zone_id: str) -> list[HeatingCycle]:

@@ -1,4 +1,4 @@
-"""Tado CE API auth mixin — OAuth refresh-token flow with idempotent retry."""
+"""Tado CE API auth mixin: OAuth refresh-token flow with idempotent retry."""
 
 from __future__ import annotations
 
@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 
 _LOGGER = logging.getLogger(__name__)
 
-# HTTP timeout for OAuth token refresh (15s — auth endpoint should be fast)
+# HTTP timeout for OAuth token refresh (15s, auth endpoint should be fast)
 _TOKEN_REFRESH_TIMEOUT = aiohttp.ClientTimeout(total=15)
 
 
@@ -76,7 +76,7 @@ class TadoAuthMixin:
     # --- Config I/O ---
 
     async def _load_config(self: _AuthHost) -> dict[str, Any]:
-        """Build a config dict from injected values (no file I/O — ConfigEntry is canonical)."""
+        """Build a config dict from injected values (no file I/O, ConfigEntry is canonical)."""
         return {
             "home_id": self._home_id,
             "refresh_token": self._injected_refresh_token,
@@ -87,7 +87,7 @@ class TadoAuthMixin:
 
         ConfigEntry is the sole source of truth for auth credentials.
         The DataLoader "config" cache is updated in-memory for runtime
-        consumers but its Store entry is not touched — the Store only
+        consumers but its Store entry is not touched. The Store only
         exists for v3.5.3 → v4.x migration bootstrap.
         """
         if self._hass and self._config_entry:
@@ -119,7 +119,7 @@ class TadoAuthMixin:
 
         if not self._access_token:
             _LOGGER.warning(
-                "Auth: token refresh response had no access_token field — "
+                "Auth: token refresh response had no access_token field, "
                 "next API call will trigger another refresh attempt",
             )
             return None
@@ -129,11 +129,11 @@ class TadoAuthMixin:
             self._injected_refresh_token = new_refresh_token
             await self._save_config(config)
             _LOGGER.debug(
-                "Auth: refresh token rotated by Tado — new token saved "
+                "Auth: refresh token rotated by Tado, new token saved "
                 "to ConfigEntry",
             )
 
-        # RFC 6749 §5.1 — honour `expires_in` when present. Fall back
+        # RFC 6749 §5.1: honour `expires_in` when present. Fall back
         # to TOKEN_CACHE_DURATION when missing, malformed, or
         # implausibly short (would force per-call refreshes).
         expires_in_raw = data.get("expires_in")
@@ -146,7 +146,7 @@ class TadoAuthMixin:
 
         self._token_expiry = datetime.now(UTC) + timedelta(seconds=expires_in)
         _LOGGER.debug(
-            "Auth: access token refreshed — valid for %ds",
+            "Auth: access token refreshed, valid for %ds",
             expires_in,
         )
         return self._access_token
@@ -175,11 +175,11 @@ class TadoAuthMixin:
 
             if resp.status == HTTPStatus.UNAUTHORIZED or "invalid_grant" in error_text:
                 _LOGGER.warning(
-                    "Auth: refresh token rejected by Tado (HTTP %s) — "
+                    "Auth: refresh token rejected by Tado (HTTP %s). "
                     "HA will request re-authentication",
                     resp.status,
                 )
-                # Don't null the refresh_token here — a transient 401
+                # Don't null the refresh_token here. A transient 401
                 # (server glitch) would otherwise permanently
                 # invalidate a working token. Let HA's reauth flow
                 # decide whether the user needs to re-log-in.
@@ -188,14 +188,14 @@ class TadoAuthMixin:
             if resp.status == HTTPStatus.FORBIDDEN:
                 if attempt < MAX_RETRY_ATTEMPTS:
                     _LOGGER.debug(
-                        "Auth: refresh got HTTP 403 (likely CDN/WAF) — "
+                        "Auth: refresh got HTTP 403 (likely CDN/WAF), "
                         "retry %s/%s",
                         attempt, MAX_RETRY_ATTEMPTS,
                     )
                     return None
                 _LOGGER.warning(
                     "Auth: refresh kept returning HTTP 403 after %s "
-                    "attempts — Tado's CDN may be blocking us, will "
+                    "attempts. Tado's CDN may be blocking us, will "
                     "retry on next poll",
                     MAX_RETRY_ATTEMPTS,
                 )
@@ -203,17 +203,17 @@ class TadoAuthMixin:
 
             if 400 <= resp.status < 500:
                 _LOGGER.warning(
-                    "Auth: refresh request rejected (HTTP %s) — %s",
+                    "Auth: refresh request rejected (HTTP %s): %s",
                     resp.status, error_text[:200],
                 )
-                # WHY: 4xx-non-401-non-403 means the refresh shape is wrong, not a
-                # transient CDN block. Retrying won't help. Raise so coordinator
-                # triggers reauth.
+                # A 4xx other than 401/403 means the refresh request shape is
+                # wrong, not a transient CDN block, so retrying won't help.
+                # Raise so the coordinator triggers reauth.
                 raise TadoAuthError(
                     f"Token refresh rejected (HTTP {resp.status}): {error_text[:80]}",
                 )
             _LOGGER.warning(
-                "Auth: refresh failed with HTTP %s — %s",
+                "Auth: refresh failed with HTTP %s: %s",
                 resp.status, error_text[:200],
             )
             return None
@@ -225,7 +225,7 @@ class TadoAuthMixin:
 
         if not refresh_token:
             _LOGGER.warning(
-                "Auth: no refresh token available — re-authenticate the "
+                "Auth: no refresh token available, re-authenticate the "
                 "Tado integration in Settings → Devices & Services",
             )
             return None
@@ -237,14 +237,14 @@ class TadoAuthMixin:
                 result = await self._attempt_token_refresh(config, refresh_token, attempt)  # type: ignore[attr-defined]
                 if result is not None:
                     return result  # type: ignore[no-any-return]
-                # `None` here means a retryable 403 — fall through to
+                # `None` here means a retryable 403: fall through to
                 # the backoff and try again.
             except TadoAuthError:
                 raise
             except aiohttp.ClientError:
                 if attempt >= MAX_RETRY_ATTEMPTS:
                     _LOGGER.warning(
-                        "Auth: network error during token refresh — "
+                        "Auth: network error during token refresh, "
                         "exhausted %s retries, will retry on next poll",
                         MAX_RETRY_ATTEMPTS,
                         exc_info=True,
@@ -252,7 +252,7 @@ class TadoAuthMixin:
                     return None
             except Exception:
                 _LOGGER.warning(
-                    "Auth: unexpected error during token refresh — "
+                    "Auth: unexpected error during token refresh, "
                     "will retry on next poll",
                     exc_info=True,
                 )
@@ -260,7 +260,7 @@ class TadoAuthMixin:
 
             delay = retry_delay(attempt)
             _LOGGER.debug(
-                "Auth: refresh attempt %s/%s failed — retrying in %.1fs",
+                "Auth: refresh attempt %s/%s failed, retrying in %.1fs",
                 attempt, MAX_RETRY_ATTEMPTS, delay,
             )
             await asyncio.sleep(delay)

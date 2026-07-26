@@ -16,6 +16,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .entity_registry import ENTITY_REGISTRY, get_entity_category
 from .format_helpers import WEATHER_STATE_MAP
+from .helpers import PerEntityAvailabilityMixin
 
 if TYPE_CHECKING:
     from .coordinator import TadoDataUpdateCoordinator
@@ -23,7 +24,9 @@ if TYPE_CHECKING:
 _LOGGER = logging.getLogger(__name__)
 
 
-class TadoOutsideTemperatureSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], SensorEntity):
+class TadoOutsideTemperatureSensor(
+    PerEntityAvailabilityMixin, CoordinatorEntity["TadoDataUpdateCoordinator"], SensorEntity,
+):
     """Outside temperature from Tado weather data."""
 
     _attr_has_entity_name = True
@@ -39,7 +42,7 @@ class TadoOutsideTemperatureSensor(CoordinatorEntity["TadoDataUpdateCoordinator"
         self._attr_state_class = SensorStateClass.MEASUREMENT
         self._attr_suggested_display_precision = 1
         self._attr_entity_category = get_entity_category(_meta)
-        self._attr_available = False
+        self._data_present = False
         self._attr_native_value = None
         self._timestamp = None
 
@@ -62,19 +65,25 @@ class TadoOutsideTemperatureSensor(CoordinatorEntity["TadoDataUpdateCoordinator"
                 temp_data = data.get("outsideTemperature") or {}
                 self._attr_native_value = temp_data.get("celsius")
                 self._timestamp = temp_data.get("timestamp")
-                self._attr_available = self._attr_native_value is not None
+                self._data_present = self._attr_native_value is not None
             else:
-                self._attr_available = False
+                # No weather block on this poll: unavailable, and drop the last
+                # value so a stale reading does not linger.
+                self._attr_native_value = None
+                self._data_present = False
         except Exception:
             _LOGGER.debug(
-                "Weather Sensor: outside temperature update failed — "
+                "Weather Sensor: outside temperature update failed, "
                 "marking unavailable until the next poll",
                 exc_info=True,
             )
-            self._attr_available = False
+            self._attr_native_value = None
+            self._data_present = False
 
 
-class TadoSolarIntensitySensor(CoordinatorEntity["TadoDataUpdateCoordinator"], SensorEntity):
+class TadoSolarIntensitySensor(
+    PerEntityAvailabilityMixin, CoordinatorEntity["TadoDataUpdateCoordinator"], SensorEntity,
+):
     """Solar intensity from Tado weather data."""
 
     _attr_has_entity_name = True
@@ -89,7 +98,7 @@ class TadoSolarIntensitySensor(CoordinatorEntity["TadoDataUpdateCoordinator"], S
         self._attr_native_unit_of_measurement = PERCENTAGE
         self._attr_state_class = SensorStateClass.MEASUREMENT
         self._attr_entity_category = get_entity_category(_meta)
-        self._attr_available = False
+        self._data_present = False
         self._attr_native_value = None
         self._timestamp = None
 
@@ -112,19 +121,25 @@ class TadoSolarIntensitySensor(CoordinatorEntity["TadoDataUpdateCoordinator"], S
                 solar_data = data.get("solarIntensity") or {}
                 self._attr_native_value = solar_data.get("percentage")
                 self._timestamp = solar_data.get("timestamp")
-                self._attr_available = self._attr_native_value is not None
+                self._data_present = self._attr_native_value is not None
             else:
-                self._attr_available = False
+                # No weather block on this poll: unavailable, and drop the last
+                # value so a stale reading does not linger.
+                self._attr_native_value = None
+                self._data_present = False
         except Exception:
             _LOGGER.debug(
-                "Weather Sensor: solar intensity update failed — "
+                "Weather Sensor: solar intensity update failed, "
                 "marking unavailable until the next poll",
                 exc_info=True,
             )
-            self._attr_available = False
+            self._attr_native_value = None
+            self._data_present = False
 
 
-class TadoWeatherStateSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], SensorEntity):
+class TadoWeatherStateSensor(
+    PerEntityAvailabilityMixin, CoordinatorEntity["TadoDataUpdateCoordinator"], SensorEntity,
+):
     """Weather state from Tado weather data."""
 
     _attr_has_entity_name = True
@@ -137,7 +152,7 @@ class TadoWeatherStateSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], Sen
         self._attr_unique_id = f"tado_ce_{coordinator.home_id}_{_meta.unique_id_suffix}"
         self._attr_icon = _meta.icon
         self._attr_entity_category = get_entity_category(_meta)
-        self._attr_available = False
+        self._data_present = False
         self._attr_native_value = None
         self._raw_state = None
         self._timestamp = None
@@ -185,13 +200,19 @@ class TadoWeatherStateSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], Sen
                 self._raw_state = weather_data.get("value")
                 self._timestamp = weather_data.get("timestamp")
                 self._attr_native_value = WEATHER_STATE_MAP.get(self._raw_state, self._raw_state)  # type: ignore[arg-type]
-                self._attr_available = self._attr_native_value is not None
+                self._data_present = self._attr_native_value is not None
             else:
-                self._attr_available = False
+                # No weather block on this poll: unavailable, and drop the last
+                # value so a stale reading does not linger.
+                self._attr_native_value = None
+                self._raw_state = None
+                self._data_present = False
         except Exception:
             _LOGGER.debug(
-                "Weather Sensor: weather state update failed — marking "
+                "Weather Sensor: weather state update failed, marking "
                 "unavailable until the next poll",
                 exc_info=True,
             )
-            self._attr_available = False
+            self._attr_native_value = None
+            self._raw_state = None
+            self._data_present = False

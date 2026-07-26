@@ -1,4 +1,4 @@
-"""Tado CE bridge sensors — dynamic field discovery + capabilities + schema tracking."""
+"""Tado CE bridge sensors: dynamic field discovery + capabilities + schema tracking."""
 
 from __future__ import annotations
 
@@ -25,7 +25,7 @@ from .bridge_discovery import (
 from .bridge_type_inference import format_display_value
 from .device_manager import get_hub_device_info
 from .entity_registry import get_meta
-from .helpers import parse_iso_datetime
+from .helpers import PerEntityAvailabilityMixin, parse_iso_datetime
 from .sensor_hub import _ATTR_HISTORY_CAP
 
 if TYPE_CHECKING:
@@ -37,7 +37,7 @@ if TYPE_CHECKING:
 _LOGGER = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
-# Named formatter registry — maps value_formatter strings to callables.
+# Named formatter registry: maps value_formatter strings to callables.
 # Populated lazily on first use to avoid circular imports.
 # ---------------------------------------------------------------------------
 
@@ -96,7 +96,7 @@ def _format_value(
     formatter_name: str | None,
 ) -> str | float:
     """Format a raw value using a named formatter or type inference fallback."""
-    # Named formatter takes priority — defined fields use it; inferred
+    # Named formatter takes priority: defined fields use it; inferred
     # fields fall through to format_display_value.
     if formatter_name:
         registry = _get_formatter_registry()
@@ -104,7 +104,7 @@ def _format_value(
         if fn is not None:
             return fn(value)  # type: ignore[no-any-return]
         _LOGGER.debug(
-            "Bridge Sensors: formatter %r not in registry — falling back "
+            "Bridge Sensors: formatter %r not in registry, falling back "
             "to type inference",
             formatter_name,
         )
@@ -122,6 +122,7 @@ def _format_value(
 
 
 class TadoDynamicBridgeSensor(
+    PerEntityAvailabilityMixin,
     CoordinatorEntity["TadoDataUpdateCoordinator"],
     SensorEntity,
 ):
@@ -140,7 +141,7 @@ class TadoDynamicBridgeSensor(
         self._value_type = resolved.value_type
         self._value_formatter_name: str | None = None
         self._attr_device_info = get_hub_device_info(coordinator.home_id)
-        self._attr_available = False
+        self._data_present = False
         self._attr_native_value = None
 
         self._attr_unique_id = f"tado_ce_{coordinator.home_id}_{resolved.unique_id_suffix}"
@@ -181,23 +182,23 @@ class TadoDynamicBridgeSensor(
         """Update sensor from coordinator bridge data."""
         bridge = self.coordinator.data.get("bridge")
         if not bridge:
-            self._attr_available = False
+            self._data_present = False
             self.async_write_ha_state()
             return
 
         value = _resolve_dot_path(bridge, self._field_path)
         if value is None:
-            self._attr_available = False
+            self._data_present = False
         else:
             # SensorDeviceClass.TIMESTAMP requires a datetime, not a
-            # raw ISO string — parse here so HA's value coercion path
+            # raw ISO string, parse here so HA's value coercion path
             # doesn't reject the sensor.
             if getattr(self, "_attr_device_class", None) == SensorDeviceClass.TIMESTAMP and isinstance(value, str):
                 try:
                     self._attr_native_value = parse_iso_datetime(value)
                 except (ValueError, TypeError):
                     _LOGGER.debug(
-                        "Bridge Sensors: could not parse timestamp %r — "
+                        "Bridge Sensors: could not parse timestamp %r, "
                         "marking sensor unavailable for this cycle",
                         value,
                     )
@@ -209,7 +210,7 @@ class TadoDynamicBridgeSensor(
                     self._value_type,
                     self._value_formatter_name,
                 )
-            self._attr_available = self._attr_native_value is not None
+            self._data_present = self._attr_native_value is not None
         self.async_write_ha_state()
 
     @property
@@ -225,11 +226,12 @@ class TadoDynamicBridgeSensor(
 
 
 # ---------------------------------------------------------------------------
-# Bridge meta sensors — capabilities summary and schema version tracking
+# Bridge meta sensors: capabilities summary and schema version tracking
 # ---------------------------------------------------------------------------
 
 
 class TadoBridgeCapabilitiesSensor(
+    PerEntityAvailabilityMixin,
     CoordinatorEntity["TadoDataUpdateCoordinator"],
     SensorEntity,
 ):
@@ -255,13 +257,13 @@ class TadoBridgeCapabilitiesSensor(
         """Update capabilities from current bridge data."""
         bridge = self.coordinator.data.get("bridge")
         if not bridge:
-            self._attr_available = False
+            self._data_present = False
             self.async_write_ha_state()
             return
         fields = flatten_response(bridge)
         caps = extract_capabilities(fields)
         self._attr_native_value = caps.wiring_type
-        self._attr_available = True
+        self._data_present = True
         self._capabilities = caps
         self.async_write_ha_state()
 
@@ -282,6 +284,7 @@ class TadoBridgeCapabilitiesSensor(
 
 
 class TadoBridgeSchemaVersionSensor(
+    PerEntityAvailabilityMixin,
     CoordinatorEntity["TadoDataUpdateCoordinator"],
     SensorEntity,
 ):
@@ -310,13 +313,13 @@ class TadoBridgeSchemaVersionSensor(
         """Detect schema changes between polls."""
         bridge = self.coordinator.data.get("bridge")
         if not bridge:
-            self._attr_available = False
+            self._data_present = False
             self.async_write_ha_state()
             return
 
         current_fields = flatten_response(bridge)
         self._attr_native_value = len(current_fields)
-        self._attr_available = True
+        self._data_present = True
 
         if self._previous_fields is not None:
             diff = diff_responses(self._previous_fields, current_fields)
@@ -324,7 +327,7 @@ class TadoBridgeSchemaVersionSensor(
                 self._last_schema_change = dt_util.utcnow()
                 self._recent_changes = diff.to_change_list()
                 _LOGGER.info(
-                    "Bridge Sensors: API schema changed — %s",
+                    "Bridge Sensors: API schema changed: %s",
                     diff.summary,
                 )
 

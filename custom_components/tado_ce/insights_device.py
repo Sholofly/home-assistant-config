@@ -1,4 +1,4 @@
-"""Device insights — battery, connection, device limitation, geofencing."""
+"""Device insights: battery, connection, geofencing."""
 
 from __future__ import annotations
 

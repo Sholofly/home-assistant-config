@@ -1,4 +1,4 @@
-"""Tado CE climate platform — instantiate one entity per heating or AC zone.
+"""Tado CE climate platform: instantiate one entity per heating or AC zone.
 
 `TadoClimate` covers heating zones (TRVs, smart thermostats);
 `TadoACClimate` covers air-conditioning zones, which need extra
@@ -64,7 +64,7 @@ async def async_setup_entry(
                 climates.append(TadoACClimate(coordinator, zone_id, zone_name, caps, home_id))  # type: ignore[arg-type]
     except (KeyError, TypeError, AttributeError):
         _LOGGER.warning(
-            "Climate: could not parse zone list from coordinator data — "
+            "Climate: could not parse zone list from coordinator data, "
             "no climate entities created this cycle, will retry on next "
             "poll",
             exc_info=True,

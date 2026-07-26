@@ -1,4 +1,4 @@
-"""Tado CE heating-cycle storage — per-home cycle history in HA Store with one-shot migration from v3.x JSON file."""
+"""Tado CE heating-cycle storage: per-home cycle history in HA Store with one-shot migration from v3.x JSON file."""
 
 from __future__ import annotations
 
@@ -54,7 +54,7 @@ class HeatingCycleStorage:
                 self._data = self._migrate_data_format(stored)
                 _LOGGER.debug(
                     "Heating Storage: loaded cycle history for home "
-                    "%s — %d zone(s)",
+                    "%s: %d zone(s)",
                     mask_home_id(self._home_id),
                     len(self._data.get("zones", {})),
                 )
@@ -71,13 +71,13 @@ class HeatingCycleStorage:
 
             _LOGGER.debug(
                 "Heating Storage: no existing cycle history found "
-                "for home %s — starting fresh",
+                "for home %s, starting fresh",
                 mask_home_id(self._home_id),
             )
 
         except HomeAssistantError:
             _LOGGER.warning(
-                "Heating Storage: cycle history Store is corrupt — "
+                "Heating Storage: cycle history Store is corrupt, "
                 "starting fresh for this session, will retry on next "
                 "reload",
                 exc_info=True,
@@ -86,7 +86,7 @@ class HeatingCycleStorage:
         except OSError:
             _LOGGER.warning(
                 "Heating Storage: cycle history could not be read "
-                "from disk — starting fresh for this session, will "
+                "from disk, starting fresh for this session, will "
                 "retry on next reload",
                 exc_info=True,
             )
@@ -95,7 +95,7 @@ class HeatingCycleStorage:
     def _migrate_data_format(self, loaded_data: dict[str, Any]) -> dict[str, Any]:
         """Lift old `{zone_id: [cycles]}` shape into new `{zones: {zone_id: {cycles: [...]}}}`."""
         if "zones" in loaded_data:
-            # Already new shape — drop the legacy "version" key
+            # Already new shape: drop the legacy "version" key
             # if present so it doesn't leak into save_cycle.
             loaded_data.pop("version", None)
             return loaded_data
@@ -132,7 +132,7 @@ class HeatingCycleStorage:
         self._data["zones"][zone_id]["cycles"].append(cycle.to_dict())
 
         _LOGGER.debug(
-            "Heating Storage: stored cycle for zone %s — %s → %s "
+            "Heating Storage: stored cycle for zone %s: %s → %s "
             "(completed=%s, interrupted=%s)",
             zone_id,
             cycle.start_time.isoformat(),

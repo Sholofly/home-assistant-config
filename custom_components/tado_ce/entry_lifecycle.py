@@ -1,4 +1,4 @@
-"""Tado CE entry lifecycle — per-config-entry component setup + teardown."""
+"""Tado CE entry lifecycle: per-config-entry component setup + teardown."""
 
 from __future__ import annotations
 
@@ -64,10 +64,26 @@ async def async_create_entry_components(
         from .homekit_client import HomeKitClient, async_create_controller
 
         # Build ONE long-lived controller for the entry and start it now,
-        # so its _hap browser is warming the discovery cache from setup —
-        # the runtime client and the later pair/unpair flows all share it.
-        homekit_controller = await async_create_controller(hass)
+        # so its _hap browser warms the discovery cache from setup (the
+        # runtime client and the later pair/unpair flows all share it).
+        # HomeKit local control is optional, so a controller that can't
+        # start (e.g. no zeroconf _hap browser on the host) must degrade
+        # to cloud-only, never crash the entry. Broad catch is deliberate.
+        try:
+            homekit_controller = await async_create_controller(hass)
+        except Exception:
+            # exc_info keeps the traceback visible at the default log level
+            # so a genuine bug doesn't vanish into the cloud-only fallback.
+            _LOGGER.warning(
+                "Entry Lifecycle: HomeKit controller failed to start, "
+                "continuing with cloud-only state. Local control is off "
+                "until this is resolved (most often a missing zeroconf "
+                "component on the host).",
+                exc_info=True,
+            )
+            homekit_controller = None
 
+    if homekit_controller is not None:
         homekit_client = HomeKitClient(
             hass, home_id or "default", controller=homekit_controller,
         )
@@ -95,17 +111,17 @@ async def async_create_entry_components(
                 if not validate_mapping(mapping, valid_zone_ids=valid_ids):
                     _LOGGER.info(
                         "Entry Lifecycle: HomeKit cached mapping no "
-                        "longer matches the cloud zone list — "
+                        "longer matches the cloud zone list, "
                         "rebuilding from scratch",
                     )
                     serial_to_zone = {}
 
             if not serial_to_zone:
                 _LOGGER.info(
-                    "Entry Lifecycle: HomeKit mapping empty — "
+                    "Entry Lifecycle: HomeKit mapping empty, "
                     "rebuilding from bridge accessories + cloud zones",
                 )
-                # zones_info: load from disk — coordinator not created yet
+                # zones_info: load from disk, coordinator not created yet
                 if data_loader:
                     zones_info = await hass.async_add_executor_job(data_loader.load_zones_info_file)
                 else:
@@ -126,7 +142,7 @@ async def async_create_entry_components(
                     len(serial_to_zone),
                 )
                 _LOGGER.debug(
-                    "Entry Lifecycle: HomeKit mapping detail — "
+                    "Entry Lifecycle: HomeKit mapping detail, "
                     "serial_to_zone=%s, zone_to_aids=%s",
                     mask_serial_dict(mapping.get("serial_to_zone", {})),  # type: ignore[union-attr]
                     mapping.get("zone_to_aids", {}),  # type: ignore[union-attr]
@@ -144,13 +160,13 @@ async def async_create_entry_components(
                 if unmapped:
                     _LOGGER.info(
                         "Entry Lifecycle: HomeKit unmapped zone(s) "
-                        "%s — those zones will use cloud-only state",
+                        "%s, those zones will use cloud-only state",
                         unmapped,
                     )
             else:
                 _LOGGER.warning(
                     "Entry Lifecycle: HomeKit connected but no zone "
-                    "mapping built yet — scheduling a deferred "
+                    "mapping built yet, scheduling a deferred "
                     "rebuild after the first coordinator poll",
                 )
 
@@ -161,13 +177,16 @@ async def async_create_entry_components(
                     _home_id: str | None = home_id,
                 ) -> None:
                     """Retry the HomeKit mapping build after the first poll lands."""
-                    from .homekit_mapping import async_rebuild_and_save_mapping
+                    from .homekit_mapping import (
+                        async_rebuild_and_save_mapping,
+                        mapping_covers_all_zones,
+                    )
 
                     zi = coord.data.get("zones_info") or []
                     if not zi:
                         _LOGGER.warning(
                             "Entry Lifecycle: HomeKit deferred "
-                            "rebuild aborted — coordinator still has "
+                            "rebuild aborted, coordinator still has "
                             "no zones_info",
                         )
                         return
@@ -175,16 +194,17 @@ async def async_create_entry_components(
                         _hass, _hk_client, _home_id or "default", zi,
                     )
                     s2z = new_mapping.get("serial_to_zone", {})
-                    if s2z:
+                    if mapping_covers_all_zones(_hk_client.zone_aid_map, zi):
                         _LOGGER.info(
                             "Entry Lifecycle: HomeKit deferred rebuild "
-                            "complete — %d zone(s) mapped",
+                            "complete: %d zone(s) mapped",
                             len(s2z),
                         )
                     else:
                         _LOGGER.debug(
                             "Entry Lifecycle: HomeKit deferred rebuild "
-                            "still empty — coordinator will retry each poll",
+                            "incomplete, coordinator will retry each poll "
+                            "until every zone is mapped",
                         )
 
                 return {
@@ -197,7 +217,7 @@ async def async_create_entry_components(
         else:
             _LOGGER.warning(
                 "Entry Lifecycle: HomeKit bridge connection failed "
-                "— continuing with cloud-only state (will keep "
+                ", continuing with cloud-only state (will keep "
                 "retrying in the background)",
             )
 
@@ -238,7 +258,7 @@ async def async_cleanup_entry_components(
         _LOGGER.debug("Entry Lifecycle: API client torn down")
 
     # smart_comfort_cache and bridge_health use HA Store with
-    # debounced save — that handles HA shutdown via the
+    # debounced save: that handles HA shutdown via the
     # FINAL_WRITE event but NOT integration reloads, so the
     # explicit save here is what keeps preheat history
     # surviving a reload.
@@ -254,16 +274,19 @@ async def async_cleanup_entry_components(
         coordinator.adaptive_preheat_manager = None
         _LOGGER.debug("Entry Lifecycle: Adaptive Preheat manager torn down")
 
-    if _attr("data_loader") is not None:
+    dl = _attr("data_loader")
+    if dl is not None:
+        # Flush debounced writes before dropping the loader (reload skips FINAL_WRITE).
+        await dl.async_flush_pending_saves()
         coordinator.data_loader = None  # type: ignore[assignment]
-        _LOGGER.debug("Entry Lifecycle: DataLoader torn down")
+        _LOGGER.debug("Entry Lifecycle: DataLoader flushed and torn down")
 
     hkc = _attr("homekit_client")
     if hkc is not None:
         from .homekit_client import HomeKitClient
 
         # Unsubscribe events and stop the cache refresh loop
-        # before tearing down the connection — otherwise
+        # before tearing down the connection, otherwise
         # in-flight events can hit a half-disconnected client.
         provider = _attr("homekit_provider")
         if provider is not None and hasattr(provider, "unsubscribe_events"):
@@ -272,7 +295,7 @@ async def async_cleanup_entry_components(
         if isinstance(hkc, HomeKitClient):
             await hkc.async_disconnect()
 
-        # Stop the entry's shared controller (and its _hap browser) — the
+        # Stop the entry's shared controller (and its _hap browser): the
         # client's async_disconnect leaves it alone because the entry owns it.
         ctrl = _attr("homekit_controller")
         if ctrl is not None:
@@ -280,7 +303,7 @@ async def async_cleanup_entry_components(
                 await ctrl.async_stop()
             except Exception:
                 _LOGGER.debug(
-                    "Entry Lifecycle: error stopping HomeKit controller — proceeding",
+                    "Entry Lifecycle: error stopping HomeKit controller, proceeding",
                     exc_info=True,
                 )
             coordinator.homekit_controller = None

@@ -1,4 +1,4 @@
-"""Tado CE heating cycle data models — HeatingCycle, HeatingCycleConfig."""
+"""Tado CE heating cycle data models: HeatingCycle, HeatingCycleConfig."""
 
 from __future__ import annotations
 
@@ -23,7 +23,7 @@ class HeatingCycle:
     target_temp: float
     first_rise_time: datetime | None  # UTC, when temp first increased by threshold
     first_rise_temp: float | None
-    temperature_readings: list[HeatingCycleReading]  # Limited to 100 readings max
+    temperature_readings: list[HeatingCycleReading]  # capped at 100 by heating_detector (not enforced here)
     completed: bool
     interrupted: bool
     interrupt_reason: str | None

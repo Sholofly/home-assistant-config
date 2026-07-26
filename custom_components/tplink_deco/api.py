@@ -37,6 +37,19 @@ MAX_AES_KEY = (10**AES_KEY_BYTES) - 1
 PKCS1_v1_5_HEADER_BYTES = 11
 
 _LOGGER: logging.Logger = logging.getLogger(__name__)
+LEGACY_ERROR_DECODING_PATTERN = re.compile(r"^<Error Decoding (.*)>$")
+
+
+def normalize_name(name: str):
+    """Normalize Deco/client names from current and legacy decoding behavior."""
+    if not isinstance(name, str) or not name:
+        return name
+
+    match = LEGACY_ERROR_DECODING_PATTERN.match(name)
+    if match:
+        return match.group(1)
+
+    return name
 
 
 def byte_len(n: int) -> int:
@@ -50,9 +63,9 @@ def decode_name_with_fallback(name: str):
 
     try:
         decoded = base64.b64decode(name, validate=True)
-        return decoded.decode("utf-8")
+        return normalize_name(decoded.decode("utf-8"))
     except Exception:
-        return name
+        return normalize_name(name)
 
 
 def rsa_encrypt(n: int, e: int, plaintext: bytes) -> bytes:
@@ -443,6 +456,26 @@ class TplinkDecoApi:
                     ssl=self._ssl_context,
                 )
                 response.raise_for_status()
+
+                # Some Deco firmwares 307-redirect every http:// request to
+                # https:// on the same host. aiohttp >= 3.14 (HA 2026.7+)
+                # correctly drops per-request cookies on such cross-origin
+                # (scheme-change) redirects per RFC 6265, so the sysauth
+                # cookie never reaches the router and authenticated calls
+                # return empty data. Permanently switch the base URL to
+                # https so subsequent requests skip the redirect entirely.
+                if (
+                    response.history
+                    and response.url.scheme == "https"
+                    and self._host.startswith("http://")
+                    and response.url.host == response.history[0].url.host
+                ):
+                    self._host = "https://" + self._host[len("http://") :]
+                    _LOGGER.warning(
+                        "%s: Router redirected to HTTPS, switching host to %s",
+                        context,
+                        self._host,
+                    )
 
                 # Verbeterde extractie: loop door alle Set-Cookie headers
                 for cookie_header in response.headers.getall(SET_COOKIE, []):

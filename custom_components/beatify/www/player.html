@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <!-- #824: cache-bust i18n JSON fetches. See admin.html for rationale. -->
+    <meta name="beatify-version" content="{{VERSION}}">
+    <meta name="beatify-asset-version" content="{{ASSET_VER}}">
+    <!-- Self-healing SW recovery (rc11) — see admin.html for the rationale. -->
+    <script>
+        (function() {
+            if (!('serviceWorker' in navigator)) return;
+            var meta = document.querySelector('meta[name=beatify-version]');
+            var current = meta && meta.content;
+            if (!current) return;
+            var seen = null;
+            try { seen = localStorage.getItem('beatify_sw_version'); } catch (e) {}
+            if (seen === current) return;
+            if (!navigator.serviceWorker.controller) {
+                try { localStorage.setItem('beatify_sw_version', current); } catch (e) {}
+                return;
+            }
+            navigator.serviceWorker.getRegistrations()
+                .then(function(regs) {
+                    return Promise.all(regs.map(function(r) { return r.unregister(); }));
+                })
+                .then(function() {
+                    try { localStorage.setItem('beatify_sw_version', current); } catch (e) {}
+                    location.reload();
+                })
+                .catch(function() { /* best-effort; reload will retry */ });
+        })();
+    </script>
+    <title data-i18n="join.title">Beatify - Join Game</title>
+    <!-- Preconnect for faster font loading (Story 9.8) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700;900&display=swap" rel="stylesheet">
+    <!-- Story 18.4: Use minified CSS in production -->
+    <link rel="stylesheet" href="/beatify/static/css/styles.min.css?v={{ASSET_VER}}">
+    <!-- Confetti library for celebrations (Story 14.5) -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+</head>
+<body class="theme-dark">
+    <header class="player-header">
+        <h1 class="wordmark"><span class="wordmark-beat">Beat</span><span class="wordmark-gradient">ify</span></h1>
+        <div id="connection-indicator" class="connection-indicator connection-indicator--connected" aria-label="Connected" title="Connected">
+            <span class="connection-dot"></span>
+        </div>
+    </header>
+
+    <main class="player-container">
+        <!-- Loading state -->
+        <div id="loading-view" class="view">
+            <div class="loading-spinner"></div>
+            <p data-i18n="common.connecting">Connecting to game...</p>
+        </div>
+
+        <!-- Cold-start bridge (#1287): animated vinyl disc while MA connects the
+             speaker and round 1 loads (~10-15s). Auto-replaced by the first
+             PLAYING state broadcast. -->
+        <div id="starting-view" class="view hidden">
+            <div class="vinyl-starting">
+                <div class="vinyl-row">
+                    <div class="vinyl-loader" aria-hidden="true">
+                        <div class="vinyl-disc">
+                            <div class="vinyl-ring"></div>
+                            <div class="vinyl-hole"></div>
+                        </div>
+                    </div>
+                    <div class="vinyl-copy">
+                        <h1 class="wordmark wordmark-hero">
+                            <span class="wordmark-beat">Beat</span><span class="wordmark-gradient">ify</span>
+                        </h1>
+                        <h2 class="vinyl-headline" data-i18n="starting.headline">Here we go!</h2>
+                        <p class="vinyl-sub" data-i18n="starting.sub">Connecting the speaker and loading round one. Grab your buzzer.</p>
+                        <div class="vinyl-dots" aria-hidden="true">
+                            <span></span><span></span><span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error: Game not found -->
+        <div id="not-found-view" class="view hidden">
+            <div class="error-icon">🎵</div>
+            <h1 data-i18n="errors.gameNotFound">Game Not Found</h1>
+            <p data-i18n="errors.gameNotFoundHint">This game doesn't exist or the link is incorrect.</p>
+            <p class="hint" data-i18n="errors.askHostQr">Ask the host for a new QR code.</p>
+            <button id="refresh-btn" class="btn btn-primary btn-glow" data-i18n="common.retry">Try Again</button>
+        </div>
+
+        <!-- Error: Game ended -->
+        <div id="ended-view" class="view hidden">
+            <div class="error-icon">🎉</div>
+            <h1 data-i18n="errors.gameHasEnded">Game Has Ended</h1>
+            <p data-i18n="errors.thanksForPlaying">Thanks for playing Beatify!</p>
+            <p class="hint" data-i18n="errors.askHostNewGame">Ask the host to start a new game.</p>
+        </div>
+
+        <!-- Error: Game in progress (can't join mid-reveal) -->
+        <div id="in-progress-view" class="view hidden">
+            <div class="error-icon">⏳</div>
+            <h1 data-i18n="errors.gameInProgress">Game In Progress</h1>
+            <p data-i18n="errors.gameInProgressHint">The game is currently in a round. Try again in a moment.</p>
+            <button id="retry-btn" class="btn btn-primary btn-glow" data-i18n="common.retry">Try Again</button>
+        </div>
+
+        <!-- Join form -->
+        <div id="join-view" class="view hidden">
+            <div class="join-form">
+                <p data-i18n="join.enterName">Enter your name to play</p>
+                <div class="form-group">
+                    <input type="text" id="name-input" class="name-input"
+                           data-i18n-placeholder="join.namePlaceholder"
+                           placeholder="Your name" maxlength="20"
+                           autocomplete="off" autocapitalize="words"
+                           aria-describedby="name-validation-msg">
+                    <p id="name-validation-msg" class="validation-msg hidden"></p>
+                </div>
+                <button id="join-btn" class="btn btn-primary btn-glow join-btn" disabled data-i18n="join.joinButton">Join Game</button>
+            </div>
+        </div>
+
+        <!-- Tour view — post-QR player onboarding v2 -->
+        <div id="tour-view" class="view hidden">
+            <div class="tour-container">
+                <header class="tour-header-wiz">
+                    <div class="tour-step-count">
+                        <span>
+                            <span data-i18n="onboarding.stepLabel">Step</span>
+                            <span id="tour-step-num">1</span>
+                            <span class="of" data-i18n="onboarding.stepOf">of 4</span>
+                        </span>
+                        <button type="button" id="tour-skip-link" class="tour-skip-link" data-i18n="onboarding.skip">Skip tour</button>
+                    </div>
+                    <div class="tour-wiz-progress" role="progressbar" aria-valuemin="1" aria-valuemax="5" aria-valuenow="1">
+                        <div class="tour-wiz-seg active"><div class="tour-wiz-seg-inner"></div></div>
+                        <div class="tour-wiz-seg"></div>
+                        <div class="tour-wiz-seg"></div>
+                        <div class="tour-wiz-seg"></div>
+                        <div class="tour-wiz-seg"></div>
+                    </div>
+                </header>
+
+                <!-- Card 1: Guess the year -->
+                <section class="tour-card" data-tour-card="0">
+                    <h2 class="tour-title" data-i18n="onboarding.yearTitle">Guess the year</h2>
+                    <p class="tour-caption" data-i18n="onboarding.yearCaption">Closer = more points</p>
+                    <div class="tour-preview">
+                        <div class="tour-preview-album" aria-hidden="true"></div>
+                        <div class="tour-year-display">
+                            <span class="tour-year-adjust" aria-hidden="true">−</span>
+                            <span class="tour-year-big">1984</span>
+                            <span class="tour-year-adjust" aria-hidden="true">+</span>
+                        </div>
+                        <div class="tour-preview-slider" aria-hidden="true">
+                            <span class="tour-slider-label">1950</span>
+                            <div class="tour-slider-track"><div class="tour-slider-thumb"></div></div>
+                            <span class="tour-slider-label">2025</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Card 2: Triple or nothing -->
+                <section class="tour-card hidden" data-tour-card="1">
+                    <h2 class="tour-title" data-i18n="onboarding.betTitle">Triple or nothing</h2>
+                    <p class="tour-caption" data-i18n="onboarding.betCaption">Nail the exact year. Win triple.</p>
+                    <div class="tour-preview">
+                        <div class="tour-bet-button" aria-hidden="true">
+                            <span class="tour-bet-dice">🎲</span>
+                            <span class="tour-bet-label" data-i18n="game.bet">Triple or Nothing</span>
+                        </div>
+                        <div class="tour-bet-score" aria-hidden="true">
+                            <span class="tour-bet-score-base">12</span>
+                            <span class="tour-bet-score-op">×</span>
+                            <span class="tour-bet-score-multi">3</span>
+                            <span class="tour-bet-score-op">=</span>
+                            <span class="tour-bet-score-final">36</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Card 3: Steal an answer -->
+                <section class="tour-card hidden" data-tour-card="2">
+                    <h2 class="tour-title" data-i18n="onboarding.stealTitle">Steal an answer</h2>
+                    <p class="tour-caption" data-i18n="onboarding.stealCaption">Copy another player. Once per game.</p>
+                    <div class="tour-preview">
+                        <div class="tour-steal-button" aria-hidden="true">
+                            <span class="tour-steal-ninja">🥷</span>
+                            <span class="tour-steal-label" data-i18n="steal.button">Steal Answer</span>
+                        </div>
+                        <div class="tour-steal-targets" aria-hidden="true">
+                            <div class="tour-steal-target">Anna</div>
+                            <div class="tour-steal-target highlighted">Jan</div>
+                            <div class="tour-steal-target">Lea</div>
+                        </div>
+                        <p class="tour-hint" data-i18n="onboarding.stealHint">Use it when you have no idea.</p>
+                    </div>
+                </section>
+
+                <!-- Card 4: Guess the artist -->
+                <section class="tour-card hidden" data-tour-card="3">
+                    <h2 class="tour-title" data-i18n="onboarding.artistTitle">Guess the artist</h2>
+                    <p class="tour-caption" data-i18n="onboarding.artistCaption">Some rounds reward the artist too.</p>
+                    <div class="tour-preview">
+                        <div class="tour-artist-prompt" aria-hidden="true">
+                            <span class="tour-artist-mic">🎤</span>
+                            <span class="tour-artist-who" data-i18n="artistChallenge.whoSings">Who sings this song?</span>
+                            <span class="tour-artist-bonus">+5</span>
+                        </div>
+                        <div class="tour-artist-grid" aria-hidden="true">
+                            <div class="tour-artist-option">Madonna</div>
+                            <div class="tour-artist-option is-winner">Prince</div>
+                            <div class="tour-artist-option">Duran Duran</div>
+                            <div class="tour-artist-option">Billy Idol</div>
+                        </div>
+                        <p class="tour-hint" data-i18n="onboarding.artistHint">+5 bonus points.</p>
+                    </div>
+                </section>
+
+                <!-- Card 5: Name that tune (Title & Artist mode) -->
+                <section class="tour-card hidden" data-tour-card="4">
+                    <h2 class="tour-title" data-i18n="onboarding.titleArtistTitle">Name that tune</h2>
+                    <p class="tour-caption" data-i18n="onboarding.titleArtistCaption">Some games: type the title &amp; artist</p>
+                    <div class="tour-preview">
+                        <div class="tour-ta-fields" aria-hidden="true">
+                            <div class="tour-ta-field">
+                                <span class="tour-ta-field-label" data-i18n="titleArtist.titleLabel">Song title</span>
+                                <span class="tour-ta-field-val">Bohemian Rhapsody</span>
+                            </div>
+                            <div class="tour-ta-field">
+                                <span class="tour-ta-field-label" data-i18n="titleArtist.artistLabel">Artist</span>
+                                <span class="tour-ta-field-val">Queen</span>
+                            </div>
+                        </div>
+                        <p class="tour-hint" data-i18n="onboarding.titleArtistHint">Close? The room votes 👍/👎.</p>
+                    </div>
+                </section>
+
+                <footer class="tour-footer">
+                    <button type="button" id="tour-skip-btn" class="btn-tour-skip" data-i18n="onboarding.skipBtn">Skip</button>
+                    <button type="button" id="tour-next-btn" class="btn-tour-next">
+                        <span data-i18n="onboarding.nextBtn">Next</span>
+                        <span class="chev" aria-hidden="true">→</span>
+                    </button>
+                </footer>
+            </div>
+        </div>
+
+        <!-- Ready view — transition between tour and lobby -->
+        <div id="ready-view" class="view hidden">
+            <div class="ready-container">
+                <div class="ready-wordmark"><span class="beat">Beat</span><span class="ify">ify</span></div>
+                <div id="ready-name" class="ready-name">You're in!</div>
+                <div id="ready-subtitle" class="ready-subtitle" data-i18n="onboarding.readySubtitle">Get ready to play</div>
+                <div class="ready-waiting">
+                    <div class="ready-pulse" aria-hidden="true"></div>
+                    <div id="ready-label" class="ready-label" data-i18n="onboarding.waitingHost">Waiting for host to start</div>
+                    <div id="ready-count" class="ready-count"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lobby view - Redesigned to match admin lobby -->
+        <div id="lobby-view" class="view hidden">
+            <div class="lobby-container lobby-container--compact">
+                <!-- Compact Header with Stat Badges -->
+                <div class="lobby-header-compact">
+                    <h2 class="section-header section-header--inline">
+                        <span data-i18n="lobby.gameLobby">Game Lobby</span>
+                    </h2>
+                    <div class="stat-badge-bar" aria-live="polite">
+                        <span class="stat-badge">
+                            <span class="stat-badge-icon" aria-hidden="true">👥</span>
+                            <span id="player-count-badge" class="stat-badge-value">0</span>
+                        </span>
+                        <!-- Difficulty Badge (Story 14.1) -->
+                        <span id="lobby-difficulty-badge" class="stat-badge stat-badge--difficulty"></span>
+                    </div>
+                </div>
+
+                <!-- Replay tour link (post-QR onboarding v2) — replaces the old How-to-Play accordion -->
+                <button type="button" id="replay-tour-link" class="replay-tour-link">
+                    <span aria-hidden="true">↺</span>
+                    <span data-i18n="onboarding.replayTour">Replay the tour</span>
+                    <span class="arrow" aria-hidden="true">→</span>
+                </button>
+
+                <!-- Players Section - Collapsible -->
+                <section class="section-collapsible" id="players-section">
+                    <button type="button" class="section-header-collapsible" aria-expanded="true" aria-controls="players-content">
+                        <span class="section-icon" aria-hidden="true">👥</span>
+                        <span data-i18n="lobby.playersInLobby">Players in Lobby</span>
+                        <span class="section-summary" id="players-summary">0</span>
+                        <span class="section-toggle" aria-hidden="true">▼</span>
+                    </button>
+                    <div class="section-content" id="players-content">
+                        <div id="player-list" class="player-tiles-grid" aria-live="polite">
+                            <!-- Player tiles rendered by JS (mirror admin home-view) -->
+                        </div>
+                        <p id="players-empty" class="empty-state-inline hidden">
+                            <span aria-hidden="true">👥</span>
+                            <span data-i18n="lobby.waitingForPlayers">Waiting for players to join...</span>
+                        </p>
+                    </div>
+                </section>
+
+                <!-- Invite Friends Section - Collapsible with QR and Dashboard -->
+                <section class="section-collapsible collapsed" id="invite-section">
+                    <button type="button" class="section-header-collapsible" aria-expanded="false" aria-controls="invite-content">
+                        <span class="section-icon" aria-hidden="true">📲</span>
+                        <span data-i18n="lobby.inviteFriends">Invite Friends</span>
+                        <span class="section-toggle" aria-hidden="true">▼</span>
+                    </button>
+                    <div class="section-content" id="invite-content">
+                        <div class="qr-section qr-section--compact">
+                            <div class="qr-container" id="player-qr-code" role="button" tabindex="0"
+                                 aria-label="Tap to enlarge QR code">
+                                <!-- QR code rendered here by JS -->
+                            </div>
+                            <p class="qr-hint" data-i18n="lobby.scanQrHint">Share the QR code or URL above</p>
+                            <!-- Inline dashboard link -->
+                            <a href="#" id="player-dashboard-url" class="dashboard-link" target="_blank">
+                                <span aria-hidden="true">📺</span>
+                                <span data-i18n="dashboard.castToTv">Cast to TV</span>
+                                <span class="dashboard-link-arrow" aria-hidden="true">→</span>
+                            </a>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Lobby Status (for non-admin players) -->
+                <div id="lobby-status" class="lobby-status-compact hidden">
+                    <p data-i18n="lobby.waitingForHost">Waiting for host to start the game...</p>
+                </div>
+
+                <!-- Sticky Lobby Actions (Admin only) -->
+                <div id="admin-controls" class="lobby-actions lobby-actions--sticky hidden">
+                    <button id="start-game-btn" class="btn btn-primary btn-large btn-full-width">
+                        <span class="btn-icon" aria-hidden="true">🎉</span>
+                        <span data-i18n="lobby.startGame">Start Game</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- #817: floating mini-timer — always visible during PLAYING when
+             the main neon timer in .arc-header scrolls out of view. Synced
+             with #timer in player-game.js. Position-fixed so it works
+             regardless of any sticky-positioning quirks on iOS. -->
+        <div id="timer-float" class="timer-float hidden" aria-hidden="true">
+            <span id="timer-float-num">--</span>
+        </div>
+
+        <!-- Game view (Epic 4) — arcade redesign v3 -->
+        <div id="game-view" class="view hidden">
+            <div class="game-container game-container--arcade">
+                <!-- Arcade header: pulse orb album · Round N of M · neon timer -->
+                <header class="arc-header">
+                    <div class="arc-pulse-orb" id="arc-pulse-orb" aria-hidden="true">
+                        <img id="album-cover"
+                             src="/beatify/static/img/no-artwork.svg"
+                             alt=""
+                             class="arc-pulse-orb-img">
+                        <div id="album-loading" class="album-loading hidden">
+                            <div class="loading-spinner"></div>
+                        </div>
+                    </div>
+                    <div class="arc-round-center">
+                        <span class="arc-round-label" data-i18n="game.roundLabel">Round</span>
+                        <span class="arc-round-big">
+                            <span id="current-round">1</span>
+                            <span class="arc-round-sep" aria-hidden="true">/</span>
+                            <span id="total-rounds">10</span>
+                        </span>
+                        <span id="round-indicator" class="sr-only">
+                            <span data-i18n="game.roundLabel">Round</span>
+                            <span data-i18n="game.ofLabel">of</span>
+                        </span>
+                    </div>
+                    <div id="timer-neon" class="timer-neon" role="timer" aria-live="polite" aria-label="Time remaining">
+                        <span id="timer" class="timer">30</span>
+                    </div>
+                </header>
+
+                <!-- Chip row: steal unlocked · closest-wins · intro · final round (conditional) -->
+                <div id="arc-chip-row" class="arc-chip-row hidden" aria-live="polite">
+                    <span id="game-difficulty-badge" class="stat-badge stat-badge--difficulty hidden"></span>
+                    <span id="steal-indicator" class="arc-chip arc-chip--steal hidden">
+                        <span aria-hidden="true">🥷</span>
+                        <span data-i18n="steal.available">Steal Available!</span>
+                    </span>
+                    <span id="closest-wins-badge" class="arc-chip arc-chip--closest-wins hidden">
+                        <span aria-hidden="true">🎯</span>
+                        <span data-i18n="game.closestWins">CLOSEST WINS</span>
+                    </span>
+                    <span id="intro-badge" class="arc-chip arc-chip--intro hidden">
+                        <span aria-hidden="true">⚡</span>
+                        <span data-i18n="game.introRound">INTRO ROUND</span>
+                    </span>
+                    <span id="last-round-banner" class="arc-chip arc-chip--final hidden" data-i18n="game.finalRound">Final Round!</span>
+                </div>
+
+                <!-- Year XXL display — turns green + gets "locked" class after submit -->
+                <div id="year-display-arc" class="year-xxl">
+                    <span id="selected-year">1990</span>
+                </div>
+
+                <!-- Submitted banner (shown after user submits their year guess) -->
+                <div id="submitted-banner" class="submitted-banner hidden" aria-live="polite">
+                    <span class="check" aria-hidden="true">✓</span>
+                    <span id="submitted-banner-text" data-i18n="game.lockedIn">Locked in · waiting for others</span>
+                </div>
+
+                <!-- Intro Round Splash Overlay (full-screen modal, unchanged from rc30) -->
+                <div id="intro-splash" class="intro-splash hidden" aria-hidden="true">
+                    <div class="intro-splash-content">
+                        <span class="intro-splash-icon">⚡</span>
+                        <span class="intro-splash-text" data-i18n="game.introRound">INTRO ROUND</span>
+                        <span class="intro-splash-hint" data-i18n="game.introHint">Only 15 seconds!</span>
+                    </div>
+                </div>
+
+                <!-- Closest Wins ephemeral splash badge (unchanged from rc30) -->
+                <div id="closest-wins-splash" class="closest-wins-splash hidden" aria-hidden="true">
+                    <span aria-hidden="true">🎯</span>
+                    <span data-i18n="game.closestWins">CLOSEST WINS</span>
+                </div>
+
+                <!-- Year slider (−5 · − · track · + · +5) — #851 -->
+                <div id="year-selector-container" class="slider-arcade-wrap">
+                    <div id="year-selector" class="slider-arcade">
+                        <button type="button" id="year-decrement-5" class="slider-btn-year slider-btn-year--coarse" aria-label="Decrease year by 5">&minus;5</button>
+                        <button type="button" id="year-decrement" class="slider-btn-year" aria-label="Decrease year">&minus;</button>
+                        <div class="slider-arcade-track">
+                            <input type="range"
+                                   id="year-slider"
+                                   min="1950"
+                                   max="2025"
+                                   value="1990"
+                                   class="year-slider year-slider-arcade">
+                        </div>
+                        <button type="button" id="year-increment" class="slider-btn-year" aria-label="Increase year">+</button>
+                        <button type="button" id="year-increment-5" class="slider-btn-year slider-btn-year--coarse" aria-label="Increase year by 5">+5</button>
+                    </div>
+                </div>
+
+                <!-- Title & Artist Guessing Mode (#1180) — replaces the year slider when title_artist_mode is on -->
+                <section id="title-artist-container" class="ta-input-section hidden">
+                    <div class="ta-input-field">
+                        <label class="ta-input-label" for="ta-title-input">
+                            <span aria-hidden="true">🎵</span>
+                            <span data-i18n="titleArtist.titleLabel">Song title</span>
+                            <span class="ta-input-points">+10</span>
+                        </label>
+                        <input type="text"
+                               id="ta-title-input"
+                               class="ta-text-input"
+                               maxlength="100"
+                               autocomplete="off"
+                               autocapitalize="off"
+                               autocorrect="off"
+                               spellcheck="false"
+                               enterkeyhint="next"
+                               data-i18n-placeholder="titleArtist.titlePlaceholder"
+                               placeholder="Type the song title">
+                    </div>
+                    <div class="ta-input-field">
+                        <label class="ta-input-label" for="ta-artist-input">
+                            <span aria-hidden="true">🎤</span>
+                            <span data-i18n="titleArtist.artistLabel">Artist</span>
+                            <span class="ta-input-points">+5</span>
+                        </label>
+                        <input type="text"
+                               id="ta-artist-input"
+                               class="ta-text-input"
+                               maxlength="100"
+                               autocomplete="off"
+                               autocapitalize="off"
+                               autocorrect="off"
+                               spellcheck="false"
+                               enterkeyhint="done"
+                               data-i18n-placeholder="titleArtist.artistPlaceholder"
+                               placeholder="Type the artist">
+                    </div>
+                    <div id="ta-input-ack" class="ta-input-ack hidden" aria-live="polite"></div>
+                </section>
+
+                <!-- Actions: bet (compact) + submit (primary) — moved above the challenge cards (#1458) -->
+                <div class="arc-actions">
+                    <button id="bet-toggle" class="bet-arc" type="button">
+                        <span class="bet-icon" aria-hidden="true">🎲</span>
+                        <span class="bet-label" data-i18n="game.betShort">×2</span>
+                    </button>
+                    <button id="submit-btn" class="submit-arc" data-i18n="game.submitGuess">
+                        Submit Guess
+                    </button>
+                </div>
+
+                <!-- Artist Challenge — arcade tiles (Story 20.5) -->
+                <section id="artist-challenge-container" class="arc-tiles artist-challenge hidden">
+                    <div class="arc-tiles-header">
+                        <span>
+                            <span aria-hidden="true">🎤</span>
+                            <span data-i18n="artistChallenge.whoSings">Who sings this song?</span>
+                        </span>
+                        <span class="arc-tiles-bonus">+5</span>
+                    </div>
+                    <div id="artist-options" class="artist-options-grid arc-tiles-grid">
+                        <!-- Dynamically populated by JS -->
+                    </div>
+                    <div id="artist-result" class="artist-result hidden"></div>
+                </section>
+
+                <!-- Movie Challenge — arcade tiles (Issue #28) -->
+                <section id="movie-challenge-container" class="arc-tiles movie-challenge hidden">
+                    <div class="arc-tiles-header">
+                        <span>
+                            <span aria-hidden="true">🎬</span>
+                            <span data-i18n="movieChallenge.whichMovie">Which movie features this song?</span>
+                        </span>
+                        <span class="arc-tiles-bonus">+5/3/1</span>
+                    </div>
+                    <div id="movie-options" class="movie-options-grid arc-tiles-grid">
+                        <!-- Dynamically populated by JS -->
+                    </div>
+                    <div id="movie-result" class="movie-result hidden"></div>
+                </section>
+
+                <!-- No-bonus filler (shown when neither challenge is active) -->
+                <div id="no-bonus-filler" class="bonus-filler hidden">
+                    <span aria-hidden="true">🎵</span>
+                    <span data-i18n="game.noBonusThisRound">No bonus this round — nail the year</span>
+                </div>
+
+                <!-- Steal power-up button (full width, only when steal available) -->
+                <button id="steal-btn" class="steal-btn-full hidden" type="button">
+                    <span class="steal-btn-icon" aria-hidden="true">🥷</span>
+                    <span class="steal-btn-label" data-i18n="steal.button">Steal Answer</span>
+                </button>
+
+                <!-- Legacy node kept for existing JS paths (was the inline "Submitted!" stamp) -->
+                <div id="submitted-confirmation" class="submitted-confirmation hidden" aria-hidden="true">
+                    <span class="checkmark">✓</span>
+                    <span data-i18n="game.submitted">Submitted!</span>
+                </div>
+
+                <!-- Submission strip: dots + count -->
+                <div id="submission-tracker" class="arc-submission-strip">
+                    <div id="submitted-players" class="arc-submission-dots" aria-live="polite">
+                        <!-- Populated dynamically -->
+                    </div>
+                    <span id="arc-submission-count" class="arc-submission-count"></span>
+                </div>
+
+                <!-- Leaderboard (Story 5.5) - Collapsible section pattern -->
+                <section id="game-leaderboard" class="section-collapsible leaderboard-section collapsed">
+                    <button type="button" class="section-header-collapsible" id="leaderboard-toggle" aria-expanded="false" aria-controls="leaderboard-content">
+                        <span class="section-icon" aria-hidden="true">🏆</span>
+                        <span data-i18n="leaderboard.title">Leaderboard</span>
+                        <span class="section-summary" id="leaderboard-summary">--</span>
+                        <span class="section-toggle" aria-hidden="true">▼</span>
+                    </button>
+                    <div class="section-content" id="leaderboard-content">
+                        <div id="leaderboard-list" class="leaderboard-list">
+                            <!-- Populated by JavaScript -->
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- Reveal View (Story 4.6) -->
+        <div id="reveal-view" class="view hidden">
+            <div class="reveal-container reveal-container--duel">
+                <!-- Spotlight Stage: blurred album art behind the top of the
+                     reveal acts as the stage; scrim keeps content legible.
+                     JS sets the backdrop image from the song's album art and
+                     falls back to a synthetic gradient when it is missing. -->
+                <div class="reveal-backdrop reveal-backdrop--synthetic" id="reveal-backdrop" aria-hidden="true"></div>
+                <div class="reveal-scrim" aria-hidden="true"></div>
+                <!-- #1012 follow-up: Idle-halt banner — shown when a round
+                     ended with zero guesses and the game is holding here. -->
+                <div id="reveal-idle-halt" class="idle-halt-banner hidden" role="status">
+                    <span class="idle-halt-icon" aria-hidden="true">⏸️</span>
+                    <span data-i18n="reveal.idleHaltBanner">Game idle — no one played this round. Tap Next round to keep going.</span>
+                </div>
+
+                <!-- Header: round count + difficulty badge + round-stats ⓘ -->
+                <div class="reveal-header-v2">
+                    <div class="round-count">
+                        <span data-i18n="game.roundLabel">Round</span>
+                        <span id="reveal-round">1</span>
+                        <span data-i18n="game.ofLabel">of</span>
+                        <span id="reveal-total">10</span>
+                    </div>
+                    <div class="header-right">
+                        <!-- Auto-advance countdown ring (hidden when reveal_auto_advance==0 or idle_halt) -->
+                        <span id="player-reveal-countdown" class="reveal-advance-pill hidden" role="timer"
+                              aria-label="Next round countdown" data-i18n-aria-label="reveal.autoAdvanceAria">
+                            <svg viewBox="0 0 60 60" class="reveal-advance-svg" aria-hidden="true">
+                                <circle class="reveal-advance-bg" cx="30" cy="30" r="25"></circle>
+                                <circle class="reveal-advance-fg" cx="30" cy="30" r="25"></circle>
+                            </svg>
+                            <span class="reveal-advance-num" id="player-reveal-countdown-num">0</span>
+                        </span>
+                        <span id="reveal-difficulty-badge" class="stat-badge stat-badge--difficulty"></span>
+                        <button type="button" id="round-stats-btn" class="info-btn"
+                                aria-label="Round stats"
+                                data-i18n-aria-label="reveal.stats.title">ⓘ</button>
+                    </div>
+                </div>
+
+                <!-- Song strip: cover + title + artist. When the artist
+                     challenge is on, its result folds in here as an inline row
+                     (#artist-reveal-section) instead of a separate card. -->
+                <div class="song-strip">
+                    <div class="song-strip-main">
+                        <img id="reveal-album-cover"
+                             src="/beatify/static/img/no-artwork.svg"
+                             alt=""
+                             class="song-strip-cover">
+                        <div class="song-strip-info">
+                            <div id="song-title" class="song-strip-title" data-i18n="reveal.unknownSong">Unknown Song</div>
+                            <div id="song-artist" class="song-strip-artist" data-i18n="reveal.unknownArtist">Unknown Artist</div>
+                        </div>
+                    </div>
+                    <!-- Artist Challenge result — inline row, populated by renderArtistReveal -->
+                    <div id="artist-reveal-section" class="artist-guess-row hidden">
+                        <span class="artist-guess-ic" aria-hidden="true">🎤</span>
+                        <span id="artist-reveal-name" class="artist-guess-name"></span>
+                        <span id="artist-reveal-winner" class="artist-reveal-winner hidden"></span>
+                    </div>
+                </div>
+
+                <!-- Chip row: bet / streak / other mode indicators (conditional) -->
+                <div id="reveal-chip-row" class="chip-row hidden"></div>
+
+                <!-- Duel: your guess vs. correct year as two facing tickets,
+                     with the gap as a delta pill overlapping their base and the
+                     emotion headline above. -->
+                <div class="duel">
+                    <div id="reveal-emotion" class="duel-emotion hidden" aria-live="polite" aria-atomic="true"></div>
+                    <div class="duel-tickets">
+                        <div class="duel-ticket duel-ticket--you">
+                            <div class="duel-label" data-i18n="reveal.duel.youSaid">You said</div>
+                            <div id="duel-your-year" class="duel-year mine">—</div>
+                        </div>
+                        <div class="duel-ticket duel-ticket--truth">
+                            <div class="duel-label" data-i18n="reveal.duel.actually">Actually</div>
+                            <div id="correct-year" class="duel-year correct">1984</div>
+                        </div>
+                        <div class="duel-gap">
+                            <span class="duel-gap-x" aria-hidden="true">×</span>
+                            <span id="duel-gap-count" class="duel-gap-n">0</span>
+                            <span id="duel-gap-unit" class="duel-gap-unit" data-i18n="reveal.duel.yearsUnit">years</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Confetti Canvas (Story 9.4) -->
+                <canvas id="confetti-canvas" class="confetti-canvas"></canvas>
+
+                <!-- Score row: big final points + breakdown ⓘ -->
+                <div class="score-row">
+                    <div class="score-row-left">
+                        <span class="score-row-label" data-i18n="reveal.duel.youEarned">You earned</span>
+                        <strong id="score-row-subtitle" class="score-row-subtitle">—</strong>
+                    </div>
+                    <div class="score-row-right">
+                        <span id="reveal-total-pts" class="score-row-pts">+0</span>
+                        <button type="button" id="points-breakdown-btn" class="info-btn"
+                                aria-label="Points breakdown"
+                                data-i18n-aria-label="reveal.breakdown.title">ⓘ</button>
+                    </div>
+                </div>
+
+                <!-- Title & Artist Reveal + Voting (#1180) -->
+                <section id="ta-reveal-section" class="card-section ta-reveal-section hidden">
+                    <h2 class="section-header">
+                        <span class="section-icon" aria-hidden="true">🎵</span>
+                        <span data-i18n="titleArtist.theAnswerWas">The answer was</span>
+                    </h2>
+                    <div class="section-content-padded">
+                        <div id="ta-reveal-truth" class="ta-reveal-truth"></div>
+                        <div id="ta-reveal-own" class="ta-reveal-own"></div>
+                        <div id="ta-voting" class="ta-voting hidden">
+                            <div class="ta-voting-header">
+                                <span id="ta-voting-title" data-i18n="titleArtist.voteHeader">Close calls — vote 👍/👎</span>
+                                <span id="ta-voting-countdown" class="ta-voting-countdown" aria-live="polite"></span>
+                            </div>
+                            <div id="ta-voting-cards" class="ta-voting-cards"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Movie Challenge Reveal (conditional, Issue #28) -->
+                <section id="movie-reveal-section" class="card-section movie-reveal-section hidden">
+                    <h2 class="section-header">
+                        <span class="section-icon" aria-hidden="true">🎬</span>
+                        <span data-i18n="movieChallenge.theMovieWas">The movie was</span>
+                    </h2>
+                    <div class="section-content-padded">
+                        <div id="movie-reveal-name" class="movie-reveal-name"></div>
+                        <div id="movie-reveal-winners" class="movie-reveal-winners hidden"></div>
+                    </div>
+                </section>
+
+                <!-- Fun Fact (conditional) -->
+                <section id="fun-fact-container" class="card-section fun-fact-section hidden">
+                    <h2 class="section-header">
+                        <span class="section-icon" aria-hidden="true">💡</span>
+                        <span data-i18n="reveal.funFact">Fun Fact</span>
+                    </h2>
+                    <div class="section-content-padded">
+                        <!-- Badges-first: chart/cert/award tiles lead, prose follows (trimmed) -->
+                        <div id="song-rich-info" class="song-rich-info">
+                            <!-- Populated by JavaScript: chart info, certifications, awards -->
+                        </div>
+                        <div id="fun-fact" class="fun-fact-text"></div>
+                    </div>
+                </section>
+
+                <!-- Standings (compact list, kept with existing leaderboard-list id for renderer) -->
+                <section id="reveal-leaderboard" class="card-section standings-section">
+                    <h2 class="section-header">
+                        <span class="section-icon" aria-hidden="true">🏆</span>
+                        <span data-i18n="leaderboard.standings">Standings</span>
+                    </h2>
+                    <div class="section-content-padded">
+                        <div id="reveal-leaderboard-list" class="leaderboard-list">
+                            <!-- Populated by JavaScript -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Song difficulty rating (hidden helper, consumed by round-stats sheet) -->
+                <div id="song-difficulty" class="hidden"></div>
+
+                <!-- Hidden placeholder kept for any residual references -->
+                <div id="reveal-leaderboard-summary" class="hidden"></div>
+
+                <!-- Report wrong data (Issue #911) -->
+                <div class="reveal-report-row">
+                    <button type="button" id="reveal-report-btn" class="reveal-report-btn"
+                            data-i18n="reveal.reportBtn">🚩 Wrong year?</button>
+                </div>
+
+                <!-- Admin Controls -->
+                <div id="reveal-admin-controls" class="reveal-admin-controls hidden">
+                    <div class="reveal-admin-buttons">
+                        <button id="invite-players-btn" class="invite-btn" type="button"
+                                aria-label="Invite players to join the game">
+                            <span class="invite-btn-icon">📲</span>
+                            <span class="invite-btn-label" data-i18n="lobby.invitePlayers">Invite Players</span>
+                        </button>
+                        <button id="next-round-btn" class="next-round-btn" data-i18n="admin.nextRound">
+                            Next Round
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Paused View (Story 7-1) -->
+        <div id="paused-view" class="view hidden">
+            <div class="paused-container">
+                <div class="paused-icon">⏸️</div>
+                <h1 data-i18n="game.paused">Game Paused</h1>
+                <p id="pause-message" data-i18n="game.waitingForHost">Waiting for host to reconnect...</p>
+                <div class="paused-spinner">
+                    <div class="spinner"></div>
+                </div>
+                <p class="paused-hint" data-i18n="game.pausedHint">The game will resume when the host returns</p>
+            </div>
+        </div>
+
+        <!-- End View (Story 5.6) -->
+        <div id="end-view" class="view hidden">
+            <div class="end-container">
+                <!-- Header -->
+                <div class="end-header">
+                    <h1 class="end-title" data-i18n="leaderboard.gameOver">Game Over!</h1>
+                    <p class="end-subtitle" data-i18n="leaderboard.thanksForPlaying">Thanks for playing Beatify</p>
+                </div>
+
+                <!-- Podium for top 3 -->
+                <div class="podium">
+                    <div class="podium-place podium-2">
+                        <div class="podium-medal">🥈</div>
+                        <div class="podium-name" id="podium-2-name">---</div>
+                        <div class="podium-score" id="podium-2-score">0</div>
+                        <div class="podium-stand">2</div>
+                    </div>
+                    <div class="podium-place podium-1">
+                        <div class="podium-medal">🥇</div>
+                        <div class="podium-name" id="podium-1-name">---</div>
+                        <div class="podium-score" id="podium-1-score">0</div>
+                        <div class="podium-stand">1</div>
+                    </div>
+                    <div class="podium-place podium-3">
+                        <div class="podium-medal">🥉</div>
+                        <div class="podium-name" id="podium-3-name">---</div>
+                        <div class="podium-score" id="podium-3-score">0</div>
+                        <div class="podium-stand">3</div>
+                    </div>
+                </div>
+
+                <!-- Your result -->
+                <div class="your-result">
+                    <div class="your-result-header" data-i18n="reveal.yourResult">Your Result</div>
+                    <div class="your-result-rank" id="your-final-rank">#?</div>
+                    <div class="your-result-score" id="your-final-score">0 points</div>
+                    <div class="your-result-stats">
+                        <div class="stat">
+                            <span class="stat-value" id="stat-best-streak">0</span>
+                            <span class="stat-label" data-i18n="leaderboard.bestStreak">Best Streak</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value" id="stat-rounds">0</span>
+                            <span class="stat-label" data-i18n="leaderboard.roundsPlayed">Rounds Played</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value" id="stat-bets">0</span>
+                            <span class="stat-label" data-i18n="leaderboard.betsWon">Bets Won</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Superlatives / Fun Awards (Story 15.2) -->
+                <div id="superlatives-container" class="superlatives-container hidden">
+                    <!-- Rendered by JS: award cards with emoji, title, player name, value -->
+                </div>
+
+                <!-- Highlights Reel (Issue #75) -->
+                <div id="highlights-container" class="highlights-container hidden">
+                    <div class="highlights-header" data-i18n="highlights.highlightsTab">🎬 Highlights</div>
+                    <div id="highlights-list" class="highlights-list">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Full leaderboard -->
+                <div class="final-leaderboard">
+                    <div class="final-leaderboard-header" data-i18n="leaderboard.fullRankings">Full Rankings</div>
+                    <div id="final-leaderboard-list" class="final-leaderboard-list">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Admin controls -->
+                <div id="end-admin-controls" class="end-admin-controls hidden">
+                    <button id="player-rematch-btn" class="btn btn-primary btn-large btn-full-width" data-i18n="admin.rematch">Revanche</button>
+                    <button id="new-game-btn" class="new-game-btn" data-i18n="admin.startNewGame">
+                        Start New Game
+                    </button>
+                </div>
+
+                <!-- Player message -->
+                <div id="end-player-message" class="end-player-message hidden">
+                    <p data-i18n="leaderboard.thanksEmoji">Thanks for playing! 🎉</p>
+                    <p class="end-hint" data-i18n="leaderboard.waitForHost">Wait for the host to start a new game</p>
+                </div>
+
+                <!-- Shareable Result Card (Issue #120, #227) — bottom of end view -->
+                <div id="share-container" class="share-container hidden">
+                    <div class="share-header" data-i18n="share.share_tab">📤 Share</div>
+                    <div id="share-card-preview" class="share-card-preview">
+                        <img id="share-card-image" class="share-card-image" alt="">
+                    </div>
+                    <div class="share-buttons">
+                        <button id="share-save-btn" class="share-btn" data-i18n="share.share_save">📤 Share</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Control Bar (Story 6.1) - visible across PLAYING/REVEAL for admin -->
+        <div id="admin-control-bar" class="admin-control-bar hidden">
+            <!-- Volume feedback indicator (Story 6.4) -->
+            <div id="volume-indicator" class="volume-indicator hidden">🔊 50%</div>
+            <button id="stop-song-btn" class="control-btn" type="button">
+                <span class="control-icon">⏹️</span>
+                <span class="control-label" data-i18n="admin.stop">Stop</span>
+            </button>
+            <button id="volume-down-btn" class="control-btn" type="button">
+                <span class="control-icon">🔉</span>
+                <span class="control-label" data-i18n="admin.volDown">Down</span>
+            </button>
+            <button id="volume-up-btn" class="control-btn" type="button">
+                <span class="control-icon">🔊</span>
+                <span class="control-label" data-i18n="admin.volUp">Up</span>
+            </button>
+            <button id="next-round-admin-btn" class="control-btn" type="button">
+                <span class="control-icon">⏭️</span>
+                <span class="control-label" data-i18n="admin.next">Next</span>
+            </button>
+            <button id="end-game-btn" class="control-btn control-btn--danger" type="button">
+                <span class="control-icon">🛑</span>
+                <span class="control-label" data-i18n="admin.end">End</span>
+            </button>
+        </div>
+
+        <!-- Reaction Bar (Story 18.9) - visible during REVEAL only -->
+        <div id="reaction-bar" class="reaction-bar hidden">
+            <div class="reaction-bar-container">
+                <button class="reaction-btn" data-emoji="🔥" data-i18n-aria-label="reaction.fire" aria-label="Fire reaction">🔥</button>
+                <button class="reaction-btn" data-emoji="😂" data-i18n-aria-label="reaction.laugh" aria-label="Laugh reaction">😂</button>
+                <button class="reaction-btn" data-emoji="😱" data-i18n-aria-label="reaction.shocked" aria-label="Shocked reaction">😱</button>
+                <button class="reaction-btn" data-emoji="👏" data-i18n-aria-label="reaction.applause" aria-label="Applause reaction">👏</button>
+                <button class="reaction-btn" data-emoji="🤔" data-i18n-aria-label="reaction.thinking" aria-label="Thinking reaction">🤔</button>
+            </div>
+        </div>
+
+        <!-- Floating Reactions Display (Story 18.9) -->
+        <div id="reaction-container" class="reaction-container"></div>
+    </main>
+
+    <!-- Intro Splash Modal (Issue #292) -->
+    <div id="intro-splash-modal" class="intro-splash-modal hidden" role="dialog" aria-modal="true">
+      <div class="intro-splash-modal-backdrop"></div>
+      <div class="intro-splash-modal-content">
+        <div class="intro-splash-modal-emoji">🎵</div>
+        <h2 class="intro-splash-modal-title" data-i18n="game.introSplashTitle">Intro Round!</h2>
+        <p class="intro-splash-modal-desc" data-i18n="game.introSplashDesc">Stop the song the moment you recognise it!</p>
+        <p class="intro-splash-modal-waiting" data-i18n="game.introSplashWaiting">Waiting for host...</p>
+        <button id="intro-splash-confirm-btn" class="btn btn-primary intro-splash-confirm-btn hidden" data-i18n="game.introSplashStart">Start Intro Round</button>
+      </div>
+    </div>
+
+    <!-- Reconnecting Overlay (Story 7-3) -->
+    <div id="reconnecting-overlay" class="reconnecting-overlay hidden">
+        <div class="reconnecting-content">
+            <div class="reconnecting-spinner">
+                <div class="spinner"></div>
+            </div>
+            <p id="reconnect-status" class="reconnect-status" data-i18n="errors.RECONNECTING">Reconnecting...</p>
+        </div>
+    </div>
+
+    <!-- Connection Lost View (Story 7-4) -->
+    <div id="connection-lost-view" class="view hidden">
+        <div class="connection-lost-container">
+            <div class="connection-lost-icon">📡</div>
+            <h1 data-i18n="errors.CONNECTION_LOST">Connection Lost</h1>
+            <p data-i18n="errors.connectionLostHint">We couldn't reconnect to the game server.</p>
+            <button id="retry-connection-btn" class="btn btn-primary btn-glow" data-i18n="common.retry">Try Again</button>
+            <p class="connection-lost-hint" data-i18n="errors.checkNetwork">Make sure you're connected to the network</p>
+        </div>
+    </div>
+
+    <!-- QR Modal (Lobby - full screen) -->
+    <div id="qr-modal" class="qr-modal hidden" role="dialog" aria-modal="true"
+         aria-labelledby="qr-modal-title">
+        <div class="qr-modal-backdrop"></div>
+        <div class="qr-modal-content">
+            <h2 id="qr-modal-title" class="sr-only" data-i18n="lobby.joinGameQr">Join Game QR Code</h2>
+            <div id="qr-modal-code" class="qr-modal-code">
+                <!-- Large QR code rendered here -->
+            </div>
+            <p class="qr-modal-label" data-i18n="lobby.scanToJoin">Scan to join the game</p>
+            <button id="qr-modal-close" class="btn btn-secondary qr-modal-close"
+                    aria-label="Close QR code" data-i18n="common.close">Close</button>
+        </div>
+    </div>
+
+    <!-- Invite Modal (Story 16.5 - QR code during active game for admin) -->
+    <div id="invite-modal" class="invite-modal hidden" role="dialog" aria-modal="true"
+         aria-labelledby="invite-modal-title">
+        <div class="invite-modal-backdrop"></div>
+        <div class="invite-modal-content">
+            <h2 id="invite-modal-title" class="invite-modal-title" data-i18n="lobby.invitePlayers">Invite Players</h2>
+            <p class="invite-modal-hint" data-i18n="lobby.invitePlayersHint">Share this QR code or link with friends</p>
+            <div id="invite-modal-code" class="invite-modal-code">
+                <!-- QR code rendered here -->
+            </div>
+            <div class="invite-modal-url-container">
+                <input type="text" id="invite-modal-url" class="invite-modal-url" readonly
+                       aria-label="Join URL">
+                <button id="invite-copy-btn" class="invite-copy-btn" type="button"
+                        aria-label="Copy join link">
+                    <span class="invite-copy-icon">📋</span>
+                </button>
+            </div>
+            <p id="invite-copy-feedback" class="invite-copy-feedback hidden">Copied!</p>
+            <button id="invite-modal-close" class="btn btn-secondary invite-modal-close"
+                    aria-label="Close invite popup" data-i18n="common.close">Close</button>
+        </div>
+    </div>
+
+    <!-- Steal Target Modal (Story 15.3 AC2, AC5) -->
+    <div id="steal-modal" class="steal-modal hidden" role="dialog" aria-modal="true"
+         aria-labelledby="steal-modal-title">
+        <div class="steal-modal-backdrop"></div>
+        <div class="steal-modal-content">
+            <h2 id="steal-modal-title" class="steal-modal-title" data-i18n="steal.selectTarget">Select a target</h2>
+            <p class="steal-modal-subtitle" data-i18n="steal.selectTargetHint">Copy their answer for this round</p>
+            <div id="steal-target-list" class="steal-target-list">
+                <!-- Populated by JavaScript -->
+            </div>
+            <button id="steal-modal-close" class="btn btn-secondary steal-modal-cancel"
+                    aria-label="Cancel steal" data-i18n="common.cancel">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Steal Confirmation Toast (Story 15.3 AC3) -->
+    <div id="steal-confirmation" class="steal-confirmation hidden">
+        <span class="steal-confirmation-icon">🥷</span>
+        <span id="steal-confirmation-text" class="steal-confirmation-text"></span>
+    </div>
+
+    <!-- Points Breakdown Bottom Sheet (Round reveal v2) -->
+    <div id="points-breakdown-sheet" class="sheet-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="points-breakdown-title">
+        <div class="sheet-dim"></div>
+        <aside class="sheet">
+            <div class="sheet-handle" aria-hidden="true"></div>
+            <header class="sheet-header">
+                <h2 id="points-breakdown-title" class="sheet-title">
+                    <span aria-hidden="true">🧮</span>
+                    <span data-i18n="reveal.breakdown.title">Points breakdown</span>
+                </h2>
+                <button type="button" class="sheet-close" data-sheet-close="points-breakdown-sheet" aria-label="Close">✕</button>
+            </header>
+            <div id="points-breakdown-content">
+                <!-- Populated by renderPointsBreakdown() -->
+            </div>
+        </aside>
+    </div>
+
+    <!-- Round Stats Bottom Sheet (Round reveal v2) -->
+    <div id="round-stats-sheet" class="sheet-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="round-stats-title">
+        <div class="sheet-dim"></div>
+        <aside class="sheet">
+            <div class="sheet-handle" aria-hidden="true"></div>
+            <header class="sheet-header">
+                <h2 id="round-stats-title" class="sheet-title">
+                    <span aria-hidden="true">📊</span>
+                    <span data-i18n="reveal.stats.title">Round stats</span>
+                </h2>
+                <button type="button" class="sheet-close" data-sheet-close="round-stats-sheet" aria-label="Close">✕</button>
+            </header>
+            <div id="round-stats-content">
+                <!-- Populated by renderRoundStatsSheet() -->
+            </div>
+        </aside>
+    </div>
+
+    <!-- Generic Confirmation Modal -->
+    <div id="confirm-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="confirm-modal-title">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <h2 id="confirm-modal-title">Confirm</h2>
+            <p id="confirm-modal-message"></p>
+            <div class="modal-actions">
+                <button id="confirm-modal-yes" class="btn btn-primary" data-i18n="common.confirm">Confirm</button>
+                <button id="confirm-modal-no" class="btn btn-secondary" data-i18n="common.cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/beatify/static/js/vendor/qrcode.min.js?v={{ASSET_VER}}"></script>
+    <script src="/beatify/static/js/vendor/no-sleep.min.js?v={{ASSET_VER}}"></script>
+    <!-- Story 18.4: Use minified JS in production with fallback to source -->
+    <!-- Version query strings prevent browser caching issues -->
+    <!-- #998: HA OAuth client — only used when a host claims the admin role -->
+    <script src="/beatify/static/js/ha-auth.js?v={{ASSET_VER}}"></script>
+    <script src="/beatify/static/js/i18n.min.js?v={{ASSET_VER}}"></script>
+    <script src="/beatify/static/js/utils.min.js?v={{ASSET_VER}}"></script>
+    <script type="module" src="/beatify/static/js/player.bundle.min.js?v={{ASSET_VER}}"></script>
+</body>
+</html>

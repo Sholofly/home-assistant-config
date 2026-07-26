@@ -1,4 +1,4 @@
-"""Tado CE schedule helpers — schedule block lookup and target temperature extraction."""
+"""Tado CE schedule helpers: schedule block lookup and target temperature extraction."""
 
 from __future__ import annotations
 

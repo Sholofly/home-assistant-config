@@ -1,4 +1,4 @@
-"""Tado CE repair-issue helpers — surface auth / quota problems via HA's UI."""
+"""Tado CE repair-issue helpers: surface auth / quota problems via HA's UI."""
 
 from __future__ import annotations
 
@@ -32,20 +32,30 @@ class RepairIssueSpec:
         return self.id_prefix or self.translation_key
 
 
-# WHY: ERROR + persistent — auth dead can only be detected when it occurs and the
-# user must act, so the issue must survive a restart.
+# ERROR + persistent: auth dead is only detectable when it occurs and the user
+# must act, so the issue must survive a restart.
 AUTH_ISSUE = RepairIssueSpec(
     translation_key="auth_token_expired",
     severity=ir.IssueSeverity.ERROR,
     is_persistent=True,
 )
 
-# WHY: WARNING + non-persistent — quota auto-recovers; the issue is re-created
+# WARNING + non-persistent: quota auto-recovers, so the issue is re-created
 # only if the next sync still rate-limits.
 RATE_LIMIT_ISSUE = RepairIssueSpec(
     translation_key="rate_limited",
     severity=ir.IssueSeverity.WARNING,
     is_persistent=False,
+)
+
+# WARNING + persistent: pairing credentials are invalid and the bridge can't be
+# reached until the user re-pairs, so the issue survives a restart and the user
+# still sees it after an HA reboot before they act.
+HOMEKIT_PAIRING_INVALID_ISSUE = RepairIssueSpec(
+    id_prefix="homekit_pairing_invalid",
+    translation_key="homekit_pairing_invalid",
+    severity=ir.IssueSeverity.WARNING,
+    is_persistent=True,
 )
 
 # Backwards-compat constant, scheduled for removal in v5.0.0.
@@ -122,3 +132,17 @@ def async_dismiss_rate_limit_issue(
 ) -> None:
     """Clear the rate-limited repair after a successful sync."""
     async_dismiss_issue(hass, RATE_LIMIT_ISSUE, home_id=home_id)
+
+
+def async_create_homekit_pairing_invalid_issue(
+    hass: HomeAssistant, home_id: str | None = None,
+) -> None:
+    """Surface a 'HomeKit pairing invalid' repair so the user re-pairs."""
+    async_create_issue(hass, HOMEKIT_PAIRING_INVALID_ISSUE, home_id=home_id)
+
+
+def async_dismiss_homekit_pairing_invalid_issue(
+    hass: HomeAssistant, home_id: str | None = None,
+) -> None:
+    """Clear the HomeKit pairing invalid repair after a successful re-pair."""
+    async_dismiss_issue(hass, HOMEKIT_PAIRING_INVALID_ISSUE, home_id=home_id)

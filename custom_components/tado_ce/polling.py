@@ -1,4 +1,4 @@
-"""Tado CE adaptive polling — day/night windows, quota-aware backoff, low-quota guard.
+"""Tado CE adaptive polling: day/night windows, quota-aware backoff, low-quota guard.
 
 Computes the next coordinator polling interval from current API quota,
 the configured day / night hours, and feature flags (HomeKit connected
@@ -34,7 +34,7 @@ _LOGGER = logging.getLogger(__name__)
 
 @dataclass(frozen=True)
 class _PollingContext:
-    """Derived polling calculation context — all values needed by mode helpers."""
+    """Derived polling calculation context: all values needed by mode helpers."""
 
     remaining: int
     effective_remaining: float
@@ -140,8 +140,8 @@ def _build_polling_context(
 def _calculate_uniform_interval(ctx: _PollingContext) -> int:
     """Return the polling interval when day_start == night_start.
 
-    Uniform mode treats the whole 24 h as a single quota window — no
-    day / night distinction — and spreads the usable quota evenly.
+    Uniform mode treats the whole 24 h as a single quota window, with no
+    day / night distinction, and spreads the usable quota evenly.
     """
     effective_hours = ctx.reset_hours
     night_calls_needed = 0
@@ -256,7 +256,7 @@ def calculate_adaptive_interval(
 
     if ctx.effective_remaining <= 0:
         _LOGGER.debug(
-            "Polling: no quota remaining (effective_remaining=%s) — "
+            "Polling: no quota remaining (effective_remaining=%s), "
             "falling back to max interval %d min",
             ctx.effective_remaining, MAX_POLLING_INTERVAL,
         )
@@ -301,20 +301,20 @@ def should_pause_polling(
             if now_utc >= next_reset:
                 if was_paused:
                     _LOGGER.info(
-                        "Polling: expected reset time %s UTC has passed — "
+                        "Polling: expected reset time %s UTC has passed, "
                         "resuming polling to pick up the actual reset",
                         next_reset.strftime("%H:%M"),
                     )
                 return False, ""
         except (ValueError, TypeError) as e:
             _LOGGER.debug(
-                "Polling: could not parse last_reset_utc (%s) — "
+                "Polling: could not parse last_reset_utc (%s), "
                 "treating reset time as unknown",
                 e,
             )
     else:
-        # No reset time known (fresh install / stale snapshot) — let the
-        # next poll bootstrap rate-limit headers.
+        # No reset time known (fresh install / stale snapshot), so let
+        # the next poll bootstrap rate-limit headers.
         return False, ""
 
     _remaining = ratelimit_data.get("remaining")
@@ -338,7 +338,7 @@ def should_pause_polling(
             minutes = (reset_seconds % 3600) // 60
             reset_info = f"reset in {hours}h {minutes}m"
         else:
-            reset_info = "reset time unknown — will resume after the next successful API response"
+            reset_info = "reset time unknown, will resume after the next successful API response"
 
         reason = (
             f"Quota critically low ({remaining} remaining, reserve threshold={reserve_threshold}). "
@@ -399,7 +399,7 @@ def get_polling_interval(
         custom_interval = custom_night_interval
         user_set_custom = True
 
-    # Layer 1 — HomeKit defer. When HomeKit provides live local data and the
+    # Layer 1, HomeKit defer. When HomeKit provides live local data and the
     # user hasn't pinned a custom interval, the cloud-sync dial IS the cadence.
     # Don't run quota math: the dial already encodes the user's freshness vs.
     # quota trade-off. Without this, adaptive could pick a far faster cadence
@@ -407,7 +407,7 @@ def get_polling_interval(
     if homekit_connected and not user_set_custom:
         cloud_sync = config_manager.get_homekit_cloud_sync_minutes()
         _LOGGER.debug(
-            "Polling: HomeKit connected, no custom interval — using "
+            "Polling: HomeKit connected, no custom interval, using "
             "cloud-sync dial %s min", cloud_sync,
         )
         return cloud_sync
@@ -426,7 +426,7 @@ def get_polling_interval(
 
     except (ValueError, TypeError, AttributeError) as e:
         _LOGGER.debug(
-            "Polling: could not calculate adaptive interval (%s) — "
+            "Polling: could not calculate adaptive interval (%s), "
             "falling back to default",
             e,
         )
@@ -435,7 +435,7 @@ def get_polling_interval(
     # quota genuinely cannot sustain it. A custom interval is an explicit user
     # choice, so the adaptive floor (which caps only the *automatic* cadence)
     # must not bump it up. The override therefore fires only when the adaptive
-    # value sits ABOVE the floor — that means the quota math itself widened the
+    # value sits ABOVE the floor, which means the quota math itself widened the
     # cadence, a real constraint. When adaptive is clamped down onto the floor
     # the quota is healthy, so a faster custom interval (even below the floor)
     # is honoured as-is.
@@ -447,7 +447,7 @@ def get_polling_interval(
         ):
             _LOGGER.warning(
                 "Polling: custom interval %s min would burn through "
-                "the remaining quota — using adaptive %s min instead "
+                "the remaining quota, using adaptive %s min instead "
                 "to protect the day's calls",
                 custom_interval, adaptive_interval,
             )

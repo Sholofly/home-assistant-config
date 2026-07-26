@@ -1,7 +1,7 @@
 """Tado CE config-entry version migration + duplicate cleanup + entity-platform moves.
 
 v4.0.0's minimum supported upgrade path is config-entry
-version 11 (i.e. v3.0.0 onwards) — older entries fail
+version 11 (i.e. v3.0.0 onwards): older entries fail
 migration and tell the user to step through v3.x first.
 """
 
@@ -21,6 +21,8 @@ _LOGGER = logging.getLogger(__name__)
 # Migration version constants
 _MIN_SUPPORTED_VERSION = 11  # versions below this are too old to migrate
 _V11_VERSION = 11  # config entry version that needs v11→v12 migration
+_V12_VERSION = 12  # config entry version that needs v12→v13 migration
+_TARGET_VERSION = 13  # current config-entry schema version
 
 # Module-level set to track duplicate cleanup operations (prevents re-running)
 _duplicate_cleanup_done: set[str] = set()
@@ -48,7 +50,7 @@ async def async_migrate_config_json(
     path_exists = await hass.async_add_executor_job(config_path.exists)
     if not path_exists:
         _LOGGER.debug(
-            "Migration: legacy config JSON not present — nothing to "
+            "Migration: legacy config JSON not present, nothing to "
             "migrate",
         )
         return
@@ -56,13 +58,13 @@ async def async_migrate_config_json(
     json_data = await async_load_json(hass, config_path)
     if json_data is None or not isinstance(json_data, dict):
         _LOGGER.warning(
-            "Migration: legacy config JSON %s could not be parsed — "
+            "Migration: legacy config JSON %s could not be parsed, "
             "skipping migration, options left untouched",
             config_path,
         )
         return
 
-    # Strip secrets / identifiers — those live in entry.data,
+    # Strip secrets / identifiers: those live in entry.data,
     # not entry.options.
     json_data.pop("refresh_token", None)
     json_data.pop("home_id", None)
@@ -85,21 +87,54 @@ async def async_migrate_config_json(
     )
 
 
+async def _consolidate_next_time_block(hass: HomeAssistant, config_entry: ConfigEntry) -> None:
+    """Rewrite a stored overlay_mode == NEXT_TIME_BLOCK to TADO_MODE.
+
+    NEXT_TIME_BLOCK is no longer a valid overlay mode (the /api/v2 endpoint
+    rejects it). Rewrites both the global overlay_mode aux store and every
+    per-zone entry in the zone_config store. Idempotent: a second run finds
+    nothing to rewrite.
+    """
+    from .data_loader import DataLoader
+
+    home_id = config_entry.data.get("home_id")
+    if not home_id:
+        _LOGGER.debug("Migration: no home_id on entry, skipping NEXT_TIME_BLOCK consolidation")
+        return
+    loader = DataLoader(str(home_id), hass)
+
+    global_data = await loader.async_load_auxiliary("overlay_mode")
+    if isinstance(global_data, dict) and global_data.get("overlay_mode") == "NEXT_TIME_BLOCK":
+        loader.save_auxiliary("overlay_mode", {"overlay_mode": "TADO_MODE"})
+        _LOGGER.info("Migration: rewrote global overlay_mode NEXT_TIME_BLOCK -> TADO_MODE")
+
+    zone_data = await loader.async_load_auxiliary("zone_config")
+    if isinstance(zone_data, dict) and isinstance(zone_data.get("zones"), dict):
+        changed = 0
+        for zcfg in zone_data["zones"].values():
+            if isinstance(zcfg, dict) and zcfg.get("overlay_mode") == "NEXT_TIME_BLOCK":
+                zcfg["overlay_mode"] = "TADO_MODE"
+                changed += 1
+        if changed:
+            loader.save_auxiliary("zone_config", zone_data)
+            _LOGGER.info("Migration: rewrote NEXT_TIME_BLOCK -> TADO_MODE in %d zone(s)", changed)
+
+
 async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> bool:
     """Step a config entry forward to the current schema version.
 
-    v11 → v12 is the only live step (older paths require an
-    intermediate v3.x install). A `None` version is treated as a
-    recovery from a previously-aborted migration — we snap forward
-    and let the entry resume.
+    Live steps: v11 → v12 (config-JSON move) and v12 → v13 (NEXT_TIME_BLOCK
+    consolidation). Older paths require an intermediate v3.x install. A `None`
+    version is treated as recovery from a previously-aborted migration: we
+    snap forward and let the entry resume.
     """
-    target_version = 12
+    target_version = _TARGET_VERSION
     initial_version = config_entry.version
 
     if initial_version is None:
         _LOGGER.warning(
             "Migration: config entry version was None (likely from "
-            "a previously aborted migration) — snapping forward to "
+            "a previously aborted migration), snapping forward to "
             "version %s so the entry can resume",
             target_version,
         )
@@ -109,7 +144,7 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry) ->
     if initial_version < _MIN_SUPPORTED_VERSION:
         _LOGGER.error(
             "Migration: config entry version %s is below the v4.0.0 "
-            "minimum (11) — please install v3.x first, run it once, "
+            "minimum (11), please install v3.x first, run it once, "
             "then upgrade to v4.0.0",
             initial_version,
         )
@@ -121,8 +156,18 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry) ->
         hass.config_entries.async_update_entry(config_entry, version=12)
         _LOGGER.info("Migration: v11 → v12 complete")
 
+    # v12 → v13 chains off v11 (initial_version <= 12) so an old entry steps
+    # through both in one call. The version bump is the LAST action: the store
+    # rewrites run first, so a mid-migration crash re-runs the whole idempotent
+    # step rather than leaving it version-bumped-but-half-written.
+    if initial_version <= _V12_VERSION:
+        _LOGGER.info("Migration: starting v12 → v13 (NEXT_TIME_BLOCK consolidation)")
+        await _consolidate_next_time_block(hass, config_entry)
+        hass.config_entries.async_update_entry(config_entry, version=_TARGET_VERSION)
+        _LOGGER.info("Migration: v12 → v13 complete")
+
     _LOGGER.debug(
-        "Migration: config entry already at version %s — no further "
+        "Migration: config entry already at version %s, no further "
         "migration needed",
         config_entry.version,
     )
@@ -153,13 +198,13 @@ async def async_deduplicate_entries(
 
     if len(my_group) > 1:
         _LOGGER.warning(
-            "Migration: %d config entries share unique_id %r — "
+            "Migration: %d config entries share unique_id %r, "
             "running duplicate cleanup",
             len(my_group),
             entry.unique_id,
         )
         _LOGGER.debug(
-            "Migration: entries in duplicate group — %s",
+            "Migration: entries in duplicate group: %s",
             [(e.entry_id, e.version) for e in my_group],
         )
 
@@ -181,7 +226,7 @@ async def async_deduplicate_entries(
         if entry.entry_id != keeper_entry_id:
             _LOGGER.warning(
                 "Migration: aborting setup of entry %s (version %s) "
-                "— it is a duplicate of unique_id %r and will be "
+                ", it is a duplicate of unique_id %r and will be "
                 "removed by the keeper entry",
                 entry.entry_id,
                 entry.version,
@@ -218,7 +263,7 @@ async def async_deduplicate_entries(
                 except Exception:
                     _LOGGER.warning(
                         "Migration: could not remove duplicate "
-                        "entry %s — leaving it in place, will retry "
+                        "entry %s, leaving it in place, will retry "
                         "on the next reload",
                         old_entry.entry_id,
                         exc_info=True,
@@ -226,14 +271,14 @@ async def async_deduplicate_entries(
 
             _LOGGER.info(
                 "Migration: duplicate cleanup complete for "
-                "unique_id %r — keeper is %s",
+                "unique_id %r, keeper is %s",
                 entry.unique_id,
                 keeper_entry_id,
             )
     elif len(all_entries) > 1:
         _LOGGER.debug(
             "Migration: %d Tado CE entries with %d distinct "
-            "unique_ids — multi-home setup, no duplicates",
+            "unique_ids, multi-home setup, no duplicates",
             len(all_entries),
             len(entries_by_uid),
         )
@@ -286,7 +331,7 @@ async def async_migrate_entity_platforms(
 
         if should_remove:
             _LOGGER.debug(
-                "Migration: removing legacy sensor %s — binary_sensor "
+                "Migration: removing legacy sensor %s, binary_sensor "
                 "platform will recreate it",
                 old_eid,
             )

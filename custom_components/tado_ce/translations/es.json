@@ -959,40 +959,37 @@
         }
       },
       "bridge_wiring_state": {
-        "name": "Estado del cableado del puente"
+        "name": "Estado del cableado de la caldera"
       },
       "bridge_boiler_output_temp": {
-        "name": "Temperatura de salida de la caldera puente"
+        "name": "Temperatura de salida de la caldera"
       },
       "bridge_boiler_output_temp_time": {
-        "name": "Tiempo de temperatura de salida de la caldera de puente"
+        "name": "Temperatura de salida de la caldera Tiempo"
       },
       "bridge_boiler_flow_temp": {
-        "name": "Temperatura de flujo de la caldera puente"
+        "name": "Temperatura de salida de la caldera"
       },
       "bridge_boiler_flow_temp_time": {
-        "name": "Puente Caldera Flujo Temperatura Tiempo"
+        "name": "Tiempo de temperatura de salida de la caldera"
       },
       "bridge_boiler_max_output_temp": {
-        "name": "Temperatura máxima de salida de la caldera puente"
-      },
-      "bridge_connected_state": {
-        "name": "Puente conectado"
+        "name": "Temperatura máxima de salida de la caldera"
       },
       "bridge_hot_water_present": {
-        "name": "Puente Agua Caliente Presente"
+        "name": "Hay agua caliente"
       },
       "bridge_device_type": {
-        "name": "Puente Tipo de dispositivo"
+        "name": "Tipo de caldera"
       },
       "bridge_device_serial": {
-        "name": "Dispositivo Puente Serie"
+        "name": "Número de serie del dispositivo de la caldera"
       },
       "bridge_therm_interface_type": {
-        "name": "Puente térmico Tipo de interfaz"
+        "name": "Tipo de interfaz de la caldera"
       },
       "bridge_device_connected": {
-        "name": "Dispositivo puente conectado"
+        "name": "Dispositivo de caldera conectado"
       },
       "bridge_capabilities": {
         "name": "Capacidades de los puentes"
@@ -1037,27 +1034,24 @@
         }
       },
       "overlay_mode": {
-        "name": "Modo Superposición",
+        "name": "Duración de la anulación",
         "state": {
-          "tado_mode": "Tado por defecto",
-          "next_time_block": "Próximo bloque horario",
-          "manual": "Manual"
+          "tado_mode": "Hasta el próximo cambio automático",
+          "manual": "Hasta que se reanude el horario",
+          "timer": "Temporizador"
         },
         "state_attributes": {
           "description": {
             "name": "Descripción"
           },
           "tado_mode_info": {
-            "name": "Información sobre Tado Mode"
-          },
-          "next_time_block_info": {
-            "name": "Información sobre el próximo bloque horario"
+            "name": "Hasta el próximo cambio automático"
           },
           "timer_info": {
             "name": "Información del temporizador"
           },
           "manual_info": {
-            "name": "Información manual"
+            "name": "Hasta que se reanude el horario"
           },
           "api_calls_per_change": {
             "name": "Llamadas a la API por cambio"
@@ -1076,6 +1070,12 @@
           "api_calls_per_change": {
             "name": "Llamadas a la API por cambio"
           }
+        }
+      },
+      "heating_circuit": {
+        "name": "Circuito de calefacción",
+        "state": {
+          "no_heating_circuit": "Sin circuito de calefacción"
         }
       }
     },
@@ -1145,7 +1145,7 @@
         },
         "overlay": {
           "name": "Tipo de superposición",
-          "description": "Cuándo finalizar la anulación. Utilice 'next_time_block' para finalizar en el siguiente cambio de horario, o 'manual' para indefinido. Cuando se establece, time_period no es necesario."
+          "description": "Cuándo finalizar la anulación. Utiliza «next_time_block» para que finalice en el siguiente cambio automático de tu programación de Tado, o «manual» para mantenerla hasta que reanudes la programación. Si se configura, no es necesario especificar «time_period»."
         }
       }
     },
@@ -1266,6 +1266,24 @@
     "turn_off_all_zones": {
       "name": "Apagar todas las habitaciones",
       "description": "Pon todas las zonas climáticas (calefacción + aire acondicionado) en un modo de apagado manual. Esto equivale al botón «Apagar todas las habitaciones» de la aplicación de Tado: las programaciones se desactivan hasta que reanudes manualmente cada zona."
+    },
+    "set_schedule_temperature": {
+      "name": "Ajustar la temperatura programada",
+      "description": "Configura la temperatura objetivo de una zona mediante una automatización, como un calendario de vacaciones, sin que Smart Valve Control lo interprete como una modificación manual. Smart Valve Control seguirá trabajando para alcanzar ese objetivo y retomará tu programación habitual en el siguiente cambio de bloque.",
+      "fields": {
+        "temperature": {
+          "name": "Temperatura",
+          "description": "Temperatura objetivo en grados Celsius."
+        },
+        "overlay": {
+          "name": "Tipo de superposición",
+          "description": "Cuándo finalizar la anulación. Utiliza «next_time_block» para que finalice en el siguiente cambio automático de tu programación de Tado, o «manual» para mantenerla hasta que reanudes la programación."
+        },
+        "force_override": {
+          "name": "Anulación forzada",
+          "description": "Está desactivada por defecto, por lo que cualquier cambio manual que hayas realizado en el control deslizante se mantendrá. Actívala si quieres que una automatización tenga prioridad sobre un cambio manual, como un horario festivo que debe prevalecer."
+        }
+      }
     }
   },
   "selector": {
@@ -1322,7 +1340,8 @@
         "weather_compensation": "Compensación meteorológica",
         "bridge": "Puente Internet",
         "polling_api": "Sondeo y API",
-        "homekit": "HomeKit"
+        "homekit": "HomeKit",
+        "comfort_safety": "Comodidad y seguridad"
       }
     },
     "svc_mode": {
@@ -1410,6 +1429,10 @@
     "rate_limited": {
       "title": "Tado CE: Ancho de banda limitado en la nube",
       "description": "La API en la nube de Tado tiene un límite de solicitudes para **{home_id}**. La consulta se reanudará en {retry_after_minutes} minutos."
+    },
+    "homekit_pairing_invalid": {
+      "title": "Se ha perdido el emparejamiento con HomeKit",
+      "description": "El emparejamiento de tu puente Tado con HomeKit ya no es válido; es posible que se haya restablecido a los valores de fábrica. Tado CE funciona en modo «solo en la nube» hasta que vuelvas a emparejarlo.\n\nPara volver a emparejarlo: Ajustes → Tado CE → Configurar → Ajustes generales → activa HomeKit."
     }
   },
   "config": {
@@ -1572,7 +1595,7 @@
             },
             "data_description": {
               "overlay_mode": "Cuando se modifica la temperatura desde HA, la aplicación de Tado o mediante una llamada al servicio técnico, ¿cuánto tiempo dura el cambio antes de que se reanude la programación de Tado?",
-              "timer_duration": "Duración del modo de anulación del temporizador (15-180 min)"
+              "timer_duration": "Duración del modo de anulación del temporizador (de 15 minutos a 12 horas)"
             }
           },
           "temperature_section": {
@@ -1580,12 +1603,14 @@
             "data": {
               "min_temp": "Temperatura mínima",
               "max_temp": "Temperatura máxima",
-              "surface_temp_offset": "Desviación de la temperatura de superficie"
+              "surface_temp_offset": "Desviación de la temperatura de superficie",
+              "display_temp_source": "Fuente de temperatura"
             },
             "data_description": {
               "min_temp": "Temperatura objetivo mínima permitida (5-25°C)",
               "max_temp": "Temperatura objetivo máxima permitida (15-30°C)",
-              "surface_temp_offset": "Ajuste la estimación de la temperatura superficial de riesgo de moho. Modifíquela si nota que las paredes están más frías de lo que calcula Tado. (De -5 a +5 °C)"
+              "surface_temp_offset": "Ajuste la estimación de la temperatura superficial de riesgo de moho. Modifíquela si nota que las paredes están más frías de lo que calcula Tado. (De -5 a +5 °C)",
+              "display_temp_source": "Esto es lo que muestra la lectura de esta zona. La opción «Automático» da prioridad al valor rápido de HomeKit cuando está actualizado y, si no, recurre a la nube de Tado. HomeKit siempre da prioridad al valor local; la nube siempre muestra el de Tado. Si has configurado un sensor de temperatura externo para esta zona, este tendrá prioridad sobre esta configuración."
             }
           }
         }
@@ -1602,14 +1627,16 @@
               "weather_enabled": "Datos meteorológicos",
               "mobile_devices_enabled": "Seguimiento de dispositivos móviles",
               "schedule_calendar_enabled": "Calendario de actividades",
-              "offset_enabled": "Compensaciones de temperatura del dispositivo"
+              "offset_enabled": "Compensaciones de temperatura del dispositivo",
+              "heating_circuit_enabled": "Control del circuito de calefacción"
             },
             "data_description": {
-              "home_state_sync_enabled": "Sincroniza el estado general de tu hogar (en casa/fuera). Se actualiza como máximo cada 5 minutos, con aproximadamente una llamada a la API cada vez.",
-              "weather_enabled": "Temperatura exterior e intensidad solar de Tado. Se actualiza como máximo cada 30 minutos, con aproximadamente una llamada a la API cada vez.",
-              "mobile_devices_enabled": "Realiza un seguimiento de la ubicación de cada teléfono para determinar la presencia por dispositivo. Solo se actualiza al reiniciar HA. Para actualizar en segundo plano, activa esta opción, guarda los cambios y, a continuación, habilita la «Sincronización móvil frecuente» en la sección «Sondeo y API» de la configuración avanzada.",
+              "home_state_sync_enabled": "Sincroniza el estado general de tu hogar (En casa/Fuera). Aproximadamente una llamada a la API por cada actualización. El intervalo de actualización se puede configurar en «Ajustes avanzados» → «Sondeo y API».",
+              "weather_enabled": "Temperatura exterior e intensidad solar de Tado. Aproximadamente una llamada a la API por cada actualización. El intervalo de actualización se puede configurar en «Ajustes avanzados» → «Sondeo y API».",
+              "mobile_devices_enabled": "Realiza un seguimiento de la ubicación de cada teléfono para comprobar la presencia de cada dispositivo. Solo se actualiza al reiniciar HA. Para actualizar en segundo plano, activa esta opción, guarda los cambios y, a continuación, habilita «Sincronización móvil frecuente» en «Configuración avanzada» → «Sondeo y API».",
               "schedule_calendar_enabled": "Consulta los horarios de calefacción de Tado como entradas del calendario en HA",
-              "offset_enabled": "Mostrar el desplazamiento de calibración de temperatura que aparece en la aplicación de Tado en las entidades de climatización (+1 llamada a la API por dispositivo al reiniciar)"
+              "offset_enabled": "Mostrar el desplazamiento de calibración de temperatura que aparece en la aplicación de Tado en las entidades de climatización (+1 llamada a la API por dispositivo al reiniciar)",
+              "heating_circuit_enabled": "Asigna cada zona de calefacción a un circuito de la caldera, o a ninguno, de modo que sus válvulas sigan abiertas para aprovechar el calor residual sin encender la caldera. Requiere un puente con los circuitos de la caldera. Se actualiza con la cadencia de sincronización habitual, no al instante."
             }
           },
           "hardware_connections": {
@@ -1702,7 +1729,10 @@
               "smart_actions_debounce_seconds": "Retraso del deslizador de temperatura",
               "device_sync_delay_seconds": "Retraso de sincronización del dispositivo",
               "mobile_devices_frequent_sync": "Sincronización frecuente de móviles",
-              "hot_water_timer_duration": "Valor predeterminado del temporizador de agua caliente (minutos)"
+              "hot_water_timer_duration": "Valor predeterminado del temporizador de agua caliente (minutos)",
+              "presence_min_refresh_minutes": "Intervalo de actualización de «Presencia en casa»",
+              "weather_min_refresh_minutes": "Intervalo de actualización de los datos meteorológicos",
+              "mobile_devices_min_refresh_minutes": "Intervalo de actualización del seguimiento de dispositivos móviles"
             },
             "data_description": {
               "day_start_hour": "Cuándo comienza el sondeo diurno (0-23, por defecto: 7)",
@@ -1713,19 +1743,24 @@
               "api_history_retention_days": "Cuántos días de historial de llamadas a la API conservar para el gráfico de uso (0 = para siempre)",
               "smart_actions_debounce_seconds": "Al arrastrar el control deslizante de temperatura, espere este tiempo antes de enviar el valor final (0 = enviar inmediatamente)",
               "device_sync_delay_seconds": "¿Cuánto tiempo hay que esperar entre dos cambios consecutivos enviados al mismo dispositivo (como el bloqueo infantil o el ajuste de temperatura)? Aumenta este valor si los cambios rápidos no se aplican todos (0,5–5 s, valor predeterminado: 1).",
-              "mobile_devices_frequent_sync": "Mantener la actualización de la ubicación de los dispositivos en segundo plano (como máximo cada 5 minutos) en lugar de solo al reiniciar HA. Aproximadamente una llamada a la API cada vez.",
-              "hot_water_timer_duration": "Duración predeterminada al abrir el grifo del agua caliente sin especificar un temporizador (1–1440 min)"
+              "mobile_devices_frequent_sync": "Mantener la actualización de la ubicación de los dispositivos en segundo plano, en lugar de solo al reiniciar HA. Aproximadamente una llamada a la API cada vez.",
+              "hot_water_timer_duration": "Duración predeterminada al abrir el grifo del agua caliente sin especificar un temporizador (1–1440 min)",
+              "presence_min_refresh_minutes": "Con qué frecuencia comprobar la presencia en el domicilio (1-60 min, valor predeterminado: 5). Cada 1 min: ~1.440 llamadas al día; cada 5 min: ~288 llamadas al día.",
+              "weather_min_refresh_minutes": "Frecuencia con la que se recogen los datos meteorológicos (15-120 min, por defecto 30). Tado actualiza la información meteorológica aproximadamente cada hora, por lo que establecer un intervalo inferior a 15 minutos no proporcionará datos más recientes.",
+              "mobile_devices_min_refresh_minutes": "Frecuencia de actualización de la ubicación de los dispositivos móviles (1-60 min, valor predeterminado: 5). A 1 min: ~1.440 llamadas al día por dispositivo; a 5 min: ~288 llamadas al día por dispositivo."
             }
           },
           "homekit": {
             "name": "HomeKit",
             "data": {
               "homekit_cloud_sync_minutes": "Actualización de datos en la nube",
-              "homekit_unpair": "Desemparejar HomeKit"
+              "homekit_unpair": "Desemparejar HomeKit",
+              "homekit_repair": "Vuelve a emparejarlo (introduce el código de configuración)"
             },
             "data_description": {
               "homekit_cloud_sync_minutes": "Frecuencia de obtención de datos en la nube, incluida la humedad, la potencia de calefacción y el estado de la superposición. La temperatura utiliza HomeKit localmente. Más baja = humedad más fresca pero más llamadas a la API (5-120 min).",
-              "homekit_unpair": "Desconecte la conexión local de HomeKit y elimine las credenciales de emparejamiento"
+              "homekit_unpair": "Desconecte la conexión local de HomeKit y elimine las credenciales de emparejamiento",
+              "homekit_repair": "Vuelve a abrir la ventana de configuración para volver a emparejar el dispositivo tras un emparejamiento fallido o perdido."
             },
             "description": "Estado de la conexión: {homekit_status}"
           },
@@ -1768,6 +1803,15 @@
               "wc_step_size": "Redondee la temperatura de impulsión a este tamaño de paso - pasos más grandes significan menos ajustes de la caldera (0,5-2,0°C)",
               "wc_hysteresis": "Sólo envía una nueva temperatura de impulsión cuando difiere de la última en al menos este valor (0,5-3,0°C)",
               "wc_heating_system_preset": "Al seleccionar un ajuste preestablecido, se establecen los valores predeterminados recomendados para la temperatura de la pendiente y la temperatura de flujo. Seleccione «Personalizado» para ajustar cada campo manualmente."
+            }
+          },
+          "comfort_safety": {
+            "name": "Comodidad y seguridad",
+            "data": {
+              "comfort_heat_vulnerable_group": "Alertas por calor y frío para personas vulnerables"
+            },
+            "data_description": {
+              "comfort_heat_vulnerable_group": "Activar las alertas de calor y frío un nivel antes en los hogares con personas mayores, bebés o personas enfermas, donde una misma temperatura supone un mayor riesgo. Desactivado por defecto."
             }
           }
         }
@@ -1829,12 +1873,16 @@
       "bridge_auth_failed": "Código de serie o de autenticación del puente no válido - compruébelo e inténtelo de nuevo",
       "wc_min_exceeds_max": "La temperatura mínima del caudal no puede superar la temperatura máxima del caudal",
       "bridge_serial_invalid": "Sólo los puentes de Internet v3+ (serie que empieza por IB) admiten la API local. Su serie sugiere un puente v2 (prefijo GW) que no tiene API local. La Compensación Meteorológica puede seguir utilizándose sin puente a través de los datos en la nube.",
-      "homekit_wrong_pin": "PIN de HomeKit incorrecto: comprueba el código en tu puente o en la app de Tado.",
+      "homekit_wrong_pin": "El puente ha rechazado el código. O bien el código de configuración de HomeKit de 8 dígitos es incorrecto (compruébalo en el puente o en la aplicación de Tado), o bien otro controlador de HomeKit (Homebridge, Apple Home o el propio HomeKit de Home Assistant) tiene el puente bloqueado. Detén el otro controlador y vuelve a intentarlo.",
       "homekit_already_paired": "Bridge ya está emparejado con otro controlador. Desemparéjelo primero desde Apple Home y vuelva a intentarlo.",
       "homekit_network_error": "No se ha podido acceder al puente de su red. Compruebe que está encendido y conectado",
       "homekit_timeout": "El puente no ha respondido a tiempo.",
       "homekit_pairing_failed": "Error de emparejamiento - inténtelo de nuevo",
-      "svc_active_sensor_clear": "El control inteligente de válvulas está activado para esta zona. Si desactivas el sensor de temperatura externo, se desactivará el control inteligente de válvulas. Si deseas pausar el sensor sin detener el control inteligente de válvulas, configura primero el modo de control inteligente de válvulas en «Desactivado»."
+      "svc_active_sensor_clear": "El control inteligente de válvulas está activado para esta zona. Si desactivas el sensor de temperatura externo, se desactivará el control inteligente de válvulas. Si deseas pausar el sensor sin detener el control inteligente de válvulas, configura primero el modo de control inteligente de válvulas en «Desactivado».",
+      "homekit_max_tries": "Demasiados intentos fallidos: el puente está bloqueado temporalmente. Espera unos minutos o reinicia el puente y vuelve a intentarlo.",
+      "homekit_busy": "El puente está ocupado; es posible que se esté realizando otra conexión. Inténtalo de nuevo dentro de un momento.",
+      "homekit_no_zeroconf": "El emparejamiento con HomeKit requiere el servicio zeroconf de Home Assistant, que no se está ejecutando en este servidor. Añade `default_config:` (o `zeroconf:`) a tu archivo configuration.yaml y reinicia el sistema; a continuación, vuelve a intentarlo.",
+      "homekit_pin_format": "Eso no parece un código de configuración de HomeKit. Introduce el código de 8 dígitos con el formato 123-45-678 (no el código de autorización de 4 dígitos) que aparece en tu puente o en la aplicación de Tado."
     }
   }
 }

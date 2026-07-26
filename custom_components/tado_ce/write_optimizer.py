@@ -1,4 +1,4 @@
-"""Tado CE API write optimisation — guard, debounce, queue, coalesce.
+"""Tado CE API write optimisation: guard, debounce, queue, coalesce.
 
 Four primitives the climate / water_heater / switch entities use to
 keep redundant or rapid-fire calls off the cloud API: `ActionGuard`
@@ -33,7 +33,7 @@ _LOGGER = logging.getLogger(__name__)
 def _log_task_exception(task: asyncio.Task[object]) -> None:
     """Log uncaught exceptions from fire-and-forget tasks at warning level."""
     if not task.cancelled() and task.exception() is not None:
-        _LOGGER.warning("Write Optimiser: background task failed — %s", task.exception())
+        _LOGGER.warning("Write Optimiser: background task failed: %s", task.exception())
 
 
 class ActionGuard:
@@ -122,7 +122,7 @@ class ActionDebouncer:
         """Run `callback` after the debounce window, cancelling any pending call.
 
         A non-positive window short-circuits the debounce and runs the
-        callback immediately — useful for tests and for callers that
+        callback immediately, useful for tests and for callers that
         want a synchronous "no debounce" path.
         """
         effective_window = window if window is not None else self._default_window
@@ -183,8 +183,8 @@ class DeviceOperation:
     """One queued device-level API operation with a completion future.
 
     `done` is resolved by `DeviceSyncQueue._process_queue` when the
-    callback finishes. Callers that care about the outcome — beyond
-    "was the operation accepted into the queue" — should await this
+    callback finishes. Callers that care about the outcome, beyond
+    "was the operation accepted into the queue", should await this
     future; the queue itself no longer swallows False-return or
     raised exceptions silently.
     """
@@ -213,7 +213,7 @@ class DeviceSyncQueue:
     ) -> tuple[bool, asyncio.Future[bool]]:
         """Add an operation to the queue, returning (accepted, completion_future).
 
-        `accepted` is False when the queue is full — in that case the
+        `accepted` is False when the queue is full. In that case the
         completion future is already resolved to False so callers
         awaiting it never block.
         """
@@ -225,7 +225,7 @@ class DeviceSyncQueue:
             self._queue.put_nowait(operation)
         except asyncio.QueueFull:
             _LOGGER.warning(
-                "Write Optimiser: device-sync queue full (%s/%s) — "
+                "Write Optimiser: device-sync queue full (%s/%s), "
                 "rejecting %s for %s, will retry on next user action",
                 self._queue.qsize(),
                 self._max_depth,
@@ -252,7 +252,7 @@ class DeviceSyncQueue:
         """Drain the queue FIFO with `_delay` between operations.
 
         Fail-forward: a single operation raising or returning False
-        does not stop the queue — the next operation still runs.
+        does not stop the queue: the next operation still runs.
         """
         self._is_processing = True
         is_first = True
@@ -276,7 +276,7 @@ class DeviceSyncQueue:
                         operation.done.set_result(bool(result))
                 except Exception:
                     _LOGGER.warning(
-                        "Write Optimiser: %s failed for %s — operation "
+                        "Write Optimiser: %s failed for %s, operation "
                         "will not be retried automatically",
                         operation.operation_name,
                         operation.entity_id,
@@ -358,7 +358,7 @@ class RefreshCoalescer:
         """Schedule a coalesced refresh after the window, skipping when entity is fresh.
 
         When `skip_when_fresh` is enabled and the entity has had a
-        recent API call, the refresh is dropped entirely — the next
+        recent API call, the refresh is dropped entirely. The next
         scheduled poll picks up the state without an extra request.
         """
         if (
@@ -367,7 +367,7 @@ class RefreshCoalescer:
             and self._coordinator.is_entity_fresh(entity_id)
         ):
             _LOGGER.debug(
-                "Write Optimiser: %s is still fresh — skipping coalesced "
+                "Write Optimiser: %s is still fresh, skipping coalesced "
                 "refresh, next poll will pick it up",
                 entity_id,
             )

@@ -1,8 +1,8 @@
-"""Tado CE number platform — boiler max output temperature.
+"""Tado CE number platform: boiler max output temperature.
 
 Single optional entity, only created when bridge credentials are
 configured AND the bridge response actually carries the
-`boilerMaxOutputTemperatureInCelsius` field. OpenTherm-only —
+`boilerMaxOutputTemperatureInCelsius` field. OpenTherm-only:
 on/off boilers don't expose a max-output setting.
 """
 
@@ -21,6 +21,7 @@ from .bridge_api import FLOW_TEMP_STEP, MAX_FLOW_TEMP, MIN_FLOW_TEMP
 from .device_manager import get_hub_device_info
 from .entity_registry import ENTITY_REGISTRY, get_entity_category
 from .exceptions import TadoBridgeApiError
+from .helpers import PerEntityAvailabilityMixin
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
@@ -42,7 +43,7 @@ async def async_setup_entry(
     coordinator: TadoDataUpdateCoordinator = entry.runtime_data
     entities = []
 
-    # Bridge number entity (optional — only when bridge credentials configured
+    # Bridge number entity (optional: only when bridge credentials configured
     # AND the bridge response actually contains the temperature field)
     bridge_serial = entry.options.get("bridge_serial")
     bridge_auth_key = entry.options.get("bridge_auth_key")
@@ -52,12 +53,12 @@ async def async_setup_entry(
             entities.append(TadoBoilerMaxOutputTemperatureNumber(coordinator))
             _LOGGER.debug(
                 "Number: bridge exposes boiler max output temperature "
-                "— creating boiler max temp number entity",
+                ", creating boiler max temp number entity",
             )
         else:
             _LOGGER.debug(
                 "Number: bridge configured but boiler max output "
-                "temperature not in the response — boiler max temp "
+                "temperature not in the response, boiler max temp "
                 "number entity not created (requires an OpenTherm "
                 "boiler)",
             )
@@ -66,12 +67,13 @@ async def async_setup_entry(
 
 
 class TadoBoilerMaxOutputTemperatureNumber(
+    PerEntityAvailabilityMixin,
     CoordinatorEntity["TadoDataUpdateCoordinator"],
     NumberEntity,
 ):
     """Set the boiler's maximum output temperature on OpenTherm bridges.
 
-    Optimistic on success — the entity reflects the requested
+    Optimistic on success: the entity reflects the requested
     value immediately and the next coordinator poll either
     confirms it or corrects it from the bridge.
     """
@@ -94,7 +96,7 @@ class TadoBoilerMaxOutputTemperatureNumber(
             self._attr_icon = _meta.icon
         self._attr_entity_category = get_entity_category(_meta)
         self._attr_device_info = get_hub_device_info(coordinator.home_id)
-        self._attr_available = False
+        self._data_present = False
         self._attr_native_value: float | None = None
 
     async def async_set_native_value(self, value: float) -> None:
@@ -108,13 +110,13 @@ class TadoBoilerMaxOutputTemperatureNumber(
         except TadoBridgeApiError as err:
             _LOGGER.warning(
                 "Number: boiler max output temperature write failed "
-                "(%s) — keeping the previous value",
+                "(%s), keeping the previous value",
                 err,
             )
             msg = "Failed to set boiler max output temperature"
             raise HomeAssistantError(msg) from err
-        # Quantise to the bridge's 0.5°C step before reflecting back
-        # — the bridge would round anyway, so showing the user's raw
+        # Quantise to the bridge's 0.5°C step before reflecting back.
+        # The bridge would round anyway, so showing the user's raw
         # request would briefly disagree with the next poll.
         self._attr_native_value = round(value * 2) / 2
         self.async_write_ha_state()
@@ -124,13 +126,13 @@ class TadoBoilerMaxOutputTemperatureNumber(
         """Refresh boiler max output temperature from the latest bridge poll."""
         bridge = self.coordinator.data.get("bridge")
         if not bridge:
-            self._attr_available = False
+            self._data_present = False
             self.async_write_ha_state()
             return
         temp = bridge.get("boilerMaxOutputTemperatureInCelsius")
         if temp is not None:
             self._attr_native_value = float(temp)
-            self._attr_available = True
+            self._data_present = True
         else:
-            self._attr_available = False
+            self._data_present = False
         self.async_write_ha_state()

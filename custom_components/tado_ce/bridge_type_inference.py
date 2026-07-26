@@ -1,4 +1,4 @@
-"""Bridge API field type inference engine — pure functions, zero HA dependency."""
+"""Bridge API field type inference engine: pure functions, zero HA dependency."""
 
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-"""Tado CE sensor platform — instantiate every sensor entity per config entry."""
+"""Tado CE sensor platform: instantiate every sensor entity per config entry."""
 
 from __future__ import annotations
 
@@ -147,7 +147,7 @@ def _create_heating_zone_sensors(
     if not hcc:
         _LOGGER.warning(
             "Sensor: zone %s reports heating power but the heating "
-            "cycle coordinator hasn't started yet — thermal analytics "
+            "cycle coordinator hasn't started yet, thermal analytics "
             "sensors will be created on the next reload",
             zone_name,
         )
@@ -204,7 +204,7 @@ def _create_zone_sensors(
 
     if zones_with_heating_power:
         _LOGGER.debug(
-            "Sensor: zones reporting heating power — %s",
+            "Sensor: zones reporting heating power: %s",
             zones_with_heating_power,
         )
 
@@ -261,7 +261,7 @@ def _create_device_sensors(
     data_loader: Any,
     sensors: list[SensorEntity],
 ) -> None:
-    """Create device-level sensors (battery + connection)."""
+    """Create device-level battery sensors (connection is a binary_sensor, created separately)."""
     zones_info = data_loader.load_zones_info_file()
     if not zones_info:
         return
@@ -304,7 +304,7 @@ def _create_bridge_sensors(
         )
 
     # Meta sensors are always created once bridge credentials are
-    # present, even before the first bridge poll lands — they expose
+    # present, even before the first bridge poll lands; they expose
     # the capability / schema version state machine to users.
     from .sensor_bridge import (
         TadoBridgeCapabilitiesSensor,
@@ -320,7 +320,7 @@ def _create_bridge_sensors(
     if not bridge_data:
         _LOGGER.info(
             "Sensor: bridge credentials configured but no bridge data "
-            "yet — dynamic bridge sensors will be created after the "
+            "yet, dynamic bridge sensors will be created after the "
             "next reload",
         )
 
@@ -357,13 +357,13 @@ async def async_setup_entry(
 
     if await hass.async_add_executor_job(_has_boiler_flow_temperature_data, data_loader):
         _LOGGER.debug(
-            "Sensor: boiler flow temperature available — creating "
+            "Sensor: boiler flow temperature available, creating "
             "TadoBoilerFlowTemperatureSensor",
         )
         sensors.append(TadoBoilerFlowTemperatureSensor(coordinator))
     else:
         _LOGGER.debug(
-            "Sensor: no boiler flow temperature in zone data — boiler "
+            "Sensor: no boiler flow temperature in zone data, boiler "
             "flow sensor not created (requires an OpenTherm boiler)",
         )
 
@@ -385,7 +385,7 @@ async def async_setup_entry(
     except Exception:
         _LOGGER.warning(
             "Sensor: could not parse zone list while creating zone "
-            "sensors — zone-level sensors will retry on the next "
+            "sensors, zone-level sensors will retry on the next "
             "reload",
             exc_info=True,
         )
@@ -397,7 +397,7 @@ async def async_setup_entry(
     except Exception as e:
         _LOGGER.warning(
             "Sensor: could not parse device list while creating "
-            "battery sensors (%s) — battery sensors will retry on "
+            "battery sensors (%s), battery sensors will retry on "
             "the next reload",
             e,
         )
@@ -439,7 +439,7 @@ def _has_boiler_flow_temperature_data(data_loader: DataLoader) -> bool:
             flow_temp = (activity_data.get("boilerFlowTemperature") or {}).get("celsius")
             if flow_temp is not None:
                 _LOGGER.debug(
-                    "Sensor: zone %s reports boiler flow %s°C — boiler "
+                    "Sensor: zone %s reports boiler flow %s°C, boiler "
                     "flow sensor will be created",
                     zone_id, flow_temp,
                 )
@@ -449,7 +449,7 @@ def _has_boiler_flow_temperature_data(data_loader: DataLoader) -> bool:
     except Exception as e:
         _LOGGER.debug(
             "Sensor: could not probe zone data for boiler flow "
-            "temperature (%s) — boiler flow sensor not created",
+            "temperature (%s), boiler flow sensor not created",
             e,
         )
         return False

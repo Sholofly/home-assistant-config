@@ -1,4 +1,4 @@
-"""Tado CE setup helpers — optional per-entry feature initialisers (Smart Comfort uses 3-tier load: cache → recorder → statistics)."""
+"""Tado CE setup helpers: optional per-entry feature initialisers (Smart Comfort uses 3-tier load: cache → recorder → statistics)."""
 
 from __future__ import annotations
 
@@ -39,7 +39,7 @@ async def async_log_file_system_state(hass: HomeAssistant) -> None:
 
     fs_state = await hass.async_add_executor_job(_check)
     _LOGGER.debug(
-        "Setup: data file presence — DATA_DIR=%s (%s), "
+        "Setup: data file presence. DATA_DIR=%s (%s), "
         "CONFIG_FILE=%s (%s), ZONES_FILE=%s (%s), "
         "ZONES_INFO_FILE=%s (%s)",
         DATA_DIR,
@@ -89,7 +89,7 @@ async def async_init_smart_comfort(
             use_feels_like=use_feels_like,
         )
 
-    # Tier 1 — 2h cache (fastest)
+    # Tier 1: 2h cache (fastest)
     cache_readings = await smart_comfort_manager.async_load()
 
     zones_info = await hass.async_add_executor_job(data_loader.load_zones_info_file)
@@ -103,7 +103,7 @@ async def async_init_smart_comfort(
 
         climate_entity_ids = [f"climate.{entity_name}" for entity_name in entity_to_zone_id]
 
-        # Tier 2 — 24h recorder (layered on top of cache)
+        # Tier 2: 24h recorder (layered on top of cache)
         recorder_readings = 0
         if climate_entity_ids:
             recorder_readings = await async_load_history_from_recorder(
@@ -113,7 +113,7 @@ async def async_init_smart_comfort(
                 entity_to_zone_id,
             )
 
-        # Tier 3 — 7d hourly baselines (fallback when zones have no cache/recorder data)
+        # Tier 3: 7d hourly baselines (fallback when zones have no cache/recorder data)
         zone_sensor_mapping = {
             str(zone.get("id")): f"sensor.{slugify(zone.get('name', ''))}_temperature"
             for zone in zones_info
@@ -126,7 +126,7 @@ async def async_init_smart_comfort(
         )
 
         _LOGGER.debug(
-            "Setup: Smart Comfort load summary — cache=%s, "
+            "Setup: Smart Comfort load summary, cache=%s, "
             "recorder=%s, baseline_zones=%s",
             cache_readings,
             recorder_readings,
@@ -158,7 +158,7 @@ async def async_init_heating_cycle(
         )
 
         _LOGGER.debug(
-            "Setup: Heating Cycle config — min_cycles=%d, "
+            "Setup: Heating Cycle config, min_cycles=%d, "
             "history_days=%d, inertia_threshold=%.2f",
             heating_cycle_config.min_cycles,
             heating_cycle_config.rolling_window_days,
@@ -176,7 +176,7 @@ async def async_init_heating_cycle(
         return heating_cycle_coordinator
     except Exception:
         _LOGGER.warning(
-            "Setup: Heating Cycle Analysis init failed — feature "
+            "Setup: Heating Cycle Analysis init failed, feature "
             "disabled this session, will retry on the next "
             "integration reload",
             exc_info=True,
@@ -211,7 +211,7 @@ async def async_init_adaptive_preheat(
         return apm
     except Exception:
         _LOGGER.warning(
-            "Setup: Adaptive Preheat init failed — feature "
+            "Setup: Adaptive Preheat init failed, feature "
             "disabled this session, will retry on the next "
             "integration reload",
             exc_info=True,
@@ -238,7 +238,7 @@ async def async_init_state_restore(
         return srm
     except Exception:
         _LOGGER.warning(
-            "Setup: State Restore manager init failed — overlays "
+            "Setup: State Restore manager init failed, overlays "
             "will not auto-resume after this restart, will retry "
             "on the next integration reload",
             exc_info=True,
@@ -283,6 +283,34 @@ async def async_load_insight_history(coordinator: TadoDataUpdateCoordinator) -> 
             loaded_count,
             pruned_count,
         )
+
+
+async def async_activate_homekit(
+    coordinator: TadoDataUpdateCoordinator,
+    provider: Any,
+    homekit_client: Any,
+) -> None:
+    """Bring HomeKit local control online during setup, degrading on failure.
+
+    When the bridge is already connected, refresh the accessory list and
+    subscribe to characteristic events. When it is not, start the background
+    reconnect loop so it recovers without a manual reload.
+
+    Both `async_refresh_accessories` and `async_subscribe_events` self-protect
+    against a bridge dropping mid-operation (refresh returns an empty list,
+    subscribe triggers a reconnect), so this brings HomeKit online without its
+    own guard and a bridge failure here can never abort the config entry. The
+    same two primitives back the per-poll and reconnect-callback paths, so all
+    three callers bring HomeKit online the one way.
+    """
+    if homekit_client.is_connected:
+        await provider.async_refresh_accessories()
+        await provider.async_subscribe_events()
+        return
+
+    # Not connected at startup: let the background loop retry so recovery
+    # needs no manual reload.
+    await homekit_client.async_reconnect()
 
 
 def register_bridge_devices(

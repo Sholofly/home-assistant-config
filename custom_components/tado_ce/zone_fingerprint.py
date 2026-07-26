@@ -45,3 +45,41 @@ class ZoneFingerprintTracker:
         )
         self._previous = current
         return delta
+
+
+def ac_device_fingerprints_changed(
+    zones_info: list[Any],
+    prev_fp: dict[str, Any],
+) -> tuple[set[str], dict[str, list[list[str]]]]:
+    """Return AC zone_ids whose device fingerprint changed, plus the fresh map.
+
+    Fingerprint = `[sorted shortSerialNo list, sorted currentFwVersion list]`
+    per AC zone. A changed serial set (hardware swap / re-pair) or firmware
+    version (new fan / swing modes) means the cached capabilities may be stale.
+    connectionState is deliberately excluded so an offline / online flip does
+    not trigger a capabilities re-fetch (quota waste).
+
+    `prev_fp` is the persisted sidecar baseline (`{zone_id: [serials, fws]}`,
+    JSON shape). A zone absent from `prev_fp` is treated as no baseline, so it
+    is not flagged changed (no false positive on first poll / fresh install).
+    The returned fresh map is JSON-serialisable for sidecar persistence.
+
+    Uses shortSerialNo because the full serial is not present in zones_info
+    device records. Two devices whose short serials happen to collide would
+    mask a change on re-pair; the Refresh AC Capabilities button is the manual
+    fallback for that vendor-data edge.
+    """
+    changed: set[str] = set()
+    fresh: dict[str, list[list[str]]] = {}
+    for zone in zones_info:
+        if zone.get("type") != "AIR_CONDITIONING":
+            continue
+        zone_id = str(zone.get("id"))
+        devices = zone.get("devices") or []
+        serials = sorted(d.get("shortSerialNo") for d in devices if d.get("shortSerialNo"))
+        fws = sorted(d.get("currentFwVersion") for d in devices if d.get("currentFwVersion"))
+        fp = [serials, fws]
+        fresh[zone_id] = fp
+        if zone_id in prev_fp and prev_fp[zone_id] != fp:
+            changed.add(zone_id)
+    return changed, fresh

@@ -1,4 +1,4 @@
-"""Tado CE Weather Compensation Sensors — target flow temp and engine status."""
+"""Tado CE Weather Compensation Sensors: target flow temp and engine status."""
 
 from __future__ import annotations
 
@@ -16,6 +16,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .device_manager import get_hub_device_info
 from .entity_registry import get_meta
+from .helpers import PerEntityAvailabilityMixin
 
 if TYPE_CHECKING:
     from .coordinator import TadoDataUpdateCoordinator
@@ -24,6 +25,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class TadoWeatherCompensationTargetSensor(
+    PerEntityAvailabilityMixin,
     CoordinatorEntity["TadoDataUpdateCoordinator"],
     SensorEntity,
 ):
@@ -52,11 +54,14 @@ class TadoWeatherCompensationTargetSensor(
         """Update target flow temperature from coordinator data."""
         wc = self.coordinator.data.get("weather_compensation")
         if not wc:
-            self._attr_available = False
+            # No weather-compensation data: unavailable, and drop the last
+            # value so a stale flow temperature does not linger.
+            self._attr_native_value = None
+            self._data_present = False
             self.async_write_ha_state()
             return
         self._attr_native_value = wc.get("target_flow_temp")
-        self._attr_available = self._attr_native_value is not None
+        self._data_present = self._attr_native_value is not None
         self.async_write_ha_state()
 
     @property
@@ -101,9 +106,7 @@ class TadoWeatherCompensationStatusSensor(
         wc = self.coordinator.data.get("weather_compensation")
         if not wc:
             self._attr_native_value = "disabled"
-            self._attr_available = True
             self.async_write_ha_state()
             return
         self._attr_native_value = wc.get("status", "disabled")
-        self._attr_available = True
         self.async_write_ha_state()

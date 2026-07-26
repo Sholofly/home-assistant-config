@@ -1,4 +1,4 @@
-"""Tado CE heating-cycle analyser — derive inertia + rate + preheat-time from completed cycles."""
+"""Tado CE heating-cycle analyser: derive inertia + rate + preheat-time from completed cycles."""
 
 from __future__ import annotations
 
@@ -34,7 +34,7 @@ class HeatingCycleAnalyzer:
         if len(valid_cycles) < self._min_cycles:
             _LOGGER.debug(
                 "Heating Analyzer: insufficient valid cycles for "
-                "analysis — %d valid of %d total (need %d)",
+                "analysis: %d valid of %d total (need %d)",
                 len(valid_cycles),
                 len(cycles),
                 self._min_cycles,
@@ -63,7 +63,7 @@ class HeatingCycleAnalyzer:
         if not inertia_times or not heating_rates:
             _LOGGER.debug(
                 "Heating Analyzer: cycles passed filtering but no "
-                "inertia / rate values were extractable — returning "
+                "inertia / rate values were extractable, returning "
                 "None",
             )
             return None
@@ -109,7 +109,7 @@ class HeatingCycleAnalyzer:
         if heating_rate <= 0:
             _LOGGER.debug(
                 "Heating Analyzer: heating_rate %.3f °C/h is "
-                "non-positive — preheat estimation skipped",
+                "non-positive, preheat estimation skipped",
                 heating_rate,
             )
             return None

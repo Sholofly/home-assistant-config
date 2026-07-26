@@ -1,0 +1,17 @@
+{
+  "domain": "technitiumdns",
+  "name": "TechnitiumDNS",
+  "codeowners": [
+    "@Amateur-God",
+    "@tamaygz"
+  ],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/Amateur-God/home-assistant-technitiumdns",
+  "integration_type": "device",
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/Amateur-God/home-assistant-Technitiumdns/issues",
+  "requirements": ["aiohttp>=3.9.0"],
+  "version": "2.4.0"
+
+}

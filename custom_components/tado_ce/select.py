@@ -1,8 +1,8 @@
-"""Tado CE select platform — Presence Mode, Overlay Mode, Timer Duration.
+"""Tado CE select platform: Presence Mode, Overlay Mode, Timer Duration.
 
 Three home-level select entities. Presence Mode talks to the
 cloud (1 API call per change, with optimistic update + rollback);
-Overlay Mode and Timer Duration are local-only — they shape how
+Overlay Mode and Timer Duration are local-only: they shape how
 *future* manual writes are sent but don't themselves hit the
 cloud.
 """
@@ -16,6 +16,7 @@ from homeassistant.components.select import SelectEntity
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.util import slugify
 
 from .climate_helpers import inject_presence_state
 from .const import (
@@ -28,7 +29,7 @@ from .const import (
     TIMER_DURATION_DEFAULT,
     TIMER_DURATION_OPTIONS,
 )
-from .device_manager import get_hub_device_info
+from .device_manager import get_hub_device_info, get_zone_device_info
 from .entity_registry import ENTITY_REGISTRY, get_entity_category
 from .helpers import async_trigger_immediate_refresh
 from .optimistic_helpers import (
@@ -59,11 +60,34 @@ async def async_setup_entry(
     coordinator = entry.runtime_data
     home_id = coordinator.home_id
 
-    entities = [
+    entities: list[SelectEntity] = [
         TadoPresenceModeSelect(coordinator, home_id),
         TadoOverlayModeSelect(coordinator, home_id),
         TadoTimerDurationSelect(coordinator, home_id),
     ]
+
+    # Per-zone heating-circuit select: opt-in, and only when the home actually
+    # has a boiler circuit to assign (single-circuit homes still get it for the
+    # residual-heat "No heating circuit" option).
+    config_manager = coordinator.config_manager
+    if config_manager is not None and config_manager.get_heating_circuit_enabled():
+        circuits = ((coordinator.data or {}).get("heating_circuits") or {}).get("circuits") or []
+        if circuits:
+            zones_info = await hass.async_add_executor_job(
+                coordinator.data_loader.load_zones_info_file,
+            )
+            for zone in zones_info or []:
+                if zone.get("type") != "HEATING":
+                    continue
+                entities.append(
+                    TadoHeatingCircuitSelect(
+                        coordinator,
+                        str(zone.get("id")),
+                        zone.get("name", f"Zone {zone.get('id')}"),
+                        zone.get("type"),
+                        home_id,
+                    ),
+                )
 
     if entities:
         async_add_entities(entities, True)
@@ -94,7 +118,6 @@ class TadoPresenceModeSelect(CoordinatorEntity["TadoDataUpdateCoordinator"], Sel
         if _meta.translation_key is not None:
             self._attr_translation_key = _meta.translation_key
         self._attr_current_option = "auto"
-        self._attr_available = True
         self._attr_device_info = get_hub_device_info(home_id)
 
         # State tracking
@@ -159,7 +182,7 @@ class TadoPresenceModeSelect(CoordinatorEntity["TadoDataUpdateCoordinator"], Sel
 
             if result == OptimisticUpdateResult.PRESERVE_OPTIMISTIC:
                 _LOGGER.debug(
-                    "Select: presence mode holding optimistic %s — "
+                    "Select: presence mode holding optimistic %s, "
                     "cloud still reports %s",
                     self._expected_mode,
                     api_mode,
@@ -172,7 +195,7 @@ class TadoPresenceModeSelect(CoordinatorEntity["TadoDataUpdateCoordinator"], Sel
 
         except (AttributeError, TypeError, KeyError) as e:
             _LOGGER.warning(
-                "Select: presence mode update failed (%s) — keeping "
+                "Select: presence mode update failed (%s), keeping "
                 "last known mode until the next poll",
                 e,
             )
@@ -217,15 +240,15 @@ class TadoPresenceModeSelect(CoordinatorEntity["TadoDataUpdateCoordinator"], Sel
             # decides on the next poll), so leave cached presence
             # alone rather than guess HOME.
             if option == "auto":
-                inject_presence_state(self.coordinator, None, locked=False)
+                await inject_presence_state(self.coordinator, None, locked=False)
             else:
-                inject_presence_state(self.coordinator, option.upper(), locked=True)
+                await inject_presence_state(self.coordinator, option.upper(), locked=True)
             await async_trigger_immediate_refresh(
                 self.hass, self.entity_id, f"presence_mode_{option}",
             )
         else:
             _LOGGER.warning(
-                "Select: presence mode %s write failed — reverted to "
+                "Select: presence mode %s write failed, reverted to "
                 "previous mode",
                 option,
             )
@@ -244,7 +267,7 @@ class TadoOverlayModeSelect(CoordinatorEntity["TadoDataUpdateCoordinator"], Sele
     """Choose how long manual temperature changes stay in effect.
 
     Local-only setting (no API call) that shapes future climate
-    writes — Tado Mode mirrors the per-device app preference,
+    writes: Tado Mode mirrors the per-device app preference,
     Next Time Block / Timer / Manual override the cloud
     termination explicitly.
     """
@@ -263,7 +286,6 @@ class TadoOverlayModeSelect(CoordinatorEntity["TadoDataUpdateCoordinator"], Sele
             self._attr_translation_key = _meta.translation_key
         self._attr_entity_category = get_entity_category(_meta)
         self._attr_current_option = OVERLAY_MODE_DEFAULT_DISPLAY
-        self._attr_available = True
         self._attr_device_info = get_hub_device_info(home_id)
         self._attr_icon = _meta.icon
 
@@ -271,11 +293,10 @@ class TadoOverlayModeSelect(CoordinatorEntity["TadoDataUpdateCoordinator"], Sele
     def extra_state_attributes(self) -> dict[str, Any] | None:
         """Return extra state attributes."""
         return {
-            "description": "Controls how long manual temperature changes last",
-            "tado_mode_info": "Follows per-device settings in Tado app",
-            "next_time_block_info": "Until next scheduled change",
-            "timer_info": "For specified duration (see Timer Duration)",
-            "manual_info": "Until you manually change back",
+            "description": "Controls how long a temperature change made from Home Assistant lasts",
+            "manual_info": "Until you resume the schedule",
+            "tado_mode_info": "Until the next automatic change in your Tado schedule",
+            "timer_info": "For a set duration (see Timer Duration)",
             "api_calls_per_change": 0,
         }
 
@@ -293,7 +314,7 @@ class TadoOverlayModeSelect(CoordinatorEntity["TadoDataUpdateCoordinator"], Sele
             self._attr_current_option = OVERLAY_MODE_REVERSE_MAP.get(overlay_mode, OVERLAY_MODE_DEFAULT_DISPLAY)
         except (AttributeError, TypeError) as e:
             _LOGGER.warning(
-                "Select: overlay mode update failed (%s) — keeping "
+                "Select: overlay mode update failed (%s), keeping "
                 "last known option until the next poll",
                 e,
             )
@@ -313,7 +334,7 @@ class TadoOverlayModeSelect(CoordinatorEntity["TadoDataUpdateCoordinator"], Sele
             )
         else:
             _LOGGER.warning(
-                "Select: overlay mode persistence failed for %s — "
+                "Select: overlay mode persistence failed for %s, "
                 "value applied in memory but won't survive a HA "
                 "restart",
                 option,
@@ -323,7 +344,7 @@ class TadoOverlayModeSelect(CoordinatorEntity["TadoDataUpdateCoordinator"], Sele
 class TadoTimerDurationSelect(CoordinatorEntity["TadoDataUpdateCoordinator"], SelectEntity):
     """Set the Timer-overlay duration in minutes.
 
-    Only takes effect when Overlay Mode is `Timer`. Local-only —
+    Only takes effect when Overlay Mode is `Timer`. Local-only:
     persisted alongside Overlay Mode so the next manual write
     picks up the new duration.
     """
@@ -342,7 +363,6 @@ class TadoTimerDurationSelect(CoordinatorEntity["TadoDataUpdateCoordinator"], Se
             self._attr_translation_key = _meta.translation_key
         self._attr_entity_category = get_entity_category(_meta)
         self._attr_current_option = str(TIMER_DURATION_DEFAULT)
-        self._attr_available = True
         self._attr_device_info = get_hub_device_info(home_id)
         self._attr_icon = _meta.icon
         self._attr_unit_of_measurement = "min"
@@ -370,7 +390,7 @@ class TadoTimerDurationSelect(CoordinatorEntity["TadoDataUpdateCoordinator"], Se
             self._attr_current_option = str(duration)
         except (AttributeError, TypeError) as e:
             _LOGGER.warning(
-                "Select: timer duration update failed (%s) — keeping "
+                "Select: timer duration update failed (%s), keeping "
                 "last known value until the next poll",
                 e,
             )
@@ -390,8 +410,118 @@ class TadoTimerDurationSelect(CoordinatorEntity["TadoDataUpdateCoordinator"], Se
             )
         else:
             _LOGGER.warning(
-                "Select: timer duration persistence failed for %s — "
+                "Select: timer duration persistence failed for %s, "
                 "value applied in memory but won't survive a HA "
                 "restart",
                 option,
             )
+
+
+NO_HEATING_CIRCUIT_OPTION = "no_heating_circuit"
+
+
+class TadoHeatingCircuitSelect(CoordinatorEntity["TadoDataUpdateCoordinator"], SelectEntity):
+    """Assign a heating zone to a boiler circuit, or to "No heating circuit".
+
+    "No heating circuit" leaves the zone's valves free to open for residual
+    heat when the boiler is already firing for another room, without the zone
+    itself ever calling for heat. Identity keys on the circuit's stable
+    ``number``; the serial (`driverShortSerialNo`) is shown for display only,
+    since it changes when a circuit's driver is re-paired.
+    """
+
+    _attr_has_entity_name = True
+    _attr_translation_key = "heating_circuit"
+
+    def __init__(
+        self,
+        coordinator: TadoDataUpdateCoordinator,
+        zone_id: str,
+        zone_name: str,
+        zone_type: str,
+        home_id: str,
+    ) -> None:
+        """Initialize the per-zone heating-circuit select."""
+        super().__init__(coordinator)
+        _meta = ENTITY_REGISTRY["select_heating_circuit"]
+        self._zone_id = zone_id
+        self._attr_unique_id = f"tado_ce_{home_id}_{zone_id}_{_meta.unique_id_suffix}"
+        self._attr_entity_category = get_entity_category(_meta)
+        self._attr_device_info = get_zone_device_info(zone_id, zone_name, zone_type, home_id)
+        self._attr_options = [NO_HEATING_CIRCUIT_OPTION]
+        self._attr_current_option = NO_HEATING_CIRCUIT_OPTION
+        # Pin entity_id so HA 2026.6 doesn't double the slug on same-named
+        # zone/area (mirrors the Identify button).
+        self.entity_id = f"select.{slugify(f'{zone_name} heating circuit')}"
+
+    def _circuits(self) -> list[dict[str, Any]]:
+        """Return the home's circuit list from the cache."""
+        return ((self.coordinator.data or {}).get("heating_circuits") or {}).get("circuits") or []
+
+    def _current_number(self) -> int | None:
+        """Return this zone's currently-assigned circuit number, or None."""
+        control = ((self.coordinator.data or {}).get("heating_circuit_control") or {}).get(
+            self._zone_id,
+        ) or {}
+        return control.get("heatingCircuit")
+
+    @property
+    def icon(self) -> str | None:
+        """Return the entity icon."""
+        return "mdi:radiator-disabled" if (
+            self._attr_current_option == NO_HEATING_CIRCUIT_OPTION
+        ) else "mdi:radiator"
+
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        """Refresh options + current selection from the latest cache."""
+        self.update()
+        self.async_write_ha_state()
+
+    @callback
+    def update(self) -> None:
+        """Rebuild options from the circuit list and resolve the current option.
+
+        D1 guard: a live circuit number with no matching serial in the list
+        (a mid-drift poll, a re-paired circuit) gets a synthetic ``circuit_<n>``
+        option so the state is always representable and never falsely reads as
+        "no heating circuit".
+        """
+        circuits = self._circuits()
+        by_number = {c.get("number"): c.get("driverShortSerialNo") for c in circuits}
+        options = [NO_HEATING_CIRCUIT_OPTION]
+        options.extend(str(c.get("driverShortSerialNo")) for c in circuits)
+
+        number = self._current_number()
+        if number is None:
+            current = NO_HEATING_CIRCUIT_OPTION
+        elif number in by_number:
+            current = str(by_number[number])
+        else:
+            current = f"circuit_{number}"
+            if current not in options:
+                options.append(current)
+
+        self._attr_options = options
+        self._attr_current_option = current
+
+    async def async_select_option(self, option: str) -> None:
+        """Reassign this zone's circuit, keying the write on the stable number."""
+        await _check_bootstrap_reserve_or_raise(
+            self.hass, "Heating Circuit", coordinator=self.coordinator,
+        )
+        if option == NO_HEATING_CIRCUIT_OPTION:
+            number: int | None = None
+        elif option.startswith("circuit_"):
+            number = int(option.split("_", 1)[1])
+        else:
+            by_serial = {
+                str(c.get("driverShortSerialNo")): c.get("number") for c in self._circuits()
+            }
+            number = by_serial.get(option)
+
+        self._attr_current_option = option
+        self.async_write_ha_state()
+
+        await self.coordinator.api_client.set_zone_heating_circuit(self._zone_id, number)
+        await async_trigger_immediate_refresh(self.hass, self.entity_id, "heating_circuit_change")

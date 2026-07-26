@@ -1,8 +1,8 @@
-"""Tado CE physics calculations — dew point, surface temp, mold/comfort/heat-risk classifiers.
+"""Tado CE physics calculations: dew point, surface temp, mold/comfort/heat-risk classifiers.
 
 Pure functions used by the environment / smart-comfort
 sensors. The Magnus-Tetens approximation is accurate to ±0.1%
-in the −40°C to 50°C range — covers every realistic indoor /
+in the −40°C to 50°C range, covering every realistic indoor /
 outdoor temperature.
 """
 
@@ -21,18 +21,18 @@ MAGNUS_A: float = 17.27
 MAGNUS_B: float = 237.7  # °C
 
 # ============ Mold Risk Thresholds (margin = effective_temp - dew_point) ============
-MOLD_RISK_CRITICAL: float = 3.0  # °C — margin < 3 → Critical
-MOLD_RISK_HIGH: float = 5.0  # °C — margin < 5 → High
-MOLD_RISK_MEDIUM: float = 7.0  # °C — margin < 7 → Medium
+MOLD_RISK_CRITICAL: float = 3.0  # °C: margin < 3 → Critical
+MOLD_RISK_HIGH: float = 5.0  # °C: margin < 5 → High
+MOLD_RISK_MEDIUM: float = 7.0  # °C: margin < 7 → Medium
 
-# ============ Condensation Risk Thresholds — HEATING ============
+# ============ Condensation Risk Thresholds: HEATING ============
 # margin = surface_temp - indoor_dew_point, uses <= comparisons
 CONDENSATION_HEATING_CRITICAL: float = 1.0  # °C
 CONDENSATION_HEATING_HIGH: float = 3.0  # °C
 CONDENSATION_HEATING_MEDIUM: float = 5.0  # °C
 CONDENSATION_HEATING_LOW: float = 7.0  # °C
 
-# ============ Condensation Risk Thresholds — AC ============
+# ============ Condensation Risk Thresholds: AC ============
 # margin = window_outer_surface_temp - outdoor_dew_point, uses < comparisons
 CONDENSATION_AC_CRITICAL: float = 2.0  # °C
 CONDENSATION_AC_HIGH: float = 4.0  # °C
@@ -59,21 +59,23 @@ SEASONAL_BASE_TARGETS: dict[str, float] = {
 }
 
 # ============ Comfort Level Thresholds ============
-COMFORT_COLD: float = 16.0  # °C — below → Cold
-COMFORT_COOL: float = 18.0  # °C — below → Cool
-COMFORT_WARM: float = 24.0  # °C — above → Warm
-COMFORT_HOT: float = 26.0  # °C — above → Hot
+COMFORT_COLD: float = 16.0  # °C: below → Cold
+COMFORT_COOL: float = 18.0  # °C: below → Cool
+COMFORT_WARM: float = 24.0  # °C: above → Warm
+COMFORT_HOT: float = 26.0  # °C: above → Hot
 
-# ============ Cooling Rate Thresholds (°C/min) ============
-COOLING_RATE_MIN: float = -5.0  # °C/min — floor clamp for outlier rejection
-COOLING_RATE_STABLE: float = -0.1  # °C/min — abs(rate) below this → room is stable
+# ============ Cooling Rate Thresholds (°C/h) ============
+# Cooling rate is measured in °C/h everywhere (smart_comfort._calculate_rate
+# regresses temperature over hours; get_cooling_rate / _MIN_COOLING_RATE agree).
+COOLING_RATE_MIN: float = -5.0  # °C/h: floor clamp for outlier rejection
+COOLING_RATE_STABLE: float = -0.1  # °C/h: abs(rate) below this → room is stable
 
 # ============ Heat Index Constants (NOAA/NWS) ============
-HEAT_INDEX_ACTIVATION_TEMP: float = 26.7  # °C — below this, Heat Index = air temp
+HEAT_INDEX_ACTIVATION_TEMP: float = 26.7  # °C: below this, Heat Index = air temp
 
 # Internal constants for the Steadman→Rothfusz transition blend.
-_TRANSITION_THRESHOLD_F: float = 80.0  # °F — NOAA switch point
-_BLEND_WIDTH_F: float = 2.0  # °F — linear-blend window above threshold
+_TRANSITION_THRESHOLD_F: float = 80.0  # °F: NOAA switch point
+_BLEND_WIDTH_F: float = 2.0  # °F: linear-blend window above threshold
 
 HEAT_RISK_THRESHOLDS: tuple[tuple[float, str], ...] = (
     (51.0, "Extreme Danger"),
@@ -169,6 +171,26 @@ def classify_heat_risk_level(heat_index: float) -> str:
     return "None"
 
 
+# ============ Cold Risk Level Classification ============
+
+# WHO indoor-temperature health bands (absolute °C), warm → no risk.
+# 16 °C top boundary aligns with COMFORT_COLD; below 18 °C WHO flags risk for
+# vulnerable groups, below 16 °C respiratory, below 12 °C cardiovascular.
+COLD_RISK_THRESHOLDS: tuple[tuple[float, str], ...] = (
+    (16.0, "None"),
+    (12.0, "Respiratory"),
+    (0.0, "Cardiovascular"),
+)
+
+
+def classify_cold_risk_level(inside_temp: float) -> str:
+    """Classify indoor temperature into a WHO cold-health-risk band."""
+    for threshold, level in COLD_RISK_THRESHOLDS:
+        if inside_temp >= threshold:
+            return level
+    return "Cardiovascular"
+
+
 # ============ Dew Point Calculation ============
 
 
@@ -244,7 +266,7 @@ def calculate_surface_rh(effective_temp: float, dew_point: float) -> int | None:
     except (ValueError, TypeError, ZeroDivisionError):
         _LOGGER.debug(
             "Calculations: surface RH could not be computed "
-            "(effective_temp=%s, dew_point=%s) — returning None",
+            "(effective_temp=%s, dew_point=%s), returning None",
             effective_temp,
             dew_point,
         )
@@ -374,7 +396,7 @@ def calculate_ashrae_comfort_temp(outdoor_temp: float) -> float:
 def calculate_seasonal_comfort_target(latitude: float, month: int) -> float:
     """Calculate comfort target based on season and latitude.
 
-    Pure function — no HA dependencies. Caller provides latitude and month.
+    Pure function: no HA dependencies. Caller provides latitude and month.
 
     Args:
         latitude: Geographic latitude in degrees (negative = Southern Hemisphere).
@@ -422,7 +444,7 @@ def estimate_cooling_crossover(
     """Estimate hours until temperature crosses below target due to cooling.
 
     Uses linear extrapolation from current cooling rate.
-    Pure function — no HA dependencies.
+    Pure function: no HA dependencies.
 
     Args:
         current_temp: Current room temperature in °C.

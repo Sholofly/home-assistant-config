@@ -1,0 +1,1062 @@
+/**
+ * Analytics Dashboard JavaScript (Story 19.2)
+ *
+ * Fetches analytics data from API and renders stat cards
+ * with trend indicators and period filtering.
+ */
+(function() {
+    'use strict';
+
+    var API_URL = '/beatify/api/analytics';
+    var SONG_STATS_API_URL = '/beatify/api/analytics/songs';
+    var currentPeriod = '30d';
+    var retryCount = 0;
+    var maxRetries = 3;
+
+    // Song statistics state (Story 19.7)
+    var songStatsData = null;
+    var modalPlaylistData = null;
+    var modalCurrentPage = 1;
+    var modalPageSize = 20;
+    var modalSortField = 'play_count';
+    var modalSortDir = 'desc';
+    var modalSearchQuery = '';
+
+    /**
+     * Load analytics data from API
+     * @param {string} period - Time period (7d, 30d, 90d, all)
+     */
+    async function loadAnalytics(period) {
+        showLoading(true);
+        hideError();
+
+        try {
+            var response = await fetch(API_URL + '?period=' + encodeURIComponent(period));
+            if (!response.ok) {
+                throw new Error('API returned ' + response.status);
+            }
+            var data = await response.json();
+            renderStats(data);
+            retryCount = 0;
+            showLoading(false);
+        } catch (err) {
+            console.error('Analytics API error:', err);
+            showLoading(false);
+
+            if (retryCount < maxRetries) {
+                retryCount++;
+                setTimeout(function() {
+                    loadAnalytics(period);
+                }, 1000 * retryCount);
+            } else {
+                showError();
+            }
+        }
+    }
+
+    /**
+     * Render stat cards with data
+     * @param {Object} data - Analytics data from API
+     */
+    function renderStats(data) {
+        updateStatCard('stat-total-games', data.total_games, data.trends.games);
+        updateStatCard('stat-avg-players', data.avg_players_per_game.toFixed(1), data.trends.players);
+        updateStatCard('stat-avg-score', data.avg_score.toFixed(1), data.trends.score);
+
+        // Story 19.8: Peak Players (no trend)
+        updatePeakPlayersCard('stat-peak-players', data.peak_players);
+
+        // Story 19.9: Avg Rounds Per Game (with trend)
+        updateStatCard('stat-avg-rounds',
+            data.avg_rounds > 0 ? data.avg_rounds.toFixed(1) : '--',
+            data.trends.rounds || 0
+        );
+
+        // Story 19.11: Streak Achievements
+        if (data.streak_stats) {
+            renderStreakStats(data.streak_stats);
+        }
+
+        // Story 19.12: Betting Statistics
+        if (data.bet_stats) {
+            renderBetStats(data.bet_stats);
+        }
+
+        // Render additional sections (Stories 19.4, 19.5)
+        if (data.playlists) {
+            renderPlaylists(data.playlists);
+        }
+        if (data.chart_data) {
+            renderChart(data.chart_data);
+        }
+    }
+
+    // Cache for updating combined achievements summary
+    var cachedStreakTotal = 0;
+    var cachedBetRate = null;
+
+    /**
+     * Render streak achievements section (Story 19.11)
+     * @param {Object} streakStats - Streak statistics from API
+     */
+    function renderStreakStats(streakStats) {
+        // Check for data
+        if (!streakStats || !streakStats.has_data) {
+            cachedStreakTotal = 0;
+            updateAchievementsSummary();
+            return;
+        }
+
+        // Update streak values (works with both old cards and new badges)
+        updateStreakCard('streak-3-value', streakStats.streak_3_count);
+        updateStreakCard('streak-5-value', streakStats.streak_5_count);
+        updateStreakCard('streak-7-value', streakStats.streak_7_count);
+
+        // Cache total for combined summary
+        cachedStreakTotal = (streakStats.streak_3_count || 0) + (streakStats.streak_5_count || 0) + (streakStats.streak_7_count || 0);
+        updateAchievementsSummary();
+    }
+
+    /**
+     * Update a streak card value
+     * @param {string} id - Element ID
+     * @param {number} value - Streak count
+     */
+    function updateStreakCard(id, value) {
+        var el = document.getElementById(id);
+        if (el) {
+            el.textContent = value > 0 ? value : '--';
+        }
+    }
+
+    /**
+     * Render betting statistics section (Story 19.12)
+     * @param {Object} betStats - Betting statistics from API
+     */
+    function renderBetStats(betStats) {
+        // Check for data
+        if (!betStats || !betStats.has_data) {
+            cachedBetRate = null;
+            updateAchievementsSummary();
+            return;
+        }
+
+        // Update betting values (works with both old cards and new badges)
+        updateBettingCard('betting-total-value', betStats.total_bets);
+        updateBettingCard('betting-won-value', betStats.bets_won);
+        updateBettingCardWithRate('betting-rate-value', betStats.win_rate);
+
+        // Cache bet rate for combined summary
+        cachedBetRate = betStats.total_bets > 0 ? betStats.win_rate : null;
+        updateAchievementsSummary();
+    }
+
+    /**
+     * Update combined achievements summary badge
+     */
+    function updateAchievementsSummary() {
+        var summaryEl = document.getElementById('achievements-summary');
+        if (!summaryEl) return;
+
+        var parts = [];
+        if (cachedStreakTotal > 0) {
+            parts.push('🔥' + cachedStreakTotal);
+        }
+        if (cachedBetRate !== null) {
+            parts.push(cachedBetRate.toFixed(0) + '%');
+        }
+
+        summaryEl.textContent = parts.length > 0 ? parts.join(' • ') : '--';
+    }
+
+    /**
+     * Update a betting card value
+     * @param {string} id - Element ID
+     * @param {number} value - Bet count
+     */
+    function updateBettingCard(id, value) {
+        var el = document.getElementById(id);
+        if (el) {
+            el.textContent = value > 0 ? value : '--';
+        }
+    }
+
+    /**
+     * Update betting card with win rate and color coding
+     * @param {string} id - Element ID
+     * @param {number} rate - Win rate percentage
+     */
+    function updateBettingCardWithRate(id, rate) {
+        var el = document.getElementById(id);
+        if (!el) return;
+
+        // Remove existing color classes
+        el.classList.remove('win-rate-high', 'win-rate-mid', 'win-rate-low');
+
+        if (rate > 0) {
+            el.textContent = rate.toFixed(1) + '%';
+            // Color code based on win rate
+            if (rate >= 60) {
+                el.classList.add('win-rate-high');
+            } else if (rate >= 40) {
+                el.classList.add('win-rate-mid');
+            } else {
+                el.classList.add('win-rate-low');
+            }
+        } else {
+            el.textContent = '--';
+        }
+    }
+
+    /**
+     * Update the Peak Players card (Story 19.8)
+     * Peak is an absolute value, no trend indicator
+     * @param {string} id - Card element ID
+     * @param {number} value - Peak player count
+     */
+    function updatePeakPlayersCard(id, value) {
+        var card = document.getElementById(id);
+        if (!card) return;
+
+        card.classList.remove('loading');
+
+        // Support both old (.stat-value) and new (.stat-mini-value) structures
+        var valueEl = card.querySelector('.stat-mini-value') || card.querySelector('.stat-value');
+        if (valueEl) {
+            // Show "--" if no games (value is 0 or undefined)
+            valueEl.textContent = value > 0 ? value : '--';
+        }
+    }
+
+    /**
+     * Render playlist section (Story 19.4)
+     * @param {Array} playlists - Playlist stats array
+     */
+    function renderPlaylists(playlists) {
+        var listEl = document.getElementById('playlist-list');
+        var emptyEl = document.getElementById('playlist-empty');
+        var headerSummary = document.getElementById('playlist-summary');
+
+        if (!playlists || playlists.length === 0) {
+            listEl.innerHTML = '';
+            emptyEl.classList.remove('hidden');
+            if (headerSummary) headerSummary.textContent = BeatifyI18n.t('analyticsDashboard.none');
+            return;
+        }
+
+        emptyEl.classList.add('hidden');
+        var maxCount = playlists[0].play_count;
+
+        // Update header summary with top playlist name
+        if (headerSummary && playlists[0]) {
+            var topName = playlists[0].name || '';
+            // Truncate long names for header
+            if (topName.length > 20) {
+                topName = topName.substring(0, 18) + '...';
+            }
+            headerSummary.textContent = topName;
+        }
+
+        listEl.innerHTML = playlists.map(function(p) {
+            // Strip file path to get clean playlist name
+            var displayName = p.name;
+            if (displayName && displayName.includes('/')) {
+                displayName = displayName.split('/').pop();
+            }
+            // Remove .json extension if present
+            displayName = displayName.replace(/\.json$/i, '');
+
+            var barWidth = (p.play_count / maxCount * 100).toFixed(1);
+            return '<div class="playlist-row">' +
+                '<div class="playlist-info">' +
+                    '<span class="playlist-name">' + escapeHtml(displayName) + '</span>' +
+                    '<span class="playlist-stats">' + p.play_count + ' games (' + p.percentage + '%)</span>' +
+                '</div>' +
+                '<div class="playlist-bar-container">' +
+                    '<div class="playlist-bar" style="width: ' + barWidth + '%;"></div>' +
+                '</div>' +
+            '</div>';
+        }).join('');
+    }
+
+    /**
+     * Render games chart (Story 19.5)
+     * @param {Object} chartData - Chart data with labels and values
+     */
+    function renderChart(chartData) {
+        var canvas = document.getElementById('games-chart');
+        if (!canvas || !canvas.getContext) return;
+
+        var ctx = canvas.getContext('2d');
+        var container = canvas.parentElement;
+
+        // Responsive canvas sizing
+        canvas.width = container.offsetWidth;
+        canvas.height = 300;
+
+        var labels = chartData.labels || [];
+        var values = chartData.values || [];
+
+        if (labels.length === 0) {
+            ctx.fillStyle = '#888';
+            ctx.font = '14px system-ui';
+            ctx.textAlign = 'center';
+            ctx.fillText('No data available', canvas.width / 2, canvas.height / 2);
+            return;
+        }
+
+        var maxValue = Math.max.apply(null, values.concat([1]));
+        var padding = {top: 20, right: 20, bottom: 40, left: 50};
+        var chartWidth = canvas.width - padding.left - padding.right;
+        var chartHeight = canvas.height - padding.top - padding.bottom;
+        var barWidth = chartWidth / labels.length * 0.7;
+        var barGap = chartWidth / labels.length * 0.3;
+
+        // Clear canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw gridlines
+        ctx.strokeStyle = '#333';
+        ctx.lineWidth = 1;
+        for (var i = 0; i <= 5; i++) {
+            var y = padding.top + (chartHeight / 5) * i;
+            ctx.beginPath();
+            ctx.moveTo(padding.left, y);
+            ctx.lineTo(canvas.width - padding.right, y);
+            ctx.stroke();
+        }
+
+        // Draw bars with neon gradient
+        var gradient = ctx.createLinearGradient(0, chartHeight, 0, 0);
+        gradient.addColorStop(0, '#9d4edd');
+        gradient.addColorStop(1, '#00f5ff');
+
+        values.forEach(function(value, idx) {
+            var barHeight = (value / maxValue) * chartHeight;
+            var x = padding.left + idx * (barWidth + barGap) + barGap / 2;
+            var y = padding.top + chartHeight - barHeight;
+
+            ctx.fillStyle = gradient;
+            ctx.shadowColor = '#00f5ff';
+            ctx.shadowBlur = 10;
+            ctx.fillRect(x, y, barWidth, barHeight);
+            ctx.shadowBlur = 0;
+        });
+
+        // Draw x-axis labels
+        ctx.fillStyle = '#888';
+        ctx.font = '12px system-ui';
+        ctx.textAlign = 'center';
+        labels.forEach(function(label, idx) {
+            var x = padding.left + idx * (barWidth + barGap) + barGap / 2 + barWidth / 2;
+            ctx.fillText(label, x, canvas.height - 10);
+        });
+
+        // Draw y-axis labels
+        ctx.textAlign = 'right';
+        for (var j = 0; j <= 5; j++) {
+            var yPos = padding.top + (chartHeight / 5) * j;
+            var val = Math.round(maxValue - (maxValue / 5) * j);
+            ctx.fillText(val, padding.left - 10, yPos + 4);
+        }
+
+        // Update accessible data table
+        updateChartDataTable(labels, values);
+
+        // Store for resize handling
+        window.currentChartData = chartData;
+    }
+
+    /**
+     * Update accessible data table for chart
+     */
+    function updateChartDataTable(labels, values) {
+        var tbody = document.querySelector('#games-chart-data tbody');
+        if (!tbody) return;
+        tbody.innerHTML = labels.map(function(label, i) {
+            return '<tr><td>' + label + '</td><td>' + values[i] + '</td></tr>';
+        }).join('');
+    }
+
+    // =====================================================
+    // Song Statistics Functions (Story 19.7)
+    // =====================================================
+
+    /**
+     * Load song statistics from API
+     */
+    async function loadSongStats() {
+        try {
+            var response = await fetch(SONG_STATS_API_URL);
+            if (!response.ok) {
+                throw new Error('Song stats API returned ' + response.status);
+            }
+            songStatsData = await response.json();
+            renderSongStats(songStatsData);
+        } catch (err) {
+            console.error('Song stats API error:', err);
+            showSongStatsEmpty();
+        }
+    }
+
+    /**
+     * Render song statistics (AC1, AC2)
+     * @param {Object} data - Song stats from API
+     */
+    function renderSongStats(data) {
+        var emptyEl = document.getElementById('song-stats-empty');
+        var summaryEl = document.getElementById('song-summary-cards');
+        var playlistEl = document.getElementById('playlist-song-stats');
+
+        // Check if we have any data
+        if (!data || (!data.most_played && !data.by_playlist.length)) {
+            showSongStatsEmpty();
+            return;
+        }
+
+        if (emptyEl) emptyEl.classList.add('hidden');
+        if (summaryEl) summaryEl.classList.remove('hidden');
+
+        // Render summary cards (AC1)
+        renderSongSummaryCard('song-most-played', data.most_played, 'play_count');
+        renderSongSummaryCard('song-hardest', data.hardest, 'accuracy');
+        renderSongSummaryCard('song-easiest', data.easiest, 'accuracy');
+
+        // Render playlist grid (AC2)
+        renderPlaylistSongGrid(data.by_playlist);
+    }
+
+    /**
+     * Render a single song summary card (AC1)
+     * @param {string} cardId - Card element ID
+     * @param {Object} song - Song data
+     * @param {string} statType - Type of stat to display
+     */
+    function renderSongSummaryCard(cardId, song, statType) {
+        var card = document.getElementById(cardId);
+        if (!card) return;
+
+        // Support both old card format and new compact row format
+        var titleEl = card.querySelector('.song-card-title') || card.querySelector('.song-row-title');
+        var artistEl = card.querySelector('.song-card-artist');
+        var statEl = card.querySelector('.stat-number') || card.querySelector('.song-row-stat');
+
+        if (!song) {
+            if (titleEl) titleEl.textContent = '--';
+            if (artistEl) artistEl.textContent = '--';
+            if (statEl) statEl.textContent = '--';
+            if (card.disabled !== undefined) card.disabled = true;
+            card.dataset.playlist = '';
+            return;
+        }
+
+        if (card.disabled !== undefined) card.disabled = false;
+        card.dataset.playlist = song.playlist || '';
+        card.dataset.songTitle = song.title || '';
+
+        if (titleEl) titleEl.textContent = song.title || 'Unknown';
+        if (artistEl) artistEl.textContent = song.artist || 'Unknown';
+
+        if (statEl) {
+            if (statType === 'play_count') {
+                statEl.textContent = song.play_count || 0;
+            } else if (statType === 'accuracy') {
+                var accuracy = ((song.accuracy || 0) * 100).toFixed(0);
+                statEl.textContent = accuracy + '%';
+
+                // Apply color class (AC6)
+                statEl.classList.remove('accuracy-high', 'accuracy-mid', 'accuracy-low');
+                if (accuracy >= 70) statEl.classList.add('accuracy-high');
+                else if (accuracy >= 40) statEl.classList.add('accuracy-mid');
+                else statEl.classList.add('accuracy-low');
+            }
+        }
+    }
+
+    /**
+     * Render playlist song statistics grid (AC2)
+     * @param {Array} playlists - Playlist data array
+     */
+    function renderPlaylistSongGrid(playlists) {
+        var container = document.getElementById('playlist-song-stats');
+        if (!container) return;
+
+        if (!playlists || playlists.length === 0) {
+            container.innerHTML = '';
+            return;
+        }
+
+        container.innerHTML = playlists.map(function(p) {
+            var avgAccuracy = ((p.avg_accuracy || 0) * 100).toFixed(0);
+            var accuracyClass = getAccuracyClass(avgAccuracy);
+
+            // Strip file path to get clean playlist name
+            var displayName = p.playlist_name;
+            if (displayName && displayName.includes('/')) {
+                displayName = displayName.split('/').pop();
+            }
+            displayName = displayName.replace(/\.json$/i, '');
+
+            return '<div class="playlist-song-card" data-playlist-id="' + escapeHtml(p.playlist_id) + '">' +
+                '<div class="playlist-song-header">' +
+                    '<h3 class="playlist-song-name">' + escapeHtml(displayName) + '</h3>' +
+                    '<div class="playlist-song-summary">' +
+                        '<span class="summary-stat">' +
+                            '<span class="summary-value">' + p.unique_songs_played + '</span>' +
+                            '<span class="summary-label" data-i18n="analyticsDashboard.songsPlayed">songs played</span>' +
+                        '</span>' +
+                        '<span class="summary-stat">' +
+                            '<span class="summary-value ' + accuracyClass + '">' + avgAccuracy + '%</span>' +
+                            '<span class="summary-label" data-i18n="analyticsDashboard.avgAccuracy">avg accuracy</span>' +
+                        '</span>' +
+                    '</div>' +
+                '</div>' +
+                '<button type="button" class="view-details-btn" data-playlist-id="' + escapeHtml(p.playlist_id) + '" ' +
+                    'aria-label="View details for ' + escapeHtml(displayName) + '">' +
+                    '<span data-i18n="analyticsDashboard.viewDetails">View Details</span>' +
+                '</button>' +
+            '</div>';
+        }).join('');
+
+        // Apply translations if available
+        if (window.applyTranslations) {
+            window.applyTranslations();
+        }
+    }
+
+    /**
+     * Show song stats empty state (AC7)
+     */
+    function showSongStatsEmpty() {
+        var emptyEl = document.getElementById('song-stats-empty');
+        var summaryEl = document.getElementById('song-summary-cards');
+        var playlistEl = document.getElementById('playlist-song-stats');
+
+        if (emptyEl) emptyEl.classList.remove('hidden');
+        if (summaryEl) summaryEl.classList.add('hidden');
+        if (playlistEl) playlistEl.innerHTML = '';
+    }
+
+    /**
+     * Get CSS class for accuracy value (AC6)
+     * @param {number} accuracy - Accuracy percentage
+     * @returns {string} CSS class name
+     */
+    function getAccuracyClass(accuracy) {
+        if (accuracy >= 70) return 'accuracy-high';
+        if (accuracy >= 40) return 'accuracy-mid';
+        return 'accuracy-low';
+    }
+
+    /**
+     * Open playlist modal (AC4)
+     * @param {string} playlistId - Playlist ID to display
+     */
+    function openPlaylistModal(playlistId) {
+        if (!songStatsData || !songStatsData.by_playlist) return;
+
+        var playlist = songStatsData.by_playlist.find(function(p) {
+            return p.playlist_id === playlistId;
+        });
+
+        if (!playlist) return;
+
+        modalPlaylistData = playlist;
+        modalCurrentPage = 1;
+        modalSearchQuery = '';
+        modalSortField = 'play_count';
+        modalSortDir = 'desc';
+
+        var modal = document.getElementById('playlist-modal');
+        var titleEl = document.getElementById('modal-title');
+        var searchEl = document.getElementById('modal-search');
+
+        // Extract just the playlist name from path (e.g., "/Config/.../Greatest Hits" -> "Greatest Hits")
+        var displayName = playlist.playlist_name;
+        if (displayName && displayName.includes('/')) {
+            displayName = displayName.split('/').pop();
+        }
+        if (titleEl) titleEl.textContent = displayName;
+        if (searchEl) searchEl.value = '';
+
+        updateSortIndicators();
+        renderModalTable();
+
+        if (modal && modal.showModal) {
+            modal.showModal();
+            // Focus trap (AC10)
+            var firstFocusable = modal.querySelector('button, input, select');
+            if (firstFocusable) firstFocusable.focus();
+        }
+    }
+
+    /**
+     * Close playlist modal
+     */
+    function closePlaylistModal() {
+        var modal = document.getElementById('playlist-modal');
+        if (modal && modal.close) {
+            modal.close();
+        }
+        modalPlaylistData = null;
+    }
+
+    /**
+     * Render modal table with current filters/sorting (AC4)
+     */
+    function renderModalTable() {
+        if (!modalPlaylistData || !modalPlaylistData.songs) return;
+
+        var songs = modalPlaylistData.songs.slice();
+
+        // Apply search filter
+        if (modalSearchQuery) {
+            var query = modalSearchQuery.toLowerCase();
+            songs = songs.filter(function(s) {
+                return (s.title && s.title.toLowerCase().includes(query)) ||
+                       (s.artist && s.artist.toLowerCase().includes(query));
+            });
+        }
+
+        // Apply sorting
+        songs.sort(function(a, b) {
+            var aVal = a[modalSortField];
+            var bVal = b[modalSortField];
+
+            if (typeof aVal === 'string') {
+                aVal = aVal.toLowerCase();
+                bVal = (bVal || '').toLowerCase();
+                return modalSortDir === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+            }
+
+            aVal = aVal || 0;
+            bVal = bVal || 0;
+            return modalSortDir === 'asc' ? aVal - bVal : bVal - aVal;
+        });
+
+        // Pagination
+        var totalPages = Math.ceil(songs.length / modalPageSize) || 1;
+        if (modalCurrentPage > totalPages) modalCurrentPage = totalPages;
+        var startIdx = (modalCurrentPage - 1) * modalPageSize;
+        var pageSongs = songs.slice(startIdx, startIdx + modalPageSize);
+
+        // Render table body
+        var tbody = document.getElementById('modal-song-tbody');
+        if (tbody) {
+            tbody.innerHTML = pageSongs.map(function(s) {
+                var accuracy = ((s.accuracy || 0) * 100).toFixed(0);
+                var accuracyClass = getAccuracyClass(accuracy);
+                var playHeat = getPlayCountHeat(s.play_count);
+
+                return '<tr>' +
+                    '<td class="song-cell">' +
+                        '<span class="song-title">' + escapeHtml(s.title || 'Unknown') + '</span>' +
+                        '<span class="song-artist">' + escapeHtml(s.artist || 'Unknown') + '</span>' +
+                    '</td>' +
+                    '<td>' + (s.year || '--') + '</td>' +
+                    '<td><span class="' + playHeat + '">' + (s.play_count || 0) + '</span></td>' +
+                    '<td><span class="' + accuracyClass + '">' + accuracy + '%</span></td>' +
+                    '<td>' + (s.avg_year_diff || 0).toFixed(1) + '</td>' +
+                '</tr>';
+            }).join('');
+
+            // Empty state for filtered results (AC7)
+            if (pageSongs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="empty-cell">' +
+                    '<span data-i18n="analyticsDashboard.noMatchingSongs">No matching songs found</span>' +
+                '</td></tr>';
+            }
+        }
+
+        // Update pagination
+        updatePagination(songs.length, totalPages);
+    }
+
+    /**
+     * Get CSS class for play count heat indicator (AC6)
+     * @param {number} count - Play count
+     * @returns {string} CSS class name
+     */
+    function getPlayCountHeat(count) {
+        if (count >= 10) return 'heat-high';
+        if (count >= 5) return 'heat-mid';
+        return 'heat-low';
+    }
+
+    /**
+     * Update pagination controls
+     * @param {number} totalItems - Total items in filtered list
+     * @param {number} totalPages - Total pages
+     */
+    function updatePagination(totalItems, totalPages) {
+        var infoEl = document.getElementById('pagination-info');
+        var prevBtn = document.getElementById('pagination-prev');
+        var nextBtn = document.getElementById('pagination-next');
+
+        if (infoEl) {
+            infoEl.textContent = BeatifyI18n.t('analyticsDashboard.pagination', { current: modalCurrentPage, total: totalPages });
+        }
+
+        if (prevBtn) {
+            prevBtn.disabled = modalCurrentPage <= 1;
+        }
+
+        if (nextBtn) {
+            nextBtn.disabled = modalCurrentPage >= totalPages;
+        }
+    }
+
+    /**
+     * Handle modal search input
+     * @param {Event} e - Input event
+     */
+    function handleModalSearch(e) {
+        modalSearchQuery = e.target.value;
+        modalCurrentPage = 1;
+        renderModalTable();
+    }
+
+    /**
+     * Handle column header click for sorting
+     * @param {Event} e - Click event
+     */
+    function handleColumnSort(e) {
+        var th = e.target.closest('th.sortable');
+        if (!th) return;
+
+        var newField = th.dataset.sort;
+        if (!newField) return;
+
+        if (newField === modalSortField) {
+            // Toggle direction
+            modalSortDir = modalSortDir === 'asc' ? 'desc' : 'asc';
+        } else {
+            modalSortField = newField;
+            // Default sort direction based on field type
+            modalSortDir = (newField === 'title' || newField === 'artist') ? 'asc' : 'desc';
+        }
+        modalCurrentPage = 1;
+        updateSortIndicators();
+        renderModalTable();
+    }
+
+    /**
+     * Update sort indicators on column headers
+     */
+    function updateSortIndicators() {
+        var headers = document.querySelectorAll('#modal-song-table th.sortable');
+        headers.forEach(function(th) {
+            th.classList.remove('sort-active', 'sort-asc', 'sort-desc');
+            if (th.dataset.sort === modalSortField) {
+                th.classList.add('sort-active');
+                th.classList.add(modalSortDir === 'asc' ? 'sort-asc' : 'sort-desc');
+            }
+        });
+    }
+
+    /**
+     * Handle pagination button click
+     * @param {number} direction - -1 for prev, 1 for next
+     */
+    function handlePagination(direction) {
+        modalCurrentPage += direction;
+        renderModalTable();
+    }
+
+    /**
+     * Handle summary card click - scroll to song in playlist (AC1)
+     * @param {Event} e - Click event
+     */
+    function handleSummaryCardClick(e) {
+        var card = e.target.closest('.song-summary-card');
+        if (!card || card.disabled) return;
+
+        var playlistName = card.dataset.playlist;
+        if (playlistName) {
+            // Find and open the playlist
+            var playlistId = playlistName.toLowerCase().replace(/ /g, '-');
+            openPlaylistModal(playlistId);
+        }
+    }
+
+    /**
+     * Handle keyboard navigation in modal (AC10)
+     * @param {KeyboardEvent} e - Keyboard event
+     */
+    function handleModalKeydown(e) {
+        if (e.key === 'Escape') {
+            closePlaylistModal();
+        }
+    }
+
+    /**
+     * Escape HTML special characters
+     */
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+
+    /**
+     * Update a single stat card
+     * @param {string} id - Card element ID
+     * @param {string|number} value - Display value
+     * @param {number} trend - Trend percentage (-1 to 1)
+     * @param {boolean} invertTrend - If true, negative is positive (for errors)
+     */
+    function updateStatCard(id, value, trend, invertTrend) {
+        var card = document.getElementById(id);
+        if (!card) return;
+
+        card.classList.remove('loading');
+
+        // Support both old (.stat-value) and new (.stat-mini-value) structures
+        var valueEl = card.querySelector('.stat-mini-value') || card.querySelector('.stat-value');
+        var trendEl = card.querySelector('.stat-trend');
+
+        if (valueEl) {
+            valueEl.textContent = value;
+        }
+
+        if (trendEl) {
+            if (trend === 0) {
+                trendEl.textContent = '— 0%';
+                trendEl.className = 'stat-trend neutral';
+            } else {
+                var isPositive = invertTrend ? trend < 0 : trend > 0;
+                var arrow = trend > 0 ? '↑' : '↓';
+                var pct = Math.abs(trend * 100).toFixed(0) + '%';
+                trendEl.textContent = arrow + ' ' + pct;
+                trendEl.className = 'stat-trend ' + (isPositive ? 'positive' : 'negative');
+            }
+        }
+    }
+
+    /**
+     * Show/hide loading state
+     * @param {boolean} show
+     */
+    function showLoading(show) {
+        var loadingEl = document.getElementById('loading-state');
+        var cardsEl = document.querySelector('.stat-cards');
+
+        if (loadingEl) {
+            loadingEl.classList.toggle('hidden', !show);
+        }
+
+        if (cardsEl) {
+            cardsEl.classList.toggle('hidden', show);
+        }
+
+        // Add skeleton loading to cards
+        document.querySelectorAll('.stat-card').forEach(function(card) {
+            card.classList.toggle('loading', show);
+        });
+    }
+
+    /**
+     * Show error state
+     */
+    function showError() {
+        var errorEl = document.getElementById('error-state');
+        var cardsEl = document.querySelector('.stat-cards');
+
+        if (errorEl) {
+            errorEl.classList.remove('hidden');
+        }
+
+        if (cardsEl) {
+            cardsEl.classList.add('hidden');
+        }
+    }
+
+    /**
+     * Hide error state
+     */
+    function hideError() {
+        var errorEl = document.getElementById('error-state');
+        if (errorEl) {
+            errorEl.classList.add('hidden');
+        }
+    }
+
+    /**
+     * Handle period button click
+     * @param {Event} e
+     */
+    function handlePeriodClick(e) {
+        var btn = e.target.closest('.period-btn');
+        if (!btn) return;
+
+        var period = btn.dataset.period;
+        if (!period || period === currentPeriod) return;
+
+        // Update active state
+        document.querySelectorAll('.period-btn').forEach(function(b) {
+            b.classList.remove('period-btn--active');
+        });
+        btn.classList.add('period-btn--active');
+
+        currentPeriod = period;
+        retryCount = 0;
+        loadAnalytics(period);
+    }
+
+    /**
+     * Handle retry button click
+     */
+    function handleRetryClick() {
+        retryCount = 0;
+        hideError();
+        loadAnalytics(currentPeriod);
+    }
+
+    /**
+     * Initialize analytics dashboard
+     */
+    function init() {
+        // Period selector
+        var periodSelector = document.querySelector('.period-selector');
+        if (periodSelector) {
+            periodSelector.addEventListener('click', handlePeriodClick);
+        }
+
+        // Retry button
+        var retryBtn = document.getElementById('retry-btn');
+        if (retryBtn) {
+            retryBtn.addEventListener('click', handleRetryClick);
+        }
+
+        // Window resize handler for chart (Story 19.5)
+        var resizeTimeout;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(function() {
+                if (window.currentChartData) {
+                    renderChart(window.currentChartData);
+                }
+            }, 150);
+        });
+
+        // =====================================================
+        // Song Statistics Event Listeners (Story 19.7)
+        // =====================================================
+
+        // Summary card clicks (AC1)
+        var summaryCards = document.getElementById('song-summary-cards');
+        if (summaryCards) {
+            summaryCards.addEventListener('click', handleSummaryCardClick);
+        }
+
+        // Playlist card "View Details" button clicks (AC2)
+        var playlistSongStats = document.getElementById('playlist-song-stats');
+        if (playlistSongStats) {
+            playlistSongStats.addEventListener('click', function(e) {
+                var btn = e.target.closest('.view-details-btn');
+                if (btn) {
+                    var playlistId = btn.dataset.playlistId;
+                    if (playlistId) openPlaylistModal(playlistId);
+                }
+            });
+        }
+
+        // Modal controls (AC4)
+        var modal = document.getElementById('playlist-modal');
+        if (modal) {
+            // Close button
+            var closeBtn = modal.querySelector('.modal-close');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', closePlaylistModal);
+            }
+
+            // Close on backdrop click
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) closePlaylistModal();
+            });
+
+            // Keyboard navigation (AC10)
+            modal.addEventListener('keydown', handleModalKeydown);
+        }
+
+        // Modal search (AC4)
+        var modalSearch = document.getElementById('modal-search');
+        if (modalSearch) {
+            // Debounced search
+            var searchTimeout;
+            modalSearch.addEventListener('input', function(e) {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(function() {
+                    handleModalSearch(e);
+                }, 150);
+            });
+        }
+
+        // Modal column header sort (AC4)
+        var modalTable = document.getElementById('modal-song-table');
+        if (modalTable) {
+            var thead = modalTable.querySelector('thead');
+            if (thead) {
+                thead.addEventListener('click', handleColumnSort);
+            }
+        }
+
+        // Modal pagination (AC4)
+        var prevBtn = document.getElementById('pagination-prev');
+        var nextBtn = document.getElementById('pagination-next');
+        if (prevBtn) {
+            prevBtn.addEventListener('click', function() {
+                handlePagination(-1);
+            });
+        }
+        if (nextBtn) {
+            nextBtn.addEventListener('click', function() {
+                handlePagination(1);
+            });
+        }
+
+        // Collapsible section toggles
+        var collapsibleHeaders = document.querySelectorAll('.section-header-collapsible');
+        collapsibleHeaders.forEach(function(header) {
+            header.addEventListener('click', function() {
+                var section = header.closest('.section-collapsible');
+                if (section) {
+                    section.classList.toggle('collapsed');
+                    var expanded = !section.classList.contains('collapsed');
+                    header.setAttribute('aria-expanded', expanded);
+
+                    // Re-render chart when chart section is expanded
+                    // (canvas has zero dimensions while collapsed)
+                    if (expanded && section.id === 'chart-section' && window.currentChartData) {
+                        setTimeout(function() { renderChart(window.currentChartData); }, 50);
+                    }
+                }
+            });
+        });
+
+        // View All Songs button
+        var viewAllSongsBtn = document.getElementById('view-all-songs-btn');
+        if (viewAllSongsBtn) {
+            viewAllSongsBtn.addEventListener('click', function() {
+                // Open modal with first playlist that has data (use songStatsData directly)
+                if (songStatsData && songStatsData.by_playlist && songStatsData.by_playlist.length > 0) {
+                    openPlaylistModal(songStatsData.by_playlist[0].playlist_id);
+                }
+            });
+        }
+
+        // Initial load
+        loadAnalytics(currentPeriod);
+        loadSongStats(); // Story 19.7
+    }
+
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();

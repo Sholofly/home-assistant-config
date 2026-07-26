@@ -33,7 +33,7 @@ _API_MAX_FLOW: float = 80.0
 # Minimum seconds between Bridge API adjustments (10 min)
 _MIN_HOLD_SECONDS: float = 600.0
 
-# Grace period for missing outdoor temp — use last known value (30 min)
+# Grace period for missing outdoor temp: use last known value (30 min)
 _OUTDOOR_TEMP_GRACE_SECONDS: float = 1800.0
 
 
@@ -270,7 +270,7 @@ def smooth_outdoor_temp(
             state.rolling_buffer_max_size,
         )
 
-    # "none" — passthrough
+    # "none": passthrough
     return raw_temp
 
 
@@ -315,13 +315,14 @@ def evaluate(
         ):
             outdoor_temp_raw = state.ema_outdoor_temp
         elif state.ema_outdoor_temp is not None and state.last_outdoor_reading_time == 0.0:
-            # First poll after restart — persisted EMA available, no timing info
+            # First poll after restart: persisted EMA available, no timing info
             outdoor_temp_raw = state.ema_outdoor_temp
         else:
             state.status = "paused"
             base.status = "paused"
             return base
 
+    # --- Step 2: record the raw reading ---
     state.last_raw_outdoor_temp = outdoor_temp_raw
     state.last_outdoor_reading_time = now_mono
 
@@ -501,7 +502,7 @@ async def async_run_wc_cycle(
     _LOGGER = logging.getLogger(__name__)
 
     # No catch-all here: WC isolation (a failed cycle must not break the
-    # main poll) is the coordinator caller's responsibility — see
+    # main poll) is the coordinator caller's responsibility, see
     # TadoDataUpdateCoordinator._async_run_weather_compensation. Keeping
     # this cycle free of a broad except means a bridge failure stays
     # isolated (handled below) while a programmer bug propagates instead
@@ -549,7 +550,7 @@ async def async_run_wc_cycle(
             )
         except TadoBridgeApiError:
             _LOGGER.warning(
-                "Weather Compensation: bridge call failed — will "
+                "Weather Compensation: bridge call failed, will "
                 "retry on the next cycle",
             )
             # Reset send-state so the next cycle re-sends instead

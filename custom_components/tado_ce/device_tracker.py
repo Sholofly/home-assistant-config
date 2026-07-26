@@ -1,4 +1,4 @@
-"""Tado CE device trackers — Tado mobile-app presence per registered phone.
+"""Tado CE device trackers: Tado mobile-app presence per registered phone.
 
 One tracker per mobile device that has Tado's geo-tracking
 enabled in the app. Source-of-truth is the cloud `mobile_devices`
@@ -21,7 +21,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .device_manager import get_hub_device_info
 from .entity_registry import ENTITY_REGISTRY, get_entity_category
-from .helpers import mask_serial
+from .helpers import PerEntityAvailabilityMixin, mask_serial
 
 if TYPE_CHECKING:
     from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
@@ -58,7 +58,7 @@ async def async_setup_entry(
                 trackers.append(TadoDeviceTracker(coordinator, device_id, device_name, device, home_id))
             else:
                 _LOGGER.debug(
-                    "Device Tracker: %s skipped — geo-tracking disabled "
+                    "Device Tracker: %s skipped, geo-tracking disabled "
                     "in the Tado app for this device",
                     device_name,
                 )
@@ -72,14 +72,23 @@ async def async_setup_entry(
     else:
         _LOGGER.debug(
             "Device Tracker: no mobile devices have geo-tracking "
-            "enabled — no tracker entities created",
+            "enabled, no tracker entities created",
         )
 
 
-class TadoDeviceTracker(CoordinatorEntity["TadoDataUpdateCoordinator"], TrackerEntity):
-    """Represent a Tado mobile device tracker entity."""
+class TadoDeviceTracker(PerEntityAvailabilityMixin, CoordinatorEntity["TadoDataUpdateCoordinator"], TrackerEntity):
+    """Represent a Tado mobile device tracker entity.
+
+    Tado's cloud reports only a binary `atHome` for each phone (plus a
+    bearing and relative distance from home), never absolute coordinates.
+    Presence is published through `_attr_in_zones` (["zone.home"] when home,
+    [] when away, None when the phone hasn't reported), which HA derives into
+    home / not_home / unknown. `source_type` is `router` (a presence flag, not
+    a GPS fix), and the tracker groups under the Tado CE hub device.
+    """
 
     _attr_has_entity_name = True
+    _attr_source_type = SourceType.ROUTER
 
     def __init__(
         self,
@@ -101,18 +110,15 @@ class TadoDeviceTracker(CoordinatorEntity["TadoDataUpdateCoordinator"], TrackerE
         entity_category = get_entity_category(_meta)
         if entity_category is not None:
             self._attr_entity_category = entity_category
-        self._attr_available = False
+        self._data_present = False
         # Use hub device info for global entities
         self._attr_device_info = get_hub_device_info(home_id)  # type: ignore[assignment]
 
-        self._is_home: bool | None = None
-        self._location = None
         self._bearing: float | None = None
         self._relative_distance: float | None = None
-        # WHY: when _is_home is None (Unknown state), surface why — Tado app's
-        # geo-tracking is on but the device hasn't reported a location block.
-        # On Android this is usually the Tado app being denied background
-        # location permission by the OS (battery optimisation, Doze mode).
+        # Surfaces why presence is unknown: geo-tracking is on but the device
+        # reported no location block. On Android this is usually the Tado app
+        # being denied background location by the OS (battery optimisation, Doze).
         self._location_status: str | None = None
 
     @callback
@@ -120,25 +126,6 @@ class TadoDeviceTracker(CoordinatorEntity["TadoDataUpdateCoordinator"], TrackerE
         """Handle updated data from the coordinator."""
         self._update_from_coordinator()
         self.async_write_ha_state()
-
-    @property
-    def source_type(self) -> SourceType:
-        """Return the source type of the tracker."""
-        return SourceType.GPS
-
-    @property
-    def is_connected(self) -> bool:
-        """Return whether the device is connected."""
-        return self._is_home is not None
-
-    @property
-    def location_name(self) -> str | None:
-        """Return the location name."""
-        if self._is_home is True:
-            return "home"
-        if self._is_home is False:
-            return "not_home"
-        return None
 
     @property
     def extra_state_attributes(self) -> dict[str, Any] | None:
@@ -167,27 +154,39 @@ class TadoDeviceTracker(CoordinatorEntity["TadoDataUpdateCoordinator"], TrackerE
                         location = device.get("location")
 
                         if location:
-                            self._is_home = location.get("atHome")
+                            at_home = location.get("atHome")
+                            if at_home is True:
+                                self._attr_in_zones = ["zone.home"]
+                            elif at_home is False:
+                                self._attr_in_zones = []
+                            else:
+                                self._attr_in_zones = None
                             self._bearing = (location.get("bearingFromHome") or {}).get("degrees")
                             self._relative_distance = location.get("relativeDistanceFromHomeFence")
                             self._location_status = "reporting"
                         else:
                             # No location block usually means the device's
-                            # background location is currently denied —
+                            # background location is currently denied,
                             # most commonly Android battery optimisation
                             # killing the Tado app's location service, or
                             # the user denying "always" permission.
-                            self._is_home = None
+                            self._attr_in_zones = None
                             self._location_status = "no_location_reported"
 
-                        self._attr_available = True
+                        self._data_present = True
                         return
 
-            self._attr_available = False
+            # Device id no longer present in the account: unavailable, and drop
+            # the last-known presence so it does not report a stale zone.
+            self._attr_in_zones = None
+            self._location_status = None
+            self._data_present = False
         except (KeyError, TypeError, AttributeError) as err:
             _LOGGER.debug(
-                "Device Tracker: %s update failed (%s) — marking "
+                "Device Tracker: %s update failed (%s), marking "
                 "unavailable until the next poll",
                 self._device_name, err,
             )
-            self._attr_available = False
+            self._attr_in_zones = None
+            self._location_status = None
+            self._data_present = False

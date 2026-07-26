@@ -1,4 +1,4 @@
-"""Tado CE write-health tracker — circuit breaker for HomeKit write attempts.
+"""Tado CE write-health tracker: circuit breaker for HomeKit write attempts.
 
 Standard three-state circuit-breaker pattern. CLOSED lets writes
 through, OPEN skips them after `WRITE_FAILURE_THRESHOLD` consecutive
@@ -53,19 +53,19 @@ class WriteHealthTracker:
         return self.state in (CircuitState.CLOSED, CircuitState.HALF_OPEN)
 
     def record_success(self) -> None:
-        """Record a successful write — closes the circuit and clears the failure count."""
+        """Record a successful write; closes the circuit and clears the failure count."""
         self._consecutive_failures = 0
         self._circuit_opened_at = None
         self._state = CircuitState.CLOSED
 
     def record_failure(self) -> None:
-        """Record a failed write — opens the circuit at the threshold."""
+        """Record a failed write; opens the circuit at the threshold."""
         self._consecutive_failures += 1
         if self._state == CircuitState.HALF_OPEN:
             self._circuit_opened_at = time.monotonic()
             self._state = CircuitState.OPEN
             _LOGGER.debug(
-                "Write Health: probe write failed — re-opening circuit "
+                "Write Health: probe write failed, re-opening circuit "
                 "(consecutive failures=%d)",
                 self._consecutive_failures,
             )
@@ -74,7 +74,7 @@ class WriteHealthTracker:
             self._state = CircuitState.OPEN
             _LOGGER.warning(
                 "Write Health: HomeKit writes paused after %d consecutive "
-                "failures — falling back to cloud writes until the bridge "
+                "failures, falling back to cloud writes until the bridge "
                 "recovers",
                 self._consecutive_failures,
             )

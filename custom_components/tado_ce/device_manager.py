@@ -1,4 +1,4 @@
-"""Tado CE device-info builders — hub / zone DeviceInfo + multi-device name suffixing (identifiers are home-id scoped)."""
+"""Tado CE device-info builders: hub / zone DeviceInfo + multi-device name suffixing (identifiers are home-id scoped)."""
 
 from __future__ import annotations
 
@@ -17,7 +17,7 @@ _LOGGER = logging.getLogger(__name__)
 
 @lru_cache(maxsize=1)
 def load_version() -> str:
-    """Read the integration version from `manifest.json` (cached); blocking file I/O — call via executor."""
+    """Read the integration version from `manifest.json` (cached); blocking file I/O, call via executor."""
     try:
         manifest_path = Path(__file__).parent / "manifest.json"
         with manifest_path.open() as f:
@@ -26,7 +26,7 @@ def load_version() -> str:
     except (OSError, ValueError) as e:
         _LOGGER.warning(
             "Device Manager: could not read version from manifest "
-            "(%s) — falling back to 'unknown'",
+            "(%s), falling back to 'unknown'",
             e,
         )
         return "unknown"
@@ -86,7 +86,7 @@ def get_zone_type_display(zone_type: str) -> str:
 
 
 def get_device_name_suffix(zone_id: str, device_serial: str, device_type: str, zones_info: list[Any]) -> str:
-    """Compute a name suffix for multi-device zones — `""` / ` VA02` / ` VA02 (n)` so entities disambiguate."""
+    """Compute a name suffix for multi-device zones: `""` / ` VA02` / ` VA02 (n)` so entities disambiguate."""
     zone = next((z for z in zones_info if str(z.get("id")) == str(zone_id)), None)
     if not zone:
         return ""

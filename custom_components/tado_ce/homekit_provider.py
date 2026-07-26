@@ -1,4 +1,4 @@
-"""Tado CE HomeKit local provider — push-driven cache + write path through the bridge."""
+"""Tado CE HomeKit local provider: push-driven cache + write path through the bridge."""
 
 from __future__ import annotations
 
@@ -21,6 +21,8 @@ from .homekit_client import (
     CHAR_CURRENT_HEATING_STATE,
     CHAR_CURRENT_HUMIDITY,
     CHAR_CURRENT_TEMPERATURE,
+    CHAR_IDENTIFY,
+    CHAR_SERIAL_NUMBER,
     CHAR_TARGET_HEATING_STATE,
     CHAR_TARGET_TEMPERATURE,
     HomeKitClient,
@@ -112,7 +114,7 @@ class HomeKitLocalProvider:
             self._cache[zone_id] = {}
         prev = self._cache[zone_id].get(char_type)
         if prev is not None and prev[0] == value:
-            # Same value — keep last_changed_at, advance last_observed_at only.
+            # Same value: keep last_changed_at, advance last_observed_at only.
             self._cache[zone_id][char_type] = (prev[0], prev[1], now)
         else:
             self._cache[zone_id][char_type] = (value, now, now)
@@ -170,7 +172,7 @@ class HomeKitLocalProvider:
         aids = self._client.get_aids_for_zone(zone_id)
         if not aids:
             _LOGGER.debug(
-                "HomeKit: zone %s has no mapped accessory — cannot set "
+                "HomeKit: zone %s has no mapped accessory, cannot set "
                 "temperature via local bridge",
                 zone_id,
             )
@@ -180,7 +182,7 @@ class HomeKitLocalProvider:
         iid = _find_char_iid(self._accessories, aid, CHAR_TARGET_TEMPERATURE)
         if iid is None:
             _LOGGER.debug(
-                "HomeKit: aid %d has no target-temperature characteristic — "
+                "HomeKit: aid %d has no target-temperature characteristic, "
                 "falling back to cloud write",
                 aid,
             )
@@ -200,21 +202,21 @@ class HomeKitLocalProvider:
                 return True
             _LOGGER.warning(
                 "HomeKit: zone %s target-temperature write rejected by "
-                "the bridge — %s",
+                "the bridge: %s",
                 zone_id, result,
             )
             return False
         except TimeoutError:
             _LOGGER.warning(
                 "HomeKit: zone %s target-temperature write timed out "
-                "after %ds — falling back to cloud write",
+                "after %ds, falling back to cloud write",
                 zone_id, HOMEKIT_WRITE_TIMEOUT_SECONDS,
             )
             return False
         except Exception:
             _LOGGER.debug(
                 "HomeKit: zone %s target-temperature write raised an "
-                "exception — falling back to cloud write",
+                "exception, falling back to cloud write",
                 zone_id, exc_info=True,
             )
             return False
@@ -227,7 +229,7 @@ class HomeKitLocalProvider:
         aids = self._client.get_aids_for_zone(zone_id)
         if not aids:
             _LOGGER.debug(
-                "HomeKit: zone %s has no mapped accessory — cannot set "
+                "HomeKit: zone %s has no mapped accessory, cannot set "
                 "HVAC mode via local bridge",
                 zone_id,
             )
@@ -237,7 +239,7 @@ class HomeKitLocalProvider:
         iid = _find_char_iid(self._accessories, aid, CHAR_TARGET_HEATING_STATE)
         if iid is None:
             _LOGGER.debug(
-                "HomeKit: aid %d has no target-heating-state characteristic — "
+                "HomeKit: aid %d has no target-heating-state characteristic, "
                 "falling back to cloud write",
                 aid,
             )
@@ -255,22 +257,87 @@ class HomeKitLocalProvider:
                 return True
             _LOGGER.warning(
                 "HomeKit: zone %s HVAC-mode write rejected by the bridge "
-                "— %s",
+                ": %s",
                 zone_id, result,
             )
             return False
         except TimeoutError:
             _LOGGER.warning(
-                "HomeKit: zone %s HVAC-mode write timed out after %ds — "
+                "HomeKit: zone %s HVAC-mode write timed out after %ds, "
                 "falling back to cloud write",
                 zone_id, HOMEKIT_WRITE_TIMEOUT_SECONDS,
             )
             return False
         except Exception:
             _LOGGER.debug(
-                "HomeKit: zone %s HVAC-mode write raised an exception — "
+                "HomeKit: zone %s HVAC-mode write raised an exception, "
                 "falling back to cloud write",
                 zone_id, exc_info=True,
+            )
+            return False
+
+    def _find_aid_for_serial(self, serial: str) -> int | None:
+        """Return the accessory aid whose serial-number characteristic matches `serial`."""
+        for acc in self._accessories:
+            for svc in acc.get("services", []):
+                for char in svc.get("characteristics", []):
+                    raw_type = char.get("type", "")
+                    ctype = raw_type.split("-")[0].upper() if "-" in raw_type else raw_type.upper()
+                    try:
+                        if int(ctype, 16) == int(CHAR_SERIAL_NUMBER, 16) and char.get("value") == serial:
+                            aid = acc.get("aid")
+                            return int(aid) if aid is not None else None
+                    except (ValueError, TypeError):
+                        continue
+        return None
+
+    async def async_identify(self, serial: str) -> bool:
+        """Flash a device's LED locally via its HomeKit Identify characteristic.
+
+        Returns False (so the caller can fall back to the cloud identify call)
+        when the serial isn't mapped, the accessory has no Identify
+        characteristic, or the write times out / errors.
+        """
+        if not self._client.is_connected or not self._client.pairing:
+            return False
+
+        aid = self._find_aid_for_serial(serial)
+        if aid is None:
+            _LOGGER.debug(
+                "HomeKit: serial %s has no mapped accessory, cannot "
+                "identify via local bridge", serial,
+            )
+            return False
+
+        iid = _find_char_iid(self._accessories, aid, CHAR_IDENTIFY)
+        if iid is None:
+            _LOGGER.debug(
+                "HomeKit: aid %d has no Identify characteristic, "
+                "falling back to cloud identify", aid,
+            )
+            return False
+
+        try:
+            async with asyncio.timeout(HOMEKIT_WRITE_TIMEOUT_SECONDS):
+                result = await self._client.pairing.put_characteristics([(aid, iid, True)])
+            if not result:
+                _LOGGER.debug("HomeKit: identify flashed device %s via local bridge", serial)
+                return True
+            _LOGGER.warning(
+                "HomeKit: identify write for %s rejected by the bridge: %s",
+                serial, result,
+            )
+            return False
+        except TimeoutError:
+            _LOGGER.warning(
+                "HomeKit: identify write for %s timed out after %ds, "
+                "falling back to cloud identify", serial, HOMEKIT_WRITE_TIMEOUT_SECONDS,
+            )
+            return False
+        except Exception:
+            _LOGGER.debug(
+                "HomeKit: identify write for %s raised an exception, "
+                "falling back to cloud identify", serial, exc_info=True,
             )
             return False
 
@@ -278,7 +345,7 @@ class HomeKitLocalProvider:
         """Subscribe to characteristic events for every mapped zone."""
         if not self._client.is_connected or not self._client.pairing:
             _LOGGER.debug(
-                "HomeKit: cannot subscribe — bridge is not connected, "
+                "HomeKit: cannot subscribe, bridge is not connected, "
                 "will retry once the connection comes back",
             )
             return
@@ -306,13 +373,29 @@ class HomeKitLocalProvider:
 
         if not subscribe_chars:
             _LOGGER.debug(
-                "HomeKit: no subscribable characteristics found — "
+                "HomeKit: no subscribable characteristics found, "
                 "skipping event subscription",
             )
             return
 
-        await self._client.pairing.subscribe(subscribe_chars)
-        # Tear down the previous dispatcher on reconnect — without
+        try:
+            await self._client.pairing.subscribe(subscribe_chars)
+        except Exception:
+            # A bridge that drops between connect and subscribe must not
+            # propagate to the caller (setup, poll-retry, or reconnect
+            # callback) and crash it. Self-protect like the other
+            # bridge-touching methods: reconnect (its callback re-subscribes)
+            # and return. Broad catch is deliberate; exc_info keeps a real
+            # bug visible.
+            _LOGGER.warning(
+                "HomeKit: subscribing to bridge events failed, triggering a "
+                "reconnect, local control will recover once the bridge is "
+                "reachable again",
+            )
+            _LOGGER.debug("HomeKit: subscribe error details", exc_info=True)
+            await self._client.async_reconnect()
+            return
+        # Tear down the previous dispatcher on reconnect; without
         # this, every reconnect leaks a live callback and each
         # bridge event triggers N duplicate state updates.
         if self._unsub_dispatcher is not None:
@@ -404,21 +487,21 @@ class HomeKitLocalProvider:
                     async_dispatcher_send(self._hass, signal, zone_id)
                 if first_refresh:
                     _LOGGER.debug(
-                        "HomeKit: first cache refresh complete — polled "
+                        "HomeKit: first cache refresh complete, polled "
                         "%d characteristic(s)",
                         len(chars_to_read),
                     )
                     first_refresh = False
                 elif changes_found > 0:
                     _LOGGER.debug(
-                        "HomeKit: cache refresh — %d value(s) changed",
+                        "HomeKit: cache refresh: %d value(s) changed",
                         changes_found,
                     )
             except Exception:
                 consecutive_failures += 1
                 if consecutive_failures >= CACHE_REFRESH_FAILURE_THRESHOLD:
                     _LOGGER.warning(
-                        "HomeKit: %d consecutive cache-refresh failures — "
+                        "HomeKit: %d consecutive cache-refresh failures, "
                         "reconnecting to the bridge",
                         consecutive_failures,
                     )

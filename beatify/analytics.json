@@ -1,0 +1,292 @@
+{
+  "version": 1,
+  "games": [
+    {
+      "game_id": "f6af1927",
+      "started_at": 1781204512,
+      "ended_at": 1781204623,
+      "duration_seconds": 111,
+      "player_count": 1,
+      "playlist_names": [
+        "80er-hits"
+      ],
+      "rounds_played": 2,
+      "average_score": 7.5,
+      "difficulty": "normal",
+      "error_count": 0,
+      "streak_3_count": 0,
+      "streak_5_count": 0,
+      "streak_10_count": 0,
+      "total_bets": 0,
+      "bets_won": 0
+    },
+    {
+      "game_id": "304293b6",
+      "started_at": 1781281903,
+      "ended_at": 1781282160,
+      "duration_seconds": 257,
+      "player_count": 1,
+      "playlist_names": [
+        "top100-allertijden-nederlandstalig"
+      ],
+      "rounds_played": 7,
+      "average_score": 21.43,
+      "difficulty": "normal",
+      "error_count": 0,
+      "streak_3_count": 1,
+      "streak_5_count": 1,
+      "streak_10_count": 0,
+      "total_bets": 0,
+      "bets_won": 0
+    },
+    {
+      "game_id": "86c5eb32",
+      "started_at": 1781282186,
+      "ended_at": 1781282789,
+      "duration_seconds": 603,
+      "player_count": 2,
+      "playlist_names": [
+        "top100-allertijden-nederlandstalig"
+      ],
+      "rounds_played": 7,
+      "average_score": 8.43,
+      "difficulty": "normal",
+      "error_count": 0,
+      "streak_3_count": 2,
+      "streak_5_count": 0,
+      "streak_10_count": 0,
+      "total_bets": 0,
+      "bets_won": 0
+    },
+    {
+      "game_id": "37f17b23",
+      "started_at": 1781282798,
+      "ended_at": 1781282920,
+      "duration_seconds": 122,
+      "player_count": 1,
+      "playlist_names": [
+        "hits-2010s-2020s"
+      ],
+      "rounds_played": 1,
+      "average_score": 0.0,
+      "difficulty": "normal",
+      "error_count": 0,
+      "streak_3_count": 0,
+      "streak_5_count": 0,
+      "streak_10_count": 0,
+      "total_bets": 0,
+      "bets_won": 0
+    },
+    {
+      "game_id": "90ab1132",
+      "started_at": 1781283116,
+      "ended_at": 1781284120,
+      "duration_seconds": 1004,
+      "player_count": 3,
+      "playlist_names": [
+        "hits-2010s-2020s"
+      ],
+      "rounds_played": 17,
+      "average_score": 3.14,
+      "difficulty": "normal",
+      "error_count": 0,
+      "streak_3_count": 2,
+      "streak_5_count": 0,
+      "streak_10_count": 0,
+      "total_bets": 0,
+      "bets_won": 0
+    },
+    {
+      "game_id": "f7455f5b",
+      "started_at": 1781285692,
+      "ended_at": 1781287098,
+      "duration_seconds": 1406,
+      "player_count": 2,
+      "playlist_names": [
+        "hits-2010s-2020s"
+      ],
+      "rounds_played": 6,
+      "average_score": 3.17,
+      "difficulty": "normal",
+      "error_count": 0,
+      "streak_3_count": 0,
+      "streak_5_count": 0,
+      "streak_10_count": 0,
+      "total_bets": 0,
+      "bets_won": 0
+    },
+    {
+      "game_id": "14778265",
+      "started_at": 1781287198,
+      "ended_at": 1781293328,
+      "duration_seconds": 6130,
+      "player_count": 2,
+      "playlist_names": [
+        "hits-2010s-2020s"
+      ],
+      "rounds_played": 52,
+      "average_score": 3.58,
+      "difficulty": "normal",
+      "error_count": 0,
+      "streak_3_count": 3,
+      "streak_5_count": 0,
+      "streak_10_count": 0,
+      "total_bets": 0,
+      "bets_won": 0
+    },
+    {
+      "game_id": "57fd63a9",
+      "started_at": 1781293642,
+      "ended_at": 1781330308,
+      "duration_seconds": 36666,
+      "player_count": 1,
+      "playlist_names": [
+        "hits-2010s-2020s"
+      ],
+      "rounds_played": 0,
+      "average_score": 0.0,
+      "difficulty": "normal",
+      "error_count": 0,
+      "streak_3_count": 0,
+      "streak_5_count": 0,
+      "streak_10_count": 0,
+      "total_bets": 0,
+      "bets_won": 0
+    },
+    {
+      "game_id": "f1a8dadc",
+      "started_at": 1781330317,
+      "ended_at": 1781331859,
+      "duration_seconds": 1542,
+      "player_count": 1,
+      "playlist_names": [
+        "hits-2010s-2020s"
+      ],
+      "rounds_played": 71,
+      "average_score": 3.66,
+      "difficulty": "normal",
+      "error_count": 0,
+      "streak_3_count": 0,
+      "streak_5_count": 0,
+      "streak_10_count": 0,
+      "total_bets": 0,
+      "bets_won": 0
+    },
+    {
+      "game_id": "a368454b",
+      "started_at": 1781331973,
+      "ended_at": 1781332090,
+      "duration_seconds": 117,
+      "player_count": 1,
+      "playlist_names": [
+        "movies-100-greatest-themes"
+      ],
+      "rounds_played": 5,
+      "average_score": 2.0,
+      "difficulty": "normal",
+      "error_count": 0,
+      "streak_3_count": 0,
+      "streak_5_count": 0,
+      "streak_10_count": 0,
+      "total_bets": 0,
+      "bets_won": 0
+    },
+    {
+      "game_id": "a1c2cc6e",
+      "started_at": 1781365182,
+      "ended_at": 1781375617,
+      "duration_seconds": 10435,
+      "player_count": 2,
+      "playlist_names": [
+        "gen-z-anthems"
+      ],
+      "rounds_played": 24,
+      "average_score": 6.06,
+      "difficulty": "normal",
+      "error_count": 0,
+      "streak_3_count": 2,
+      "streak_5_count": 1,
+      "streak_10_count": 0,
+      "total_bets": 0,
+      "bets_won": 0
+    },
+    {
+      "game_id": "12b2010d",
+      "started_at": 1781375717,
+      "ended_at": 1781375855,
+      "duration_seconds": 138,
+      "player_count": 1,
+      "playlist_names": [
+        "edm-anthems"
+      ],
+      "rounds_played": 4,
+      "average_score": 0.0,
+      "difficulty": "normal",
+      "error_count": 0,
+      "streak_3_count": 0,
+      "streak_5_count": 0,
+      "streak_10_count": 0,
+      "total_bets": 0,
+      "bets_won": 0
+    },
+    {
+      "game_id": "332b6c6b",
+      "started_at": 1781376174,
+      "ended_at": 1781376508,
+      "duration_seconds": 334,
+      "player_count": 2,
+      "playlist_names": [
+        "80er-hits"
+      ],
+      "rounds_played": 9,
+      "average_score": 2.22,
+      "difficulty": "normal",
+      "error_count": 0,
+      "streak_3_count": 0,
+      "streak_5_count": 0,
+      "streak_10_count": 0,
+      "total_bets": 0,
+      "bets_won": 0
+    },
+    {
+      "game_id": "81ba587f",
+      "started_at": 1781376524,
+      "ended_at": 1781376646,
+      "duration_seconds": 122,
+      "player_count": 2,
+      "playlist_names": [
+        "80er-hits"
+      ],
+      "rounds_played": 2,
+      "average_score": 0.0,
+      "difficulty": "normal",
+      "error_count": 0,
+      "streak_3_count": 0,
+      "streak_5_count": 0,
+      "streak_10_count": 0,
+      "total_bets": 0,
+      "bets_won": 0
+    },
+    {
+      "game_id": "2bc537c2",
+      "started_at": 1781376710,
+      "ended_at": 1781376710,
+      "duration_seconds": 0,
+      "player_count": 2,
+      "playlist_names": [
+        "80er-hits"
+      ],
+      "rounds_played": 0,
+      "average_score": 0.0,
+      "difficulty": "normal",
+      "error_count": 0,
+      "streak_3_count": 0,
+      "streak_5_count": 0,
+      "streak_10_count": 0,
+      "total_bets": 0,
+      "bets_won": 0
+    }
+  ],
+  "errors": [],
+  "monthly_summaries": []
+}

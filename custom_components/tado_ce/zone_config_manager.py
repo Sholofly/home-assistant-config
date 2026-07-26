@@ -1,4 +1,4 @@
-"""Tado CE zone configuration manager — per-zone overrides + listener fan-out."""
+"""Tado CE zone configuration manager: per-zone overrides + listener fan-out."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ from contextlib import suppress
 import logging
 from typing import TYPE_CHECKING, Any
 
-from .const import DEFAULT_ZONE_CONFIG, WINDOW_U_VALUES
+from .const import DEFAULT_ZONE_CONFIG, OVERLAY_MODE_DEFAULT, WINDOW_U_VALUES
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -22,7 +22,7 @@ class ZoneConfigManager:
     """Per-zone settings store + listener fan-out, backed by DataLoader's auxiliary store."""
 
     def __init__(self, hass: HomeAssistant, home_id: str, data_loader: DataLoader) -> None:
-        """Initialise the manager (does not load — call `async_load` after construction)."""
+        """Initialise the manager (does not load, call `async_load` after construction)."""
         self._hass = hass
         self._home_id = home_id
         self._data_loader = data_loader
@@ -38,7 +38,7 @@ class ZoneConfigManager:
         else:
             self._config = {}
 
-        # Cumulative migrations applied on every load — cheap, and
+        # Cumulative migrations applied on every load, cheap, and
         # ensures users on older schemas get cleaned up the next
         # time they open Options.
         migrated = False
@@ -48,11 +48,11 @@ class ZoneConfigManager:
                 zone_cfg["adaptive_preheat"] = "active" if ap else "off"
                 migrated = True
             # `temp_offset` was a v2.x key that never reached the
-            # cloud — strip on sight.
+            # cloud: strip on sight.
             if "temp_offset" in zone_cfg:
                 del zone_cfg["temp_offset"]
                 migrated = True
-            # `smart_valve_control` (bool) → `svc_mode` (str) —
+            # `smart_valve_control` (bool) → `svc_mode` (str):
             # the new shape supports `valve_target` / `cycle` /
             # `off`, the old bool only covered on/off.
             svc_bool = zone_cfg.pop("smart_valve_control", None)
@@ -75,12 +75,12 @@ class ZoneConfigManager:
         """Schedule a debounced write of the current zone config to Store."""
         self._data_loader.save_auxiliary("zone_config", {"version": 1, "zones": self._config})
         _LOGGER.debug(
-            "Zone Config: queued save — %d zone(s)",
+            "Zone Config: queued save: %d zone(s)",
             len(self._config),
         )
 
     def get_zone_config(self, zone_id: str) -> dict[str, Any]:
-        """Return the merged config for a zone — defaults + user overrides."""
+        """Return the merged config for a zone: defaults + user overrides."""
         zone_config = self._config.get(str(zone_id), {})
         merged = {**DEFAULT_ZONE_CONFIG, **zone_config}
         # In-memory `adaptive_preheat` migration covers stale
@@ -89,6 +89,13 @@ class ZoneConfigManager:
         if isinstance(ap, bool):
             merged["adaptive_preheat"] = "active" if ap else "off"
         return merged
+
+    def has_any_svc_active(self) -> bool:
+        """True when at least one zone has Smart Valve Control or Offset Sync enabled."""
+        return any(
+            cfg.get("svc_mode", "off") != "off"
+            for cfg in self._config.values()
+        )
 
     def has_zone_override(self, zone_id: str, key: str) -> bool:
         """True when the user has explicitly set this key (not merely inherited the default)."""
@@ -120,19 +127,45 @@ class ZoneConfigManager:
                 except Exception:
                     _LOGGER.warning(
                         "Zone Config: listener raised while handling "
-                        "zone %s key %s — continuing with the next "
+                        "zone %s key %s, continuing with the next "
                         "listener so other consumers still get the "
                         "update",
                         zone_id, key,
                         exc_info=True,
                     )
 
+    async def async_get_or_fetch_overlay_default(self, zone_id: str, api_client: Any) -> str:
+        """Return a zone's overlay_mode, fetching the Tado-app default if unset.
+
+        If the zone already has a stored overlay_mode (an explicit user
+        override OR a previously-cached fetch), it is returned without any
+        cloud call. Otherwise this reads the user's own per-zone default from
+        the cloud (`get_zone_default_overlay`) and caches it into zone_config,
+        so the next call short-circuits on the stored value. Falls back to
+        OVERLAY_MODE_DEFAULT (MANUAL) when the fetch is unavailable, and caches
+        that too. Note: the fetch is gated by the stored-value check, not an
+        in-method guard, so overlapping calls before the first cache-write can
+        each fetch once.
+        """
+        zone_id = str(zone_id)
+        if self.has_zone_override(zone_id, "overlay_mode"):
+            return str(self.get_zone_value(zone_id, "overlay_mode", OVERLAY_MODE_DEFAULT))
+
+        fetched = await api_client.get_zone_default_overlay(zone_id)
+        mode = fetched if fetched in ("MANUAL", "TADO_MODE", "TIMER") else OVERLAY_MODE_DEFAULT
+        await self.async_set_zone_value(zone_id, "overlay_mode", mode)
+        _LOGGER.debug(
+            "Zone Config: zone %s fresh overlay default resolved to %s "
+            "(server default %s)", zone_id, mode, fetched,
+        )
+        return str(mode)
+
     def add_listener(self, callback: Callable[[str, str, Any], None]) -> Callable[[], None]:
-        """Subscribe `callback(zone_id, key, value)` to config changes — returns an unsubscribe."""
+        """Subscribe `callback(zone_id, key, value)` to config changes, returns an unsubscribe."""
         self._listeners.append(callback)
 
         def _remove_listener() -> None:
-            """Idempotent unsubscribe — `suppress(ValueError)` covers double-removal races."""
+            """Idempotent unsubscribe: `suppress(ValueError)` covers double-removal races."""
             with suppress(ValueError):
                 self._listeners.remove(callback)
 

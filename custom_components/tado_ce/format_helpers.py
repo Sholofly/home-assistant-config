@@ -1,4 +1,4 @@
-"""Tado CE display formatting helpers — internal-to-display value conversions."""
+"""Tado CE display formatting helpers: internal-to-display value conversions."""
 
 from __future__ import annotations
 
@@ -189,7 +189,7 @@ def format_battery_state(state: str) -> str:
 
 
 def format_connection_state_attr(connected: bool | None) -> str:
-    """Convert connectionState.value (bool) to lowercase for extra_state_attributes."""
+    """Map connectionState.value (bool) to "online" / "offline" for extra_state_attributes."""
     return CONNECTION_STATE_ATTR_MAP.get(bool(connected) if connected is not None else False, "offline")
 
 
@@ -209,14 +209,14 @@ def format_health_score(score: int) -> str:
     Bands: 90-100 Excellent, 70-89 Good, 50-69 Fair, 25-49 Poor, 0-24 Critical.
     """
     if score >= 90:
-        return f"🟢 {score} — Excellent"
+        return f"🟢 {score}: Excellent"
     if score >= 70:
-        return f"🟢 {score} — Good"
+        return f"🟢 {score}: Good"
     if score >= 50:
-        return f"🟡 {score} — Fair"
+        return f"🟡 {score}: Fair"
     if score >= 25:
-        return f"🟠 {score} — Poor"
-    return f"🔴 {score} — Critical"
+        return f"🟠 {score}: Poor"
+    return f"🔴 {score}: Critical"
 
 
 def format_bridge_wiring_state(state: str) -> str:
@@ -271,7 +271,7 @@ def format_persistent_insights_grouped(
     """Group persistent insights by priority+type, merge zones, return sorted lines.
 
     Input: list of dicts from InsightHistoryTracker.get_persistent_insights()
-    Output: list of formatted strings like "🔴 High: Battery — Guest (1d 4h)"
+    Output: list of formatted strings like "🔴 High: Battery in Guest (1d 4h)"
     Zones with same insight type + priority are merged into one line.
 
     When *escalated_priorities* is provided, the escalated priority is used
@@ -318,7 +318,7 @@ def format_persistent_insights_grouped(
 
         if zones:
             zones_str = ", ".join(sorted(zones))
-            lines.append(f"{emoji} {priority_display}: {insight_type} — {zones_str} ({duration_str})")
+            lines.append(f"{emoji} {priority_display}: {insight_type} in {zones_str} ({duration_str})")
         else:
             lines.append(f"{emoji} {priority_display}: {insight_type} ({duration_str})")
 

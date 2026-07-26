@@ -6,7 +6,7 @@ water heater entity class exposes these as @property wrapping the
 internal _zone_id / _entity_type / etc fields.
 
 Rule for contributors: when writing new cross-module code that needs
-zone_id from an entity, use `ent.zone_id` — never `ent._zone_id` or
+zone_id from an entity, use `ent.zone_id`: never `ent._zone_id` or
 `getattr(ent, "_zone_id", None)`.
 """
 
@@ -21,7 +21,7 @@ class TadoZoneEntity(Protocol):
 
     Implemented by climate / water_heater entity classes. The services
     layer relies on these public properties instead of reading private
-    attributes — protects services.py from entity-class refactors.
+    attributes, which protects services.py from entity-class refactors.
 
     Marked ``runtime_checkable`` so callers can use ``isinstance`` guards
     at service entry points if desired.

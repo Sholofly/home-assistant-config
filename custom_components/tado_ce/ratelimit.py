@@ -1,4 +1,4 @@
-"""Tado CE rate-limit management — bootstrap reserve, manual-action gating, reset detection.
+"""Tado CE rate-limit management: bootstrap reserve, manual-action gating, reset detection.
 
 Three roles: clamp the polling-retry interval to safe bounds when
 the cloud says "back off" (`_sanitize_retry_after`), gate manual
@@ -51,7 +51,7 @@ def calculate_seconds_until_reset(last_reset_utc: str | None) -> int | None:
     """Return seconds until the next API reset based on the last reset timestamp.
 
     Adds 24 hours, then rolls forward until the next reset is in the
-    future — which means stale snapshots (e.g. after a long
+    future, which means stale snapshots (e.g. after a long
     integration outage) still produce a sensible deadline. Returns
     None when the input is missing or unparseable.
     """
@@ -72,17 +72,17 @@ def calculate_seconds_until_reset(last_reset_utc: str | None) -> int | None:
 def should_block_manual_action(
     ratelimit_data: dict[str, Any], config_manager: ConfigurationManager,
 ) -> tuple[bool, str]:
-    """Return (should_block, user_facing_reason) — gates manual actions at the bootstrap reserve.
+    """Return (should_block, user_facing_reason): gates manual actions at the bootstrap reserve.
 
     The bootstrap reserve is the absolute minimum quota needed for
     the integration to auto-recover after the next API reset. When
-    remaining quota dips to that floor, *every* action — including
-    user-initiated ones — is blocked so the recovery sync still has
+    remaining quota dips to that floor, *every* action, including
+    user-initiated ones, is blocked so the recovery sync still has
     calls to spend.
     """
     if not config_manager.get_quota_reserve_enabled():
         _LOGGER.debug(
-            "Rate Limit: quota reserve protection disabled — letting "
+            "Rate Limit: quota reserve protection disabled, letting "
             "manual actions through",
         )
         return False, ""
@@ -98,16 +98,16 @@ def should_block_manual_action(
                 return False, ""
         except (ValueError, TypeError) as e:
             _LOGGER.debug(
-                "Rate Limit: could not parse last_reset_utc (%s) — "
+                "Rate Limit: could not parse last_reset_utc (%s), "
                 "treating reset time as unknown",
                 e,
             )
     else:
-        # No reset time known yet (fresh install / stale snapshot) —
-        # let manual actions through so the first API response
+        # No reset time known yet (fresh install / stale snapshot),
+        # so let manual actions through so the first API response
         # bootstraps the rate-limit state.
         _LOGGER.debug(
-            "Rate Limit: no reset time known yet — letting manual "
+            "Rate Limit: no reset time known yet, letting manual "
             "actions through to bootstrap rate-limit data",
         )
         return False, ""
@@ -115,7 +115,7 @@ def should_block_manual_action(
     remaining = ratelimit_data.get("remaining", 100)
 
     _LOGGER.debug(
-        "Rate Limit: bootstrap check — remaining=%s, threshold=%s",
+        "Rate Limit: bootstrap check, remaining=%s, threshold=%s",
         remaining, QUOTA_BOOTSTRAP_CALLS,
     )
 
@@ -131,7 +131,7 @@ def should_block_manual_action(
             minutes = (reset_seconds % 3600) // 60
             reset_info = f"reset in {hours}h {minutes}m"
         else:
-            reset_info = "reset time unknown — will auto-recover after the next successful API response"
+            reset_info = "reset time unknown, will auto-recover after the next successful API response"
 
         reason = (
             f"API limit reached ({remaining} calls remaining). "
@@ -153,7 +153,7 @@ async def async_check_bootstrap_reserve(
     Loads the rate-limit snapshot from the coordinator's data loader
     (off the event loop), then defers the policy decision to
     `should_block_manual_action`. Returns False when the coordinator
-    is missing — service handlers that bypass it have no quota
+    is missing: service handlers that bypass it have no quota
     context to gate on.
     """
     try:
@@ -164,7 +164,7 @@ async def async_check_bootstrap_reserve(
             )
         else:
             _LOGGER.debug(
-                "Rate Limit: bootstrap check called without coordinator — "
+                "Rate Limit: bootstrap check called without coordinator, "
                 "skipping",
             )
             return False, ""
@@ -175,7 +175,7 @@ async def async_check_bootstrap_reserve(
         return should_block_manual_action(ratelimit_data, config_manager)
     except (OSError, ValueError, KeyError, TypeError) as e:
         _LOGGER.debug(
-            "Rate Limit: bootstrap check raised an exception (%s) — "
+            "Rate Limit: bootstrap check raised an exception (%s), "
             "letting the action through to be safe",
             e,
         )
@@ -212,7 +212,7 @@ async def async_check_bootstrap_reserve_or_raise(
     if should_block:
         log_name = f" for {entity_name}" if entity_name else ""
         _LOGGER.warning(
-            "Rate Limit: blocking manual action%s — %s",
+            "Rate Limit: blocking manual action%s: %s",
             log_name, reason,
         )
         await async_show_api_limit_notification(hass, reason)
@@ -261,7 +261,7 @@ def _find_reset_in_history(history: list[Any]) -> datetime | None:
 
     if min_time and min_value < 20:
         _LOGGER.debug(
-            "Rate Limit: no clear reset in history — using minimum-value "
+            "Rate Limit: no clear reset in history, using minimum-value "
             "timestamp as a fallback (min=%s at %s)",
             min_value, min_time,
         )
@@ -285,13 +285,13 @@ def _resolve_api_usage_entity_id(hass: HomeAssistant, home_id: str | None) -> st
         entry = registry.async_get_entity_id("sensor", "tado_ce", target_uid)
         if entry:
             _LOGGER.debug(
-                "Rate Limit: found API usage sensor via registry — %s "
+                "Rate Limit: found API usage sensor via registry: %s "
                 "(unique_id=%s)",
                 entry, target_uid,
             )
             return entry
         _LOGGER.debug(
-            "Rate Limit: registry has no entry for unique_id %s — "
+            "Rate Limit: registry has no entry for unique_id %s, "
             "falling back to default entity id",
             target_uid,
         )
@@ -339,7 +339,7 @@ async def async_detect_reset_from_history(hass: HomeAssistant, home_id: str | No
         history = states[entity_id]
         if len(history) < 10:
             _LOGGER.debug(
-                "Rate Limit: %s only has %d history point(s) — not "
+                "Rate Limit: %s only has %d history point(s), not "
                 "enough for reset detection",
                 entity_id, len(history),
             )
@@ -349,13 +349,13 @@ async def async_detect_reset_from_history(hass: HomeAssistant, home_id: str | No
 
     except ImportError:
         _LOGGER.debug(
-            "Rate Limit: HA recorder component not available — "
+            "Rate Limit: HA recorder component not available, "
             "skipping history-based reset detection",
         )
         return None
     except Exception as e:
         _LOGGER.debug(
-            "Rate Limit: history-based reset detection failed (%s) — "
+            "Rate Limit: history-based reset detection failed (%s), "
             "falling back to extrapolation",
             e,
         )
@@ -389,7 +389,7 @@ async def async_update_ratelimit_reset_time(
     """Update the ratelimit Store with a reset time detected from HA history.
 
     Called after a successful sync when history-based detection beats
-    the cloud's reset header. Idempotent — bails out when the new
+    the cloud's reset header. Idempotent: bails out when the new
     reset matches the cached one.
     """
     try:
@@ -411,14 +411,14 @@ async def async_update_ratelimit_reset_time(
         await data_loader.async_update_store("ratelimit", data)
 
         _LOGGER.debug(
-            "Rate Limit: updated quota reset time from HA history — "
+            "Rate Limit: updated quota reset time from HA history. "
             "%s UTC",
             detected_reset.strftime("%H:%M"),
         )
 
     except (OSError, ValueError) as e:
         _LOGGER.debug(
-            "Rate Limit: could not update reset time (%s) — keeping "
+            "Rate Limit: could not update reset time (%s), keeping "
             "previously-cached value",
             e,
         )

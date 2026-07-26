@@ -1,4 +1,4 @@
-"""Tado CE Smart Comfort — per-zone heating-rate analytics and preheat advice (3-tier load: cache → recorder → statistics)."""
+"""Tado CE Smart Comfort: per-zone heating-rate analytics and preheat advice (3-tier load: cache → recorder → statistics)."""
 
 from __future__ import annotations
 
@@ -44,21 +44,21 @@ MIN_TIME_SPAN_MINUTES = 15  # Minimum time span for meaningful rate
 CACHE_SAVE_INTERVAL_MINUTES = 15  # Save cache every 15 minutes
 
 # Smart Comfort thresholds
-TEMP_EPSILON = 0.05  # °C — minimum temperature difference to consider meaningful
-TEMP_NEAR_TARGET = 0.1  # °C — close enough to target temperature
-DEVIATION_NORMAL_THRESHOLD = 0.3  # °C — deviation below this is "Normal"
-MIN_RATE_THRESHOLD = 0.01  # °C/h — minimum meaningful heating/cooling rate
-DEDUP_TIME_WINDOW = 300  # seconds (5 min) — skip duplicate readings within this window
-SEGMENT_MAX_GAP_HOURS = 2  # hours — max gap between readings for continuous segment
-SEGMENT_MIN_TEMP_RISE = 0.05  # °C — minimum rise to count as heating
-SEGMENT_MIN_TIME_HOURS = 0.01  # hours — minimum time for rate calculation
-RATE_MIN_VALID = 0.1  # °C/h — minimum valid heating rate
-RATE_MAX_VALID = 10.0  # °C/h — maximum valid heating rate (TRV can be 5-8°C/h)
+TEMP_EPSILON = 0.05  # °C: minimum temperature difference to consider meaningful
+TEMP_NEAR_TARGET = 0.1  # °C: close enough to target temperature
+DEVIATION_NORMAL_THRESHOLD = 0.3  # °C: deviation below this is "Normal"
+MIN_RATE_THRESHOLD = 0.01  # °C/h: minimum meaningful heating/cooling rate
+DEDUP_TIME_WINDOW = 300  # seconds (5 min): skip duplicate readings within this window
+SEGMENT_MAX_GAP_HOURS = 2  # hours: max gap between readings for continuous segment
+SEGMENT_MIN_TEMP_RISE = 0.05  # °C: minimum rise to count as heating
+SEGMENT_MIN_TIME_HOURS = 0.01  # hours: minimum time for rate calculation
+RATE_MIN_VALID = 0.1  # °C/h: minimum valid heating rate
+RATE_MAX_VALID = 10.0  # °C/h: maximum valid heating rate (TRV can be 5-8°C/h)
 REGRESSION_DENOMINATOR_EPSILON = 0.0001  # minimum denominator for linear regression
-MIDNIGHT_WRAPAROUND_MINUTES = 720  # 12 hours — threshold for midnight wraparound
+MIDNIGHT_WRAPAROUND_MINUTES = 720  # 12 hours: threshold for midnight wraparound
 CONFIDENCE_HIGH_READINGS = 10  # readings needed for high confidence
 CONFIDENCE_MEDIUM_READINGS = 5  # readings needed for medium confidence
-BASELINE_CHANGE_THRESHOLD = 0.05  # °C/h — minimum change for baseline calculation
+BASELINE_CHANGE_THRESHOLD = 0.05  # °C/h: minimum change for baseline calculation
 
 from .schedule_helpers import _get_day_blocks
 
@@ -144,7 +144,7 @@ def get_next_schedule_change(
 
     if not schedule:
         _LOGGER.debug(
-            "Smart Comfort: zone %s has no schedule loaded — cannot find next block",
+            "Smart Comfort: zone %s has no schedule loaded, cannot find next block",
             zone_id,
         )
         return None
@@ -378,7 +378,7 @@ class ZoneHistory:
             time_diff_hours = (curr.timestamp - prev.timestamp).total_seconds() / 3600
             temp_diff = curr.temperature - prev.temperature
 
-            # Gap > 2h breaks segment continuity — likely overnight idle
+            # Gap > 2h breaks segment continuity, likely overnight idle
             # or sensor outage rather than a real heating cycle.
             if time_diff_hours > SEGMENT_MAX_GAP_HOURS:
                 continue
@@ -568,7 +568,7 @@ class ZoneHistory:
         minutes_needed = int(hours_needed * 60)
 
         # Cap so a low rate + cold room doesn't suggest a 6-hour
-        # preheat — anything beyond 4 hours is impractical and likely
+        # preheat. Anything beyond 4 hours is impractical and likely
         # masks a setup problem.
         minutes_needed = min(minutes_needed, 240)
 
@@ -621,7 +621,7 @@ class SmartComfortManager:
 
         if not self._data_loader:
             _LOGGER.debug(
-                "Smart Comfort: no data loader available — cannot save cache",
+                "Smart Comfort: no data loader available, cannot save cache",
             )
             return False
 
@@ -645,7 +645,7 @@ class SmartComfortManager:
 
         except (OSError, ValueError) as e:
             _LOGGER.warning(
-                "Smart Comfort: could not save history cache (%s) — "
+                "Smart Comfort: could not save history cache (%s), "
                 "data preserved in memory, will retry on next save",
                 e,
             )
@@ -660,13 +660,13 @@ class SmartComfortManager:
             data = await self._data_loader.async_load_auxiliary("smart_comfort_cache")
             if data is None:
                 _LOGGER.debug(
-                    "Smart Comfort: no cache file yet — starting fresh",
+                    "Smart Comfort: no cache file yet, starting fresh",
                 )
                 return 0
 
             if not isinstance(data, dict):
                 _LOGGER.warning(
-                    "Smart Comfort: history cache had unexpected format — "
+                    "Smart Comfort: history cache had unexpected format, "
                     "ignoring and starting fresh",
                 )
                 return 0
@@ -692,7 +692,7 @@ class SmartComfortManager:
 
         except (OSError, ValueError) as e:
             _LOGGER.warning(
-                "Smart Comfort: could not load history cache (%s) — "
+                "Smart Comfort: could not load history cache (%s), "
                 "starting fresh, history will rebuild from new readings",
                 e,
             )
@@ -982,7 +982,7 @@ async def async_load_history_from_recorder(
             zone_id = entity_to_zone_id.get(entity_name)
             if not zone_id:
                 _LOGGER.debug(
-                    "Smart Comfort: no zone mapping for entity %s — skipping",
+                    "Smart Comfort: no zone mapping for entity %s, skipping",
                     entity_name,
                 )
                 continue
@@ -1008,11 +1008,11 @@ async def async_load_history_from_recorder(
         return total_points
 
     except ImportError:
-        _LOGGER.debug("Smart Comfort: recorder component not available — skipping history load")
+        _LOGGER.debug("Smart Comfort: recorder component not available, skipping history load")
         return 0
     except Exception as e:
         _LOGGER.warning(
-            "Smart Comfort: could not load history from recorder (%s) — "
+            "Smart Comfort: could not load history from recorder (%s), "
             "rates will rebuild from new readings",
             e,
         )
@@ -1064,7 +1064,7 @@ async def async_load_baseline_from_statistics(
     """Seed each zone's baseline rates from 7 days of long-term statistics.
 
     Tier 3 of the 3-tier load strategy (cache → recorder → statistics).
-    The baseline only fires when a zone has no real-time rate yet — so
+    The baseline only fires when a zone has no real-time rate yet, so
     a fresh install or an unused zone still produces sensible
     estimates from the start.
     """
@@ -1109,7 +1109,7 @@ async def async_load_baseline_from_statistics(
             baseline = _calculate_zone_baseline(sensor_stats)
             if baseline is None:
                 _LOGGER.debug(
-                    "Smart Comfort: zone %s only has %d statistic point(s) — "
+                    "Smart Comfort: zone %s only has %d statistic point(s), "
                     "not enough for a baseline yet",
                     zone_id, len(sensor_stats),
                 )
@@ -1122,7 +1122,7 @@ async def async_load_baseline_from_statistics(
             zone._baseline_cooling_rate = baseline["baseline_cooling_rate"]
 
             _LOGGER.debug(
-                "Smart Comfort: zone %s baseline from %d hour(s) — "
+                "Smart Comfort: zone %s baseline from %d hour(s), "
                 "heating=%s°C/h, cooling=%s°C/h",
                 zone_id, baseline["data_points"],
                 baseline["baseline_heating_rate"],
@@ -1133,13 +1133,13 @@ async def async_load_baseline_from_statistics(
 
     except ImportError as e:
         _LOGGER.debug(
-            "Smart Comfort: statistics API not available (%s) — skipping baseline load",
+            "Smart Comfort: statistics API not available (%s), skipping baseline load",
             e,
         )
         return {}
     except Exception as e:
         _LOGGER.warning(
-            "Smart Comfort: could not load baseline statistics (%s) — "
+            "Smart Comfort: could not load baseline statistics (%s), "
             "rates will rely on real-time readings instead",
             e,
         )

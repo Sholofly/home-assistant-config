@@ -1,4 +1,4 @@
-"""Tado CE HomeKit mapping — link HomeKit accessories to cloud zone IDs by serial."""
+"""Tado CE HomeKit mapping: link HomeKit accessories to cloud zone IDs by serial."""
 
 from __future__ import annotations
 
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 _LOGGER = logging.getLogger(__name__)
 
-# Bridge model identifier — skip in mapping (not a zone device)
+# Bridge model identifier: skip in mapping (not a zone device)
 _BRIDGE_MODEL: str = "IB01"
 
 _STORE_VERSION = 1
@@ -37,7 +37,7 @@ def build_serial_mapping(
 
     if not accessories:
         _LOGGER.warning(
-            "HomeKit: no accessories returned by the bridge — cannot "
+            "HomeKit: no accessories returned by the bridge, cannot "
             "build the serial-to-zone mapping, local control will stay "
             "off until the next pairing fetch",
         )
@@ -45,7 +45,7 @@ def build_serial_mapping(
 
     if not cloud_zones_info:
         _LOGGER.warning(
-            "HomeKit: no cloud zone data available — cannot build the "
+            "HomeKit: no cloud zone data available, cannot build the "
             "serial-to-zone mapping, will retry after the next cloud sync",
         )
         return empty_result
@@ -64,7 +64,7 @@ def build_serial_mapping(
         zone_serials[zone_id] = {d.get("serialNo", "") for d in devices} - {""}
 
     _LOGGER.debug(
-        "HomeKit: cloud zone serial counts — %s",
+        "HomeKit: cloud zone serial counts: %s",
         {zid: len(serials) for zid, serials in zone_serials.items()},
     )
 
@@ -77,7 +77,7 @@ def build_serial_mapping(
         for svc in acc.get("services", []):
             for char in svc.get("characteristics", []):
                 # aiohomekit normalises type UUIDs to the full UUID
-                # form — strip the suffix and compare as ints so
+                # form, so strip the suffix and compare as ints so
                 # leading zeros round-trip cleanly.
                 raw_type = char.get("type", "")
                 if "-" in raw_type:
@@ -101,7 +101,7 @@ def build_serial_mapping(
 
         if not serial or aid is None:
             _LOGGER.debug(
-                "HomeKit: accessory aid=%s has no serial — skipping",
+                "HomeKit: accessory aid=%s has no serial, skipping",
                 aid,
             )
             continue
@@ -117,7 +117,7 @@ def build_serial_mapping(
         if not matched:
             _LOGGER.warning(
                 "HomeKit: accessory serial %s does not match any cloud "
-                "zone — local control unavailable for this device",
+                "zone, local control unavailable for this device",
                 mask_serial(serial),
             )
 
@@ -149,7 +149,7 @@ def validate_mapping(
 
     if "0" in zone_to_aids or "0" in serial_to_zone.values():
         _LOGGER.info(
-            "HomeKit: cached mapping contains invalid zone '0' — "
+            "HomeKit: cached mapping contains invalid zone '0'. "
             "rebuilding from current bridge + cloud data",
         )
         return False
@@ -160,13 +160,33 @@ def validate_mapping(
         if invalid_zones:
             _LOGGER.warning(
                 "HomeKit: cached mapping references zone(s) %s that no "
-                "longer exist in the cloud zone list — rebuilding from "
+                "longer exist in the cloud zone list, rebuilding from "
                 "current data",
                 invalid_zones,
             )
             return False
 
     return True
+
+
+def mapping_covers_all_zones(
+    zone_aid_map: dict[str, list[int]],
+    zones_info: list[dict[str, Any]],
+) -> bool:
+    """Return True when every climate zone that owns a device serial is mapped.
+
+    A home with no serial-bearing climate zones is trivially complete.
+    """
+    from .const import get_climate_zone_ids
+
+    climate_ids = get_climate_zone_ids(zones_info)
+    mappable = {
+        str(z.get("id"))
+        for z in zones_info
+        if str(z.get("id")) in climate_ids
+        and any(d.get("serialNo") for d in (z.get("devices") or []))
+    }
+    return mappable.issubset(set(zone_aid_map))
 
 
 async def load_device_mapping(
@@ -213,7 +233,7 @@ async def async_rebuild_and_save_mapping(
     Lists the bridge's accessories, matches their serials against the cloud
     zones_info, and on a non-empty result saves the mapping to the Store and
     installs it on the client. Returns the mapping; serial_to_zone is empty when
-    the bridge returned no accessories, zones_info was empty, or nothing matched —
+    the bridge returned no accessories, zones_info was empty, or nothing matched;
     the caller decides whether to retry.
     """
     empty: dict[str, Any] = {"serial_to_zone": {}, "zone_to_aids": {}}

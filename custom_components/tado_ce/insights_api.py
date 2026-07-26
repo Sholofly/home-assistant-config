@@ -1,4 +1,4 @@
-"""API insights — status, quota planning, usage spike, call rate."""
+"""API insights: status, quota planning, usage spike, call rate."""
 
 from __future__ import annotations
 

@@ -1,7 +1,8 @@
-"""Heating insights — anomaly, preheat, boiler flow, efficiency."""
+"""Heating insights: anomaly, preheat, boiler flow, efficiency."""
 
 from __future__ import annotations
 
+from .calculations import classify_cold_risk_level
 from .insights_models import (
     BOILER_FLOW_HIGH_DEMAND,
     BOILER_FLOW_HIGH_TEMP,
@@ -157,7 +158,8 @@ def calculate_heating_off_cold_room_insight(
     current_temp: float | None = None,
     target_temp: float | None = None,
     zone_name: str = "",
-) -> Insight | None:
+    is_vulnerable_group: bool = False,
+) -> tuple[str, str] | None:
     """Detect when heating is OFF but room has dropped significantly below target."""
     if power_state is None or power_state.upper() != "OFF":
         return None
@@ -165,21 +167,37 @@ def calculate_heating_off_cold_room_insight(
         return None
 
     deficit = target_temp - current_temp
-    if deficit < HEATING_OFF_COLD_MIN_DEFICIT:
+    deficit_fires = deficit >= HEATING_OFF_COLD_MIN_DEFICIT
+
+    # A vulnerable home also fires on absolute room temperature, regardless of
+    # how far below target it is: a low setback target can still leave the room
+    # cold enough to be a health risk for the occupant.
+    risk = classify_cold_risk_level(current_temp) if is_vulnerable_group else "None"
+    absolute_fires = risk in ("Respiratory", "Cardiovascular")
+
+    if not (deficit_fires or absolute_fires):
         return None
 
-    rec = (
-        f"{zone_name}: Heating is OFF but room is {current_temp:.1f}\u00b0C "
-        f"({deficit:.1f}\u00b0C below target {target_temp:.0f}\u00b0C) "
-        f"\u2014 consider turning heating back on"
-    )
+    severity = "medium"
+    if risk == "Cardiovascular":
+        severity = "critical"
+    elif risk == "Respiratory":
+        severity = "high"
 
-    return Insight(
-        priority=InsightPriority.MEDIUM,
-        recommendation=rec,
-        insight_type="heating_off_cold",
-        zone_name=zone_name,
-    )
+    if deficit_fires:
+        rec = (
+            f"{zone_name}: Heating is off and the room is {current_temp:.1f}\u00b0C, "
+            f"{deficit:.1f}\u00b0C below the {target_temp:.0f}\u00b0C target. "
+            f"Consider turning the heating back on."
+        )
+    else:
+        rec = (
+            f"{zone_name}: Heating is off and the room is {current_temp:.1f}\u00b0C, "
+            f"cold enough to be a health concern for a vulnerable occupant. "
+            f"Consider turning the heating on."
+        )
+
+    return (severity, rec)
 
 
 def calculate_confidence_recommendation(

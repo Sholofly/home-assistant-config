@@ -1,4 +1,4 @@
-"""Tado CE Smart Comfort sensors — schedule deviation, next-schedule preview, preheat advisor, target."""
+"""Tado CE Smart Comfort sensors: schedule deviation, next-schedule preview, preheat advisor, target."""
 
 from __future__ import annotations
 
@@ -37,11 +37,11 @@ if TYPE_CHECKING:
 _LOGGER = logging.getLogger(__name__)
 
 # Smart comfort sensor thresholds
-_DEVIATION_ICON_THRESHOLD = 0.5  # °C — deviation above/below this changes icon
-_MIN_HEATING_RATE = 0.1  # °C/h — minimum meaningful heating rate for preheat calculation
-_MIN_COOLING_RATE = -0.1  # °C/h — minimum meaningful cooling rate
-_DEVIATION_ICON_COLD = -2  # °C — deviation below this shows "cold" icon
-_DEVIATION_ICON_HOT = 2  # °C — deviation above this shows "hot" icon
+_DEVIATION_ICON_THRESHOLD = 0.5  # °C: deviation above/below this changes icon
+_MIN_HEATING_RATE = 0.1  # °C/h: minimum meaningful heating rate for preheat calculation
+_MIN_COOLING_RATE = -0.1  # °C/h: minimum meaningful cooling rate
+_DEVIATION_ICON_COLD = -2  # °C: deviation below this shows "cold" icon
+_DEVIATION_ICON_HOT = 2  # °C: deviation above this shows "hot" icon
 
 
 class TadoScheduleDeviationSensor(TadoZoneSensor):
@@ -105,19 +105,19 @@ class TadoScheduleDeviationSensor(TadoZoneSensor):
             manager = self.coordinator.smart_comfort_manager if self.hass else None
 
             if not manager or not manager.is_enabled:
-                self._attr_available = False
+                self._data_present = False
                 return
 
             zone_data = self._get_zone_data()
             if not zone_data:
-                self._attr_available = False
+                self._data_present = False
                 return
 
             sensor_data = zone_data.get("sensorDataPoints") or {}
             self._current_temp = (sensor_data.get("insideTemperature") or {}).get("celsius")
 
             if self._current_temp is None:
-                self._attr_available = False
+                self._data_present = False
                 return
 
             # Get historical comparison
@@ -128,7 +128,7 @@ class TadoScheduleDeviationSensor(TadoZoneSensor):
 
             if comparison is None:
                 self._attr_native_value = None
-                self._attr_available = False
+                self._data_present = False
                 self._historical_avg = None
                 self._sample_count = 0
                 self._summary = "Insufficient data"
@@ -147,16 +147,16 @@ class TadoScheduleDeviationSensor(TadoZoneSensor):
                 sample_count=comparison.sample_count,
             )
 
-            self._attr_available = True
+            self._data_present = True
 
         except Exception as e:
             _LOGGER.debug(
                 "Smart Comfort Sensor: zone %s historical comparison "
-                "update failed (%s) — marking unavailable until the "
+                "update failed (%s), marking unavailable until the "
                 "next poll",
                 self._zone_id, e,
             )
-            self._attr_available = False
+            self._data_present = False
 
 
 class TadoNextScheduleTimeSensor(TadoZoneSensor):
@@ -209,7 +209,7 @@ class TadoNextScheduleTimeSensor(TadoZoneSensor):
 
             if next_block is None:
                 self._attr_native_value = "No schedule"
-                self._attr_available = True
+                self._data_present = True
                 self._next_temp = None
                 self._is_heating_on = False
                 self._is_tomorrow = False
@@ -232,16 +232,16 @@ class TadoNextScheduleTimeSensor(TadoZoneSensor):
             else:
                 self._attr_native_value = time_str
 
-            self._attr_available = True
+            self._data_present = True
 
         except Exception as e:
             _LOGGER.debug(
                 "Smart Comfort Sensor: zone %s next schedule time "
-                "update failed (%s) — marking unavailable until the "
+                "update failed (%s), marking unavailable until the "
                 "next poll",
                 self._zone_id, e,
             )
-            self._attr_available = False
+            self._data_present = False
 
 
 class TadoNextScheduleTempSensor(TadoZoneSensor):
@@ -311,7 +311,7 @@ class TadoNextScheduleTempSensor(TadoZoneSensor):
 
             if next_block is None:
                 self._attr_native_value = "No schedule"
-                self._attr_available = True
+                self._data_present = True
                 self._schedule_time = None
                 self._is_heating_on = False
                 self._current_temp = None
@@ -329,7 +329,7 @@ class TadoNextScheduleTempSensor(TadoZoneSensor):
             if not next_block.is_heating_on or next_block.target_temp is None:
                 # Heating OFF block - show "OFF" instead of unknown
                 self._attr_native_value = "OFF"
-                self._attr_available = True
+                self._data_present = True
                 self._temp_diff = None
                 return
 
@@ -341,16 +341,16 @@ class TadoNextScheduleTempSensor(TadoZoneSensor):
             else:
                 self._temp_diff = None
 
-            self._attr_available = True
+            self._data_present = True
 
         except Exception as e:
             _LOGGER.debug(
                 "Smart Comfort Sensor: zone %s next schedule "
-                "temperature update failed (%s) — marking unavailable "
+                "temperature update failed (%s), marking unavailable "
                 "until the next poll",
                 self._zone_id, e,
             )
-            self._attr_available = False
+            self._data_present = False
 
 
 class TadoPreheatAdvisorSensor(TadoZoneSensor):
@@ -434,7 +434,7 @@ class TadoPreheatAdvisorSensor(TadoZoneSensor):
     ) -> None:
         """Set sensor to a simple status state (no preheat calculation)."""
         self._attr_native_value = value
-        self._attr_available = True
+        self._data_present = True
         self._target_temp = target_temp
         self._target_time = target_time
         self._duration_minutes = duration_minutes
@@ -497,7 +497,7 @@ class TadoPreheatAdvisorSensor(TadoZoneSensor):
         )
         if ufh_buffer > 0:
             self._summary += f" (includes {ufh_buffer} min UFH buffer)"
-        self._attr_available = True
+        self._data_present = True
 
     def _check_active_cooling_preheat(self, zone_data: dict[str, Any]) -> bool:
         """Check if active setpoint needs proactive cooling-based preheat (returns True if applied)."""
@@ -561,7 +561,7 @@ class TadoPreheatAdvisorSensor(TadoZoneSensor):
             )
             return
 
-        # Valid preheat recommendation — apply UFH buffer
+        # Valid preheat recommendation, apply UFH buffer
         adjusted_duration = min(advice.estimated_duration_minutes + ufh_buffer, 240)
         adjusted_start = next_block.start_time - timedelta(minutes=adjusted_duration)
 
@@ -578,10 +578,10 @@ class TadoPreheatAdvisorSensor(TadoZoneSensor):
         self._summary = advice.to_summary()
         if ufh_buffer > 0:
             self._summary += f" (includes {ufh_buffer} min UFH buffer)"
-        self._attr_available = True
+        self._data_present = True
 
     def _handle_schedule_block(self, next_block: NextScheduleBlock, manager: SmartComfortManager) -> None:
-        """Handle a schedule block — heating OFF, already at target, or preheat needed."""
+        """Handle a schedule block: heating OFF, already at target, or preheat needed."""
         # Next block is heating OFF
         if not next_block.is_heating_on or next_block.target_temp is None:
             now = dt_util.now()
@@ -627,19 +627,19 @@ class TadoPreheatAdvisorSensor(TadoZoneSensor):
             manager = self.coordinator.smart_comfort_manager if self.hass else None
 
             if not manager or not manager.is_enabled:
-                self._attr_available = False
+                self._data_present = False
                 return
 
             zone_data = self._get_zone_data()
             if not zone_data:
-                self._attr_available = False
+                self._data_present = False
                 return
 
             sensor_data = zone_data.get("sensorDataPoints") or {}
             self._current_temp = (sensor_data.get("insideTemperature") or {}).get("celsius")
 
             if self._current_temp is None:
-                self._attr_available = False
+                self._data_present = False
                 return
 
             # Suppress preheat when home is in AWAY mode
@@ -647,7 +647,7 @@ class TadoPreheatAdvisorSensor(TadoZoneSensor):
             if home_state and home_state.get("presence") != "HOME":
                 self._set_simple_status(
                     "Away", confidence="away_mode",
-                    summary="Preheat suppressed — home is in away mode",
+                    summary="Preheat suppressed: home is in away mode",
                 )
                 return
 
@@ -671,13 +671,13 @@ class TadoPreheatAdvisorSensor(TadoZoneSensor):
         except Exception as e:
             _LOGGER.debug(
                 "Smart Comfort Sensor: zone %s preheat advisor update "
-                "failed (%s) — marking unavailable until the next poll",
+                "failed (%s), marking unavailable until the next poll",
                 self._zone_id, e,
             )
-            self._attr_available = False
+            self._data_present = False
         finally:
             # (used by TadoPreheatNowSensor and insight collector)
-            if self._attr_available:
+            if self._data_present:
                 self.coordinator.publish_entity_data(
                     self._zone_id,
                     ENTITY_DATA_PREHEAT_ADVISOR,
@@ -697,7 +697,12 @@ class TadoPreheatAdvisorSensor(TadoZoneSensor):
 
 
     def _apply_cooling_preheat(self, crossover_dt: datetime, now: datetime) -> None:
-        """Apply cooling-based preheat timing (heating rate + inertia + UFH buffer before crossover)."""
+        """Apply cooling-based preheat timing (inertia + UFH buffer before crossover).
+
+        A usable heating rate is required as a gate (without one, only the
+        crossover warning is shown), but the preheat buffer itself is
+        inertia_minutes + UFH buffer; the heating rate is not part of the math.
+        """
         from datetime import timedelta
 
         heating_rate = None
@@ -718,9 +723,9 @@ class TadoPreheatAdvisorSensor(TadoZoneSensor):
                 heating_rate = manager.get_heating_rate(self._zone_id)
 
         if heating_rate is None or heating_rate <= _MIN_HEATING_RATE:
-            # No heating rate — show crossover warning only
+            # No heating rate: show crossover warning only
             self._attr_native_value = crossover_dt.strftime("%H:%M")
-            self._attr_available = True
+            self._data_present = True
             self._duration_minutes = None
             self._heating_rate = None
             self._confidence = "low"
@@ -750,7 +755,7 @@ class TadoPreheatAdvisorSensor(TadoZoneSensor):
         self._duration_minutes = total_buffer
         self._heating_rate = heating_rate
         self._confidence = "medium"
-        self._attr_available = True
+        self._data_present = True
         self._summary = (
             f"Cooling at {self._cooling_rate:.1f}\u00b0C/h, "
             f"will cross {self._target_temp:.1f}\u00b0C at {self._predicted_crossover_time}, "
@@ -778,7 +783,7 @@ class TadoPreheatAdvisorSensor(TadoZoneSensor):
         if cooling_rate is None or cooling_rate >= _MIN_COOLING_RATE:
             return None
 
-        # Clamp extreme rates
+        # Clamp extreme rates (°C/h floor, matches calculations.COOLING_RATE_MIN)
         cooling_rate = max(cooling_rate, -5.0)
 
         if self._current_temp is None:
@@ -809,7 +814,7 @@ class TadoPreheatAdvisorSensor(TadoZoneSensor):
         }
 
 class TadoSmartComfortTargetSensor(TadoZoneSensor):
-    """Smart Comfort Target Temperature sensor (ASHRAE 55 — 0.31×outdoor + 17.8°C, seasonal fallback)."""
+    """Smart Comfort Target Temperature sensor (ASHRAE 55: 0.31×outdoor + 17.8°C, seasonal fallback)."""
 
     _attr_has_entity_name = True
 
@@ -867,19 +872,19 @@ class TadoSmartComfortTargetSensor(TadoZoneSensor):
         """Update Smart Comfort target using ASHRAE 55 Adaptive Comfort Model."""
         try:
             if not self.hass:
-                self._attr_available = False
+                self._data_present = False
                 return
 
             # Get config_manager from coordinator (real-time config access)
             config_manager = self.coordinator.config_manager
             if not config_manager:
-                self._attr_available = False
+                self._data_present = False
                 return
 
             # Get zone data
             zone_data = self._get_zone_data()
             if not zone_data:
-                self._attr_available = False
+                self._data_present = False
                 return
 
             sensor_data = zone_data.get("sensorDataPoints") or {}
@@ -898,7 +903,7 @@ class TadoSmartComfortTargetSensor(TadoZoneSensor):
             comfort_target = self._calculate_comfort_target()
 
             if comfort_target is None:
-                self._attr_available = False
+                self._data_present = False
                 return
 
             # Round to 0.5°C (Tado's precision)
@@ -911,15 +916,15 @@ class TadoSmartComfortTargetSensor(TadoZoneSensor):
                 self._deviation = None
 
             self._attr_native_value = comfort_target
-            self._attr_available = True
+            self._data_present = True
 
         except Exception as e:
             _LOGGER.debug(
                 "Smart Comfort Sensor: zone %s comfort target update "
-                "failed (%s) — marking unavailable until the next poll",
+                "failed (%s), marking unavailable until the next poll",
                 self._zone_id, e,
             )
-            self._attr_available = False
+            self._data_present = False
 
     def _calculate_comfort_target(self) -> float | None:
         """Calculate comfort target using ASHRAE 55 or seasonal fallback."""

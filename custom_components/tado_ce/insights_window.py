@@ -1,4 +1,4 @@
-"""Window detection insights — active and passive open-window detection."""
+"""Window detection insights: active and passive open-window detection."""
 
 from __future__ import annotations
 
@@ -44,15 +44,15 @@ def _build_recommendation(
 
     if confidence == "high":
         return (
-            f"{zone_name}: Close window now — {action}, {total_change:.1f}°C "
+            f"{zone_name}: Close window now: {action}, {total_change:.1f}°C "
             f"change over {anomaly_count} readings"
         )
     if confidence == "medium":
         return (
-            f"{zone_name}: Check windows — {action}, "
+            f"{zone_name}: Check windows: {action}, "
             f"{total_change:.1f}°C change detected"
         )
-    return f"{zone_name}: Verify windows are closed — {action}"
+    return f"{zone_name}: Verify windows are closed: {action}"
 
 
 def detect_window_predicted(
@@ -139,8 +139,9 @@ def _apply_window_type_scaling(
 ) -> float:
     """Scale threshold based on window U-value.
 
-    Higher U-value (single_pane=5.0) produces a looser threshold.
-    Lower U-value (passive_house=0.8) produces a tighter threshold.
+    Higher U-value (single_pane=5.0) produces a tighter threshold: a poorly
+    insulating window condenses more easily, so the warning should fire sooner.
+    Lower U-value (passive_house=0.8) produces a looser threshold.
     Baseline: double_pane (U=2.7) gives scale factor 1.0.
     """
     baseline = 2.7
@@ -192,7 +193,7 @@ def _calc_temp_rate_score(
     time_span = (
         readings[-1].timestamp - readings[start_idx].timestamp
     ).total_seconds() / 60.0
-    if time_span <= 0.5:  # Less than 30 seconds — too short for reliable rate
+    if time_span <= 0.5:  # Less than 30 seconds: too short for reliable rate
         return 0.0, anomaly_count
 
     temp_rate = total_change / time_span
@@ -331,13 +332,13 @@ def detect_window_passive(
 
     if confidence == "high":
         recommendation = (
-            f"{zone_name}: Close window now — temperature dropping "
+            f"{zone_name}: Close window now: temperature dropping "
             f"{total_change:.1f}°C"
             f" over {anomaly_count} readings (passive detection)"
         )
     else:
         recommendation = (
-            f"{zone_name}: Check windows — {total_change:.1f}°C "
+            f"{zone_name}: Check windows: {total_change:.1f}°C "
             f"drop detected (passive detection)"
         )
 

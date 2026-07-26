@@ -14,5 +14,5 @@
     "aiohttp>=3.8.0",
     "aiohomekit==3.2.20"
   ],
-  "version": "4.0.3"
+  "version": "4.2.1"
 }

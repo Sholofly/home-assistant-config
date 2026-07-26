@@ -1,4 +1,4 @@
-"""Tado CE thermal analyzer — second-order heating dynamics (acceleration + approach factor) for preheat estimation."""
+"""Tado CE thermal analyzer: second-order heating dynamics (acceleration + approach factor) for preheat estimation."""
 
 from __future__ import annotations
 
@@ -17,16 +17,16 @@ _MIN_READINGS_FOR_ANALYSIS = 6  # minimum readings for rate/approach analysis
 _MIN_READINGS_FOR_REGRESSION = 2  # minimum readings for linear regression
 _MIN_READINGS_FOR_EXPONENTIAL = 20  # minimum readings for exponential curve fitting
 _MIN_DURATION_HOURS = 0.1  # minimum cycle duration (6 minutes)
-_MIN_TEMP_DELTA = 0.5  # °C — minimum temperature change for approach factor
+_MIN_TEMP_DELTA = 0.5  # °C: minimum temperature change for approach factor
 _REGRESSION_EPSILON = 0.001  # minimum denominator for regression
 _SLOPE_EPSILON = -0.001  # slope must be more negative than this for heating
 _LOG_DIFF_EPSILON = 0.05  # minimum diff for log calculation
 _APPROACH_VALIDATION_DIFF = 0.3  # significant difference between methods
 _MIN_READINGS_FOR_POINT_BASED = 2  # minimum readings at each temperature point
 _MIN_TIME_SPAN_MINUTES = 0.5  # minimum time span for rate calculation (30 seconds)
-_ACCELERATION_MAX = 50.0  # °C/h² — sanity bound for acceleration
-_RATE_MAX_VALID = 15.0  # °C/h — maximum valid heating rate (TRV can be 5-8°C/h, allow headroom)
-_DEDUP_THRESHOLD_SECONDS = 2  # seconds — readings closer than this are duplicates
+_ACCELERATION_MAX = 50.0  # °C/h²: sanity bound for acceleration
+_RATE_MAX_VALID = 15.0  # °C/h: maximum valid heating rate (TRV can be 5-8°C/h, allow headroom)
+_DEDUP_THRESHOLD_SECONDS = 2  # seconds: readings closer than this are duplicates
 
 
 def _deduplicate_readings(
@@ -46,7 +46,7 @@ def _deduplicate_readings(
         if abs((r.time - deduped[-1].time).total_seconds()) >= _DEDUP_THRESHOLD_SECONDS:
             deduped.append(r)
         else:
-            # Update in-place — keep latest value for same timestamp
+            # Update in-place, keep latest value for same timestamp
             deduped[-1] = r
     return deduped
 
@@ -114,7 +114,7 @@ class ThermalAnalyzer:
 
         _LOGGER.debug(
             "Thermal Analyzer: heating acceleration averaged across "
-            "%d cycles — %.2f °C/h²",
+            "%d cycles: %.2f °C/h²",
             len(accelerations),
             avg_acceleration,
         )
@@ -177,7 +177,7 @@ class ThermalAnalyzer:
         # Sanity check: reject extreme rates (caused by near-zero time deltas)
         if abs(initial_rate_h) > _RATE_MAX_VALID or abs(final_rate_h) > _RATE_MAX_VALID:
             _LOGGER.debug(
-                "Thermal Analyzer: skipped cycle — extreme rate "
+                "Thermal Analyzer: skipped cycle, extreme rate "
                 "(initial %.1f, final %.1f °C/h) suggests near-zero "
                 "time deltas in readings",
                 initial_rate_h, final_rate_h,
@@ -189,7 +189,7 @@ class ThermalAnalyzer:
         # Sanity bound: reject extreme acceleration values
         if abs(acceleration) > _ACCELERATION_MAX:
             _LOGGER.debug(
-                "Thermal Analyzer: skipped cycle — acceleration %.1f "
+                "Thermal Analyzer: skipped cycle, acceleration %.1f "
                 "°C/h² exceeds the ±%.0f sanity bound",
                 acceleration, _ACCELERATION_MAX,
             )
@@ -238,10 +238,10 @@ class ThermalAnalyzer:
         Measures how much the heating rate decreases as temperature
         approaches the setpoint. Used to predict overshoot.
 
-        Factor interpretation:
-        - 1.0 (100%): No deceleration, will likely overshoot
-        - 0.5 (50%): 50% deceleration, controlled approach
-        - 0.0 (0%): Complete stop before setpoint (rare)
+        Returned as a percentage (0-100). Interpretation:
+        - 100: No deceleration, will likely overshoot
+        - 50: 50% deceleration, controlled approach
+        - 0: Complete stop before setpoint (rare)
 
         Args:
             cycles: List of completed heating cycles
@@ -275,7 +275,7 @@ class ThermalAnalyzer:
 
         _LOGGER.debug(
             "Thermal Analyzer: approach factor averaged across %d "
-            "cycles — %.1f%%",
+            "cycles: %.1f%%",
             len(factors),
             avg_factor * 100,
         )
@@ -308,7 +308,7 @@ class ThermalAnalyzer:
 
         if len(readings) < _MIN_READINGS_FOR_ANALYSIS or cycle.start_temp is None:
             _LOGGER.debug(
-                "Thermal Analyzer: skipped cycle — only %d readings "
+                "Thermal Analyzer: skipped cycle, only %d readings "
                 "or missing start_temp (need ≥ %d)",
                 len(readings), _MIN_READINGS_FOR_ANALYSIS,
             )
@@ -318,7 +318,7 @@ class ThermalAnalyzer:
 
         if temp_delta < _MIN_TEMP_DELTA:
             _LOGGER.debug(
-                "Thermal Analyzer: skipped cycle — temperature delta "
+                "Thermal Analyzer: skipped cycle, temperature delta "
                 "%.2f°C below the %.1f°C minimum",
                 temp_delta, _MIN_TEMP_DELTA,
             )
@@ -341,7 +341,7 @@ class ThermalAnalyzer:
                         _LOGGER.debug(
                             "Thermal Analyzer: rate-ratio (%.2f) and "
                             "exponential (%.2f) approach factors "
-                            "diverge by %.2f — blending 70/30",
+                            "diverge by %.2f, blending 70/30",
                             factor,
                             exp_factor,
                             diff,
@@ -382,7 +382,7 @@ class ThermalAnalyzer:
 
         if len(first_half) < _MIN_READINGS_PER_HALF or len(second_half) < _MIN_READINGS_PER_HALF:
             _LOGGER.debug(
-                "Thermal Analyzer: rate-ratio method skipped — "
+                "Thermal Analyzer: rate-ratio method skipped, "
                 "first half %d readings, second half %d (need ≥ %d "
                 "each)",
                 len(first_half),
@@ -401,14 +401,14 @@ class ThermalAnalyzer:
 
         if rate_first is None:
             _LOGGER.debug(
-                "Thermal Analyzer: rate-ratio method skipped — "
+                "Thermal Analyzer: rate-ratio method skipped, "
                 "first-half rate could not be computed",
             )
             return None
 
         if rate_first <= _MIN_RATE_THRESHOLD:
             _LOGGER.debug(
-                "Thermal Analyzer: rate-ratio method skipped — "
+                "Thermal Analyzer: rate-ratio method skipped, "
                 "first-half rate %.6f °C/min below the noise threshold",
                 rate_first,
             )
@@ -424,7 +424,7 @@ class ThermalAnalyzer:
         factor = max(0.0, min(2.0, factor))
 
         _LOGGER.debug(
-            "Thermal Analyzer: rate-ratio method — first %.4f, "
+            "Thermal Analyzer: rate-ratio method, first %.4f, "
             "second %.4f °C/min → factor %.2f",
             rate_first,
             rate_second,
@@ -562,7 +562,7 @@ class ThermalAnalyzer:
             factor = max(0.0, min(2.0, expected_tau / tau))
 
             _LOGGER.debug(
-                "Thermal Analyzer: exponential method — τ=%.1f min, "
+                "Thermal Analyzer: exponential method, τ=%.1f min, "
                 "expected τ=%.1f min → factor %.2f",
                 tau, expected_tau, factor,
             )
@@ -604,7 +604,7 @@ class ThermalAnalyzer:
 
         if len(readings_50) < _MIN_READINGS_FOR_POINT_BASED or len(readings_90) < _MIN_READINGS_FOR_POINT_BASED:
             _LOGGER.debug(
-                "Thermal Analyzer: point-based method skipped — "
+                "Thermal Analyzer: point-based method skipped. "
                 "%d readings near 50%%, %d near 90%% (need ≥ %d each)",
                 len(readings_50),
                 len(readings_90),
@@ -617,7 +617,7 @@ class ThermalAnalyzer:
 
         if rate_50 is None or rate_90 is None:
             _LOGGER.debug(
-                "Thermal Analyzer: point-based method skipped — could "
+                "Thermal Analyzer: point-based method skipped, could "
                 "not compute rates (rate_50=%s, rate_90=%s)",
                 rate_50,
                 rate_90,
@@ -626,7 +626,7 @@ class ThermalAnalyzer:
 
         if abs(rate_50) < _MIN_RATE_THRESHOLD:
             _LOGGER.debug(
-                "Thermal Analyzer: point-based method skipped — "
+                "Thermal Analyzer: point-based method skipped, "
                 "rate at 50%% (%.6f °C/min) below the noise threshold",
                 rate_50,
             )
@@ -634,7 +634,7 @@ class ThermalAnalyzer:
 
         if rate_50 <= 0:
             _LOGGER.debug(
-                "Thermal Analyzer: point-based method skipped — "
+                "Thermal Analyzer: point-based method skipped, "
                 "rate at 50%% (%.4f °C/min) is non-positive",
                 rate_50,
             )
@@ -647,7 +647,7 @@ class ThermalAnalyzer:
         factor = max(0.0, min(2.0, factor))
 
         _LOGGER.debug(
-            "Thermal Analyzer: point-based method — rate at 50%% "
+            "Thermal Analyzer: point-based method, rate at 50%% "
             "%.4f, at 90%% %.4f °C/min → factor %.2f",
             rate_50,
             rate_90,

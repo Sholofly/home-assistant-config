@@ -1,4 +1,4 @@
-"""Tado CE insight history tracker — duration-aware insight persistence + escalation."""
+"""Tado CE insight history tracker: duration-aware insight persistence + escalation."""
 
 from __future__ import annotations
 
@@ -26,7 +26,7 @@ _LOGGER = logging.getLogger(__name__)
 STORAGE_VERSION = "1.0"
 # Grace period: if an insight disappears for less than this, treat as same occurrence
 REAPPEARANCE_GRACE_HOURS = 1
-# Debounce delay for Store writes — coalesces per-poll `last_seen` updates to
+# Debounce delay for Store writes: coalesces per-poll `last_seen` updates to
 # reduce SD flash wear on HA OS installs. HA's EVENT_HOMEASSISTANT_FINAL_WRITE
 # flushes pending writes on shutdown, so no data loss.
 SAVE_DELAY_SECONDS = 60
@@ -68,7 +68,7 @@ class InsightHistoryTracker:
         try:
             data: dict[str, Any] | list[Any] | None = await self._store.async_load()
 
-            # First-run / fresh-install path — try the legacy
+            # First-run / fresh-install path: try the legacy
             # JSON before falling back to an empty history.
             if data is None:
                 data = await async_migrate_json_to_store(
@@ -78,14 +78,14 @@ class InsightHistoryTracker:
 
             if data is None:
                 _LOGGER.debug(
-                    "Insight History: no history file found — "
+                    "Insight History: no history file found, "
                     "starting fresh",
                 )
                 return 0
             if not isinstance(data, dict):
                 _LOGGER.warning(
                     "Insight History: stored history has an "
-                    "unexpected shape — discarding it and starting "
+                    "unexpected shape, discarding it and starting "
                     "fresh",
                 )
                 return 0
@@ -97,7 +97,7 @@ class InsightHistoryTracker:
             return len(self._entries)
         except (OSError, HomeAssistantError) as exc:
             _LOGGER.warning(
-                "Insight History: history load failed (%s) — "
+                "Insight History: history load failed (%s), "
                 "starting fresh, will retry on next reload",
                 exc,
             )
@@ -121,7 +121,7 @@ class InsightHistoryTracker:
             self._store.async_delay_save(self._serialize, SAVE_DELAY_SECONDS)
             self._dirty = False
             _LOGGER.debug(
-                "Insight History: queued debounced save — %d "
+                "Insight History: queued debounced save: %d "
                 "entr(ies)",
                 len(self._entries),
             )
@@ -129,7 +129,7 @@ class InsightHistoryTracker:
         except (OSError, HomeAssistantError):
             _LOGGER.warning(
                 "Insight History: could not schedule debounced "
-                "save — keeping the dirty flag, will retry on next "
+                "save, keeping the dirty flag, will retry on next "
                 "save attempt",
                 exc_info=True,
             )
@@ -228,7 +228,7 @@ class InsightHistoryTracker:
             except (ValueError, KeyError, TypeError):
                 continue
 
-        # Sort by duration descending — duration_hours is always float from round() above
+        # Sort by duration descending: duration_hours is always float from round() above
         def _sort_key(item: dict[str, Any]) -> float:
             val = item.get("duration_hours", 0.0)
             return float(val) if isinstance(val, (int, float)) else 0.0
@@ -247,7 +247,7 @@ class InsightHistoryTracker:
                 if last_seen < cutoff:
                     keys_to_remove.append(key)
             except (ValueError, KeyError, TypeError):
-                # Invalid entry — prune it
+                # Invalid entry: prune it
                 keys_to_remove.append(key)
 
         for key in keys_to_remove:

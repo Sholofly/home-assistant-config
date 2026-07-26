@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <!-- #1098: drives the footer version string + cache-busts i18n JSON.
+         Bumped each rc alongside manifest.json + sw.js CACHE_VERSION. -->
+    <meta name="beatify-version" content="{{VERSION}}">
+    <meta name="beatify-asset-version" content="{{ASSET_VER}}">
+    <!-- Self-healing SW recovery — see admin.html for the rationale.
+         Analytics is rarely opened, so a session that lands here after a
+         long gap may still hold a stale SW from many rcs back. Inline +
+         first script in head so it runs before anything else. -->
+    <script>
+        (function() {
+            if (!('serviceWorker' in navigator)) return;
+            var meta = document.querySelector('meta[name=beatify-version]');
+            var current = meta && meta.content;
+            if (!current) return;
+            var seen = null;
+            try { seen = localStorage.getItem('beatify_sw_version'); } catch (e) {}
+            if (seen === current) return;
+            if (!navigator.serviceWorker.controller) {
+                try { localStorage.setItem('beatify_sw_version', current); } catch (e) {}
+                return;
+            }
+            navigator.serviceWorker.getRegistrations()
+                .then(function(regs) {
+                    return Promise.all(regs.map(function(r) { return r.unregister(); }));
+                })
+                .then(function() {
+                    try { localStorage.setItem('beatify_sw_version', current); } catch (e) {}
+                    location.reload();
+                })
+                .catch(function() { /* best-effort; reload will retry */ });
+        })();
+    </script>
+    <title data-i18n="analyticsDashboard.title">Beatify Analytics</title>
+    <!-- Preconnect for faster font loading -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700;900&display=swap" rel="stylesheet">
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="/beatify/static/css/styles.css?v={{ASSET_VER}}">
+    <link rel="stylesheet" href="/beatify/static/css/analytics.min.css?v={{ASSET_VER}}">
+</head>
+<body class="theme-dark">
+    <header class="analytics-header">
+        <a href="/beatify/admin" class="back-link">
+            <span class="back-icon" aria-hidden="true">&larr;</span>
+            <span data-i18n="analyticsDashboard.backToAdmin">Back to Admin</span>
+        </a>
+        <h1 class="wordmark">
+            <span class="wordmark-beat">Beat</span><span class="wordmark-gradient">ify</span>
+        </h1>
+    </header>
+
+    <main class="analytics-main">
+        <!-- Period Selector -->
+        <section class="period-selector" role="group" aria-label="Time period selection">
+            <button type="button" class="period-btn" data-period="7d">
+                <span data-i18n="analyticsDashboard.period7d">7 Days</span>
+            </button>
+            <button type="button" class="period-btn period-btn--active" data-period="30d">
+                <span data-i18n="analyticsDashboard.period30d">30 Days</span>
+            </button>
+            <button type="button" class="period-btn" data-period="90d">
+                <span data-i18n="analyticsDashboard.period90d">90 Days</span>
+            </button>
+            <button type="button" class="period-btn" data-period="all">
+                <span data-i18n="analyticsDashboard.periodAll">All Time</span>
+            </button>
+        </section>
+
+        <!-- Stat Cards Grid - Compact Mini Grid for Mobile -->
+        <section class="stat-cards-section card-section">
+            <h2 class="section-header">
+                <span class="section-icon" aria-hidden="true">📊</span>
+                <span data-i18n="analyticsDashboard.overview">Overview</span>
+            </h2>
+            <div class="stat-cards-mini-grid">
+                <div class="stat-card-mini" id="stat-total-games">
+                    <div class="stat-mini-icon" aria-hidden="true">🎮</div>
+                    <div class="stat-mini-value">--</div>
+                    <div class="stat-mini-label" data-i18n="analyticsDashboard.games">Games</div>
+                </div>
+                <div class="stat-card-mini" id="stat-avg-players">
+                    <div class="stat-mini-icon" aria-hidden="true">👥</div>
+                    <div class="stat-mini-value">--</div>
+                    <div class="stat-mini-label" data-i18n="analyticsDashboard.avgPlayersShort">Avg Plrs</div>
+                </div>
+                <div class="stat-card-mini" id="stat-avg-score">
+                    <div class="stat-mini-icon" aria-hidden="true">🏆</div>
+                    <div class="stat-mini-value">--</div>
+                    <div class="stat-mini-label" data-i18n="analyticsDashboard.score">Score</div>
+                </div>
+                <div class="stat-card-mini" id="stat-peak-players">
+                    <div class="stat-mini-icon" aria-hidden="true">🎉</div>
+                    <div class="stat-mini-value">--</div>
+                    <div class="stat-mini-label" data-i18n="analyticsDashboard.peak">Peak</div>
+                </div>
+                <div class="stat-card-mini" id="stat-avg-rounds">
+                    <div class="stat-mini-icon" aria-hidden="true">🎲</div>
+                    <div class="stat-mini-value">--</div>
+                    <div class="stat-mini-label" data-i18n="analyticsDashboard.rounds">Rounds</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Achievements Section - Combined Streaks & Betting (Story 19.11, 19.12) -->
+        <section class="section-collapsible collapsed" id="achievements-section" aria-labelledby="achievements-heading">
+            <button type="button" class="section-header-collapsible" aria-expanded="false" aria-controls="achievements-content">
+                <span class="section-icon" aria-hidden="true">🏆</span>
+                <span data-i18n="analyticsDashboard.achievements">Achievements</span>
+                <span class="section-summary" id="achievements-summary">--</span>
+                <span class="section-toggle" aria-hidden="true">▼</span>
+            </button>
+            <div class="section-content" id="achievements-content">
+                <!-- Streaks subsection -->
+                <div class="achievement-group" id="streak-section">
+                    <span class="achievement-label">🔥 <span data-i18n="analyticsDashboard.streaks">Streaks</span></span>
+                    <div class="streak-badges" id="streak-badges">
+                        <span class="mini-badge" id="streak-3-badge">🔥3+ <span id="streak-3-value">0</span></span>
+                        <span class="mini-badge" id="streak-5-badge">🔥🔥5+ <span id="streak-5-value">0</span></span>
+                        <span class="mini-badge mini-badge--legendary" id="streak-7-badge">🔥🔥🔥7+ <span id="streak-7-value">0</span></span>
+                    </div>
+                </div>
+                <!-- Betting subsection -->
+                <div class="achievement-group" id="betting-section">
+                    <span class="achievement-label">🎲 <span data-i18n="analyticsDashboard.betting">Betting</span></span>
+                    <div class="betting-badges" id="betting-badges">
+                        <span class="mini-badge"><span id="betting-total-value">0</span> bets</span>
+                        <span class="mini-badge mini-badge--success"><span id="betting-won-value">0</span> won</span>
+                        <span class="mini-badge mini-badge--highlight"><span id="betting-rate-value">0%</span> rate</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Loading State -->
+        <div id="loading-state" class="loading-state hidden">
+            <div class="loading-spinner"></div>
+            <span data-i18n="common.loading">Loading...</span>
+        </div>
+
+        <!-- Error State -->
+        <div id="error-state" class="error-state hidden">
+            <div class="error-icon" aria-hidden="true">⚠️</div>
+            <p data-i18n="analyticsDashboard.loadError">Failed to load analytics data</p>
+            <button type="button" id="retry-btn" class="btn btn-primary" data-i18n="common.retry">Retry</button>
+        </div>
+
+        <!-- Song Statistics Section - Compact Collapsible (expanded by default) -->
+        <section class="section-collapsible" id="song-section" aria-labelledby="song-stats-heading">
+            <button type="button" class="section-header-collapsible" aria-expanded="true" aria-controls="song-content">
+                <span class="section-icon" aria-hidden="true">🎤</span>
+                <span data-i18n="analyticsDashboard.songs">Songs</span>
+                <span class="section-toggle" aria-hidden="true">▼</span>
+            </button>
+            <div class="section-content" id="song-content">
+                <!-- Compact Song Summary List -->
+                <div class="song-summary-compact" id="song-summary-compact">
+                    <div class="song-row" id="song-most-played">
+                        <span class="song-row-icon" aria-hidden="true">🔥</span>
+                        <span class="song-row-label" data-i18n="analyticsDashboard.mostPlayed">Most Played</span>
+                        <span class="song-row-title">--</span>
+                        <span class="song-row-stat">--</span>
+                    </div>
+                    <div class="song-row" id="song-hardest">
+                        <span class="song-row-icon" aria-hidden="true">💀</span>
+                        <span class="song-row-label" data-i18n="analyticsDashboard.hardest">Hardest</span>
+                        <span class="song-row-title">--</span>
+                        <span class="song-row-stat accuracy-low">--</span>
+                    </div>
+                    <div class="song-row" id="song-easiest">
+                        <span class="song-row-icon" aria-hidden="true">🎯</span>
+                        <span class="song-row-label" data-i18n="analyticsDashboard.easiest">Easiest</span>
+                        <span class="song-row-title">--</span>
+                        <span class="song-row-stat accuracy-high">--</span>
+                    </div>
+                </div>
+                <!-- Playlist Details - Hidden by default, view button -->
+                <button type="button" class="btn btn-secondary btn-full-width" id="view-all-songs-btn">
+                    <span data-i18n="analyticsDashboard.viewAllSongs">View All Songs</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Top Playlists Section (Story 19.4) - Collapsible -->
+        <section class="section-collapsible collapsed" id="playlist-section" aria-labelledby="playlist-stats-heading">
+            <button type="button" class="section-header-collapsible" aria-expanded="false" aria-controls="playlist-content">
+                <span class="section-icon" aria-hidden="true">🎵</span>
+                <span data-i18n="analyticsDashboard.topPlaylists">Top Playlists</span>
+                <span class="section-summary" id="playlist-summary">None</span>
+                <span class="section-toggle" aria-hidden="true">▼</span>
+            </button>
+            <div class="section-content" id="playlist-content">
+                <div class="playlist-list" id="playlist-list"></div>
+                <div class="empty-state hidden" id="playlist-empty">
+                    <span data-i18n="analyticsDashboard.noPlaylists">No playlists played yet</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Full-Screen Playlist Modal (Story 19.7 AC4) -->
+        <dialog id="playlist-modal" class="playlist-modal" aria-labelledby="modal-title">
+            <div class="modal-header">
+                <h2 id="modal-title" class="modal-title">--</h2>
+                <button type="button" class="modal-close" aria-label="Close modal">&times;</button>
+            </div>
+            <div class="modal-toolbar">
+                <input type="search" id="modal-search" class="modal-search"
+                       placeholder="Search songs..."
+                       data-i18n-placeholder="analyticsDashboard.searchSongs"
+                       aria-label="Search songs">
+            </div>
+            <div class="modal-content">
+                <table class="song-table" id="modal-song-table">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="sortable" data-sort="title" data-i18n="analyticsDashboard.colTitle">Song <span class="sort-arrow"></span></th>
+                            <th scope="col" class="sortable" data-sort="year" data-i18n="analyticsDashboard.colYear">Year <span class="sort-arrow"></span></th>
+                            <th scope="col" class="sortable" data-sort="play_count" data-i18n="analyticsDashboard.colPlays">Plays <span class="sort-arrow"></span></th>
+                            <th scope="col" class="sortable" data-sort="accuracy" data-i18n="analyticsDashboard.colAccuracy">Accuracy <span class="sort-arrow"></span></th>
+                            <th scope="col" class="sortable" data-sort="avg_year_diff" data-i18n="analyticsDashboard.colAvgOff">Avg Off <span class="sort-arrow"></span></th>
+                        </tr>
+                    </thead>
+                    <tbody id="modal-song-tbody">
+                        <!-- Dynamic song rows -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-pagination" id="modal-pagination">
+                <button type="button" class="pagination-btn" id="pagination-prev" disabled>
+                    <span aria-hidden="true">&larr;</span>
+                    <span data-i18n="common.previous">Previous</span>
+                </button>
+                <span class="pagination-info" id="pagination-info">Page 1 of 1</span>
+                <button type="button" class="pagination-btn" id="pagination-next" disabled>
+                    <span data-i18n="common.next">Next</span>
+                    <span aria-hidden="true">&rarr;</span>
+                </button>
+            </div>
+        </dialog>
+
+        <!-- Games Over Time Chart - Collapsible -->
+        <section class="section-collapsible collapsed" id="chart-section">
+            <button type="button" class="section-header-collapsible" aria-expanded="false" aria-controls="chart-content">
+                <span class="section-icon" aria-hidden="true">📈</span>
+                <span data-i18n="analyticsDashboard.chart">Chart</span>
+                <span class="section-summary" id="chart-summary">Trend</span>
+                <span class="section-toggle" aria-hidden="true">▼</span>
+            </button>
+            <div class="section-content" id="chart-content">
+                <div class="chart-container chart-container--compact">
+                    <canvas id="games-chart" width="400" height="150"></canvas>
+                </div>
+            </div>
+            <table class="sr-only" id="games-chart-data">
+                <caption>Games played over time</caption>
+                <thead><tr><th>Period</th><th>Games</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>Beatify <span id="app-version">v...</span></p>
+    </footer>
+
+    <!-- #1098: populate footer version from the beatify-version meta tag.
+         Mirrors admin/dashboard/player; no more hardcoded "v1.7.0". -->
+    <script>
+        (function() {
+            var meta = document.querySelector('meta[name="beatify-version"]');
+            var version = meta && meta.getAttribute('content');
+            var el = document.getElementById('app-version');
+            if (el && version) {
+                el.textContent = 'v' + version;
+            }
+        })();
+    </script>
+
+    <!-- Translation Script -->
+    <script src="/beatify/static/js/i18n.js?v={{ASSET_VER}}"></script>
+    <script src="/beatify/static/js/analytics.min.js?v={{ASSET_VER}}"></script>
+</body>
+</html>

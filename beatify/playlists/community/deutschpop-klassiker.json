@@ -1,0 +1,3865 @@
+{
+  "name": "Deutschpop Klassiker 🇩🇪",
+  "version": "0.5",
+  "tags": [
+    "german",
+    "pop",
+    "indie",
+    "ndw",
+    "1990s"
+  ],
+  "language": "de",
+  "author": "Beatify Team",
+  "added_date": "2026-05-04",
+  "description": "German pop classics — from 90s/NDW staples (Falco, Die Prinzen, EAV) to the 2000s+ guitar-driven Deutschpop canon (Wir sind Helden, Peter Fox, AnnenMayKantereit, Mark Forster et al). Distinct from the older Schlager tradition. Sourced from Spotify Editorial 'Deutschpop Klassiker' plus the in-app playlist funnel (#906).",
+  "songs": [
+    {
+      "artist": "Wir sind Helden",
+      "title": "Nur ein Wort",
+      "year": 2005,
+      "isrc": "DEG120500064",
+      "uri": "spotify:track:4hYinIaRxdaoEFSQni6K6I",
+      "uri_apple_music": "applemusic://track/1838527019",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1838527019",
+        "de": "applemusic://track/1838527019",
+        "gb": "applemusic://track/1838527019",
+        "fr": "applemusic://track/1838527019",
+        "es": "applemusic://track/1838527019",
+        "nl": "applemusic://track/1838527019",
+        "it": "applemusic://track/1838527019"
+      },
+      "uri_deezer": "deezer://track/3137302",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=X5kmM98iklo",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Juli",
+        "Silbermond",
+        "Echt"
+      ],
+      "fun_fact": "Lead single from 'Von hier an blind' (2005) — the album that hit #1 in Germany. The song stayed 27 weeks in the German charts and made indie-pop mainstream-radio-friendly.",
+      "fun_fact_de": "Leadsingle aus 'Von hier an blind' (2005) — das Album landete auf Platz 1 der deutschen Charts. Der Song hielt sich 27 Wochen in den deutschen Charts und machte Indie-Pop massentauglich für den Radio.",
+      "fun_fact_es": "Primer sencillo de 'Von hier an blind' (2005), álbum que llegó al #1 en Alemania. La canción permaneció 27 semanas en las listas alemanas y llevó el indie-pop a la radio mainstream.",
+      "fun_fact_fr": "Premier single de 'Von hier an blind' (2005), album n°1 en Allemagne. Le titre est resté 27 semaines dans les charts allemands et a fait entrer l'indie-pop dans les radios grand public.",
+      "fun_fact_nl": "Eerste single van 'Von hier an blind' (2005), het album dat #1 werd in Duitsland. De track stond 27 weken in de Duitse hitlijst en bracht indiepop naar de mainstream radio.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {
+        "german_peak": 4,
+        "weeks_on_chart": 27
+      }
+    },
+    {
+      "artist": "Peter Fox",
+      "title": "Alles neu",
+      "year": 2008,
+      "isrc": "DEA620800706",
+      "uri": "spotify:track:5hqxBvQJ3XJDSbxT9vyyqA",
+      "uri_apple_music": "applemusic://track/291805243",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/291805243",
+        "de": "applemusic://track/291805243",
+        "gb": "applemusic://track/291805243",
+        "fr": "applemusic://track/291805243",
+        "es": "applemusic://track/291805243",
+        "nl": "applemusic://track/291805243",
+        "it": "applemusic://track/291805243"
+      },
+      "uri_deezer": "deezer://track/2200204",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=4uDtsdF4q7M",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Seeed",
+        "Jan Delay",
+        "Beatsteaks"
+      ],
+      "fun_fact": "Built around a Shostakovich symphony sample (Symphony No. 7, 'Leningrad'). Reached #1 in Germany, Austria, and Switzerland in 2008.",
+      "fun_fact_de": "Gebaut um ein Schostakowitsch-Sinfonie-Sample (Symphonie Nr. 7 'Leningrad'). Erreichte 2008 Platz 1 in Deutschland, Österreich und der Schweiz.",
+      "fun_fact_es": "Construida alrededor de una muestra de la sinfonía de Shostakóvich (Sinfonía nº 7 'Leningrado'). Alcanzó el #1 en Alemania, Austria y Suiza en 2008.",
+      "fun_fact_fr": "Construit autour d'un sample de la symphonie n°7 'Leningrad' de Chostakovitch. N°1 en Allemagne, Autriche et Suisse en 2008.",
+      "fun_fact_nl": "Gebouwd rond een sample uit de 7e symfonie 'Leningrad' van Sjostakovitsj. In 2008 #1 in Duitsland, Oostenrijk en Zwitserland.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [
+        "Gold (DE)"
+      ],
+      "chart_info": {
+        "german_peak": 1
+      }
+    },
+    {
+      "artist": "AnnenMayKantereit",
+      "title": "Oft gefragt",
+      "year": 2015,
+      "isrc": "DEUM71503137",
+      "uri": "spotify:track:6J07Aeq7fOW5Xx9mFtwyoH",
+      "uri_apple_music": "applemusic://track/1444402185",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1444402185",
+        "de": "applemusic://track/1444402185",
+        "gb": "applemusic://track/1444402185",
+        "fr": "applemusic://track/1444402185",
+        "es": "applemusic://track/1444402185",
+        "nl": "applemusic://track/1444402185",
+        "it": "applemusic://track/1444402185"
+      },
+      "uri_deezer": "deezer://track/109701654",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=EKldIRCl3Cg",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Faber",
+        "Bosse",
+        "Provinz"
+      ],
+      "fun_fact": "From debut studio album 'Alles nix Konkretes' (2016). The melancholic father-son ballad became their most-streamed track on Spotify.",
+      "fun_fact_de": "Vom Debüt-Studioalbum 'Alles nix Konkretes' (2016). Die melancholische Vater-Sohn-Ballade wurde ihr meistgestreamter Spotify-Track.",
+      "fun_fact_es": "Del álbum debut 'Alles nix Konkretes' (2016). La balada melancólica padre-hijo se convirtió en su tema más reproducido en Spotify.",
+      "fun_fact_fr": "Issue de l'album 'Alles nix Konkretes' (2016). Cette ballade mélancolique père-fils est devenue leur titre le plus écouté sur Spotify.",
+      "fun_fact_nl": "Van het debuutalbum 'Alles nix Konkretes' (2016). De melancholische vader-zoon-ballade werd hun meest gestreamde nummer op Spotify.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {}
+    },
+    {
+      "artist": "MoTrip, Lary",
+      "title": "So wie du bist",
+      "year": 2015,
+      "isrc": "DEUM71501286",
+      "uri": "spotify:track:12SH8NE1e17yItgsb2gitp",
+      "uri_apple_music": "applemusic://track/1647257701",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1647257701",
+        "de": "applemusic://track/1647257701",
+        "gb": "applemusic://track/1647257701",
+        "fr": "applemusic://track/1647257701",
+        "es": "applemusic://track/1647257701",
+        "nl": "applemusic://track/1647257701",
+        "it": "applemusic://track/1647257701"
+      },
+      "uri_deezer": "deezer://track/101295588",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=WNKIbGMq5jM",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Marteria",
+        "Casper",
+        "Cro"
+      ],
+      "fun_fact": "Collab with Lary from album 'Mama' (2015). Reached #6 in Germany and 4× Gold — the Lebanese-German rapper's biggest mainstream crossover.",
+      "fun_fact_de": "Zusammenarbeit mit Lary vom Album 'Mama' (2015). Platz 6 in Deutschland und 4× Gold — der größte Mainstream-Crossover des libanesisch-deutschen Rappers.",
+      "fun_fact_es": "Colaboración con Lary del álbum 'Mama' (2015). #6 en Alemania y 4× oro — el mayor cruce mainstream del rapero libanés-alemán.",
+      "fun_fact_fr": "Collaboration avec Lary, issue de l'album 'Mama' (2015). 6e place en Allemagne, 4× or — le plus gros crossover mainstream du rappeur germano-libanais.",
+      "fun_fact_nl": "Samenwerking met Lary van het album 'Mama' (2015). #6 in Duitsland en 4× goud — de grootste mainstream-crossover van de Libanees-Duitse rapper.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [
+        "4× Gold (DE)"
+      ],
+      "chart_info": {
+        "german_peak": 6
+      }
+    },
+    {
+      "artist": "Provinz",
+      "title": "Was uns high macht",
+      "year": 2019,
+      "isrc": "DEA621900086",
+      "uri": "spotify:track:7nrjWF8qnqT59lIFLLh1Di",
+      "uri_apple_music": "applemusic://track/1453973047",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1453973047",
+        "de": "applemusic://track/1453973047",
+        "gb": "applemusic://track/1453973047",
+        "fr": "applemusic://track/1453973047",
+        "es": "applemusic://track/1453973047",
+        "nl": "applemusic://track/1453973047",
+        "it": "applemusic://track/1453973047"
+      },
+      "uri_deezer": "deezer://track/672957662",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=8Rhrs03u8yg",
+      "uri_tidal": null,
+      "alt_artists": [
+        "AnnenMayKantereit",
+        "Faber",
+        "JORIS"
+      ],
+      "fun_fact": "From the Lake Constance band's debut EP (2019). Reached #28 in Germany — early signal of Provinz's eventual stadium-pop trajectory.",
+      "fun_fact_de": "Von der Debüt-EP der Bodensee-Band (2019). Erreichte Platz 28 in Deutschland — frühes Signal für Provinz' spätere Stadion-Pop-Karriere.",
+      "fun_fact_es": "Del EP debut de la banda del lago de Constanza (2019). #28 en Alemania — señal temprana de la trayectoria stadium-pop posterior de Provinz.",
+      "fun_fact_fr": "Issu du premier EP du groupe du lac de Constance (2019). 28e place en Allemagne — signal avant-coureur de la trajectoire stadium-pop de Provinz.",
+      "fun_fact_nl": "Van de debuut-EP van de Bodensee-band (2019). #28 in Duitsland — een vroeg signaal van Provinz' latere stadionpop-koers.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {
+        "german_peak": 28
+      }
+    },
+    {
+      "artist": "Helene Fischer",
+      "title": "Atemlos durch die Nacht",
+      "year": 2013,
+      "isrc": "DEUM71303188",
+      "uri": "spotify:track:1cSXzDZt8vzuUp2XREQEJN",
+      "uri_apple_music": "applemusic://track/1736653452",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1736653452",
+        "de": "applemusic://track/1736653452",
+        "gb": "applemusic://track/1736653452",
+        "fr": "applemusic://track/1736653452",
+        "es": "applemusic://track/1736653452",
+        "nl": "applemusic://track/1736653452",
+        "it": "applemusic://track/1736653452"
+      },
+      "uri_deezer": "deezer://track/72761680",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=haECT-SerHk",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Andrea Berg",
+        "Vanessa Mai",
+        "Beatrice Egli"
+      ],
+      "fun_fact": "Composed by Kristina Bach. Reached #1 in Germany, sold over 1 million copies, and became the unofficial soundtrack to Germany's 2014 World Cup win.",
+      "fun_fact_de": "Komponiert von Kristina Bach. Erreichte Platz 1 in Deutschland, wurde über 1 Million Mal verkauft und wurde zum inoffiziellen Soundtrack des WM-Triumphs 2014.",
+      "fun_fact_es": "Compuesta por Kristina Bach. #1 en Alemania, más de 1 millón de copias vendidas, y banda sonora no oficial del título mundial de Alemania en 2014.",
+      "fun_fact_fr": "Composée par Kristina Bach. N°1 en Allemagne, plus d'un million d'exemplaires vendus, devenue la bande-son officieuse du sacre allemand à la Coupe du monde 2014.",
+      "fun_fact_nl": "Gecomponeerd door Kristina Bach. #1 in Duitsland, meer dan 1 miljoen exemplaren verkocht en de onofficiële soundtrack van Duitslands WK-titel in 2014.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [
+        "7× Platin (DE)"
+      ],
+      "chart_info": {
+        "german_peak": 1
+      }
+    },
+    {
+      "artist": "Peter Fox",
+      "title": "Haus am See",
+      "year": 2008,
+      "isrc": "DEA620800624",
+      "uri": "spotify:track:7A4KdLy1DXOOC5fhIdDuHz",
+      "uri_apple_music": "applemusic://track/312318468",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/312318468",
+        "de": "applemusic://track/312318468",
+        "gb": "applemusic://track/312318468",
+        "fr": "applemusic://track/312318468",
+        "es": "applemusic://track/312318468",
+        "nl": "applemusic://track/312318468",
+        "it": "applemusic://track/312318468"
+      },
+      "uri_deezer": "deezer://track/2200206",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=Vgwkxa-uGcE",
+      "uri_tidal": "tidal://track/11010220",
+      "alt_artists": [
+        "Seeed",
+        "Jan Delay",
+        "Beatsteaks"
+      ],
+      "fun_fact": "From the solo album 'Stadtaffe' (2008) — the project that broke the Seeed singer through to mainstream. The song reached #4 on the German Singles Chart and went 7× Gold.",
+      "fun_fact_de": "Aus dem Soloalbum 'Stadtaffe' (2008) — das Projekt, mit dem der Seeed-Frontmann den Mainstream-Durchbruch schaffte. Der Song erreichte Platz 4 der deutschen Singlecharts und ging 7× Gold.",
+      "fun_fact_es": "Del álbum solista 'Stadtaffe' (2008), el proyecto con el que el cantante de Seeed alcanzó el mainstream. La canción llegó al #4 de las listas alemanas y consiguió 7 discos de oro.",
+      "fun_fact_fr": "Extrait de l'album solo 'Stadtaffe' (2008), le projet qui a propulsé le chanteur de Seeed dans le mainstream. Le titre a atteint la 4e place des charts allemands et a été certifié 7× or.",
+      "fun_fact_nl": "Van het soloalbum 'Stadtaffe' (2008) — het project waarmee de Seeed-zanger doorbrak naar de mainstream. De track haalde #4 in de Duitse hitlijst en werd 7× goud.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [
+        "7× Gold (DE)"
+      ],
+      "chart_info": {
+        "german_peak": 4
+      }
+    },
+    {
+      "artist": "AnnenMayKantereit",
+      "title": "Pocahontas",
+      "year": 2016,
+      "isrc": "DEUM71504281",
+      "uri": "spotify:track:4poYvYKOKtpAOoXSIYeU0A",
+      "uri_apple_music": "applemusic://track/1440842640",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1440842640",
+        "de": "applemusic://track/1440842640",
+        "gb": "applemusic://track/1440842640",
+        "fr": "applemusic://track/1440842640",
+        "es": "applemusic://track/1440842640",
+        "nl": "applemusic://track/1440842640",
+        "it": "applemusic://track/1440842640"
+      },
+      "uri_deezer": "deezer://track/121123256",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=WMA9GHORLow",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Faber",
+        "Bosse",
+        "Provinz"
+      ],
+      "fun_fact": "From the second studio album 'Schlagschatten' (2018). The Cologne trio's signature smoky-voice indie-folk reached #1 in Germany.",
+      "fun_fact_de": "Vom zweiten Studioalbum 'Schlagschatten' (2018). Der typische Indie-Folk-Sound des Kölner Trios mit der rauchigen Stimme erreichte Platz 1 in Deutschland.",
+      "fun_fact_es": "Del segundo álbum 'Schlagschatten' (2018). El indie-folk de voz rasgada del trío de Colonia llegó al #1 en Alemania.",
+      "fun_fact_fr": "Issue du deuxième album 'Schlagschatten' (2018). L'indie-folk à la voix rauque du trio de Cologne s'est classé n°1 en Allemagne.",
+      "fun_fact_nl": "Van het tweede studioalbum 'Schlagschatten' (2018). De indiefolk met rauwe stem van het trio uit Keulen werd #1 in Duitsland.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {
+        "german_peak": 1
+      }
+    },
+    {
+      "artist": "Wir sind Helden",
+      "title": "Denkmal",
+      "year": 2003,
+      "isrc": "DEP240200023",
+      "uri": "spotify:track:58zHoX9U5VlSXLUUmWTfe2",
+      "uri_apple_music": "applemusic://track/6762966192",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/712383927",
+        "de": "applemusic://track/6762966192",
+        "gb": "applemusic://track/712383927",
+        "fr": "applemusic://track/712383927",
+        "es": "applemusic://track/712383927",
+        "nl": "applemusic://track/712383927",
+        "it": "applemusic://track/712383927"
+      },
+      "uri_deezer": "deezer://track/3090905",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=aC872j2-PDw",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Juli",
+        "Silbermond",
+        "Echt"
+      ],
+      "fun_fact": "The breakthrough single from debut album 'Die Reklamation' (2003). Frontwoman Judith Holofernes's wordplay 'unkaputtbar' became a Neue-Deutsche-Welle 2.0 anthem.",
+      "fun_fact_de": "Die Durchbruchs-Single vom Debütalbum 'Die Reklamation' (2003). Sängerin Judith Holofernes' Wortspiel 'unkaputtbar' wurde zur Hymne der Neuen Deutschen Welle 2.0.",
+      "fun_fact_es": "El sencillo de despegue del álbum debut 'Die Reklamation' (2003). El juego de palabras 'unkaputtbar' de la cantante Judith Holofernes se convirtió en himno de la nueva ola alemana 2.0.",
+      "fun_fact_fr": "Le single de la révélation, issu du premier album 'Die Reklamation' (2003). Le néologisme 'unkaputtbar' de la chanteuse Judith Holofernes est devenu un hymne de la Neue Deutsche Welle 2.0.",
+      "fun_fact_nl": "De doorbraaksingle van debuutalbum 'Die Reklamation' (2003). De woordspeling 'unkaputtbar' van zangeres Judith Holofernes werd een Neue Deutsche Welle 2.0-hymne.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {
+        "german_peak": 13
+      }
+    },
+    {
+      "artist": "Sido, Andreas Bourani",
+      "title": "Astronaut",
+      "year": 2015,
+      "isrc": "DEUM71501571",
+      "uri": "spotify:track:0pQr5WsobmdZHnuObT0sc2",
+      "uri_apple_music": "applemusic://track/6762966194",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1784599392",
+        "de": "applemusic://track/6762966194",
+        "gb": "applemusic://track/1784599392",
+        "fr": "applemusic://track/1784599392",
+        "es": "applemusic://track/1784599392",
+        "nl": "applemusic://track/1784599392",
+        "it": "applemusic://track/1784599392"
+      },
+      "uri_deezer": "deezer://track/105710536",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=xyno53dCO7Q",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Bushido",
+        "Kool Savas",
+        "Casper"
+      ],
+      "fun_fact": "Sido & Andreas Bourani's 2015 collab reached #1 in Germany and went 5× Platinum — Sido's biggest pop crossover.",
+      "fun_fact_de": "Die Zusammenarbeit von Sido & Andreas Bourani 2015 erreichte Platz 1 in Deutschland und ging 5× Platin — Sidos größter Pop-Crossover.",
+      "fun_fact_es": "La colaboración de Sido y Andreas Bourani de 2015 llegó al #1 en Alemania y consiguió 5× platino — el mayor cruce al pop de Sido.",
+      "fun_fact_fr": "La collaboration de Sido et Andreas Bourani en 2015 a atteint la 1re place en Allemagne et a été certifiée 5× platine — le plus gros crossover pop de Sido.",
+      "fun_fact_nl": "De samenwerking van Sido en Andreas Bourani uit 2015 werd #1 in Duitsland en 5× platina — Sido's grootste pop-crossover.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [
+        "5× Platin (DE)"
+      ],
+      "chart_info": {
+        "german_peak": 1
+      }
+    },
+    {
+      "artist": "Andreas Bourani",
+      "title": "Auf uns",
+      "year": 2014,
+      "isrc": "DEUM71400465",
+      "uri": "spotify:track:6dXt4t5jgySnVTeTpT4C0l",
+      "uri_apple_music": "applemusic://track/1838527023",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1838527023",
+        "de": "applemusic://track/1838527023",
+        "gb": "applemusic://track/1838527023",
+        "fr": "applemusic://track/1838527023",
+        "es": "applemusic://track/1838527023",
+        "nl": "applemusic://track/1838527023",
+        "it": "applemusic://track/1838527023"
+      },
+      "uri_deezer": "deezer://track/77045434",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=k9EYjn5f_nE",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Mark Forster",
+        "Tim Bendzko",
+        "Johannes Oerding"
+      ],
+      "fun_fact": "Officially adopted by ARD as the 2014 FIFA World Cup theme. The song reached #1 in Germany, sold 700,000 copies, and was certified 3× Gold.",
+      "fun_fact_de": "Wurde von der ARD als offizieller WM-Song 2014 gewählt. Erreichte Platz 1 in Deutschland, verkaufte 700.000 Exemplare und wurde mit 3× Gold ausgezeichnet.",
+      "fun_fact_es": "Adoptada oficialmente por la ARD como himno de la Copa Mundial 2014. #1 en Alemania, 700.000 copias vendidas, certificación de 3× oro.",
+      "fun_fact_fr": "Adoptée par l'ARD comme hymne officiel de la Coupe du monde 2014. N°1 en Allemagne, 700 000 exemplaires vendus, certification 3× or.",
+      "fun_fact_nl": "Door de ARD gekozen als officieel WK-lied 2014. #1 in Duitsland, 700.000 verkochte exemplaren en 3× goud.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [
+        "3× Gold (DE)"
+      ],
+      "chart_info": {
+        "german_peak": 1
+      }
+    },
+    {
+      "artist": "JORIS",
+      "title": "Herz über Kopf",
+      "year": 2015,
+      "isrc": "DEQ321400478",
+      "uri": "spotify:track:2krwNGlAHQuClcMw0WMUiz",
+      "uri_apple_music": "applemusic://track/1856005603",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1856005603",
+        "de": "applemusic://track/1856005603",
+        "gb": "applemusic://track/1856005603",
+        "fr": "applemusic://track/1856005603",
+        "es": "applemusic://track/1856005603",
+        "nl": "applemusic://track/1856005603",
+        "it": "applemusic://track/1856005603"
+      },
+      "uri_deezer": "deezer://track/96460712",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=oq0rrYrufYU",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Mark Forster",
+        "Tim Bendzko",
+        "Provinz"
+      ],
+      "fun_fact": "From his debut album 'Hoffnungslos hoffnungsvoll' (2015). The song earned JORIS the New Artist Bambi Award and reached #6 in the German charts.",
+      "fun_fact_de": "Vom Debütalbum 'Hoffnungslos hoffnungsvoll' (2015). Der Song brachte JORIS den Bambi als Newcomer und Platz 6 in den deutschen Charts.",
+      "fun_fact_es": "De su álbum debut 'Hoffnungslos hoffnungsvoll' (2015). La canción le valió a JORIS el Bambi al Artista Revelación y alcanzó el #6 en Alemania.",
+      "fun_fact_fr": "Issue de l'album 'Hoffnungslos hoffnungsvoll' (2015). Le titre a valu à JORIS le Bambi du nouvel artiste et la 6e place en Allemagne.",
+      "fun_fact_nl": "Van zijn debuutalbum 'Hoffnungslos hoffnungsvoll' (2015). De track leverde JORIS de Bambi voor nieuwe artiest op en bereikte #6 in Duitsland.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [
+        "3× Gold (DE)"
+      ],
+      "chart_info": {
+        "german_peak": 6
+      }
+    },
+    {
+      "artist": "Namika",
+      "title": "Lieblingsmensch",
+      "year": 2015,
+      "isrc": "DEE861500389",
+      "uri": "spotify:track:6oHDvarQSp0mf5AD1SyNH0",
+      "uri_apple_music": "applemusic://track/1626938606",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1626938606",
+        "de": "applemusic://track/1626938606",
+        "gb": "applemusic://track/1626938606",
+        "fr": "applemusic://track/1626938606",
+        "es": "applemusic://track/1626938606",
+        "nl": "applemusic://track/1626938606",
+        "it": "applemusic://track/1626938606"
+      },
+      "uri_deezer": "deezer://track/102972232",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=xhln61FaG-8",
+      "uri_tidal": null,
+      "alt_artists": [
+        "LEA",
+        "Sarah Connor",
+        "Lina Maly"
+      ],
+      "fun_fact": "The breakthrough single for the Frankfurt singer with Moroccan roots. Reached #2 in Germany and was certified 3× Platinum.",
+      "fun_fact_de": "Die Durchbruchs-Single der Frankfurter Sängerin mit marokkanischen Wurzeln. Erreichte Platz 2 in Deutschland und wurde mit 3× Platin ausgezeichnet.",
+      "fun_fact_es": "El sencillo de despegue de la cantante de Fráncfort con raíces marroquíes. Alcanzó el #2 en Alemania y consiguió 3 discos de platino.",
+      "fun_fact_fr": "Le single de révélation de la chanteuse de Francfort aux origines marocaines. Numéro 2 en Allemagne, certifié 3× platine.",
+      "fun_fact_nl": "De doorbraaksingle van de Frankfurtse zangeres met Marokkaanse roots. #2 in Duitsland en 3× platina.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [
+        "3× Platin (DE)"
+      ],
+      "chart_info": {
+        "german_peak": 2
+      }
+    },
+    {
+      "artist": "Juli",
+      "title": "Perfekte Welle",
+      "year": 2004,
+      "isrc": "DEN120402022",
+      "uri": "spotify:track:2LV5joNDrsyuXEh4FBARVK",
+      "uri_apple_music": "applemusic://track/6762966374",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1818879775",
+        "de": "applemusic://track/6762966374",
+        "gb": "applemusic://track/1818879775",
+        "fr": "applemusic://track/1818879775",
+        "es": "applemusic://track/1818879775",
+        "nl": "applemusic://track/1818879775",
+        "it": "applemusic://track/1818879775"
+      },
+      "uri_deezer": "deezer://track/121926890",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=ad8ukI7Z-b8",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Wir sind Helden",
+        "Silbermond",
+        "Echt"
+      ],
+      "fun_fact": "Released March 2004 — its peak coincided with the December 2004 Indian Ocean tsunami, leading German radio stations to pull it from rotation. Despite that, it stayed in the charts for 60 weeks.",
+      "fun_fact_de": "Veröffentlicht im März 2004 — der Peak fiel mit dem Tsunami im Dezember 2004 zusammen, weshalb deutsche Radiosender ihn aus der Rotation nahmen. Trotzdem stand er 60 Wochen in den Charts.",
+      "fun_fact_es": "Publicada en marzo de 2004 — su pico coincidió con el tsunami del Índico de diciembre de 2004, por lo que la radio alemana la retiró de la rotación. Aun así estuvo 60 semanas en las listas.",
+      "fun_fact_fr": "Sortie en mars 2004 — son sommet a coïncidé avec le tsunami de décembre 2004 dans l'océan Indien, ce qui a poussé les radios allemandes à la retirer. Elle est néanmoins restée 60 semaines dans les charts.",
+      "fun_fact_nl": "Uitgebracht in maart 2004 — de piek viel samen met de tsunami in de Indische Oceaan eind 2004, waardoor Duitse radiozenders het lied uit de rotatie haalden. Toch stond het 60 weken in de hitlijst.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [
+        "Gold (DE)"
+      ],
+      "chart_info": {
+        "german_peak": 2,
+        "weeks_on_chart": 60
+      }
+    },
+    {
+      "artist": "Die Firma",
+      "title": "Die Eine 2005",
+      "year": 2005,
+      "isrc": "DEZ040500211",
+      "uri": "spotify:track:3jd4ya9vCwExxTVOjPcqsf",
+      "uri_apple_music": "applemusic://track/1515949427",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1515949427",
+        "de": "applemusic://track/1515949427",
+        "gb": "applemusic://track/1515949427",
+        "fr": "applemusic://track/1515949427",
+        "es": "applemusic://track/1515949427",
+        "nl": "applemusic://track/1515949427",
+        "it": "applemusic://track/1515949427"
+      },
+      "uri_deezer": "deezer://track/974881312",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=HR00F3VnlcE",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Sido",
+        "Bushido",
+        "Aggro Berlin"
+      ],
+      "fun_fact": "Re-recording of their 1996 hit 'Die Eine'. The Berlin hip-hop group reissued it after a decade with updated production for a new generation.",
+      "fun_fact_de": "Neuaufnahme ihres Hits 'Die Eine' von 1996. Die Berliner Hip-Hop-Gruppe veröffentlichte ihn nach einem Jahrzehnt mit neuer Produktion für eine neue Generation.",
+      "fun_fact_es": "Regrabación de su éxito 'Die Eine' de 1996. El grupo de hip-hop berlinés lo reeditó tras una década con producción actualizada para una nueva generación.",
+      "fun_fact_fr": "Réenregistrement de leur tube 'Die Eine' (1996). Le groupe de hip-hop berlinois l'a republié dix ans plus tard avec une production réactualisée pour une nouvelle génération.",
+      "fun_fact_nl": "Heropname van hun hit 'Die Eine' uit 1996. De Berlijnse hiphopgroep bracht hem na tien jaar opnieuw uit met geüpdatete productie voor een nieuwe generatie.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {}
+    },
+    {
+      "artist": "AnnenMayKantereit",
+      "title": "Barfuß am Klavier",
+      "year": 2016,
+      "isrc": "DEUM71504288",
+      "uri": "spotify:track:4kr64ggr6ALZGxnkGdhK7b",
+      "uri_apple_music": "applemusic://track/1440842648",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1440842648",
+        "de": "applemusic://track/1440842648",
+        "gb": "applemusic://track/1440842648",
+        "fr": "applemusic://track/1440842648",
+        "es": "applemusic://track/1440842648",
+        "nl": "applemusic://track/1440842648",
+        "it": "applemusic://track/1440842648"
+      },
+      "uri_deezer": "deezer://track/121123270",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=At07K8AUA9M",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Faber",
+        "Bosse",
+        "Provinz"
+      ],
+      "fun_fact": "Recorded in their student-flat-era piano demo style. The simple intimacy made it one of their most-shared tracks across student dorms.",
+      "fun_fact_de": "Aufgenommen im typischen Klavier-Demo-Stil ihrer WG-Zeit. Die schlichte Intimität machte ihn zum Studenten-WG-Klassiker.",
+      "fun_fact_es": "Grabada en el estilo de demo de piano de su época de piso compartido. Su intimidad simple la convirtió en un clásico de residencias universitarias.",
+      "fun_fact_fr": "Enregistrée dans le style de démo piano de leur époque colocation. Son intimité minimale en a fait un classique des résidences étudiantes.",
+      "fun_fact_nl": "Opgenomen in de pianodemo-stijl uit hun studentenhuis-tijd. De eenvoudige intimiteit maakte het tot een klassieker in studentenhuizen.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {}
+    },
+    {
+      "artist": "Mark Forster, Sido",
+      "title": "Au Revoir (feat. Sido)",
+      "year": 2014,
+      "isrc": "DEQ321400093",
+      "uri": "spotify:track:1ZMODMeLK5x6W8r8jsmmgX",
+      "uri_apple_music": "applemusic://track/1076306532",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/993651515",
+        "de": "applemusic://track/1076306532",
+        "gb": "applemusic://track/993651515",
+        "fr": "applemusic://track/993651515",
+        "es": "applemusic://track/993651515",
+        "nl": "applemusic://track/993651515",
+        "it": "applemusic://track/993651515"
+      },
+      "uri_deezer": "deezer://track/77834654",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=MtDPKJSsBgc",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Tim Bendzko",
+        "Andreas Bourani",
+        "Wincent Weiss"
+      ],
+      "fun_fact": "The feature with rapper Sido sent it to #2 in Germany and 4× Platinum. The video was shot in Mark Forster's hometown Winnweiler.",
+      "fun_fact_de": "Das Feature mit Rapper Sido brachte ihn auf Platz 2 in Deutschland und zu 4× Platin. Das Video entstand in Mark Forsters Heimatort Winnweiler.",
+      "fun_fact_es": "La colaboración con el rapero Sido la llevó al #2 en Alemania y a 4× platino. El videoclip se rodó en Winnweiler, ciudad natal de Mark Forster.",
+      "fun_fact_fr": "Le featuring avec le rappeur Sido a propulsé le titre à la 2e place en Allemagne, certifié 4× platine. Clip tourné à Winnweiler, ville natale de Mark Forster.",
+      "fun_fact_nl": "De samenwerking met rapper Sido bezorgde de track #2 in Duitsland en 4× platina. De clip werd opgenomen in Winnweiler, de geboorteplaats van Mark Forster.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [
+        "4× Platin (DE)"
+      ],
+      "chart_info": {
+        "german_peak": 2
+      }
+    },
+    {
+      "artist": "Polarkreis 18",
+      "title": "Allein Allein",
+      "year": 2008,
+      "isrc": "DEUM70804753",
+      "uri": "spotify:track:4HyJ1VGNu3IszMV0sTsqKP",
+      "uri_apple_music": "applemusic://track/6762966383",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1647257558",
+        "de": "applemusic://track/6762966383",
+        "gb": "applemusic://track/1445865525",
+        "fr": "applemusic://track/1647257558",
+        "es": "applemusic://track/1647257558",
+        "nl": "applemusic://track/1647257558",
+        "it": "applemusic://track/1647257558"
+      },
+      "uri_deezer": "deezer://track/2160808",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=-SHwn6O25CY",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Wir sind Helden",
+        "MIA.",
+        "Glasperlenspiel"
+      ],
+      "fun_fact": "Reached #2 in Germany and stayed in the top 10 for over half a year. The song's electro-pop chorus made the Dresden band a household name overnight.",
+      "fun_fact_de": "Erreichte Platz 2 in Deutschland und blieb über ein halbes Jahr in den Top 10. Der Electro-Pop-Refrain machte die Dresdner Band über Nacht bekannt.",
+      "fun_fact_es": "Alcanzó el #2 en Alemania y se mantuvo en el top 10 durante más de medio año. El estribillo electro-pop convirtió a la banda de Dresde en un nombre conocido de la noche a la mañana.",
+      "fun_fact_fr": "Numéro 2 en Allemagne, restée plus de six mois dans le top 10. Son refrain électro-pop a propulsé le groupe de Dresde au rang de star nationale du jour au lendemain.",
+      "fun_fact_nl": "Bereikte #2 in Duitsland en stond ruim een half jaar in de top 10. Het electropop-refrein maakte de Dresdense band in één klap bekend.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [
+        "3× Gold (DE)"
+      ],
+      "chart_info": {
+        "german_peak": 2,
+        "weeks_on_chart": 30
+      }
+    },
+    {
+      "artist": "Juli",
+      "title": "Geile Zeit",
+      "year": 2004,
+      "isrc": "DEN120404257",
+      "uri": "spotify:track:3hT1h7FiFFxoLqiTMJM7Ew",
+      "uri_apple_music": "applemusic://track/1804123747",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1804123747",
+        "de": "applemusic://track/1804123747",
+        "gb": "applemusic://track/1804123747",
+        "fr": "applemusic://track/1804123747",
+        "es": "applemusic://track/1804123747",
+        "nl": "applemusic://track/1804123747",
+        "it": "applemusic://track/1804123747"
+      },
+      "uri_deezer": "deezer://track/121926884",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=KyMT8MDaxqo",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Wir sind Helden",
+        "Silbermond",
+        "Echt"
+      ],
+      "fun_fact": "Lead single from debut album 'Es ist Juli' (2004). Sold over 200,000 copies and helped define the 2000s German indie-pop sound.",
+      "fun_fact_de": "Leadsingle des Debütalbums 'Es ist Juli' (2004). Verkaufte über 200.000 Exemplare und prägte den Sound des deutschen Indie-Pop der 2000er Jahre.",
+      "fun_fact_es": "Primer sencillo del álbum debut 'Es ist Juli' (2004). Vendió más de 200.000 copias y ayudó a definir el sonido indie-pop alemán de los 2000.",
+      "fun_fact_fr": "Premier single de l'album 'Es ist Juli' (2004). Plus de 200 000 exemplaires vendus, le titre a contribué à définir le son indie-pop allemand des années 2000.",
+      "fun_fact_nl": "Eerste single van het debuutalbum 'Es ist Juli' (2004). Meer dan 200.000 verkochte exemplaren — bepalend voor het Duitse indiepop-geluid van de jaren 2000.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {
+        "german_peak": 22
+      }
+    },
+    {
+      "artist": "Sarah Connor",
+      "title": "Wie schön du bist",
+      "year": 2015,
+      "isrc": "DEUM71500657",
+      "uri": "spotify:track:2xtnnO9bHKXEmsfetO3ldK",
+      "uri_apple_music": "applemusic://track/6764402686",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/6764402686",
+        "de": "applemusic://track/6764402686",
+        "gb": "applemusic://track/6764402686",
+        "fr": "applemusic://track/6764402686",
+        "es": "applemusic://track/6764402686",
+        "nl": "applemusic://track/6764402686",
+        "it": "applemusic://track/6764402686"
+      },
+      "uri_deezer": "deezer://track/98348314",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=1gDbpWC_9pE",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Helene Fischer",
+        "Yvonne Catterfeld",
+        "LEA"
+      ],
+      "fun_fact": "Lead single from her first German-language album 'Muttersprache' (2015). Reached #1 in Germany — her first chart-topper since 2002.",
+      "fun_fact_de": "Leadsingle ihres ersten deutschsprachigen Albums 'Muttersprache' (2015). Erreichte Platz 1 in Deutschland — ihr erster Nummer-1-Hit seit 2002.",
+      "fun_fact_es": "Primer sencillo de su primer álbum en alemán 'Muttersprache' (2015). #1 en Alemania, su primer número uno desde 2002.",
+      "fun_fact_fr": "Premier single de son premier album en allemand 'Muttersprache' (2015). N°1 en Allemagne, sa première place depuis 2002.",
+      "fun_fact_nl": "Eerste single van haar eerste Duitstalige album 'Muttersprache' (2015). #1 in Duitsland — haar eerste nummer-1-hit sinds 2002.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [
+        "Platin (DE)"
+      ],
+      "chart_info": {
+        "german_peak": 1
+      }
+    },
+    {
+      "artist": "Revolverheld",
+      "title": "Ich lass für dich das Licht an",
+      "year": 2013,
+      "isrc": "DEE861300464",
+      "uri": "spotify:track:55VQvOY6dT63vHmYlWJDpG",
+      "uri_apple_music": "applemusic://track/667473617",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/667473617",
+        "de": "applemusic://track/667473617",
+        "gb": "applemusic://track/667473617",
+        "fr": "applemusic://track/667473617",
+        "es": "applemusic://track/667473617",
+        "nl": "applemusic://track/667473617",
+        "it": "applemusic://track/667473617"
+      },
+      "uri_deezer": "deezer://track/70079181",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=oGhdsruanPg",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Wir sind Helden",
+        "Juli",
+        "Silbermond"
+      ],
+      "fun_fact": "Lead single from album 'Immer in Bewegung' (2013). Reached #4 in Germany and was certified 3× Gold.",
+      "fun_fact_de": "Leadsingle des Albums 'Immer in Bewegung' (2013). Erreichte Platz 4 in Deutschland und wurde mit 3× Gold ausgezeichnet.",
+      "fun_fact_es": "Primer sencillo del álbum 'Immer in Bewegung' (2013). Llegó al #4 en Alemania y consiguió 3 discos de oro.",
+      "fun_fact_fr": "Premier single de l'album 'Immer in Bewegung' (2013). 4e place en Allemagne, certifié 3× or.",
+      "fun_fact_nl": "Eerste single van het album 'Immer in Bewegung' (2013). #4 in Duitsland en 3× goud.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [
+        "3× Gold (DE)"
+      ],
+      "chart_info": {
+        "german_peak": 4
+      }
+    },
+    {
+      "artist": "Mark Forster",
+      "title": "Chöre",
+      "year": 2017,
+      "isrc": "DEQ321600148",
+      "uri": "spotify:track:4ZPXuHp219ujq6QJ9oqteR",
+      "uri_apple_music": "applemusic://track/1096694871",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1280912827",
+        "de": "applemusic://track/1096694871",
+        "gb": "applemusic://track/1280912827",
+        "fr": "applemusic://track/1280912827",
+        "es": "applemusic://track/1280912827",
+        "nl": "applemusic://track/1280912827",
+        "it": "applemusic://track/1280912827"
+      },
+      "uri_deezer": "deezer://track/426347072",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=6Mwvi40VSDU",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Tim Bendzko",
+        "Andreas Bourani",
+        "Wincent Weiss"
+      ],
+      "fun_fact": "The Echo-winning single from album 'Tape' (2016). Stayed in the German top 10 for 22 weeks and was certified 4× Platinum.",
+      "fun_fact_de": "Die Echo-prämierte Single aus dem Album 'Tape' (2016). Stand 22 Wochen in den deutschen Top 10 und wurde mit 4× Platin ausgezeichnet.",
+      "fun_fact_es": "El sencillo galardonado con el Echo del álbum 'Tape' (2016). Pasó 22 semanas en el top 10 alemán y consiguió 4× platino.",
+      "fun_fact_fr": "Single primé aux Echo Awards, extrait de l'album 'Tape' (2016). 22 semaines dans le top 10 allemand, certifié 4× platine.",
+      "fun_fact_nl": "De met een Echo Award bekroonde single van het album 'Tape' (2016). Stond 22 weken in de Duitse top 10 en werd 4× platina.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [
+        "4× Platin (DE)"
+      ],
+      "chart_info": {
+        "german_peak": 4,
+        "weeks_on_chart": 22
+      }
+    },
+    {
+      "artist": "Helene Fischer",
+      "title": "Herzbeben",
+      "year": 2017,
+      "isrc": "DEUM71704905",
+      "uri": "spotify:track:5mWceciQV51RPCBQCLAm3U",
+      "uri_apple_music": "applemusic://track/1805722740",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1805722740",
+        "de": "applemusic://track/1805722740",
+        "gb": "applemusic://track/1805722740",
+        "fr": "applemusic://track/1805722740",
+        "es": "applemusic://track/1805722740",
+        "nl": "applemusic://track/1805722740",
+        "it": "applemusic://track/1805722740"
+      },
+      "uri_deezer": "deezer://track/376483341",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=19RE_GTO3n0",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Andrea Berg",
+        "Vanessa Mai",
+        "Beatrice Egli"
+      ],
+      "fun_fact": "Lead single from her self-titled 2017 album, which sold 1 million copies in 9 weeks. The song was performed at the FIFA World Cup 2018 Final ceremony.",
+      "fun_fact_de": "Leadsingle ihres selbstbetitelten 2017er Albums, das in 9 Wochen 1 Million Mal verkauft wurde. Der Song wurde bei der WM-Finalfeier 2018 aufgeführt.",
+      "fun_fact_es": "Primer sencillo de su álbum homónimo de 2017, que vendió 1 millón de copias en 9 semanas. Interpretada en la ceremonia de la final del Mundial 2018.",
+      "fun_fact_fr": "Premier single de son album éponyme de 2017, vendu à un million d'exemplaires en 9 semaines. Interprétée lors de la cérémonie de la finale de la Coupe du monde 2018.",
+      "fun_fact_nl": "Eerste single van haar gelijknamige album uit 2017, dat in 9 weken een miljoen keer werd verkocht. Het nummer werd gespeeld bij de finalefestiviteiten van het WK 2018.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [
+        "Platin (DE)"
+      ],
+      "chart_info": {
+        "german_peak": 7
+      }
+    },
+    {
+      "artist": "SDP",
+      "title": "Ich will nur dass du weißt",
+      "year": 2015,
+      "isrc": "DETX41500514",
+      "uri": "spotify:track:17c0uUPyM9m2Jo0zJsVdcz",
+      "uri_apple_music": "applemusic://track/6762966269",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1784599490",
+        "de": "applemusic://track/6762966269",
+        "gb": "applemusic://track/1784599490",
+        "fr": "applemusic://track/1784599490",
+        "es": "applemusic://track/1784599490",
+        "nl": "applemusic://track/1784599490",
+        "it": "applemusic://track/1784599490"
+      },
+      "uri_deezer": "deezer://track/103804276",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=QoQpxH8eBzg",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Casper",
+        "Marteria",
+        "Wincent Weiss"
+      ],
+      "fun_fact": "From album 'Die bunte Seite der Macht' (2015). Their breakthrough as the meta-comedy hip-hop duo from Berlin reached #18 in Germany.",
+      "fun_fact_de": "Vom Album 'Die bunte Seite der Macht' (2015). Ihr Durchbruch als Meta-Comedy-Hip-Hop-Duo aus Berlin erreichte Platz 18 in Deutschland.",
+      "fun_fact_es": "Del álbum 'Die bunte Seite der Macht' (2015). Su despegue como dúo de hip-hop meta-cómico de Berlín llegó al #18 en Alemania.",
+      "fun_fact_fr": "Issu de l'album 'Die bunte Seite der Macht' (2015). Leur percée en tant que duo hip-hop méta-comique de Berlin a atteint la 18e place en Allemagne.",
+      "fun_fact_nl": "Van het album 'Die bunte Seite der Macht' (2015). Hun doorbraak als meta-comedy-hiphopduo uit Berlijn haalde #18 in Duitsland.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {}
+    },
+    {
+      "artist": "Juju, Henning May",
+      "title": "Vermissen (feat. Henning May)",
+      "year": 2019,
+      "isrc": "DEVX51900045",
+      "uri": "spotify:track:1SSzM044DUbVpYNNHWIhYJ",
+      "uri_apple_music": "applemusic://track/6762966191",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1784524738",
+        "de": "applemusic://track/6762966191",
+        "gb": "applemusic://track/1784524738",
+        "fr": "applemusic://track/1784524738",
+        "es": "applemusic://track/1784524738",
+        "nl": "applemusic://track/1460696803",
+        "it": "applemusic://track/1784524738"
+      },
+      "uri_deezer": "deezer://track/672193282",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=YHbYAUs9JCo",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Loredana",
+        "Shirin David",
+        "SXTN"
+      ],
+      "fun_fact": "Berlin rapper Juju & AnnenMayKantereit's Henning May. Reached #2 in Germany and was certified 6× Platinum — the rap-folk crossover of 2019.",
+      "fun_fact_de": "Die Berliner Rapperin Juju & AnnenMayKantereit-Sänger Henning May. Erreichte Platz 2 in Deutschland und wurde 6× Platin — der Rap-Folk-Crossover von 2019.",
+      "fun_fact_es": "La rapera berlinesa Juju y Henning May de AnnenMayKantereit. #2 en Alemania y 6× platino — el cruce rap-folk de 2019.",
+      "fun_fact_fr": "La rappeuse berlinoise Juju et Henning May d'AnnenMayKantereit. 2e place en Allemagne, 6× platine — le crossover rap-folk de 2019.",
+      "fun_fact_nl": "De Berlijnse rapper Juju en Henning May van AnnenMayKantereit. #2 in Duitsland en 6× platina — de rap-folk-crossover van 2019.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [
+        "6× Platin (DE)"
+      ],
+      "chart_info": {
+        "german_peak": 2
+      }
+    },
+    {
+      "artist": "Tim Bendzko",
+      "title": "Nur noch kurz die Welt retten",
+      "year": 2011,
+      "isrc": "DEE861100047",
+      "uri": "spotify:track:0Wq6whEjKeAAUi4nEim1DA",
+      "uri_apple_music": "applemusic://track/1473616797",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/993651966",
+        "de": "applemusic://track/1473616797",
+        "gb": "applemusic://track/441501711",
+        "fr": "applemusic://track/441501711",
+        "es": "applemusic://track/505280772",
+        "nl": "applemusic://track/441501711",
+        "it": "applemusic://track/441501711"
+      },
+      "uri_deezer": "deezer://track/12000049",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=kLVW82ryw2Q",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Mark Forster",
+        "Johannes Oerding",
+        "Andreas Bourani"
+      ],
+      "fun_fact": "His debut single, hit #4 in Germany. The phrase 'kurz die Welt retten' became a German pop-culture catchphrase for last-minute over-commitment.",
+      "fun_fact_de": "Seine Debütsingle, Platz 4 in Deutschland. Die Phrase 'kurz die Welt retten' wurde zur deutschen Popkultur-Redewendung für Last-Minute-Überforderung.",
+      "fun_fact_es": "Su sencillo debut, llegó al #4 en Alemania. La frase 'kurz die Welt retten' se convirtió en un dicho popular alemán para describir compromisos de última hora.",
+      "fun_fact_fr": "Son premier single, n°4 en Allemagne. L'expression 'kurz die Welt retten' est devenue un proverbe pop allemand sur l'engagement de dernière minute.",
+      "fun_fact_nl": "Zijn debuutsingle, #4 in Duitsland. De zin 'kurz die Welt retten' werd in de Duitse popcultuur een gevleugeld woord voor last-minute drukte.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [
+        "3× Gold (DE)"
+      ],
+      "chart_info": {
+        "german_peak": 4
+      }
+    },
+    {
+      "artist": "Von Wegen Lisbeth",
+      "title": "Wenn du tanzt",
+      "year": 2016,
+      "isrc": "DEE861600227",
+      "uri": "spotify:track:0G7vexduCvboPyIGjJXQIC",
+      "uri_apple_music": "applemusic://track/1104931553",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1104931553",
+        "de": "applemusic://track/1104931553",
+        "gb": "applemusic://track/1104931553",
+        "fr": "applemusic://track/1104931553",
+        "es": "applemusic://track/1104931553",
+        "nl": "applemusic://track/1104931553",
+        "it": "applemusic://track/1104931553"
+      },
+      "uri_deezer": "deezer://track/128548159",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=m2JRghbgeYw",
+      "uri_tidal": null,
+      "alt_artists": [
+        "AnnenMayKantereit",
+        "Bilderbuch",
+        "Faber"
+      ],
+      "fun_fact": "From their second album 'Grande' (2016). The Berlin band's quirky-but-warm indie-pop sound made it a modern wedding-floor staple.",
+      "fun_fact_de": "Vom zweiten Album 'Grande' (2016). Der schräg-warme Indie-Pop-Sound der Berliner Band wurde zum modernen Hochzeits-Tanzflächen-Klassiker.",
+      "fun_fact_es": "De su segundo álbum 'Grande' (2016). El sonido indie-pop a la vez extravagante y cálido de la banda berlinesa lo convirtió en un clásico moderno de pista de bodas.",
+      "fun_fact_fr": "Issu de leur deuxième album 'Grande' (2016). Le son indie-pop décalé mais chaleureux du groupe berlinois en a fait un classique moderne des pistes de mariage.",
+      "fun_fact_nl": "Van hun tweede album 'Grande' (2016). De eigenzinnige maar warme indiepop-sound van de Berlijnse band werd een moderne klassieker op bruiloftvloeren.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {}
+    },
+    {
+      "artist": "Namika",
+      "title": "Je ne parle pas français",
+      "year": 2018,
+      "isrc": "DEE861800295",
+      "uri": "spotify:track:4eJqzRN15DabYK4byfWghD",
+      "uri_apple_music": "applemusic://track/1361118751",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1361118751",
+        "de": "applemusic://track/1361118751",
+        "gb": "applemusic://track/1361118751",
+        "fr": "applemusic://track/1361118751",
+        "es": "applemusic://track/1361118751",
+        "nl": "applemusic://track/1361118751",
+        "it": "applemusic://track/1361118751"
+      },
+      "uri_deezer": "deezer://track/479680632",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=vmQmYvYBj6Y",
+      "uri_tidal": null,
+      "alt_artists": [
+        "LEA",
+        "Sarah Connor",
+        "Lina Maly"
+      ],
+      "fun_fact": "Reached #4 in Germany and 3× Platinum. The bilingual chorus reflects Namika's Frankfurt-Moroccan upbringing — her mother's home language is also French.",
+      "fun_fact_de": "Erreichte Platz 4 in Deutschland und 3× Platin. Der zweisprachige Refrain spiegelt Namikas Frankfurt-marokkanische Herkunft wider — ihre Mutter spricht auch Französisch.",
+      "fun_fact_es": "Llegó al #4 en Alemania y consiguió 3× platino. El estribillo bilingüe refleja el origen Frankfurt-marroquí de Namika — su madre habla también francés.",
+      "fun_fact_fr": "4e place en Allemagne, 3× platine. Le refrain bilingue reflète les origines de Namika entre Francfort et le Maroc — sa mère parle aussi français.",
+      "fun_fact_nl": "#4 in Duitsland en 3× platina. Het tweetalige refrein weerspiegelt Namika's Frankfurts-Marokkaanse afkomst — haar moeder spreekt ook Frans.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [
+        "3× Platin (DE)"
+      ],
+      "chart_info": {
+        "german_peak": 4
+      }
+    },
+    {
+      "artist": "AnnenMayKantereit",
+      "title": "Ozean",
+      "year": 2019,
+      "isrc": "DEUM71905336",
+      "uri": "spotify:track:7ED8m8m3QJvDCnYFOi6VXB",
+      "uri_apple_music": "applemusic://track/1479399555",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1479399555",
+        "de": "applemusic://track/1479399555",
+        "gb": "applemusic://track/1479399555",
+        "fr": "applemusic://track/1479399555",
+        "es": "applemusic://track/1479399555",
+        "nl": "applemusic://track/1479399555",
+        "it": "applemusic://track/1479399555"
+      },
+      "uri_deezer": "deezer://track/755373282",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=nSaZMAFEW2U",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Faber",
+        "Bosse",
+        "Provinz"
+      ],
+      "fun_fact": "From '12' (2020). The song's slow-burn build and Henning May's vocal break became one of the band's most quoted live moments.",
+      "fun_fact_de": "Aus '12' (2020). Der langsame Aufbau und Henning Mays Stimm-Break wurden zu einem der meistzitierten Live-Momente der Band.",
+      "fun_fact_es": "Del álbum '12' (2020). Su crecimiento lento y el quiebre vocal de Henning May se convirtieron en uno de los momentos más recordados de sus directos.",
+      "fun_fact_fr": "Issue de l'album '12' (2020). La montée progressive et la cassure vocale de Henning May en font l'un des moments les plus repris en concert.",
+      "fun_fact_nl": "Van '12' (2020). De langzame opbouw en de stembreuk van Henning May werden een van de meest geciteerde livemomenten van de band.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {}
+    },
+    {
+      "artist": "Andreas Bourani",
+      "title": "Nur in meinem Kopf - Radio Edit",
+      "year": 2011,
+      "isrc": "DEUM71100995",
+      "uri": "spotify:track:6sJqyTUtxpzdISd2iYVAPT",
+      "uri_apple_music": "applemusic://track/6762966263",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1667370325",
+        "de": "applemusic://track/6762966263",
+        "gb": "applemusic://track/1667370325",
+        "fr": "applemusic://track/1667370325",
+        "es": "applemusic://track/1667370325",
+        "nl": "applemusic://track/1667370325",
+        "it": "applemusic://track/1667370325"
+      },
+      "uri_deezer": "deezer://track/99127814",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=u96Gr-NWnN4",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Mark Forster",
+        "Tim Bendzko",
+        "Johannes Oerding"
+      ],
+      "fun_fact": "His debut single (2011), released through 8 years of preparation in Augsburg. The Radio Edit reached #5 in Germany.",
+      "fun_fact_de": "Seine Debütsingle (2011), veröffentlicht nach 8 Jahren Vorbereitung in Augsburg. Der Radio-Edit erreichte Platz 5 in Deutschland.",
+      "fun_fact_es": "Su sencillo debut (2011), publicado tras 8 años de preparación en Augsburgo. La versión Radio Edit llegó al #5 en Alemania.",
+      "fun_fact_fr": "Son premier single (2011), publié après 8 années de préparation à Augsbourg. La version Radio Edit a atteint la 5e place en Allemagne.",
+      "fun_fact_nl": "Zijn debuutsingle (2011), uitgebracht na acht jaar voorbereiding in Augsburg. De Radio Edit haalde #5 in Duitsland.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [
+        "Gold (DE)"
+      ],
+      "chart_info": {
+        "german_peak": 5
+      }
+    },
+    {
+      "artist": "LEA, Cyril aka Aaron Hilmer",
+      "title": "Immer wenn wir uns sehn (\"Das schönste Mädchen der Welt\", Soundtrack)",
+      "year": 2018,
+      "isrc": "DEQ321800337",
+      "uri": "spotify:track:5psDugCQ2V8uayDeSuTvdD",
+      "uri_apple_music": "applemusic://track/1423768718",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1423768718",
+        "de": "applemusic://track/1423768718",
+        "gb": "applemusic://track/1423768718",
+        "fr": "applemusic://track/1423768718",
+        "es": "applemusic://track/1423768718",
+        "nl": "applemusic://track/1423768718",
+        "it": "applemusic://track/1423768718"
+      },
+      "uri_deezer": "deezer://track/539314222",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=b3cU182bGfQ",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Sarah Connor",
+        "Namika",
+        "Lina Maly"
+      ],
+      "fun_fact": "Soundtrack to the German romcom 'Das schönste Mädchen der Welt' (2018). Reached #2 in Germany and 3× Platinum.",
+      "fun_fact_de": "Soundtrack zur deutschen Romcom 'Das schönste Mädchen der Welt' (2018). Erreichte Platz 2 in Deutschland und 3× Platin.",
+      "fun_fact_es": "Banda sonora de la comedia romántica alemana 'Das schönste Mädchen der Welt' (2018). #2 en Alemania y 3× platino.",
+      "fun_fact_fr": "Bande originale de la rom-com allemande 'Das schönste Mädchen der Welt' (2018). 2e place en Allemagne, 3× platine.",
+      "fun_fact_nl": "Soundtrack van de Duitse romcom 'Das schönste Mädchen der Welt' (2018). #2 in Duitsland en 3× platina.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [
+        "3× Platin (DE)"
+      ],
+      "chart_info": {
+        "german_peak": 2
+      }
+    },
+    {
+      "artist": "Mark Forster",
+      "title": "194 Länder",
+      "year": 2018,
+      "isrc": "DEQ321800419",
+      "uri": "spotify:track:6rnJn3QbXeYUQpdFsr3kzm",
+      "uri_apple_music": "applemusic://track/1436856185",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1436856185",
+        "de": "applemusic://track/1436856185",
+        "gb": "applemusic://track/1436856185",
+        "fr": "applemusic://track/1436856185",
+        "es": "applemusic://track/1436856185",
+        "nl": "applemusic://track/1436856185",
+        "it": "applemusic://track/1436856185"
+      },
+      "uri_deezer": "deezer://track/582229872",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=7bczvKRhycA",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Tim Bendzko",
+        "Andreas Bourani",
+        "Wincent Weiss"
+      ],
+      "fun_fact": "Lead single from album 'Liebe s/w' (2018). Reached #4 in Germany — Mark Forster's reflection on the 194 UN member states.",
+      "fun_fact_de": "Leadsingle des Albums 'Liebe s/w' (2018). Platz 4 in Deutschland — Mark Forsters Reflexion über die 194 UN-Mitgliedsstaaten.",
+      "fun_fact_es": "Primer sencillo del álbum 'Liebe s/w' (2018). #4 en Alemania — la reflexión de Mark Forster sobre los 194 Estados miembros de la ONU.",
+      "fun_fact_fr": "Premier single de l'album 'Liebe s/w' (2018). 4e place en Allemagne — réflexion de Mark Forster sur les 194 États membres de l'ONU.",
+      "fun_fact_nl": "Eerste single van het album 'Liebe s/w' (2018). #4 in Duitsland — Mark Forsters reflectie op de 194 VN-lidstaten.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [
+        "3× Platin (DE)"
+      ],
+      "chart_info": {
+        "german_peak": 4
+      }
+    },
+    {
+      "artist": "Clueso",
+      "title": "Gewinner - Single Version / Remastered 2014",
+      "year": 2009,
+      "isrc": "DEQV21400090",
+      "uri": "spotify:track:6q2c8lBLDzP372QgHl9JsS",
+      "uri_apple_music": "applemusic://track/1509203397",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1509203397",
+        "de": "applemusic://track/1509203397",
+        "gb": "applemusic://track/1509203397",
+        "fr": "applemusic://track/1509203397",
+        "es": "applemusic://track/1509203397",
+        "nl": "applemusic://track/1509203397",
+        "it": "applemusic://track/1509203397"
+      },
+      "uri_deezer": "deezer://track/937040012",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=l7WE9lS37Gc",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Bosse",
+        "Andreas Bourani",
+        "Tim Bendzko"
+      ],
+      "fun_fact": "From album 'So sehr dabei' (2008). Reached #16 in Germany and earned the Erfurt singer his first Echo Award.",
+      "fun_fact_de": "Vom Album 'So sehr dabei' (2008). Erreichte Platz 16 in Deutschland und brachte dem Erfurter Sänger seinen ersten Echo ein.",
+      "fun_fact_es": "Del álbum 'So sehr dabei' (2008). #16 en Alemania, primer Echo Award para el cantante de Erfurt.",
+      "fun_fact_fr": "Issu de l'album 'So sehr dabei' (2008). 16e place en Allemagne, premier Echo Award pour le chanteur d'Erfurt.",
+      "fun_fact_nl": "Van het album 'So sehr dabei' (2008). #16 in Duitsland en de eerste Echo Award voor de zanger uit Erfurt.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {
+        "german_peak": 16
+      }
+    },
+    {
+      "artist": "Echt",
+      "title": "Du trägst keine Liebe in dir",
+      "year": 2002,
+      "isrc": "DEL060001400",
+      "uri": "spotify:track:21aT5lIYHjyBIFrXNbNY5U",
+      "uri_apple_music": "applemusic://track/6762966372",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1612326805",
+        "de": "applemusic://track/6762966372",
+        "gb": "applemusic://track/1612326805",
+        "fr": "applemusic://track/1612326805",
+        "es": "applemusic://track/1612326805",
+        "nl": "applemusic://track/1612326805",
+        "it": "applemusic://track/1612326805"
+      },
+      "uri_deezer": "deezer://track/2305250",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=7fUpaXxPgMI",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Wir sind Helden",
+        "Juli",
+        "Tokio Hotel"
+      ],
+      "fun_fact": "Their #1 hit from 1999, even though only the 2002 release version is on most streaming services. The Flensburg teenagers paved the path Tokio Hotel walked years later.",
+      "fun_fact_de": "Ihr Nummer-1-Hit von 1999, auch wenn auf den meisten Streamingdiensten nur die 2002er Re-Release-Version verfügbar ist. Die Flensburger Teenager ebneten den Weg, den Tokio Hotel Jahre später ging.",
+      "fun_fact_es": "Su éxito #1 de 1999, aunque la mayoría de plataformas solo ofrecen la reedición de 2002. Los adolescentes de Flensburgo allanaron el camino que Tokio Hotel recorrió años después.",
+      "fun_fact_fr": "Leur tube n°1 de 1999, même si la plupart des plateformes ne proposent que la version rééditée en 2002. Les adolescents de Flensbourg ont ouvert la voie à Tokio Hotel.",
+      "fun_fact_nl": "Hun #1-hit uit 1999, al staat op de meeste streamingdiensten alleen de re-release uit 2002. De tieners uit Flensburg legden de basis voor wat Tokio Hotel jaren later deed.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [
+        "Gold (DE)"
+      ],
+      "chart_info": {
+        "german_peak": 1
+      }
+    },
+    {
+      "artist": "Ben Zucker",
+      "title": "Was für eine geile Zeit - Single Mix",
+      "year": 2018,
+      "isrc": "DEUM71723632",
+      "uri": "spotify:track:6OniQ6SfLGKJkL0Wn5nNBL",
+      "uri_apple_music": "applemusic://track/1657548664",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1808765723",
+        "de": "applemusic://track/1657548664",
+        "gb": "applemusic://track/1657548664",
+        "fr": "applemusic://track/1657548664",
+        "es": "applemusic://track/1657548664",
+        "nl": "applemusic://track/1657548664",
+        "it": "applemusic://track/1657548664"
+      },
+      "uri_deezer": "deezer://track/505512892",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=n8NYD5qHdBw",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Helene Fischer",
+        "Andreas Bourani",
+        "Mark Forster"
+      ],
+      "fun_fact": "From the singer with the gravelly Schlager-rock voice. Reached #19 in Germany — Ben Zucker's biggest single chart entry.",
+      "fun_fact_de": "Vom Sänger mit der rauchigen Schlager-Rock-Stimme. Erreichte Platz 19 in Deutschland — Ben Zuckers größter Single-Chart-Eintrag.",
+      "fun_fact_es": "Del cantante con voz áspera entre Schlager y rock. #19 en Alemania — la mayor entrada en sencillos de Ben Zucker.",
+      "fun_fact_fr": "Du chanteur à la voix rauque entre Schlager et rock. 19e place en Allemagne — la meilleure entrée en single de Ben Zucker.",
+      "fun_fact_nl": "Van de zanger met de rauwe Schlager-rockstem. #19 in Duitsland — Ben Zuckers hoogste single-notering.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {
+        "german_peak": 19
+      }
+    },
+    {
+      "artist": "Wincent Weiss",
+      "title": "Feuerwerk",
+      "year": 2017,
+      "isrc": "DEUM71604946",
+      "uri": "spotify:track:3GRoxbBauU8Ui1zUJwn9aD",
+      "uri_apple_music": "applemusic://track/1756203840",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1756203840",
+        "de": "applemusic://track/1756203840",
+        "gb": "applemusic://track/1756203840",
+        "fr": "applemusic://track/1756203840",
+        "es": "applemusic://track/1756203840",
+        "nl": "applemusic://track/1756203840",
+        "it": "applemusic://track/1756203840"
+      },
+      "uri_deezer": "deezer://track/419884442",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=1apku0pVDeE",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Mark Forster",
+        "Johannes Oerding",
+        "Lukas Graham"
+      ],
+      "fun_fact": "His breakthrough single (2017), reached #4 in Germany. The DSDS-rejection-turned-singer-songwriter narrative made him a tabloid favourite.",
+      "fun_fact_de": "Seine Durchbruchs-Single (2017), Platz 4 in Deutschland. Die DSDS-Absage-zur-Singer-Songwriter-Karriere-Story machte ihn zum Boulevard-Liebling.",
+      "fun_fact_es": "Su sencillo de despegue (2017), #4 en Alemania. La historia de cantautor tras ser rechazado en DSDS lo convirtió en favorito de la prensa rosa.",
+      "fun_fact_fr": "Son single de la révélation (2017), 4e place en Allemagne. Son parcours d'auteur-compositeur après avoir été éliminé de DSDS en a fait un chouchou des médias.",
+      "fun_fact_nl": "Zijn doorbraaksingle (2017), #4 in Duitsland. Het verhaal van DSDS-afwijzing tot singer-songwriter maakte hem een tabloid-favoriet.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [
+        "Platin (DE)"
+      ],
+      "chart_info": {
+        "german_peak": 4
+      }
+    },
+    {
+      "artist": "Herbert Grönemeyer",
+      "title": "Der Weg - Remastered 2016",
+      "year": 2002,
+      "isrc": "GBLAZ1600800",
+      "uri": "spotify:track:7py0pONdy9D0DxNnT3elik",
+      "uri_apple_music": null,
+      "uri_apple_music_by_region": {
+        "us": null,
+        "de": null,
+        "gb": null,
+        "fr": null,
+        "es": null,
+        "nl": null,
+        "it": null
+      },
+      "uri_deezer": "deezer://track/566331572",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=xSWJBClrmgo",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Udo Lindenberg",
+        "Westernhagen",
+        "Peter Maffay"
+      ],
+      "fun_fact": "Written for his late wife, who died in 1998. From album 'Mensch' (2002), which sold over 3 million copies — the best-selling German album ever at that time.",
+      "fun_fact_de": "Geschrieben für seine 1998 verstorbene Frau. Vom Album 'Mensch' (2002), das über 3 Millionen Mal verkauft wurde — damals das meistverkaufte deutsche Album aller Zeiten.",
+      "fun_fact_es": "Escrita para su esposa, fallecida en 1998. Del álbum 'Mensch' (2002), con más de 3 millones de copias vendidas — el álbum alemán más vendido de la época.",
+      "fun_fact_fr": "Écrite pour son épouse décédée en 1998. Issue de l'album 'Mensch' (2002), vendu à plus de 3 millions d'exemplaires — l'album allemand le plus vendu à l'époque.",
+      "fun_fact_nl": "Geschreven voor zijn in 1998 overleden vrouw. Van het album 'Mensch' (2002), met meer dan 3 miljoen verkochte exemplaren — destijds het bestverkochte Duitse album ooit.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [
+        "Gold (DE)"
+      ],
+      "chart_info": {
+        "german_peak": 1
+      }
+    },
+    {
+      "artist": "Bosse",
+      "title": "Schönste Zeit",
+      "year": 2013,
+      "isrc": "DEUM71204647",
+      "uri": "spotify:track:3z4ePZgAz36X90QSBT7dm1",
+      "uri_apple_music": "applemusic://track/1606430939",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1810297199",
+        "de": "applemusic://track/1606430939",
+        "gb": "applemusic://track/1810297199",
+        "fr": "applemusic://track/1810297199",
+        "es": "applemusic://track/1810297199",
+        "nl": "applemusic://track/1810297199",
+        "it": "applemusic://track/1810297199"
+      },
+      "uri_deezer": "deezer://track/64758938",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=OpjyRLyYyFg",
+      "uri_tidal": null,
+      "alt_artists": [
+        "AnnenMayKantereit",
+        "Philipp Poisel",
+        "Johannes Oerding"
+      ],
+      "fun_fact": "Title track from his fifth album (2013). The 'forever 17' nostalgia hit reached #4 in Germany and was certified 4× Platinum.",
+      "fun_fact_de": "Titeltrack seines fünften Albums (2013). Die '17 für immer'-Nostalgie-Single erreichte Platz 4 in Deutschland und wurde 4× Platin.",
+      "fun_fact_es": "Tema título de su quinto álbum (2013). La canción de nostalgia 'eternos 17' llegó al #4 en Alemania y consiguió 4× platino.",
+      "fun_fact_fr": "Morceau-titre de son cinquième album (2013). Le tube nostalgique '17 ans pour toujours' a atteint la 4e place en Allemagne, certifié 4× platine.",
+      "fun_fact_nl": "Titeltrack van zijn vijfde album (2013). De 'voor altijd 17'-nostalgiehit haalde #4 in Duitsland en werd 4× platina.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [
+        "4× Platin (DE)"
+      ],
+      "chart_info": {
+        "german_peak": 4
+      }
+    },
+    {
+      "artist": "SDP",
+      "title": "Wenn ich groß bin",
+      "year": 2012,
+      "isrc": "DEBL60638250",
+      "uri": "spotify:track:5oEoQtl4qDwR7kstlTTBRu",
+      "uri_apple_music": "applemusic://track/779526392",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/779526392",
+        "de": "applemusic://track/779526392",
+        "gb": "applemusic://track/779526392",
+        "fr": "applemusic://track/779526392",
+        "es": "applemusic://track/779526392",
+        "nl": "applemusic://track/779526392",
+        "it": "applemusic://track/779526392"
+      },
+      "uri_deezer": "deezer://track/61394926",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=lfRyLv-7bBM",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Casper",
+        "Marteria",
+        "Wincent Weiss"
+      ],
+      "fun_fact": "From album 'Sex Drugs & Pommes Frites' (2012). The duo's deliberately childish chorus over a hard-rock backing became a fan-favorite live moment.",
+      "fun_fact_de": "Vom Album 'Sex Drugs & Pommes Frites' (2012). Der bewusst kindliche Refrain über einem Hard-Rock-Backing wurde zum Live-Fan-Liebling.",
+      "fun_fact_es": "Del álbum 'Sex Drugs & Pommes Frites' (2012). El estribillo deliberadamente infantil sobre un acompañamiento hard-rock se convirtió en un favorito en directo.",
+      "fun_fact_fr": "Issu de l'album 'Sex Drugs & Pommes Frites' (2012). Le refrain volontairement enfantin sur fond de hard-rock est devenu un moment culte en concert.",
+      "fun_fact_nl": "Van het album 'Sex Drugs & Pommes Frites' (2012). Het bewust kinderlijke refrein over een hardrock-onderbouw werd een live-publieksfavoriet.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {}
+    },
+    {
+      "artist": "LEA",
+      "title": "Leiser",
+      "year": 2018,
+      "isrc": "DEQ321700166",
+      "uri": "spotify:track:1fTzkQQ4oH5TIN8HnSbjCa",
+      "uri_apple_music": "applemusic://track/1473616585",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1425775854",
+        "de": "applemusic://track/1473616585",
+        "gb": "applemusic://track/1425775854",
+        "fr": "applemusic://track/1425775854",
+        "es": "applemusic://track/1425775854",
+        "nl": "applemusic://track/1425775854",
+        "it": "applemusic://track/1425775854"
+      },
+      "uri_deezer": "deezer://track/589119122",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=rnzIN9H_G10",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Sarah Connor",
+        "Namika",
+        "Lina Maly"
+      ],
+      "fun_fact": "From album 'Treppenhaus' (2018). The Kassel singer's emotional plea reached #16 in Germany and went 3× Platinum.",
+      "fun_fact_de": "Vom Album 'Treppenhaus' (2018). Der emotionale Appell der Kasseler Sängerin erreichte Platz 16 in Deutschland und wurde 3× Platin.",
+      "fun_fact_es": "Del álbum 'Treppenhaus' (2018). El alegato emocional de la cantante de Kassel llegó al #16 en Alemania y consiguió 3× platino.",
+      "fun_fact_fr": "Extrait de l'album 'Treppenhaus' (2018). La supplique émotionnelle de la chanteuse de Cassel a atteint la 16e place en Allemagne, 3× platine.",
+      "fun_fact_nl": "Van het album 'Treppenhaus' (2018). De emotionele oproep van de Kassel-zangeres haalde #16 in Duitsland en werd 3× platina.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [
+        "3× Platin (DE)"
+      ],
+      "chart_info": {
+        "german_peak": 16
+      }
+    },
+    {
+      "artist": "Jan Delay",
+      "title": "Oh Jonny",
+      "year": 2011,
+      "isrc": "DEUM70903106",
+      "uri": "spotify:track:1IivtUqnUfW9jH3pM08D8U",
+      "uri_apple_music": "applemusic://track/6762966378",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1442830445",
+        "de": "applemusic://track/6762966378",
+        "gb": "applemusic://track/1442830445",
+        "fr": "applemusic://track/1442830445",
+        "es": "applemusic://track/1442830445",
+        "nl": "applemusic://track/1442830445",
+        "it": "applemusic://track/1442830445"
+      },
+      "uri_deezer": "deezer://track/10783574",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=9LhfFyiqqyw",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Peter Fox",
+        "Seeed",
+        "Samy Deluxe"
+      ],
+      "fun_fact": "From album 'Wir Kinder vom Bahnhof Soul' (2009). Reached #5 in Germany — Jan Delay's biggest crossover from his Beginner reggae roots.",
+      "fun_fact_de": "Vom Album 'Wir Kinder vom Bahnhof Soul' (2009). Platz 5 in Deutschland — Jan Delays größter Crossover-Hit von seinen Beginner-Reggae-Wurzeln.",
+      "fun_fact_es": "Del álbum 'Wir Kinder vom Bahnhof Soul' (2009). #5 en Alemania — el mayor cruce comercial de Jan Delay desde sus raíces reggae con Beginner.",
+      "fun_fact_fr": "Issue de l'album 'Wir Kinder vom Bahnhof Soul' (2009). 5e place en Allemagne — le plus gros crossover de Jan Delay depuis ses racines reggae avec les Beginner.",
+      "fun_fact_nl": "Van het album 'Wir Kinder vom Bahnhof Soul' (2009). #5 in Duitsland — Jan Delays grootste crossover sinds zijn reggae-roots met Beginner.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [
+        "Gold (DE)"
+      ],
+      "chart_info": {
+        "german_peak": 5
+      }
+    },
+    {
+      "artist": "Juli",
+      "title": "Elektrisches Gefühl",
+      "year": 2010,
+      "isrc": "DEUM71016019",
+      "uri": "spotify:track:3mtTc2I7SACbviaR8yvlvv",
+      "uri_apple_music": "applemusic://track/1667038350",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1667038350",
+        "de": "applemusic://track/1667038350",
+        "gb": "applemusic://track/1667038350",
+        "fr": "applemusic://track/1667038350",
+        "es": "applemusic://track/1818879948",
+        "nl": "applemusic://track/1667038350",
+        "it": "applemusic://track/1667038350"
+      },
+      "uri_deezer": "deezer://track/6904616",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=ft8DwXUxaB8",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Wir sind Helden",
+        "Silbermond",
+        "Echt"
+      ],
+      "fun_fact": "Lead single from third studio album 'In Love' (2010). Reached #19 in Germany and continued the band's signature stadium-indie sound.",
+      "fun_fact_de": "Leadsingle des dritten Studioalbums 'In Love' (2010). Platz 19 in Deutschland und Fortsetzung des typischen Stadium-Indie-Sounds der Band.",
+      "fun_fact_es": "Primer sencillo del tercer álbum 'In Love' (2010). #19 en Alemania, continuando el sonido stadium-indie característico de la banda.",
+      "fun_fact_fr": "Premier single du troisième album 'In Love' (2010). 19e place en Allemagne, dans le prolongement du son stadium-indie de la formation.",
+      "fun_fact_nl": "Eerste single van het derde studioalbum 'In Love' (2010). #19 in Duitsland — voortzetting van het kenmerkende stadion-indiegeluid van de band.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {}
+    },
+    {
+      "artist": "Frida Gold",
+      "title": "Wovon sollen wir träumen",
+      "year": 2011,
+      "isrc": "DEA621100093",
+      "uri": "spotify:track:1uKubXaFxoYl5KYiLAa0aw",
+      "uri_apple_music": "applemusic://track/1709938090",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1706928241",
+        "de": "applemusic://track/1709938090",
+        "gb": "applemusic://track/1709938090",
+        "fr": "applemusic://track/1709938090",
+        "es": "applemusic://track/1709938090",
+        "nl": "applemusic://track/486293001",
+        "it": "applemusic://track/1709938090"
+      },
+      "uri_deezer": "deezer://track/14608673",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=ZbsqG_R3ySE",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Glasperlenspiel",
+        "Stefanie Heinzmann",
+        "MIA."
+      ],
+      "fun_fact": "Their debut single (2011) from Wuppertal. Reached #2 in Germany and stayed in the charts for over a year.",
+      "fun_fact_de": "Ihre Debütsingle (2011) aus Wuppertal. Platz 2 in Deutschland und über ein Jahr in den Charts.",
+      "fun_fact_es": "Su sencillo debut (2011), procedente de Wuppertal. #2 en Alemania y más de un año en las listas.",
+      "fun_fact_fr": "Leur premier single (2011), venu de Wuppertal. 2e place en Allemagne, plus d'un an dans les charts.",
+      "fun_fact_nl": "Hun debuutsingle (2011) uit Wuppertal. #2 in Duitsland en ruim een jaar in de hitlijst.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [
+        "3× Gold (DE)"
+      ],
+      "chart_info": {
+        "german_peak": 2
+      }
+    },
+    {
+      "artist": "Rosenstolz",
+      "title": "Ich bin ich (Wir sind wir)",
+      "year": 2006,
+      "isrc": "DEUM70503478",
+      "uri": "spotify:track:0b0yqfrtoZCaO6X9uYOUTh",
+      "uri_apple_music": "applemusic://track/1805723067",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1805723067",
+        "de": "applemusic://track/1805723067",
+        "gb": "applemusic://track/1805723067",
+        "fr": "applemusic://track/1805723067",
+        "es": "applemusic://track/1805723067",
+        "nl": "applemusic://track/1805723067",
+        "it": "applemusic://track/1805723067"
+      },
+      "uri_deezer": "deezer://track/2959568",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=4M3YiNPirnA",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Yvonne Catterfeld",
+        "Sarah Connor",
+        "Juliane Werding"
+      ],
+      "fun_fact": "Released for the 2006 World Cup as part of an LGBT anti-discrimination campaign. Reached #2 in Germany.",
+      "fun_fact_de": "Veröffentlicht zur WM 2006 als Teil einer LGBT-Anti-Diskriminierungs-Kampagne. Platz 2 in Deutschland.",
+      "fun_fact_es": "Publicada para el Mundial 2006 como parte de una campaña LGBT contra la discriminación. #2 en Alemania.",
+      "fun_fact_fr": "Sortie à l'occasion de la Coupe du monde 2006, dans le cadre d'une campagne LGBT contre la discrimination. 2e place en Allemagne.",
+      "fun_fact_nl": "Uitgebracht voor het WK 2006 als deel van een LGBT-anti-discriminatiecampagne. #2 in Duitsland.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {
+        "german_peak": 2
+      }
+    },
+    {
+      "artist": "Johannes Oerding",
+      "title": "An guten Tagen",
+      "year": 2019,
+      "isrc": "DEE861901002",
+      "uri": "spotify:track:5UUtkgpCWxV9JtQP8iqOzy",
+      "uri_apple_music": "applemusic://track/1530058499",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1530058499",
+        "de": "applemusic://track/1530058499",
+        "gb": "applemusic://track/1530058499",
+        "fr": "applemusic://track/1530058499",
+        "es": "applemusic://track/1530058499",
+        "nl": "applemusic://track/1530058499",
+        "it": "applemusic://track/1530058499"
+      },
+      "uri_deezer": "deezer://track/652578862",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=CbHeVxjergo",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Bosse",
+        "Tim Bendzko",
+        "Mark Forster"
+      ],
+      "fun_fact": "Title track from his sixth album (2019). Reached #15 in Germany — Oerding's first solo album to crack the top-3 of the German album charts.",
+      "fun_fact_de": "Titeltrack seines sechsten Albums (2019). Platz 15 in Deutschland — Oerdings erstes Solo-Album in den Top 3 der deutschen Album-Charts.",
+      "fun_fact_es": "Tema título de su sexto álbum (2019). #15 en Alemania — primer álbum solista de Oerding en colocarse en el top 3 alemán de álbumes.",
+      "fun_fact_fr": "Morceau-titre de son sixième album (2019). 15e place en Allemagne — premier album solo d'Oerding à entrer dans le top 3 des albums allemands.",
+      "fun_fact_nl": "Titeltrack van zijn zesde album (2019). #15 in Duitsland — Oerdings eerste soloalbum in de Duitse album-top-3.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {}
+    },
+    {
+      "artist": "Bausa",
+      "title": "Was du Liebe nennst",
+      "year": 2017,
+      "isrc": "DEA621702378",
+      "uri": "spotify:track:4hKWUzhQWsOkgT6LnDEASe",
+      "uri_apple_music": "applemusic://track/1847587324",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1716704627",
+        "de": "applemusic://track/1847587324",
+        "gb": "applemusic://track/1716704627",
+        "fr": "applemusic://track/1716704627",
+        "es": "applemusic://track/1716704627",
+        "nl": "applemusic://track/1716704627",
+        "it": "applemusic://track/1716704627"
+      },
+      "uri_deezer": "deezer://track/406824682",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=9l-B4eNcjMA",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Capital Bra",
+        "Cro",
+        "Bonez MC"
+      ],
+      "fun_fact": "Reached #1 in Germany in 2017 and stayed there for 13 weeks. The Stuttgart rapper's commercial breakthrough became the second-most-streamed German song of the year.",
+      "fun_fact_de": "Erreichte 2017 Platz 1 in Deutschland und blieb dort 13 Wochen. Der Durchbruch des Stuttgarter Rappers war der zweitmeistgestreamte deutsche Song des Jahres.",
+      "fun_fact_es": "Llegó al #1 en Alemania en 2017 y permaneció allí 13 semanas. El despegue comercial del rapero de Stuttgart fue el segundo tema alemán más reproducido del año.",
+      "fun_fact_fr": "1re place en Allemagne en 2017, restée 13 semaines en tête. La percée commerciale du rappeur stuttgartois a été le 2e titre allemand le plus streamé de l'année.",
+      "fun_fact_nl": "Werd in 2017 #1 in Duitsland en bleef daar 13 weken staan. De commerciële doorbraak van de Stuttgart-rapper werd de op een na meest gestreamde Duitse track van het jaar.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [
+        "5× Platin (DE)"
+      ],
+      "chart_info": {
+        "german_peak": 1,
+        "weeks_on_chart": 13
+      }
+    },
+    {
+      "artist": "Juju",
+      "title": "Hi Babe",
+      "year": 2019,
+      "isrc": "DEVX51900050",
+      "uri": "spotify:track:6erIvryBSsAdebNU4a7Mrs",
+      "uri_apple_music": "applemusic://track/6762663536",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/6762663536",
+        "de": "applemusic://track/6762663536",
+        "gb": "applemusic://track/6762663536",
+        "fr": "applemusic://track/6762663536",
+        "es": "applemusic://track/6762663536",
+        "nl": "applemusic://track/6762663536",
+        "it": "applemusic://track/6762663536"
+      },
+      "uri_deezer": "deezer://track/693420742",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=vj2b3ct9Kmw",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Loredana",
+        "Shirin David",
+        "SXTN"
+      ],
+      "fun_fact": "From debut solo album 'Bling Bling' (2019). The former SXTN-half's standalone debut reached #2 in Germany.",
+      "fun_fact_de": "Vom Solo-Debütalbum 'Bling Bling' (2019). Das eigenständige Debüt der ehemaligen SXTN-Hälfte erreichte Platz 2 in Deutschland.",
+      "fun_fact_es": "Del álbum solista debut 'Bling Bling' (2019). El debut en solitario de la ex mitad de SXTN llegó al #2 en Alemania.",
+      "fun_fact_fr": "Issu du premier album solo 'Bling Bling' (2019). Le début en solo de l'ex-moitié de SXTN a atteint la 2e place en Allemagne.",
+      "fun_fact_nl": "Van het solodebuut 'Bling Bling' (2019). Het zelfstandige debuut van de voormalige SXTN-helft haalde #2 in Duitsland.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [
+        "Gold (DE)"
+      ],
+      "chart_info": {
+        "german_peak": 16
+      }
+    },
+    {
+      "artist": "Sarah Connor",
+      "title": "Vincent",
+      "year": 2019,
+      "isrc": "DEUM71901478",
+      "uri": "spotify:track:7vs1Yi6SUphHp0eW6ys8HG",
+      "uri_apple_music": "applemusic://track/1635443641",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1635443641",
+        "de": "applemusic://track/1635443641",
+        "gb": "applemusic://track/1635443641",
+        "fr": "applemusic://track/1635443641",
+        "es": "applemusic://track/1635443641",
+        "nl": "applemusic://track/1635443641",
+        "it": "applemusic://track/1635443641"
+      },
+      "uri_deezer": "deezer://track/657762512",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=qkrrqTEH_zg",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Helene Fischer",
+        "Yvonne Catterfeld",
+        "LEA"
+      ],
+      "fun_fact": "The song about a teenage boy coming out as gay sparked huge debate in 2019 — banned by some German radio stations, while others made it the most-played song of the week.",
+      "fun_fact_de": "Der Song über einen schwulen Teenager löste 2019 große Debatten aus — von einigen deutschen Sendern boykottiert, von anderen zum Most-Played-Song der Woche gemacht.",
+      "fun_fact_es": "La canción sobre un adolescente gay que sale del armario provocó un gran debate en 2019: vetada por algunas radios alemanas y, a la vez, canción más reproducida de la semana en otras.",
+      "fun_fact_fr": "La chanson sur un adolescent qui fait son coming-out a déclenché un grand débat en 2019, interdite sur certaines radios allemandes, programmée comme titre le plus diffusé de la semaine sur d'autres.",
+      "fun_fact_nl": "Het nummer over een coming-out van een tienerjongen leidde in 2019 tot een groot debat: door sommige Duitse zenders geweerd, door andere uitgeroepen tot meest gedraaide track van de week.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [
+        "Gold (DE)"
+      ],
+      "chart_info": {
+        "german_peak": 16
+      }
+    },
+    {
+      "artist": "Kraftklub",
+      "title": "Ich will nicht nach Berlin",
+      "year": 2012,
+      "isrc": "DEUM71102663",
+      "uri": "spotify:track:0XcC71H8QAjrW0NUqXHX1A",
+      "uri_apple_music": "applemusic://track/1445018775",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1445018775",
+        "de": "applemusic://track/1445018775",
+        "gb": "applemusic://track/1445018775",
+        "fr": "applemusic://track/1445018775",
+        "es": "applemusic://track/1445018775",
+        "nl": "applemusic://track/1445018775",
+        "it": "applemusic://track/1445018775"
+      },
+      "uri_deezer": "deezer://track/15914084",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=5H6ILb457ck",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Casper",
+        "Beatsteaks",
+        "Marteria"
+      ],
+      "fun_fact": "Lead single from debut album 'Mit K' (2012). The Chemnitz band's anti-Berlin anthem became an Eastern-German indie generational marker.",
+      "fun_fact_de": "Leadsingle des Debütalbums 'Mit K' (2012). Die Anti-Berlin-Hymne der Chemnitzer Band wurde zum ostdeutschen Indie-Generations-Marker.",
+      "fun_fact_es": "Primer sencillo del álbum debut 'Mit K' (2012). Su himno antiBerlín se convirtió en una marca generacional del indie del este de Alemania.",
+      "fun_fact_fr": "Premier single de l'album 'Mit K' (2012). L'hymne anti-Berlin du groupe de Chemnitz est devenu un marqueur générationnel de l'indie est-allemand.",
+      "fun_fact_nl": "Eerste single van het debuutalbum 'Mit K' (2012). De anti-Berlijn-hymne van de band uit Chemnitz werd een generatiekenmerk in de Oost-Duitse indie.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {
+        "german_peak": 50
+      }
+    },
+    {
+      "artist": "Silbermond",
+      "title": "Das Beste",
+      "year": 2006,
+      "isrc": "DEA810600321",
+      "uri": "spotify:track:3FEhbAkm1Dy21UvhbYhFM3",
+      "uri_apple_music": "applemusic://track/1105991189",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1646895789",
+        "de": "applemusic://track/1105991189",
+        "gb": "applemusic://track/1646895789",
+        "fr": "applemusic://track/1646895789",
+        "es": "applemusic://track/1646895789",
+        "nl": "applemusic://track/1646895789",
+        "it": "applemusic://track/1646895789"
+      },
+      "uri_deezer": "deezer://track/15478334",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=0fB_Lxu6UhQ",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Juli",
+        "Wir sind Helden",
+        "Glasperlenspiel"
+      ],
+      "fun_fact": "Their breakthrough hit from album 'Laut gedacht' (2006). Reached #2 in Germany and 3× Gold — became a wedding-DJ staple.",
+      "fun_fact_de": "Ihr Durchbruchs-Hit vom Album 'Laut gedacht' (2006). Platz 2 in Deutschland und 3× Gold — zum Hochzeits-DJ-Klassiker geworden.",
+      "fun_fact_es": "Su éxito de despegue del álbum 'Laut gedacht' (2006). #2 en Alemania y 3× oro — un clásico de DJ en bodas.",
+      "fun_fact_fr": "Leur tube de la révélation, issu de l'album 'Laut gedacht' (2006). 2e place en Allemagne, 3× or — un incontournable des DJ de mariage.",
+      "fun_fact_nl": "Hun doorbraakhit van het album 'Laut gedacht' (2006). #2 in Duitsland en 3× goud — vaste prik voor bruiloft-dj's.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [
+        "3× Gold (DE)"
+      ],
+      "chart_info": {
+        "german_peak": 2
+      }
+    },
+    {
+      "artist": "Tim Bendzko",
+      "title": "Hoch",
+      "year": 2019,
+      "isrc": "DEE861902687",
+      "uri": "spotify:track:7gqefhSJfWyN1qQ2huvEze",
+      "uri_apple_music": "applemusic://track/1627067949",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1471977952",
+        "de": "applemusic://track/1627067949",
+        "gb": "applemusic://track/1471977952",
+        "fr": "applemusic://track/1471977952",
+        "es": "applemusic://track/1471977952",
+        "nl": "applemusic://track/1471977952",
+        "it": "applemusic://track/1471977952"
+      },
+      "uri_deezer": "deezer://track/707810312",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=auq7gzZlKBE",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Mark Forster",
+        "Johannes Oerding",
+        "Andreas Bourani"
+      ],
+      "fun_fact": "From the fifth album 'Filter' (2019). The optimistic anthem reached #11 in Germany and was the year's most-streamed Bendzko track.",
+      "fun_fact_de": "Vom fünften Album 'Filter' (2019). Die optimistische Hymne erreichte Platz 11 in Deutschland und war Bendzkos meistgestreamter Track des Jahres.",
+      "fun_fact_es": "Del quinto álbum 'Filter' (2019). El himno optimista llegó al #11 en Alemania y fue su tema más reproducido del año.",
+      "fun_fact_fr": "Issu du cinquième album 'Filter' (2019). L'hymne optimiste a atteint la 11e place en Allemagne et a été son titre le plus écouté de l'année.",
+      "fun_fact_nl": "Van het vijfde album 'Filter' (2019). De optimistische hymne haalde #11 in Duitsland en was zijn meest gestreamde nummer van het jaar.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {
+        "german_peak": 11
+      }
+    },
+    {
+      "artist": "Jonathan Zelter",
+      "title": "Ein Teil von meinem Herzen",
+      "year": 2016,
+      "isrc": "DETZ31500004",
+      "uri": "spotify:track:0zJJatNtffFjNqRxWq18iL",
+      "uri_apple_music": "applemusic://track/1469577572",
+      "uri_apple_music_by_region": {
+        "us": null,
+        "de": "applemusic://track/1469577572",
+        "gb": null,
+        "fr": null,
+        "es": null,
+        "nl": null,
+        "it": null
+      },
+      "uri_deezer": "deezer://track/124635890",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=vD3N9WRHErs",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Tim Bendzko",
+        "Mark Forster",
+        "Wincent Weiss"
+      ],
+      "fun_fact": "From the singer's debut 'Ich bin ich' (2016). The wedding-ballad reached #46 in Germany — a slow-burn streaming hit popular at German wedding ceremonies.",
+      "fun_fact_de": "Vom Debüt des Sängers 'Ich bin ich' (2016). Die Hochzeits-Ballade erreichte Platz 46 in Deutschland — ein Slow-Burn-Streaming-Hit, beliebt bei deutschen Trauungen.",
+      "fun_fact_es": "Del debut del cantante 'Ich bin ich' (2016). La balada de boda alcanzó el #46 en Alemania — un éxito de streaming a fuego lento muy popular en ceremonias nupciales alemanas.",
+      "fun_fact_fr": "Issu du premier album du chanteur 'Ich bin ich' (2016). La ballade de mariage a atteint la 46e place en Allemagne — un sleeper du streaming très utilisé aux mariages allemands.",
+      "fun_fact_nl": "Van het debuut 'Ich bin ich' (2016) van de zanger. De huwelijksballade haalde #46 in Duitsland — een slow-burn streaming-hit, populair op Duitse trouwerijen.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {}
+    },
+    {
+      "artist": "KAYEF",
+      "title": "Musik",
+      "year": 2018,
+      "isrc": "FR10S1824509",
+      "uri": "spotify:track:2k0p3HoeBwtoZbjs5ktWJq",
+      "uri_apple_music": "applemusic://track/1342592898",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1342592898",
+        "de": "applemusic://track/1342592898",
+        "gb": "applemusic://track/1342592898",
+        "fr": "applemusic://track/1342592898",
+        "es": "applemusic://track/1342592898",
+        "nl": "applemusic://track/1342592898",
+        "it": "applemusic://track/1342592898"
+      },
+      "uri_deezer": "deezer://track/490691352",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=2Jh8AIsvcyY",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Vincent Weiss",
+        "Mark Forster",
+        "JORIS"
+      ],
+      "fun_fact": "From his fourth album 'Mosaik' (2018). The Hannover-born YouTuber-turned-rapper's introspective track topped the German hip-hop streaming charts.",
+      "fun_fact_de": "Vom vierten Album 'Mosaik' (2018). Der introspektive Track des Hannoveraner YouTuber-zum-Rapper landete an der Spitze der deutschen Hip-Hop-Streaming-Charts.",
+      "fun_fact_es": "De su cuarto álbum 'Mosaik' (2018). El tema introspectivo del rapero hannoveriano (ex-YouTuber) lideró las listas de streaming de hip-hop alemán.",
+      "fun_fact_fr": "Issu de son quatrième album 'Mosaik' (2018). Le morceau introspectif du rappeur hanovrien (ex-YouTubeur) a dominé les charts streaming hip-hop allemands.",
+      "fun_fact_nl": "Van zijn vierde album 'Mosaik' (2018). De introspectieve track van de rapper uit Hannover (ex-YouTuber) stond bovenaan de Duitse hiphop-streamingcharts.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {}
+    },
+    {
+      "artist": "Wincent Weiss",
+      "title": "Musik sein",
+      "year": 2017,
+      "isrc": "DEUM71601196",
+      "uri": "spotify:track:00ZoztotP7jEoezTPNMjvm",
+      "uri_apple_music": "applemusic://track/6762966270",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1647256691",
+        "de": "applemusic://track/6762966270",
+        "gb": "applemusic://track/1647256691",
+        "fr": "applemusic://track/1647256691",
+        "es": "applemusic://track/1647256691",
+        "nl": "applemusic://track/1647256691",
+        "it": "applemusic://track/1647256691"
+      },
+      "uri_deezer": "deezer://track/419884432",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=8QYeugFaq5A",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Mark Forster",
+        "Johannes Oerding",
+        "Lukas Graham"
+      ],
+      "fun_fact": "His debut single (2016) — ironically rejected by DSDS earlier the same year. Reached #36 in Germany but kicked off his streaming career.",
+      "fun_fact_de": "Seine Debütsingle (2016) — ironischerweise im selben Jahr von DSDS abgelehnt. Erreichte Platz 36 in Deutschland und startete seine Streaming-Karriere.",
+      "fun_fact_es": "Su sencillo debut (2016), irónicamente rechazado por DSDS ese mismo año. Llegó al #36 en Alemania, pero lanzó su carrera en streaming.",
+      "fun_fact_fr": "Son premier single (2016), paradoxalement refusé par DSDS la même année. Placé 36e en Allemagne, il a lancé sa carrière sur les plateformes de streaming.",
+      "fun_fact_nl": "Zijn debuutsingle (2016) — ironisch genoeg datzelfde jaar afgewezen bij DSDS. #36 in Duitsland, maar startpunt van zijn streamingcarrière.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [
+        "Gold (DE)"
+      ],
+      "chart_info": {
+        "german_peak": 36
+      }
+    },
+    {
+      "artist": "Silbermond",
+      "title": "Leichtes Gepäck",
+      "year": 2015,
+      "isrc": "DEE861500869",
+      "uri": "spotify:track:2kUUMGxMFcKItXfy36x7Th",
+      "uri_apple_music": "applemusic://track/1039817539",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1039817539",
+        "de": "applemusic://track/1039817539",
+        "gb": "applemusic://track/1039817539",
+        "fr": "applemusic://track/1039817539",
+        "es": "applemusic://track/1039817539",
+        "nl": "applemusic://track/1039817539",
+        "it": "applemusic://track/1039817539"
+      },
+      "uri_deezer": "deezer://track/109703918",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=ohHJjPSsW8c",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Juli",
+        "Wir sind Helden",
+        "Glasperlenspiel"
+      ],
+      "fun_fact": "From album 'Leichtes Gepäck' (2015). Reached #4 in Germany and became one of their most-licensed songs for ad and film soundtracks.",
+      "fun_fact_de": "Vom Album 'Leichtes Gepäck' (2015). Erreichte Platz 4 in Deutschland und wurde zu einem ihrer am häufigsten lizenzierten Songs für Werbung und Film.",
+      "fun_fact_es": "Del álbum 'Leichtes Gepäck' (2015). #4 en Alemania y una de sus canciones más licenciadas para publicidad y cine.",
+      "fun_fact_fr": "Issue de l'album 'Leichtes Gepäck' (2015). 4e place en Allemagne, devenue l'un de leurs morceaux les plus utilisés en pub et au cinéma.",
+      "fun_fact_nl": "Van het album 'Leichtes Gepäck' (2015). #4 in Duitsland en een van hun meest gelicenseerde tracks voor reclames en films.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {
+        "german_peak": 4
+      }
+    },
+    {
+      "artist": "Juliane Werding",
+      "title": "Stimmen im Wind",
+      "year": 1986,
+      "isrc": "DEA629253260",
+      "uri": "spotify:track:0swD6DCpBdolN97nsBOR56",
+      "uri_apple_music": "applemusic://track/1620406823",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/311194072",
+        "de": "applemusic://track/1620406823",
+        "gb": "applemusic://track/311194072",
+        "fr": "applemusic://track/311194072",
+        "es": "applemusic://track/311194072",
+        "nl": "applemusic://track/1504678299",
+        "it": "applemusic://track/311194072"
+      },
+      "uri_deezer": "deezer://track/84668179",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=O40yPfbLkzw",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Nicole",
+        "Marianne Rosenberg",
+        "Hildegard Knef"
+      ],
+      "fun_fact": "From her late-career album 'Stimmen im Wind' (2014). The veteran of 'Am Tag, als Conny Kramer starb' (1972) updated her folk-pop sound.",
+      "fun_fact_de": "Vom Spät-Karriere-Album 'Stimmen im Wind' (2014). Die Veteranin von 'Am Tag, als Conny Kramer starb' (1972) aktualisierte ihren Folk-Pop-Sound.",
+      "fun_fact_es": "De su álbum de etapa madura 'Stimmen im Wind' (2014). La veterana de 'Am Tag, als Conny Kramer starb' (1972) actualizó su sonido folk-pop.",
+      "fun_fact_fr": "Issu de l'album de fin de carrière 'Stimmen im Wind' (2014). La vétérante de 'Am Tag, als Conny Kramer starb' (1972) a actualisé son son folk-pop.",
+      "fun_fact_nl": "Van haar latere album 'Stimmen im Wind' (2014). De veteraan van 'Am Tag, als Conny Kramer starb' (1972) bracht haar folkpop-sound up-to-date.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {}
+    },
+    {
+      "artist": "Rosenstolz",
+      "title": "Liebe ist alles",
+      "year": 2004,
+      "isrc": "DEN120307259",
+      "uri": "spotify:track:6EatiOQBv70o94sr2oTHLB",
+      "uri_apple_music": "applemusic://track/1790246908",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1790246908",
+        "de": "applemusic://track/1790246908",
+        "gb": "applemusic://track/1790246908",
+        "fr": "applemusic://track/1790246908",
+        "es": "applemusic://track/1790246908",
+        "nl": "applemusic://track/1790246908",
+        "it": "applemusic://track/1790246908"
+      },
+      "uri_deezer": "deezer://track/134946088",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=C5mnE1Cs2sg",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Yvonne Catterfeld",
+        "Sarah Connor",
+        "Juliane Werding"
+      ],
+      "fun_fact": "From the duo's compilation 'Wie weit ist vorbei' (2016), capturing 25 years of German pop. Anna R's distinctive vocal stayed unchanged across the decades.",
+      "fun_fact_de": "Von der Compilation des Duos 'Wie weit ist vorbei' (2016), die 25 Jahre deutschen Pop einfängt. AnNa R.s markante Stimme blieb über die Jahrzehnte unverändert.",
+      "fun_fact_es": "Del recopilatorio del dúo 'Wie weit ist vorbei' (2016), que recoge 25 años de pop alemán. La voz distintiva de AnNa R. se mantuvo intacta durante décadas.",
+      "fun_fact_fr": "Issu de la compilation du duo 'Wie weit ist vorbei' (2016), récapitulant 25 ans de pop allemande. La voix singulière d'AnNa R. est restée inchangée au fil des décennies.",
+      "fun_fact_nl": "Van de duo-compilatie 'Wie weit ist vorbei' (2016), die 25 jaar Duitse pop in beeld brengt. AnNa R.'s herkenbare stem bleef door de decennia heen onveranderd.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {}
+    },
+    {
+      "artist": "Lina Maly",
+      "title": "Schön genug",
+      "year": 2016,
+      "isrc": "DEA621601125",
+      "uri": "spotify:track:2iocEnZSW59fyFTDffyms1",
+      "uri_apple_music": "applemusic://track/1698703535",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1804619254",
+        "de": "applemusic://track/1698703535",
+        "gb": "applemusic://track/1804619254",
+        "fr": "applemusic://track/1804619254",
+        "es": "applemusic://track/1804619254",
+        "nl": "applemusic://track/1804619254",
+        "it": "applemusic://track/1804619254"
+      },
+      "uri_deezer": "deezer://track/130340602",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=riH-Nd5VbrQ",
+      "uri_tidal": null,
+      "alt_artists": [
+        "LEA",
+        "Namika",
+        "Sarah Connor"
+      ],
+      "fun_fact": "From debut album 'Nur zu Besuch' (2016). The Hamburg singer was 19 at recording — her body-image-positive song hit at the right cultural moment.",
+      "fun_fact_de": "Vom Debütalbum 'Nur zu Besuch' (2016). Die Hamburger Sängerin war bei der Aufnahme 19 — ihr body-image-positiver Song traf den richtigen kulturellen Moment.",
+      "fun_fact_es": "Del álbum debut 'Nur zu Besuch' (2016). La cantante de Hamburgo tenía 19 años al grabarlo — su canción positiva sobre la imagen corporal llegó en el momento cultural justo.",
+      "fun_fact_fr": "Issu du premier album 'Nur zu Besuch' (2016). La chanteuse hambourgeoise avait 19 ans lors de l'enregistrement — son titre body-positive est arrivé au bon moment culturel.",
+      "fun_fact_nl": "Van het debuutalbum 'Nur zu Besuch' (2016). De Hamburger zangeres was 19 bij de opname — haar body-positivity-track viel op het juiste culturele moment.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {}
+    },
+    {
+      "artist": "Wincent Weiss",
+      "title": "An Wunder",
+      "year": 2019,
+      "isrc": "DEUM71800892",
+      "uri": "spotify:track:1I2ziAYoM5rEh5uWBp76Tx",
+      "uri_apple_music": "applemusic://track/6762966273",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1811476278",
+        "de": "applemusic://track/6762966273",
+        "gb": "applemusic://track/1811476278",
+        "fr": "applemusic://track/1811476278",
+        "es": "applemusic://track/1811476278",
+        "nl": "applemusic://track/1811476278",
+        "it": "applemusic://track/1811476278"
+      },
+      "uri_deezer": "deezer://track/653755722",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=IfpvdHhIRIg",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Mark Forster",
+        "Johannes Oerding",
+        "Lukas Graham"
+      ],
+      "fun_fact": "From the second studio album 'Irgendwie anders' (2019). Reached #2 in Germany — his highest single chart position.",
+      "fun_fact_de": "Vom zweiten Studioalbum 'Irgendwie anders' (2019). Erreichte Platz 2 in Deutschland — seine höchste Single-Chartplatzierung.",
+      "fun_fact_es": "Del segundo álbum 'Irgendwie anders' (2019). #2 en Alemania, su mayor éxito como sencillo.",
+      "fun_fact_fr": "Issue du deuxième album 'Irgendwie anders' (2019). 2e place en Allemagne, son meilleur classement en single.",
+      "fun_fact_nl": "Van het tweede studioalbum 'Irgendwie anders' (2019). #2 in Duitsland — zijn hoogste single-notering.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [
+        "Platin (DE)"
+      ],
+      "chart_info": {
+        "german_peak": 2
+      }
+    },
+    {
+      "artist": "Casper",
+      "title": "Im Ascheregen",
+      "year": 2013,
+      "isrc": "DEQ321300240",
+      "uri": "spotify:track:22Mmr6bWntkodqm5CELKsm",
+      "uri_apple_music": "applemusic://track/679555798",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/679555798",
+        "de": "applemusic://track/679555798",
+        "gb": "applemusic://track/679555798",
+        "fr": "applemusic://track/679555798",
+        "es": "applemusic://track/679555798",
+        "nl": "applemusic://track/679555798",
+        "it": "applemusic://track/679555798"
+      },
+      "uri_deezer": "deezer://track/70267012",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=KSFPrOAwzqo",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Marteria",
+        "Cro",
+        "Prinz Pi"
+      ],
+      "fun_fact": "From the fourth album 'Hinterland' (2013), the album that took the Bielefeld emo-rapper to #1 in Germany.",
+      "fun_fact_de": "Vom vierten Album 'Hinterland' (2013), dem Album, mit dem der Bielefelder Emo-Rapper Platz 1 in Deutschland holte.",
+      "fun_fact_es": "Del cuarto álbum 'Hinterland' (2013), el disco que llevó al rapero emo de Bielefeld al #1 en Alemania.",
+      "fun_fact_fr": "Issu du quatrième album 'Hinterland' (2013), celui qui a propulsé le rappeur émo de Bielefeld à la 1re place en Allemagne.",
+      "fun_fact_nl": "Van het vierde album 'Hinterland' (2013), het album waarmee de emo-rapper uit Bielefeld #1 werd in Duitsland.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {
+        "german_peak": 14
+      }
+    },
+    {
+      "artist": "SDP",
+      "title": "So schön kaputt",
+      "year": 2017,
+      "isrc": "DETX41700106",
+      "uri": "spotify:track:6I8R2dillIEsMrBm6IZqxv",
+      "uri_apple_music": "applemusic://track/6762966258",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1440955400",
+        "de": "applemusic://track/6762966258",
+        "gb": "applemusic://track/1440955400",
+        "fr": "applemusic://track/1440955400",
+        "es": "applemusic://track/1440955400",
+        "nl": "applemusic://track/1440955400",
+        "it": "applemusic://track/1440955400"
+      },
+      "uri_deezer": "deezer://track/143782932",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=pVdqhL3eu28",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Casper",
+        "Marteria",
+        "Wincent Weiss"
+      ],
+      "fun_fact": "From album 'Die bunte Seite der Macht' (2017). The hooky electro-pop track reached #14 in Germany.",
+      "fun_fact_de": "Vom Album 'Die bunte Seite der Macht' (2017). Der eingängige Electro-Pop-Track erreichte Platz 14 in Deutschland.",
+      "fun_fact_es": "Del álbum 'Die bunte Seite der Macht' (2017). El pegadizo tema electro-pop alcanzó el #14 en Alemania.",
+      "fun_fact_fr": "Issu de l'album 'Die bunte Seite der Macht' (2017). Le morceau électro-pop accrocheur a atteint la 14e place en Allemagne.",
+      "fun_fact_nl": "Van het album 'Die bunte Seite der Macht' (2017). De pakkende electropop-track haalde #14 in Duitsland.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {}
+    },
+    {
+      "artist": "Sido, Johannes Oerding",
+      "title": "Pyramiden",
+      "year": 2019,
+      "isrc": "DEUM71901822",
+      "uri": "spotify:track:7BQPDR1Zze52cysgBnUC3X",
+      "uri_apple_music": "applemusic://track/6762966271",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1462079396",
+        "de": "applemusic://track/6762966271",
+        "gb": "applemusic://track/1462079396",
+        "fr": "applemusic://track/1462079396",
+        "es": "applemusic://track/1462079396",
+        "nl": "applemusic://track/1462079396",
+        "it": "applemusic://track/1462079396"
+      },
+      "uri_deezer": "deezer://track/755328722",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=tqZfLmq6bxg",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Bushido",
+        "Kool Savas",
+        "Casper"
+      ],
+      "fun_fact": "From album 'Ich & keine Maske' (2019). The collab with Johannes Oerding marked Sido's full crossover from Aggro Berlin gangsta-rap to mainstream singer-rapper.",
+      "fun_fact_de": "Vom Album 'Ich & keine Maske' (2019). Die Zusammenarbeit mit Johannes Oerding markierte Sidos vollen Crossover vom Aggro-Berlin-Gangsta-Rap zum Mainstream-Sänger-Rapper.",
+      "fun_fact_es": "Del álbum 'Ich & keine Maske' (2019). La colaboración con Johannes Oerding marcó el cruce completo de Sido desde el gangsta-rap de Aggro Berlin al rap-pop mainstream.",
+      "fun_fact_fr": "Issu de l'album 'Ich & keine Maske' (2019). La collaboration avec Johannes Oerding a marqué le passage complet de Sido du gangsta-rap d'Aggro Berlin au rap-pop mainstream.",
+      "fun_fact_nl": "Van het album 'Ich & keine Maske' (2019). De samenwerking met Johannes Oerding markeerde Sido's volledige crossover van Aggro-Berlin-gangsta-rap naar mainstream rapper-zanger.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {
+        "german_peak": 12
+      }
+    },
+    {
+      "artist": "Sarah Connor, Henning Wehland",
+      "title": "Bonnie & Clyde",
+      "year": 2016,
+      "isrc": "DEUM71603160",
+      "uri": "spotify:track:0KEWlPJ12ucClvhhagU8Bw",
+      "uri_apple_music": "applemusic://track/1859031907",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1859031907",
+        "de": "applemusic://track/1859031907",
+        "gb": "applemusic://track/1859031907",
+        "fr": "applemusic://track/1859031907",
+        "es": "applemusic://track/1859031907",
+        "nl": "applemusic://track/1859031907",
+        "it": "applemusic://track/1859031907"
+      },
+      "uri_deezer": "deezer://track/135364786",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=697X-r-GVEM",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Helene Fischer",
+        "Yvonne Catterfeld",
+        "LEA"
+      ],
+      "fun_fact": "Collab with Henning Wehland (H-Blockx). From the album 'Muttersprache' (2015), continuing the German-language rebrand that 'Wie schön du bist' kicked off.",
+      "fun_fact_de": "Mit Henning Wehland (H-Blockx). Vom Album 'Muttersprache' (2015), Fortsetzung des deutschsprachigen Rebrandings, das 'Wie schön du bist' begonnen hatte.",
+      "fun_fact_es": "Colaboración con Henning Wehland (H-Blockx). Del álbum 'Muttersprache' (2015), continuación del rebranding en alemán iniciado por 'Wie schön du bist'.",
+      "fun_fact_fr": "Collaboration avec Henning Wehland (H-Blockx). Issue de l'album 'Muttersprache' (2015), continuation du rebranding en allemand initié par 'Wie schön du bist'.",
+      "fun_fact_nl": "Samenwerking met Henning Wehland (H-Blockx). Van het album 'Muttersprache' (2015) — voortzetting van de Duitstalige rebranding die met 'Wie schön du bist' begon.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {
+        "german_peak": 13
+      }
+    },
+    {
+      "artist": "Die Fantastischen Vier",
+      "title": "Sie ist weg",
+      "year": 1995,
+      "isrc": "DEE869500515",
+      "uri": "spotify:track:3rTSoSOTvOebYMy2kzKvkJ",
+      "uri_apple_music": "applemusic://track/969571294",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/948649721",
+        "de": "applemusic://track/969571294",
+        "gb": "applemusic://track/948649721",
+        "fr": "applemusic://track/948649721",
+        "es": "applemusic://track/948649721",
+        "nl": "applemusic://track/948649721",
+        "it": "applemusic://track/948649721"
+      },
+      "uri_deezer": "deezer://track/4300847",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=PRPxUo8kW8I",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Fanta 4",
+        "Samy Deluxe",
+        "Die Beginner"
+      ],
+      "fun_fact": "From album 'Lauschgift' (1996). One of the first German hip-hop tracks to receive serious mainstream radio play, certified 3× Gold.",
+      "fun_fact_de": "Vom Album 'Lauschgift' (1996). Einer der ersten deutschen Hip-Hop-Tracks mit ernstem Mainstream-Radio-Airplay, 3× Gold zertifiziert.",
+      "fun_fact_es": "Del álbum 'Lauschgift' (1996). Uno de los primeros temas de hip-hop alemán en recibir difusión seria en la radio mainstream, certificado 3× oro.",
+      "fun_fact_fr": "Issu de l'album 'Lauschgift' (1996). L'un des premiers titres de hip-hop allemand à bénéficier d'une vraie diffusion radio mainstream, 3× or.",
+      "fun_fact_nl": "Van het album 'Lauschgift' (1996). Een van de eerste Duitse hiphop-tracks met serieuze mainstream-radioairplay, 3× goud.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [
+        "3× Gold (DE)"
+      ],
+      "chart_info": {
+        "german_peak": 4
+      }
+    },
+    {
+      "artist": "Faber",
+      "title": "Alles Gute",
+      "year": 2017,
+      "isrc": "DEUM71703510",
+      "uri": "spotify:track:5oaBqJf0ZsJWaPuhUOOBCZ",
+      "uri_apple_music": "applemusic://track/1440884828",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1440884828",
+        "de": "applemusic://track/1440884828",
+        "gb": "applemusic://track/1440884828",
+        "fr": "applemusic://track/1440884828",
+        "es": "applemusic://track/1440884828",
+        "nl": "applemusic://track/1440884828",
+        "it": "applemusic://track/1440884828"
+      },
+      "uri_deezer": "deezer://track/378742281",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=JhJr_fPZc8M",
+      "uri_tidal": null,
+      "alt_artists": [
+        "AnnenMayKantereit",
+        "Bosse",
+        "Casper"
+      ],
+      "fun_fact": "From debut album 'Sei ein Faber im Wind' (2017). The Swiss singer's blunt-honest songwriting made him the German-speaking world's most-talked-about indie newcomer that year.",
+      "fun_fact_de": "Vom Debütalbum 'Sei ein Faber im Wind' (2017). Das schonungslos-ehrliche Songwriting des Schweizer Sängers machte ihn zum meistdiskutierten Indie-Newcomer des deutschsprachigen Raums.",
+      "fun_fact_es": "Del álbum debut 'Sei ein Faber im Wind' (2017). La escritura cruda y honesta del cantante suizo lo convirtió en el revelación indie más comentado del año en el mundo germanoparlante.",
+      "fun_fact_fr": "Issu de l'album 'Sei ein Faber im Wind' (2017). L'écriture crue et honnête du chanteur suisse en a fait la révélation indie la plus commentée de l'année en pays germanophone.",
+      "fun_fact_nl": "Van het debuutalbum 'Sei ein Faber im Wind' (2017). Het rauw-eerlijke songwriting van de Zwitserse zanger maakte hem de meestbesproken indie-nieuwkomer van het Duitstalige gebied.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {
+        "german_peak": 27
+      }
+    },
+    {
+      "artist": "Samy Deluxe",
+      "title": "Poesie Album",
+      "year": 2011,
+      "isrc": "DEC611100423",
+      "uri": "spotify:track:0T8wIusBn0OpzFm2H6AVNY",
+      "uri_apple_music": "applemusic://track/716315863",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1702765689",
+        "de": "applemusic://track/716315863",
+        "gb": "applemusic://track/716315863",
+        "fr": "applemusic://track/716315863",
+        "es": "applemusic://track/716315863",
+        "nl": "applemusic://track/716315863",
+        "it": "applemusic://track/716315863"
+      },
+      "uri_deezer": "deezer://track/14773082",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=QTIQ_8IlJgQ",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Jan Delay",
+        "Kool Savas",
+        "Curse"
+      ],
+      "fun_fact": "Title track of his fifth solo album (2011). The Hamburg rapper's most lyric-dense return to form, certified Gold in Germany.",
+      "fun_fact_de": "Titeltrack seines fünften Solo-Albums (2011). Die textlich dichteste Rückkehr des Hamburger Rappers zu alter Form, in Deutschland Gold-zertifiziert.",
+      "fun_fact_es": "Tema título de su quinto álbum solista (2011). El regreso más denso líricamente del rapero de Hamburgo, certificado oro en Alemania.",
+      "fun_fact_fr": "Morceau-titre de son cinquième album solo (2011). Le retour en forme le plus dense lyriquement du rappeur hambourgeois, certifié or en Allemagne.",
+      "fun_fact_nl": "Titeltrack van zijn vijfde soloalbum (2011). De tekstrijkste comeback van de Hamburger rapper, in Duitsland goud.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {}
+    },
+    {
+      "artist": "Udo Lindenberg, Clueso",
+      "title": "Cello (feat. Clueso) - MTV Unplugged Radio Atmo-Version",
+      "year": 1973,
+      "isrc": "DEA621100330",
+      "uri": "spotify:track:62BukCU8nVt44KQXm0LUff",
+      "uri_apple_music": "applemusic://track/1561828484",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1561828484",
+        "de": "applemusic://track/1561828484",
+        "gb": "applemusic://track/1561828484",
+        "fr": "applemusic://track/1561828484",
+        "es": "applemusic://track/1561828484",
+        "nl": "applemusic://track/1561828484",
+        "it": "applemusic://track/1561828484"
+      },
+      "uri_deezer": "deezer://track/14340462",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=kZXJY6HtWSU",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Herbert Grönemeyer",
+        "Marius Müller-Westernhagen",
+        "Wolfgang Niedecken"
+      ],
+      "fun_fact": "From his MTV Unplugged album (2011). The duet between the rock veteran and Erfurt's Clueso bridged 30 years of German pop generations.",
+      "fun_fact_de": "Von seinem MTV-Unplugged-Album (2011). Das Duett zwischen dem Rock-Veteranen und dem Erfurter Clueso überbrückte 30 Jahre deutsche Pop-Generationen.",
+      "fun_fact_es": "De su álbum MTV Unplugged (2011). El dueto entre el veterano del rock y Clueso de Erfurt cruzó 30 años de generaciones del pop alemán.",
+      "fun_fact_fr": "Issu de son album MTV Unplugged (2011). Le duo entre le vétéran du rock et le Clueso d'Erfurt a relié 30 ans de générations pop allemandes.",
+      "fun_fact_nl": "Van zijn MTV Unplugged-album (2011). Het duet tussen de rockveteraan en de Erfurt-zanger Clueso overbrugde 30 jaar Duitse popgeneraties.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [
+        "Gold (DE)"
+      ],
+      "chart_info": {
+        "german_peak": 14
+      }
+    },
+    {
+      "artist": "AnnenMayKantereit",
+      "title": "Jenny Jenny",
+      "year": 2018,
+      "isrc": "DEUM71806289",
+      "uri": "spotify:track:0gXHJarUwEMQjpFeS4QMMO",
+      "uri_apple_music": "applemusic://track/1436487786",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1436487786",
+        "de": "applemusic://track/1436487786",
+        "gb": "applemusic://track/1436487786",
+        "fr": "applemusic://track/1436487786",
+        "es": "applemusic://track/1436487786",
+        "nl": "applemusic://track/1436487786",
+        "it": "applemusic://track/1436487786"
+      },
+      "uri_deezer": "deezer://track/598211882",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=DmqmO7S1lio",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Faber",
+        "Bosse",
+        "Provinz"
+      ],
+      "fun_fact": "From 'Schlagschatten' (2018). One of the band's most-played wedding-aftershow tracks across German indie circles.",
+      "fun_fact_de": "Aus 'Schlagschatten' (2018). Einer der meistgespielten Hochzeits-Aftershow-Tracks der Band in deutschen Indie-Kreisen.",
+      "fun_fact_es": "Del álbum 'Schlagschatten' (2018). Uno de los temas de afterparty de bodas más sonados en los círculos indie alemanes.",
+      "fun_fact_fr": "Issue de 'Schlagschatten' (2018). L'un des morceaux les plus joués lors des after-mariage dans les cercles indie allemands.",
+      "fun_fact_nl": "Van 'Schlagschatten' (2018). Een van de meest gedraaide tracks op bruiloft-afterparty's in Duitse indie-kringen.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {}
+    },
+    {
+      "artist": "Matthias Reim",
+      "title": "Du bist mein Glück",
+      "year": 2010,
+      "isrc": "DEC611000631",
+      "uri": "spotify:track:1yA8eLTcwmsDlS1bdVAli0",
+      "uri_apple_music": "applemusic://track/1707103708",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1707103708",
+        "de": "applemusic://track/1707103708",
+        "gb": "applemusic://track/1707103708",
+        "fr": "applemusic://track/1707103708",
+        "es": "applemusic://track/1707103708",
+        "nl": "applemusic://track/1707103708",
+        "it": "applemusic://track/1707103708"
+      },
+      "uri_deezer": "deezer://track/7323577",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=9gKYGbaqQVA",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Roland Kaiser",
+        "Wolfgang Petry",
+        "Helene Fischer"
+      ],
+      "fun_fact": "From album 'Sieben Leben' (2010). The 'Verdammt ich lieb dich' veteran kept charting through the 2010s — this single peaked at #21 in Germany.",
+      "fun_fact_de": "Vom Album 'Sieben Leben' (2010). Der 'Verdammt ich lieb dich'-Veteran chartete auch durch die 2010er — diese Single landete auf Platz 21 in Deutschland.",
+      "fun_fact_es": "Del álbum 'Sieben Leben' (2010). El veterano de 'Verdammt ich lieb dich' siguió en las listas durante los 2010 — este sencillo alcanzó el #21 en Alemania.",
+      "fun_fact_fr": "Issu de l'album 'Sieben Leben' (2010). Le vétéran de 'Verdammt ich lieb dich' a continué à charter dans les années 2010 — ce single a atteint la 21e place en Allemagne.",
+      "fun_fact_nl": "Van het album 'Sieben Leben' (2010). De 'Verdammt ich lieb dich'-veteraan bleef ook in de jaren 2010 in de hitlijsten — deze single haalde #21 in Duitsland.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {}
+    },
+    {
+      "artist": "Rosenstolz",
+      "title": "Gib mir Sonne",
+      "year": 2009,
+      "isrc": "DEUM70804365",
+      "uri": "spotify:track:3sfKfoEJp8uR7syEMze89R",
+      "uri_apple_music": "applemusic://track/6762966380",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1709412670",
+        "de": "applemusic://track/6762966380",
+        "gb": "applemusic://track/1443073065",
+        "fr": "applemusic://track/1443073065",
+        "es": "applemusic://track/1443073065",
+        "nl": "applemusic://track/1443073065",
+        "it": "applemusic://track/1443073065"
+      },
+      "uri_deezer": "deezer://track/4231394",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=_QltRS3NrTI",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Yvonne Catterfeld",
+        "Sarah Connor",
+        "Juliane Werding"
+      ],
+      "fun_fact": "Lead single from album 'Die Suche geht weiter' (2008). Reached #2 in Germany and was Anna R's & Peter Plate's biggest single chart entry.",
+      "fun_fact_de": "Leadsingle des Albums 'Die Suche geht weiter' (2008). Platz 2 in Deutschland und der größte Single-Chart-Eintrag von AnNa R. & Peter Plate.",
+      "fun_fact_es": "Primer sencillo del álbum 'Die Suche geht weiter' (2008). #2 en Alemania y la mayor entrada en sencillos de AnNa R. y Peter Plate.",
+      "fun_fact_fr": "Premier single de l'album 'Die Suche geht weiter' (2008). 2e place en Allemagne, meilleure entrée en single d'AnNa R. et Peter Plate.",
+      "fun_fact_nl": "Eerste single van het album 'Die Suche geht weiter' (2008). #2 in Duitsland — de hoogste single-notering van AnNa R. en Peter Plate.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [
+        "Gold (DE)"
+      ],
+      "chart_info": {
+        "german_peak": 2
+      }
+    },
+    {
+      "artist": "Die Fantastischen Vier",
+      "title": "Troy",
+      "year": 2004,
+      "isrc": "DEE860400443",
+      "uri": "spotify:track:6QRng4ZFJxeRnjcnquKlx2",
+      "uri_apple_music": "applemusic://track/969577078",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/948647637",
+        "de": "applemusic://track/969577078",
+        "gb": "applemusic://track/1308524759",
+        "fr": "applemusic://track/1308524759",
+        "es": "applemusic://track/1308524759",
+        "nl": "applemusic://track/1308524759",
+        "it": "applemusic://track/1308524759"
+      },
+      "uri_deezer": "deezer://track/4300901",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=JyCN9mvA8cI",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Fanta 4",
+        "Samy Deluxe",
+        "Die Beginner"
+      ],
+      "fun_fact": "From album 'Fornika' (2007). The Stuttgart hip-hop pioneers' wordplay-laden track reached #28 in Germany.",
+      "fun_fact_de": "Vom Album 'Fornika' (2007). Der wortspielreiche Track der Stuttgarter Hip-Hop-Pioniere erreichte Platz 28 in Deutschland.",
+      "fun_fact_es": "Del álbum 'Fornika' (2007). El tema lleno de juegos de palabras de los pioneros del hip-hop de Stuttgart llegó al #28 en Alemania.",
+      "fun_fact_fr": "Issu de l'album 'Fornika' (2007). Le morceau riche en jeux de mots des pionniers du hip-hop de Stuttgart a atteint la 28e place en Allemagne.",
+      "fun_fact_nl": "Van het album 'Fornika' (2007). De woordspelingrijke track van de hiphoppioniers uit Stuttgart haalde #28 in Duitsland.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {}
+    },
+    {
+      "artist": "Kool Savas, Nessi",
+      "title": "Deine Mutter",
+      "year": 2019,
+      "isrc": "DEBN21800003",
+      "uri": "spotify:track:4y8xXLG9O3Rbl6e1KaNRTG",
+      "uri_apple_music": "applemusic://track/1440762000",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1440762000",
+        "de": "applemusic://track/1440762000",
+        "gb": "applemusic://track/1440762000",
+        "fr": "applemusic://track/1440762000",
+        "es": "applemusic://track/1440762000",
+        "nl": "applemusic://track/1440762000",
+        "it": "applemusic://track/1440762000"
+      },
+      "uri_deezer": "deezer://track/615080882",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=KZUcpzV3Qx8",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Sido",
+        "Samy Deluxe",
+        "Bushido"
+      ],
+      "fun_fact": "Featuring Nessi from album 'KKS' (2019). The Berlin rap king's late-career banger that turned the schoolyard insult into a chart hit.",
+      "fun_fact_de": "Mit Nessi vom Album 'KKS' (2019). Der Late-Career-Banger des Berliner Rap-Königs, der den Schulhof-Spruch zum Chart-Hit machte.",
+      "fun_fact_es": "Con Nessi del álbum 'KKS' (2019). El bombazo de la etapa madura del rey del rap berlinés, que convirtió el insulto escolar en éxito de listas.",
+      "fun_fact_fr": "Avec Nessi, issue de l'album 'KKS' (2019). Le banger de fin de carrière du roi du rap berlinois, transformant l'insulte de cour d'école en tube.",
+      "fun_fact_nl": "Met Nessi van het album 'KKS' (2019). De late-carrière-banger van de Berlijnse rapkoning, die de schoolpleinbelediging tot chart-hit maakte.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {}
+    },
+    {
+      "artist": "Deichkind",
+      "title": "Luftbahn",
+      "year": 2012,
+      "isrc": "DEUM70806186",
+      "uri": "spotify:track:28VHPpOFGdY2PByaTe10ZX",
+      "uri_apple_music": "applemusic://track/6762966384",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1442595464",
+        "de": "applemusic://track/6762966384",
+        "gb": "applemusic://track/1442595464",
+        "fr": "applemusic://track/1442595464",
+        "es": "applemusic://track/1442595464",
+        "nl": "applemusic://track/1442595464",
+        "it": "applemusic://track/1442595464"
+      },
+      "uri_deezer": "deezer://track/80180630",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=HOYhFlbp0Uc",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Beatsteaks",
+        "Die Fantastischen Vier",
+        "Kraftklub"
+      ],
+      "fun_fact": "From album 'Niveau Weshalb Warum' (2014). The Hamburg electro-rap collective's signature high-energy live anthem.",
+      "fun_fact_de": "Vom Album 'Niveau Weshalb Warum' (2014). Die typische Live-High-Energy-Hymne des Hamburger Electro-Rap-Kollektivs.",
+      "fun_fact_es": "Del álbum 'Niveau Weshalb Warum' (2014). El himno en directo de alta energía característico del colectivo electro-rap de Hamburgo.",
+      "fun_fact_fr": "Issu de l'album 'Niveau Weshalb Warum' (2014). L'hymne live à haute énergie emblématique du collectif électro-rap de Hambourg.",
+      "fun_fact_nl": "Van het album 'Niveau Weshalb Warum' (2014). De karakteristieke high-energy livehymne van het Hamburger electro-rapcollectief.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {}
+    },
+    {
+      "artist": "Johannes Oerding",
+      "title": "Kreise",
+      "year": 2017,
+      "isrc": "DEE861700235",
+      "uri": "spotify:track:1ocmRsEMI6nO9d9BdQbXNI",
+      "uri_apple_music": "applemusic://track/1212424046",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1212424046",
+        "de": "applemusic://track/1212424046",
+        "gb": "applemusic://track/1212424046",
+        "fr": "applemusic://track/1212424046",
+        "es": "applemusic://track/1212424046",
+        "nl": "applemusic://track/1212424046",
+        "it": "applemusic://track/1212424046"
+      },
+      "uri_deezer": "deezer://track/352177941",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=oas9SCVAfgI",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Bosse",
+        "Tim Bendzko",
+        "Mark Forster"
+      ],
+      "fun_fact": "From album 'Kreise' (2017). Reached #14 in Germany and was nominated for Echo Pop in Best German Single.",
+      "fun_fact_de": "Vom Album 'Kreise' (2017). Platz 14 in Deutschland, nominiert für den Echo Pop in Beste Single national.",
+      "fun_fact_es": "Del álbum 'Kreise' (2017). #14 en Alemania, nominado al Echo Pop a Mejor Sencillo Alemán.",
+      "fun_fact_fr": "Issu de l'album 'Kreise' (2017). 14e place en Allemagne, nommé aux Echo Pop dans la catégorie Meilleur Single Allemand.",
+      "fun_fact_nl": "Van het album 'Kreise' (2017). #14 in Duitsland, genomineerd voor de Echo Pop in Beste Duitse Single.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {}
+    },
+    {
+      "artist": "Andrea Berg",
+      "title": "Ja ich will",
+      "year": 2018,
+      "isrc": "DEUQ71700019",
+      "uri": "spotify:track:3CXCSDeLa8tmiG84onlQpx",
+      "uri_apple_music": "applemusic://track/1460254759",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1724216557",
+        "de": "applemusic://track/1460254759",
+        "gb": "applemusic://track/1724216557",
+        "fr": "applemusic://track/1724216557",
+        "es": "applemusic://track/1724216557",
+        "nl": "applemusic://track/1724216557",
+        "it": "applemusic://track/1724216557"
+      },
+      "uri_deezer": "deezer://track/522156672",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=4Q8iEL-M5Ck",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Helene Fischer",
+        "Vanessa Mai",
+        "Andreas Gabalier"
+      ],
+      "fun_fact": "From album 'Mosaik' (2019). Reached #8 in Germany and 4× Gold — the biggest Schlager hit of 2019, often used as a wedding-song staple.",
+      "fun_fact_de": "Vom Album 'Mosaik' (2019). Platz 8 in Deutschland und 4× Gold — der größte Schlager-Hit 2019, oft als Hochzeitssong-Klassiker eingesetzt.",
+      "fun_fact_es": "Del álbum 'Mosaik' (2019). #8 en Alemania y 4× oro — el mayor éxito Schlager de 2019, habitual en bodas.",
+      "fun_fact_fr": "Issu de l'album 'Mosaik' (2019). 8e place en Allemagne, 4× or — le plus grand tube Schlager de 2019, souvent joué dans les mariages.",
+      "fun_fact_nl": "Van het album 'Mosaik' (2019). #8 in Duitsland en 4× goud — de grootste Schlager-hit van 2019, vaak gespeeld op bruiloften.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [
+        "4× Gold (DE)"
+      ],
+      "chart_info": {
+        "german_peak": 8
+      }
+    },
+    {
+      "artist": "Bilderbuch",
+      "title": "Bungalow",
+      "year": 2017,
+      "isrc": "ATAI71700001",
+      "uri": "spotify:track:0xCXcq4y44uHJtJ7zZDF3d",
+      "uri_apple_music": "applemusic://track/1440736662",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1712037126",
+        "de": "applemusic://track/1440736662",
+        "gb": "applemusic://track/1712037126",
+        "fr": "applemusic://track/1712037126",
+        "es": "applemusic://track/1712037126",
+        "nl": "applemusic://track/1712037126",
+        "it": "applemusic://track/1712037126"
+      },
+      "uri_deezer": "deezer://track/142394147",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=pV-GGCrRcu0",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Wanda",
+        "Faber",
+        "Von Wegen Lisbeth"
+      ],
+      "fun_fact": "Lead single from album 'Magic Life' (2017). The Vienna art-pop band's biggest crossover into German charts (#48).",
+      "fun_fact_de": "Leadsingle des Albums 'Magic Life' (2017). Der größte deutsche Chart-Crossover (#48) der Wiener Art-Pop-Band.",
+      "fun_fact_es": "Primer sencillo del álbum 'Magic Life' (2017). El mayor cruce a las listas alemanas (#48) de la banda vienesa de art-pop.",
+      "fun_fact_fr": "Premier single de l'album 'Magic Life' (2017). La plus grande percée dans les charts allemands (48e) du groupe d'art-pop viennois.",
+      "fun_fact_nl": "Eerste single van het album 'Magic Life' (2017). De grootste crossover in de Duitse hitlijsten (#48) van de Weense art-popband.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {
+        "german_peak": 48
+      }
+    },
+    {
+      "artist": "Silbermond",
+      "title": "Symphonie",
+      "year": 2005,
+      "isrc": "DEA810400356",
+      "uri": "spotify:track:7mOD9NFyZhC8PtW4joWDWT",
+      "uri_apple_music": "applemusic://track/1105989903",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/207331456",
+        "de": "applemusic://track/1105989903",
+        "gb": "applemusic://track/207331456",
+        "fr": "applemusic://track/207331456",
+        "es": "applemusic://track/207331456",
+        "nl": "applemusic://track/207331456",
+        "it": "applemusic://track/207331456"
+      },
+      "uri_deezer": "deezer://track/15539388",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=8bNHTgVhdYM",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Juli",
+        "Wir sind Helden",
+        "Glasperlenspiel"
+      ],
+      "fun_fact": "Their debut single (2004) from Bautzen. Reached #9 in Germany and put Stefanie Kloß's clear vocals on the national map.",
+      "fun_fact_de": "Ihre Debütsingle (2004) aus Bautzen. Erreichte Platz 9 in Deutschland und etablierte Stefanie Kloß' klare Stimme bundesweit.",
+      "fun_fact_es": "Su sencillo debut (2004), procedente de Bautzen. #9 en Alemania, posicionando la voz limpia de Stefanie Kloß en el mapa nacional.",
+      "fun_fact_fr": "Leur premier single (2004), originaire de Bautzen. 9e place en Allemagne, qui a fait connaître la voix claire de Stefanie Kloß à l'échelle nationale.",
+      "fun_fact_nl": "Hun debuutsingle (2004) uit Bautzen. #9 in Duitsland en de doorbraak van de heldere stem van Stefanie Kloß op nationaal niveau.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {
+        "german_peak": 9
+      }
+    },
+    {
+      "artist": "Stereoact, Kerstin Ott",
+      "title": "Die immer lacht - Radio 2016 Mix",
+      "year": 2015,
+      "isrc": "DEY201500135",
+      "uri": "spotify:track:0lKyMPBRuIDCX56NORu5NZ",
+      "uri_apple_music": "applemusic://track/1065888614",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1065888614",
+        "de": "applemusic://track/1065888614",
+        "gb": "applemusic://track/1065888614",
+        "fr": "applemusic://track/1065888614",
+        "es": "applemusic://track/1065888614",
+        "nl": "applemusic://track/1065888614",
+        "it": "applemusic://track/1065888614"
+      },
+      "uri_deezer": "deezer://track/114918126",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=Gwp0bUZGohU",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Glasperlenspiel",
+        "Felix Jaehn",
+        "Robin Schulz"
+      ],
+      "fun_fact": "Their remix of Kerstin Ott's track went 6× Platinum in Germany and stayed 13 weeks at #1 — a German chart record at the time.",
+      "fun_fact_de": "Ihr Remix von Kerstin Otts Track ging 6× Platin in Deutschland und blieb 13 Wochen auf Platz 1 — damals ein deutscher Chart-Rekord.",
+      "fun_fact_es": "Su remezcla del tema de Kerstin Ott consiguió 6× platino en Alemania y permaneció 13 semanas en el #1 — un récord alemán de la época.",
+      "fun_fact_fr": "Leur remix du titre de Kerstin Ott a été certifié 6× platine en Allemagne, restant 13 semaines à la 1re place — record allemand à l'époque.",
+      "fun_fact_nl": "Hun remix van Kerstin Otts track werd 6× platina in Duitsland en stond 13 weken op #1 — destijds een Duits chartrecord.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [
+        "6× Platin (DE)"
+      ],
+      "chart_info": {
+        "german_peak": 1,
+        "weeks_on_chart": 13
+      }
+    },
+    {
+      "artist": "Capital Bra, Samra, LEA",
+      "title": "110",
+      "year": 2019,
+      "isrc": "DECE71900628",
+      "uri": "spotify:track:5sdQ7VUx6GOfsRoSxnK1YG",
+      "uri_apple_music": "applemusic://track/1477203423",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1477203423",
+        "de": "applemusic://track/1477203423",
+        "gb": "applemusic://track/1477203423",
+        "fr": "applemusic://track/1477203423",
+        "es": "applemusic://track/1477203423",
+        "nl": "applemusic://track/1477203423",
+        "it": "applemusic://track/1477203423"
+      },
+      "uri_deezer": "deezer://track/756918912",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=wY_rF_LlZ2c",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Samra",
+        "Bausa",
+        "Ufo361"
+      ],
+      "fun_fact": "The 2019 Berlin trap-rap collab between Capital Bra, Samra and LEA hit #1 in Germany — Capital Bra's record-setting 14th #1 single, breaking Beatles' German chart record.",
+      "fun_fact_de": "Die Berlin-Trap-Kollaboration 2019 zwischen Capital Bra, Samra und LEA holte Platz 1 in Deutschland — Capital Bras 14. Nummer-1-Single, womit er den Beatles-Rekord brach.",
+      "fun_fact_es": "La colaboración de trap berlinés en 2019 entre Capital Bra, Samra y LEA llegó al #1 en Alemania, el 14º #1 de Capital Bra, rompiendo el récord alemán de los Beatles.",
+      "fun_fact_fr": "La collaboration trap berlinoise de 2019 entre Capital Bra, Samra et LEA a atteint la 1re place en Allemagne, 14e n°1 de Capital Bra qui a battu le record allemand des Beatles.",
+      "fun_fact_nl": "De Berlijnse trap-collab uit 2019 van Capital Bra, Samra en LEA werd #1 in Duitsland — Capital Bra's 14e nummer-1-hit, waarmee hij het Duitse Beatles-record verbrak.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [
+        "3× Platin (DE)"
+      ],
+      "chart_info": {
+        "german_peak": 1
+      }
+    },
+    {
+      "artist": "Gestört aber GeiL, Sebastian Hämer",
+      "title": "Ich & Du",
+      "year": 2015,
+      "isrc": "DEN061501470",
+      "uri": "spotify:track:7c7B1yGUIVUQf4yvWcVU5M",
+      "uri_apple_music": "applemusic://track/1034289194",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1040149237",
+        "de": "applemusic://track/1034289194",
+        "gb": "applemusic://track/1040149237",
+        "fr": "applemusic://track/1040149237",
+        "es": "applemusic://track/1040149237",
+        "nl": "applemusic://track/1040149237",
+        "it": "applemusic://track/1040149237"
+      },
+      "uri_deezer": "deezer://track/107604374",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=kJ9iywSoLRs",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Stereoact",
+        "Felix Jaehn",
+        "Robin Schulz"
+      ],
+      "fun_fact": "DJ duo from Sachsen with singer Sebastian Hämer. Reached #14 in Germany and 2× Gold — the EDM-Schlager fusion that defined 2015 German radio.",
+      "fun_fact_de": "DJ-Duo aus Sachsen mit Sänger Sebastian Hämer. Platz 14 in Deutschland und 2× Gold — die EDM-Schlager-Fusion, die das deutsche Radio 2015 prägte.",
+      "fun_fact_es": "Dúo de DJs de Sajonia con el cantante Sebastian Hämer. #14 en Alemania y 2× oro — la fusión EDM-Schlager que marcó la radio alemana de 2015.",
+      "fun_fact_fr": "Duo DJ de Saxe avec le chanteur Sebastian Hämer. 14e place en Allemagne, 2× or — la fusion EDM-Schlager qui a marqué la radio allemande en 2015.",
+      "fun_fact_nl": "DJ-duo uit Saksen met zanger Sebastian Hämer. #14 in Duitsland en 2× goud — de EDM-Schlagerfusie die de Duitse radio van 2015 stempelde.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [
+        "2× Gold (DE)"
+      ],
+      "chart_info": {
+        "german_peak": 14
+      }
+    },
+    {
+      "artist": "MAJAN, CRO",
+      "title": "1975",
+      "year": 2019,
+      "isrc": "DEXW31900003",
+      "uri": "spotify:track:6mf2YhtRwQUdnORRrRQ3hP",
+      "uri_apple_music": "applemusic://track/1461760325",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1461760325",
+        "de": "applemusic://track/1461760325",
+        "gb": "applemusic://track/1461760325",
+        "fr": "applemusic://track/1461760325",
+        "es": "applemusic://track/1461760325",
+        "nl": "applemusic://track/1461760325",
+        "it": "applemusic://track/1461760325"
+      },
+      "uri_deezer": "deezer://track/675344152",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=fKfRuYV0zfI",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Cro",
+        "Mark Forster",
+        "Casper"
+      ],
+      "fun_fact": "Collaboration with Cro from album 'Lieder über Lieder' (2019). The track's nostalgic acoustic-meets-trap aesthetic made it a sleeper streaming hit.",
+      "fun_fact_de": "Zusammenarbeit mit Cro vom Album 'Lieder über Lieder' (2019). Die nostalgische Akustik-trifft-Trap-Ästhetik machte den Track zum Sleeper-Streaming-Hit.",
+      "fun_fact_es": "Colaboración con Cro del álbum 'Lieder über Lieder' (2019). La estética nostálgica acústico-trap convirtió el tema en un éxito de streaming inesperado.",
+      "fun_fact_fr": "Collaboration avec Cro issue de l'album 'Lieder über Lieder' (2019). L'esthétique acoustique-trap nostalgique en a fait un sleeper hit du streaming.",
+      "fun_fact_nl": "Samenwerking met Cro van het album 'Lieder über Lieder' (2019). De nostalgische akoestiek-meets-trap-stijl maakte de track een sleeper-hit op streaming.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {}
+    },
+    {
+      "artist": "SDP",
+      "title": "Eigentlich wollte er nie ein Liebeslied schreiben",
+      "year": 2006,
+      "isrc": "DEBL61067136",
+      "uri": "spotify:track:3j0ykg82KM5eagr3lIcA9b",
+      "uri_apple_music": "applemusic://track/375748055",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/375748055",
+        "de": "applemusic://track/375748055",
+        "gb": "applemusic://track/375748055",
+        "fr": "applemusic://track/375748055",
+        "es": "applemusic://track/375748055",
+        "nl": "applemusic://track/375748055",
+        "it": "applemusic://track/375748055"
+      },
+      "uri_deezer": "deezer://track/6347577",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=ma3ZbkA3gqY",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Casper",
+        "Marteria",
+        "Wincent Weiss"
+      ],
+      "fun_fact": "Self-referential meta-song about the duo's reluctance to write love songs. From album 'Was wollen wir mehr' (2010).",
+      "fun_fact_de": "Selbstreferentieller Meta-Song über die Abneigung des Duos, Liebeslieder zu schreiben. Vom Album 'Was wollen wir mehr' (2010).",
+      "fun_fact_es": "Tema metarreferencial sobre la reticencia del dúo a escribir canciones de amor. Del álbum 'Was wollen wir mehr' (2010).",
+      "fun_fact_fr": "Méta-chanson autoréférentielle sur la réticence du duo à écrire des chansons d'amour. Issue de l'album 'Was wollen wir mehr' (2010).",
+      "fun_fact_nl": "Zelf-refererend metanummer over de afkeer van het duo om liefdesliedjes te schrijven. Van het album 'Was wollen wir mehr' (2010).",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {}
+    },
+    {
+      "artist": "Clueso",
+      "title": "Chicago - Remastered 2014",
+      "year": 2006,
+      "isrc": "DEQV21400053",
+      "uri": "spotify:track:5oPSBJ5WQNwRL9ICtohYfo",
+      "uri_apple_music": "applemusic://track/1627067967",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1509200309",
+        "de": "applemusic://track/1627067967",
+        "gb": "applemusic://track/1509200309",
+        "fr": "applemusic://track/1509200309",
+        "es": "applemusic://track/1509200309",
+        "nl": "applemusic://track/1509200309",
+        "it": "applemusic://track/1509200309"
+      },
+      "uri_deezer": "deezer://track/937031012",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=06X89HZmj1Y",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Bosse",
+        "Andreas Bourani",
+        "Tim Bendzko"
+      ],
+      "fun_fact": "From album 'Weit Weg' (2006). The Erfurt-born singer's nostalgic ode to the American city, even though he had never been there at recording time.",
+      "fun_fact_de": "Vom Album 'Weit Weg' (2006). Die nostalgische Hommage des Erfurters an die amerikanische Stadt, obwohl er sie zum Aufnahmezeitpunkt noch nie gesehen hatte.",
+      "fun_fact_es": "Del álbum 'Weit Weg' (2006). La nostálgica oda del cantante de Erfurt a la ciudad estadounidense, a pesar de que aún no la había visitado al grabarla.",
+      "fun_fact_fr": "Issu de l'album 'Weit Weg' (2006). L'ode nostalgique du chanteur d'Erfurt à la ville américaine, qu'il n'avait pourtant jamais visitée à l'époque de l'enregistrement.",
+      "fun_fact_nl": "Van het album 'Weit Weg' (2006). Het nostalgische eerbetoon van de Erfurt-zanger aan de Amerikaanse stad, hoewel hij er bij de opname nog nooit was geweest.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {}
+    },
+    {
+      "artist": "Tokio Hotel",
+      "title": "Durch den Monsun - Radio Mix",
+      "year": 2005,
+      "isrc": "DEUM70500187",
+      "uri": "spotify:track:5OiC3eltQO7gXvOZMbrTn3",
+      "uri_apple_music": "applemusic://track/6762966195",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1894354018",
+        "de": "applemusic://track/6762966195",
+        "gb": "applemusic://track/1894354018",
+        "fr": "applemusic://track/1894354018",
+        "es": "applemusic://track/1894354018",
+        "nl": "applemusic://track/1894354018",
+        "it": "applemusic://track/1894354018"
+      },
+      "uri_deezer": "deezer://track/7718640",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=S_Sy5-sOodA",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Echt",
+        "Killerpilze",
+        "Juli"
+      ],
+      "fun_fact": "Their #1 debut single in 2005 from Magdeburg's then-15-year-old twins. The track sold over 250,000 copies and ignited a global teen-pop wave.",
+      "fun_fact_de": "Die Nummer-1-Debütsingle von 2005 der damals 15-jährigen Magdeburger Zwillinge. Verkaufte über 250.000 Exemplare und löste eine weltweite Teenie-Pop-Welle aus.",
+      "fun_fact_es": "Su sencillo debut #1 en 2005, de los gemelos de Magdeburgo que entonces tenían 15 años. Más de 250.000 copias vendidas y una ola teen-pop global.",
+      "fun_fact_fr": "Leur premier single n°1 en 2005, signé des jumeaux de Magdebourg alors âgés de 15 ans. Plus de 250 000 exemplaires vendus et une vague teen-pop mondiale lancée.",
+      "fun_fact_nl": "Hun #1-debuutsingle uit 2005 van de toen 15-jarige tweeling uit Maagdenburg. Ruim 250.000 verkochte exemplaren en het startsein van een wereldwijde teenpop-golf.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [
+        "Gold (DE)"
+      ],
+      "chart_info": {
+        "german_peak": 1
+      }
+    },
+    {
+      "artist": "Kerstin Ott",
+      "title": "Scheissmelodie - Single Edit",
+      "year": 2017,
+      "isrc": "DEUM71602210",
+      "uri": "spotify:track:60iRd83DKxuXfloZ9hHwl6",
+      "uri_apple_music": "applemusic://track/1440907082",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1667386599",
+        "de": "applemusic://track/1440907082",
+        "gb": "applemusic://track/1444628674",
+        "fr": "applemusic://track/1440907082",
+        "es": "applemusic://track/1440907082",
+        "nl": "applemusic://track/1440907082",
+        "it": "applemusic://track/1440907082"
+      },
+      "uri_deezer": "deezer://track/396427042",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=7dvc9t1su1M",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Helene Fischer",
+        "Stereoact",
+        "Andrea Berg"
+      ],
+      "fun_fact": "Her own original song that became famous through the Stereoact remix in 2016. The original folk-version reached #29 in Germany.",
+      "fun_fact_de": "Ihr eigener Originalsong, der durch den Stereoact-Remix 2016 berühmt wurde. Die Original-Folk-Version erreichte Platz 29 in Deutschland.",
+      "fun_fact_es": "Su canción original que se hizo famosa gracias a la remezcla de Stereoact en 2016. La versión folk original alcanzó el #29 en Alemania.",
+      "fun_fact_fr": "Sa chanson originale rendue célèbre par le remix Stereoact en 2016. La version folk originale a atteint la 29e place en Allemagne.",
+      "fun_fact_nl": "Haar eigen originele nummer dat bekend werd door de Stereoact-remix uit 2016. De originele folkversie haalde #29 in Duitsland.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {}
+    },
+    {
+      "artist": "Maxim",
+      "title": "Meine Soldaten",
+      "year": 2013,
+      "isrc": "DEA621300074",
+      "uri": "spotify:track:36Q5ExFOZxSrWRV3e0XyB1",
+      "uri_apple_music": "applemusic://track/640075762",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/640075762",
+        "de": "applemusic://track/640075762",
+        "gb": "applemusic://track/640075762",
+        "fr": "applemusic://track/640075762",
+        "es": "applemusic://track/640075762",
+        "nl": "applemusic://track/640075762",
+        "it": "applemusic://track/640075762"
+      },
+      "uri_deezer": "deezer://track/66006335",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=ETQ4QxYNM8k",
+      "uri_tidal": null,
+      "alt_artists": [
+        "AnnenMayKantereit",
+        "Provinz",
+        "Bosse"
+      ],
+      "fun_fact": "From his debut album 'Asphalt' (2013). Reached #16 in Germany — singer-songwriter Maxim Richarz's introspective folk-rock breakthrough.",
+      "fun_fact_de": "Vom Debütalbum 'Asphalt' (2013). Platz 16 in Deutschland — der introspektive Folk-Rock-Durchbruch von Singer-Songwriter Maxim Richarz.",
+      "fun_fact_es": "Del álbum debut 'Asphalt' (2013). #16 en Alemania — el debut folk-rock introspectivo del cantautor Maxim Richarz.",
+      "fun_fact_fr": "Issu du premier album 'Asphalt' (2013). 16e place en Allemagne — la percée folk-rock introspective de l'auteur-compositeur Maxim Richarz.",
+      "fun_fact_nl": "Van het debuutalbum 'Asphalt' (2013). #16 in Duitsland — de introspectieve folkrockdoorbraak van singer-songwriter Maxim Richarz.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {}
+    },
+    {
+      "artist": "Philipp Poisel",
+      "title": "Eiserner Steg",
+      "year": 2012,
+      "isrc": "GBLAZ1100327",
+      "uri": "spotify:track:3iBMJMvcmCzerhF3QxMtfd",
+      "uri_apple_music": "applemusic://track/1675991863",
+      "uri_apple_music_by_region": {
+        "us": null,
+        "de": "applemusic://track/1675991863",
+        "gb": null,
+        "fr": null,
+        "es": null,
+        "nl": null,
+        "it": null
+      },
+      "uri_deezer": "deezer://track/1755753297",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=BKGW4MnPXVw",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Bosse",
+        "Tim Bendzko",
+        "Johannes Oerding"
+      ],
+      "fun_fact": "From the second album 'Bis nach Toulouse' (2010). Named after the Frankfurt am Main pedestrian bridge — Poisel's signature song.",
+      "fun_fact_de": "Vom zweiten Album 'Bis nach Toulouse' (2010). Benannt nach der Fußgängerbrücke in Frankfurt am Main — Poisels Signature-Song.",
+      "fun_fact_es": "Del segundo álbum 'Bis nach Toulouse' (2010). Nombrado por el puente peatonal de Fráncfort del Meno — la canción insignia de Poisel.",
+      "fun_fact_fr": "Issu du deuxième album 'Bis nach Toulouse' (2010). Nommé d'après la passerelle piétonne de Francfort-sur-le-Main — la chanson emblème de Poisel.",
+      "fun_fact_nl": "Van het tweede album 'Bis nach Toulouse' (2010). Vernoemd naar de voetgangersbrug in Frankfurt am Main — Poisels signature track.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {}
+    },
+    {
+      "artist": "Bausa",
+      "title": "Mary",
+      "year": 2019,
+      "isrc": "DEA621900221",
+      "uri": "spotify:track:6BZhkqUtaFJm57Hm5TTQSH",
+      "uri_apple_music": "applemusic://track/1704186682",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1819476514",
+        "de": "applemusic://track/1704186682",
+        "gb": "applemusic://track/1819476514",
+        "fr": "applemusic://track/1819476514",
+        "es": "applemusic://track/1819476514",
+        "nl": "applemusic://track/1819476514",
+        "it": "applemusic://track/1819476514"
+      },
+      "uri_deezer": "deezer://track/654737842",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=52mUuzw4SgI",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Capital Bra",
+        "Cro",
+        "Bonez MC"
+      ],
+      "fun_fact": "From album 'Powerphonie' (2018). Reached #11 in Germany — Bausa's continuation of the Stuttgart trap-rap wave that 'Was du Liebe nennst' kicked off.",
+      "fun_fact_de": "Vom Album 'Powerphonie' (2018). Platz 11 in Deutschland — Bausas Fortsetzung der Stuttgarter Trap-Rap-Welle, die 'Was du Liebe nennst' ausgelöst hatte.",
+      "fun_fact_es": "Del álbum 'Powerphonie' (2018). #11 en Alemania — la continuación de Bausa de la ola trap-rap de Stuttgart iniciada con 'Was du Liebe nennst'.",
+      "fun_fact_fr": "Issu de l'album 'Powerphonie' (2018). 11e place en Allemagne — Bausa prolonge la vague trap-rap de Stuttgart initiée par 'Was du Liebe nennst'.",
+      "fun_fact_nl": "Van het album 'Powerphonie' (2018). #11 in Duitsland — Bausa zet de Stuttgartse trap-rap-golf voort die met 'Was du Liebe nennst' begon.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [
+        "Platin (DE)"
+      ],
+      "chart_info": {
+        "german_peak": 11
+      }
+    },
+    {
+      "artist": "Vanessa Mai",
+      "title": "Ich sterb für dich",
+      "year": 2016,
+      "isrc": "DEA811501457",
+      "uri": "spotify:track:4UXJPa2Bzja3kgEEfQXDHi",
+      "uri_apple_music": "applemusic://track/1658114836",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1658114836",
+        "de": "applemusic://track/1658114836",
+        "gb": "applemusic://track/1658114836",
+        "fr": "applemusic://track/1658114836",
+        "es": "applemusic://track/1658114836",
+        "nl": "applemusic://track/1658114836",
+        "it": "applemusic://track/1658114836"
+      },
+      "uri_deezer": "deezer://track/122886242",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=izHB2EdMngg",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Helene Fischer",
+        "Andrea Berg",
+        "Beatrice Egli"
+      ],
+      "fun_fact": "From album 'Für dich' (2016). The former Wolkenfrei singer's solo debut peaked at #4 in Germany.",
+      "fun_fact_de": "Vom Album 'Für dich' (2016). Das Solo-Debüt der ehemaligen Wolkenfrei-Sängerin erreichte Platz 4 in Deutschland.",
+      "fun_fact_es": "Del álbum 'Für dich' (2016). El debut solista de la ex cantante de Wolkenfrei alcanzó el #4 en Alemania.",
+      "fun_fact_fr": "Issu de l'album 'Für dich' (2016). Le premier album solo de l'ex-chanteuse de Wolkenfrei a atteint la 4e place en Allemagne.",
+      "fun_fact_nl": "Van het album 'Für dich' (2016). Het solodebuut van de ex-Wolkenfrei-zangeres haalde #4 in Duitsland.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {
+        "german_peak": 4
+      }
+    },
+    {
+      "artist": "Echt",
+      "title": "Weinst du",
+      "year": 2002,
+      "isrc": "DEL060001411",
+      "uri": "spotify:track:2RjnnOuAvosOSAZhZQ50kO",
+      "uri_apple_music": "applemusic://track/1443399175",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1443399175",
+        "de": "applemusic://track/1443399175",
+        "gb": "applemusic://track/1443399175",
+        "fr": "applemusic://track/1443399175",
+        "es": "applemusic://track/1443399175",
+        "nl": "applemusic://track/1443399175",
+        "it": "applemusic://track/1443399175"
+      },
+      "uri_deezer": "deezer://track/2305261",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=yNzyktrWSWM",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Wir sind Helden",
+        "Juli",
+        "Tokio Hotel"
+      ],
+      "fun_fact": "Their second single (2000) from Flensburg. The teenage emotional pop wave laid the groundwork for Tokio Hotel's 2005 breakthrough.",
+      "fun_fact_de": "Ihre zweite Single (2000) aus Flensburg. Die jugendliche Emo-Pop-Welle legte den Grundstein für Tokio Hotels Durchbruch 2005.",
+      "fun_fact_es": "Su segundo sencillo (2000) procedente de Flensburgo. La ola de pop emocional adolescente preparó el camino al despegue de Tokio Hotel en 2005.",
+      "fun_fact_fr": "Leur deuxième single (2000), originaire de Flensbourg. La vague pop adolescente émotionnelle a préparé la voie à la percée de Tokio Hotel en 2005.",
+      "fun_fact_nl": "Hun tweede single (2000) uit Flensburg. De tienerige emotionele popgolf legde de basis voor de doorbraak van Tokio Hotel in 2005.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {}
+    },
+    {
+      "artist": "Glasperlenspiel",
+      "title": "Geiles Leben",
+      "year": 2016,
+      "isrc": "DEUM71502356",
+      "uri": "spotify:track:7bolFIVYrui4h98GEK0MIK",
+      "uri_apple_music": "applemusic://track/1572868398",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1572868398",
+        "de": "applemusic://track/1572868398",
+        "gb": "applemusic://track/1572868398",
+        "fr": "applemusic://track/1572868398",
+        "es": "applemusic://track/1572868398",
+        "nl": "applemusic://track/1572868398",
+        "it": "applemusic://track/1572868398"
+      },
+      "uri_deezer": "deezer://track/133582480",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=NQJFPQHX8kA",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Frida Gold",
+        "Stefanie Heinzmann",
+        "MIA."
+      ],
+      "fun_fact": "Lead single from album 'Tag X' (2015). Reached #5 in Germany and 4× Platinum — biggest hit by the German electro-pop duo.",
+      "fun_fact_de": "Leadsingle vom Album 'Tag X' (2015). Erreichte Platz 5 in Deutschland und 4× Platin — größter Hit des deutschen Electro-Pop-Duos.",
+      "fun_fact_es": "Primer sencillo del álbum 'Tag X' (2015). #5 en Alemania y 4× platino — mayor éxito del dúo alemán de electro-pop.",
+      "fun_fact_fr": "Premier single de l'album 'Tag X' (2015). 5e place en Allemagne, 4× platine — plus gros tube du duo électro-pop allemand.",
+      "fun_fact_nl": "Eerste single van het album 'Tag X' (2015). #5 in Duitsland en 4× platina — grootste hit van het Duitse electropop-duo.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [
+        "4× Platin (DE)"
+      ],
+      "chart_info": {
+        "german_peak": 5
+      }
+    },
+    {
+      "artist": "Herbert Grönemeyer, Amadou, Mariam",
+      "title": "Zeit, dass sich was dreht - Deutsche Version",
+      "year": 2006,
+      "isrc": "DEC610800606",
+      "uri": "spotify:track:2ln6685JphEqCJYclkusqW",
+      "uri_apple_music": "applemusic://track/1020603717",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1440941201",
+        "de": "applemusic://track/1020603717",
+        "gb": "applemusic://track/1020603717",
+        "fr": "applemusic://track/1020603717",
+        "es": "applemusic://track/1020603717",
+        "nl": "applemusic://track/1020603717",
+        "it": "applemusic://track/1020603717"
+      },
+      "uri_deezer": "deezer://track/3159907",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=LKi4BlO_ls8",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Udo Lindenberg",
+        "Westernhagen",
+        "Peter Maffay"
+      ],
+      "fun_fact": "Written as the official song for the 2006 FIFA World Cup in Germany. Featured Malian singers Amadou & Mariam, blending German and West African pop.",
+      "fun_fact_de": "Als offizieller WM-Song 2006 in Deutschland geschrieben. Mit den malischen Sängern Amadou & Mariam, die deutschen und westafrikanischen Pop verbanden.",
+      "fun_fact_es": "Escrita como canción oficial del Mundial 2006 en Alemania. Con los cantantes malienses Amadou y Mariam, fusionando pop alemán y africano occidental.",
+      "fun_fact_fr": "Écrite comme hymne officiel de la Coupe du monde 2006 en Allemagne. Avec les chanteurs maliens Amadou & Mariam, croisant pop allemande et ouest-africaine.",
+      "fun_fact_nl": "Geschreven als het officiële WK-lied 2006 in Duitsland. Met de Malinese zangers Amadou & Mariam — een mix van Duitse en West-Afrikaanse pop.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [
+        "Gold (DE)"
+      ],
+      "chart_info": {
+        "german_peak": 12
+      }
+    },
+    {
+      "artist": "Mia.",
+      "title": "Tanz der Moleküle - Single Version",
+      "year": 2006,
+      "isrc": "DEE860600352",
+      "uri": "spotify:track:1mp5PVgUpnHflPu9URvsCk",
+      "uri_apple_music": "applemusic://track/317319605",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/317319605",
+        "de": "applemusic://track/317319605",
+        "gb": "applemusic://track/317319605",
+        "fr": "applemusic://track/317319605",
+        "es": "applemusic://track/317319605",
+        "nl": "applemusic://track/317319605",
+        "it": "applemusic://track/317319605"
+      },
+      "uri_deezer": "deezer://track/562963",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=dhAs51kusLU",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Wir sind Helden",
+        "Polarkreis 18",
+        "Glasperlenspiel"
+      ],
+      "fun_fact": "Their #1 album track from 'Stille Post' (2006). The black-and-white video at Berlin's Tempelhof airport hangar made them visual style icons.",
+      "fun_fact_de": "Ihr Track aus dem Nummer-1-Album 'Stille Post' (2006). Das Schwarz-Weiß-Video am Hangar des Flughafens Tempelhof machte sie zu visuellen Stilikonen.",
+      "fun_fact_es": "Tema de su álbum #1 'Stille Post' (2006). El videoclip en blanco y negro en el hangar del aeropuerto de Tempelhof los convirtió en iconos visuales.",
+      "fun_fact_fr": "Issu de leur album n°1 'Stille Post' (2006). Le clip en noir et blanc dans le hangar de Tempelhof en a fait des icônes visuelles.",
+      "fun_fact_nl": "Track van hun #1-album 'Stille Post' (2006). De zwart-witclip in de hangar van vliegveld Tempelhof maakte hen visuele stijliconen.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {
+        "german_peak": 19
+      }
+    },
+    {
+      "artist": "Ich + Ich, Adel Tawil",
+      "title": "Universum",
+      "year": 2010,
+      "isrc": "DEUM71008380",
+      "uri": "spotify:track:5CMOpgf9S44Fw8qH9jAPWM",
+      "uri_apple_music": "applemusic://track/1558822244",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1558822244",
+        "de": "applemusic://track/1558822244",
+        "gb": "applemusic://track/1558822244",
+        "fr": "applemusic://track/1558822244",
+        "es": "applemusic://track/1558822244",
+        "nl": "applemusic://track/1558822244",
+        "it": "applemusic://track/1558822244"
+      },
+      "uri_deezer": "deezer://track/1278117372",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=98LmQZwMFwY",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Adel Tawil",
+        "Söhne Mannheims",
+        "Yvonne Catterfeld"
+      ],
+      "fun_fact": "From the duo's third studio album 'Gute Reise' (2009), featuring Adel Tawil. Reached #2 in Germany.",
+      "fun_fact_de": "Vom dritten Studioalbum des Duos 'Gute Reise' (2009), mit Adel Tawil. Platz 2 in Deutschland.",
+      "fun_fact_es": "Del tercer álbum del dúo 'Gute Reise' (2009), con Adel Tawil. #2 en Alemania.",
+      "fun_fact_fr": "Issu du troisième album du duo 'Gute Reise' (2009), avec Adel Tawil. 2e place en Allemagne.",
+      "fun_fact_nl": "Van het derde studioalbum 'Gute Reise' (2009) van het duo, met Adel Tawil. #2 in Duitsland.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [
+        "Gold (DE)"
+      ],
+      "chart_info": {
+        "german_peak": 2
+      }
+    },
+    {
+      "artist": "Bosse",
+      "title": "Dein Hurra",
+      "year": 2016,
+      "isrc": "DEUM71503731",
+      "uri": "spotify:track:1ge9r5XwpoZyogDkMOFE5m",
+      "uri_apple_music": "applemusic://track/1440987550",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1473480128",
+        "de": "applemusic://track/1440987550",
+        "gb": "applemusic://track/1440987550",
+        "fr": "applemusic://track/1440987550",
+        "es": "applemusic://track/1440987550",
+        "nl": "applemusic://track/1440987550",
+        "it": "applemusic://track/1440987550"
+      },
+      "uri_deezer": "deezer://track/118992732",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=yN_utJYmkIs",
+      "uri_tidal": null,
+      "alt_artists": [
+        "AnnenMayKantereit",
+        "Philipp Poisel",
+        "Johannes Oerding"
+      ],
+      "fun_fact": "From album 'Engtanz' (2014). The romantic indie-pop track reached #18 in Germany — a frequent first-dance choice at German weddings.",
+      "fun_fact_de": "Vom Album 'Engtanz' (2014). Der romantische Indie-Pop-Track erreichte Platz 18 in Deutschland — häufiger Hochzeits-Eröffnungstanz-Klassiker.",
+      "fun_fact_es": "Del álbum 'Engtanz' (2014). El tema indie-pop romántico llegó al #18 en Alemania — habitual para el primer baile en bodas alemanas.",
+      "fun_fact_fr": "Issu de l'album 'Engtanz' (2014). Le morceau indie-pop romantique a atteint la 18e place en Allemagne — souvent choisi pour la première danse aux mariages allemands.",
+      "fun_fact_nl": "Van het album 'Engtanz' (2014). De romantische indiepop-track haalde #18 in Duitsland — een veelgekozen openingsdans op Duitse bruiloften.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {
+        "german_peak": 18
+      }
+    },
+    {
+      "artist": "Faber",
+      "title": "Wem du's heute kannst besorgen",
+      "year": 2017,
+      "isrc": "DEUM71703505",
+      "uri": "spotify:track:44uSEFOc1en3qKCL7k2Lfq",
+      "uri_apple_music": "applemusic://track/1440884819",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1440884819",
+        "de": "applemusic://track/1440884819",
+        "gb": "applemusic://track/1440884819",
+        "fr": "applemusic://track/1440884819",
+        "es": "applemusic://track/1440884819",
+        "nl": "applemusic://track/1440884819",
+        "it": "applemusic://track/1440884819"
+      },
+      "uri_deezer": "deezer://track/378742231",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=qqK2iDkDehc",
+      "uri_tidal": null,
+      "alt_artists": [
+        "AnnenMayKantereit",
+        "Bosse",
+        "Casper"
+      ],
+      "fun_fact": "From debut album 'Sei ein Faber im Wind' (2017). The Swiss singer-songwriter's signature blunt, almost-uncomfortable lyric style became his signature.",
+      "fun_fact_de": "Vom Debütalbum 'Sei ein Faber im Wind' (2017). Der typisch schroffe, fast unangenehme Texttil des Schweizer Singer-Songwriters wurde zu seinem Markenzeichen.",
+      "fun_fact_es": "Del álbum debut 'Sei ein Faber im Wind' (2017). El estilo lírico contundente y casi incómodo del cantautor suizo se convirtió en su sello.",
+      "fun_fact_fr": "Issu du premier album 'Sei ein Faber im Wind' (2017). Le style brut, presque inconfortable, du chanteur suisse est devenu sa marque de fabrique.",
+      "fun_fact_nl": "Van het debuutalbum 'Sei ein Faber im Wind' (2017). De direct, bijna ongemakkelijke schrijfstijl van de Zwitserse singer-songwriter werd zijn handelsmerk.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {}
+    },
+    {
+      "artist": "Söhne Mannheims",
+      "title": "Und wenn ein Lied - Radio Edit",
+      "year": 2004,
+      "isrc": "DEP470400063",
+      "uri": "spotify:track:7CFr7KuO7CWuqxJ3PtByXC",
+      "uri_apple_music": "applemusic://track/1501749291",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1501749291",
+        "de": "applemusic://track/1501749291",
+        "gb": "applemusic://track/1501749291",
+        "fr": "applemusic://track/1501749291",
+        "es": "applemusic://track/1501749291",
+        "nl": "applemusic://track/1501749291",
+        "it": "applemusic://track/1501749291"
+      },
+      "uri_deezer": "deezer://track/896692912",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=gThzgyY29xk",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Xavier Naidoo",
+        "Cassandra Steen",
+        "Adel Tawil"
+      ],
+      "fun_fact": "From album 'Noiz' (2004). The 12-piece Mannheim collective featuring Xavier Naidoo became one of the most-played German wedding songs of the decade.",
+      "fun_fact_de": "Vom Album 'Noiz' (2004). Das 12-köpfige Mannheimer Kollektiv mit Xavier Naidoo lieferte einen der meistgespielten deutschen Hochzeitssongs des Jahrzehnts.",
+      "fun_fact_es": "Del álbum 'Noiz' (2004). El colectivo de 12 miembros de Mannheim con Xavier Naidoo entregó una de las canciones de boda alemanas más reproducidas de la década.",
+      "fun_fact_fr": "Issu de l'album 'Noiz' (2004). Le collectif de 12 membres de Mannheim avec Xavier Naidoo a livré l'un des plus grands tubes de mariage allemands de la décennie.",
+      "fun_fact_nl": "Van het album 'Noiz' (2004). Het 12-koppige collectief uit Mannheim met Xavier Naidoo leverde een van de meest gedraaide Duitse trouwliedjes van het decennium.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [
+        "Gold (DE)"
+      ],
+      "chart_info": {
+        "german_peak": 14
+      }
+    },
+    {
+      "artist": "Johannes Oerding",
+      "title": "Alles brennt",
+      "year": 2015,
+      "isrc": "DEE861400556",
+      "uri": "spotify:track:5KeR2J0sSem4BWYdcTW1Jf",
+      "uri_apple_music": "applemusic://track/937325767",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/937325767",
+        "de": "applemusic://track/937325767",
+        "gb": "applemusic://track/937325767",
+        "fr": "applemusic://track/937325767",
+        "es": "applemusic://track/937325767",
+        "nl": "applemusic://track/937325767",
+        "it": "applemusic://track/937325767"
+      },
+      "uri_deezer": "deezer://track/91985886",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=yt0FlrmJJn0",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Bosse",
+        "Tim Bendzko",
+        "Mark Forster"
+      ],
+      "fun_fact": "Title track from his fourth album (2015). Reached #11 in Germany and was Oerding's commercial breakthrough into mainstream radio.",
+      "fun_fact_de": "Titeltrack seines vierten Albums (2015). Platz 11 in Deutschland und Oerdings kommerzieller Durchbruch ins Mainstream-Radio.",
+      "fun_fact_es": "Tema título de su cuarto álbum (2015). #11 en Alemania — el despegue comercial de Oerding hacia la radio mainstream.",
+      "fun_fact_fr": "Morceau-titre de son quatrième album (2015). 11e place en Allemagne — la percée commerciale d'Oerding sur les radios mainstream.",
+      "fun_fact_nl": "Titeltrack van zijn vierde album (2015). #11 in Duitsland — Oerdings commerciële doorbraak naar de mainstream radio.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {
+        "german_peak": 11
+      }
+    },
+    {
+      "artist": "Jan Delay",
+      "title": "Klar",
+      "year": 2006,
+      "isrc": "DEUM70602183",
+      "uri": "spotify:track:01y4v0GVDAFwj9hjxTMshg",
+      "uri_apple_music": "applemusic://track/1442538210",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1442538210",
+        "de": "applemusic://track/1442538210",
+        "gb": "applemusic://track/1442538210",
+        "fr": "applemusic://track/1442538210",
+        "es": "applemusic://track/1442538210",
+        "nl": "applemusic://track/1442538210",
+        "it": "applemusic://track/1442538210"
+      },
+      "uri_deezer": "deezer://track/2443031",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=3JG6yipKXVA",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Peter Fox",
+        "Seeed",
+        "Samy Deluxe"
+      ],
+      "fun_fact": "From album 'Hammer & Michel' (2014). Reached #5 in Germany — Jan Delay's funk-rock direction after the soul phase of 'Wir Kinder vom Bahnhof Soul'.",
+      "fun_fact_de": "Vom Album 'Hammer & Michel' (2014). Platz 5 in Deutschland — Jan Delays Funk-Rock-Richtung nach der Soul-Phase von 'Wir Kinder vom Bahnhof Soul'.",
+      "fun_fact_es": "Del álbum 'Hammer & Michel' (2014). #5 en Alemania — el viraje funk-rock de Jan Delay tras la etapa soul de 'Wir Kinder vom Bahnhof Soul'.",
+      "fun_fact_fr": "Issu de l'album 'Hammer & Michel' (2014). 5e place en Allemagne — l'orientation funk-rock de Jan Delay après la phase soul de 'Wir Kinder vom Bahnhof Soul'.",
+      "fun_fact_nl": "Van het album 'Hammer & Michel' (2014). #5 in Duitsland — Jan Delays funk-rockrichting na de soulfase van 'Wir Kinder vom Bahnhof Soul'.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {
+        "german_peak": 5
+      }
+    },
+    {
+      "artist": "Clueso",
+      "title": "Keinen Zentimeter - Remastered 2014",
+      "year": 2008,
+      "isrc": "DEQV21400066",
+      "uri": "spotify:track:5v64DycnnkiEtJXiuObYhO",
+      "uri_apple_music": "applemusic://track/1509213900",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1509213900",
+        "de": "applemusic://track/1509213900",
+        "gb": "applemusic://track/1509213900",
+        "fr": "applemusic://track/1509213900",
+        "es": "applemusic://track/1509213900",
+        "nl": "applemusic://track/1509213900",
+        "it": "applemusic://track/1509213900"
+      },
+      "uri_deezer": "deezer://track/937020502",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=w-Ixfc84zi4",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Bosse",
+        "Andreas Bourani",
+        "Tim Bendzko"
+      ],
+      "fun_fact": "From album 'So sehr dabei' (2008). The Erfurt singer's most-covered fan-favorite track at his unplugged concerts.",
+      "fun_fact_de": "Vom Album 'So sehr dabei' (2008). Der bei Unplugged-Konzerten am häufigsten gecoverte Fan-Liebling des Erfurter Sängers.",
+      "fun_fact_es": "Del álbum 'So sehr dabei' (2008). El tema favorito de los fans del cantante de Erfurt, el más versionado en sus conciertos acústicos.",
+      "fun_fact_fr": "Issu de l'album 'So sehr dabei' (2008). Le morceau préféré des fans du chanteur d'Erfurt, le plus repris lors de ses concerts unplugged.",
+      "fun_fact_nl": "Van het album 'So sehr dabei' (2008). De fan-favoriet van de Erfurt-zanger, op zijn unplugged-concerten het vaakst gecoverd.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {}
+    },
+    {
+      "artist": "Blümchen",
+      "title": "Herz an Herz",
+      "year": 1996,
+      "isrc": "DEBL60605223",
+      "uri": "spotify:track:1X7654uBsdVKnZAqyIJT7y",
+      "uri_apple_music": "applemusic://track/209728551",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/209983089",
+        "de": "applemusic://track/209983089",
+        "gb": "applemusic://track/209983089",
+        "fr": "applemusic://track/209983089",
+        "es": "applemusic://track/209983089",
+        "nl": "applemusic://track/209983089",
+        "it": "applemusic://track/209983089"
+      },
+      "uri_youtube_music": "https://music.youtube.com/watch?v=PLHXrEPwk58",
+      "uri_tidal": null,
+      "uri_deezer": "deezer://track/2888227",
+      "alt_artists": [],
+      "fun_fact": "Jasmin Wagner's bubblegum-Eurodance debut launched one of Germany's biggest teen-pop careers.",
+      "fun_fact_de": "Jasmin Wagners Bubblegum-Eurodance-Debüt startete eine der größten deutschen Teenie-Pop-Karrieren.",
+      "fun_fact_es": "El debut bubblegum-Eurodance de Jasmin Wagner lanzó una de las mayores carreras teen pop de Alemania.",
+      "fun_fact_fr": "Les débuts bubblegum-Eurodance de Jasmin Wagner ont lancé l'une des plus grandes carrières teen pop allemandes.",
+      "fun_fact_nl": "Jasmin Wagners bubblegum-eurodancedebuut lanceerde een van Duitslands grootste teenpopcarrières.",
+      "chart_info": "",
+      "certifications": "",
+      "awards": "",
+      "awards_nl": ""
+    },
+    {
+      "artist": "Die Prinzen",
+      "title": "Alles nur geklaut",
+      "year": 1993,
+      "isrc": "DEC739300092",
+      "uri": "spotify:track:3tAxxTsJrq5t8dYrCbaz4b",
+      "uri_apple_music": "applemusic://track/1675303813",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1675303813",
+        "de": "applemusic://track/1675303813",
+        "gb": "applemusic://track/1675303813",
+        "fr": "applemusic://track/1675303813",
+        "es": "applemusic://track/1675303813",
+        "nl": "applemusic://track/1675303813",
+        "it": "applemusic://track/1675303813"
+      },
+      "uri_youtube_music": "https://music.youtube.com/watch?v=O5B73JFV5cI",
+      "uri_tidal": null,
+      "uri_deezer": "deezer://track/3808712202",
+      "alt_artists": [],
+      "fun_fact": "The Leipzig band's witty hit declaring that everything is 'only stolen'.",
+      "fun_fact_de": "Der witzige Hit der Leipziger Band mit der Erkenntnis, dass alles 'nur geklaut' ist.",
+      "fun_fact_es": "El ingenioso éxito de la banda de Leipzig que declara que todo está 'solo robado'.",
+      "fun_fact_fr": "Le tube spirituel du groupe de Leipzig déclarant que tout est « seulement volé ».",
+      "fun_fact_nl": "De gevatte hit van de band uit Leipzig met de stelling dat alles 'maar gestolen' is.",
+      "chart_info": "",
+      "certifications": "",
+      "awards": "",
+      "awards_nl": ""
+    },
+    {
+      "artist": "Mo-Do",
+      "title": "Eins Zwei Polizei",
+      "year": 1994,
+      "isrc": "IT00G9430171",
+      "uri": "spotify:track:015p8TgFahkz0viuux9YGJ",
+      "uri_apple_music": "applemusic://track/1785257771",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1763323401",
+        "de": "applemusic://track/1763323401",
+        "gb": "applemusic://track/1763323401",
+        "fr": "applemusic://track/1763323401",
+        "es": "applemusic://track/1763323401",
+        "nl": "applemusic://track/1763323401",
+        "it": "applemusic://track/1763323401"
+      },
+      "uri_youtube_music": "https://music.youtube.com/watch?v=xeJ3LDWfRuE",
+      "uri_tidal": null,
+      "uri_deezer": "deezer://track/2953000121",
+      "alt_artists": [],
+      "fun_fact": "An Italian producer's German-language Eurodance novelty that became a continent-wide hit.",
+      "fun_fact_de": "Eine deutschsprachige Eurodance-Novelty eines italienischen Produzenten — ein europaweiter Hit.",
+      "fun_fact_es": "Una rareza Eurodance en alemán de un productor italiano que arrasó en toda Europa.",
+      "fun_fact_fr": "Une curiosité Eurodance en allemand d'un producteur italien devenue un tube européen.",
+      "fun_fact_nl": "Een Duitstalige eurodance-novelty van een Italiaanse producer die een Europese hit werd.",
+      "chart_info": "",
+      "certifications": "",
+      "awards": "",
+      "awards_nl": ""
+    },
+    {
+      "artist": "K2",
+      "title": "Der Berg ruft",
+      "year": 1994,
+      "isrc": "DEA609400474",
+      "uri": "spotify:track:05Ve4JwjmSoeItaP8QaOgl",
+      "uri_apple_music": "applemusic://track/1761382252",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1761382252",
+        "de": "applemusic://track/1761382252",
+        "gb": "applemusic://track/1761382252",
+        "fr": "applemusic://track/1761382252",
+        "es": "applemusic://track/1761382252",
+        "nl": "applemusic://track/1761382252",
+        "it": "applemusic://track/1761382252"
+      },
+      "uri_youtube_music": "https://music.youtube.com/watch?v=Z0aQxOOMCjw",
+      "uri_tidal": null,
+      "uri_deezer": "deezer://track/2935831211",
+      "alt_artists": [],
+      "fun_fact": "A German-language après-ski party anthem, a fixture of winter-holiday playlists.",
+      "fun_fact_de": "Eine deutschsprachige Après-Ski-Partyhymne — fester Bestandteil jeder Winterurlaubs-Playlist.",
+      "fun_fact_es": "Un himno fiestero après-ski en alemán, fijo en las listas de vacaciones de invierno.",
+      "fun_fact_fr": "Un hymne festif après-ski en allemand, incontournable des playlists de vacances d'hiver.",
+      "fun_fact_nl": "Een Duitstalige après-ski-feesthymne, een vaste waarde op wintervakantieplaylists.",
+      "chart_info": "",
+      "certifications": "",
+      "awards": "",
+      "awards_nl": ""
+    },
+    {
+      "artist": "Falco",
+      "title": "Out Of The Dark",
+      "year": 1998,
+      "isrc": "DEA349701888",
+      "uri": "spotify:track:0SyZsETwgulpY87VZJtfdZ",
+      "uri_apple_music": "applemusic://track/714062883",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/6767693251",
+        "de": "applemusic://track/6767693251",
+        "gb": "applemusic://track/6767693251",
+        "fr": "applemusic://track/6767693251",
+        "es": "applemusic://track/6767693251",
+        "nl": "applemusic://track/6767693251",
+        "it": "applemusic://track/6767693251"
+      },
+      "uri_youtube_music": "https://music.youtube.com/watch?v=Xs-BMEw_cRY",
+      "uri_tidal": null,
+      "uri_deezer": "deezer://track/13569299",
+      "alt_artists": [],
+      "fun_fact": "Released months after Falco's death, the dark ballad became a posthumous number one.",
+      "fun_fact_de": "Monate nach Falcos Tod veröffentlicht, wurde die düstere Ballade ein posthumer Nummer-eins-Hit.",
+      "fun_fact_es": "Publicada meses después de la muerte de Falco, la oscura balada llegó póstumamente al número uno.",
+      "fun_fact_fr": "Sortie des mois après la mort de Falco, la sombre ballade est devenue un numéro un posthume.",
+      "fun_fact_nl": "Maanden na Falco's dood uitgebracht werd de duistere ballad een postume nummer één.",
+      "chart_info": "",
+      "certifications": "",
+      "awards": "",
+      "awards_nl": ""
+    },
+    {
+      "artist": "EAV (Erste Allgemeine Verunsicherung)",
+      "title": "Ding Dong",
+      "year": 1990,
+      "isrc": "ATB792030303",
+      "uri": "spotify:track:75A3w3uEqc2frjzHA1KUMt",
+      "uri_apple_music": "applemusic://track/1675989383",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1675989383",
+        "de": "applemusic://track/1675989383",
+        "gb": "applemusic://track/1675989383",
+        "fr": "applemusic://track/1675989383",
+        "es": "applemusic://track/1675989383",
+        "nl": "applemusic://track/1675989383",
+        "it": "applemusic://track/1675989383"
+      },
+      "uri_youtube_music": "https://music.youtube.com/watch?v=qh7cf9Wpk2w",
+      "uri_tidal": null,
+      "uri_deezer": "deezer://track/1760748167",
+      "fun_fact": "A chart hit by EAV (Erste Allgemeine Verunsicherung) (1990).",
+      "fun_fact_de": "Ein Chart-Hit von EAV (Erste Allgemeine Verunsicherung) (1990).",
+      "fun_fact_es": "Un éxito de EAV (Erste Allgemeine Verunsicherung) (1990).",
+      "fun_fact_fr": "Un tube de EAV (Erste Allgemeine Verunsicherung) (1990).",
+      "fun_fact_nl": "Een chart-hit van EAV (Erste Allgemeine Verunsicherung) (1990)."
+    },
+    {
+      "artist": "Die Orsons",
+      "title": "Schwung in die Kiste",
+      "year": 2015,
+      "isrc": "DEUM71403809",
+      "uri": "spotify:track:1d0LKskvREPlQfBanvabh8",
+      "uri_apple_music": "applemusic://track/1443399430",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1443399430",
+        "de": "applemusic://track/1443399430",
+        "gb": "applemusic://track/1443399430",
+        "fr": "applemusic://track/1443399430",
+        "es": "applemusic://track/1443399430",
+        "nl": "applemusic://track/1443399430",
+        "it": "applemusic://track/1443399430"
+      },
+      "uri_deezer": "deezer://track/95965268",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=6_7qL92z3pA",
+      "uri_tidal": null,
+      "alt_artists": [
+        "Die Fantastischen Vier",
+        "Kraftklub",
+        "Marteria",
+        "Casper"
+      ],
+      "fun_fact": "Stand-out track from Die Orsons' 2015 album 'What's Goes?' on Chimperator. The Stuttgart hip-hop collective behind it — Tua, KAAS, Bartek and Maeckes — all went on to successful solo careers, but this brass-driven sing-along stayed a festival staple and one of the album's signature singles.",
+      "fun_fact_de": "Markante Single aus dem 2015er Album 'What's Goes?' der Stuttgarter Crew Die Orsons (Chimperator). Tua, KAAS, Bartek und Maeckes machten danach alle solo Karriere — der Bläser-getriebene Mitsing-Refrain blieb aber ein Festival-Klassiker und einer der prägenden Hits des Albums.",
+      "fun_fact_es": "Tema destacado del álbum 'What's Goes?' (2015) de Die Orsons en el sello Chimperator. El cuarteto de Stuttgart — Tua, KAAS, Bartek y Maeckes — siguió luego con exitosas carreras en solitario, pero este pegadizo himno con vientos se mantuvo como un fijo de los festivales.",
+      "fun_fact_fr": "Morceau emblématique de l'album 'What's Goes?' (2015) du collectif hip-hop de Stuttgart Die Orsons (label Chimperator). Tua, KAAS, Bartek et Maeckes ont tous mené ensuite des carrières solos, mais ce refrain à cuivres reste un classique des festivals.",
+      "fun_fact_nl": "Stand-outtrack van het album 'What's Goes?' (2015) van Die Orsons (label Chimperator). De Stuttgartse hiphopcrew — Tua, KAAS, Bartek en Maeckes — ging daarna solo, maar deze blazergedreven meezinger bleef een vaste waarde op zomerfestivals.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [],
+      "chart_info": {}
+    }
+  ]
+}

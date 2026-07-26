@@ -1,4 +1,4 @@
-"""Tado CE Insight sensors — actionable home + per-zone recommendations."""
+"""Tado CE Insight sensors: actionable home + per-zone recommendations."""
 
 from __future__ import annotations
 
@@ -28,7 +28,7 @@ from .format_helpers import (
 from .format_helpers import (
     format_priority as _format_priority,
 )
-from .helpers import get_zone_state
+from .helpers import PerEntityAvailabilityMixin, get_zone_state
 from .insights_models import Insight
 from .insights_presenter import (
     aggregate_home_insights,
@@ -123,7 +123,7 @@ def _enhance_recommendation_with_duration(
     return f"{zone_prefix}{_enhance_generic_duration(action, insight_type, days, day_label)}"
 
 
-class TadoHomeInsightsSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], SensorEntity):
+class TadoHomeInsightsSensor(PerEntityAvailabilityMixin, CoordinatorEntity["TadoDataUpdateCoordinator"], SensorEntity):
     """Hub-level sensor aggregating actionable insights from all zones (state = active insight count)."""
 
     _attr_has_entity_name = True
@@ -136,11 +136,11 @@ class TadoHomeInsightsSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], Sen
         self._attr_unique_id = f"tado_ce_{coordinator.home_id}_{_meta.unique_id_suffix}"
         self._attr_device_info = get_hub_device_info(coordinator.home_id)
         self._attr_entity_category = get_entity_category(_meta)
-        self._attr_available = False
+        self._data_present = False
         self._attr_native_value = 0
         self._aggregated: dict[str, Any] = {}
         self._health_score: int = 100
-        # Weekly digest cache — recompute only when date changes
+        # Weekly digest cache: recompute only when date changes
         self._weekly_digest: str = ""
         self._weekly_digest_date: str = ""
         # Escalated priority map for persistent_insights rendering
@@ -276,17 +276,17 @@ class TadoHomeInsightsSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], Sen
             self._cached_attrs = attrs
 
             self._attr_native_value = len(self._aggregated.get("actions_needed", []))
-            self._attr_available = True
+            self._data_present = True
         except Exception as e:
             _LOGGER.debug(
-                "Insight Sensor: home insights update failed (%s) — "
+                "Insight Sensor: home insights update failed (%s), "
                 "marking unavailable until the next poll",
                 e,
             )
-            self._attr_available = False
+            self._data_present = False
 
 
-class TadoZoneInsightsSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], SensorEntity):
+class TadoZoneInsightsSensor(PerEntityAvailabilityMixin, CoordinatorEntity["TadoDataUpdateCoordinator"], SensorEntity):
     """Per-zone sensor showing actionable insights for a single zone (state = active insight count)."""
 
     _attr_has_entity_name = True
@@ -302,7 +302,7 @@ class TadoZoneInsightsSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], Sen
         self._attr_unique_id = f"tado_ce_{coordinator.home_id}_{_meta.unique_id_suffix.format(zone_id=zone_id)}"
         self._attr_device_info = get_zone_device_info(zone_id, zone_name, zone_type, coordinator.home_id)
         self._attr_entity_category = get_entity_category(_meta)
-        self._attr_available = False
+        self._data_present = False
         self._attr_native_value = 0
         self._insights: list[Any] = []
 
@@ -340,7 +340,7 @@ class TadoZoneInsightsSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], Sen
             coord_data = self.coordinator.data or {}
             zone_data = get_zone_state(coord_data, self._zone_id)
             if not zone_data:
-                self._attr_available = False
+                self._data_present = False
                 return
 
             # Read pre-computed insights from coordinator cache instead of
@@ -366,11 +366,11 @@ class TadoZoneInsightsSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], Sen
                     )
 
             self._attr_native_value = len(self._insights)
-            self._attr_available = True
+            self._data_present = True
         except Exception as e:
             _LOGGER.debug(
                 "Insight Sensor: zone %s insights update failed (%s) "
-                "— marking unavailable until the next poll",
+                ", marking unavailable until the next poll",
                 self._zone_name, e,
             )
-            self._attr_available = False
+            self._data_present = False

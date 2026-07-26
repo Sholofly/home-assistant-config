@@ -1,11 +1,11 @@
-"""Bridge API field enrichment registry — known field metadata mappings."""
+"""Bridge API field enrichment registry: known field metadata mappings."""
 
 from __future__ import annotations
 
 from .bridge_discovery import FieldEnrichment
 
 # ---------------------------------------------------------------------------
-# Enrichment registry — key is dot-notation field path
+# Enrichment registry: key is dot-notation field path
 # ---------------------------------------------------------------------------
 
 FIELD_ENRICHMENT: dict[str, FieldEnrichment] = {
@@ -93,7 +93,7 @@ FIELD_ENRICHMENT: dict[str, FieldEnrichment] = {
 }
 
 # ---------------------------------------------------------------------------
-# Backward compatibility — old unique_id_suffix -> field path
+# Backward compatibility: old unique_id_suffix -> field path
 # ---------------------------------------------------------------------------
 
 LEGACY_UNIQUE_ID_MAP: dict[str, str] = {

@@ -1,9 +1,13 @@
-"""Tado CE shared helpers — masking, retry delay, datetime parsing, overlay termination, refresh trigger.
+"""Tado CE shared helpers: masking, retry delay, datetime parsing, overlay termination, refresh trigger.
 
 Pure functions used across the integration. The masking
 helpers (`mask_serial`, `mask_serial_dict`, `mask_home_id`)
-exist to keep PII out of shipped logs — every emit referring
+exist to keep PII out of shipped logs, every emit referring
 to a device serial / home_id should route through them.
+
+Also hosts `PerEntityAvailabilityMixin`, the one shared entity mixin
+that lets a `CoordinatorEntity` subclass surface its own data presence
+through `available` instead of only the coordinator's poll status.
 """
 
 from __future__ import annotations
@@ -15,16 +19,33 @@ import logging
 import random
 from typing import TYPE_CHECKING, Any
 
-from .const import MAX_RETRY_ATTEMPTS, MAX_RETRY_DELAY, OVERLAY_MODE_DEFAULT, RETRY_BASE_DELAY, TIMER_DURATION_DEFAULT
+from .const import (
+    MAX_RETRY_ATTEMPTS,
+    MAX_RETRY_DELAY,
+    OVERLAY_MODE_DEFAULT,
+    OVERLAY_MODE_MANUAL,
+    RETRY_BASE_DELAY,
+    TIMER_DURATION_DEFAULT,
+)
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
+    from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
     from .coordinator import TadoDataUpdateCoordinator
 
+    # PerEntityAvailabilityMixin is only ever mixed into a CoordinatorEntity, whose
+    # `available` property it composes with `super()`. Declaring that host shape
+    # here (type-check only) lets mypy --strict resolve `super().available`; at
+    # runtime the mixin stays a plain object so it adds nothing to the MRO but its
+    # own `available`.
+    _AvailabilityHost = CoordinatorEntity[Any]
+else:
+    _AvailabilityHost = object
+
 _LOGGER = logging.getLogger(__name__)
 
-# Serial number masking — keep prefix + first few chars for debugging, mask the rest.
+# Serial number masking: keep prefix + first few chars for debugging, mask the rest.
 # Bridge serials (IB...) are especially sensitive: combined with the 4-digit auth
 # code printed on the bridge, a full serial in shared logs enables brute-force.
 _SERIAL_VISIBLE_CHARS: int = 6
@@ -46,7 +67,7 @@ def mask_serial_dict(d: dict[str, str]) -> dict[str, str]:
     return {mask_serial(k): v for k, v in d.items()}
 
 
-# Tado home_id is a numeric per-account identifier — not strictly secret
+# Tado home_id is a numeric per-account identifier, not strictly secret
 # (Tado's own logs already contain it) but identifies one user's home,
 # so we mask it in shipped log output. Multi-home users still get a
 # stable, distinguishable shape in their logs.
@@ -66,6 +87,25 @@ def mask_home_id(home_id: str | int | None) -> str:
     if len(s) <= _HOME_ID_VISIBLE_CHARS:
         return s
     return s[:_HOME_ID_VISIBLE_CHARS] + "…"
+
+
+class PerEntityAvailabilityMixin(_AvailabilityHost):
+    """Compose per-entity data presence with coordinator availability.
+
+    ``CoordinatorEntity.available`` reports only ``coordinator.last_update_success``
+    and shadows ``Entity._attr_available`` via the MRO, so a subclass that tracks
+    its own data presence never surfaces it. Subclasses set ``self._data_present``
+    in their update path; this mixin ANDs it with the coordinator's availability so
+    a per-entity data gap reads as unavailable while a coordinator failure still
+    wins. List this mixin FIRST in the bases so it owns ``available``.
+    """
+
+    _data_present: bool = False
+
+    @property
+    def available(self) -> bool:
+        """Return True only if the coordinator is healthy and this entity has data."""
+        return super().available and self._data_present
 
 
 def get_zone_states(coord_data: dict[str, Any] | None) -> dict[str, dict[str, Any]]:
@@ -118,18 +158,21 @@ def merge_homekit_into_zone_data(
         sensor_data = (zone_data.get("sensorDataPoints") or {}).copy()
         cloud_temp = (sensor_data.get("insideTemperature") or {}).get("celsius")
         cloud_humidity = (sensor_data.get("humidity") or {}).get("percentage")
-        merged_temp, temp_src = reconciler.merge_zone_temperature(zone_id, cloud_temp)
+        # purpose="control": Smart Valve Control reads this merged
+        # insideTemperature as its calibration reference, so a per-zone
+        # display-source preference must NOT bend it.
+        merged_temp, temp_src = reconciler.merge_zone_temperature(zone_id, cloud_temp, purpose="control")
         merged_hum, hum_src = reconciler.merge_zone_humidity(zone_id, cloud_humidity)
         if merged_temp is not None:
             sensor_data.setdefault("insideTemperature", {})["celsius"] = merged_temp
         if merged_hum is not None:
             sensor_data.setdefault("humidity", {})["percentage"] = merged_hum
-        # Only log when the merge actually changed something —
+        # Only log when the merge actually changed something,
         # otherwise multi-zone homes would emit a debug line per
         # zone per poll for no signal.
         if cloud_temp != merged_temp or cloud_humidity != merged_hum:
             _LOGGER.debug(
-                "Helpers: zone %s merge — temp %s → %s (%s), "
+                "Helpers: zone %s merge, temp %s → %s (%s), "
                 "humidity %s → %s (%s)",
                 zone_id, cloud_temp, merged_temp, temp_src,
                 cloud_humidity, merged_hum, hum_src,
@@ -138,7 +181,7 @@ def merge_homekit_into_zone_data(
         result["sensorDataPoints"] = sensor_data
     except (TypeError, ValueError, AttributeError):
         _LOGGER.debug(
-            "Helpers: HomeKit merge failed for zone %s — falling "
+            "Helpers: HomeKit merge failed for zone %s, falling "
             "back to cloud-only zone data for this poll",
             zone_id, exc_info=True,
         )
@@ -147,61 +190,58 @@ def merge_homekit_into_zone_data(
         return result
 
 
-# Tado API only accepts: MANUAL, TADO_MODE, TIMER
+# Backwards-compat alias for the `next_time_block` SERVICE argument only.
+# NEXT_TIME_BLOCK is not a valid overlay mode, the /api/v2 overlay endpoint
+# rejects a literal NEXT_TIME_BLOCK with HTTP 422. A user passing
+# overlay="next_time_block" to a service call still means "end at the next
+# automatic change", which is TADO_MODE, so we keep this one mapping to honour
+# that intent.
 _OVERLAY_API_MAP: dict[str, str] = {
     "NEXT_TIME_BLOCK": "TADO_MODE",
 }
 
 
 def _map_overlay_to_api(mode: str) -> str:
-    """Map internal overlay mode to Tado API-accepted value."""
+    """Map a legacy service-arg overlay value to its Tado API-accepted value."""
     return _OVERLAY_API_MAP.get(mode, mode)
 
 
 def should_use_homekit_for_overlay(hass: HomeAssistant, zone_id: str, entry_id: str | None = None) -> bool:
-    """Check if HomeKit local write is safe for this zone's overlay mode.
+    """Return True when a HomeKit local write is safe for this zone's overlay mode.
 
-    HomeKit writes don't carry overlay termination information — the TRV just
-    turns on/off and Tado's servers decide the termination type. This is only
-    correct when the user's overlay mode is "Tado Default" (TADO_MODE), because
-    that's exactly what Tado's servers would do anyway.
+    HomeKit writes carry no termination, the bridge sets only the TRV's target
+    state and Tado stamps a MANUAL overlay on any local-origin write. So HomeKit
+    is only correct when the chosen overlay mode IS MANUAL. TADO_MODE ("until
+    next automatic change") and TIMER need the explicit termination sent through
+    the cloud API.
 
-    For any other overlay mode (Manual, Next Time Block, Timer), we must use
-    the cloud API so the explicit termination type is sent with the request.
-
-    Returns True if HomeKit is safe to use, False if cloud API is required.
+    Resolves the per-zone overlay mode first, then the global mode. Returns
+    True only when the effective mode is MANUAL; False otherwise. With no
+    entry_id (or on a lookup error) falls back to the integration default.
     """
-    # Check per-zone overlay mode first, then global
-    if entry_id:
-        try:
-            coordinator = _get_coordinator(hass, entry_id)
-            if coordinator and coordinator.zone_config_manager:
-                zone_mode = coordinator.zone_config_manager.get_zone_value(
-                    zone_id, "overlay_mode", None,
-                )
-                # Per-zone override takes priority
-                if zone_mode and zone_mode != OVERLAY_MODE_DEFAULT:
-                    _LOGGER.debug(
-                        "Helpers: zone %s using per-zone overlay "
-                        "mode %s — routing this write through the "
-                        "cloud API so the termination type is "
-                        "respected",
-                        zone_id, zone_mode,
-                    )
-                    return False
+    if not entry_id:
+        return OVERLAY_MODE_DEFAULT == OVERLAY_MODE_MANUAL
 
-            if coordinator:
-                global_mode = coordinator.overlay_mode or OVERLAY_MODE_DEFAULT
-                if global_mode != OVERLAY_MODE_DEFAULT:
-                    _LOGGER.debug(
-                        "Helpers: global overlay mode is %s — "
-                        "routing this write through the cloud API "
-                        "so the termination type is respected",
-                        global_mode,
-                    )
-                    return False
-        except (AttributeError, TypeError):
-            pass
+    try:
+        coordinator = _get_coordinator(hass, entry_id)
+        if coordinator is None:
+            return OVERLAY_MODE_DEFAULT == OVERLAY_MODE_MANUAL
+
+        mode = None
+        if coordinator.zone_config_manager:
+            mode = coordinator.zone_config_manager.get_zone_value(zone_id, "overlay_mode", None)
+        if not mode:
+            mode = coordinator.overlay_mode or OVERLAY_MODE_DEFAULT
+
+        if mode != OVERLAY_MODE_MANUAL:
+            _LOGGER.debug(
+                "Helpers: zone %s overlay mode is %s (not MANUAL), routing this "
+                "write through the cloud API so the termination is honoured",
+                zone_id, mode,
+            )
+            return False
+    except (AttributeError, TypeError):
+        return OVERLAY_MODE_DEFAULT == OVERLAY_MODE_MANUAL
 
     return True
 
@@ -268,18 +308,10 @@ def _get_coordinator(hass: HomeAssistant, entry_id: str) -> TadoDataUpdateCoordi
 def parse_iso_datetime(iso_str: str) -> datetime:
     """Parse an ISO 8601 datetime string to a timezone-aware UTC datetime.
 
-    Python 3.11+ ``fromisoformat`` handles 'Z' suffix natively.
     Naive datetimes (no tzinfo) are assumed UTC.
-
-    Args:
-        iso_str: ISO 8601 datetime string.
-
-    Returns:
-        Timezone-aware datetime in UTC.
 
     Raises:
         ValueError: If the string cannot be parsed as ISO 8601.
-
     """
     dt = datetime.fromisoformat(iso_str)
     if dt.tzinfo is None:
@@ -316,14 +348,14 @@ async def async_trigger_immediate_refresh(
                 )
                 return
         _LOGGER.warning(
-            "Helpers: no refresh handler found for %s — refresh "
+            "Helpers: no refresh handler found for %s, refresh "
             "request silently dropped, will retry on the next "
             "coordinator poll",
             entity_id,
         )
     except (KeyError, TypeError, ValueError) as e:
         _LOGGER.warning(
-            "Helpers: immediate refresh trigger failed (%s) — "
+            "Helpers: immediate refresh trigger failed (%s), "
             "refresh request silently dropped, will retry on the "
             "next coordinator poll",
             e,
@@ -347,7 +379,7 @@ def get_optimistic_window(hass: HomeAssistant, entry_id: str | None = None) -> f
     except (AttributeError, TypeError, ValueError) as err:
         _LOGGER.debug(
             "Helpers: optimistic window read from config failed "
-            "(%s) — falling back to default %.1fs",
+            "(%s), falling back to default %.1fs",
             err, DEFAULT_OPTIMISTIC_WINDOW_SECONDS,
         )
     return DEFAULT_OPTIMISTIC_WINDOW_SECONDS
@@ -362,7 +394,7 @@ def get_overlay_termination(hass: HomeAssistant, entry_id: str | None = None) ->
 
     Returns:
         {"type": "TADO_MODE"} or {"type": "MANUAL"} or {"type": "TIMER", "durationInSeconds": ...}
-        Note: Tado API only accepts MANUAL, TADO_MODE, TIMER (not NEXT_TIME_BLOCK)
+        The /api/v2 overlay endpoint accepts MANUAL, TADO_MODE, TIMER.
 
     """
     mode = OVERLAY_MODE_DEFAULT
@@ -445,7 +477,10 @@ def build_timer_termination(
     4. fallback → per-zone overlay termination
     """
     if duration_minutes:
-        return {"type": "TIMER", "durationInSeconds": duration_minutes * 60}
+        from .const import TIMER_DURATION_MAX, TIMER_DURATION_MIN
+
+        clamped = max(TIMER_DURATION_MIN, min(int(duration_minutes), TIMER_DURATION_MAX))
+        return {"type": "TIMER", "durationInSeconds": clamped * 60}
 
     if overlay:
         overlay_upper = overlay.upper()
@@ -470,8 +505,8 @@ def prune_zone_keyed_dict(
     """Drop entries whose zone_id is no longer in current_zones; return removed count.
 
     Recognised key shapes:
-    - "zone_id"           — DataLoader dict stores
-    - "zone_id:entity"    — state_restore key shape (split on first colon)
+    - "zone_id":           DataLoader dict stores
+    - "zone_id:entity":    state_restore key shape (split on first colon)
     """
     to_drop = {k for k in d if k.split(":", 1)[0] not in current_zones}
     for k in to_drop:
@@ -481,7 +516,7 @@ def prune_zone_keyed_dict(
 
 def retry_after_to_minutes(seconds: int) -> str:
     """Format retry-after seconds as minute count for user-facing messages."""
-    # WHY: floor at 1 — a 30-second cooldown still reads "Try again in 1 min."
+    # WHY: floor at 1, a 30-second cooldown still reads "Try again in 1 min."
     return str(max(1, seconds // 60))
 
 

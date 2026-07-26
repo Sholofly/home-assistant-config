@@ -1,4 +1,4 @@
-"""Tado CE optimistic state management — 3-layer stale data defense.
+"""Tado CE optimistic state management: 3-layer stale data defense.
 
 Layer 1: Time-window freshness (_optimistic_set_at)
 Layer 2: Sequence numbers (_optimistic_sequence)
@@ -85,7 +85,7 @@ async def set_optimistic_fields(
     await coordinator.mark_entity_fresh(entity.entity_id)  # type: ignore[attr-defined]
 
     _LOGGER.debug(
-        "%s: optimistic update set — expected=%s, seq=%s",
+        "%s: optimistic update set, expected=%s, seq=%s",
         getattr(entity, "_zone_name", entity.entity_id),  # type: ignore[attr-defined]
         expected,
         entity._optimistic_sequence,  # type: ignore[attr-defined]
@@ -136,13 +136,13 @@ def resolve_optimistic_update(
 
         if all_confirmed:
             _LOGGER.debug(
-                "%s: API confirmed optimistic state — clearing tracking",
+                "%s: API confirmed optimistic state, clearing tracking",
                 getattr(entity, "_zone_name", getattr(entity, "entity_id", "?")),
             )
             clear_optimistic_state(entity)
             return OptimisticUpdateResult.ACCEPT_API
 
-        # Window elapsed without confirmation — the write likely
+        # Window elapsed without confirmation: the write likely
         # failed silently, so accept API state to avoid the entity
         # getting stuck on a value Tado never agreed to.
         hass: HomeAssistant | None = getattr(entity, "hass", None)
@@ -150,7 +150,7 @@ def resolve_optimistic_update(
             hass, set_at, entry_id=entry_id,  # type: ignore[arg-type]
         ):
             _LOGGER.warning(
-                "%s: optimistic window expired without API confirmation — "
+                "%s: optimistic window expired without API confirmation, "
                 "accepting Tado's reported state",
                 getattr(entity, "_zone_name", getattr(entity, "entity_id", "?")),
             )
@@ -158,16 +158,16 @@ def resolve_optimistic_update(
             return OptimisticUpdateResult.EXPIRED
 
         _LOGGER.debug(
-            "%s: preserving optimistic state — API has not yet confirmed",
+            "%s: preserving optimistic state. API has not yet confirmed",
             getattr(entity, "_zone_name", getattr(entity, "entity_id", "?")),
         )
         return OptimisticUpdateResult.PRESERVE_OPTIMISTIC
 
-    # Time-window fallback (entity has no sequence — e.g. some switches).
+    # Time-window fallback (entity has no sequence, e.g. some switches).
     hass = getattr(entity, "hass", None)
     if hass and is_within_optimistic_window(hass, set_at, entry_id=entry_id):
         _LOGGER.debug(
-            "%s: preserving optimistic state — still inside time window",
+            "%s: preserving optimistic state, still inside time window",
             getattr(entity, "_zone_name", getattr(entity, "entity_id", "?")),
         )
         return OptimisticUpdateResult.PRESERVE_OPTIMISTIC

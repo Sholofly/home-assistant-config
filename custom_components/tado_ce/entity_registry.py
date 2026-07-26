@@ -1,4 +1,4 @@
-"""Tado CE Central Entity Registry — single source of truth for entity metadata."""
+"""Tado CE Central Entity Registry: single source of truth for entity metadata."""
 
 from __future__ import annotations
 
@@ -22,14 +22,14 @@ class EntityMeta:
 
 
 # ---------------------------------------------------------------------------
-# Registry — keyed by "{platform}_{translation_key}"
+# Registry: keyed by "{platform}_{translation_key}"
 # unique_id_suffix does NOT include the "tado_ce_{home_id}_" prefix.
 # Entity classes construct the full unique_id at runtime.
 # ---------------------------------------------------------------------------
 
 ENTITY_REGISTRY: dict[str, EntityMeta] = {
     # ===================================================================
-    # Hub Sensors (sensor_hub.py) — 12 entries, all DIAGNOSTIC
+    # Hub Sensors (sensor_hub.py): 12 entries, all DIAGNOSTIC
     # ===================================================================
     "sensor_home_id": EntityMeta(
         translation_key="home_id",
@@ -109,7 +109,7 @@ ENTITY_REGISTRY: dict[str, EntityMeta] = {
         enabled_default=False,
     ),
     # ===================================================================
-    # Weather Sensors (sensor_weather.py) — 3 entries, all DIAGNOSTIC
+    # Weather Sensors (sensor_weather.py): 3 entries, all DIAGNOSTIC
     # ===================================================================
     "sensor_outside_temp": EntityMeta(
         translation_key="outside_temp",
@@ -133,7 +133,7 @@ ENTITY_REGISTRY: dict[str, EntityMeta] = {
         feature_group="weather",
     ),
     # ===================================================================
-    # Zone Core Sensors (sensor_zone.py) — 7 entries + 1 hot water power
+    # Zone Core Sensors (sensor_zone.py): 7 entries + 1 hot water power
     # ===================================================================
     "sensor_temperature": EntityMeta(
         translation_key="temperature",
@@ -179,7 +179,7 @@ ENTITY_REGISTRY: dict[str, EntityMeta] = {
         icon="mdi:calendar-clock",
     ),
     # ===================================================================
-    # Smart Comfort Sensors (sensor_smart_comfort.py) — 5 entries
+    # Smart Comfort Sensors (sensor_smart_comfort.py): 5 entries
     # ===================================================================
     "sensor_schedule_deviation": EntityMeta(
         translation_key="schedule_deviation",
@@ -217,7 +217,7 @@ ENTITY_REGISTRY: dict[str, EntityMeta] = {
         feature_group="smart_comfort",
     ),
     # ===================================================================
-    # Environment Sensors (sensor_environment.py) — 6 entries, all DIAGNOSTIC
+    # Environment Sensors (sensor_environment.py): 6 entries, all DIAGNOSTIC
     # ===================================================================
     "sensor_mold_risk": EntityMeta(
         translation_key="mold_risk",
@@ -262,7 +262,7 @@ ENTITY_REGISTRY: dict[str, EntityMeta] = {
         feature_group="environment",
     ),
     # ===================================================================
-    # Thermal Sensors (sensor_thermal.py) — 6 entries, all DIAGNOSTIC, all disabled by default
+    # Thermal Sensors (sensor_thermal.py): 6 entries, all DIAGNOSTIC, all disabled by default
     # ===================================================================
     "sensor_thermal_inertia": EntityMeta(
         translation_key="thermal_inertia",
@@ -313,7 +313,7 @@ ENTITY_REGISTRY: dict[str, EntityMeta] = {
         feature_group="thermal",
     ),
     # ===================================================================
-    # Insight Sensors (sensor_insight.py) — 2 entries, all DIAGNOSTIC
+    # Insight Sensors (sensor_insight.py): 2 entries, all DIAGNOSTIC
     # ===================================================================
     "sensor_home_insights": EntityMeta(
         translation_key="home_insights",
@@ -328,7 +328,7 @@ ENTITY_REGISTRY: dict[str, EntityMeta] = {
         icon=None,  # dynamic icon based on priority
     ),
     # ===================================================================
-    # Device Sensors (sensor_device.py) — 2 entries (battery base + suffixed), all DIAGNOSTIC
+    # Device Sensors (sensor_device.py): 2 entries (battery base + suffixed), all DIAGNOSTIC
     # ===================================================================
     "sensor_battery": EntityMeta(
         translation_key="battery",
@@ -345,7 +345,7 @@ ENTITY_REGISTRY: dict[str, EntityMeta] = {
         feature_group="zone_diagnostics",
     ),
     # ===================================================================
-    # Binary Sensors (binary_sensor.py) — 7 entries
+    # Binary Sensors (binary_sensor.py): 7 entries
     # ===================================================================
     "binary_sensor_home": EntityMeta(
         translation_key="home",
@@ -406,7 +406,7 @@ ENTITY_REGISTRY: dict[str, EntityMeta] = {
         icon=None,  # uses device_class CONNECTIVITY
         feature_group="homekit",
     ),
-    # HomeKit savings sensors — track API calls saved by local control
+    # HomeKit savings sensors: track API calls saved by local control
     "sensor_homekit_reads_saved": EntityMeta(
         translation_key="homekit_reads_saved",
         unique_id_suffix="homekit_reads_saved",  # hub-level
@@ -425,7 +425,7 @@ ENTITY_REGISTRY: dict[str, EntityMeta] = {
     ),
 
     # ===================================================================
-    # Buttons (button.py) — 6 entries
+    # Buttons (button.py): 6 entries
     # ===================================================================
     "button_resume_all": EntityMeta(
         translation_key="resume_all",
@@ -438,6 +438,12 @@ ENTITY_REGISTRY: dict[str, EntityMeta] = {
         unique_id_suffix="refresh_ac",  # hub-level
         entity_category="config",
         icon="mdi:air-conditioner",
+    ),
+    "button_identify": EntityMeta(
+        translation_key=None,  # uses dynamic _attr_name = f"Identify{suffix}"
+        unique_id_suffix="device_{serial}_identify",
+        entity_category="diagnostic",
+        icon="mdi:map-marker-radius",
     ),
     "button_timer": EntityMeta(
         translation_key=None,  # uses dynamic _attr_name = f"{duration}min Timer"
@@ -467,7 +473,7 @@ ENTITY_REGISTRY: dict[str, EntityMeta] = {
         feature_group="boost_buttons",
     ),
     # ===================================================================
-    # Selects (select.py) — 3 hub-level entries
+    # Selects (select.py): 3 hub-level entries
     # ===================================================================
     "select_presence_mode": EntityMeta(
         translation_key="presence_mode",
@@ -487,8 +493,15 @@ ENTITY_REGISTRY: dict[str, EntityMeta] = {
         entity_category="config",
         icon="mdi:timer",
     ),
+    "select_heating_circuit": EntityMeta(
+        translation_key="heating_circuit",
+        unique_id_suffix="heating_circuit",  # per-zone (suffixed with zone_id)
+        entity_category="config",
+        icon="mdi:radiator",
+        feature_group="heating_circuit",  # cleaned up when the toggle is turned off
+    ),
     # ===================================================================
-    # Switches (switch.py) — 3 entries (early_start, child_lock, quota_reserve)
+    # Switches (switch.py): 3 entries (early_start, child_lock, quota_reserve)
     # ===================================================================
     "switch_early_start": EntityMeta(
         translation_key="early_start",
@@ -511,7 +524,7 @@ ENTITY_REGISTRY: dict[str, EntityMeta] = {
         icon=None,  # dynamic: mdi:shield-check / mdi:shield-off
     ),
     # ===================================================================
-    # Climate (climate_heating.py, climate_ac.py) — 2 entries
+    # Climate (climate_heating.py, climate_ac.py): 2 entries
     # ===================================================================
     "climate_heating": EntityMeta(
         translation_key="heating",
@@ -526,7 +539,7 @@ ENTITY_REGISTRY: dict[str, EntityMeta] = {
         icon=None,  # uses device_class
     ),
     # ===================================================================
-    # Water Heater (water_heater.py) — 1 entry
+    # Water Heater (water_heater.py): 1 entry
     # ===================================================================
     "water_heater_hot_water": EntityMeta(
         translation_key="hot_water",
@@ -535,7 +548,7 @@ ENTITY_REGISTRY: dict[str, EntityMeta] = {
         icon=None,  # uses device_class
     ),
     # ===================================================================
-    # Calendar (calendar.py) — 1 entry
+    # Calendar (calendar.py): 1 entry
     # ===================================================================
     "calendar_schedule": EntityMeta(
         translation_key="schedule",
@@ -545,7 +558,7 @@ ENTITY_REGISTRY: dict[str, EntityMeta] = {
         feature_group="schedule_calendar",
     ),
     # ===================================================================
-    # Device Tracker (device_tracker.py) — 1 entry
+    # Device Tracker (device_tracker.py): 1 entry
     # ===================================================================
     "device_tracker_mobile": EntityMeta(
         translation_key=None,  # uses dynamic _attr_name = device_name
@@ -555,7 +568,7 @@ ENTITY_REGISTRY: dict[str, EntityMeta] = {
         feature_group="mobile_devices",
     ),
     # ===================================================================
-    # Bridge Number (bridge API — flow temperature control, hardcoded)
+    # Bridge Number (bridge API, flow temperature control, hardcoded)
     # Dynamic bridge sensors get EntityMeta at runtime from enrichment.
     # ===================================================================
     "number_boiler_max_output_temp": EntityMeta(
@@ -566,7 +579,7 @@ ENTITY_REGISTRY: dict[str, EntityMeta] = {
         feature_group="bridge",
     ),
     # ===================================================================
-    # Bridge Meta Sensors (sensor_bridge.py) — 2 entries, DIAGNOSTIC
+    # Bridge Meta Sensors (sensor_bridge.py): 2 entries, DIAGNOSTIC
     # ===================================================================
     "sensor_bridge_capabilities": EntityMeta(
         translation_key="bridge_capabilities",
@@ -585,7 +598,7 @@ ENTITY_REGISTRY: dict[str, EntityMeta] = {
         feature_group="bridge",
     ),
     # ===================================================================
-    # Weather Compensation Sensors (sensor_weather_compensation.py) — 2 entries
+    # Weather Compensation Sensors (sensor_weather_compensation.py): 2 entries
     # ===================================================================
     "sensor_wc_target_flow_temp": EntityMeta(
         translation_key="wc_target_flow_temp",

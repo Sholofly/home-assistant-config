@@ -1,4 +1,4 @@
-"""Tado CE API call tracker — record every cloud call for quota and reset prediction.
+"""Tado CE API call tracker: record every cloud call for quota and reset prediction.
 
 Persists per-day call history through HA Store, derives a calls-per-
 hour rate from recent history (or falls back to a config-based
@@ -119,7 +119,7 @@ class APICallTracker:
                 return migrated
         except (OSError, HomeAssistantError):
             _LOGGER.warning(
-                "API Tracker: could not load call history — quota "
+                "API Tracker: could not load call history, quota "
                 "extrapolation will rely on config-based rate until the "
                 "next save succeeds",
                 exc_info=True,
@@ -133,7 +133,7 @@ class APICallTracker:
                 await self._store.async_save(data)
             except (OSError, TypeError):
                 _LOGGER.warning(
-                    "API Tracker: could not save call history — data is "
+                    "API Tracker: could not save call history, data is "
                     "kept in memory and will retry on the next poll",
                     exc_info=True,
                 )
@@ -143,7 +143,7 @@ class APICallTracker:
 
         Cleanup runs outside the load lock because
         `async_cleanup_old_records` calls `_save_history_async`, which
-        re-acquires the same non-reentrant lock — calling it from
+        re-acquires the same non-reentrant lock, and calling it from
         inside the lock would deadlock.
         """
         if self._initialized:
@@ -205,7 +205,7 @@ class APICallTracker:
                 self._last_cleanup_date = today  # type: ignore[assignment]
                 should_cleanup = True
 
-        # Mark dirty — actual save happens in coordinator poll cycle or unload
+        # Mark dirty: actual save happens in coordinator poll cycle or unload
         self._dirty = True
 
         if should_cleanup:
@@ -222,13 +222,13 @@ class APICallTracker:
         """Return API calls from the last `days` days, newest first.
 
         Returns an empty list when the tracker hasn't run `async_init`
-        yet — synchronous callers can't trigger disk I/O without
+        yet: synchronous callers can't trigger disk I/O without
         blocking the event loop.
         """
         if not self._initialized:
             _LOGGER.debug(
                 "API Tracker: get_call_history called before async_init "
-                "completed — returning empty history",
+                "completed, returning empty history",
             )
             return []
 
@@ -300,7 +300,7 @@ class APICallTracker:
         blends day + night intervals weighted by their durations.
         Blending matters because the reset extrapolation covers the
         whole 24-hour window since reset, which spans both polling
-        modes — using only the day interval would overestimate the
+        modes. Using only the day interval would overestimate the
         rate during the night.
         """
         try:
@@ -341,7 +341,7 @@ class APICallTracker:
             return rate, desc
         except (AttributeError, TypeError, ValueError) as e:
             _LOGGER.debug(
-                "API Tracker: could not derive rate from config (%s) — "
+                "API Tracker: could not derive rate from config (%s), "
                 "falling back to default %d calls/hour",
                 e, _DEFAULT_CALLS_PER_HOUR,
             )
@@ -362,7 +362,7 @@ class APICallTracker:
         if not self._initialized:
             _LOGGER.debug(
                 "API Tracker: extrapolate_reset_time called before "
-                "async_init — returning None",
+                "async_init, returning None",
             )
             return None
 
@@ -374,7 +374,7 @@ class APICallTracker:
 
         if calls_per_hour < 1:
             _LOGGER.debug(
-                "API Tracker: derived calls-per-hour %.2f is below 1 — "
+                "API Tracker: derived calls-per-hour %.2f is below 1, "
                 "skipping reset extrapolation",
                 calls_per_hour,
             )
@@ -384,7 +384,7 @@ class APICallTracker:
 
         if hours_since_reset > _HOURS_IN_DAY or hours_since_reset < 0:
             _LOGGER.debug(
-                "API Tracker: extrapolated reset is %.2fh ago — outside "
+                "API Tracker: extrapolated reset is %.2fh ago, outside "
                 "the 0-24h plausibility window, skipping",
                 hours_since_reset,
             )

@@ -1,4 +1,4 @@
-"""Tado CE climate helpers — shared optimistic-update + sensor-subscription utilities.
+"""Tado CE climate helpers: shared optimistic-update + sensor-subscription utilities.
 
 Both heating and AC entities share the same offset / preset / API-
 call-with-rollback machinery, so this module owns the helpers and
@@ -40,7 +40,7 @@ def update_offset(
 
     Returns None when offset sync is disabled in config, when no
     offset is cached for the zone, or when a cached value falls
-    outside the valid range — the caller keeps its previous value
+    outside the valid range. The caller keeps its previous value
     in any of those cases.
     """
     try:
@@ -54,7 +54,7 @@ def update_offset(
             if value is not None and not is_valid_device_offset(value):
                 _LOGGER.warning(
                     "Climate: zone %s offset %s°C outside the valid "
-                    "range — ignoring this reading, keeping the previous "
+                    "range, ignoring this reading, keeping the previous "
                     "cached value",
                     zone_id, value,
                 )
@@ -62,7 +62,7 @@ def update_offset(
             return value  # type: ignore[no-any-return]
         return None
     except (KeyError, TypeError, AttributeError):
-        # Caller keeps its previous offset — better than crashing the
+        # Caller keeps its previous offset, better than crashing the
         # climate entity over a transient cache read failure.
         return None
 
@@ -107,13 +107,13 @@ def update_preset_mode(coordinator: TadoDataUpdateCoordinator) -> str | None:
             return PRESET_HOME if presence == "HOME" else PRESET_AWAY
     except (KeyError, AttributeError):
         _LOGGER.debug(
-            "Climate: could not derive preset mode from home state — "
+            "Climate: could not derive preset mode from home state, "
             "keeping previous value",
         )
     return None
 
 
-def inject_presence_state(
+async def inject_presence_state(
     coordinator: TadoDataUpdateCoordinator,
     presence: str | None,
     locked: bool,
@@ -124,9 +124,10 @@ def inject_presence_state(
     climate preset. The API call succeeds but the next coordinator
     poll may not fetch home_state (Home State Sync disabled), so
     we inject the known state into both caches so entities pick it
-    up on the next update.
+    up on the next update, and persist it to the Store so it survives
+    a restart even when no poll ever re-saves it.
 
-    `presence=None` is the "auto" path — the API call deleted the
+    `presence=None` is the "auto" path: the API call deleted the
     presence lock and geofencing now decides, so we don't yet know
     the resulting presence until the next poll. Forcing "HOME"
     would poison the cache for users who switch to auto while
@@ -149,10 +150,12 @@ def inject_presence_state(
         coordinator.data = {}
     coordinator.data["home_state"] = home_state
 
-    # Also update DataLoader cache so the next _async_post_sync_processing
-    # reads the injected value instead of the stale cached one.
+    # Persist to the Store, not just the in-memory cache. When Home State
+    # Sync is off no poll ever re-saves home_state, so a cache-only write
+    # would be lost on the next restart, and the user's locked presence would
+    # revert to whatever the last poll persisted hours earlier.
     if coordinator.data_loader is not None:
-        coordinator.data_loader.update_cache("home_state", home_state)
+        await coordinator.data_loader.async_update_store("home_state", home_state)
 
 
 def read_external_sensor(
@@ -183,7 +186,7 @@ def read_external_sensor(
         return float(state.state)
     except (ValueError, TypeError):
         _LOGGER.debug(
-            "Climate: external sensor %s has non-numeric state %r — "
+            "Climate: external sensor %s has non-numeric state %r, "
             "ignoring",
             entity_id, state.state,
         )
@@ -237,7 +240,7 @@ async def _attempt_with_rollback(
             api_success = await api_coro
     except TimeoutError:
         _LOGGER.warning(
-            "%s: %s — %s timed out after 10s, rolling back optimistic "
+            "%s: %s: %s timed out after 10s, rolling back optimistic "
             "state so the entity reflects the actual zone state",
             plan.log_prefix, entity._zone_name, plan.reason,
         )
@@ -246,16 +249,16 @@ async def _attempt_with_rollback(
             setattr(entity, attr, value)
         clear_optimistic_state(entity)
         entity.async_write_ha_state()
-        dispatch_to_service_call(e, entity.coordinator.config_entry, entity.hass)
+        dispatch_to_service_call(e, entity.coordinator.config_entry, entity.hass, entity.coordinator)
     except aiohttp.ClientError as e:
         _LOGGER.warning(
-            "%s: %s — %s network error (%s), rolling back optimistic state",
+            "%s: %s: %s network error (%s), rolling back optimistic state",
             plan.log_prefix, entity._zone_name, plan.reason, e,
         )
 
     if api_success:
         _LOGGER.debug(
-            "%s: %s — %s succeeded",
+            "%s: %s: %s succeeded",
             plan.log_prefix, entity._zone_name, plan.reason,
         )
         if entity.coordinator.state_reconciler:
@@ -269,7 +272,7 @@ async def _attempt_with_rollback(
                 )
             except Exception as e:
                 _LOGGER.warning(
-                    "%s: %s — capture-on-success failed (%s); "
+                    "%s: %s, capture-on-success failed (%s); "
                     "user write succeeded, restoration may be unavailable",
                     plan.log_prefix, entity._zone_name, e,
                 )
@@ -279,7 +282,7 @@ async def _attempt_with_rollback(
         return True
 
     _LOGGER.warning(
-        "%s: %s — %s failed, reverted to previous state",
+        "%s: %s: %s failed, reverted to previous state",
         plan.log_prefix, entity._zone_name, plan.reason,
     )
     for attr, value in plan.rollback.items():
@@ -425,7 +428,7 @@ def setup_climate_external_sensor_subscription(
 
         entity.async_write_ha_state()
         _LOGGER.debug(
-            "Climate: %s external sensor updated — climate state refreshed",
+            "Climate: %s external sensor updated, climate state refreshed",
             label or zone_id,
         )
 

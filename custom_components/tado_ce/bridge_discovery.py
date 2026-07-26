@@ -1,4 +1,4 @@
-"""Bridge API dynamic discovery engine — pure functions, zero HA dependency."""
+"""Bridge API dynamic discovery engine: pure functions, zero HA dependency."""
 
 from __future__ import annotations
 
@@ -183,7 +183,7 @@ def resolve_entities(
     skip_paths: frozenset[str] = frozenset(),
 ) -> list[ResolvedEntity]:
     """Apply enrichment + type inference to produce ResolvedEntity list."""
-    # Lazy import to avoid circular dependency — inference is a separate module
+    # Lazy import to avoid circular dependency: inference is a separate module
     from .bridge_type_inference import format_display_value, infer_metadata
 
     resolved: list[ResolvedEntity] = []

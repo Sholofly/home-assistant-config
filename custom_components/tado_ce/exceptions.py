@@ -1,4 +1,4 @@
-"""Tado CE custom exceptions — auth errors, sync errors, API failures.
+"""Tado CE custom exceptions: auth errors, sync errors, API failures.
 
 - TadoAuthError → ConfigEntryAuthFailed (triggers HA reauth flow)
 - TadoSyncError → UpdateFailed (coordinator retries on next poll)
@@ -29,7 +29,7 @@ class TadoSyncError(HomeAssistantError):
 class TadoBridgeApiError(HomeAssistantError):
     """Raised when a Bridge API call fails (network, HTTP, or parse error).
 
-    Bridge API errors are isolated from the main cloud API — they never
+    Bridge API errors are isolated from the main cloud API: they never
     trigger OAuth reauth or affect coordinator cloud data.
     """
 

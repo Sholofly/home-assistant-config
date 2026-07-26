@@ -20,7 +20,7 @@ from .format_helpers import (
 from .format_helpers import (
     strip_zone_prefix as _strip_zone_prefix,
 )
-from .helpers import mask_serial
+from .helpers import PerEntityAvailabilityMixin, mask_serial
 from .insights_device import (
     calculate_battery_recommendation,
 )
@@ -31,7 +31,7 @@ if TYPE_CHECKING:
 _LOGGER = logging.getLogger(__name__)
 
 
-class TadoBatterySensor(CoordinatorEntity["TadoDataUpdateCoordinator"], SensorEntity):
+class TadoBatterySensor(PerEntityAvailabilityMixin, CoordinatorEntity["TadoDataUpdateCoordinator"], SensorEntity):
     """Represent a Tado device battery state sensor."""
 
     _attr_has_entity_name = True
@@ -61,7 +61,7 @@ class TadoBatterySensor(CoordinatorEntity["TadoDataUpdateCoordinator"], SensorEn
         )
         self._attr_icon = _meta.icon
         self._attr_entity_category = get_entity_category(_meta)
-        self._attr_available = True
+        self._data_present = True
         self._attr_native_value = _format_battery_state(device.get("batteryState", "unknown"))
         self._attr_device_info = get_zone_device_info(zone_id, zone_name, zone_type, coordinator.home_id)
 
@@ -109,7 +109,7 @@ class TadoBatterySensor(CoordinatorEntity["TadoDataUpdateCoordinator"], SensorEn
             zones_info = (self.coordinator.data or {}).get("zones_info")
             if zones_info:
                 for zone in zones_info:
-                    # `devices` can come back as null on a fresh zone —
+                    # `devices` can come back as null on a fresh zone, so
                     # `or []` covers both null and missing-key cases.
                     for device in zone.get("devices") or []:
                         if device.get("shortSerialNo") == self._device_serial:
@@ -126,13 +126,17 @@ class TadoBatterySensor(CoordinatorEntity["TadoDataUpdateCoordinator"], SensorEn
                                 device_type=self._device_type,
                             )
 
-                            self._attr_available = True
+                            self._data_present = True
                             return
-            self._attr_available = False
+            # Device serial no longer present in the account: unavailable, and
+            # drop the last-known battery level so no stale value lingers.
+            self._attr_native_value = None
+            self._data_present = False
         except (KeyError, TypeError, AttributeError) as err:
             _LOGGER.debug(
-                "Battery Sensor: %s update failed (%s) — entity marked "
+                "Battery Sensor: %s update failed (%s), entity marked "
                 "unavailable until the next poll",
                 mask_serial(self._device_serial), err,
             )
-            self._attr_available = False
+            self._attr_native_value = None
+            self._data_present = False

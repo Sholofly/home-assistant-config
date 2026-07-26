@@ -1,0 +1,2638 @@
+{
+  "version": 1,
+  "games": [
+    {
+      "id": "f6af1927",
+      "date": "2026-06-11T19:03:43.291114+00:00",
+      "playlist": "80er-hits",
+      "rounds": 2,
+      "player_count": 1,
+      "winner": "Rudolf",
+      "winner_score": 15,
+      "avg_score_per_round": 7.5,
+      "total_points": 15
+    },
+    {
+      "id": "304293b6",
+      "date": "2026-06-12T16:36:00.244073+00:00",
+      "playlist": "top100-allertijden-nederlandstalig",
+      "rounds": 7,
+      "player_count": 1,
+      "winner": "Rudolf",
+      "winner_score": 150,
+      "avg_score_per_round": 21.43,
+      "total_points": 150
+    },
+    {
+      "id": "86c5eb32",
+      "date": "2026-06-12T16:46:29.622890+00:00",
+      "playlist": "top100-allertijden-nederlandstalig",
+      "rounds": 7,
+      "player_count": 2,
+      "winner": "Bitterballetje",
+      "winner_score": 60,
+      "avg_score_per_round": 8.43,
+      "total_points": 118
+    },
+    {
+      "id": "37f17b23",
+      "date": "2026-06-12T16:48:40.924052+00:00",
+      "playlist": "hits-2010s-2020s",
+      "rounds": 1,
+      "player_count": 1,
+      "winner": "Eisprong",
+      "winner_score": 0,
+      "avg_score_per_round": 0.0,
+      "total_points": 0
+    },
+    {
+      "id": "90ab1132",
+      "date": "2026-06-12T17:08:40.463551+00:00",
+      "playlist": "hits-2010s-2020s",
+      "rounds": 17,
+      "player_count": 3,
+      "winner": "Wilma Dicfit",
+      "winner_score": 130,
+      "avg_score_per_round": 3.14,
+      "total_points": 160
+    },
+    {
+      "id": "f7455f5b",
+      "date": "2026-06-12T17:58:18.597389+00:00",
+      "playlist": "hits-2010s-2020s",
+      "rounds": 6,
+      "player_count": 2,
+      "winner": "Roof Pigeton",
+      "winner_score": 20,
+      "avg_score_per_round": 3.17,
+      "total_points": 38
+    },
+    {
+      "id": "14778265",
+      "date": "2026-06-12T19:42:08.894550+00:00",
+      "playlist": "hits-2010s-2020s",
+      "rounds": 52,
+      "player_count": 2,
+      "winner": "Pa Nnekoek, RON JANS",
+      "winner_score": 186,
+      "avg_score_per_round": 3.58,
+      "total_points": 372
+    },
+    {
+      "id": "57fd63a9",
+      "date": "2026-06-13T05:58:28.841841+00:00",
+      "playlist": "hits-2010s-2020s",
+      "rounds": 0,
+      "player_count": 1,
+      "winner": "Noa",
+      "winner_score": 0,
+      "avg_score_per_round": 0.0,
+      "total_points": 0
+    },
+    {
+      "id": "f1a8dadc",
+      "date": "2026-06-13T06:24:19.724144+00:00",
+      "playlist": "hits-2010s-2020s",
+      "rounds": 71,
+      "player_count": 1,
+      "winner": "Noa",
+      "winner_score": 260,
+      "avg_score_per_round": 3.66,
+      "total_points": 260
+    },
+    {
+      "id": "a368454b",
+      "date": "2026-06-13T06:28:10.081906+00:00",
+      "playlist": "movies-100-greatest-themes",
+      "rounds": 5,
+      "player_count": 1,
+      "winner": "Suc Madik",
+      "winner_score": 10,
+      "avg_score_per_round": 2.0,
+      "total_points": 10
+    },
+    {
+      "id": "a1c2cc6e",
+      "date": "2026-06-13T18:33:37.758532+00:00",
+      "playlist": "gen-z-anthems",
+      "rounds": 24,
+      "player_count": 2,
+      "winner": "Rudolf",
+      "winner_score": 153,
+      "avg_score_per_round": 6.06,
+      "total_points": 291
+    },
+    {
+      "id": "12b2010d",
+      "date": "2026-06-13T18:37:35.347835+00:00",
+      "playlist": "edm-anthems",
+      "rounds": 4,
+      "player_count": 1,
+      "winner": "Suc Madik",
+      "winner_score": 0,
+      "avg_score_per_round": 0.0,
+      "total_points": 0
+    },
+    {
+      "id": "332b6c6b",
+      "date": "2026-06-13T18:48:28.127841+00:00",
+      "playlist": "80er-hits",
+      "rounds": 9,
+      "player_count": 2,
+      "winner": "Rudolf, Jan Pieterszoon Coen",
+      "winner_score": 20,
+      "avg_score_per_round": 2.22,
+      "total_points": 40
+    },
+    {
+      "id": "81ba587f",
+      "date": "2026-06-13T18:50:46.472934+00:00",
+      "playlist": "80er-hits",
+      "rounds": 2,
+      "player_count": 2,
+      "winner": "Rudolf, Lic Matoes",
+      "winner_score": 0,
+      "avg_score_per_round": 0.0,
+      "total_points": 0
+    },
+    {
+      "id": "2bc537c2",
+      "date": "2026-06-13T18:51:50.500077+00:00",
+      "playlist": "80er-hits",
+      "rounds": 0,
+      "player_count": 2,
+      "winner": "Rudolf, Lic Matoes",
+      "winner_score": 0,
+      "avg_score_per_round": 0.0,
+      "total_points": 0
+    }
+  ],
+  "playlists": {
+    "80er-hits": {
+      "times_played": 4,
+      "total_rounds": 13,
+      "avg_score_per_round": 0.0
+    },
+    "top100-allertijden-nederlandstalig": {
+      "times_played": 2,
+      "total_rounds": 14,
+      "avg_score_per_round": 0.0
+    },
+    "hits-2010s-2020s": {
+      "times_played": 6,
+      "total_rounds": 147,
+      "avg_score_per_round": 0.0
+    },
+    "movies-100-greatest-themes": {
+      "times_played": 1,
+      "total_rounds": 5,
+      "avg_score_per_round": 0.0
+    },
+    "gen-z-anthems": {
+      "times_played": 1,
+      "total_rounds": 24,
+      "avg_score_per_round": 0.0
+    },
+    "edm-anthems": {
+      "times_played": 1,
+      "total_rounds": 4,
+      "avg_score_per_round": 0.0
+    }
+  },
+  "all_time": {
+    "games_played": 15,
+    "highest_avg_score": 21.43,
+    "highest_avg_game_id": "304293b6"
+  },
+  "songs": {
+    "spotify_track_6r8k1vznHrzlEKYxL4dZEe": {
+      "times_played": 1,
+      "correct_guesses": 1,
+      "total_guesses": 1,
+      "total_years_off": 0,
+      "exact_matches": 1,
+      "close_matches": 0,
+      "title": "La Isla Bonita",
+      "artist": "Madonna",
+      "year": 1986,
+      "playlists": {
+        "/Config/Beatify/Playlists/80Er Hits": 1
+      },
+      "last_played": 1781204569
+    },
+    "spotify_track_09lZ2Mx2NSpzy6KBpX2kDq": {
+      "times_played": 1,
+      "correct_guesses": 1,
+      "total_guesses": 1,
+      "total_years_off": 0,
+      "exact_matches": 1,
+      "close_matches": 0,
+      "title": "Gimme Hope Jo'Anna",
+      "artist": "Eddy Grant",
+      "year": 1988,
+      "playlists": {
+        "/Config/Beatify/Playlists/80Er Hits": 1
+      },
+      "last_played": 1781204605
+    },
+    "spotify_track_7B78M515588woNjQFBdGcJ": {
+      "times_played": 1,
+      "correct_guesses": 1,
+      "total_guesses": 1,
+      "total_years_off": 0,
+      "exact_matches": 1,
+      "close_matches": 0,
+      "title": "Heb Je Even Voor Mij",
+      "artist": "Frans Bauer",
+      "year": 2002,
+      "playlists": {
+        "/Config/Beatify/Playlists/Community/Top100 Allertijden Nederlandstalig": 1
+      },
+      "last_played": 1781281947
+    },
+    "spotify_track_0PynPGqWuKWpxoAKZvRA0t": {
+      "times_played": 1,
+      "correct_guesses": 0,
+      "total_guesses": 0,
+      "total_years_off": 0,
+      "exact_matches": 0,
+      "close_matches": 0,
+      "title": "Toen Ik Je Zag - Single Version",
+      "artist": "Hero",
+      "year": 1997,
+      "playlists": {
+        "/Config/Beatify/Playlists/Community/Top100 Allertijden Nederlandstalig": 1
+      },
+      "last_played": 1781281977
+    },
+    "spotify_track_52PEtgy4X5oSnN8Y98Ad72": {
+      "times_played": 1,
+      "correct_guesses": 1,
+      "total_guesses": 1,
+      "total_years_off": 0,
+      "exact_matches": 1,
+      "close_matches": 0,
+      "title": "De Bostella",
+      "artist": "Johnny",
+      "year": 1967,
+      "playlists": {
+        "/Config/Beatify/Playlists/Community/Top100 Allertijden Nederlandstalig": 1
+      },
+      "last_played": 1781282014
+    },
+    "spotify_track_4CH8nmzGgqd4sokxN7dacs": {
+      "times_played": 1,
+      "correct_guesses": 1,
+      "total_guesses": 1,
+      "total_years_off": 0,
+      "exact_matches": 1,
+      "close_matches": 0,
+      "title": "Parijs",
+      "artist": "Kenny B",
+      "year": 2015,
+      "playlists": {
+        "/Config/Beatify/Playlists/Community/Top100 Allertijden Nederlandstalig": 1
+      },
+      "last_played": 1781282041
+    },
+    "spotify_track_0C9JPibPAdaBvt60rbwEsJ": {
+      "times_played": 2,
+      "correct_guesses": 3,
+      "total_guesses": 3,
+      "total_years_off": 0,
+      "exact_matches": 3,
+      "close_matches": 0,
+      "title": "Re\u00fcnie",
+      "artist": "Snelle",
+      "year": 2019,
+      "playlists": {
+        "/Config/Beatify/Playlists/Community/Top100 Allertijden Nederlandstalig": 1,
+        "/Config/Beatify/Playlists/Disney Classics": 1
+      },
+      "last_played": 1781377396
+    },
+    "spotify_track_4ptF2Hvq7PdsDKXV0o7x2M": {
+      "times_played": 2,
+      "correct_guesses": 3,
+      "total_guesses": 3,
+      "total_years_off": 0,
+      "exact_matches": 3,
+      "close_matches": 0,
+      "title": "Zij Maakt Het Verschil",
+      "artist": "De Poema's",
+      "year": 2001,
+      "playlists": {
+        "/Config/Beatify/Playlists/Community/Top100 Allertijden Nederlandstalig": 1,
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781292402
+    },
+    "spotify_track_0BGiXFcfWNE1ZOJYwtbWbX": {
+      "times_played": 2,
+      "correct_guesses": 3,
+      "total_guesses": 3,
+      "total_years_off": 0,
+      "exact_matches": 3,
+      "close_matches": 0,
+      "title": "Zelfs Je Naam Is Mooi",
+      "artist": "Henk Westbroek",
+      "year": 1998,
+      "playlists": {
+        "/Config/Beatify/Playlists/Community/Top100 Allertijden Nederlandstalig": 1,
+        "/Config/Beatify/Playlists/Community/Gen Z Anthems": 1
+      },
+      "last_played": 1781365777
+    },
+    "spotify_track_7Gzz44FpTbZu0DNVVZjwPs": {
+      "times_played": 2,
+      "correct_guesses": 4,
+      "total_guesses": 4,
+      "total_years_off": 0,
+      "exact_matches": 4,
+      "close_matches": 0,
+      "title": "Wat Wil Je Van Mij",
+      "artist": "Metejoor",
+      "year": 2022,
+      "playlists": {
+        "/Config/Beatify/Playlists/Community/Top100 Allertijden Nederlandstalig": 1,
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781291743
+    },
+    "spotify_track_7oIV4elnbceFEZkqsUrfDw": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Ik Wou Dat Ik Jou Was",
+      "artist": "Veldhuis & Kemper",
+      "year": 2003,
+      "playlists": {
+        "/Config/Beatify/Playlists/Community/Top100 Allertijden Nederlandstalig": 1
+      },
+      "last_played": 1781282513
+    },
+    "spotify_track_4FZ77tcpweEm5dplUn9IoM": {
+      "times_played": 2,
+      "correct_guesses": 4,
+      "total_guesses": 4,
+      "total_years_off": 0,
+      "exact_matches": 4,
+      "close_matches": 0,
+      "title": "Toppertje! - Original Mix",
+      "artist": "Guillermo",
+      "year": 2006,
+      "playlists": {
+        "/Config/Beatify/Playlists/Community/Top100 Allertijden Nederlandstalig": 1,
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781292142
+    },
+    "spotify_track_24gH565DhqI8zOeCQAhxTr": {
+      "times_played": 2,
+      "correct_guesses": 4,
+      "total_guesses": 4,
+      "total_years_off": 0,
+      "exact_matches": 4,
+      "close_matches": 0,
+      "title": "Afscheid",
+      "artist": "Glennis Grace",
+      "year": 2011,
+      "playlists": {
+        "/Config/Beatify/Playlists/Community/Top100 Allertijden Nederlandstalig": 1,
+        "/Config/Beatify/Playlists/Disney Classics": 1
+      },
+      "last_played": 1781376844
+    },
+    "spotify_track_68nDLaf2sJx2Tq0g3WuO8F": {
+      "times_played": 1,
+      "correct_guesses": 0,
+      "total_guesses": 0,
+      "total_years_off": 0,
+      "exact_matches": 0,
+      "close_matches": 0,
+      "title": "Als De Morgen Is Gekomen",
+      "artist": "Jan Smit",
+      "year": 2006,
+      "playlists": {
+        "/Config/Beatify/Playlists/Community/Top100 Allertijden Nederlandstalig": 1
+      },
+      "last_played": 1781282698
+    },
+    "spotify_track_2bysLoQoN47j7yjTwpDCW6": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Gina Lollobrigida",
+      "artist": "Tony Bass",
+      "year": 1969,
+      "playlists": {
+        "/Config/Beatify/Playlists/Community/Top100 Allertijden Nederlandstalig": 1
+      },
+      "last_played": 1781282744
+    },
+    "spotify_track_6yraFyhgbavO2amB2lhpfi": {
+      "times_played": 3,
+      "correct_guesses": 6,
+      "total_guesses": 6,
+      "total_years_off": 0,
+      "exact_matches": 6,
+      "close_matches": 0,
+      "title": "Waiting All Night (feat. Ella Eyre)",
+      "artist": "Rudimental",
+      "year": 2013,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 3
+      },
+      "last_played": 1781331807
+    },
+    "spotify_track_1i1rNVtxbE7rdFfpHuNq2j": {
+      "times_played": 3,
+      "correct_guesses": 6,
+      "total_guesses": 6,
+      "total_years_off": 0,
+      "exact_matches": 6,
+      "close_matches": 0,
+      "title": "Hold My Hand",
+      "artist": "Jess Glynne",
+      "year": 2015,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 3
+      },
+      "last_played": 1781330947
+    },
+    "spotify_track_1xQ6trAsedVPCdbtDAmk0c": {
+      "times_played": 3,
+      "correct_guesses": 5,
+      "total_guesses": 5,
+      "total_years_off": 0,
+      "exact_matches": 5,
+      "close_matches": 0,
+      "title": "Savage Love (Laxed - Siren Beat)",
+      "artist": "Jawsh 685",
+      "year": 2020,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 3
+      },
+      "last_played": 1781330832
+    },
+    "spotify_track_5w9c2J52mkdntKOmRLeM2m": {
+      "times_played": 3,
+      "correct_guesses": 5,
+      "total_guesses": 5,
+      "total_years_off": 0,
+      "exact_matches": 5,
+      "close_matches": 0,
+      "title": "Con Calma",
+      "artist": "Daddy Yankee",
+      "year": 2019,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 3
+      },
+      "last_played": 1781330489
+    },
+    "spotify_track_6QeQs7lz8qR2miwx9n2epp": {
+      "times_played": 3,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Ouzo",
+      "artist": "Vincent Gross",
+      "year": 2023,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 3
+      },
+      "last_played": 1781331083
+    },
+    "spotify_track_4h9wh7iOZ0GGn8QVp4RAOB": {
+      "times_played": 2,
+      "correct_guesses": 3,
+      "total_guesses": 3,
+      "total_years_off": 0,
+      "exact_matches": 3,
+      "close_matches": 0,
+      "title": "I Ain't Worried",
+      "artist": "OneRepublic",
+      "year": 2022,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 2
+      },
+      "last_played": 1781331336
+    },
+    "spotify_track_2Foc5Q5nqNiosCNqttzHof": {
+      "times_played": 2,
+      "correct_guesses": 3,
+      "total_guesses": 3,
+      "total_years_off": 0,
+      "exact_matches": 3,
+      "close_matches": 0,
+      "title": "Get Lucky (Radio Edit) [feat. Pharrell Williams and Nile Rodgers]",
+      "artist": "Daft Punk",
+      "year": 2013,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 2
+      },
+      "last_played": 1781331511
+    },
+    "spotify_track_0cqRj7pUJDkTCEsJkx8snD": {
+      "times_played": 2,
+      "correct_guesses": 3,
+      "total_guesses": 3,
+      "total_years_off": 0,
+      "exact_matches": 3,
+      "close_matches": 0,
+      "title": "Shake It Off",
+      "artist": "Taylor Swift",
+      "year": 2015,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 2
+      },
+      "last_played": 1781331794
+    },
+    "spotify_track_4fTHdMTq0Znl3djLI1Typn": {
+      "times_played": 2,
+      "correct_guesses": 3,
+      "total_guesses": 3,
+      "total_years_off": 0,
+      "exact_matches": 3,
+      "close_matches": 0,
+      "title": "Cheerleader (Felix Jaehn Remix) - Radio Edit",
+      "artist": "OMI",
+      "year": 2014,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 2
+      },
+      "last_played": 1781330816
+    },
+    "spotify_track_4ut5G4rgB1ClpMTMfjoIuy": {
+      "times_played": 3,
+      "correct_guesses": 4,
+      "total_guesses": 4,
+      "total_years_off": 0,
+      "exact_matches": 4,
+      "close_matches": 0,
+      "title": "High On Life (feat. Bonn)",
+      "artist": "Martin Garrix",
+      "year": 2018,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 3
+      },
+      "last_played": 1781330517
+    },
+    "spotify_track_00vk0sEfb6mr2ehwSw0Uhn": {
+      "times_played": 4,
+      "correct_guesses": 6,
+      "total_guesses": 6,
+      "total_years_off": 0,
+      "exact_matches": 6,
+      "close_matches": 0,
+      "title": "Don't Be So Shy - Filatov & Karas Remix",
+      "artist": "Imany",
+      "year": 2017,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 3,
+        "/Config/Beatify/Playlists/80Er Hits": 1
+      },
+      "last_played": 1781376409
+    },
+    "spotify_track_1kPpge9JDLpcj15qgrPbYX": {
+      "times_played": 3,
+      "correct_guesses": 5,
+      "total_guesses": 5,
+      "total_years_off": 0,
+      "exact_matches": 5,
+      "close_matches": 0,
+      "title": "Good Time",
+      "artist": "Owl City",
+      "year": 2012,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 3
+      },
+      "last_played": 1781330801
+    },
+    "spotify_track_2QtxlzvSBONjs1bDC34ixs": {
+      "times_played": 2,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Yeah 3x",
+      "artist": "Chris Brown",
+      "year": 2011,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 2
+      },
+      "last_played": 1781330708
+    },
+    "spotify_track_3CNLrZJST54nE4PUkS83Sl": {
+      "times_played": 3,
+      "correct_guesses": 5,
+      "total_guesses": 5,
+      "total_years_off": 0,
+      "exact_matches": 5,
+      "close_matches": 0,
+      "title": "Power Over Me",
+      "artist": "Dermot Kennedy",
+      "year": 2019,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 3
+      },
+      "last_played": 1781331124
+    },
+    "spotify_track_0gb1J5UrTpzaU1s3nupgCd": {
+      "times_played": 4,
+      "correct_guesses": 7,
+      "total_guesses": 7,
+      "total_years_off": 0,
+      "exact_matches": 7,
+      "close_matches": 0,
+      "title": "No Money",
+      "artist": "Galantis",
+      "year": 2016,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 3,
+        "/Config/Beatify/Playlists/80Er Hits": 1
+      },
+      "last_played": 1781376313
+    },
+    "spotify_track_3C0nOe05EIt1390bVABLyN": {
+      "times_played": 3,
+      "correct_guesses": 5,
+      "total_guesses": 5,
+      "total_years_off": 0,
+      "exact_matches": 5,
+      "close_matches": 0,
+      "title": "On The Floor",
+      "artist": "Jennifer Lopez",
+      "year": 2011,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 3
+      },
+      "last_played": 1781330852
+    },
+    "spotify_track_2P4OICZRVAQcYAV2JReRfj": {
+      "times_played": 3,
+      "correct_guesses": 5,
+      "total_guesses": 5,
+      "total_years_off": 0,
+      "exact_matches": 5,
+      "close_matches": 0,
+      "title": "Waiting For Love",
+      "artist": "Avicii",
+      "year": 2015,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 3
+      },
+      "last_played": 1781331062
+    },
+    "spotify_track_3iVcZ5G6tvkXZkZKlMpIUs": {
+      "times_played": 2,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Alright",
+      "artist": "Kendrick Lamar",
+      "year": 2015,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 2
+      },
+      "last_played": 1781331271
+    },
+    "spotify_track_03UrZgTINDqvnUMbbIMhql": {
+      "times_played": 3,
+      "correct_guesses": 3,
+      "total_guesses": 3,
+      "total_years_off": 0,
+      "exact_matches": 3,
+      "close_matches": 0,
+      "title": "Gangnam Style (\uac15\ub0a8\uc2a4\ud0c0\uc77c)",
+      "artist": "PSY",
+      "year": 2012,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 3
+      },
+      "last_played": 1781331609
+    },
+    "spotify_track_0GUhPeExe5pXiGcBk03WSm": {
+      "times_played": 3,
+      "correct_guesses": 4,
+      "total_guesses": 4,
+      "total_years_off": 0,
+      "exact_matches": 4,
+      "close_matches": 0,
+      "title": "Banana - feat. Shaggy",
+      "artist": "Conkarah",
+      "year": 2020,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 3
+      },
+      "last_played": 1781331207
+    },
+    "spotify_track_1gw0YCogZvwqh39aCj7ksZ": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Waarom Nou Jij - Radio Edit",
+      "artist": "Marco Borsato",
+      "year": 1994,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781287323
+    },
+    "spotify_track_29p6UW08MXzwj9thWBW3uF": {
+      "times_played": 2,
+      "correct_guesses": 3,
+      "total_guesses": 3,
+      "total_years_off": 0,
+      "exact_matches": 3,
+      "close_matches": 0,
+      "title": "Hero",
+      "artist": "AFROJACK",
+      "year": 2021,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 2
+      },
+      "last_played": 1781331325
+    },
+    "spotify_track_4afGO0WTInDhK2C3dolz8z": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "De Overkant",
+      "artist": "Suzan & Freek",
+      "year": 2020,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781287427
+    },
+    "spotify_track_4MtbnO2jRAtFwMagTAYJwE": {
+      "times_played": 1,
+      "correct_guesses": 0,
+      "total_guesses": 0,
+      "total_years_off": 0,
+      "exact_matches": 0,
+      "close_matches": 0,
+      "title": "Ademnood",
+      "artist": "Linda Roos & Jessica",
+      "year": 1995,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781287495
+    },
+    "spotify_track_6KuHjfXHkfnIjdmcIvt9r0": {
+      "times_played": 2,
+      "correct_guesses": 3,
+      "total_guesses": 3,
+      "total_years_off": 0,
+      "exact_matches": 3,
+      "close_matches": 0,
+      "title": "On Top Of The World",
+      "artist": "Imagine Dragons",
+      "year": 2013,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 2
+      },
+      "last_played": 1781331392
+    },
+    "spotify_track_3AlpkljBS1AU7HFVPms8K6": {
+      "times_played": 2,
+      "correct_guesses": 3,
+      "total_guesses": 3,
+      "total_years_off": 0,
+      "exact_matches": 3,
+      "close_matches": 0,
+      "title": "Santa's Coming for Us",
+      "artist": "Sia",
+      "year": 2017,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 2
+      },
+      "last_played": 1781331586
+    },
+    "spotify_track_5ZULALImTm80tzUbYQYM9d": {
+      "times_played": 2,
+      "correct_guesses": 1,
+      "total_guesses": 1,
+      "total_years_off": 0,
+      "exact_matches": 1,
+      "close_matches": 0,
+      "title": "Dance Monkey",
+      "artist": "Tones And I",
+      "year": 2019,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 2
+      },
+      "last_played": 1781330899
+    },
+    "spotify_track_0bSgNta3s0kIZkxuBI9PxR": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Paracetamollen",
+      "artist": "FLEMMING",
+      "year": 2022,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781291789
+    },
+    "spotify_track_6IdcyYfBz9LG3SWIKVyNgh": {
+      "times_played": 2,
+      "correct_guesses": 3,
+      "total_guesses": 3,
+      "total_years_off": 0,
+      "exact_matches": 3,
+      "close_matches": 0,
+      "title": "Arranca (feat. Omega)",
+      "artist": "Becky G",
+      "year": 2023,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 2
+      },
+      "last_played": 1781331402
+    },
+    "spotify_track_0vWOq4z0mDYs0GSs7imUEd": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Kon Ik Maar Even Bij Je Zijn",
+      "artist": "Gordon",
+      "year": 1991,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781291839
+    },
+    "spotify_track_5tiTVSryX1Hu09cPsNvaIR": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Slapeloosheid",
+      "artist": "Suzan & Freek",
+      "year": 2023,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781291871
+    },
+    "spotify_track_23RoR84KodL5HWvUTneQ1w": {
+      "times_played": 2,
+      "correct_guesses": 3,
+      "total_guesses": 3,
+      "total_years_off": 0,
+      "exact_matches": 3,
+      "close_matches": 0,
+      "title": "(It Goes Like) Nanana - Edit",
+      "artist": "Peggy Gou",
+      "year": 2023,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 2
+      },
+      "last_played": 1781330782
+    },
+    "spotify_track_7ef4DlsgrMEH11cDZd32M6": {
+      "times_played": 2,
+      "correct_guesses": 3,
+      "total_guesses": 3,
+      "total_years_off": 0,
+      "exact_matches": 3,
+      "close_matches": 0,
+      "title": "One Kiss (with Dua Lipa)",
+      "artist": "Calvin Harris",
+      "year": 2018,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 2
+      },
+      "last_played": 1781331181
+    },
+    "spotify_track_2C2vSufLm1wLq2GjDH3iMh": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Engelbewaarder",
+      "artist": "Marco Schuitmaker",
+      "year": 2022,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781292004
+    },
+    "spotify_track_0puf9yIluy9W0vpMEUoAnN": {
+      "times_played": 2,
+      "correct_guesses": 3,
+      "total_guesses": 3,
+      "total_years_off": 0,
+      "exact_matches": 3,
+      "close_matches": 0,
+      "title": "Bang Bang",
+      "artist": "Jessie J",
+      "year": 2014,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 2
+      },
+      "last_played": 1781331419
+    },
+    "spotify_track_6yeZM8gyykjaf8w0GqRfK4": {
+      "times_played": 2,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Wildberry Lillet",
+      "artist": "Nina Chuba",
+      "year": 2022,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 2
+      },
+      "last_played": 1781331435
+    },
+    "spotify_track_0zod2geACnBZNbL72LBP6Y": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Dansplaat",
+      "artist": "Brainpower",
+      "year": 2002,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781292173
+    },
+    "spotify_track_0OPQRCqdgAfgghajirG91o": {
+      "times_played": 2,
+      "correct_guesses": 3,
+      "total_guesses": 3,
+      "total_years_off": 0,
+      "exact_matches": 3,
+      "close_matches": 0,
+      "title": "Hallihallo",
+      "artist": "Andreas Gabalier",
+      "year": 2018,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 2
+      },
+      "last_played": 1781331522
+    },
+    "spotify_track_3LWDPEXEaLBRGNLbdcbwBR": {
+      "times_played": 2,
+      "correct_guesses": 3,
+      "total_guesses": 3,
+      "total_years_off": 0,
+      "exact_matches": 3,
+      "close_matches": 0,
+      "title": "Mr. Saxobeat - Radio Edit",
+      "artist": "Alexandra Stan",
+      "year": 2011,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 2
+      },
+      "last_played": 1781330749
+    },
+    "spotify_track_2yeViE7XgsOare6ypIIXsB": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Sammy",
+      "artist": "Ramses Shaffy",
+      "year": 1966,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781292366
+    },
+    "spotify_track_1v5ux3K8vE1CWxDa0PVyGu": {
+      "times_played": 2,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Disco Pogo",
+      "artist": "Die Atzen",
+      "year": 2010,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 2
+      },
+      "last_played": 1781331032
+    },
+    "spotify_track_6YexWyp9s0V0w1uGhtITsd": {
+      "times_played": 2,
+      "correct_guesses": 3,
+      "total_guesses": 3,
+      "total_years_off": 0,
+      "exact_matches": 3,
+      "close_matches": 0,
+      "title": "Holding On",
+      "artist": "Leony",
+      "year": 2023,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 2
+      },
+      "last_played": 1781330467
+    },
+    "spotify_track_2h1jMOkIDg1RmYaTdh8RcL": {
+      "times_played": 2,
+      "correct_guesses": 4,
+      "total_guesses": 4,
+      "total_years_off": 0,
+      "exact_matches": 4,
+      "close_matches": 0,
+      "title": "Afscheid",
+      "artist": "Volumia!",
+      "year": 1998,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1,
+        "/Config/Beatify/Playlists/Disney Classics": 1
+      },
+      "last_played": 1781377432
+    },
+    "spotify_track_1ZPEuL91Q4TRr0Al7Vbfjz": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Mooi Man",
+      "artist": "Mannenkoor Karrespoor",
+      "year": 1991,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781292548
+    },
+    "spotify_track_4wn7cO2iHlWueXGDd4gH9g": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Dat heb jij gedaan",
+      "artist": "MEAU",
+      "year": 2021,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781292579
+    },
+    "spotify_track_2O1RIY1rSH55rBGZBDxAkx": {
+      "times_played": 2,
+      "correct_guesses": 3,
+      "total_guesses": 3,
+      "total_years_off": 0,
+      "exact_matches": 3,
+      "close_matches": 0,
+      "title": "Afscheid Nemen Bestaat Niet - Single Version",
+      "artist": "Marco Borsato",
+      "year": 2003,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1,
+        "/Config/Beatify/Playlists/Disney Classics": 1
+      },
+      "last_played": 1781377753
+    },
+    "spotify_track_4S4qg2f9wJUskXClMAVEwJ": {
+      "times_played": 2,
+      "correct_guesses": 4,
+      "total_guesses": 4,
+      "total_years_off": 0,
+      "exact_matches": 4,
+      "close_matches": 0,
+      "title": "Per Spoor (Kedeng Kedeng) - Radio Versie",
+      "artist": "Guus Meeuwis",
+      "year": 1996,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1,
+        "/Config/Beatify/Playlists/Community/Gen Z Anthems": 1
+      },
+      "last_played": 1781365460
+    },
+    "spotify_track_6V2qGKZWIR7xsbhFtUQdsn": {
+      "times_played": 2,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Sun Is Up",
+      "artist": "INNA",
+      "year": 2011,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 2
+      },
+      "last_played": 1781331642
+    },
+    "spotify_track_1Fc6lVQFPOcEVz3QWEzXWL": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Blijven Slapen",
+      "artist": "Snelle",
+      "year": 2021,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781292788
+    },
+    "spotify_track_2V4bv1fNWfTcyRJKmej6Sj": {
+      "times_played": 2,
+      "correct_guesses": 3,
+      "total_guesses": 3,
+      "total_years_off": 0,
+      "exact_matches": 3,
+      "close_matches": 0,
+      "title": "Cooler Than Me",
+      "artist": "Mike Posner",
+      "year": 2010,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 2
+      },
+      "last_played": 1781331718
+    },
+    "spotify_track_54OBgO0Xwu20Jak9TMXbR7": {
+      "times_played": 2,
+      "correct_guesses": 3,
+      "total_guesses": 3,
+      "total_years_off": 0,
+      "exact_matches": 3,
+      "close_matches": 0,
+      "title": "Wellerman - Sea Shanty",
+      "artist": "Nathan Evans",
+      "year": 2021,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 2
+      },
+      "last_played": 1781330535
+    },
+    "spotify_track_0CJ1quCQhVX9Ax2jYwwovA": {
+      "times_played": 2,
+      "correct_guesses": 3,
+      "total_guesses": 3,
+      "total_years_off": 0,
+      "exact_matches": 3,
+      "close_matches": 0,
+      "title": "We No Speak Americano",
+      "artist": "Yolanda Be Cool",
+      "year": 2010,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 2
+      },
+      "last_played": 1781331074
+    },
+    "spotify_track_5dOov14V6FD3sEjDZMiRS6": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Voorbij",
+      "artist": "Marco Borsato",
+      "year": 1998,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781292961
+    },
+    "spotify_track_3yxFiZHkQgJmLEyhij30rr": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Rood",
+      "artist": "Marco Borsato",
+      "year": 2006,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781292991
+    },
+    "spotify_track_6mhojtIauujcoXxlGsihh1": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Lil Craney",
+      "artist": "Kraantje Pappie",
+      "year": 2018,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781293027
+    },
+    "spotify_track_4b2tcjrG1qUkSdsqEFP2dB": {
+      "times_played": 2,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Sun Is Shining",
+      "artist": "Axwell /\\ Ingrosso",
+      "year": 2015,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 2
+      },
+      "last_played": 1781331360
+    },
+    "spotify_track_2WeAyT93f7IzrwXm3ZJMb2": {
+      "times_played": 1,
+      "correct_guesses": 1,
+      "total_guesses": 1,
+      "total_years_off": 0,
+      "exact_matches": 1,
+      "close_matches": 0,
+      "title": "Automatisch",
+      "artist": "FLEMMING",
+      "year": 2022,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781293200
+    },
+    "spotify_track_4i2qxFEVVUi8yOYoxB8TCX": {
+      "times_played": 1,
+      "correct_guesses": 0,
+      "total_guesses": 0,
+      "total_years_off": 0,
+      "exact_matches": 0,
+      "close_matches": 0,
+      "title": "Midnight Sky",
+      "artist": "Miley Cyrus",
+      "year": 2020,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781330384
+    },
+    "spotify_track_1rqqCSm0Qe4I9rUvWncaom": {
+      "times_played": 1,
+      "correct_guesses": 1,
+      "total_guesses": 1,
+      "total_years_off": 0,
+      "exact_matches": 1,
+      "close_matches": 0,
+      "title": "High Hopes",
+      "artist": "Panic! At The Disco",
+      "year": 2018,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781330414
+    },
+    "spotify_track_0lYBSQXN6rCTvUZvg9S0lU": {
+      "times_played": 1,
+      "correct_guesses": 0,
+      "total_guesses": 0,
+      "total_years_off": 0,
+      "exact_matches": 0,
+      "close_matches": 0,
+      "title": "Let Me Love You",
+      "artist": "DJ Snake",
+      "year": 2016,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781330443
+    },
+    "spotify_track_1gv4xPanImH17bKZ9rOveR": {
+      "times_played": 1,
+      "correct_guesses": 1,
+      "total_guesses": 1,
+      "total_years_off": 0,
+      "exact_matches": 1,
+      "close_matches": 0,
+      "title": "Raise Your Glass",
+      "artist": "P!nk",
+      "year": 2010,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781330558
+    },
+    "spotify_track_1uXbwHHfgsXcUKfSZw5ZJ0": {
+      "times_played": 1,
+      "correct_guesses": 1,
+      "total_guesses": 1,
+      "total_years_off": 0,
+      "exact_matches": 1,
+      "close_matches": 0,
+      "title": "Run the World (Girls)",
+      "artist": "Beyonc\u00e9",
+      "year": 2011,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781330662
+    },
+    "spotify_track_4ZtFanR9U6ndgddUvNcjcG": {
+      "times_played": 1,
+      "correct_guesses": 1,
+      "total_guesses": 1,
+      "total_years_off": 0,
+      "exact_matches": 1,
+      "close_matches": 0,
+      "title": "good 4 u",
+      "artist": "Olivia Rodrigo",
+      "year": 2021,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781330737
+    },
+    "spotify_track_4RAR8g8fZNB106ezUurnE0": {
+      "times_played": 1,
+      "correct_guesses": 0,
+      "total_guesses": 0,
+      "total_years_off": 0,
+      "exact_matches": 0,
+      "close_matches": 0,
+      "title": "Dancing Feet (feat. DNCE)",
+      "artist": "Kygo",
+      "year": 2022,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781330864
+    },
+    "spotify_track_2GxrNKugF82CnoRFbQfzPf": {
+      "times_played": 1,
+      "correct_guesses": 1,
+      "total_guesses": 1,
+      "total_years_off": 0,
+      "exact_matches": 1,
+      "close_matches": 0,
+      "title": "i like the way you kiss me",
+      "artist": "Artemas",
+      "year": 2024,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781330882
+    },
+    "spotify_track_0KXcsCinixGmfcXjBqfEis": {
+      "times_played": 1,
+      "correct_guesses": 0,
+      "total_guesses": 0,
+      "total_years_off": 0,
+      "exact_matches": 0,
+      "close_matches": 0,
+      "title": "Sexy And I Know It",
+      "artist": "LMFAO",
+      "year": 2011,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781330915
+    },
+    "spotify_track_2uAgZ0PelSImQe3BME9CiT": {
+      "times_played": 1,
+      "correct_guesses": 0,
+      "total_guesses": 0,
+      "total_years_off": 0,
+      "exact_matches": 0,
+      "close_matches": 0,
+      "title": "Solo Para Ti",
+      "artist": "Alvaro Soler",
+      "year": 2022,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781330964
+    },
+    "spotify_track_32OlwWuMpZ6b0aN2RZOeMS": {
+      "times_played": 1,
+      "correct_guesses": 1,
+      "total_guesses": 1,
+      "total_years_off": 0,
+      "exact_matches": 1,
+      "close_matches": 0,
+      "title": "Uptown Funk (feat. Bruno Mars)",
+      "artist": "Mark Ronson",
+      "year": 2015,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781330984
+    },
+    "spotify_track_0aBKFfdyOD1Ttvgv0cfjjJ": {
+      "times_played": 1,
+      "correct_guesses": 1,
+      "total_guesses": 1,
+      "total_years_off": 0,
+      "exact_matches": 1,
+      "close_matches": 0,
+      "title": "More - RedOne Jimmy Joker Remix",
+      "artist": "USHER",
+      "year": 2011,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781331016
+    },
+    "spotify_track_5vNRhkKd0yEAg8suGBpjeY": {
+      "times_played": 1,
+      "correct_guesses": 1,
+      "total_guesses": 1,
+      "total_years_off": 0,
+      "exact_matches": 1,
+      "close_matches": 0,
+      "title": "APT.",
+      "artist": "ROS\u00c9",
+      "year": 2024,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781331096
+    },
+    "spotify_track_63CSozvYUEudPp12679UVF": {
+      "times_played": 1,
+      "correct_guesses": 0,
+      "total_guesses": 0,
+      "total_years_off": 0,
+      "exact_matches": 0,
+      "close_matches": 0,
+      "title": "Don't Worry (with Ray Dalton) - Radio Edit",
+      "artist": "Madcon",
+      "year": 2015,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781331142
+    },
+    "spotify_track_5YWu6dt50Nieq8qi572RF8": {
+      "times_played": 1,
+      "correct_guesses": 0,
+      "total_guesses": 0,
+      "total_years_off": 0,
+      "exact_matches": 0,
+      "close_matches": 0,
+      "title": "9 bis 9",
+      "artist": "SIRA",
+      "year": 2023,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781331165
+    },
+    "spotify_track_7qCAVkHWZkF44OzOUKf8Cr": {
+      "times_played": 1,
+      "correct_guesses": 0,
+      "total_guesses": 0,
+      "total_years_off": 0,
+      "exact_matches": 0,
+      "close_matches": 0,
+      "title": "El Perd\u00f3n (with Enrique Iglesias)",
+      "artist": "Nicky Jam",
+      "year": 2017,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781331194
+    },
+    "spotify_track_2PnlsTsOTLE5jnBnNe2K0A": {
+      "times_played": 1,
+      "correct_guesses": 0,
+      "total_guesses": 0,
+      "total_years_off": 0,
+      "exact_matches": 0,
+      "close_matches": 0,
+      "title": "The Emptiness Machine",
+      "artist": "Linkin Park",
+      "year": 2024,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781331226
+    },
+    "spotify_track_2ekn2ttSfGqwhhate0LSR0": {
+      "times_played": 1,
+      "correct_guesses": 0,
+      "total_guesses": 0,
+      "total_years_off": 0,
+      "exact_matches": 0,
+      "close_matches": 0,
+      "title": "New Rules",
+      "artist": "Dua Lipa",
+      "year": 2018,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781331251
+    },
+    "spotify_track_6RrUUleT9JI0KQHZYBdJMB": {
+      "times_played": 1,
+      "correct_guesses": 1,
+      "total_guesses": 1,
+      "total_years_off": 0,
+      "exact_matches": 1,
+      "close_matches": 0,
+      "title": "Sunny Days",
+      "artist": "Armin van Buuren",
+      "year": 2017,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781331304
+    },
+    "spotify_track_4saklk6nie3yiGePpBwUoc": {
+      "times_played": 1,
+      "correct_guesses": 1,
+      "total_guesses": 1,
+      "total_years_off": 0,
+      "exact_matches": 1,
+      "close_matches": 0,
+      "title": "Dynamite",
+      "artist": "BTS",
+      "year": 2020,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781331371
+    },
+    "spotify_track_0dLMK9i5dLoYYrGXFdlcT3": {
+      "times_played": 1,
+      "correct_guesses": 1,
+      "total_guesses": 1,
+      "total_years_off": 0,
+      "exact_matches": 1,
+      "close_matches": 0,
+      "title": "Because the Night",
+      "artist": "Cascada",
+      "year": 2010,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781331452
+    },
+    "spotify_track_3CRDbSIZ4r5MsZ0YwxuEkn": {
+      "times_played": 1,
+      "correct_guesses": 1,
+      "total_guesses": 1,
+      "total_years_off": 0,
+      "exact_matches": 1,
+      "close_matches": 0,
+      "title": "Stressed Out",
+      "artist": "Twenty One Pilots",
+      "year": 2015,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781331473
+    },
+    "spotify_track_5UqCQaDshqbIk3pkhy4Pjg": {
+      "times_played": 1,
+      "correct_guesses": 1,
+      "total_guesses": 1,
+      "total_years_off": 0,
+      "exact_matches": 1,
+      "close_matches": 0,
+      "title": "Levels - Radio Edit",
+      "artist": "Avicii",
+      "year": 2011,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781331496
+    },
+    "spotify_track_2zUKhXh78KzEnC7NzigNjn": {
+      "times_played": 1,
+      "correct_guesses": 0,
+      "total_guesses": 0,
+      "total_years_off": 0,
+      "exact_matches": 0,
+      "close_matches": 0,
+      "title": "Ich f\u00fchl' mich Disco",
+      "artist": "Christian Steiffen",
+      "year": 2012,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781331529
+    },
+    "spotify_track_1DqdF42leyFIzqNDv9CjId": {
+      "times_played": 1,
+      "correct_guesses": 1,
+      "total_guesses": 1,
+      "total_years_off": 0,
+      "exact_matches": 1,
+      "close_matches": 0,
+      "title": "Dynamite",
+      "artist": "Taio Cruz",
+      "year": 2010,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781331568
+    },
+    "spotify_track_5XSSGkeN6FJm7AAowBCLEW": {
+      "times_played": 1,
+      "correct_guesses": 1,
+      "total_guesses": 1,
+      "total_years_off": 0,
+      "exact_matches": 1,
+      "close_matches": 0,
+      "title": "I'm an Albatraoz",
+      "artist": "AronChupa",
+      "year": 2014,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781331628
+    },
+    "spotify_track_0vR2rIVORmgeKiGIgNT0fV": {
+      "times_played": 1,
+      "correct_guesses": 0,
+      "total_guesses": 0,
+      "total_years_off": 0,
+      "exact_matches": 0,
+      "close_matches": 0,
+      "title": "By Your Side (feat. Tom Grennan)",
+      "artist": "Calvin Harris",
+      "year": 2021,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781331655
+    },
+    "spotify_track_7lHZVqUWCH19fUw0ZI2euy": {
+      "times_played": 1,
+      "correct_guesses": 0,
+      "total_guesses": 0,
+      "total_years_off": 0,
+      "exact_matches": 0,
+      "close_matches": 0,
+      "title": "Mi Gente - Original Mix",
+      "artist": "J Balvin",
+      "year": 2017,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781331693
+    },
+    "spotify_track_7w87IxuO7BDcJ3YUqCyMTT": {
+      "times_played": 1,
+      "correct_guesses": 1,
+      "total_guesses": 1,
+      "total_years_off": 0,
+      "exact_matches": 1,
+      "close_matches": 0,
+      "title": "Pumped Up Kicks",
+      "artist": "Foster The People",
+      "year": 2010,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781331731
+    },
+    "spotify_track_5UcMexhqzhHXwGvYuA6kVj": {
+      "times_played": 1,
+      "correct_guesses": 1,
+      "total_guesses": 1,
+      "total_years_off": 0,
+      "exact_matches": 1,
+      "close_matches": 0,
+      "title": "Crying At the Discoteque",
+      "artist": "Alcazar",
+      "year": 2000,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781331747
+    },
+    "spotify_track_0Z7nGFVCLfixWctgePsRk9": {
+      "times_played": 1,
+      "correct_guesses": 1,
+      "total_guesses": 1,
+      "total_years_off": 0,
+      "exact_matches": 1,
+      "close_matches": 0,
+      "title": "TEXAS HOLD 'EM",
+      "artist": "Beyonc\u00e9",
+      "year": 2024,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781331764
+    },
+    "spotify_track_6kPJZM97LwdG9QIsT7khp6": {
+      "times_played": 1,
+      "correct_guesses": 1,
+      "total_guesses": 1,
+      "total_years_off": 0,
+      "exact_matches": 1,
+      "close_matches": 0,
+      "title": "Solo (feat. Demi Lovato)",
+      "artist": "Clean Bandit",
+      "year": 2018,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781331778
+    },
+    "spotify_track_698ItKASDavgwZ3WjaWjtz": {
+      "times_played": 1,
+      "correct_guesses": 1,
+      "total_guesses": 1,
+      "total_years_off": 0,
+      "exact_matches": 1,
+      "close_matches": 0,
+      "title": "Faded",
+      "artist": "Alan Walker",
+      "year": 2015,
+      "playlists": {
+        "/Config/Beatify/Playlists/Hits 2010S 2020S": 1
+      },
+      "last_played": 1781331857
+    },
+    "spotify_track_4NCYjPP2VAyYi6707SkS30": {
+      "times_played": 1,
+      "correct_guesses": 1,
+      "total_guesses": 1,
+      "total_years_off": 0,
+      "exact_matches": 1,
+      "close_matches": 0,
+      "title": "I Want You To Know",
+      "artist": "Zedd",
+      "year": 2012,
+      "playlists": {
+        "/Config/Beatify/Playlists/Movies 100 Greatest Themes": 1
+      },
+      "last_played": 1781332006
+    },
+    "spotify_track_1gihuPhrLraKYrJMAEONyc": {
+      "times_played": 1,
+      "correct_guesses": 1,
+      "total_guesses": 1,
+      "total_years_off": 0,
+      "exact_matches": 1,
+      "close_matches": 0,
+      "title": "Feel So Close",
+      "artist": "Calvin Harris",
+      "year": 2011,
+      "playlists": {
+        "/Config/Beatify/Playlists/Movies 100 Greatest Themes": 1
+      },
+      "last_played": 1781332033
+    },
+    "spotify_track_4qjrCkcVbsYlitCqbBkeKe": {
+      "times_played": 1,
+      "correct_guesses": 1,
+      "total_guesses": 1,
+      "total_years_off": 0,
+      "exact_matches": 1,
+      "close_matches": 0,
+      "title": "Colors Of The Wind - End Title",
+      "artist": "Vanessa Williams",
+      "year": 1995,
+      "playlists": {
+        "/Config/Beatify/Playlists/Movies 100 Greatest Themes": 1
+      },
+      "last_played": 1781332054
+    },
+    "spotify_track_6qVXkG01rBYGfxIndGOQ3z": {
+      "times_played": 1,
+      "correct_guesses": 0,
+      "total_guesses": 0,
+      "total_years_off": 0,
+      "exact_matches": 0,
+      "close_matches": 0,
+      "title": "Shot Me Down",
+      "artist": "David Guetta",
+      "year": 2014,
+      "playlists": {
+        "/Config/Beatify/Playlists/Movies 100 Greatest Themes": 1
+      },
+      "last_played": 1781332065
+    },
+    "spotify_track_0HPD5WQqrq7wPWR7P7Dw1i": {
+      "times_played": 2,
+      "correct_guesses": 4,
+      "total_guesses": 4,
+      "total_years_off": 0,
+      "exact_matches": 4,
+      "close_matches": 0,
+      "title": "TiK ToK",
+      "artist": "Ke$ha",
+      "year": 2009,
+      "playlists": {
+        "/Config/Beatify/Playlists/Community/Gen Z Anthems": 1,
+        "/Config/Beatify/Playlists/Disney Classics": 1
+      },
+      "last_played": 1781377080
+    },
+    "spotify_track_3mRM4NM8iO7UBqrSigCQFH": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Stayin' Alive - From \"Saturday Night Fever\" Soundtrack",
+      "artist": "Bee Gees",
+      "year": 2016,
+      "playlists": {
+        "/Config/Beatify/Playlists/Community/Gen Z Anthems": 1
+      },
+      "last_played": 1781365281
+    },
+    "spotify_track_60nZcImufyMA1MKQY3dcCH": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Happy",
+      "artist": "Pharrell Williams",
+      "year": 2013,
+      "playlists": {
+        "/Config/Beatify/Playlists/Community/Gen Z Anthems": 1
+      },
+      "last_played": 1781365309
+    },
+    "spotify_track_4AUASx1KCTQFmpHu7qq6Kr": {
+      "times_played": 2,
+      "correct_guesses": 4,
+      "total_guesses": 4,
+      "total_years_off": 0,
+      "exact_matches": 4,
+      "close_matches": 0,
+      "title": "Oceaan",
+      "artist": "Racoon",
+      "year": 2012,
+      "playlists": {
+        "/Config/Beatify/Playlists/Community/Gen Z Anthems": 1,
+        "/Config/Beatify/Playlists/Disney Classics": 1
+      },
+      "last_played": 1781376862
+    },
+    "spotify_track_43ay9lQZ5rfNcOOHhRF2cM": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "The Greatest Show",
+      "artist": "Hugh Jackman,\u00a0Keala Settle,\u00a0Zac Efron,\u00a0Zendaya,\u00a0The Greatest Showman Ensemble",
+      "year": 2017,
+      "playlists": {
+        "/Config/Beatify/Playlists/Community/Gen Z Anthems": 1
+      },
+      "last_played": 1781365362
+    },
+    "spotify_track_0z9UVN8VBHJ9HdfYsOuuNf": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Safe & Sound - from The Hunger Games Soundtrack",
+      "artist": "Taylor Swift,\u00a0The Civil Wars",
+      "year": 2012,
+      "playlists": {
+        "/Config/Beatify/Playlists/Community/Gen Z Anthems": 1
+      },
+      "last_played": 1781365415
+    },
+    "spotify_track_7azo4rpSUh8nXgtonC6Pkq": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Thriller",
+      "artist": "Michael Jackson",
+      "year": 2008,
+      "playlists": {
+        "/Config/Beatify/Playlists/Community/Gen Z Anthems": 1
+      },
+      "last_played": 1781365496
+    },
+    "spotify_track_5CyZPkmTBmq61SunRDysna": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "We Go Together - From \u201cGrease\u201d",
+      "artist": "John Travolta,\u00a0Olivia Newton-John",
+      "year": 2019,
+      "playlists": {
+        "/Config/Beatify/Playlists/Community/Gen Z Anthems": 1
+      },
+      "last_played": 1781365543
+    },
+    "spotify_track_4gphxUgq0JSFv2BCLhNDiE": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Jailhouse Rock",
+      "artist": "Elvis Presley",
+      "year": 2010,
+      "playlists": {
+        "/Config/Beatify/Playlists/Community/Gen Z Anthems": 1
+      },
+      "last_played": 1781365594
+    },
+    "spotify_track_1QWJmDzpPKqewtg0abEyq8": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Super Trouper",
+      "artist": "Cher,\u00a0Meryl Streep,\u00a0Christine Baranski,\u00a0Julie Walters,\u00a0Pierce Brosnan,\u00a0Colin Firth,\u00a0Stellan Skarsg\u00e5rd,\u00a0Andy Garcia,\u00a0Amanda Seyfried,\u00a0Dominic Cooper",
+      "year": 2018,
+      "playlists": {
+        "/Config/Beatify/Playlists/Community/Gen Z Anthems": 1
+      },
+      "last_played": 1781365640
+    },
+    "spotify_track_0OFknyqxmSQ42SoKxWVTok": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Un Poco Loco",
+      "artist": "Anthony Gonzalez,\u00a0Gael Garcia Bernal",
+      "year": 2017,
+      "playlists": {
+        "/Config/Beatify/Playlists/Community/Gen Z Anthems": 1
+      },
+      "last_played": 1781365680
+    },
+    "spotify_track_6ZxPYutGhjLTrcmvcshCa4": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Arabian Nights (2019)",
+      "artist": "Will Smith",
+      "year": 2019,
+      "playlists": {
+        "/Config/Beatify/Playlists/Community/Gen Z Anthems": 1
+      },
+      "last_played": 1781365731
+    },
+    "spotify_track_1eJtn8NErRIgbMt8T6yKcc": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Someday My Prince Will Come",
+      "artist": "Emile Pandolfi",
+      "year": 1993,
+      "playlists": {
+        "/Config/Beatify/Playlists/Community/Gen Z Anthems": 1
+      },
+      "last_played": 1781365806
+    },
+    "spotify_track_2rJFFUEl1LURkV0b0OARXx": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Beauty and the Beast",
+      "artist": "Angela Lansbury,\u00a0Disney",
+      "year": 2006,
+      "playlists": {
+        "/Config/Beatify/Playlists/Community/Gen Z Anthems": 1
+      },
+      "last_played": 1781365857
+    },
+    "spotify_track_4LRPiXqCikLlN15c3yImP7": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "As It Was",
+      "artist": "Harry Styles",
+      "year": 2022,
+      "playlists": {
+        "/Config/Beatify/Playlists/Community/Gen Z Anthems": 1
+      },
+      "last_played": 1781365899
+    },
+    "spotify_track_3Wrjm47oTz2sjIgck11l5e": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Beggin'",
+      "artist": "M\u00e5neskin",
+      "year": 2017,
+      "playlists": {
+        "/Config/Beatify/Playlists/Community/Gen Z Anthems": 1
+      },
+      "last_played": 1781365932
+    },
+    "spotify_track_7uQ7e7nzbtyX87eIYHpj6Z": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "De Diepte",
+      "artist": "S10",
+      "year": 2022,
+      "playlists": {
+        "/Config/Beatify/Playlists/Community/Gen Z Anthems": 1
+      },
+      "last_played": 1781365984
+    },
+    "spotify_track_2JYNxXIsfXJ1QJhaBlqf9e": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Honey, Honey - From 'Mamma Mia!' Original Motion Picture Soundtrack",
+      "artist": "Amanda Seyfried,\u00a0Ashley Lilley,\u00a0Rachel McDowall",
+      "year": 2008,
+      "playlists": {
+        "/Config/Beatify/Playlists/Community/Gen Z Anthems": 1
+      },
+      "last_played": 1781366018
+    },
+    "spotify_track_7DSAEUvxU8FajXtRloy8M0": {
+      "times_played": 2,
+      "correct_guesses": 4,
+      "total_guesses": 4,
+      "total_years_off": 0,
+      "exact_matches": 4,
+      "close_matches": 0,
+      "title": "Flowers",
+      "artist": "Miley Cyrus",
+      "year": 2023,
+      "playlists": {
+        "/Config/Beatify/Playlists/Community/Gen Z Anthems": 1,
+        "/Config/Beatify/Playlists/Disney Classics": 1
+      },
+      "last_played": 1781377215
+    },
+    "spotify_track_7tUSJY4nsDBJTjd1UXKRsT": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Part of Your World",
+      "artist": "Alan Menken,\u00a0Howard Ashman,\u00a0Jodi Benson,\u00a0Disney,\u00a0J.A.C. Redford",
+      "year": 2023,
+      "playlists": {
+        "/Config/Beatify/Playlists/Community/Gen Z Anthems": 1
+      },
+      "last_played": 1781366118
+    },
+    "spotify_track_1OkDLYSHraLYrClG4Q0AQX": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "'T Is Weer Voorbij Die Mooie Zomer",
+      "artist": "Gerard Cox",
+      "year": 1973,
+      "playlists": {
+        "/Config/Beatify/Playlists/Community/Gen Z Anthems": 1
+      },
+      "last_played": 1781366183
+    },
+    "spotify_track_3pMsqOoZTtzUiZXmDVtrCD": {
+      "times_played": 1,
+      "correct_guesses": 0,
+      "total_guesses": 0,
+      "total_years_off": 0,
+      "exact_matches": 0,
+      "close_matches": 0,
+      "title": "You Can't Stop The Beat",
+      "artist": "Motion Picture Cast of Hairspray,\u00a0Elijah Kelley,\u00a0John Travolta,\u00a0Queen Latifah,\u00a0Nikki Blonsky,\u00a0Zac Efron,\u00a0Amanda Bynes",
+      "year": 2007,
+      "playlists": {
+        "/Config/Beatify/Playlists/Community/Gen Z Anthems": 1
+      },
+      "last_played": 1781366255
+    },
+    "spotify_track_4J7CKHCF3mdL4diUsmW8lq": {
+      "times_played": 1,
+      "correct_guesses": 1,
+      "total_guesses": 1,
+      "total_years_off": 0,
+      "exact_matches": 1,
+      "close_matches": 0,
+      "title": "Under Control",
+      "artist": "Calvin Harris",
+      "year": 2013,
+      "playlists": {
+        "/Config/Beatify/Playlists/Community/Edm Anthems": 1
+      },
+      "last_played": 1781375757
+    },
+    "spotify_track_66hayvUbTotekKU3H4ta1f": {
+      "times_played": 1,
+      "correct_guesses": 0,
+      "total_guesses": 0,
+      "total_years_off": 0,
+      "exact_matches": 0,
+      "close_matches": 0,
+      "title": "Where Are \u00dc Now (with Justin Bieber)",
+      "artist": "Jack \u00dc",
+      "year": 2015,
+      "playlists": {
+        "/Config/Beatify/Playlists/Community/Edm Anthems": 1
+      },
+      "last_played": 1781375802
+    },
+    "spotify_track_6oJ6le65B3SEqPwMRNXWjY": {
+      "times_played": 1,
+      "correct_guesses": 0,
+      "total_guesses": 0,
+      "total_years_off": 0,
+      "exact_matches": 0,
+      "close_matches": 0,
+      "title": "Higher Love",
+      "artist": "Kygo",
+      "year": 2019,
+      "playlists": {
+        "/Config/Beatify/Playlists/Community/Edm Anthems": 1
+      },
+      "last_played": 1781375835
+    },
+    "spotify_track_7FwBtcecmlpc1sLySPXeGE": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Dancing In the Dark",
+      "artist": "Bruce Springsteen",
+      "year": 1984,
+      "playlists": {
+        "/Config/Beatify/Playlists/80Er Hits": 1
+      },
+      "last_played": 1781376273
+    },
+    "spotify_track_2dLLR6qlu5UJ5gk0dKz0h3": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Royals",
+      "artist": "Lorde",
+      "year": 2013,
+      "playlists": {
+        "/Config/Beatify/Playlists/80Er Hits": 1
+      },
+      "last_played": 1781376295
+    },
+    "spotify_track_1Jwc3ODLQxtbnS8M9TflSP": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Walk Like an Egyptian",
+      "artist": "The Bangles",
+      "year": 1990,
+      "playlists": {
+        "/Config/Beatify/Playlists/80Er Hits": 1
+      },
+      "last_played": 1781376340
+    },
+    "spotify_track_4kOfxxnW1ukZdsNbCKY9br": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "What's Love Got to Do with It",
+      "artist": "Tina Turner",
+      "year": 1984,
+      "playlists": {
+        "/Config/Beatify/Playlists/80Er Hits": 1
+      },
+      "last_played": 1781376381
+    },
+    "spotify_track_5x3FNIubrGQftoIZYXNDFV": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Lemon Tree",
+      "artist": "Fools Garden",
+      "year": 1995,
+      "playlists": {
+        "/Config/Beatify/Playlists/80Er Hits": 1
+      },
+      "last_played": 1781376452
+    },
+    "spotify_track_35JhxrwW2bBAiMcnrmuLEN": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Such a Shame",
+      "artist": "Talk Talk",
+      "year": 1984,
+      "playlists": {
+        "/Config/Beatify/Playlists/80Er Hits": 1
+      },
+      "last_played": 1781376480
+    },
+    "spotify_track_3hMHG6lx9QHVcfYSUr5PoM": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Danger Zone - From \"Top Gun\" Original Soundtrack",
+      "artist": "Kenny Loggins",
+      "year": 1986,
+      "playlists": {
+        "/Config/Beatify/Playlists/80Er Hits": 1
+      },
+      "last_played": 1781376499
+    },
+    "spotify_track_6L89mwZXSOwYl76YXfX13s": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Basket Case",
+      "artist": "Green Day",
+      "year": 1994,
+      "playlists": {
+        "/Config/Beatify/Playlists/80Er Hits": 1
+      },
+      "last_played": 1781376635
+    },
+    "spotify_track_5coZgMb9D2sypM21bwEOAq": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Hawaiian Roller Coaster Ride",
+      "artist": "Iam Tongi, Kamehameha Schools Children's Chorus & Disney",
+      "year": 2002,
+      "playlists": {
+        "/Config/Beatify/Playlists/Disney Classics": 1
+      },
+      "last_played": 1781376822
+    },
+    "spotify_track_6mBkzVylqtgtazeHayvFZU": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Waarom Heb Jij Me Laten Staan?",
+      "artist": "Wim van Gennip en De Heikrekels",
+      "year": 1967,
+      "playlists": {
+        "/Config/Beatify/Playlists/Disney Classics": 1
+      },
+      "last_played": 1781376900
+    },
+    "spotify_track_0le8EcVp4x1JjMhwRKIOVi": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Zoutelande (feat. Geike)",
+      "artist": "BL\u00d8F",
+      "year": 2017,
+      "playlists": {
+        "/Config/Beatify/Playlists/Disney Classics": 1
+      },
+      "last_played": 1781376936
+    },
+    "spotify_track_3JOfOrmLwNGMyEKyXqVW4w": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Fixer Upper",
+      "artist": "Maia Wilson & The Cast of Frozen",
+      "year": 2013,
+      "playlists": {
+        "/Config/Beatify/Playlists/Disney Classics": 1
+      },
+      "last_played": 1781376969
+    },
+    "spotify_track_0x6KKx5DATCW0tBdosjMyg": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "I've Got a Dream",
+      "artist": "Mandy Moore, Brad Garrett, Tangled Ensemble, Zachary Levi & Jeffrey Tambor",
+      "year": 2010,
+      "playlists": {
+        "/Config/Beatify/Playlists/Disney Classics": 1
+      },
+      "last_played": 1781377006
+    },
+    "spotify_track_2IGMVunIBsBLtEQyoI1Mu7": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Paint The Town Red",
+      "artist": "Doja Cat",
+      "year": 2023,
+      "playlists": {
+        "/Config/Beatify/Playlists/Disney Classics": 1
+      },
+      "last_played": 1781377054
+    },
+    "spotify_track_0IKYsgkoaylTKGzrlfrpu7": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Chim Chim Cher-ee",
+      "artist": "Relaxing Piano",
+      "year": 1964,
+      "playlists": {
+        "/Config/Beatify/Playlists/Disney Classics": 1
+      },
+      "last_played": 1781377120
+    },
+    "spotify_track_5wANPM4fQCJwkGd4rN57mH": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "drivers license",
+      "artist": "Olivia Rodrigo",
+      "year": 2021,
+      "playlists": {
+        "/Config/Beatify/Playlists/Disney Classics": 1
+      },
+      "last_played": 1781377156
+    },
+    "spotify_track_4Y8vb1uy9IjM2V1hqvrAid": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "You'll Be In My Heart",
+      "artist": "Phil Collins",
+      "year": 1999,
+      "playlists": {
+        "/Config/Beatify/Playlists/Disney Classics": 1
+      },
+      "last_played": 1781377263
+    },
+    "spotify_track_760jhRscwGbIIe1m1IIQpU": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Surface Pressure",
+      "artist": "Jessica Darrow",
+      "year": 2021,
+      "playlists": {
+        "/Config/Beatify/Playlists/Disney Classics": 1
+      },
+      "last_played": 1781377312
+    },
+    "spotify_track_3HWNzYaGf9LmV6G3JYCEwS": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Geef Mij Je Angst",
+      "artist": "Guus Meeuwis",
+      "year": 2005,
+      "playlists": {
+        "/Config/Beatify/Playlists/Disney Classics": 1
+      },
+      "last_played": 1781377340
+    },
+    "spotify_track_4W37fDymJzsqaarlKKEvcM": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Once Upon a December",
+      "artist": "Christy Altomare",
+      "year": 1997,
+      "playlists": {
+        "/Config/Beatify/Playlists/Disney Classics": 1
+      },
+      "last_played": 1781377374
+    },
+    "spotify_track_0VjIjW4GlUZAMYd2vXMi3b": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Blinding Lights",
+      "artist": "The Weeknd",
+      "year": 2020,
+      "playlists": {
+        "/Config/Beatify/Playlists/Disney Classics": 1
+      },
+      "last_played": 1781377473
+    },
+    "spotify_track_4k6Uh1HXdhtusDW5y8Gbvy": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Bad Habit",
+      "artist": "Steve Lacy",
+      "year": 2022,
+      "playlists": {
+        "/Config/Beatify/Playlists/Disney Classics": 1
+      },
+      "last_played": 1781377502
+    },
+    "spotify_track_5bVNYvkjRZuaQnKKdAGuq5": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Journey to the Past",
+      "artist": "Christy Altomare",
+      "year": 2017,
+      "playlists": {
+        "/Config/Beatify/Playlists/Disney Classics": 1
+      },
+      "last_played": 1781377527
+    },
+    "spotify_track_7qiZfU4dY1lWllzX7mPBI3": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Shape of You",
+      "artist": "Ed Sheeran",
+      "year": 2017,
+      "playlists": {
+        "/Config/Beatify/Playlists/Disney Classics": 1
+      },
+      "last_played": 1781377547
+    },
+    "spotify_track_7BKLCZ1jbUBVqRi2FVlTVw": {
+      "times_played": 1,
+      "correct_guesses": 1,
+      "total_guesses": 1,
+      "total_years_off": 0,
+      "exact_matches": 1,
+      "close_matches": 0,
+      "title": "Closer",
+      "artist": "The Chainsmokers ft. Halsey",
+      "year": 2016,
+      "playlists": {
+        "/Config/Beatify/Playlists/Disney Classics": 1
+      },
+      "last_played": 1781377600
+    },
+    "spotify_track_1SCw7GSw06Fpk5vQilILui": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "For the First Time in Forever",
+      "artist": "Kristen Bell & Idina Menzel",
+      "year": 2013,
+      "playlists": {
+        "/Config/Beatify/Playlists/Disney Classics": 1
+      },
+      "last_played": 1781377646
+    },
+    "spotify_track_0VgcSXRbYDHnLBDyuBaBkp": {
+      "times_played": 1,
+      "correct_guesses": 2,
+      "total_guesses": 2,
+      "total_years_off": 0,
+      "exact_matches": 2,
+      "close_matches": 0,
+      "title": "Ik Zing Dit Lied Voor Jou Alleen",
+      "artist": "Jan Smit",
+      "year": 1997,
+      "playlists": {
+        "/Config/Beatify/Playlists/Disney Classics": 1
+      },
+      "last_played": 1781377690
+    }
+  }
+}

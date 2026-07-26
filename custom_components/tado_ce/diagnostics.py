@@ -1,4 +1,4 @@
-"""Tado CE diagnostics — config entry debug dump with PII redaction."""
+"""Tado CE diagnostics: config entry debug dump with PII redaction."""
 
 from __future__ import annotations
 
@@ -72,7 +72,7 @@ async def async_get_config_entry_diagnostics(
     coord_data = coordinator.data or {}
     redacted_coord: dict[str, Any] = {}
 
-    # Safe keys — defense-in-depth redaction for future API schema changes
+    # Safe keys: defense-in-depth redaction for future API schema changes
     for key in ("ratelimit", "weather", "offsets"):
         if key in coord_data:
             redacted_coord[key] = async_redact_data(coord_data[key], TO_REDACT_DATA)

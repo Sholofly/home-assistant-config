@@ -1,4 +1,4 @@
-"""Tado CE config flow — OAuth device authorisation + manual-token + reauth flow."""
+"""Tado CE config flow: OAuth device authorisation + manual-token + reauth flow."""
 
 from __future__ import annotations
 
@@ -35,7 +35,7 @@ _LOGGER = logging.getLogger(__name__)
 class TadoCEConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Tado CE."""
 
-    VERSION = 12
+    VERSION = 13
 
     def __init__(self) -> None:
         """Initialize the config flow."""
@@ -56,7 +56,7 @@ class TadoCEConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return TadoCEOptionsFlow(config_entry)
 
     async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
-        """Handle the initial step — show auth method menu (unique_id set later in _create_entry)."""
+        """Handle the initial step: show auth method menu (unique_id set later in _create_entry)."""
         return self.async_show_menu(
             step_id="user",
             menu_options=["device_auth", "manual_token"],
@@ -72,7 +72,7 @@ class TadoCEConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 return await self.async_step_authorize()
             except Exception:
                 _LOGGER.warning(
-                    "Config Flow: device-code request failed — the "
+                    "Config Flow: device-code request failed, the "
                     "user will see 'cannot_connect' and can retry",
                     exc_info=True,
                 )
@@ -115,7 +115,7 @@ class TadoCEConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         else:
                             _LOGGER.warning(
                                 "Config Flow: manual-token refresh "
-                                "failed — Tado returned HTTP %s, "
+                                "failed. Tado returned HTTP %s, "
                                 "user will see 'invalid_token'",
                                 resp.status,
                             )
@@ -123,14 +123,14 @@ class TadoCEConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 except TadoRateLimitError:
                     _LOGGER.warning(
                         "Config Flow: manual-token validation hit "
-                        "Tado's rate limit — user will see "
+                        "Tado's rate limit, user will see "
                         "'rate_limited' and can retry",
                     )
                     errors["base"] = "rate_limited"
                 except Exception:
                     _LOGGER.warning(
                         "Config Flow: manual-token validation "
-                        "failed unexpectedly — user will see "
+                        "failed unexpectedly, user will see "
                         "'cannot_connect' and can retry",
                         exc_info=True,
                     )
@@ -168,7 +168,7 @@ class TadoCEConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             self._device_code = data.get("device_code")
             self._user_code = data.get("user_code")
             self._verify_url = data.get("verification_uri_complete")
-            # Workaround: Tado sometimes returns URL without /authorize path —
+            # Workaround: Tado sometimes returns URL without /authorize path,
             # patch the path so the verification link opens the device flow page.
             if self._verify_url and "/device?" in self._verify_url and "/oauth2/" not in self._verify_url:
                 self._verify_url = self._verify_url.replace(
@@ -186,7 +186,7 @@ class TadoCEConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors = {}
 
         if user_input is not None:
-            # User clicked Submit — poll Tado to see if they've
+            # User clicked Submit: poll Tado to see if they've
             # completed the device-code grant on the web side.
             self._check_count += 1
             _LOGGER.debug(
@@ -259,7 +259,7 @@ class TadoCEConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     if error == "authorization_pending":
                         return "pending"
                     if error == "slow_down":
-                        # RFC 8628 §3.5 — back off before the next
+                        # RFC 8628 §3.5: back off before the next
                         # poll so Tado doesn't escalate to a hard
                         # rate limit.
                         await asyncio.sleep(5)
@@ -268,7 +268,7 @@ class TadoCEConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         return "expired"
                     _LOGGER.warning(
                         "Config Flow: device-code authorisation "
-                        "rejected by Tado (%s) — user will see "
+                        "rejected by Tado (%s), user will see "
                         "'authorization_failed' and can retry",
                         error,
                     )
@@ -278,14 +278,14 @@ class TadoCEConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         except TadoRateLimitError:
             _LOGGER.warning(
                 "Config Flow: device-code poll hit Tado's rate "
-                "limit — user will see 'rate_limited'",
+                "limit, user will see 'rate_limited'",
             )
             return "rate_limited"
 
         except Exception:
             _LOGGER.warning(
                 "Config Flow: device-code poll failed unexpectedly "
-                "— user will see 'authorization_failed'",
+                ", user will see 'authorization_failed'",
                 exc_info=True,
             )
             return "error"
@@ -311,7 +311,7 @@ class TadoCEConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                             delay = retry_delay(attempt, RETRY_BASE_DELAY)
                             _LOGGER.debug(
                                 "Config Flow: fetch_homes HTTP %s "
-                                "(attempt %s/%s) — retrying in %.1fs",
+                                "(attempt %s/%s), retrying in %.1fs",
                                 resp.status,
                                 attempt,
                                 MAX_RETRY_ATTEMPTS,
@@ -320,14 +320,14 @@ class TadoCEConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                             await asyncio.sleep(delay)
                             continue
 
-                        # Exhausted — distinguish 429 from other transient errors
+                        # Exhausted: distinguish 429 from other transient errors
                         if resp.status == HTTPStatus.TOO_MANY_REQUESTS:
                             raise TadoRateLimitError(
                                 f"Tado API rate limited after {MAX_RETRY_ATTEMPTS} attempts"
                             )
                         raise Exception(f"Failed to fetch homes: {resp.status}")
 
-                    # Non-transient (401, 400, etc.) — fail fast, no retry
+                    # Non-transient (401, 400, etc.): fail fast, no retry
                     raise Exception(f"Failed to fetch homes: {resp.status}")
 
             except TadoRateLimitError:
@@ -337,7 +337,7 @@ class TadoCEConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     delay = retry_delay(attempt, RETRY_BASE_DELAY)
                     _LOGGER.debug(
                         "Config Flow: fetch_homes network error "
-                        "(attempt %s/%s, %s) — retrying in %.1fs",
+                        "(attempt %s/%s, %s), retrying in %.1fs",
                         attempt,
                         MAX_RETRY_ATTEMPTS,
                         err,
@@ -345,7 +345,7 @@ class TadoCEConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     )
                     await asyncio.sleep(delay)
                     continue
-                raise  # exhausted — propagate network error
+                raise  # exhausted: propagate network error
 
     async def async_step_select_home(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         """Handle home selection (if multiple homes)."""
@@ -380,7 +380,7 @@ class TadoCEConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         await self.async_set_unique_id(f"tado_ce_{home_id}")
         self._abort_if_unique_id_configured()
 
-        # home_name is user-set in the Tado app — safe to log;
+        # home_name is user-set in the Tado app, safe to log;
         # home_id goes through `mask_home_id`.
         _LOGGER.info(
             "Config Flow: saved credentials for home %s (id %s)",
@@ -412,7 +412,7 @@ class TadoCEConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             except Exception:
                 _LOGGER.warning(
                     "Config Flow: reauth device-code request "
-                    "failed — user will see 'cannot_connect' and "
+                    "failed, user will see 'cannot_connect' and "
                     "can retry",
                     exc_info=True,
                 )
@@ -465,7 +465,7 @@ class TadoCEConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         home_id = reauth_entry.data.get("home_id")
 
         _LOGGER.info(
-            "Config Flow: reauth complete — refreshed credentials "
+            "Config Flow: reauth complete, refreshed credentials "
             "for home id %s",
             mask_home_id(home_id),
         )
@@ -493,7 +493,7 @@ class TadoCEConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             except Exception:
                 _LOGGER.warning(
                     "Config Flow: reconfigure device-code request "
-                    "failed — user will see 'cannot_connect' and "
+                    "failed, user will see 'cannot_connect' and "
                     "can retry",
                     exc_info=True,
                 )
@@ -552,7 +552,7 @@ class TadoCEConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 return await self.async_step_reconfigure_select_home()
 
         _LOGGER.info(
-            "Config Flow: reconfigure complete — refreshed "
+            "Config Flow: reconfigure complete, refreshed "
             "credentials for home id %s",
             mask_home_id(home_id),
         )
@@ -575,7 +575,7 @@ class TadoCEConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             home_id = user_input["home"]
 
             _LOGGER.info(
-                "Config Flow: reconfigure complete — switched to "
+                "Config Flow: reconfigure complete, switched to "
                 "new home id %s",
                 mask_home_id(home_id),
             )

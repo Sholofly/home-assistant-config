@@ -1,4 +1,4 @@
-"""Tado CE sensor helpers — outdoor temperature lookup + effective temperature for mold risk."""
+"""Tado CE sensor helpers: outdoor temperature lookup + effective temperature for mold risk."""
 
 from __future__ import annotations
 
@@ -42,12 +42,12 @@ def get_outdoor_temperature(hass: HomeAssistant, entity_id: str, use_feels_like:
             return float(state.state)
     except (ValueError, TypeError):
         # State wasn't numeric (e.g. weather entity reporting a
-        # "snowy" condition string) — silently fall through.
+        # "snowy" condition string), silently fall through.
         pass
     except Exception as e:
         _LOGGER.debug(
             "Sensor Helpers: could not read outdoor temperature from "
-            "%s (%s) — falling back to None",
+            "%s (%s), falling back to None",
             entity_id, e,
         )
 
@@ -103,7 +103,7 @@ def get_effective_temperature(
     except Exception as e:
         _LOGGER.debug(
             "Sensor Helpers: could not derive effective temperature "
-            "for zone %s (%s) — falling back to room average",
+            "for zone %s (%s), falling back to room average",
             zone_id, e,
         )
         return fallback

@@ -1,4 +1,4 @@
-"""Tado CE binary sensors — home / away, open window, preheat now, connectivity."""
+"""Tado CE binary sensors: home / away, open window, preheat now, connectivity."""
 
 from __future__ import annotations
 
@@ -46,7 +46,14 @@ from .format_helpers import (
 from .format_helpers import (
     strip_zone_prefix as _strip_zone_prefix,
 )
-from .helpers import get_zone_state, get_zone_states, mask_serial, merge_homekit_into_zone_data, parse_iso_datetime
+from .helpers import (
+    PerEntityAvailabilityMixin,
+    get_zone_state,
+    get_zone_states,
+    mask_serial,
+    merge_homekit_into_zone_data,
+    parse_iso_datetime,
+)
 from .insights_device import calculate_connection_recommendation
 from .insights_models import (
     COOLDOWN_READINGS,
@@ -136,10 +143,42 @@ async def async_setup_entry(
         sensors.append(TadoHomeKitConnectedSensor(coordinator))
         _LOGGER.debug("Binary Sensor: HomeKit connected sensor created")
 
-    # `update_before_add=False` — `self.hass` isn't wired up yet, so
+    # `update_before_add=False`, `self.hass` isn't wired up yet, so
     # the entity's `update()` would fail on a coordinator-data read.
     async_add_entities(sensors, False)
     _LOGGER.info("Binary Sensor: created %d entity(ies)", len(sensors))
+
+
+def _connection_value_to_bool(conn: dict[str, Any] | None) -> bool | None:
+    """Parse a Tado `connectionState` dict's value to a tri-state bool.
+
+    Tado returns the value as a JSON bool or, in some responses, the string
+    "true"/"false". Returns None when the value is missing (unknown), so a
+    caller can distinguish offline from not-yet-reported.
+    """
+    if not conn:
+        return None
+    raw = conn.get("value")
+    if isinstance(raw, bool):
+        return raw
+    if isinstance(raw, str):
+        return raw.upper() == "TRUE"
+    return None
+
+
+# Internet Bridge / Gateway device types as they appear in the home device
+# list. A GW bridge has no Bridge API (that boundary is TADO_BRIDGE_MODELS),
+# but it still lists here with its own connectionState, so reading its online
+# flag is valid and independent of the Bridge-API boundary.
+_BRIDGE_DEVICE_TYPES = ("IB01", "IB02", "GW01", "GW02", "GW03")
+
+
+def _find_bridge_in_home_devices(home_devices: list[Any] | None) -> dict[str, Any] | None:
+    """Return the bridge (Internet Bridge / Gateway) entry from a home device list."""
+    for dev in home_devices or []:
+        if isinstance(dev, dict) and dev.get("deviceType") in _BRIDGE_DEVICE_TYPES:
+            return dev
+    return None
 
 
 def _create_device_connection_sensors(
@@ -168,7 +207,7 @@ def _create_device_connection_sensors(
             )
 
 
-class TadoHomeSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], BinarySensorEntity):
+class TadoHomeSensor(PerEntityAvailabilityMixin, CoordinatorEntity["TadoDataUpdateCoordinator"], BinarySensorEntity):
     """Binary sensor for Tado Home/Away status (reads home_state.json with zones.json fallback)."""
 
     _attr_has_entity_name = True
@@ -181,7 +220,7 @@ class TadoHomeSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], BinarySenso
         self._attr_unique_id = f"tado_ce_{coordinator.home_id}_{_meta.unique_id_suffix}"
         self._attr_device_class = BinarySensorDeviceClass.PRESENCE
         self._attr_entity_category = get_entity_category(_meta)
-        self._attr_available = False
+        self._data_present = False
         self._attr_is_on = None
         # Use hub device info for global entities
         self._attr_device_info = get_hub_device_info(coordinator.home_id)
@@ -218,7 +257,7 @@ class TadoHomeSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], BinarySenso
                 self._attr_is_on = presence == "HOME"
                 self._tado_mode = presence  # Keep tado_mode attribute for compatibility
                 self._data_source = "home_state"
-                self._attr_available = True
+                self._data_present = True
                 return
 
             # Fallback: Read from zones tadoMode
@@ -231,22 +270,22 @@ class TadoHomeSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], BinarySenso
                         self._attr_is_on = self._tado_mode == "HOME"
                         self._presence_locked = zone_data.get("geolocationOverride", False)
                         self._data_source = "zones"
-                        self._attr_available = True
+                        self._data_present = True
                         return
 
-            self._attr_available = False
+            self._data_present = False
         except Exception as e:
             _LOGGER.warning(
-                "Binary Sensor: home / away update failed (%s) — "
+                "Binary Sensor: home / away update failed (%s), "
                 "marking unavailable until the next poll",
                 e,
             )
-            self._attr_available = False
+            self._data_present = False
 
 
 
 
-class TadoOpenWindowSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], BinarySensorEntity):
+class TadoOpenWindowSensor(PerEntityAvailabilityMixin, CoordinatorEntity["TadoDataUpdateCoordinator"], BinarySensorEntity):
     """Binary sensor for Tado Open Window detection."""
 
     _attr_has_entity_name = True
@@ -268,7 +307,7 @@ class TadoOpenWindowSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], Binar
         self._attr_translation_key = _meta.translation_key
         self._attr_unique_id = f"tado_ce_{home_id}_{_meta.unique_id_suffix.format(zone_id=zone_id)}"
         self._attr_device_class = BinarySensorDeviceClass.WINDOW
-        self._attr_available = False
+        self._data_present = False
         self._attr_is_on = None
         self._attr_device_info = get_zone_device_info(zone_id, zone_name, zone_type, home_id)
         self._detected_time = None
@@ -296,7 +335,7 @@ class TadoOpenWindowSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], Binar
             zone_data = get_zone_state(coord_data, self._zone_id)
 
             if not zone_data:
-                self._attr_available = False
+                self._data_present = False
                 return
 
             open_window = zone_data.get("openWindow")
@@ -315,18 +354,18 @@ class TadoOpenWindowSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], Binar
                 self._detected_time = None
                 self._expiry_time = None
 
-            self._attr_available = True
+            self._data_present = True
         except Exception:
             _LOGGER.debug(
-                "Binary Sensor: zone %s open-window update failed — "
+                "Binary Sensor: zone %s open-window update failed, "
                 "marking unavailable until the next poll",
                 self._zone_id,
                 exc_info=True,
             )
-            self._attr_available = False
+            self._data_present = False
 
 
-class TadoPreheatNowSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], BinarySensorEntity):
+class TadoPreheatNowSensor(PerEntityAvailabilityMixin, CoordinatorEntity["TadoDataUpdateCoordinator"], BinarySensorEntity):
     """Binary sensor indicating when to start preheating (turns ON at recommended start time)."""
 
     _attr_has_entity_name = True
@@ -349,7 +388,7 @@ class TadoPreheatNowSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], Binar
         self._attr_unique_id = f"tado_ce_{home_id}_{_meta.unique_id_suffix.format(zone_id=zone_id)}"
         self._attr_device_class = BinarySensorDeviceClass.HEAT
         self._attr_entity_category = get_entity_category(_meta)
-        self._attr_available = False
+        self._data_present = False
         self._attr_is_on = None
         self._attr_device_info = get_zone_device_info(zone_id, zone_name, zone_type, home_id)
 
@@ -396,7 +435,7 @@ class TadoPreheatNowSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], Binar
             from datetime import datetime
 
             if not self.hass:
-                self._attr_available = False
+                self._data_present = False
                 return
 
             # Read preheat advisor data from coordinator (published by TadoPreheatAdvisorSensor)
@@ -425,14 +464,14 @@ class TadoPreheatNowSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], Binar
             preheat_state_val = preheat_data.get("state") if preheat_data else None
             if not preheat_data or preheat_state_val in non_actionable_states:
                 self._attr_is_on = False
-                self._attr_available = True
+                self._data_present = True
                 self._recommended_start = None
                 return
 
             # If preheat is for a future day, never trigger
             if self._is_tomorrow:
                 self._attr_is_on = False
-                self._attr_available = True
+                self._data_present = True
                 self._recommended_start = preheat_state_val
                 return
 
@@ -452,31 +491,31 @@ class TadoPreheatNowSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], Binar
 
                 # Check if it's time to preheat
                 self._attr_is_on = now >= recommended_time
-                self._attr_available = True
+                self._data_present = True
 
             except ValueError:
                 _LOGGER.debug(
                     "Binary Sensor: preheat schedule had a "
-                    "non-parseable time string — preheat-now defaults "
+                    "non-parseable time string, preheat-now defaults "
                     "to off until the next coordinator poll provides a "
                     "valid value",
                     exc_info=True,
                 )
                 self._attr_is_on = False
-                self._attr_available = True
+                self._data_present = True
                 self._recommended_start = None
 
         except Exception as e:
             _LOGGER.debug(
                 "Binary Sensor: zone %s preheat-now update failed "
-                "(%s) — marking unavailable until the next poll",
+                "(%s), marking unavailable until the next poll",
                 self._zone_id, e,
             )
-            self._attr_available = False
+            self._data_present = False
         finally:
             # Publish computed state to coordinator for cross-component access
             # (used by AdaptivePreheatManager initial state check)
-            if self._attr_available:
+            if self._data_present:
                 self.coordinator.publish_entity_data(
                     self._zone_id,
                     ENTITY_DATA_PREHEAT_NOW,
@@ -555,13 +594,13 @@ def _restore_window_detection_state(
         try:
             sensor._last_count_reset_date = date.fromisoformat(date_str)
         except ValueError:
-            pass  # Corrupt date — keep default
+            pass  # Corrupt date: keep default
     detected_str = data.get("last_detected_at")
     if isinstance(detected_str, str):
         try:
             sensor._last_detected_at = parse_iso_datetime(detected_str)
         except (ValueError, TypeError):
-            pass  # Corrupt timestamp — keep default
+            pass  # Corrupt timestamp: keep default
     if isinstance(data.get("anomaly_readings"), int):
         sensor._anomaly_readings = data["anomaly_readings"]
     # Restore temp_history with staleness pruning (>1 hour = stale)
@@ -571,8 +610,8 @@ def _restore_window_detection_state(
         sensor._temp_history.extend(_restore_temp_history(raw_history, cutoff))
 
 
-class TadoWindowPredictedSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], BinarySensorEntity):
-    """Binary sensor for early open window detection (predictive — does not replace Tado's openWindow)."""
+class TadoWindowPredictedSensor(PerEntityAvailabilityMixin, CoordinatorEntity["TadoDataUpdateCoordinator"], BinarySensorEntity):
+    """Binary sensor for early open window detection (predictive, does not replace Tado's openWindow)."""
 
     _attr_has_entity_name = True
 
@@ -595,7 +634,7 @@ class TadoWindowPredictedSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], 
         self._attr_translation_key = _meta.translation_key
         self._attr_unique_id = f"tado_ce_{home_id}_{_meta.unique_id_suffix.format(zone_id=zone_id)}"
         self._attr_entity_category = get_entity_category(_meta)
-        self._attr_available = False
+        self._data_present = False
         self._attr_is_on = None
         self._attr_device_info = get_zone_device_info(zone_id, zone_name, zone_type, home_id)
 
@@ -645,7 +684,7 @@ class TadoWindowPredictedSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], 
                 _restore_window_detection_state(self, zone_data)
                 _LOGGER.debug(
                     "Binary Sensor: zone %s window detection state "
-                    "restored — today's count %d, history %d readings",
+                    "restored, today's count %d, history %d readings",
                     self._zone_id,
                     self._detection_count_today,
                     len(self._temp_history),
@@ -670,6 +709,13 @@ class TadoWindowPredictedSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], 
 
     async def _async_save_detection_state(self) -> None:
         """Persist window detection state via Store."""
+        if self.coordinator.data_loader is None:
+            _LOGGER.debug(
+                "Binary Sensor: zone %s data loader gone at teardown, "
+                "window detection state not persisted this cycle",
+                self._zone_id,
+            )
+            return
         try:
             raw = await self.coordinator.data_loader.async_load_window_detection()
             all_zones: dict[str, Any] = raw if raw and isinstance(raw, dict) else {}
@@ -678,7 +724,7 @@ class TadoWindowPredictedSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], 
         except (OSError, AttributeError):
             _LOGGER.debug(
                 "Binary Sensor: zone %s window detection state could "
-                "not be persisted — counters will reset on the next "
+                "not be persisted, counters will reset on the next "
                 "HA restart",
                 self._zone_id,
                 exc_info=True,
@@ -691,7 +737,7 @@ class TadoWindowPredictedSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], 
 
         @callback
         def _on_external_sensor_change(event: Event[EventStateChangedData]) -> None:
-            """Handle external temp sensor state change — re-run window detection."""
+            """Handle external temp sensor state change: re-run window detection."""
             self.update()
             self.async_write_ha_state()
 
@@ -707,7 +753,7 @@ class TadoWindowPredictedSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], 
 
     @callback
     def _handle_homekit_update(self, zone_id: str) -> None:
-        """Handle HomeKit real-time event — re-run window detection for this zone."""
+        """Handle HomeKit real-time event: re-run window detection for this zone."""
         if zone_id != self._zone_id:
             return
         self._handle_coordinator_update()
@@ -762,7 +808,7 @@ class TadoWindowPredictedSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], 
         if len(history) < SEASONAL_BASELINE_MIN_SAMPLES:
             return None
         recent = history[-168:]
-        return sum(recent) / len(recent)
+        return float(sum(recent) / len(recent))
 
     def _apply_cooldown(self, result: WindowPredictedResult) -> WindowPredictedResult:
         """Apply cooldown/hysteresis (require N consecutive clears before flipping off)."""
@@ -841,7 +887,7 @@ class TadoWindowPredictedSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], 
             zone_data = get_zone_state(coord_data, self._zone_id)
 
             if not zone_data:
-                self._attr_available = False
+                self._data_present = False
                 return
 
             zone_data = merge_homekit_into_zone_data(zone_data, self._zone_id, self.coordinator)
@@ -859,7 +905,7 @@ class TadoWindowPredictedSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], 
                 current_temp = ext_temp
 
             if current_temp is None:
-                self._attr_available = False
+                self._data_present = False
                 return
 
             # Add reading to history (throttle to avoid duplicates)
@@ -915,7 +961,7 @@ class TadoWindowPredictedSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], 
                     seasonal_baseline=seasonal_baseline,
                 )
             else:
-                # Active path — unchanged
+                # Active path: unchanged
                 result = detect_window_predicted(
                     readings=list(self._temp_history),
                     hvac_active=hvac_active,
@@ -939,7 +985,7 @@ class TadoWindowPredictedSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], 
             self._temp_drop = result.temp_drop
             self._recommendation = result.recommendation
             self._anomaly_readings = result.anomaly_readings
-            self._attr_available = True
+            self._data_present = True
 
             # Publish computed data to coordinator for cross-component access
             self.coordinator.publish_entity_data(
@@ -954,14 +1000,16 @@ class TadoWindowPredictedSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], 
         except Exception as e:
             _LOGGER.debug(
                 "Binary Sensor: zone %s window predicted update "
-                "failed (%s) — marking unavailable until the next "
+                "failed (%s), marking unavailable until the next "
                 "poll",
                 self._zone_id, e,
             )
-            self._attr_available = False
+            self._data_present = False
 
 
-class TadoDeviceConnectionBinarySensor(CoordinatorEntity["TadoDataUpdateCoordinator"], BinarySensorEntity):
+class TadoDeviceConnectionBinarySensor(
+    PerEntityAvailabilityMixin, CoordinatorEntity["TadoDataUpdateCoordinator"], BinarySensorEntity,
+):
     """Represent a Tado device connection state binary sensor."""
 
     _attr_has_entity_name = True
@@ -991,7 +1039,7 @@ class TadoDeviceConnectionBinarySensor(CoordinatorEntity["TadoDataUpdateCoordina
             f"_{_conn_meta.unique_id_suffix.format(serial=self._device_serial)}"
         )
         self._attr_entity_category = get_entity_category(_conn_meta)
-        self._attr_available = True
+        self._data_present = True
         self._attr_device_info = get_zone_device_info(zone_id, zone_name, zone_type, coordinator.home_id)
 
         # Add device suffix to distinguish multiple devices in the same zone
@@ -1002,8 +1050,7 @@ class TadoDeviceConnectionBinarySensor(CoordinatorEntity["TadoDataUpdateCoordina
             self._attr_translation_placeholders = {"device_suffix": suffix}
 
         conn = device.get("connectionState") or {}
-        raw_value = conn.get("value")
-        self._attr_is_on = raw_value is True or (isinstance(raw_value, str) and raw_value.upper() == "TRUE")
+        self._attr_is_on = _connection_value_to_bool(conn)
         self._connection_timestamp = conn.get("timestamp")
         self._firmware = device.get("currentFwVersion")
         self._offline_minutes: int | None = None
@@ -1037,10 +1084,7 @@ class TadoDeviceConnectionBinarySensor(CoordinatorEntity["TadoDataUpdateCoordina
                     for device in zone.get("devices") or []:
                         if device.get("shortSerialNo") == self._device_serial:
                             conn = device.get("connectionState") or {}
-                            raw_value = conn.get("value")
-                            self._attr_is_on = raw_value is True or (
-                                isinstance(raw_value, str) and raw_value.upper() == "TRUE"
-                            )
+                            self._attr_is_on = _connection_value_to_bool(conn)
                             self._connection_timestamp = conn.get("timestamp")
                             self._firmware = device.get("currentFwVersion")
 
@@ -1056,7 +1100,7 @@ class TadoDeviceConnectionBinarySensor(CoordinatorEntity["TadoDataUpdateCoordina
                                     _LOGGER.debug(
                                         "Binary Sensor: device %s "
                                         "connection timestamp not "
-                                        "parseable (%s) — offline "
+                                        "parseable (%s), offline "
                                         "duration left blank",
                                         mask_serial(self._device_serial),
                                         err,
@@ -1070,19 +1114,23 @@ class TadoDeviceConnectionBinarySensor(CoordinatorEntity["TadoDataUpdateCoordina
                                 offline_minutes=self._offline_minutes,
                             )
 
-                            self._attr_available = True
+                            self._data_present = True
                             return
-            self._attr_available = False
+            # Device serial no longer present in the account: unavailable, and
+            # drop the last-known state so no stale value lingers.
+            self._attr_is_on = None
+            self._data_present = False
         except (KeyError, TypeError, AttributeError) as err:
             _LOGGER.debug(
                 "Binary Sensor: device %s connection update failed "
-                "(%s) — marking unavailable until the next poll",
+                "(%s), marking unavailable until the next poll",
                 mask_serial(self._device_serial), err,
             )
-            self._attr_available = False
+            self._attr_is_on = None
+            self._data_present = False
 
 
-class TadoHotWaterPowerBinarySensor(CoordinatorEntity["TadoDataUpdateCoordinator"], BinarySensorEntity):
+class TadoHotWaterPowerBinarySensor(PerEntityAvailabilityMixin, CoordinatorEntity["TadoDataUpdateCoordinator"], BinarySensorEntity):
     """Represent a Tado hot water power state binary sensor."""
 
     _attr_has_entity_name = True
@@ -1105,7 +1153,7 @@ class TadoHotWaterPowerBinarySensor(CoordinatorEntity["TadoDataUpdateCoordinator
         self._attr_translation_key = _meta.translation_key
         self._attr_unique_id = f"tado_ce_{coordinator.home_id}_{_meta.unique_id_suffix.format(zone_id=zone_id)}"
         self._attr_entity_category = get_entity_category(_meta)
-        self._attr_available = False
+        self._data_present = False
         self._attr_is_on = None
         self._attr_device_info = get_zone_device_info(zone_id, zone_name, zone_type, coordinator.home_id)
 
@@ -1126,17 +1174,17 @@ class TadoHotWaterPowerBinarySensor(CoordinatorEntity["TadoDataUpdateCoordinator
                     setting = zone_data.get("setting") or {}
                     power = setting.get("power")
                     self._attr_is_on = power == "ON" if power else None
-                    self._attr_available = True
+                    self._data_present = True
                     return
-            self._attr_available = False
+            self._data_present = False
         except Exception:
             _LOGGER.debug(
                 "Binary Sensor: zone %s hot water power update "
-                "failed — marking unavailable until the next poll",
+                "failed, marking unavailable until the next poll",
                 self._zone_id,
                 exc_info=True,
             )
-            self._attr_available = False
+            self._data_present = False
 
 
 class TadoHomeKitConnectedSensor(CoordinatorEntity["TadoDataUpdateCoordinator"], BinarySensorEntity):
@@ -1153,7 +1201,6 @@ class TadoHomeKitConnectedSensor(CoordinatorEntity["TadoDataUpdateCoordinator"],
         self._attr_unique_id = f"tado_ce_{coordinator.home_id}_{_meta.unique_id_suffix}"
         self._attr_entity_category = get_entity_category(_meta)
         self._attr_device_info = get_hub_device_info(coordinator.home_id)
-        self._attr_available = True
         self._attr_is_on = False
         self._status = "not_configured"
 
@@ -1234,14 +1281,41 @@ class TadoBridgeConnectedSensor(
 
     @callback
     def _handle_coordinator_update(self) -> None:
-        """Update from health tracker state."""
-        health = self.coordinator.bridge_health_tracker
-        if health is None:
-            self._attr_available = False
+        """State = the bridge's real online flag.
+
+        Primary: `bridgeConnected` from the bridge-auth poll (zero cloud quota),
+        present whenever a boiler-side device is wired. Fallback: the bridge
+        device's own `connectionState` from the home device list, for
+        boiler-less setups whose bridge-auth body collapses without
+        `bridgeConnected`. When neither is available, stay Unknown (don't guess).
+        """
+        data = self.coordinator.data or {}
+        bridge = data.get("bridge")
+        flag = bridge.get("bridgeConnected") if isinstance(bridge, dict) else None
+        if isinstance(flag, bool):
+            self._attr_is_on = flag
+        elif isinstance(bridge, dict):
+            # Bridge body present but no bridgeConnected (collapsed boiler-less
+            # body) → fall back to the bridge device's own connectionState.
+            dev = _find_bridge_in_home_devices(data.get("home_devices"))
+            self._attr_is_on = _connection_value_to_bool((dev or {}).get("connectionState"))
         else:
-            self._attr_is_on = health.state.is_connected
-            self._attr_available = True
+            # Bridge poll hasn't run yet → Unknown; do not read the fallback.
+            self._attr_is_on = None
         self.async_write_ha_state()
+
+    @property
+    def available(self) -> bool:
+        """Available when the Tado cloud is reachable, so we can observe the bridge.
+
+        The health tracker records whether recent bridge API calls succeeded and
+        only flips to disconnected after several consecutive failures, so a single
+        transient timeout does not flap this. When the cloud is unreachable we
+        cannot observe the bridge at all, so the sensor is unavailable rather than
+        reporting a stale on or off.
+        """
+        health = self.coordinator.bridge_health_tracker
+        return health is not None and health.state.is_connected
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:

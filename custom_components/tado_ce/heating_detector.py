@@ -1,4 +1,4 @@
-"""Tado CE heating-cycle detector — per-zone state machine delimiting one heating cycle (start → inertia → target/timeout)."""
+"""Tado CE heating-cycle detector: per-zone state machine delimiting one heating cycle (start → inertia → target/timeout)."""
 
 from __future__ import annotations
 
@@ -33,7 +33,7 @@ class HeatingCycleDetector:
     ) -> bool:
         """Check if setpoint increased (potential cycle start); returns True when a cycle was started."""
         _LOGGER.debug(
-            "Heating Detector: zone %s check_setpoint_change — "
+            "Heating Detector: zone %s check_setpoint_change, "
             "last_target=%s, new_target=%.1f, current_temp=%s",
             self._zone_id,
             self._last_target_temp,
@@ -51,7 +51,7 @@ class HeatingCycleDetector:
                 _LOGGER.info(
                     "Heating Detector: zone %s active heating "
                     "detected after restart (current %.1f°C < "
-                    "target %.1f°C) — starting cycle",
+                    "target %.1f°C), starting cycle",
                     self._zone_id,
                     current_temp,
                     new_target,
@@ -75,13 +75,13 @@ class HeatingCycleDetector:
         if new_target > self._last_target_temp:
             _LOGGER.debug(
                 "Heating Detector: zone %s setpoint raised %.1f → "
-                "%.1f°C — starting a new cycle",
+                "%.1f°C, starting a new cycle",
                 self._zone_id,
                 self._last_target_temp,
                 new_target,
             )
             if self._active_cycle:
-                # Mark the previous cycle as interrupted —
+                # Mark the previous cycle as interrupted:
                 # downstream analyser ignores interrupted cycles.
                 self._active_cycle.interrupted = True
                 self._active_cycle.interrupt_reason = "manual_setpoint_change"
@@ -108,7 +108,7 @@ class HeatingCycleDetector:
             self._last_target_temp = new_target
 
             _LOGGER.info(
-                "Heating Detector: zone %s started a new cycle — "
+                "Heating Detector: zone %s started a new cycle, "
                 "target %.1f°C",
                 self._zone_id,
                 new_target,
@@ -151,13 +151,13 @@ class HeatingCycleDetector:
         else:
             # Cap at 100 readings to bound memory; once full,
             # replace the last reading rather than dropping new
-            # data — keeps the most recent point fresh.
+            # data, which keeps the most recent point fresh.
             self._active_cycle.temperature_readings[-1] = HeatingCycleReading(
                 time=timestamp,
                 temp=temp,
             )
 
-        # Inertia / first-rise detection — once the temperature
+        # Inertia / first-rise detection: once the temperature
         # has climbed by `inertia_threshold_celsius`, record the
         # timestamp so the analyser can compute lag.
         if self._active_cycle.first_rise_time is None and self._active_cycle.start_temp is not None:
@@ -198,7 +198,7 @@ class HeatingCycleDetector:
                 self._active_cycle = None
 
                 _LOGGER.info(
-                    "Heating Detector: zone %s cycle completed — "
+                    "Heating Detector: zone %s cycle completed, "
                     "duration %.1f min, %.1f°C → %.1f°C",
                     self._zone_id,
                     (completed.end_time - completed.start_time).total_seconds() / 60,  # type: ignore[operator]
@@ -207,7 +207,7 @@ class HeatingCycleDetector:
                 )
                 return completed
             _LOGGER.debug(
-                "Heating Detector: zone %s discarding cycle — "
+                "Heating Detector: zone %s discarding cycle, "
                 "start_temp (%.1f°C) was already at or above target "
                 "(%.1f°C), no actual heating occurred",
                 self._zone_id,
@@ -232,7 +232,7 @@ class HeatingCycleDetector:
 
             _LOGGER.debug(
                 "Heating Detector: zone %s cycle timed out after "
-                "%.1f hour(s) — marking interrupted, expected target "
+                "%.1f hour(s), marking interrupted, expected target "
                 "never reached",
                 self._zone_id,
                 age.total_seconds() / 3600,

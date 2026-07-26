@@ -1,4 +1,4 @@
-"""Tado CE bridge API client — read boiler wiring state, set flow temperature."""
+"""Tado CE bridge API client: read boiler wiring state, set flow temperature."""
 
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ _LOGGER = logging.getLogger(__name__)
 
 _BRIDGE_API_BASE = "https://my.tado.com/api/v2/homeByBridge"
 
-# HTTP timeout for Bridge API calls (10s — simple GET/PUT operations)
+# HTTP timeout for Bridge API calls (10s: simple GET/PUT operations)
 _BRIDGE_API_TIMEOUT = aiohttp.ClientTimeout(total=10)
 
 # Temperature constraints (matches Tado app)
@@ -27,7 +27,7 @@ def validate_flow_temperature(celsius: float) -> float:
     """Snap a flow-temperature request to the nearest 0.5°C inside the bridge's range.
 
     Raises `TadoBridgeApiError` when the requested value is outside
-    25.0-80.0°C — the bridge will reject values outside this range and
+    25.0-80.0°C: the bridge will reject values outside this range and
     catching it here gives the caller a clearer message.
     """
     if celsius < MIN_FLOW_TEMP or celsius > MAX_FLOW_TEMP:
@@ -103,7 +103,7 @@ class TadoBridgeApiClient:
             )
         except aiohttp.ClientError as err:
             msg = "Bridge API network error: %s"
-            _LOGGER.debug("Bridge: PUT max-temp network error — %s", err)
+            _LOGGER.debug("Bridge: PUT max-temp network error: %s", err)
             raise TadoBridgeApiError(msg % err) from err
 
     async def async_validate_credentials(self) -> bool:

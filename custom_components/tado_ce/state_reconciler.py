@@ -1,4 +1,4 @@
-"""Tado CE state reconciler — merges local HomeKit reads with cloud API data."""
+"""Tado CE state reconciler: merges local HomeKit reads with cloud API data."""
 
 from __future__ import annotations
 
@@ -58,7 +58,7 @@ class StateReconciler:
         `freshness_mode="observed"` keeps stable readings valid even
         when the value hasn't changed (useful for room temperature).
         `freshness_mode="changed"` rejects cache entries that haven't
-        seen a real value change within the threshold — needed for
+        seen a real value change within the threshold, needed for
         event-driven signals like target temperature and mode where
         a stale "no change" cache would mask a fresh user-set value.
         """
@@ -102,14 +102,31 @@ class StateReconciler:
         zone_id: str,
         cloud_value: float | None,
         external_value: float | None = None,
+        *,
+        display_source: str = "auto",
+        purpose: str = "display",
     ) -> tuple[float | None, str]:
         """Return the merged room temperature and its source name.
 
-        Priority: external sensor > HomeKit (when fresh) > cloud.
+        purpose="control" (e.g. the SVC valve TRV-body read via the
+        merge_homekit_into_zone_data wrapper) always uses external > HomeKit-
+        fresh > cloud and ignores display_source, so a display preference can
+        never bend the reading Smart Valve Control calibrates against.
+
+        purpose="display" honours the per-zone display_source select:
+          - "cloud"   → cloud (skip HomeKit even if fresh)
+          - "homekit" → HomeKit-fresh, else cloud
+          - "auto"    → external > HomeKit-fresh > cloud (default)
+        external_value, when set, wins on the display path too: it is an
+        explicit user override.
         """
         if external_value is not None:
             self._log_source_transition(zone_id, "temp", "external", external_value)
             return external_value, "external"
+
+        if purpose == "display" and display_source == "cloud":
+            self._log_source_transition(zone_id, "temp", "cloud", cloud_value)
+            return cloud_value, "cloud"
 
         local_val, is_fresh = self._get_fresh_local_value(zone_id, "get_temperature")
         if is_fresh and local_val is not None:
@@ -155,6 +172,8 @@ class StateReconciler:
         self,
         zone_id: str,
         cloud_value: float | None,
+        *,
+        display_source: str = "auto",
     ) -> tuple[float | None, str]:
         """Return the merged target temperature and its source name.
 
@@ -162,8 +181,16 @@ class StateReconciler:
         window) > cloud. During write protection the cloud / optimistic
         value is authoritative because the HomeKit bridge can still
         report a pre-write target value.
+
+        display_source="cloud" forces the cloud target (after the write-
+        protection check), mirroring merge_zone_temperature's display path;
+        "homekit"/"auto" keep HomeKit-fresh first.
         """
-        if not self.should_accept_cloud_value(zone_id):
+        if self.is_local_write_protected(zone_id):
+            self._log_source_transition(zone_id, "target_temp", "cloud", cloud_value)
+            return cloud_value, "cloud"
+
+        if display_source == "cloud":
             self._log_source_transition(zone_id, "target_temp", "cloud", cloud_value)
             return cloud_value, "cloud"
 
@@ -177,62 +204,25 @@ class StateReconciler:
         self._log_source_transition(zone_id, "target_temp", "cloud", cloud_value)
         return cloud_value, "cloud"
 
-    def merge_zone_hvac_state(
-        self,
-        zone_id: str,
-        cloud_value: int | None,
-    ) -> tuple[int | None, str]:
-        """Return the merged HVAC state (0=Off, 1=Heat, 2=Cool) and its source.
+    def is_local_write_protected(self, zone_id: str) -> bool:
+        """Return True while a recent local write protects this zone's value.
 
-        Priority: HomeKit (when fresh) > cloud.
+        During the write-protection window the cloud/optimistic value is
+        authoritative because the HomeKit bridge can still echo a pre-write
+        reading. Returns False once no recent write applies (window expired or
+        none recorded), at which point HomeKit-fresh values are accepted again.
         """
-        local_val, is_fresh = self._get_fresh_local_value(zone_id, "get_hvac_state")
-        if is_fresh and local_val is not None:
-            self._log_source_transition(zone_id, "hvac_state", "homekit", int(local_val))
-            return int(local_val), "homekit"
-
-        self._log_source_transition(zone_id, "hvac_state", "cloud", cloud_value)
-        return cloud_value, "cloud"
-
-    def merge_zone_target_heating_state(
-        self,
-        zone_id: str,
-        cloud_value: int | None,
-    ) -> tuple[int | None, str]:
-        """Return the merged target HVAC mode and its source name.
-
-        Priority: HomeKit (when fresh and outside write protection) >
-        cloud. During write protection the cloud / optimistic value is
-        authoritative — see merge_zone_target_temperature for the
-        same reason.
-        """
-        if not self.should_accept_cloud_value(zone_id):
-            self._log_source_transition(zone_id, "target_hvac", "cloud", cloud_value)
-            return cloud_value, "cloud"
-
-        local_val, is_fresh = self._get_fresh_local_value(
-            zone_id, "get_target_heating_state", freshness_mode="changed",
-        )
-        if is_fresh and local_val is not None:
-            self._log_source_transition(zone_id, "target_hvac", "homekit", int(local_val))
-            return int(local_val), "homekit"
-
-        self._log_source_transition(zone_id, "target_hvac", "cloud", cloud_value)
-        return cloud_value, "cloud"
-
-    def should_accept_cloud_value(self, zone_id: str) -> bool:
-        """Return True when no recent local write blocks cloud values for this zone."""
         last_write = self._write_timestamps.get(zone_id)
         if last_write is None:
-            return True
+            return False
         age = dt_util.utcnow() - last_write
         if age >= WRITE_PROTECTION_WINDOW:
             del self._write_timestamps[zone_id]
-            return True
+            return False
         _LOGGER.debug(
             "State Reconciler: zone %s write protection active "
             "(%.0fs remaining)",
             zone_id,
             (WRITE_PROTECTION_WINDOW - age).total_seconds(),
         )
-        return False
+        return True

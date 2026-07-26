@@ -1,4 +1,4 @@
-"""Tado CE unified data models — shared dataclasses for temperature readings."""
+"""Tado CE unified data models: shared dataclasses for temperature readings."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ from .helpers import parse_iso_datetime
 
 
 class _SerializableMixin:
-    """Mixin for dataclasses with datetime fields — provides to_dict/from_dict."""
+    """Mixin for dataclasses with datetime fields: provides to_dict/from_dict."""
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize to dictionary for JSON storage."""

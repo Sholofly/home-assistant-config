@@ -24,7 +24,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 # ---------------------------------------------------------------------------
-# FeatureGroupContext — cleanup context driven by EntityMeta.feature_group
+# FeatureGroupContext: cleanup context driven by EntityMeta.feature_group
 # ---------------------------------------------------------------------------
 
 
@@ -60,7 +60,7 @@ FEATURE_GROUP_CONTEXTS: tuple[FeatureGroupContext, ...] = (
             "_heating_type", "_smart_comfort_mode", "_surface_temp_offset",
         ),
         zone_only_suffixes=(
-            # These also exist at hub-level — only remove the zone-level variants.
+            # These also exist at hub-level, only remove the zone-level variants.
             "_overlay_mode",
             "_overlay_timer",   # v3.x
             "_timer_duration",  # v2.x
@@ -115,7 +115,7 @@ FEATURE_GROUP_CONTEXTS: tuple[FeatureGroupContext, ...] = (
         label="Schedule Calendar",
         legacy_suffixes=(),
         exclude_suffixes=(
-            # v3.x smart comfort suffixes — protect when smart_comfort still enabled
+            # v3.x smart comfort suffixes: protect when smart_comfort still enabled
             "_next_schedule", "_next_sched_temp", "_schedule_deviation",
             # v2.x smart comfort suffixes
             "_next_schedule_time", "_next_schedule_temp",
@@ -154,6 +154,13 @@ FEATURE_GROUP_CONTEXTS: tuple[FeatureGroupContext, ...] = (
         feature_group="homekit",
         label="HomeKit",
         legacy_suffixes=(),
+    ),
+    FeatureGroupContext(
+        cleanup_flag="_cleanup_heating_circuit",
+        feature_group="heating_circuit",
+        label="Heating Circuit",
+        legacy_suffixes=(),
+        platform_filter="select",
     ),
 )
 
@@ -216,7 +223,7 @@ def match_entity_for_cleanup(
     if match_mode == "contains":
         return any(sub in unique_id for sub in contains_substrings)
 
-    # suffix mode — check excludes first
+    # suffix mode: check excludes first
     if exclude_patterns and any(p.search(unique_id) for p in exclude_patterns):
         return False
 
@@ -244,6 +251,7 @@ FEATURE_CLEANUP_MAP: list[tuple[str, str, bool]] = [
     ("mobile_devices_enabled", "_cleanup_mobile_devices", False),
     ("wc_enabled", "_cleanup_weather_compensation", False),
     ("homekit_enabled", "_cleanup_homekit", False),
+    ("heating_circuit_enabled", "_cleanup_heating_circuit", False),
 ]
 
 # ---------------------------------------------------------------------------
@@ -282,7 +290,7 @@ def cleanup_orphan_devices(
     entity_registry = er.async_get(hass)
     home_id = entry.data.get("home_id")
 
-    # Hub device identifier — never remove
+    # Hub device identifier: never remove
     hub_identifier = f"tado_ce_hub_{home_id}" if home_id else "tado_ce_hub"
 
     removed = 0
@@ -299,7 +307,7 @@ def cleanup_orphan_devices(
         if not device_entities:
             _LOGGER.info(
                 "Entity Cleanup: removing orphan device %s (id %s) "
-                "— it has no remaining entities",
+                ", it has no remaining entities",
                 device_entry.name,
                 device_entry.id,
             )
@@ -326,20 +334,20 @@ def detect_cleanup_flags(
         if was_enabled and not now_enabled:
             flags[cleanup_flag] = True
             _LOGGER.info(
-                "Entity Cleanup: %s disabled — entity removal "
+                "Entity Cleanup: %s disabled, entity removal "
                 "scheduled for next reload",
                 option_key,
             )
 
     # Bridge credentials only count as "enabled" when both serial
-    # AND auth_key are present — losing either means we should
+    # AND auth_key are present, losing either means we should
     # tear down the bridge entities together.
     had_bridge = bool(prev_options.get("bridge_serial")) and bool(prev_options.get("bridge_auth_key"))
     has_bridge = bool(new_options.get("bridge_serial")) and bool(new_options.get("bridge_auth_key"))
     if had_bridge and not has_bridge:
         flags["_cleanup_bridge"] = True
         _LOGGER.info(
-            "Entity Cleanup: bridge credentials removed — bridge "
+            "Entity Cleanup: bridge credentials removed, bridge "
             "entity removal scheduled for next reload",
         )
 
@@ -385,7 +393,7 @@ def _apply_cleanup_context(
             entity_registry.async_remove(entity_id)
             removed += 1
 
-    # Zone-only pass — suffixes that also exist on the hub
+    # Zone-only pass: suffixes that also exist on the hub
     # (e.g. overlay_mode), so we only strip the zone-level
     # variants and leave the hub entity alone.
     if ctx.zone_only_suffixes:
@@ -428,7 +436,7 @@ def cleanup_disabled_feature_entities(
             continue
 
         _LOGGER.info(
-            "Entity Cleanup: %s disabled — removing matching entities",
+            "Entity Cleanup: %s disabled, removing matching entities",
             ctx.label,
         )
 

@@ -1,4 +1,4 @@
-"""Tado CE Insights Presenter — correlation, aggregation, and formatting."""
+"""Tado CE Insights Presenter: correlation, aggregation, and formatting."""
 
 from __future__ import annotations
 
@@ -141,6 +141,8 @@ def get_insight_priority(insight_type: str, severity: str) -> InsightPriority:
         ("battery", "low"): InsightPriority.HIGH,
         ("comfort", "too_cold"): InsightPriority.MEDIUM,
         ("comfort", "too_hot"): InsightPriority.MEDIUM,
+        ("comfort", "danger"): InsightPriority.HIGH,
+        ("comfort", "extreme_danger"): InsightPriority.CRITICAL,
         ("api", "critical"): InsightPriority.CRITICAL,
         ("api", "warning"): InsightPriority.HIGH,
         ("api", "high"): InsightPriority.MEDIUM,
@@ -150,6 +152,8 @@ def get_insight_priority(insight_type: str, severity: str) -> InsightPriority:
         ("frost_risk", "high"): InsightPriority.HIGH,
         ("frost_risk", "medium"): InsightPriority.MEDIUM,
         ("heating_off_cold", "medium"): InsightPriority.MEDIUM,
+        ("heating_off_cold", "high"): InsightPriority.HIGH,
+        ("heating_off_cold", "critical"): InsightPriority.CRITICAL,
         ("boiler_flow_anomaly", "high"): InsightPriority.HIGH,
         ("boiler_flow_anomaly", "medium"): InsightPriority.MEDIUM,
         ("thermal_efficiency", "medium"): InsightPriority.MEDIUM,
@@ -223,7 +227,7 @@ def escalate_priorities(
 ) -> list[Insight]:
     """Return new list with escalated priorities based on persistence duration.
 
-    Pure function — does not mutate input insights or history.
+    Pure function: does not mutate input insights or history.
     Insights not in ESCALATION_RULES keep their original priority.
     Escalated priority is always >= base priority (monotonic).
     Escalated priority is capped at CRITICAL (4).
@@ -828,7 +832,7 @@ def _describe_resolved_keys(keys: set[str]) -> str:
         readable = itype.replace("_", " ")
         return f"1 {readable} issue was resolved."
 
-    # Multiple resolved — group by type
+    # Multiple resolved: group by type
     parts: list[str] = []
     for itype, count in sorted(type_counts.items()):
         readable = itype.replace("_", " ")

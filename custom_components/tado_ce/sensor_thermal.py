@@ -1,4 +1,4 @@
-"""Tado CE Thermal Analysis Sensors — inertia, heating rate, preheat time, etc."""
+"""Tado CE Thermal Analysis Sensors: inertia, heating rate, preheat time, etc."""
 
 from __future__ import annotations
 
@@ -58,7 +58,7 @@ class TadoThermalInertiaSensor(CoordinatorEntity["HeatingCycleCoordinator"], Sen
     def available(self) -> bool:
         """Return if sensor is available."""
         zone_data = self.coordinator.get_zone_data(self._zone_id)
-        return zone_data is not None and zone_data.get("inertia_time") is not None
+        return super().available and zone_data is not None and zone_data.get("inertia_time") is not None
 
     @property
     def extra_state_attributes(self) -> dict[str, Any] | None:
@@ -109,7 +109,7 @@ class TadoHeatingRateSensor(CoordinatorEntity["HeatingCycleCoordinator"], Sensor
     def available(self) -> bool:
         """Return if sensor is available."""
         zone_data = self.coordinator.get_zone_data(self._zone_id)
-        return zone_data is not None and zone_data.get("heating_rate") is not None
+        return super().available and zone_data is not None and zone_data.get("heating_rate") is not None
 
     @property
     def extra_state_attributes(self) -> dict[str, Any] | None:
@@ -188,7 +188,12 @@ class TadoPreheatTimeSensor(CoordinatorEntity["HeatingCycleCoordinator"], Sensor
         zone_data = self.coordinator.get_zone_data(self._zone_id)
         zone_state = self.coordinator.get_zone_state(self._zone_id)
         # Need both: analysis data (heating_rate) AND current zone state (temps)
-        return zone_data is not None and zone_data.get("heating_rate") is not None and zone_state is not None
+        return (
+            super().available
+            and zone_data is not None
+            and zone_data.get("heating_rate") is not None
+            and zone_state is not None
+        )
 
     @property
     def extra_state_attributes(self) -> dict[str, Any] | None:
@@ -245,7 +250,7 @@ class TadoConfidenceSensor(CoordinatorEntity["HeatingCycleCoordinator"], SensorE
     def available(self) -> bool:
         """Return if sensor is available."""
         zone_data = self.coordinator.get_zone_data(self._zone_id)
-        return zone_data is not None
+        return super().available and zone_data is not None
 
     @property
     def extra_state_attributes(self) -> dict[str, Any] | None:
@@ -267,7 +272,7 @@ class TadoConfidenceSensor(CoordinatorEntity["HeatingCycleCoordinator"], SensorE
 
 
 class TadoHeatingAccelerationSensor(CoordinatorEntity["HeatingCycleCoordinator"], SensorEntity):
-    """Sensor for heating acceleration (°C/h² — higher = faster-response system)."""
+    """Sensor for heating acceleration (°C/h²: higher = faster-response system)."""
 
     _attr_has_entity_name = True
     _attr_entity_registry_enabled_default = False
@@ -302,7 +307,7 @@ class TadoHeatingAccelerationSensor(CoordinatorEntity["HeatingCycleCoordinator"]
     def available(self) -> bool:
         """Return if sensor is available."""
         zone_data = self.coordinator.get_zone_data(self._zone_id)
-        return zone_data is not None and zone_data.get("acceleration") is not None
+        return super().available and zone_data is not None and zone_data.get("acceleration") is not None
 
     @property
     def extra_state_attributes(self) -> dict[str, Any] | None:
@@ -361,7 +366,7 @@ class TadoApproachFactorSensor(CoordinatorEntity["HeatingCycleCoordinator"], Sen
     def available(self) -> bool:
         """Return if sensor is available."""
         zone_data = self.coordinator.get_zone_data(self._zone_id)
-        return zone_data is not None and zone_data.get("approach_factor") is not None
+        return super().available and zone_data is not None and zone_data.get("approach_factor") is not None
 
     @property
     def extra_state_attributes(self) -> dict[str, Any] | None:

@@ -1,4 +1,4 @@
-"""Cross-zone insights — mold aggregation, window aggregation, condensation, efficiency."""
+"""Cross-zone insights: mold aggregation, window aggregation, condensation, efficiency."""
 
 from __future__ import annotations
 

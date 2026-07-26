@@ -51,7 +51,7 @@ class WindowPredictedResult:
 # Window detection
 WINDOW_MIN_READINGS = 2
 
-# Window predicted sensitivity presets — threshold mappings per sensitivity level
+# Window predicted sensitivity presets: threshold mappings per sensitivity level
 WINDOW_SENSITIVITY_PRESETS: dict[str, dict[str, int | float]] = {
     "low": {
         "consecutive_drops": 3,
@@ -78,7 +78,7 @@ PASSIVE_WEIGHT_TEMP = 0.60
 PASSIVE_WEIGHT_HUMIDITY = 0.25
 PASSIVE_WEIGHT_OUTDOOR = 0.15
 
-# Passive mode sensitivity presets — stricter than active
+# Passive mode sensitivity presets: stricter than active
 WINDOW_PASSIVE_SENSITIVITY_PRESETS: dict[str, dict[str, float]] = {
     "low": {
         "temp_rate_threshold": 0.4,
@@ -112,14 +112,14 @@ OUTDOOR_DIFF_LOW = 5.0
 
 # Seasonal baseline defaults
 SEASONAL_BASELINE_MIN_SAMPLES = 168  # 7 days of hourly readings
-SEASONAL_COLD_THRESHOLD = 5.0  # °C outdoor — winter mode
+SEASONAL_COLD_THRESHOLD = 5.0  # °C outdoor: winter mode
 
-# Mold risk — humidity thresholds (%)
+# Mold risk: humidity thresholds (%)
 MOLD_HUMIDITY_CRITICAL = 70
 MOLD_HUMIDITY_HIGH = 70
 MOLD_HUMIDITY_MEDIUM = 65
 
-# Mold risk — dew point margin thresholds (°C)
+# Mold risk: dew point margin thresholds (°C)
 MOLD_MARGIN_HIGH = 5
 MOLD_MARGIN_MEDIUM = 7
 
@@ -223,7 +223,7 @@ ESCALATION_RULES: dict[str, list[tuple[int, InsightPriority]]] = {
 }
 
 # ---------------------------------------------------------------------------
-# Correlation groups — related insight types that can be merged per zone
+# Correlation groups: related insight types that can be merged per zone
 # ---------------------------------------------------------------------------
 CORRELATION_GROUPS: dict[str, list[str]] = {
     "humidity_problem": [

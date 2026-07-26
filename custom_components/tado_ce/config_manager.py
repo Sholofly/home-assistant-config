@@ -1,8 +1,8 @@
-"""Tado CE configuration manager — typed reads from `config_entry.options` with validation.
+"""Tado CE configuration manager: typed reads from `config_entry.options` with validation.
 
-Reads live from `config_entry.options` (not a cached snapshot)
-so users get real-time effect when they flip a runtime-only
-toggle.
+Reads live from `config_entry.options` on every access so users get
+real-time effect when they flip a runtime-only toggle, falling back to
+a snapshot taken at construction only when the live options are empty.
 """
 
 from __future__ import annotations
@@ -84,13 +84,13 @@ class ConfigurationManager:
             except (ValueError, TypeError, OverflowError):
                 _LOGGER.warning(
                     "Config: %s value %r could not be parsed as int "
-                    "— falling back to default %s",
+                    ", falling back to default %s",
                     key, value, default,
                 )
                 return default
         if not isinstance(value, int) or value < min_val or value > max_val:
             _LOGGER.warning(
-                "Config: %s value %r outside range %d–%d — falling "
+                "Config: %s value %r outside range %d–%d, falling "
                 "back to default %s",
                 key, value, min_val, max_val, default,
             )
@@ -103,7 +103,7 @@ class ConfigurationManager:
         if isinstance(value, (int, float)) and min_val <= value <= max_val:
             return float(value)
         _LOGGER.warning(
-            "Config: %s value %r outside range %s–%s — falling back "
+            "Config: %s value %r outside range %s–%s, falling back "
             "to default %s",
             key, value, min_val, max_val, default,
         )
@@ -113,6 +113,14 @@ class ConfigurationManager:
         """Check if weather sensors are enabled."""
         return self._get_option("weather_enabled", DEFAULT_WEATHER_ENABLED)  # type: ignore[no-any-return]
 
+    def get_comfort_heat_vulnerable_group(self) -> bool:
+        """Alert one heat-index band earlier for homes with vulnerable occupants."""
+        return self._get_option("comfort_heat_vulnerable_group", False)  # type: ignore[no-any-return]
+
+    def get_heating_circuit_enabled(self) -> bool:
+        """Check if the per-zone heating-circuit select is enabled."""
+        return self._get_option("heating_circuit_enabled", False)  # type: ignore[no-any-return]
+
     def get_mobile_devices_enabled(self) -> bool:
         """Check if mobile device tracking is enabled."""
         return self._get_option("mobile_devices_enabled", DEFAULT_MOBILE_DEVICES_ENABLED)  # type: ignore[no-any-return]
@@ -120,6 +128,48 @@ class ConfigurationManager:
     def get_mobile_devices_frequent_sync(self) -> bool:
         """Check if mobile devices should be synced every quick sync."""
         return self._get_option("mobile_devices_frequent_sync", DEFAULT_MOBILE_DEVICES_FREQUENT_SYNC)  # type: ignore[no-any-return]
+
+    def get_presence_min_refresh_minutes(self) -> int:
+        """Get minimum refresh interval for home presence / home state (minutes)."""
+        from .const import (
+            DEFAULT_PRESENCE_MIN_REFRESH_MINUTES,
+            MAX_PRESENCE_MIN_REFRESH_MINUTES,
+            MIN_PRESENCE_MIN_REFRESH_MINUTES,
+        )
+        return self._get_int_option(
+            "presence_min_refresh_minutes",
+            DEFAULT_PRESENCE_MIN_REFRESH_MINUTES,
+            MIN_PRESENCE_MIN_REFRESH_MINUTES,
+            MAX_PRESENCE_MIN_REFRESH_MINUTES,
+        )
+
+    def get_mobile_devices_min_refresh_minutes(self) -> int:
+        """Get minimum refresh interval for mobile device locations (minutes)."""
+        from .const import (
+            DEFAULT_MOBILE_DEVICES_MIN_REFRESH_MINUTES,
+            MAX_MOBILE_DEVICES_MIN_REFRESH_MINUTES,
+            MIN_MOBILE_DEVICES_MIN_REFRESH_MINUTES,
+        )
+        return self._get_int_option(
+            "mobile_devices_min_refresh_minutes",
+            DEFAULT_MOBILE_DEVICES_MIN_REFRESH_MINUTES,
+            MIN_MOBILE_DEVICES_MIN_REFRESH_MINUTES,
+            MAX_MOBILE_DEVICES_MIN_REFRESH_MINUTES,
+        )
+
+    def get_weather_min_refresh_minutes(self) -> int:
+        """Get minimum refresh interval for weather data (minutes)."""
+        from .const import (
+            DEFAULT_WEATHER_MIN_REFRESH_MINUTES,
+            MAX_WEATHER_MIN_REFRESH_MINUTES,
+            MIN_WEATHER_MIN_REFRESH_MINUTES,
+        )
+        return self._get_int_option(
+            "weather_min_refresh_minutes",
+            DEFAULT_WEATHER_MIN_REFRESH_MINUTES,
+            MIN_WEATHER_MIN_REFRESH_MINUTES,
+            MAX_WEATHER_MIN_REFRESH_MINUTES,
+        )
 
     def get_offset_enabled(self) -> bool:
         """Check if temperature offset attribute is enabled on climate entities."""
@@ -142,7 +192,7 @@ class ConfigurationManager:
         return self._get_int_option("night_start_hour", DEFAULT_NIGHT_START_HOUR, MIN_HOUR, MAX_HOUR)
 
     def _get_optional_interval(self, key: str) -> int | None:
-        """Read an optional polling interval — `None` when missing, blank, or invalid."""
+        """Read an optional polling interval; `None` when missing, blank, or invalid."""
         interval = self._get_option(key, None)
         if interval is None:
             return None
@@ -157,7 +207,7 @@ class ConfigurationManager:
             except (ValueError, TypeError, OverflowError):
                 _LOGGER.warning(
                     "Config: %s value %r could not be parsed as int "
-                    "— ignoring this interval, polling will use the "
+                    ", ignoring this interval, polling will use the "
                     "automatic schedule",
                     key, interval,
                 )
@@ -165,7 +215,7 @@ class ConfigurationManager:
 
         if not isinstance(interval, int) or interval < 1 or interval > MAX_CUSTOM_INTERVAL:
             _LOGGER.warning(
-                "Config: %s value %r outside range 1–%d — ignoring "
+                "Config: %s value %r outside range 1–%d, ignoring "
                 "this interval, polling will use the automatic "
                 "schedule",
                 key, interval, MAX_CUSTOM_INTERVAL,
@@ -231,7 +281,7 @@ class ConfigurationManager:
         if window_type not in WINDOW_U_VALUES:
             _LOGGER.warning(
                 "Config: mold_risk_window_type value %r is not in "
-                "WINDOW_U_VALUES — falling back to default %s",
+                "WINDOW_U_VALUES, falling back to default %s",
                 window_type,
                 DEFAULT_MOLD_RISK_WINDOW_TYPE,
             )
@@ -380,7 +430,7 @@ class ConfigurationManager:
         )
 
     def get_all_config(self) -> dict[str, Any]:
-        """Get all configuration values as a single dict."""
+        """Return the commonly-used config values as a single dict (a subset, not every getter)."""
         return {
             "weather_enabled": self.get_weather_enabled(),
             "mobile_devices_enabled": self.get_mobile_devices_enabled(),

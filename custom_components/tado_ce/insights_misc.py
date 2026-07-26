@@ -1,4 +1,4 @@
-"""Miscellaneous insights — presence, schedule, weather."""
+"""Miscellaneous insights: presence, schedule, weather."""
 
 from __future__ import annotations
 
