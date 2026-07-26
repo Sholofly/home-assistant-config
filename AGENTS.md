@@ -66,6 +66,17 @@ Real-time interaction with the running Home Assistant instance:
 - Control devices and call services
 - Validate configurations
 - Diagnose issues and detect anomalies
+- Report OpenCode/HA agent capability status with `get_agent_capabilities`
+
+### Native Home Assistant LLM Platform
+Home Assistant is developing a native `llm` integration where Core integrations and custom integrations can expose curated tools through `<integration>/llm.py` and registered LLM APIs. New Home Assistant builds may also expose those APIs over native MCP endpoints such as `/api/mcp/<API ID>`; the built-in Assist API uses `/api/mcp/assist`. This is complementary to OpenCode MCP, not a replacement.
+
+- If the optional `homeassistant_native` MCP server is available, prefer it for requests that fit the configured native Home Assistant LLM API because those tools are curated by Home Assistant.
+- Use OpenCode MCP for configuration editing, safe writes, validation, admin/dev workflows, screenshots, updates, ESPHome, `hab`, Zigbee tasks, add-on development, and Home Assistant documentation lookup.
+- Use `get_agent_capabilities` or `ha://agent/capabilities` to check whether the running HA instance reports the native `llm` component and native MCP endpoints.
+- Use `get_home_context` for compact area/domain/entity understanding before broad state dumps.
+- Use `get_ha_llm_development_guide` when helping develop or review a custom integration's native `<integration>/llm.py` provider.
+- Do not assume this add-on can register tools directly with HA's native `llm` platform; native tool registration is internal to HA integrations/custom integrations. The add-on can consume configured native LLM APIs through native MCP when Home Assistant exposes them.
 
 ### 3. hab CLI (Home Assistant Builder)
 A CLI tool designed for AI agents to manage Home Assistant. Run `hab` commands via the terminal:
@@ -304,6 +315,38 @@ These are the user-facing configuration files - the primary way to define Home A
 - `__pycache__/` - Python bytecode (managed by Python)
 - `home-assistant_v2.db` - History database (use MCP `get_history`)
 - `home-assistant.log` - Logs (use MCP `get_error_log`)
+
+## Working with YAML on the Command Line (`yq`)
+
+To read, query, or convert YAML from the shell, use **`yq`** (the mikefarah/Go tool, pre-installed on `PATH`). It is the correct tool because it tolerates Home Assistant's custom tags — `!include`, `!secret`, `!env_var`, `!input`, and the `!include_dir_*` family.
+
+**Do NOT reach for `python3 -c "import yaml"` (PyYAML) or Ruby's YAML for HA config** — both crash with a constructor error on the very first `!include`/`!secret`, because those tags are Home Assistant extensions, not standard YAML. `yq` parses them with no setup.
+
+### Read / query (always safe — never errors on HA tags)
+
+```
+yq '.homeassistant.latitude' configuration.yaml      # Print a nested value
+yq '.automation | tag' configuration.yaml            # Inspect the tag itself -> !include
+yq 'keys' configuration.yaml                          # List top-level keys
+yq -o=json '.' configuration.yaml | jq '.sensor'      # Convert to JSON to pipe into jq
+```
+
+Note: output and JSON conversion strip the tag — `!secret home_latitude` prints as `home_latitude`. Use `| tag` when you need to see the tag. Never round-trip a file *through* JSON and back; that permanently loses every `!include`/`!secret`.
+
+### Writing / editing
+
+Prefer the sanctioned write path: **`write_config_safe`** (MCP — validates, backs up, and blocks accidental content loss) or read the full file and use the editor. Reserve `yq -i` for quick, low-risk edits, and only with these two caveats in mind:
+
+1. **A custom tag sticks to the value you overwrite.** `yq -i '.homeassistant.latitude = 52.37'` on a `!secret`-tagged node produces the corrupt `latitude: !secret 52.37`. When replacing a tagged value, reset the tag in the *same* expression:
+   ```
+   yq -i '(.homeassistant.latitude tag = "") | .homeassistant.latitude = 52.37' configuration.yaml
+   ```
+   To *add* a secret reference, set the tag explicitly: `yq -i '.http.api_key = "my_api_key" | .http.api_key tag = "!secret"' configuration.yaml`
+2. **`yq -i` strips blank separator lines** (and collapses inline-comment spacing) across the whole file. No data is lost, but diffs are noisier. When a clean, minimal diff matters, use the editor instead.
+
+### Validation is not a syntax check
+
+`yq` only confirms YAML *parses*. To validate a Home Assistant *configuration* (resolving `!include`/`!secret` and checking integration schemas), use `check_config_syntax` / `write_config_safe` (MCP), not `yq`.
 
 ## YAML Style Guide (MANDATORY)
 
@@ -557,6 +600,7 @@ actions:
 - Follow the YAML Style Guide above for ALL configuration changes
 - Use anchors (`&name`) and aliases (`*name`) for DRY configurations
 - Understand `!include`, `!include_dir_named`, `!include_dir_list`, `!include_dir_merge_named`, `!include_dir_merge_list`
+- To read/query these files from the shell use `yq` (tag-tolerant); PyYAML/Ruby crash on HA tags — see "Working with YAML on the Command Line"
 - Know when to use packages for organized configuration
 
 ### Automations
@@ -623,7 +667,7 @@ Read and modify YAML files to understand and change Home Assistant's defined beh
 
 ### MCP Tools (When Available)
 Query and interact with the running Home Assistant instance:
-- `get_states`, `search_entities` - Current entity states
+- `get_states`, `search_entities`, `get_home_context` - Current entity states and compact area/domain/entity context
 - `call_service` - Control devices (with confirmation)
 - `get_history`, `get_logbook` - Historical data
 - `get_devices`, `get_areas` - Device and area registry info
@@ -631,6 +675,8 @@ Query and interact with the running Home Assistant instance:
 - `validate_config` - Check configuration validity
 - `get_error_log` - System errors and warnings
 - `diagnose_entity` - Comprehensive entity troubleshooting
+- `get_agent_capabilities` - OpenCode MCP capabilities and native HA `llm` / MCP readiness
+- `get_ha_llm_development_guide` - Upstream references and starter template for native `<integration>/llm.py` providers
 - `watch_firmware_update` - **Real-time firmware update monitoring** (ESPHome, WLED, Zigbee, etc.)
 - `get_available_updates`, `update_component` - System update management
 - `screenshot_url` - **Visual verification** of dashboards and UI pages (requires `screenshot_enabled` option)
@@ -641,10 +687,12 @@ Query and interact with the running Home Assistant instance:
 |------|---------------------|-----------|---------|---------------|
 | Create/edit automations | Primary | **Write with `write_config_safe`** | `hab automation create` | N/A |
 | Understand automation logic | Read YAML | Check state with `get_states` | `hab automation get` | N/A |
-| Check current device state | Reference only | Primary | `hab entity get` | N/A |
+| Check current device state | Reference only | Primary (`get_home_context` for focused context) | `hab entity get` | N/A |
 | Control devices | N/A | `call_service` | `hab action call` | N/A |
 | Add new integrations | Primary | N/A | N/A | N/A |
 | Troubleshoot issues | Review configs | `diagnose_entity`, `get_error_log` | `hab system health` | N/A |
+| Check agent/LLM readiness | N/A | `get_agent_capabilities` | N/A | N/A |
+| Develop native HA LLM tools | `custom_components/*/llm.py` | `get_ha_llm_development_guide` | N/A | N/A |
 | Find entities | Grep YAML files | `search_entities` | `hab entity list --domain` | N/A |
 | View history | N/A | `get_history` | N/A | N/A |
 | **Manage dashboards** | Edit YAML | N/A | **`hab dashboard` (primary)** | N/A |
