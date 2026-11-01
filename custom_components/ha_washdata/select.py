@@ -49,6 +49,8 @@ async def async_setup_entry(
 class WashDataProgramSelect(SelectEntity):
     """Select entity to manually choose the running program."""
 
+    _attr_should_poll = False  # pushed by the manager's update signal (PERF-02)
+
     _attr_has_entity_name = True
 
     _attr_translation_key = "program_select"
@@ -70,8 +72,6 @@ class WashDataProgramSelect(SelectEntity):
             self._attr_icon = "mdi:tumble-dryer"
         elif dtype == "dishwasher":
             self._attr_icon = "mdi:dishwasher"
-        elif dtype == "air_fryer":
-            self._attr_icon = "mdi:pot-steam"
         else:
             self._attr_icon = "mdi:washing-machine"  # Default and washing_machine
 
@@ -104,9 +104,14 @@ class WashDataProgramSelect(SelectEntity):
 
         current = self._manager.current_program
         manual_active = getattr(self._manager, "manual_program_active", False)
+        armed = getattr(self._manager, "armed_program", None)
 
         if manual_active and current:
             self._attr_current_option = current
+        elif armed and armed in self._attr_options:
+            # Pinned for the next cycle while the appliance is idle (#411): show the
+            # choice back, or the select would snap to Auto the moment it was set.
+            self._attr_current_option = armed
         elif current in ("detecting...", "off", "restored..."):
             self._attr_current_option = OPTION_AUTO
         elif current:

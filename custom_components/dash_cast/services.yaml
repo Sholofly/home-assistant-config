@@ -1,0 +1,23 @@
+load_url:
+  fields:
+    entity_id:
+      required: true
+      selector:
+        entity:
+          integration: cast
+          domain: media_player
+    url:
+      example: https://www.home-assistant.io/
+      required: true
+      selector:
+        text:
+    force:
+      default: false
+      selector:
+        boolean:
+    reload_seconds:
+      default: 0
+      selector:
+        number:
+          min: 0
+          max: 10000

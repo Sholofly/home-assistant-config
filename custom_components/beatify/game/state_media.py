@@ -1,7 +1,7 @@
 """Media-player & party-lights output subsystem for :class:`GameState`.
 
 Issue #1271 next-increment extraction: the external-output cluster — media
-transport (``stop_media``, ``set_volume_on_player``, ``seek_forward``,
+transport (``stop_media``, ``set_volume_on_player``,
 ``play_deferred_song``), party-lights control (``configure_party_lights``,
 ``disable_party_lights``, ``_lights_set_phase``, ``_lights_flash``) and the
 host-side ``adjust_volume`` helper — is pulled out of the ``game/state.py``
@@ -18,7 +18,9 @@ at runtime:
 * ``self._media_player_service`` — :class:`MediaPlayerProtocol` instance (or
   ``None`` before the first round), the transport all playback flows through.
 * ``self._party_lights`` — :class:`PartyLightsProtocol` instance (or ``None``).
-* ``self._hass`` — Home Assistant instance (to construct the lights service).
+* ``self._service_factories`` — the #2638 injection bundle; its ``party_lights``
+  factory builds the service ``configure_party_lights`` installs. The mixin no
+  longer touches ``self._hass`` at all.
 * ``self._bg_tasks`` — set of fire-and-forget background tasks.
 * ``self.volume_level`` — current game volume, clamped 0.0–1.0.
 
@@ -30,10 +32,13 @@ no cyclic imports.
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import logging
 from typing import TYPE_CHECKING
 
 from custom_components.beatify.const import VOLUME_STEP
+
+from .state_contract import GameStateBase
 
 if TYPE_CHECKING:
     from .state import GamePhase
@@ -41,7 +46,7 @@ if TYPE_CHECKING:
 _LOGGER = logging.getLogger(__name__)
 
 
-class MediaControlMixin:
+class MediaControlMixin(GameStateBase):
     """Media-player & party-lights output behavior for :class:`GameState`.
 
     See module docstring for the host-class attributes this mixin reads.
@@ -51,6 +56,44 @@ class MediaControlMixin:
         """Stop media playback if a media player service is available (#321)."""
         if self._media_player_service:
             await self._media_player_service.stop()
+
+    def _arm_sample_stop(self) -> None:
+        """(Re)arm the song-sample stop for the running round (#3152).
+
+        Called wherever the round clock is stamped: round start, the re-stamp
+        once announcements are over, the intro splash confirmation and a
+        resume. No-op for a game without a sample length.
+        """
+        self._round_manager.arm_sample_stop(
+            self._stop_sample_playback, self._on_round_end
+        )
+
+    async def _stop_sample_playback(self) -> None:
+        """Silence the speaker when the sample is over; the round goes on."""
+        from .state import GamePhase  # noqa: PLC0415 — avoid circular import
+
+        # PAUSED covers the moment of a resume: the stop is re-armed just
+        # before the phase is restored, and every other way into PAUSED has
+        # cancelled the task.
+        if self.phase not in (GamePhase.PLAYING, GamePhase.PAUSED):
+            return
+        await self.stop_media()
+
+    async def _resume_sample_playback(self) -> None:
+        """Bring the song back for the reveal after a sample stop (#3152).
+
+        The reveal plays the song as it always did. A song the HOST stopped
+        (``song_stopped``) stays stopped — that was a decision, not a timer.
+        """
+        if not self._round_manager.sample_stopped or self.song_stopped:
+            return
+        if not self._media_player_service:
+            return
+        try:
+            await self._media_player_service.play()
+            _LOGGER.info("Song resumed for the reveal after the sample stop")
+        except Exception as err:  # noqa: BLE001 — must not block the reveal
+            _LOGGER.warning("Resume after sample stop failed: %s (#3152)", err)
 
     async def set_volume_on_player(self, level: float) -> bool:
         """Apply volume level to the media player (#321).
@@ -76,11 +119,37 @@ class MediaControlMixin:
             return await self._media_player_service.restore_volume()
         return False
 
-    async def seek_forward(self, seconds: int) -> bool:
-        """Seek media player forward by given seconds (#498)."""
+    async def restore_player_queue(self) -> bool:
+        """Hand the speaker back the track it was playing before the game (#2143).
+
+        No-op (returns False) when there is no media player, when the platform
+        is not Music Assistant, or when the speaker was idle at game start.
+        """
         if self._media_player_service:
-            return await self._media_player_service.seek_forward(seconds)
+            return await self._media_player_service.restore_queue()
         return False
+
+    def release_media_player_service(self) -> None:
+        """Drop the MediaPlayerService but keep what it owes the speaker (#2143).
+
+        A mid-game speaker switch has to discard the service — it captures
+        entity and platform at construction, so keeping it would route playback
+        to the OLD device. But the service also holds the promises made to that
+        device: its pre-game volume (#1516) and its pre-game queue (#2143).
+        Nulling the reference alone threw both away, silently, and the old
+        speaker was left at party volume with Beatify's last track on it.
+
+        The volume half of that was already broken before #2143 existed and
+        nobody had noticed: ``UpdateLobbyView`` explicitly permits a speaker
+        switch during PLAYING and REVEAL, which is exactly when a volume has
+        been captured.
+        """
+        service = self._media_player_service
+        if service is not None:
+            snapshot = service.snapshot_saved_states()
+            if snapshot:
+                self._pending_speaker_states.update(snapshot)
+        self._media_player_service = None
 
     async def play_deferred_song(self, song: dict) -> bool:
         """Play a song that was deferred for intro splash (#321).
@@ -103,10 +172,16 @@ class MediaControlMixin:
         light_mode: str = "dynamic",
         wled_presets: dict[str, int] | None = None,
     ) -> None:
-        """Configure and start Party Lights for the game."""
-        # Lazy import: only the concrete class for instantiation; type hints
-        # use PartyLightsProtocol (module-level) to keep the import graph acyclic.
-        from custom_components.beatify.services.lights import PartyLightsService  # noqa: PLC0415
+        """Configure and start Party Lights for the game.
+
+        #2638: the concrete service is built by the injected ``party_lights``
+        factory. With no factory wired (a game-logic unit test) this is a
+        silent no-op and the game runs without lights.
+        """
+        factory = self._service_factories.party_lights
+        if factory is None:
+            _LOGGER.debug("No party-lights factory wired — party lights unavailable")
+            return
 
         # #1402 B2: a reconfigure (admin changes intensity / mode / entities
         # mid-game via admin_set_party_lights) previously replaced the active
@@ -121,7 +196,7 @@ class MediaControlMixin:
             self._party_lights.snapshot_saved_states() if self._party_lights else None
         )
 
-        self._party_lights = PartyLightsService(self._hass)
+        self._party_lights = factory()
         await self._party_lights.start(
             entity_ids,
             intensity,
@@ -129,9 +204,24 @@ class MediaControlMixin:
             wled_presets,
             inherited_states=inherited_states,
         )
+        # #2649: remember what was configured. Turning the lights off drops the
+        # service (and with it the entity list), so without this the host could
+        # switch them off from their phone and had no way to switch them back
+        # on — the setup section is hidden during play.
+        self.party_lights_config = {
+            "entity_ids": list(entity_ids),
+            "intensity": intensity,
+            "light_mode": light_mode,
+            "wled_presets": dict(wled_presets) if wled_presets else None,
+        }
 
     async def disable_party_lights(self) -> None:
-        """Stop Party Lights and restore original light states."""
+        """Stop Party Lights and restore original light states.
+
+        #2649: ``party_lights_config`` is deliberately NOT cleared. Switching
+        the lights off at 10pm is a moment, not a decision to unconfigure them
+        — and the phone needs the entity list to switch them back on.
+        """
         if self._party_lights:
             await self._party_lights.stop()
             self._party_lights = None
@@ -153,6 +243,24 @@ class MediaControlMixin:
                 task.add_done_callback(self._bg_tasks.discard)
             except Exception:  # noqa: BLE001
                 _LOGGER.warning("Party Lights flash failed")
+
+    def current_volume(self) -> float:
+        """The speaker's volume right now, 0.0-1.0 (#2557).
+
+        The host's phone used to assume 0.5 because no volume ever reached the
+        client: ``volume_changed`` is only sent back in reply to the host's own
+        tap, and the state payload carried nothing. So the first press of
+        up/down was made blind, and the at-the-limit guard was checking an
+        invented number.
+
+        Reads through to the media player when one is attached, so the value
+        follows changes made outside Beatify (the speaker's own app, another HA
+        automation) rather than only the taps we made ourselves.
+        """
+        if self._media_player_service:
+            with contextlib.suppress(Exception):
+                self.volume_level = self._media_player_service.get_volume()
+        return self.volume_level
 
     def adjust_volume(self, direction: str) -> float:
         """

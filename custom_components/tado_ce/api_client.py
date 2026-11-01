@@ -7,6 +7,7 @@ from contextlib import suppress
 from datetime import datetime, timedelta
 from http import HTTPStatus
 import logging
+import math
 from typing import TYPE_CHECKING, Any
 
 import aiohttp
@@ -26,16 +27,31 @@ from .api_call_tracker import (
 )
 from .const import (
     API_ENDPOINT_DEVICES,
+    DAY_TYPES,
     DEVICE_OFFSET_MAX,
     DEVICE_OFFSET_MIN,
+    DOMAIN,
+    MAX_CUSTOM_INTERVAL,
     MAX_RETRY_ATTEMPTS,
+    MAX_SCHEDULE_FETCH_CALLS,
+    QUOTA_RESET_EARLY_WINDOW_MINUTES,
     QUOTA_WARNING_PERCENTAGE,
     TADO_API_BASE,
+    TADO_GRAPHQL_API,
+    ZONE_STATES_EMPTY_CONFIRMATIONS,
     is_climate_zone,
     is_valid_device_offset,
 )
 from .exceptions import TadoAuthError, TadoRateLimitError, TadoSyncError
-from .helpers import mask_serial, parse_iso_datetime, retry_delay
+from .helpers import (
+    hard_quota_reserve,
+    mask_api_url,
+    mask_response_body,
+    mask_serial,
+    parse_iso_datetime,
+    predicted_next_reset,
+    retry_delay,
+)
 
 if TYPE_CHECKING:
     from homeassistant.config_entries import ConfigEntry
@@ -88,6 +104,20 @@ def _detect_call_type(endpoint: str) -> int | None:
     if endpoint == "state":
         return CALL_TYPE_HOME_STATE
     return None
+
+
+_FULL_SYNC_FIXED_CALLS = 2  # zones and devices, the two fetches every full sync makes
+_NEW_ZONE_FULL_SYNC_CALLS = 2  # per added zone, worst case: an offset read plus a capability fetch or a circuit-control read
+
+
+def _full_sync_fetches_mobile(mobile_devices_enabled: bool, mobile_devices_frequent_sync: bool) -> bool:
+    """Return whether a full sync's own pass fetches mobileDevices (the quick pass did not)."""
+    # WHY: with frequent sync on, the quick pass of the same cycle already fetched it.
+    return mobile_devices_enabled and not mobile_devices_frequent_sync
+
+
+# Empty zone replies in a row per config entry; module level so a setup retry (a new client) still counts them.
+_EMPTY_ZONE_REPLIES: dict[str, int] = {}
 
 
 class TadoApiClient(TadoAuthMixin):
@@ -155,9 +185,19 @@ class TadoApiClient(TadoAuthMixin):
             with suppress(ValueError, IndexError):
                 self._rate_limit["limit"] = int(policy.split("q=")[1].split(";")[0])
 
+        parsed_remaining = False
         if "r=" in ratelimit:
             with suppress(ValueError, IndexError):
                 self._rate_limit["remaining"] = int(ratelimit.split("r=")[1].split(";")[0])
+                parsed_remaining = True
+
+        # Decisions read this pair, so calls made since the last saved snapshot count.
+        if parsed_remaining and self._data_loader is not None:
+            live = {
+                key: value for key in ("limit", "remaining")
+                if isinstance(value := self._rate_limit.get(key), int)
+            }
+            self._data_loader.update_cache("ratelimit_live", live)
 
         if not self._rate_limit.get("_from_429"):
             self._rate_limit.pop("reset_seconds", None)
@@ -195,18 +235,36 @@ class TadoApiClient(TadoAuthMixin):
         used = limit - remaining
         percentage_used = round((used / limit) * 100, 1) if limit > 0 else 0
 
-        # When `remaining` jumps up by more than 5% of the daily
-        # limit (or 20 calls, whichever is bigger), Tado's quota has
-        # reset since the last poll. Record the moment so the
-        # extrapolation strategies can lean on it.
+        stored_slack = prev_data.get("last_reset_slack_minutes")
+        # A bool is an int in Python, so it is excluded by hand.
+        slack = (
+            min(stored_slack, MAX_CUSTOM_INTERVAL)
+            if isinstance(stored_slack, int) and not isinstance(stored_slack, bool) and stored_slack >= 0
+            else 0
+        )
+        window = max(QUOTA_RESET_EARLY_WINDOW_MINUTES, slack)
+
+        # Remaining only falls between resets, so any rise near or after the predicted reset counts; the jump threshold misses quiet days.
         if prev_remaining is not None and remaining is not None:
             reset_threshold = max(20, int(limit * 0.05))
-            if remaining > prev_remaining + reset_threshold:
+            rise = remaining - prev_remaining
+            next_reset = predicted_next_reset(last_reset_utc)
+            reason = ""
+            if rise > reset_threshold:
+                reason = "jump above the threshold"
+            elif (
+                rise > 0
+                and next_reset is not None
+                and now_utc >= next_reset - timedelta(minutes=window)
+            ):
+                reason = "rise near the predicted reset"
+            if reason:
                 last_reset_utc = now_utc.strftime("%Y-%m-%dT%H:%M:%SZ")
+                slack = self._reset_record_lag_minutes(now_utc, prev_data)
                 _LOGGER.info(
                     "API: Tado quota reset detected at %s "
-                    "(remaining %s → %s, threshold %s)",
-                    last_reset_utc, prev_remaining, remaining, reset_threshold,
+                    "(remaining %s → %s, threshold %s, %s, slack %d min)",
+                    last_reset_utc, prev_remaining, remaining, reset_threshold, reason, slack,
                 )
 
         return {
@@ -215,7 +273,22 @@ class TadoApiClient(TadoAuthMixin):
             "remaining": remaining,
             "percentage_used": percentage_used,
             "last_reset_utc": last_reset_utc,
+            "last_reset_slack_minutes": slack,
         }
+
+    @staticmethod
+    def _reset_record_lag_minutes(now_utc: datetime, prev_data: dict[str, Any]) -> int:
+        """Return the minutes since the previous save, an upper bound of how late a reset was seen."""
+        updated = prev_data.get("last_updated")
+        if not isinstance(updated, str):
+            return 0
+        try:
+            gap = now_utc - parse_iso_datetime(updated)
+        except (ValueError, TypeError, OverflowError):
+            # A missing or malformed stamp only means no widened window.
+            _LOGGER.debug("API: previous rate-limit save time unreadable, reset slack 0")
+            return 0
+        return max(0, min(math.ceil(gap.total_seconds() / 60), MAX_CUSTOM_INTERVAL))
 
     def _calculate_reset_seconds(
         self,
@@ -457,6 +530,7 @@ class TadoApiClient(TadoAuthMixin):
             "reset_human": reset_human,
             "last_updated": now_utc.isoformat(),
             "last_reset_utc": last_reset_utc,
+            "last_reset_slack_minutes": result["last_reset_slack_minutes"],
             "status": status,
         }
 
@@ -482,6 +556,7 @@ class TadoApiClient(TadoAuthMixin):
         self, method: str, endpoint: str, attempt: int,
     ) -> bool:
         """Handle a 401, refreshing the token once for idempotent first-attempt calls."""
+        endpoint = mask_api_url(endpoint)  # logged and raised below
         if method in _RETRYABLE_METHODS and attempt == 1:
             _LOGGER.debug(
                 "API: token expired mid-call (%s %s), refreshing and retrying",
@@ -492,8 +567,17 @@ class TadoApiClient(TadoAuthMixin):
             return True
         self._access_token = None
         self._token_expiry = None
+        if method not in _RETRYABLE_METHODS:
+            _LOGGER.warning(
+                "API: token expired on %s %s, not retried (non-idempotent), "
+                "token cleared for next attempt",
+                method, endpoint,
+            )
+            raise TadoSyncError(
+                f"Token expired on {method} {endpoint}, try again",
+            )
         _LOGGER.warning(
-            "API: token expired on %s %s, non-retryable, surfacing for reauth",
+            "API: token expired on %s %s, retry exhausted, surfacing for reauth",
             method, endpoint,
         )
         raise TadoAuthError(
@@ -509,6 +593,7 @@ class TadoApiClient(TadoAuthMixin):
         single transient 403 doesn't cost the user a re-auth round
         trip on the next call.
         """
+        endpoint = mask_api_url(endpoint)  # logged and raised below
         if attempt < MAX_RETRY_ATTEMPTS:
             _LOGGER.debug(
                 "API: HTTP 403 on %s %s, retry %s/%s",
@@ -539,7 +624,7 @@ class TadoApiClient(TadoAuthMixin):
         home_id = config.get("home_id")
         if not home_id:
             raise TadoAuthError(
-                f"Home ID missing, cannot resolve {endpoint}, re-authenticate to fix",
+                f"Home ID missing, cannot resolve {mask_api_url(endpoint)}, re-authenticate to fix",
             )
         return f"{TADO_API_BASE}/homes/{home_id}/{endpoint}"
 
@@ -553,6 +638,7 @@ class TadoApiClient(TadoAuthMixin):
         response_body: str = "",
     ) -> str:
         """Decide how to react to a non-2xx status: `continue` / `return_none` / `return_success`."""
+        endpoint = mask_api_url(endpoint)  # logged and raised below
         if status == HTTPStatus.UNAUTHORIZED:
             if await self._handle_401(method, endpoint, attempt):
                 return "continue"
@@ -569,7 +655,7 @@ class TadoApiClient(TadoAuthMixin):
             _LOGGER.warning(
                 "API: %s %s rejected by Tado (HTTP 422): %s",
                 method, endpoint,
-                response_body[:200] if response_body else "no response body",
+                mask_response_body(response_body) if response_body else "no response body",
             )
             return "return_none"
 
@@ -614,7 +700,7 @@ class TadoApiClient(TadoAuthMixin):
         if response_body:
             _LOGGER.warning(
                 "API: %s %s failed with HTTP %s: %s",
-                method, endpoint, status, response_body[:200],
+                method, endpoint, status, mask_response_body(response_body),
             )
         else:
             _LOGGER.warning(
@@ -627,6 +713,7 @@ class TadoApiClient(TadoAuthMixin):
         self, attempt: int, error_type: str, method: str, endpoint: str,
     ) -> bool:
         """Sleep + return True when a network error has retries left, else log and return False."""
+        endpoint = mask_api_url(endpoint)  # logged below
         if attempt < MAX_RETRY_ATTEMPTS:
             delay = retry_delay(attempt)
             _LOGGER.debug(
@@ -685,10 +772,10 @@ class TadoApiClient(TadoAuthMixin):
                         self._rate_limit["reset_seconds"] = int(float(retry_after_header))
                         self._rate_limit["_from_429"] = True
                     except (ValueError, TypeError):
-                        pass
+                        _LOGGER.debug("api_client: non-numeric Retry-After header %r, ignoring", retry_after_header)
 
             action = await self._handle_error_status(
-                resp.status, method, url, attempt,
+                resp.status, method, mask_api_url(url), attempt,
                 method in _RETRYABLE_METHODS,
                 response_body=response_body,
             )
@@ -704,6 +791,7 @@ class TadoApiClient(TadoAuthMixin):
         parse_ratelimit: bool = True,
         full_url: str | None = None,
         extra_success_statuses: frozenset[int] | None = None,
+        raise_network_errors: bool = False,
     ) -> dict[str, Any] | None:
         """Authenticated request with transient-403 retry on idempotent methods.
 
@@ -719,6 +807,7 @@ class TadoApiClient(TadoAuthMixin):
 
         call_type = _detect_call_type(endpoint)
         tracker = self._api_tracker
+        log_endpoint = mask_api_url(endpoint)
 
         _success: set[int | HTTPStatus] = {HTTPStatus.OK, HTTPStatus.CREATED, HTTPStatus.NO_CONTENT}
         if extra_success_statuses:
@@ -730,7 +819,7 @@ class TadoApiClient(TadoAuthMixin):
                 _LOGGER.warning(
                     "API: could not get access token for %s %s, "
                     "re-authentication may be required",
-                    method, endpoint,
+                    method, log_endpoint,
                 )
                 return None
 
@@ -743,7 +832,10 @@ class TadoApiClient(TadoAuthMixin):
                     continue
                 return result
             except (TimeoutError, aiohttp.ClientError):
-                if not await self._should_retry_network_error(attempt, "network error", method, endpoint):
+                if not await self._should_retry_network_error(attempt, "network error", method, log_endpoint):
+                    # A caller that must tell an unknown outcome from a refusal asks for the error.
+                    if raise_network_errors:
+                        raise
                     return None
             except TadoAuthError:
                 raise
@@ -760,12 +852,45 @@ class TadoApiClient(TadoAuthMixin):
                 _LOGGER.warning(
                     "API: unexpected error on %s %s, call abandoned, "
                     "next poll will retry",
-                    method, endpoint,
+                    method, log_endpoint,
                     exc_info=True,
                 )
                 return None
 
         return None
+
+    async def _graphql_call(
+        self, query: str, variables: dict[str, Any],
+    ) -> dict[str, Any] | None:
+        """POST a query/mutation to Tado's GraphQL gateway; returns `data`, or None on failure.
+
+        Reuses `api_call`'s auth/retry handling via `full_url`. Rate-limit
+        header parsing is off: the tracked quota belongs to `my.tado.com`,
+        and a gateway response parsed into it would clear the reset time a
+        prior 429 left there. GraphQL returns HTTP 200 even on failure, so a non-empty top-level
+        `errors` array is treated as failure here; a mutation's own
+        `success`/`failureReason` is the caller's to interpret, since only
+        the caller knows the field name.
+        """
+        result = await self.api_call(
+            "graphql",
+            method="POST",
+            data={"query": query, "variables": variables},
+            parse_ratelimit=False,
+            full_url=TADO_GRAPHQL_API,
+        )
+        if result is None:
+            return None
+
+        errors = result.get("errors")
+        if errors:
+            _LOGGER.warning(
+                "API: GraphQL request rejected: %s",
+                errors[0].get("message", errors) if errors else errors,
+            )
+            return None
+
+        return result.get("data")
 
     async def get_device_offset(self, serial: str) -> float | None:
         """Return the device's stored temperature offset in °C, or None on failure."""
@@ -820,12 +945,20 @@ class TadoApiClient(TadoAuthMixin):
             return True
         return False
 
-    async def set_zone_overlay(self, zone_id: str, setting: dict[str, Any], termination: dict[str, Any]) -> bool:
-        """Set a zone overlay (manual control)."""
+    async def set_zone_overlay(
+        self,
+        zone_id: str,
+        setting: dict[str, Any],
+        termination: dict[str, Any],
+        *,
+        raise_network_errors: bool = False,
+    ) -> bool:
+        """Set a zone overlay (manual control); optionally raise when the outcome is unknown."""
         result = await self.api_call(
             f"zones/{zone_id}/overlay",
             method="PUT",
             data={"setting": setting, "termination": termination},
+            raise_network_errors=raise_network_errors,
         )
         return result is not None
 
@@ -837,23 +970,15 @@ class TadoApiClient(TadoAuthMixin):
         )
         return result is not None
 
-    async def get_heating_circuits(self) -> list[dict[str, Any]]:
-        """Return the home's boiler heating circuits.
-
-        GET /homes/{id}/heatingCircuits. Each item carries a stable ``number``
-        (identity / write key) and a ``driverShortSerialNo`` (display). Returns
-        an empty list when unavailable so single- or no-circuit homes degrade cleanly.
-        """
+    async def get_heating_circuits(self) -> list[dict[str, Any]] | None:
+        """Return the home's boiler heating circuits, or None when the fetch failed or was malformed (an empty list means no circuits)."""
         result = await self.api_call("heatingCircuits")
-        return result if isinstance(result, list) else []
+        return result if isinstance(result, list) else None
 
-    async def get_zone_control(self, zone_id: str) -> dict[str, Any]:
-        """Return a zone's control block (carries ``heatingCircuit``).
-
-        GET /zones/{id}/control. Returns an empty dict when unavailable.
-        """
+    async def get_zone_control(self, zone_id: str) -> dict[str, Any] | None:
+        """Return a zone's control block (carries ``heatingCircuit``), or None when the fetch failed."""
         result = await self.api_call(f"zones/{zone_id}/control")
-        return result if isinstance(result, dict) else {}
+        return result if isinstance(result, dict) else None
 
     async def set_zone_heating_circuit(self, zone_id: str, circuit_number: int | None) -> None:
         """Reassign a zone to a boiler circuit, or unassign it.
@@ -903,27 +1028,31 @@ class TadoApiClient(TadoAuthMixin):
         }
         day_types = day_types_map.get(timetable_type, ["MONDAY_TO_SUNDAY"])
 
-        # Per-day failures are tolerated: a single missing day's
-        # blocks shouldn't break the whole schedule fetch.
+        # A failed or non-list GET is recorded in the sibling `failed_days`
+        # list, not inside blocks_by_day: every consumer reads each day's
+        # value as a plain list of blocks.
         blocks_by_day: dict[str, Any] = {}
+        failed_days: list[str] = []
         for day_type in day_types:
             blocks = await self.api_call(
                 f"zones/{zone_id}/schedule/timetables/{timetable_id}/blocks/{day_type}",
             )
-            if blocks is not None:
+            if isinstance(blocks, list):
                 blocks_by_day[day_type] = blocks
             else:
                 _LOGGER.warning(
                     "API: zone %s schedule fetch missed blocks for %s, "
-                    "schedule will be incomplete until next poll",
+                    "will retry on the next full sync whose day-type matches",
                     zone_id, day_type,
                 )
                 blocks_by_day[day_type] = []
+                failed_days.append(day_type)
 
         return {
             "type": timetable_type,
             "timetable_id": timetable_id,
             "blocks": blocks_by_day,
+            "failed_days": failed_days,
         }
 
     async def set_presence_lock(self, state: str) -> bool:
@@ -995,11 +1124,68 @@ class TadoApiClient(TadoAuthMixin):
                     "API: mobile-devices count %s", len(mobile_data),
                 )
 
+    def full_sync_extra_calls(
+        self, *, mobile_devices_enabled: bool, mobile_devices_frequent_sync: bool, offset_enabled: bool,
+    ) -> int | None:
+        """Return the calls _sync_full_extras will make; None when no zone list is stored yet."""
+        mobile = 1 if _full_sync_fetches_mobile(mobile_devices_enabled, mobile_devices_frequent_sync) else 0
+        zones_info = self._data_loader.get_cached("zones_info") if self._data_loader is not None else None
+        if not isinstance(zones_info, list) or not all(isinstance(z, dict) for z in zones_info):
+            return None
+
+        cached_caps = self._data_loader.get_cached("ac_capabilities") if self._data_loader is not None else None
+        capabilities: dict[str, Any] = cached_caps if isinstance(cached_caps, dict) else {}
+
+        # zones, devices, and mobileDevices unless the quick pass fetched it
+        calls = _FULL_SYNC_FIXED_CALLS + mobile
+        for zone in zones_info:
+            zone_type = zone.get("type")
+            if offset_enabled and is_climate_zone(zone_type or ""):
+                devices = zone.get("devices")
+                if isinstance(devices, list) and any(
+                    isinstance(d, dict) and d.get("shortSerialNo") for d in devices
+                ):
+                    calls += 1
+            if zone_type in ("AIR_CONDITIONING", "HOT_WATER") and str(zone.get("id")) not in capabilities:
+                calls += 1
+        calls += _NEW_ZONE_FULL_SYNC_CALLS * self._count_unlisted_zones(zones_info)
+
+        # SVC schedule fetches are left out because they gate themselves on the live quota.
+        if self._config_manager is not None and self._config_manager.get_heating_circuit_enabled():
+            calls += 1 + sum(1 for z in zones_info if z.get("type") == "HEATING")
+        return calls
+
+    def _count_unlisted_zones(self, zones_info: list[Any]) -> int:
+        """Count zones in the stored zone states that the stored zone list does not list yet."""
+        states = self._data_loader.get_cached("zones") if self._data_loader is not None else None
+        zone_states = states.get("zoneStates") if isinstance(states, dict) else None
+        if not isinstance(zone_states, dict):
+            return 0
+        listed = {str(z.get("id")) for z in zones_info}
+        return sum(1 for zone_id in zone_states if str(zone_id) not in listed)
+
+    def recurring_full_sync_calls(
+        self, *, mobile_devices_enabled: bool, mobile_devices_frequent_sync: bool, offset_enabled: bool,
+    ) -> int:
+        """Return the calls one full sync costs on config flags, falling back to the fixed floor without cached zones."""
+        extra = self.full_sync_extra_calls(
+            mobile_devices_enabled=mobile_devices_enabled,
+            mobile_devices_frequent_sync=mobile_devices_frequent_sync,
+            offset_enabled=offset_enabled,
+        )
+        if extra is not None:
+            return extra
+        # Unknown zones must not drop the term, or a restart would price the day as free.
+        return _FULL_SYNC_FIXED_CALLS + (
+            1 if _full_sync_fetches_mobile(mobile_devices_enabled, mobile_devices_frequent_sync) else 0
+        )
+
     async def _sync_full_extras(
         self,
         *,
         mobile_devices_enabled: bool,
         offset_enabled: bool,
+        svc_schedule_zone_ids: frozenset[str] = frozenset(),
     ) -> None:
         """Run the heavier fetches (zone info, mobile, offsets, AC caps) in a full sync."""
         zones_info = await self._sync_and_save("zones", "zones_info", "zone info")
@@ -1035,29 +1221,151 @@ class TadoApiClient(TadoAuthMixin):
         ):
             await self._sync_heating_circuits(zones_info)
 
+        if svc_schedule_zone_ids:
+            await self._sync_svc_schedules(zones_info, svc_schedule_zone_ids)
+
+    async def _sync_svc_schedules(
+        self,
+        zones_info: list[dict[str, Any]],
+        svc_schedule_zone_ids: frozenset[str],
+    ) -> None:
+        """Fetch a Smart Valve Control zone's schedule on the full-sync cadence.
+
+        Runs even when Schedule Calendar is off - SVC's valve_target mode
+        needs a current schedule to know what to hold, independent of the
+        display feature that historically was the only thing fetching one.
+        Gated on the LIVE remaining-quota value (updated by every response
+        this whole sync has made so far), re-checked before each zone, so
+        the gate tightens as this cycle spends calls rather than working
+        from a stale once-per-cycle snapshot.
+        """
+        if self._data_loader is None:
+            return
+
+        cached_schedules = self._data_loader.get_cached("schedules")
+        if not isinstance(cached_schedules, dict):
+            cached_schedules = {}
+
+        limit = self._rate_limit.get("limit")
+        reserve = hard_quota_reserve(limit)
+
+        merged = dict(cached_schedules)
+        any_fetched = False
+
+        for zone_data in zones_info:
+            zone_id = str(zone_data.get("id", ""))
+            if zone_id not in svc_schedule_zone_ids:
+                continue
+            if zone_data.get("type") != "HEATING":
+                continue
+
+            existing = cached_schedules.get(zone_id)
+            if isinstance(existing, dict) and existing.get("blocks"):
+                today_types = _today_day_types(existing.get("type", "ONE_DAY"))
+                if not any(schedule_day_failed(existing, dt) for dt in today_types):
+                    continue  # a cache hit that isn't failing for today
+
+            remaining = self._rate_limit.get("remaining")
+            if remaining is None:
+                _LOGGER.warning(
+                    "API: no rate-limit reading yet, deferring zone %s's "
+                    "schedule fetch to a later cycle",
+                    zone_id,
+                )
+                continue
+            if remaining <= reserve + MAX_SCHEDULE_FETCH_CALLS:
+                _LOGGER.debug(
+                    "API: zone %s schedule fetch deferred, quota too "
+                    "low (remaining=%s, reserve=%s)",
+                    zone_id, remaining, reserve,
+                )
+                continue
+
+            zone_name = zone_data.get("name", f"Zone {zone_id}")
+            try:
+                schedule_data = await self.get_zone_schedule(zone_id)
+            except Exception:
+                # Broad on purpose: one zone's failure (rate limit, network
+                # blip, auth hiccup) must not abort the loop for the other
+                # SVC zones or anything already fetched earlier this cycle.
+                _LOGGER.warning(
+                    "API: SVC schedule fetch for %s failed, will retry "
+                    "next full sync",
+                    zone_name,
+                    exc_info=True,
+                )
+                continue
+
+            if not schedule_data:
+                continue
+
+            merged[zone_id] = {
+                "name": zone_name,
+                "type": schedule_data.get("type", "ONE_DAY"),
+                "blocks": schedule_data.get("blocks") or {},
+                "failed_days": schedule_data.get("failed_days") or [],
+            }
+            any_fetched = True
+
+            if self._hass is not None:
+                self._hass.bus.async_fire(
+                    f"{DOMAIN}_schedule_updated",
+                    {"zone_id": zone_id, "zone_name": zone_name},
+                )
+
+        if any_fetched:
+            await self._data_loader.async_update_store("schedules", merged)
+
     async def _sync_heating_circuits(self, zones_info: list[dict[str, Any]]) -> None:
         """Fetch the home's circuit list + each zone's current circuit (full-sync only).
 
         Rides the full-sync cadence, with no separate timer, because the
         circuit list rarely changes; per-zone control is re-read here so a
-        Tado-app reassignment surfaces within one full-sync interval. Stores are
-        overwrite-on-fetch, so a dropped circuit / zone self-evicts.
+        Tado-app reassignment surfaces within one full-sync interval. A failed
+        (None) fetch keeps the previous circuit list / zone entry instead of wiping it.
         """
         if self._data_loader is None:
             return
         circuits = await self.get_heating_circuits()
-        self._data_loader.update_cache("heating_circuits", {"circuits": circuits})
-        await self._data_loader.async_update_store("heating_circuits", {"circuits": circuits})
+        if circuits is not None:
+            self._data_loader.update_cache("heating_circuits", {"circuits": circuits})
+            await self._data_loader.async_update_store("heating_circuits", {"circuits": circuits})
 
-        control: dict[str, Any] = {}
+        previous = self._data_loader.get_cached("heating_circuit_control")
+        control: dict[str, Any] = dict(previous) if isinstance(previous, dict) else {}
         for zone in zones_info:
             if zone.get("type") != "HEATING":
                 continue
             zone_id = str(zone.get("id"))
             zone_control = await self.get_zone_control(zone_id)
-            control[zone_id] = {"heatingCircuit": zone_control.get("heatingCircuit")}
+            if zone_control is not None:
+                control[zone_id] = {"heatingCircuit": zone_control.get("heatingCircuit")}
         self._data_loader.update_cache("heating_circuit_control", control)
         await self._data_loader.async_update_store("heating_circuit_control", control)
+
+    def _holds_back_empty_zone_reply(self, zones_data: dict[str, Any]) -> bool:
+        """Return True for an empty zone reply that should be treated as a failed fetch."""
+        key = getattr(self._config_entry, "entry_id", None) or self._home_id or "default"
+        if zones_data.get("zoneStates"):
+            _EMPTY_ZONE_REPLIES[key] = 0
+            return False
+        stored = self._data_loader.get_cached("zones") if self._data_loader else None
+        stored_zones = stored.get("zoneStates") if isinstance(stored, dict) else None
+        if not isinstance(stored_zones, dict) or not stored_zones:
+            _EMPTY_ZONE_REPLIES[key] = 0
+            return False
+        _EMPTY_ZONE_REPLIES[key] = _EMPTY_ZONE_REPLIES.get(key, 0) + 1
+        if _EMPTY_ZONE_REPLIES[key] < ZONE_STATES_EMPTY_CONFIRMATIONS:
+            _LOGGER.warning(
+                "API: Tado returned no zones, treating it as a failed fetch and keeping "
+                "the previous data; if the next zone reply is also empty it will be used",
+            )
+            return True
+        _LOGGER.info(
+            "API: Tado reports no zones for this home; zone entities stay unavailable "
+            "until a zone is added",
+        )
+        return False
 
     async def async_sync(
         self,
@@ -1069,6 +1377,7 @@ class TadoApiClient(TadoAuthMixin):
         mobile_devices_frequent_sync: bool = False,
         offset_enabled: bool = False,
         home_state_sync_enabled: bool = False,
+        svc_schedule_zone_ids: frozenset[str] = frozenset(),
     ) -> None:
         """Run one cycle of cloud data fetches, raising typed errors for the coordinator."""
         sync_type = "quick" if quick else "full"
@@ -1091,6 +1400,10 @@ class TadoApiClient(TadoAuthMixin):
                     await self.save_ratelimit("error")
                     raise TadoSyncError("Failed to fetch zone states")
 
+                if self._holds_back_empty_zone_reply(zones_data):
+                    await self.save_ratelimit("error")
+                    raise TadoSyncError("Tado returned no zones")
+
                 await self._data_loader.async_update_store("zones", zones_data) if self._data_loader else None
                 _LOGGER.debug(
                     "API: zone states saved for %s zone(s)",
@@ -1107,8 +1420,11 @@ class TadoApiClient(TadoAuthMixin):
 
             if not quick and not zone_only:
                 await self._sync_full_extras(
-                    mobile_devices_enabled=mobile_devices_enabled,
+                    mobile_devices_enabled=_full_sync_fetches_mobile(
+                        mobile_devices_enabled, mobile_devices_frequent_sync,
+                    ),
                     offset_enabled=offset_enabled,
+                    svc_schedule_zone_ids=svc_schedule_zone_ids,
                 )
 
             await self.save_ratelimit("ok")
@@ -1270,39 +1586,70 @@ class TadoApiClient(TadoAuthMixin):
             )
 
     async def add_meter_reading(self, reading: int, date: str | None = None) -> bool:
-        """POST a meter reading to Tado (non-idempotent: no retry on failure)."""
+        """Submit a meter reading via GraphQL (non-idempotent: no retry on failure).
+
+        Tado's legacy REST `meterReadings` endpoint now rejects writes with
+        a 403; this mirrors the mutation the app itself uses.
+        """
         if not date:
             try:
                 date = dt_util.now().strftime("%Y-%m-%d")
             except (ValueError, TypeError):
                 date = dt_util.utcnow().strftime("%Y-%m-%d")
 
-        result = await self.api_call(
-            "meterReadings",
-            method="POST",
-            data={"date": date, "reading": reading},
+        home_id = await self._ensure_home_id()
+        if not home_id:
+            return False
+
+        data = await self._graphql_call(
+            "mutation SaveMeterReadings($homeId: ID!, $meterReadings: "
+            "HeatingInsightsMeterReadingInput!) { addHeatingInsightsMeterReading("
+            "homeId: $homeId, meterReading: $meterReadings) { success failureReason } }",
+            {"homeId": str(home_id), "meterReadings": {"date": date, "reading": reading}},
         )
-        if result is not None:
+        result = (data or {}).get("addHeatingInsightsMeterReading") or {}
+        if result.get("success"):
             _LOGGER.info(
                 "API: meter reading %s saved for %s", reading, date,
             )
             return True
+
+        _LOGGER.warning(
+            "API: meter reading %s for %s rejected by Tado (%s)",
+            reading, date, result.get("failureReason", "no reason given"),
+        )
         return False
 
     async def identify_device(self, device_serial: str) -> bool:
-        """POST an identify command to a device (it flashes its LED)."""
-        url = f"{API_ENDPOINT_DEVICES}/{device_serial}/identify"
-        result = await self.api_call(
-            f"devices/{device_serial}/identify",
-            method="POST",
-            full_url=url,
+        """Send an identify command via GraphQL (it flashes the device's LED).
+
+        Supersedes the legacy REST identify endpoint. Addresses the device
+        by a composite id, `{home_id}:PRE_LINE_X:{serial}` — empirically
+        observed on TRVs, not documented by Tado; unverified for other
+        device types.
+        """
+        home_id = await self._ensure_home_id()
+        if not home_id:
+            return False
+
+        device_id = f"{home_id}:PRE_LINE_X:{device_serial}"
+        data = await self._graphql_call(
+            "mutation IdentifyDevice($deviceId: ID!) { identifyDevice(deviceId: $deviceId) "
+            "{ success failureReason } }",
+            {"deviceId": device_id},
         )
-        if result is not None:
+        result = (data or {}).get("identifyDevice") or {}
+        if result.get("success"):
             _LOGGER.info(
                 "API: identify command sent to device %s",
                 mask_serial(device_serial),
             )
             return True
+
+        _LOGGER.warning(
+            "API: identify command for device %s rejected by Tado (%s)",
+            mask_serial(device_serial), result.get("failureReason", "no reason given"),
+        )
         return False
 
     async def set_away_configuration(
@@ -1366,3 +1713,20 @@ class TadoApiClient(TadoAuthMixin):
         )
         return result is not None
 
+
+def _today_day_types(timetable_type: str) -> list[str]:
+    """Return the day_type keys whose blocks could cover today, for this timetable."""
+    weekday = dt_util.now().weekday()  # Monday=0 .. Sunday=6
+    if timetable_type == "SEVEN_DAY":
+        return [DAY_TYPES["SEVEN_DAY"][weekday]]
+    if timetable_type == "THREE_DAY":
+        if weekday < 5:
+            return [DAY_TYPES["THREE_DAY"][0]]
+        return [DAY_TYPES["THREE_DAY"][1]] if weekday == 5 else [DAY_TYPES["THREE_DAY"][2]]
+    return [DAY_TYPES["ONE_DAY"][0]]
+
+
+def schedule_day_failed(schedule_entry: dict[str, Any], day_type: str) -> bool:
+    """True when `day_type`'s GET failed on the schedule's last fetch (`get_zone_schedule`)."""
+    failed_days = schedule_entry.get("failed_days")
+    return isinstance(failed_days, list) and day_type in failed_days

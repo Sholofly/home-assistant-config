@@ -1,0 +1,603 @@
+"""Connection & session lifecycle WebSocket handlers (#1588 split).
+
+Join, reconnect, leave, state/ping/onboarding/reaction and the round-timeout
+watchdog. Extracted verbatim from the former monolithic ``ws_handlers`` module
+— behavior is unchanged.
+"""
+
+from __future__ import annotations
+
+import logging
+from typing import TYPE_CHECKING
+
+from aiohttp import web
+
+from custom_components.beatify.const import (
+    ADMIN_DISCONNECT_PAUSE_REASON,
+    ERR_ADMIN_CANNOT_LEAVE,
+    ERR_ADMIN_EXISTS,
+    ERR_GAME_ENDED,
+    ERR_GAME_FULL,
+    ERR_INVALID_ACTION,
+    ERR_NAME_INVALID,
+    ERR_NAME_TAKEN,
+    ERR_SESSION_NOT_FOUND,
+    ERR_SESSION_TAKEOVER,
+    ERR_UNAUTHORIZED,
+    REACTION_THROTTLE_SECONDS,
+)
+from custom_components.beatify.game.state import GamePhase, GameState
+from custom_components.beatify.server.serializers import build_state_message
+from custom_components.beatify.server.ws_handlers._helpers import (
+    _is_ha_authenticated,
+    _send_state_to,
+)
+
+if TYPE_CHECKING:
+    from custom_components.beatify.server.websocket import BeatifyWebSocketHandler
+
+_LOGGER = logging.getLogger(__name__)
+
+
+def _paused_for_admin_disconnect(game_state: GameState) -> bool:
+    """Return True if an admin coming back should lift the current pause.
+
+    #2876: only the pause the server took because the admin socket went away
+    is lifted by the admin returning. A host pause (#2645) or a server-side
+    pause (media_player_error, no_songs_available) stays until the explicit
+    ``resume_game`` admin action — phones drop the socket on every screen lock.
+    """
+    return (
+        game_state.phase == GamePhase.PAUSED
+        and game_state.pause_reason == ADMIN_DISCONNECT_PAUSE_REASON
+    )
+
+
+def _undo_admin_claim(
+    game_state: GameState, name: str, was_existing_player: bool
+) -> None:
+    """Undo the ``add_player`` side effects when an admin claim is rejected.
+
+    #1696 (security / data-loss): ``add_player`` runs *before* the admin-claim
+    checks. For a disconnected name it takes the reconnection path and
+    re-attaches the pre-existing ``PlayerSession`` (with its score + session_id
+    intact). If a rejection branch then fires, blindly calling
+    ``remove_player(name)`` would delete that whole record — letting an
+    unauthenticated visitor erase a real player's score by sending
+    ``{join, name:<disconnected player>, is_admin:true}``.
+
+    So: only fully remove a *brand-new* player (``was_existing_player`` False).
+    For a reconnected existing player, merely revert the reconnection
+    (``connected=False``, ``ws=None``) — restoring the prior disconnected state
+    without touching score/session.
+    """
+    if was_existing_player:
+        player = game_state.get_player(name)
+        if player is not None:
+            # #2718: set_connected is a no-op on the stamp when the player was
+            # already away, so undoing a rejected claim does not reset their
+            # away clock back to zero.
+            player.set_connected(False)
+            player.ws = None
+    else:
+        game_state.remove_player(name)
+
+
+async def handle_join(
+    handler: BeatifyWebSocketHandler,
+    ws: web.WebSocketResponse,
+    data: dict,
+    game_state: GameState,
+) -> None:
+    """Handle player join request."""
+    name = data.get("name", "").strip()
+    is_admin = data.get("is_admin", False)
+    # #1662: demoted to DEBUG — fires on every join and floods INFO logs.
+    meta = getattr(ws, "beatify_request_meta", None)
+    _LOGGER.debug(
+        "[WS-Debug] join name=%r is_admin=%s ha_token_present=%s phase=%s meta=%s",
+        name,
+        is_admin,
+        bool(data.get("ha_token")),
+        game_state.phase.value
+        if hasattr(game_state.phase, "value")
+        else game_state.phase,
+        meta,
+    )
+
+    # #841 Phase 3: distinguish a reconnect from a fresh join for the TTS
+    # hook below — a player record already existing under this name means
+    # add_player() will take its reconnection path.
+    was_existing_player = game_state.get_player(name) is not None
+
+    # #998: claiming the host role requires a logged-in HA user. The check runs
+    # here, before add_player, because add_player needs the answer too: #2501
+    # closed the hole where a join *without* the flag could re-attach to the
+    # host's session by name and inherit is_admin without ever being asked for
+    # a login. Called once — it logs, and the rejection reasons are diagnostics
+    # for the #1120/#1131 Companion saga, not something to duplicate.
+    authed = _is_ha_authenticated(handler, data, ws) if is_admin else False
+
+    success, error_code = game_state.add_player(
+        name, ws, admin_claim_authenticated=authed
+    )
+    _LOGGER.debug(
+        "[WS-Debug] join add_player name=%r success=%s error_code=%s was_existing=%s",
+        name,
+        success,
+        error_code,
+        was_existing_player,
+    )
+
+    if success:
+        player = game_state.get_player(name)
+
+        if is_admin:
+            # Normal players join with no auth — only the admin claim is
+            # gated. add_player() already ran, so undo it on rejection.
+            _LOGGER.debug(
+                "[WS-Debug] join is_admin=True _is_ha_authenticated=%s",
+                authed,
+            )
+            if not authed:
+                _undo_admin_claim(game_state, name, was_existing_player)
+                await ws.send_json(
+                    {
+                        "type": "error",
+                        "code": ERR_UNAUTHORIZED,
+                        "message": "Home Assistant login required to host",
+                        "message_key": "HOST_LOGIN_REQUIRED",
+                    }
+                )
+                return
+            # #790: Existing admin reclaiming their own role should always be
+            # allowed, regardless of phase. Without this check, an admin whose
+            # WS dropped (network blip, AirPlay-induced HA hiccup) tries to
+            # reconnect with their original name, hits the "Only allow new
+            # admin claim during LOBBY" rejection, and gets remove_player'd
+            # — losing admin entirely. The existing player record matching
+            # by name with is_admin=True means this is the same human host.
+            is_own_admin_reclaim = (
+                player is not None
+                and player.is_admin
+                and not any(
+                    p.is_admin and p.name.lower() != name.lower()
+                    for p in list(game_state.players.values())
+                )
+            )
+            if is_own_admin_reclaim:
+                # Cancel any pending pause task — admin is back.
+                if handler._admin_disconnect_task:
+                    handler._admin_disconnect_task.cancel()
+                    handler._admin_disconnect_task = None
+                    _LOGGER.info("Admin reconnected (own reclaim): %s", name)
+                if _paused_for_admin_disconnect(game_state):
+                    if await game_state.resume_game():
+                        _LOGGER.info("Game resumed by admin reclaim during PAUSED")
+            elif game_state.disconnected_admin_name:
+                if name.lower() == game_state.disconnected_admin_name.lower():
+                    if handler._admin_disconnect_task:
+                        handler._admin_disconnect_task.cancel()
+                        handler._admin_disconnect_task = None
+                        _LOGGER.info(
+                            "Admin reconnected, cancelled pause task: %s", name
+                        )
+                    if _paused_for_admin_disconnect(game_state):
+                        if await game_state.resume_game():
+                            _LOGGER.info("Game resumed by admin reconnection")
+                else:
+                    _undo_admin_claim(game_state, name, was_existing_player)
+                    await ws.send_json(
+                        {
+                            "type": "error",
+                            "code": ERR_ADMIN_EXISTS,
+                            "message": "Only the original host can reconnect",
+                            "message_key": "HOST_RECONNECT_ORIGINAL_ONLY",
+                        }
+                    )
+                    return
+            else:
+                existing_admin = any(
+                    p.is_admin
+                    for p in list(game_state.players.values())
+                    if p.name != name
+                )
+                if existing_admin:
+                    _undo_admin_claim(game_state, name, was_existing_player)
+                    await ws.send_json(
+                        {
+                            "type": "error",
+                            "code": ERR_ADMIN_EXISTS,
+                            "message": "Game already has an admin",
+                            "message_key": "HOST_EXISTS",
+                        }
+                    )
+                    return
+                # Issue #417: Only allow new admin claim during LOBBY
+                if game_state.phase != GamePhase.LOBBY:
+                    _LOGGER.warning(
+                        "Rejected admin claim from %s during %s phase",
+                        name,
+                        game_state.phase.value,
+                    )
+                    _undo_admin_claim(game_state, name, was_existing_player)
+                    await ws.send_json(
+                        {
+                            "type": "error",
+                            "code": ERR_INVALID_ACTION,
+                            "message": "Admin claim only allowed during lobby phase",
+                            "message_key": "HOST_CLAIM_LOBBY_ONLY",
+                        }
+                    )
+                    return
+                else:
+                    game_state.set_admin(name)
+        else:
+            # Issue #420: If this player matches disconnected admin by name,
+            # cancel the admin disconnect task even without is_admin flag
+            if game_state.disconnected_admin_name:
+                if name.lower() == game_state.disconnected_admin_name.lower():
+                    if handler._admin_disconnect_task:
+                        handler._admin_disconnect_task.cancel()
+                        handler._admin_disconnect_task = None
+                        _LOGGER.info(
+                            "Admin reconnected without admin flag, "
+                            "cancelled pause task: %s",
+                            name,
+                        )
+
+            # Issue #841 Phase 3: announce the join / reconnect over TTS.
+            if player is not None:
+                if was_existing_player:
+                    await game_state.announce_player_reconnect(player.name)
+                else:
+                    await game_state.announce_player_join(player.name)
+
+        # Send join acknowledgment with session_id (Story 11.1)
+        if player:
+            await ws.send_json(
+                {
+                    "type": "join_ack",
+                    "session_id": player.session_id,
+                    "game_id": game_state.game_id,
+                }
+            )
+
+        # Send state to newly joined player (redacted — #1366)
+        state_msg = build_state_message(game_state)
+        if not state_msg:
+            return
+        try:
+            await _send_state_to(handler, ws, state_msg)
+        except (ConnectionError, RuntimeError) as err:
+            _LOGGER.warning("Failed to send state to new player: %s", err)
+            return
+        await handler.debounced_broadcast_state()
+    else:
+        error_messages = {
+            ERR_NAME_TAKEN: ("Name taken, choose another", "JOIN_NAME_TAKEN"),
+            ERR_NAME_INVALID: ("Please enter a name", "JOIN_NAME_EMPTY"),
+            ERR_GAME_FULL: ("Game is full", "JOIN_GAME_FULL"),
+            ERR_GAME_ENDED: ("This game has ended", "JOIN_GAME_ENDED"),
+            ERR_UNAUTHORIZED: (
+                "Home Assistant login required to rejoin as host",
+                "JOIN_HOST_LOGIN_REQUIRED",
+            ),
+        }
+        join_message, join_key = error_messages.get(
+            error_code, ("Join failed", "JOIN_FAILED")
+        )
+        await ws.send_json(
+            {
+                "type": "error",
+                "code": error_code,
+                "message": join_message,
+                "message_key": join_key,
+            }
+        )
+
+
+async def handle_get_state(
+    handler: BeatifyWebSocketHandler,
+    ws: web.WebSocketResponse,
+    data: dict,
+    game_state: GameState,
+) -> None:
+    """Handle dashboard/observer state request (Story 10.4)."""
+    state_msg = build_state_message(game_state)
+    if state_msg:
+        await _send_state_to(handler, ws, state_msg)
+
+
+async def handle_round_timeout(
+    handler: BeatifyWebSocketHandler,
+    ws: web.WebSocketResponse,
+    data: dict,
+    game_state: GameState,
+) -> None:
+    """Watchdog: a client's round countdown reached zero.
+
+    The server's round timer is a single asyncio task — if it is cancelled or
+    dies, the round freezes on PLAYING forever with no way out. Every player's
+    browser also counts the round down independently; when one reports the
+    deadline has passed while the round is still PLAYING, force the transition
+    to REVEAL. end_round() is idempotent (it no-ops once the phase has moved
+    on), so the server timer firing and nudges from several clients all racing
+    is harmless. The WARNING is intentional — it is the breadcrumb that the
+    server-side round timer failed to fire.
+    """
+    if game_state.phase == GamePhase.PLAYING and game_state.is_deadline_passed():
+        _LOGGER.warning(
+            "Round %d still PLAYING past its deadline — client watchdog "
+            "forcing end_round (the server round timer did not fire)",
+            game_state.round,
+        )
+        await game_state.end_round()
+        await handler.broadcast_state()
+
+
+async def handle_ping(
+    handler: BeatifyWebSocketHandler,
+    ws: web.WebSocketResponse,
+    data: dict,
+    game_state: GameState,
+) -> None:
+    """Reply to a client heartbeat ping.
+
+    The client sends {type: 'ping'} on an interval and treats prolonged
+    server silence as a dead (half-open) socket worth reconnecting. Echoing
+    a pong keeps that heartbeat satisfied during quiet phases when no state
+    broadcast would otherwise reach the client.
+    """
+    try:
+        await ws.send_json({"type": "pong"})
+    except (ConnectionError, RuntimeError) as err:
+        _LOGGER.debug("Failed to send pong: %s", err)
+
+
+async def handle_player_onboarded(
+    handler: BeatifyWebSocketHandler,
+    ws: web.WebSocketResponse,
+    data: dict,
+    game_state: GameState,
+) -> None:
+    """Handle player_onboarded message — flips PlayerSession.onboarded to True.
+
+    Fired when a player completes or skips the post-QR onboarding tour.
+    Idempotent: re-sending for an already-onboarded player is a no-op.
+    """
+    player = game_state.get_player_by_ws(ws)
+    if not player:
+        return
+    if player.onboarded:
+        return
+    player.onboarded = True
+    _LOGGER.info("Player completed onboarding: %s", player.name)
+    await handler.broadcast_state()
+
+
+async def handle_reaction(
+    handler: BeatifyWebSocketHandler,
+    ws: web.WebSocketResponse,
+    data: dict,
+    game_state: GameState,
+) -> None:
+    """Handle a live reaction (Story 18.9, widened by #2562).
+
+    Reactions used to exist only at the reveal. #2562 opens them to a player who
+    is already done with the round — they have nothing left to do but watch a
+    timer, and the TV has a `reaction-container` that has always been
+    phase-independent. The gate is therefore *not* "any phase": during PLAYING a
+    player may react only once they are out of the round themselves, either
+    because they submitted or because they are out of play (Sudden Death
+    elimination / finale-playoff spectator). Someone still dragging their slider
+    cannot react — that is what keeps this encouragement rather than a way to
+    guess and heckle at the same time.
+
+    Note that the out-of-play half is a bug fix as much as a feature: #827
+    already shows the reaction bar to eliminated players during PLAYING, and
+    every tap on it has been silently dropped by the old REVEAL-only gate ever
+    since.
+    """
+    player = game_state.get_player_by_ws(ws)
+    if not player:
+        return
+
+    phase = game_state.phase
+    if phase == GamePhase.PLAYING:
+        if not (player.submitted or player.out_of_play):
+            return
+    elif phase != GamePhase.REVEAL:
+        return
+
+    emoji = data.get("emoji", "")
+    if emoji not in ["🔥", "😂", "😱", "👏", "🤔"]:
+        return
+
+    if game_state.record_reaction(player.name, emoji):
+        await handler.broadcast(
+            {
+                "type": "player_reaction",
+                "player_name": player.name,
+                "emoji": emoji,
+            }
+        )
+        # #2562: the sender's own cooldown, from the server that enforces it.
+        # The phone draws a bar from this instead of running its own timer, so
+        # the two cannot drift apart over a slow link and hand the player a tap
+        # that looks accepted and is not.
+        retry_after: float = REACTION_THROTTLE_SECONDS
+        throttled = False
+    else:
+        retry_after = game_state.reaction_retry_after(player.name)
+        throttled = True
+
+    await ws.send_json(
+        {
+            "type": "reaction_ack",
+            "retry_after": retry_after,
+            "throttled": throttled,
+        }
+    )
+
+
+async def handle_reconnect(
+    handler: BeatifyWebSocketHandler,
+    ws: web.WebSocketResponse,
+    data: dict,
+    game_state: GameState,
+) -> None:
+    """Handle session-based reconnection (Story 11.2)."""
+    session_id = data.get("session_id")
+    if not session_id:
+        await ws.send_json(
+            {
+                "type": "error",
+                "code": ERR_SESSION_NOT_FOUND,
+                "message": "Session ID required",
+                "message_key": "SESSION_ID_REQUIRED",
+            }
+        )
+        return
+
+    player = game_state.get_player_by_session_id(session_id)
+    if not player:
+        await ws.send_json(
+            {
+                "type": "error",
+                "code": ERR_SESSION_NOT_FOUND,
+                "message": "Session not found or game was reset",
+                "message_key": "SESSION_NOT_FOUND",
+            }
+        )
+        return
+
+    # #2947: END is the podium, not the end of the session — rematch_game()
+    # keeps every player and session. A guest whose tab reloaded there used to
+    # be refused here, never got a socket back, and so never heard
+    # ``rematch_started``. They reconnect like in any other phase and receive
+    # the END state with the final standings.
+
+    # Handle dual-tab scenario
+    if player.connected and player.ws and not player.ws.closed and player.ws is not ws:
+        try:
+            await player.ws.send_json(
+                {
+                    "type": "error",
+                    "code": ERR_SESSION_TAKEOVER,
+                    "message": "Session taken over by another tab",
+                    "message_key": "SESSION_TAKEN_OVER",
+                }
+            )
+            await player.ws.close()
+        except (ConnectionError, RuntimeError):
+            pass
+        _LOGGER.info("Session takeover: %s (old tab disconnected)", player.name)
+
+    player.ws = ws
+    # #2718: clears disconnected_at — they are back, so there is no duration.
+    player.set_connected(True)
+
+    if player.is_admin:
+        if handler._admin_disconnect_task:
+            handler._admin_disconnect_task.cancel()
+            handler._admin_disconnect_task = None
+            _LOGGER.info("Admin reconnected via session, cancelled pause task")
+
+        if _paused_for_admin_disconnect(game_state):
+            if await game_state.resume_game():
+                _LOGGER.info("Game resumed by admin session reconnection")
+
+    await ws.send_json(
+        {
+            "type": "reconnect_ack",
+            "name": player.name,
+            "success": True,
+        }
+    )
+
+    state_msg = build_state_message(game_state)
+    if state_msg:
+        await _send_state_to(handler, ws, state_msg)
+
+    await handler.broadcast_state()
+
+    _LOGGER.info(
+        "Player reconnected via session: %s (score: %d)", player.name, player.score
+    )
+
+
+async def handle_rejoin(
+    handler: BeatifyWebSocketHandler,
+    ws: web.WebSocketResponse,
+    data: dict,
+    game_state: GameState,
+) -> None:
+    """A guest the host sat out taps their way back in (#2746).
+
+    A **player** message, not an admin action, and that is the decision this
+    handler exists to carry: the host removes, the guest returns on their own.
+    The alternative — the host re-admits — was the other half of the open
+    question the design gate left, and it loses because the session survives
+    the removal, so the phone already holds everything a return needs while the
+    host would have to notice and act.
+
+    The player is resolved from the socket rather than from a name in the
+    payload; a name would let any guest reinstate any other.
+    """
+    player = game_state.get_player_by_ws(ws)
+    if not player:
+        return
+    if not game_state.request_rejoin(player.name):
+        await ws.send_json(
+            {
+                "type": "error",
+                "code": ERR_INVALID_ACTION,
+                "message": "You cannot rejoin this game",
+                "message_key": "CANNOT_REJOIN",
+            }
+        )
+        return
+    await handler.broadcast_state()
+
+
+async def handle_leave(
+    handler: BeatifyWebSocketHandler,
+    ws: web.WebSocketResponse,
+    data: dict,
+    game_state: GameState,
+) -> None:
+    """Handle intentional leave game (Story 11.5)."""
+    # #1664 PR-2: players keyed by player_id — resolve by WS, use display name
+    player = game_state.get_player_by_ws(ws)
+    if not player:
+        return
+    player_name = player.name
+
+    if player.is_admin:
+        await ws.send_json(
+            {
+                "type": "error",
+                "code": ERR_ADMIN_CANNOT_LEAVE,
+                "message": "Host cannot leave. End the game instead.",
+                "message_key": "HOST_CANNOT_LEAVE",
+            }
+        )
+        return
+
+    game_state.remove_player(player_name)
+    await ws.send_json({"type": "left"})
+    await ws.close()
+
+    # #2577: the deliberate exit has to trigger the same early reveal as a
+    # dropped connection. `_handle_disconnect` runs the #928 check, but it
+    # resolves the player through `get_player_by_ws` — and this handler has
+    # already removed them, so it returns before it gets there. The polite way
+    # out was the one case that left the room waiting on somebody who is gone.
+    try:
+        await game_state.trigger_early_reveal_if_complete()
+    except Exception:  # noqa: BLE001
+        _LOGGER.warning("Early-reveal check after leave failed")
+
+    await handler.broadcast_state()
+    _LOGGER.info("Player left game intentionally: %s", player_name)

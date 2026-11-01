@@ -49,14 +49,24 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Beatify">
+    <link rel="icon" href="/beatify/static/img/icon-256.png">
     <link rel="apple-touch-icon" href="/beatify/static/img/icon-256.png">
     <meta name="mobile-web-app-capable" content="yes">
     <!-- Preconnect for faster font loading (Story 9.8) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700;900&display=swap" rel="stylesheet">
+    <!-- #2641: the font stylesheet is fetched non-blocking. A cross-origin
+         <link rel=stylesheet> in the head stops rendering until the CDN answers
+         or times out, and on party wifi with no working internet that is 5-30
+         seconds of blank screen before anything appears. media="print" makes
+         the browser fetch it at low priority without blocking the render; the
+         onload swap applies it the moment it arrives. The page is fully
+         readable in the fallback stack until then. -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700;900&display=swap" rel="stylesheet"></noscript>
     <!-- Story 18.4: Use minified CSS in production -->
     <link rel="stylesheet" href="/beatify/static/css/styles.min.css?v={{ASSET_VER}}">
+    <link rel="stylesheet" href="/beatify/static/css/library.min.css?v={{ASSET_VER}}">
 </head>
 <body class="theme-dark home-mode">
     <!-- First-run wizard takeover (see DESIGN.md ## Patterns → First-run wizard) -->
@@ -98,6 +108,15 @@
 
         <!-- Frame 3: playlist (v3.3: Playlist Hub replaces flat list) -->
         <section class="wiz-frame wiz-frame-playlist" data-frame="3" hidden>
+            <!-- Crate Digger: when the library provider is chosen in step 2,
+                 wizard.js hides the playlist hub and mounts the library panel
+                 here instead (mountLibraryPanel, mode: 'wizard'). -->
+            <div id="wiz-library-wrap" class="wiz-body hidden">
+                <div class="wiz-eyebrow" data-i18n="wizard.step3lib.eyebrow">Step 3 · Your library</div>
+                <h2 class="wiz-title" data-i18n="wizard.step3lib.title">Tune your library game</h2>
+                <p class="wiz-sub" data-i18n="wizard.step3lib.sub">The scan runs in the background — you can finish setup while it works.</p>
+                <div id="wiz-library-root"></div>
+            </div>
             <div id="playlist-hub-root" class="playlist-hub-host"></div>
             <!-- Legacy request button stays mounted but invisible — hub triggers it via click().
                  Inline display:none so the .btn class can't override the HTML hidden attr. -->
@@ -125,6 +144,21 @@
                     <div id="wiz-timer" class="wiz-chip-group"></div>
                 </div>
                 <div class="wiz-field">
+                    <label class="wiz-field-label" data-i18n="wizard.step4.sample">Song plays for</label>
+                    <div id="wiz-sample" class="wiz-chip-group"></div>
+                    <div id="wiz-sample-hint" class="wiz-difficulty-hint hidden"></div>
+                </div>
+                <div class="wiz-field">
+                    <label class="wiz-field-label" data-i18n="wizard.step4.rounds">Number of rounds</label>
+                    <div id="wiz-rounds" class="wiz-chip-group"></div>
+                    <div id="wiz-rounds-custom" class="wiz-rounds-custom hidden">
+                        <input type="number" min="10" step="1" inputmode="numeric"
+                               aria-labelledby="wiz-rounds-custom-label">
+                        <span id="wiz-rounds-custom-label" data-i18n="wizard.step4.roundsCustomLabel">rounds (min. 10)</span>
+                    </div>
+                    <div id="wiz-rounds-hint" class="wiz-difficulty-hint"></div>
+                </div>
+                <div class="wiz-field">
                     <label class="wiz-field-label" data-i18n="wizard.step4.autoAdvance">Auto-advance reveal</label>
                     <div id="wiz-autoadvance" class="wiz-chip-group"></div>
                 </div>
@@ -132,9 +166,18 @@
                     <label class="wiz-field-label" data-i18n="wizard.step4.language">Announcement language</label>
                     <div id="wiz-language" class="wiz-chip-group"></div>
                 </div>
+                <!-- #2692: the play style comes first and answers the whole
+                     step in one tap. The eleven individual switches stay
+                     underneath for anyone who wants a combination the three
+                     styles do not offer — they are not hidden, only folded. -->
                 <div class="wiz-field">
-                    <label class="wiz-field-label" data-i18n="wizard.step4.bonusModes">Bonus modes</label>
-                    <div id="wiz-modes" class="wiz-mode-cards"></div>
+                    <label class="wiz-field-label" data-i18n="wizard.step4.playStyle">Play style</label>
+                    <div id="wiz-play-styles" class="wiz-style-stack"></div>
+                    <button type="button" id="wiz-modes-toggle" class="wiz-manual-line" aria-expanded="false" aria-controls="wiz-modes">
+                        <span data-i18n="wizard.step4.setIndividually">Set individually</span>
+                        <span id="wiz-modes-toggle-count" class="wiz-manual-count"></span>
+                    </button>
+                    <div id="wiz-modes" class="wiz-mode-cards" hidden></div>
                 </div>
             </div>
         </section>
@@ -175,11 +218,11 @@
             <!-- "Finish setup" pill — visible when user dismissed wizard with incomplete required steps -->
             <button type="button" class="finish-setup-pill hidden" id="finish-setup-pill" data-i18n="wizard.finishPill">Finish setup</button>
             <!-- PWA Install Button (#226) — hidden by default, shown via JS -->
-            <button type="button" class="pwa-install-btn hidden" id="pwa-install-btn" aria-label="Install Beatify App">
+            <button type="button" class="pwa-install-btn hidden" id="pwa-install-btn" aria-label="Install Beatify App" data-i18n-aria-label="admin.pwa.installAria">
                 <span aria-hidden="true">📲</span>
             </button>
             <!-- Analytics Link (Story 19.2, updated 19.13) -->
-            <a href="/beatify/analytics" class="analytics-icon-link" id="analytics-link" aria-label="Analytics Dashboard">
+            <a href="/beatify/analytics" class="analytics-icon-link" id="analytics-link" aria-label="Analytics Dashboard" data-i18n-aria-label="admin.pwa.analyticsAria">
                 <span aria-hidden="true">📊</span>
             </a>
             <!-- Emergency reset (#777 follow-up) — visible escape hatch when state gets stuck -->
@@ -192,9 +235,9 @@
     <!-- PWA iOS Install Hint (#226) -->
     <div class="pwa-ios-hint hidden" id="pwa-ios-hint">
         <div class="pwa-ios-hint-content">
-            <button type="button" class="pwa-ios-hint-close" id="pwa-ios-hint-close" aria-label="Close">&times;</button>
-            <p><strong>Install Beatify</strong></p>
-            <p>Tap <span class="pwa-ios-share-icon">⬆️</span> Share, then <strong>"Add to Home Screen"</strong></p>
+            <button type="button" class="pwa-ios-hint-close" id="pwa-ios-hint-close" aria-label="Close" data-i18n-aria-label="common.close">&times;</button>
+            <p><strong data-i18n="admin.pwa.installTitle">Install Beatify</strong></p>
+            <p data-i18n="admin.pwa.installHint">Tap ⬆️ Share, then “Add to Home Screen”</p>
         </div>
     </div>
 
@@ -294,89 +337,97 @@
                 <span data-i18n="admin.musicService">Music Service</span>
             </h2>
             <div class="chip-group provider-chips" role="group" aria-label="Music service">
-                <button type="button" class="chip chip--active" data-provider="spotify">
+                <button type="button" class="chip chip--active" aria-pressed="true" data-provider="spotify">
                     <svg class="provider-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
                         <path fill="#1DB954" d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
                     </svg>
                     Spotify
                 </button>
-                <button type="button" class="chip" data-provider="apple_music">
+                <button type="button" class="chip" aria-pressed="false" data-provider="apple_music">
                     <svg class="provider-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
                         <path fill="#FA243C" d="M23.994 6.124a9.23 9.23 0 0 0-.24-2.19c-.317-1.31-1.062-2.31-2.18-3.043a5.022 5.022 0 0 0-1.877-.726 10.496 10.496 0 0 0-1.564-.15c-.04-.003-.083-.01-.124-.013H5.986c-.152.01-.303.017-.455.026-.747.043-1.49.123-2.193.4-1.336.53-2.3 1.452-2.865 2.78-.192.448-.292.925-.363 1.408-.056.392-.088.785-.1 1.18 0 .032-.007.062-.01.093v12.223c.01.14.017.283.027.424.05.815.154 1.624.497 2.373.65 1.42 1.738 2.353 3.234 2.802.42.127.856.187 1.293.228.555.053 1.11.06 1.667.06h11.03c.525 0 1.048-.034 1.57-.1.823-.106 1.597-.35 2.296-.81.84-.553 1.472-1.287 1.88-2.208.186-.42.293-.87.37-1.324.113-.675.138-1.358.137-2.04-.002-3.8 0-7.595-.003-11.393zm-6.423 3.99v5.712c0 .417-.058.827-.244 1.206-.29.59-.76.962-1.388 1.14-.35.1-.706.157-1.07.173-.95.042-1.785-.455-2.105-1.392-.227-.665-.063-1.39.477-1.89.39-.36.87-.54 1.39-.612.292-.04.59-.058.885-.094.39-.048.63-.27.678-.66.006-.065.007-.13.007-.194V9.95c0-.19-.058-.32-.25-.378-.187-.056-.38-.097-.574-.126-.56-.084-1.123-.155-1.685-.232l-2.36-.32c-.063-.01-.127-.012-.19-.026-.18-.04-.29.02-.334.2-.01.05-.017.1-.017.15-.002 2.395 0 4.79-.003 7.185 0 .46-.056.91-.252 1.327-.29.617-.77 1.01-1.42 1.193-.34.095-.69.147-1.043.163-.935.04-1.762-.44-2.076-1.35-.256-.74-.07-1.507.5-2.03.39-.36.87-.53 1.39-.605.315-.046.633-.072.95-.11.315-.04.525-.24.575-.556.01-.067.013-.135.013-.2v-7.5c0-.147.022-.29.068-.43.077-.23.243-.378.482-.42.2-.038.4-.062.602-.092l2.835-.39 2.712-.372c.428-.058.858-.112 1.287-.17.193-.026.387-.05.58-.074.086-.01.125.02.14.11.006.03.01.06.01.09v5.62z"/>
                     </svg>
                     Apple Music
                 </button>
-                <button type="button" class="chip" data-provider="youtube_music">
+                <button type="button" class="chip" aria-pressed="false" data-provider="youtube_music">
                     <svg class="provider-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
                         <path fill="#FF0000" d="M12 0C5.376 0 0 5.376 0 12s5.376 12 12 12 12-5.376 12-12S18.624 0 12 0zm0 19.104c-3.924 0-7.104-3.18-7.104-7.104S8.076 4.896 12 4.896s7.104 3.18 7.104 7.104-3.18 7.104-7.104 7.104zm0-13.332c-3.432 0-6.228 2.796-6.228 6.228S8.568 18.228 12 18.228 18.228 15.432 18.228 12 15.432 5.772 12 5.772zM9.684 15.54V8.46L15.816 12l-6.132 3.54z"/>
                     </svg>
                     YouTube Music
                 </button>
-                <button type="button" class="chip" data-provider="tidal">
+                <button type="button" class="chip" aria-pressed="false" data-provider="tidal">
                     <svg class="provider-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
                         <path fill="#000000" d="M12.012 3.992L8.008 7.996 12.012 12l4.004-4.004zM4.004 3.992L0 7.996 4.004 12l4.004-4.004zM12.012 12.008L8.008 16.012 12.012 20.016l4.004-4.004zM20.02 3.992L16.016 7.996 20.02 12l4.004-4.004z"/>
                     </svg>
                     Tidal
                 </button>
-                <button type="button" class="chip" data-provider="deezer">
+                <button type="button" class="chip" aria-pressed="false" data-provider="deezer">
                     <svg class="provider-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
                         <path fill="#FF0092" d="M18.81 11.28H24v2.25h-5.19v-2.25zm0 3.6H24v2.25h-5.19V14.88zm0-7.2H24v2.25h-5.19V7.68zm-6.405 7.2h5.19v2.25h-5.19V14.88zm0-3.6h5.19v2.25h-5.19v-2.25zm0 7.2h5.19v2.25h-5.19v-2.25zm-6.405-3.6h5.19v2.25h-5.19V14.88zm0 3.6h5.19v2.25h-5.19v-2.25zM0 14.88h5.19v2.25H0V14.88zm0 3.6h5.19v2.25H0v-2.25z"/>
                     </svg>
                     Deezer
                 </button>
-                <button type="button" class="chip" data-provider="amazon_music">
+                <button type="button" class="chip" aria-pressed="false" data-provider="amazon_music">
                     <svg class="provider-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
                         <path fill="#00ADE0" d="M13.958 11.26c-.577.065-1.257.13-1.836.325-.68.228-1.16.715-1.16 1.526 0 .975.609 1.46 1.382 1.46.65 0 1.226-.39 1.614-1.04zm2.847 3.346c-.185.162-.455.18-.66.065--.93-.77-1.096-1.13-1.608-1.868-1.538 1.563-2.63 2.032-4.624 2.032-2.36 0-4.196-1.456-4.196-4.372 0-2.274 1.234-3.824 2.994-4.582 1.525-.666 3.656-.784 5.287-.97v-.358c0-.666.05-1.453-.34-2.028-.34-.518-.98-.73-1.543-.73-1.048 0-1.983.538-2.21 1.656-.048.245-.232.487-.477.5l-2.664-.29c-.225-.048-.47-.228-.405-.567C7.204 1.57 9.784.5 12.084.5c1.174 0 2.71.31 3.635 1.2 1.174 1.1 1.062 2.56 1.062 4.152v3.76c0 1.13.468 1.627.91 2.234.156.215.19.474-.01.634l-2.876 2.126zm3.12 5.248C17.523 21.41 14.418 22.5 11.77 22.5c-3.775 0-7.175-1.394-9.745-3.713-.202-.183-.022-.432.22-.29 2.773 1.614 6.2 2.582 9.74 2.582 2.388 0 5.012-.494 7.425-1.52.364-.154.668.24.315.495zm.895-1.022c-.277-.355-1.83-.168-2.528-.085-.213.026-.246-.16-.054-.293 1.237-.87 3.267-.618 3.503-.327.237.294-.063 2.327-1.226 3.3-.178.15-.348.07-.27-.128.262-.653.847-2.114.575-2.467z"/>
                     </svg>
                     Amazon Music
                 </button>
+                <button type="button" class="chip" aria-pressed="false" data-provider="ma_library">
+                    <svg class="provider-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M3 21V7l9-4 9 4v14"/><path d="M9 21v-6h6v6"/><circle cx="12" cy="11" r="1.6"/><path d="M13.6 11V8.6l2.4-.6"/>
+                    </svg>
+                    <span data-i18n="admin.providerMyLibrary">My Music</span>
+                </button>
             </div>
             <p id="provider-hint" class="hint-text hidden"></p>
             <div id="provider-warning" class="warning-box hidden"></div>
+            <!-- Crate Digger (ma_library) settings — shown only when the
+                 provider chip is selected. Backed by the
+                 /beatify/api/library-pool endpoints. -->
+            <div id="library-settings" class="hidden" aria-live="polite"></div>
         </section>
 
         <!-- Playlists Section - Always expanded -->
         <section id="playlists" class="card-section">
             <h2 class="section-header"><span class="section-icon" aria-hidden="true">🎵</span><span data-i18n="admin.playlists">Playlists</span></h2>
-            <!-- Tag Filter Bar (Issue #70) -->
-            <div id="playlist-filter-bar" class="playlist-filter-bar hidden">
-                <button type="button" class="filter-tag active" data-tag="all" data-i18n="admin.filterAll">All</button>
-            </div>
-            <div id="playlists-list" class="skeleton-list" aria-busy="true">
-                    <div class="skeleton skeleton-card"></div>
-                    <div class="skeleton skeleton-card"></div>
-                    <div class="skeleton skeleton-card"></div>
-                    <div class="skeleton skeleton-card"></div>
+            <!-- #1568: the Playlist / Mix tab strip + the Smart Playlist Mixer
+                 panel (formerly #playlist-panel-mix) lived here, but this flat
+                 #playlists section is dead UI since rc11/#1138 (display:none in
+                 wizard/home/lobby), so the Mix tab was unreachable. The tab strip
+                 + Mix panel now live in the component-owned Playlist Hub
+                 (js/playlist-hub.js), which renders in the live wizard step-3
+                 picker. This list panel stays: renderPlaylists() still renders
+                 its selectable checkboxes (hidden) whose state feeds
+                 adminState.selectedPlaylists / playlistData (mix chips + the
+                 localStorage selection-restore in playlists.js read it). -->
+
+            <!-- Tab panel: existing playlist list -->
+            <div id="playlist-panel-list" class="playlist-panel" role="tabpanel">
+                <!-- Tag Filter Bar (Issue #70) -->
+                <div id="playlist-filter-bar" class="playlist-filter-bar hidden">
+                    <button type="button" class="filter-tag active" data-tag="all" data-i18n="admin.filterAll">All</button>
                 </div>
-            <div id="playlist-summary" class="selection-summary hidden">
-                <span data-i18n="admin.selected">Selected:</span> <span id="selected-count">0</span> <span data-i18n="admin.playlistsLabel">playlists,</span>
-                <span id="total-songs">0</span> <span data-i18n="admin.songsLabel">songs</span>
-                <p class="setting-hint" data-i18n="admin.roundsHint">Total number of rounds in the game, based on the selected playlists.</p>
+                <div id="playlists-list" class="skeleton-list" aria-busy="true">
+                        <div class="skeleton skeleton-card"></div>
+                        <div class="skeleton skeleton-card"></div>
+                        <div class="skeleton skeleton-card"></div>
+                        <div class="skeleton skeleton-card"></div>
+                    </div>
+                <div id="playlist-summary" class="selection-summary hidden">
+                    <span data-i18n="admin.selected">Selected:</span> <span id="selected-count">0</span> <span data-i18n="admin.playlistsLabel">playlists,</span>
+                    <span id="total-songs">0</span> <span data-i18n="admin.songsLabel">songs</span>
+                    <p class="setting-hint" data-i18n="admin.roundsHint">Total number of rounds in the game, based on the selected playlists.</p>
+                </div>
             </div>
         </section>
 
-        <!-- My Requested Playlists Section (Story 44.3) -->
-        <section id="my-requests" class="section-collapsible hidden" aria-labelledby="my-requests-heading">
-            <button type="button" class="section-header-collapsible" id="my-requests-toggle" aria-expanded="true" aria-controls="my-requests-content">
-                <span class="section-icon" aria-hidden="true">📋</span>
-                <span data-i18n="admin.myRequests">My Requested Playlists</span>
-                <span class="section-summary" id="my-requests-summary">0</span>
-                <span class="section-toggle" aria-hidden="true">▼</span>
-            </button>
-            <div class="section-content" id="my-requests-content">
-                <div id="my-requests-list" class="requests-list">
-                    <!-- Rendered dynamically -->
-                </div>
-                <p id="my-requests-empty" class="empty-state-inline hidden">
-                    <span aria-hidden="true">📭</span>
-                    <span data-i18n="admin.noRequests">No playlist requests yet</span>
-                </p>
-                <button type="button" id="request-playlist-btn" class="btn btn-secondary btn-full-width request-btn">
-                    <span aria-hidden="true">➕</span>
-                    <span data-i18n="admin.requestPlaylist">Request Custom Playlist</span>
-                </button>
-            </div>
-        </section>
+        <!-- #1138 cleanup: the legacy flat "My Requested Playlists" section
+             (#my-requests) was removed. It was dead UI — CSS-hidden via
+             body.home-mode, renderRequestsList() early-returns when the section
+             is absent ("home-view modal carries the load"), and the Request
+             Custom Playlist modal is opened by the live wizard/Playlist Hub
+             paths, not by the section's #request-playlist-btn. -->
 
         <!-- Game Settings Section - Collapsible with all settings -->
         <section id="game-settings" class="section-collapsible" aria-labelledby="game-settings-heading">
@@ -394,12 +445,13 @@
                             <span class="setting-icon" aria-hidden="true">🌐</span>
                             <span data-i18n="admin.language">Language</span>
                         </span>
-                        <div class="chip-group" role="group" aria-label="Game language">
-                            <button type="button" id="lang-en" class="chip chip--active" data-lang="en">EN</button>
-                            <button type="button" id="lang-de" class="chip" data-lang="de">DE</button>
-                            <button type="button" id="lang-es" class="chip" data-lang="es">ES</button>
-                            <button type="button" id="lang-fr" class="chip" data-lang="fr">FR</button>
-                            <button type="button" id="lang-nl" class="chip" data-lang="nl">NL</button>
+                        <div class="chip-group chip-group--lang" role="group" aria-label="Game language">
+                            <button type="button" id="lang-en" class="chip chip--active" aria-pressed="true" data-lang="en">EN</button>
+                            <button type="button" id="lang-de" class="chip" aria-pressed="false" data-lang="de">DE</button>
+                            <button type="button" id="lang-es" class="chip" aria-pressed="false" data-lang="es">ES</button>
+                            <button type="button" id="lang-fr" class="chip" aria-pressed="false" data-lang="fr">FR</button>
+                            <button type="button" id="lang-nl" class="chip" aria-pressed="false" data-lang="nl">NL</button>
+                            <button type="button" id="lang-it" class="chip" aria-pressed="false" data-lang="it">IT</button>
                         </div>
                     </div>
                     <p class="setting-hint" data-i18n="admin.languageHint">Sets the language for all players during the game.</p>
@@ -413,9 +465,9 @@
                             <span data-i18n="admin.timer">Timer</span>
                         </span>
                         <div class="chip-group" role="group" aria-label="Round timer">
-                            <button type="button" id="timer-quick" class="chip" data-duration="30">30s</button>
-                            <button type="button" id="timer-normal" class="chip chip--active" data-duration="45">45s</button>
-                            <button type="button" id="timer-relaxed" class="chip" data-duration="60">60s</button>
+                            <button type="button" id="timer-quick" class="chip" aria-pressed="false" data-duration="30">30s</button>
+                            <button type="button" id="timer-normal" class="chip chip--active" aria-pressed="true" data-duration="45">45s</button>
+                            <button type="button" id="timer-relaxed" class="chip" aria-pressed="false" data-duration="60">60s</button>
                         </div>
                     </div>
                     <p class="setting-hint" data-i18n="admin.timerHint">How many seconds players have to submit their guess each round.</p>
@@ -428,12 +480,11 @@
                             <span class="setting-icon" aria-hidden="true">⏭️</span>
                             <span data-i18n="admin.revealAdvance">Auto-advance</span>
                         </span>
-                        <div class="chip-group" role="group" aria-label="Reveal auto-advance">
-                            <button type="button" class="chip chip--active" data-reveal-advance="0" data-i18n="admin.revealAdvanceOff">Off</button>
-                            <button type="button" class="chip" data-reveal-advance="30">30s</button>
-                            <button type="button" class="chip" data-reveal-advance="60">60s</button>
-                            <button type="button" class="chip" data-reveal-advance="90">90s</button>
-                        </div>
+                        <!-- #2626: filled by renderAutoAdvanceChips() from
+                             REVEAL_AUTO_ADVANCE_OPTIONS (the mirror of const.py).
+                             Kept empty here so the markup cannot offer a delay
+                             the server would silently turn into "Off". -->
+                        <div class="chip-group" id="reveal-advance-chips" role="group" aria-label="Reveal auto-advance"></div>
                     </div>
                     <p class="setting-hint" data-i18n="admin.revealAdvanceHint">After the reveal, automatically start the next round — so the game runs without anyone at the admin screen. "Off" means you advance each round manually.</p>
                 </div>
@@ -446,12 +497,16 @@
                             <span data-i18n="admin.difficulty">Difficulty</span>
                         </span>
                         <div class="chip-group" role="group" aria-label="Difficulty">
-                            <button type="button" class="chip" data-difficulty="easy" data-i18n="admin.easy">Easy</button>
-                            <button type="button" class="chip chip--active" data-difficulty="normal" data-i18n="admin.normal">Normal</button>
-                            <button type="button" class="chip" data-difficulty="hard" data-i18n="admin.hard">Hard</button>
+                            <button type="button" class="chip" aria-pressed="false" data-difficulty="easy" data-i18n="admin.easy">Easy</button>
+                            <button type="button" class="chip chip--active" aria-pressed="true" data-difficulty="normal" data-i18n="admin.normal">Normal</button>
+                            <button type="button" class="chip" aria-pressed="false" data-difficulty="hard" data-i18n="admin.hard">Hard</button>
                         </div>
                     </div>
-                    <p class="setting-hint" id="admin-difficulty-hint" data-i18n="admin.difficultyHint">Easy: wide tolerance (±7 years). Normal: medium (±3 years). Hard: only close guesses score.</p>
+                    <!-- #2625: written by renderDifficultyHint(), which composes the
+                         sentence from DIFFICULTY_SCORING. The string that stood
+                         here promised "Hard: only close guesses score" while the
+                         code paid 3 points within ±2 years. -->
+                    <p class="setting-hint" id="admin-difficulty-hint"></p>
                     <p class="setting-hint hidden" id="admin-difficulty-ta-summary" data-i18n="wizard.step4.taScoring">Title 10 · Artist 5 · Partial 5/3</p>
                 </div>
 
@@ -529,6 +584,96 @@
                     </div>
                     <p class="setting-hint" data-i18n="admin.closestWinsHint">Only the player with the closest guess scores points each round. All-or-nothing showdown.</p>
                 </div>
+
+                <!-- Ramp-up Ordering - Inline toggle (Issue #1726) -->
+                <div class="setting-group">
+                    <div class="setting-row">
+                        <span class="setting-label">
+                            <span class="setting-icon" aria-hidden="true">📈</span>
+                            <span data-i18n="admin.rampupOrder">Ramp-up Ordering</span>
+                        </span>
+                        <label class="toggle-compact">
+                            <input type="checkbox" id="rampup-order-toggle">
+                            <span class="toggle-switch-compact"></span>
+                        </label>
+                    </div>
+                    <p class="setting-hint" data-i18n="admin.rampupOrderHint">Order songs by difficulty instead of at random: easy rounds first, the hardest known song saved for the finale. Falls back to random until songs have enough play history.</p>
+                </div>
+
+                <!-- Finale ×2 - Inline toggle (Issue #1725) -->
+                <div class="setting-group">
+                    <div class="setting-row">
+                        <span class="setting-label">
+                            <span class="setting-icon" aria-hidden="true">✨</span>
+                            <span data-i18n="admin.finaleDouble">Finale ×2</span>
+                        </span>
+                        <label class="toggle-compact">
+                            <input type="checkbox" id="finale-double-toggle">
+                            <span class="toggle-switch-compact"></span>
+                        </label>
+                    </div>
+                    <p class="setting-hint" data-i18n="admin.finaleDoubleHint">Double every player's score on the final round, so a trailing player can still swing the game. A "Finale ×2" banner shows on the last round.</p>
+                </div>
+
+                <!-- Finale Tiebreaker - Inline toggle (Issue #1725) -->
+                <div class="setting-group">
+                    <div class="setting-row">
+                        <span class="setting-label">
+                            <span class="setting-icon" aria-hidden="true">⚔️</span>
+                            <span data-i18n="admin.finaleTiebreaker">Finale Tiebreaker</span>
+                        </span>
+                        <label class="toggle-compact">
+                            <input type="checkbox" id="finale-tiebreaker-toggle">
+                            <span class="toggle-switch-compact"></span>
+                        </label>
+                    </div>
+                    <p class="setting-hint" data-i18n="admin.finaleTiebreakerHint">If the game ends on a tie for first while songs remain, play a sudden-death playoff among only the tied players instead of a shared win.</p>
+                </div>
+
+                <!-- Comeback Token - Inline toggle (Issue #1724) -->
+                <div class="setting-group">
+                    <div class="setting-row">
+                        <span class="setting-label">
+                            <span class="setting-icon" aria-hidden="true">🎁</span>
+                            <span data-i18n="admin.comebackToken">Comeback Token</span>
+                        </span>
+                        <label class="toggle-compact">
+                            <input type="checkbox" id="comeback-token-toggle">
+                            <span class="toggle-switch-compact"></span>
+                        </label>
+                    </div>
+                    <p class="setting-hint" data-i18n="admin.comebackTokenHint">After the halfway round, hand the trailing third of players a one-time Steal power-up, so a mid-game gap is easier to close. Players already holding a steal are unaffected.</p>
+                </div>
+
+                <!-- Difficulty Bet Scaling - Inline toggle (Issue #1727) -->
+                <div class="setting-group">
+                    <div class="setting-row">
+                        <span class="setting-label">
+                            <span class="setting-icon" aria-hidden="true">🎲</span>
+                            <span data-i18n="admin.difficultyBetScaling">Difficulty Bet Scaling</span>
+                        </span>
+                        <label class="toggle-compact">
+                            <input type="checkbox" id="difficulty-bet-scaling-toggle">
+                            <span class="toggle-switch-compact"></span>
+                        </label>
+                    </div>
+                    <p class="setting-hint" data-i18n="admin.difficultyBetScalingHint">Scale a won bet's payout with difficulty (easy ×2, normal ×3, hard ×5) instead of a flat ×3, so betting stays worthwhile on Hard where an exact year is rare. A missed bet still forfeits the round.</p>
+                </div>
+
+                <!-- Sabotage - Inline toggle (Issue #1665) -->
+                <div class="setting-group">
+                    <div class="setting-row">
+                        <span class="setting-label">
+                            <span class="setting-icon" aria-hidden="true">💣</span>
+                            <span data-i18n="admin.sabotage">Sabotage</span>
+                        </span>
+                        <label class="toggle-compact">
+                            <input type="checkbox" id="sabotage-toggle">
+                            <span class="toggle-switch-compact"></span>
+                        </label>
+                    </div>
+                    <p class="setting-hint" data-i18n="admin.sabotageHint">Give every player one Sabotage token per game. Spend it on an opponent who is still guessing — the effect is rolled at random: a timer cut, a forced double-or-nothing bet, or a short freeze. The saboteur picks only the target, never the effect.</p>
+                </div>
             </div>
         </section>
 
@@ -536,8 +681,8 @@
         <section id="party-lights" class="section-collapsible collapsed" aria-labelledby="party-lights-heading">
             <button type="button" class="section-header-collapsible" id="party-lights-toggle" aria-expanded="false" aria-controls="party-lights-content">
                 <span class="section-icon" aria-hidden="true">🎆</span>
-                <span>Party Lights</span>
-                <span class="section-summary" id="party-lights-summary">Off</span>
+                <span data-i18n="wizard.step5.lights.title">Party Lights</span>
+                <span class="section-summary" id="party-lights-summary" data-i18n="admin.partyLights.off">Off</span>
                 <span class="section-toggle" aria-hidden="true">▼</span>
             </button>
             <div class="section-content" id="party-lights-content">
@@ -545,7 +690,7 @@
                 <div class="setting-row">
                     <span class="setting-label">
                         <span class="setting-icon" aria-hidden="true">💡</span>
-                        <span>Enable Party Lights</span>
+                        <span data-i18n="admin.partyLights.enable">Enable Party Lights</span>
                     </span>
                     <label class="toggle-compact">
                         <input type="checkbox" id="party-lights-enable">
@@ -557,12 +702,12 @@
                 <div class="setting-row" id="party-lights-intensity-row">
                     <span class="setting-label">
                         <span class="setting-icon" aria-hidden="true">🎨</span>
-                        <span>Intensity</span>
+                        <span data-i18n="wizard.step5.lights.intensity">Intensity</span>
                     </span>
-                    <div class="chip-group" role="group" aria-label="Light intensity">
-                        <button type="button" class="chip" data-intensity="subtle">Subtle</button>
-                        <button type="button" class="chip chip--active" data-intensity="medium">Medium</button>
-                        <button type="button" class="chip" data-intensity="party">Party</button>
+                    <div class="chip-group" role="group" aria-label="Light intensity" data-i18n-aria-label="wizard.step5.lights.intensity">
+                        <button type="button" class="chip" data-intensity="subtle" data-i18n="wizard.step5.lights.subtle">Subtle</button>
+                        <button type="button" class="chip chip--active" data-intensity="medium" data-i18n="wizard.step5.lights.medium">Medium</button>
+                        <button type="button" class="chip" data-intensity="party" data-i18n="wizard.step5.lights.party">Party</button>
                     </div>
                 </div>
 
@@ -570,11 +715,11 @@
                 <div class="setting-row">
                     <span class="setting-label">
                         <span class="setting-icon" aria-hidden="true">⚡</span>
-                        <span>Light Mode</span>
+                        <span data-i18n="wizard.step5.lights.mode">Light Mode</span>
                     </span>
-                    <div class="chip-group" role="group" aria-label="Light mode">
-                        <button type="button" class="chip" data-light-mode="static">Static</button>
-                        <button type="button" class="chip chip--active" data-light-mode="dynamic">Dynamic</button>
+                    <div class="chip-group" role="group" aria-label="Light mode" data-i18n-aria-label="wizard.step5.lights.mode">
+                        <button type="button" class="chip" data-light-mode="static" data-i18n="wizard.step5.lights.modeStatic">Static</button>
+                        <button type="button" class="chip chip--active" data-light-mode="dynamic" data-i18n="wizard.step5.lights.modeDynamic">Dynamic</button>
                         <button type="button" class="chip" data-light-mode="wled">WLED</button>
                     </div>
                 </div>
@@ -583,31 +728,31 @@
                 <div id="party-lights-wled-presets" class="setting-row setting-row--vertical hidden">
                     <span class="setting-label">
                         <span class="setting-icon" aria-hidden="true">🔢</span>
-                        <span>WLED Preset IDs</span>
+                        <span data-i18n="wizard.step5.lights.wledPresets">WLED Preset IDs</span>
                     </span>
                     <div class="wled-presets-grid">
-                        <label class="wled-preset-item"><span>Lobby</span><input type="number" data-wled-phase="LOBBY" min="0" value="1" class="input-sm"></label>
-                        <label class="wled-preset-item"><span>Playing</span><input type="number" data-wled-phase="PLAYING" min="0" value="2" class="input-sm"></label>
-                        <label class="wled-preset-item"><span>Reveal</span><input type="number" data-wled-phase="REVEAL" min="0" value="3" class="input-sm"></label>
-                        <label class="wled-preset-item"><span>Streak</span><input type="number" data-wled-phase="STREAK" min="0" value="4" class="input-sm"></label>
-                        <label class="wled-preset-item"><span>Countdown</span><input type="number" data-wled-phase="COUNTDOWN" min="0" value="5" class="input-sm"></label>
-                        <label class="wled-preset-item"><span>End</span><input type="number" data-wled-phase="END" min="0" value="6" class="input-sm"></label>
+                        <label class="wled-preset-item"><span data-i18n="admin.partyLights.phaseLobby">Lobby</span><input type="number" data-wled-phase="LOBBY" min="0" value="1" class="input-sm"></label>
+                        <label class="wled-preset-item"><span data-i18n="admin.partyLights.phasePlaying">Playing</span><input type="number" data-wled-phase="PLAYING" min="0" value="2" class="input-sm"></label>
+                        <label class="wled-preset-item"><span data-i18n="admin.partyLights.phaseReveal">Reveal</span><input type="number" data-wled-phase="REVEAL" min="0" value="3" class="input-sm"></label>
+                        <label class="wled-preset-item"><span data-i18n="admin.partyLights.phaseStreak">Streak</span><input type="number" data-wled-phase="STREAK" min="0" value="4" class="input-sm"></label>
+                        <label class="wled-preset-item"><span data-i18n="admin.partyLights.phaseCountdown">Countdown</span><input type="number" data-wled-phase="COUNTDOWN" min="0" value="5" class="input-sm"></label>
+                        <label class="wled-preset-item"><span data-i18n="admin.partyLights.phaseEnd">End</span><input type="number" data-wled-phase="END" min="0" value="6" class="input-sm"></label>
                     </div>
                 </div>
 
                 <!-- Light picker -->
                 <div id="party-lights-picker" class="party-lights-picker">
                     <div class="party-lights-picker-header">
-                        <span class="party-lights-count"><span id="lights-selected-count">0</span> lights selected</span>
-                        <button type="button" id="lights-select-all" class="btn-link">Select All</button>
+                        <span class="party-lights-count" id="lights-selected-count">0 lights selected</span>
+                        <button type="button" id="lights-select-all" class="btn-link" data-i18n="admin.partyLights.selectAll">Select All</button>
                     </div>
                     <div id="party-lights-list" class="party-lights-list">
-                        <span class="loading-text">Loading lights...</span>
+                        <span class="loading-text" data-i18n="admin.partyLights.loading">Loading lights…</span>
                     </div>
                 </div>
 
                 <!-- Preview button -->
-                <button type="button" id="party-lights-preview" class="btn btn-secondary btn-full-width" disabled>
+                <button type="button" id="party-lights-preview" class="btn btn-secondary btn-full-width" data-i18n="admin.partyLights.preview" disabled>
                     ✨ Preview
                 </button>
             </div>
@@ -952,26 +1097,12 @@
             </div>
         </section>
 
-        <!-- HA Entities Info Section (#441) -->
-        <section id="ha-entities" class="section-collapsible collapsed" aria-labelledby="ha-entities-heading">
-            <button type="button" class="section-header-collapsible" id="ha-entities-toggle" aria-expanded="false" aria-controls="ha-entities-content">
-                <span class="section-icon" aria-hidden="true">🏠</span>
-                <span data-i18n="admin.haEntities">HA Entities</span>
-                <span class="section-summary" id="ha-entities-summary" data-i18n="admin.haEntitiesSummary">6 entities</span>
-                <span class="section-toggle" aria-hidden="true">▼</span>
-            </button>
-            <div class="section-content" id="ha-entities-content">
-                <p class="setting-hint" data-i18n="admin.haEntitiesDesc">Beatify exposes live game state as Home Assistant entities. Find them under Developer Tools → States or search for beatify in your entity registry.</p>
-                <ul class="ha-entity-list">
-                    <li><code>sensor.beatify_current_round</code></li>
-                    <li><code>sensor.beatify_leader</code></li>
-                    <li><code>sensor.beatify_top_score</code></li>
-                    <li><code>sensor.beatify_player_count</code></li>
-                    <li><code>sensor.beatify_current_song</code></li>
-                    <li><code>binary_sensor.beatify_game_active</code></li>
-                </ul>
-            </div>
-        </section>
+        <!-- #1138 cleanup: the legacy flat "HA Entities" info section
+             (#ha-entities) was removed. It was dead UI — CSS-hidden via
+             body.home-mode, contained only static informational markup (a list
+             of sensor entity names), and no live JS read or wrote any of its
+             controls (its only JS reference was the null-safe setupSections
+             hide/show array). -->
 
         <!-- Validation messages and Start button -->
         <div class="admin-actions">
@@ -1004,6 +1135,10 @@
                 <p class="admin-pause-recovery-message" id="admin-pause-recovery-message" data-i18n="admin.pauseRecovery.mediaPlayerError">
                     Playback failed for the last 3 songs in a row. Resume to try the next song, or end the game.
                 </p>
+                <!-- #1927: which speaker the game was playing on. Without it a
+                     game running on the wrong speaker (stale saved selection)
+                     is indistinguishable from a dead provider. -->
+                <p class="admin-pause-recovery-detail" id="admin-pause-recovery-speaker"></p>
                 <p class="admin-pause-recovery-detail" id="admin-pause-recovery-detail"></p>
                 <div class="admin-pause-recovery-actions">
                     <button id="admin-resume-game" class="btn btn-primary" type="button">
@@ -1016,6 +1151,20 @@
                     </button>
                 </div>
             </div>
+            <!-- #2645: the host's own pause, on the page the host is standing
+                 at. Sibling of the recovery banner above rather than part of
+                 it: that one is an alert about something broken, this one is
+                 the announcement the room is reading right now. Its tiles are
+                 rendered by admin.js; the list is empty here on purpose. -->
+            <div id="admin-host-pause" class="admin-host-pause hidden">
+                <div class="admin-host-pause-headline">
+                    <span id="admin-host-pause-emoji" class="admin-host-pause-emoji" aria-hidden="true">⏸️</span>
+                    <span id="admin-host-pause-title" class="admin-host-pause-title"></span>
+                </div>
+                <p class="admin-host-pause-sub" data-i18n="admin.pauseOnEveryScreen">Shown on every screen</p>
+                <div class="pause-announce-label" data-i18n="admin.pauseAnnouncement">Change the announcement</div>
+                <div id="admin-pause-reason-tiles" class="pause-reasons"></div>
+            </div>
             <div class="game-container">
                 <!-- Game Header (matches player game-header-compact) -->
                 <div class="game-header-compact">
@@ -1024,11 +1173,26 @@
                         <span class="round-indicator-text">
                             <span data-i18n="game.roundLabel">Round</span>
                             <span id="admin-current-round">1</span>
-                            <span data-i18n="game.ofLabel">of</span>
-                            <span id="admin-total-rounds">10</span>
+                            <span class="round-total-part" data-i18n="game.ofLabel">of</span>
+                            <span id="admin-total-rounds" class="round-total-part">10</span>
                         </span>
                     </div>
                     <div class="stat-badge-bar">
+                        <!-- #2621: invite a late guest without leaving the game.
+                             The only join-QR trigger used to sit in #home-view,
+                             which is hidden the moment the game leaves LOBBY.
+                             This re-opens the very same #qr-modal. Shown by
+                             showAdminPlayingView() once a join URL is known. -->
+                        <button id="admin-invite-playing" type="button" class="btn btn-ghost hidden"
+                                data-i18n-title="lobby.invitePlayers" title="Invite Players">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                <circle cx="8.5" cy="7" r="4"/>
+                                <line x1="20" y1="8" x2="20" y2="14"/>
+                                <line x1="23" y1="11" x2="17" y2="11"/>
+                            </svg>
+                            <span class="sr-only" data-i18n="lobby.invitePlayers">Invite Players</span>
+                        </button>
                         <span id="admin-game-difficulty-badge" class="stat-badge stat-badge--difficulty"></span>
                     </div>
                 </div>
@@ -1045,7 +1209,7 @@
                 </div>
 
                 <!-- Intro splash overlay with admin confirm -->
-                <div id="admin-intro-splash" class="intro-splash hidden" aria-hidden="true">
+                <div id="admin-intro-splash" class="admin-intro-splash hidden">
                     <div class="intro-splash-content">
                         <span class="intro-splash-icon">⚡</span>
                         <span class="intro-splash-text" data-i18n="game.introRound">INTRO ROUND</span>
@@ -1115,6 +1279,16 @@
 
         <!-- Admin control bar (fixed bottom, matches player.html admin-control-bar) -->
         <div id="admin-control-bar" class="admin-control-bar hidden">
+            <!-- #2645: Pause sits to the LEFT of Stop, and that order is the
+                 point. Stop was the leftmost control and reads like the way to
+                 halt a game, while it actually takes the music away and lets
+                 the clock keep scoring the room as "missed". The button a host
+                 grabs first should be the one that does what they mean.
+                 Doubles as Resume while a host pause stands (admin.js). -->
+            <button id="admin-pause-game" class="control-btn" type="button">
+                <span class="control-icon">⏸️</span>
+                <span class="control-label" data-i18n="admin.pauseGame">Pause</span>
+            </button>
             <button id="admin-stop-song" class="control-btn" type="button">
                 <span class="control-icon">⏹️</span>
                 <span class="control-label" data-i18n="admin.stopSong">Stop</span>
@@ -1166,6 +1340,20 @@
                     <span data-i18n="reveal.idleHaltBanner">Game idle — no one played this round. Tap Next round to keep going.</span>
                 </div>
 
+                <!-- #2646: the host dropped this round instead of scoring it.
+                     Without this the screen shows a reveal and a leaderboard
+                     that did not move, which reads as a scoring bug. -->
+                <!-- #2746: who came back to this round. A name reappearing on
+                     the leaderboard without a word looks like a scoring bug. -->
+                <div id="admin-reveal-returned" class="idle-halt-banner hidden" role="status">
+                    <span class="idle-halt-icon" aria-hidden="true">👋</span>
+                    <span id="admin-reveal-returned-text"></span>
+                </div>
+                <div id="admin-reveal-voided" class="idle-halt-banner hidden" role="status">
+                    <span class="idle-halt-icon" aria-hidden="true">🚫</span>
+                    <span data-i18n="reveal.roundVoidedBanner">This round does not count — no points, no broken streaks.</span>
+                </div>
+
                 <!-- Reveal Header (matches player reveal-header-compact) -->
                 <div class="reveal-header-compact">
                     <div class="reveal-header-left">
@@ -1173,11 +1361,25 @@
                         <span class="round-indicator-text">
                             <span data-i18n="game.roundLabel">Round</span>
                             <span id="admin-reveal-round">1</span>
-                            <span data-i18n="game.ofLabel">of</span>
-                            <span id="admin-reveal-total">10</span>
+                            <span class="round-total-part" data-i18n="game.ofLabel">of</span>
+                            <span id="admin-reveal-total" class="round-total-part">10</span>
                         </span>
                     </div>
                     <div class="stat-badge-bar">
+                        <!-- #2621: same invite target on the reveal screen — the
+                             music has stopped and the room is talking, which is
+                             when a newcomer actually walks up. Leaving it out
+                             here would blink the button off every round. -->
+                        <button id="admin-invite-reveal" type="button" class="btn btn-ghost hidden"
+                                data-i18n-title="lobby.invitePlayers" title="Invite Players">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                <circle cx="8.5" cy="7" r="4"/>
+                                <line x1="20" y1="8" x2="20" y2="14"/>
+                                <line x1="23" y1="11" x2="17" y2="11"/>
+                            </svg>
+                            <span class="sr-only" data-i18n="lobby.invitePlayers">Invite Players</span>
+                        </button>
                         <span id="admin-reveal-difficulty-badge" class="stat-badge stat-badge--difficulty"></span>
                     </div>
                 </div>
@@ -1277,8 +1479,22 @@
                     </div>
                 </section>
 
-                <!-- Admin controls: Next Round -->
+                <!-- Admin controls: Encore (#2503) + Next Round -->
                 <div class="reveal-admin-controls">
+                    <!-- #2503: the offer sits on the reveal BEFORE the last
+                         round, never on the last reveal itself — a finale that
+                         can be revoked while it is being revealed was never a
+                         finale. Host-only: the room must not be shown "five
+                         more rounds?" while the host is still deciding. -->
+                    <div id="admin-encore" class="encore-offer hidden">
+                        <span class="encore-badge" data-i18n="admin.encoreBadge">LAST ROUND NEXT</span>
+                        <button id="admin-encore-btn" type="button" class="btn btn-outline btn-full-width">
+                            <span id="admin-encore-label">Make it 5 more</span>
+                        </button>
+                        <!-- The promise lives IN the control, not in a dialog
+                             after it (carried over from option B). -->
+                        <p id="admin-encore-hint" class="encore-hint"></p>
+                    </div>
                     <div class="reveal-admin-buttons">
                         <button id="admin-next-round" class="btn btn-primary btn-large btn-full-width" data-i18n="admin.nextRound">Next Round</button>
                     </div>
@@ -1326,7 +1542,23 @@
                 <!-- Admin controls -->
                 <div class="end-admin-controls">
                     <button id="admin-rematch" class="btn btn-primary btn-large btn-full-width" data-i18n="admin.rematch">Rematch</button>
+                    <!-- #2503: carried over from the option that lost the design
+                         gate. Nothing on this screen said that Rematch sets every
+                         score back to zero; the host had to know. One line, and it
+                         is true whether or not the encore ships. -->
+                    <p class="end-action-hint" data-i18n="admin.rematchHint">Every score back to 0</p>
                     <button id="admin-new-game" class="new-game-btn" data-i18n="admin.startNewGame">Start New Game</button>
+                    <!-- GitHub star hint: from the third finished game on this
+                         device, until dismissed (js/admin/star-hint.js). -->
+                    <p id="admin-star-hint" class="admin-star-hint" hidden>
+                        <span>
+                            <span data-i18n="admin.starHintBefore">Enjoying Beatify? A ⭐</span>
+                            <a href="https://github.com/mholzi/beatify" target="_blank" rel="noopener" data-i18n="admin.starHintLink">on GitHub</a>
+                            <span data-i18n="admin.starHintAfter">helps others find it.</span>
+                        </span>
+                        <button type="button" id="admin-star-hint-dismiss" class="admin-star-hint-dismiss"
+                                aria-label="Dismiss hint" data-i18n-aria-label="admin.starHintDismiss">✕</button>
+                    </p>
                 </div>
             </div>
         </div>
@@ -1340,9 +1572,13 @@
             <h2 data-i18n="admin.joinTheGame">Join the Game</h2>
             <p data-i18n="admin.enterDisplayName">Enter your display name to join as a player with admin controls.</p>
             <div class="form-group">
+                <!-- #2627: no maxlength attribute on purpose. The cap is set
+                from MAX_NAME_LENGTH (the mirror of const.py) in JS, so a
+                server-side change reaches the field instead of leaving a
+                stale literal behind. -->
                 <input type="text" id="admin-name-input" class="name-input"
                        data-i18n-placeholder="join.namePlaceholder"
-                       placeholder="Your name" maxlength="20"
+                       placeholder="Your name"
                        autocomplete="off" autocapitalize="words">
                 <p id="admin-name-error" class="validation-msg hidden"></p>
             </div>
@@ -1354,6 +1590,37 @@
     </div>
 
     <!-- End Game confirmation modal (Story 9.10) -->
+    <!-- #2646: "End round N" — the question Next asks when it is pressed while
+         the round is still running. Three exits: score it (what Next always
+         did), drop it without scoring, or close this and let the song play on.
+         The subtitles are filled in from the server's `admin_round_end_preview`
+         at open time, so the consequences are named with real numbers before
+         they happen. The reason chips are optional and record only. -->
+    <div id="round-end-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="round-end-title">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content round-end-card">
+            <h2 id="round-end-title" data-i18n="admin.roundEndTitleBare">End round</h2>
+            <p id="round-end-sub" class="round-end-sub"></p>
+            <button id="round-end-score" class="round-end-choice round-end-choice--score" type="button">
+                <span class="round-end-choice-label" data-i18n="admin.roundEndScore">Score it as usual</span>
+                <span id="round-end-score-sub" class="round-end-choice-sub" hidden></span>
+            </button>
+            <button id="round-end-void" class="round-end-choice round-end-choice--void" type="button">
+                <span class="round-end-choice-label" data-i18n="admin.roundEndVoid">Do not score it</span>
+                <span class="round-end-choice-sub" data-i18n="admin.roundEndVoidSub">No points, no broken streaks, nobody is eliminated</span>
+            </button>
+            <div class="round-end-reasons">
+                <span class="round-end-reasons-label" data-i18n="admin.voidReasonPrompt">Why? Optional.</span>
+                <!-- Chips are painted from VOID_ROUND_REASONS in
+                     js/round-end-choice.js, not written out here. -->
+                <div id="round-end-reasons" class="round-end-chips"></div>
+            </div>
+            <button id="round-end-keep" class="round-end-choice round-end-choice--keep" type="button">
+                <span class="round-end-choice-label" data-i18n="admin.roundEndKeepPlaying">Let it keep playing</span>
+            </button>
+        </div>
+    </div>
+
     <div id="end-game-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="end-game-modal-title">
         <div class="modal-backdrop"></div>
         <div class="modal-content">
@@ -1375,6 +1642,67 @@
             <div class="modal-actions">
                 <button id="rematch-confirm-btn" class="btn btn-primary" data-i18n="admin.rematchConfirm">Start Rematch</button>
                 <button id="rematch-cancel-btn" class="btn btn-secondary" data-i18n="common.cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- #1719: "Start New Game" confirmation modal (destructive: forgets speaker/playlists/settings) -->
+    <div id="new-game-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="new-game-modal-title">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <h2 id="new-game-modal-title" data-i18n="admin.newGameConfirmTitle">Start New Game?</h2>
+            <p data-i18n="admin.newGameConfirmMessage">Forget your speaker + playlists and start fresh setup?</p>
+            <div class="modal-actions">
+                <button id="new-game-confirm-btn" class="btn btn-danger" data-i18n="admin.startNewGame">Start New Game</button>
+                <button id="new-game-cancel-btn" class="btn btn-secondary" data-i18n="common.cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- #1758: "Start anyway?" onboarding gate — styled modal replacing the
+         native window.confirm() so it matches the neon theme + focus mgmt. -->
+    <div id="start-anyway-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="start-anyway-title">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <h2 id="start-anyway-title" data-i18n="onboarding.startAnywayTitle">Start anyway?</h2>
+            <p id="start-anyway-message">Some players are still learning the rules.</p>
+            <div class="modal-actions">
+                <button id="start-anyway-confirm-btn" class="btn btn-primary" data-i18n="onboarding.startAnywayConfirm">Start anyway</button>
+                <button id="start-anyway-cancel-btn" class="btn btn-secondary" data-i18n="common.cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Remove-player confirmation (#2718) — opened by tapping an away guest's
+         lobby tile. Cancel is focused first: the default action must never be
+         the one that removes somebody. -->
+    <!-- #2746: the confirm card IS the guard. Option B drops both server-side
+         refusals — phase and connected — so nothing else stands between a
+         misplaced tap in a dark room and pulling the leader out of a party
+         game. It therefore names the consequence rather than asking a yes/no,
+         and it says the score stays, because that is what makes the mistake
+         recoverable. -->
+    <div id="sit-out-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="sit-out-title">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <h2 id="sit-out-title" data-i18n="admin.sitOutTitle">Sit this guest out?</h2>
+            <p id="sit-out-message"></p>
+            <div class="modal-actions">
+                <button id="sit-out-confirm-btn" class="btn btn-primary" data-i18n="admin.sitOutConfirm">Sit out</button>
+                <button id="sit-out-cancel-btn" class="btn btn-secondary" data-i18n="common.cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="kick-player-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="kick-player-title">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <h2 id="kick-player-title" data-i18n="admin.kickPlayerTitle">Remove player?</h2>
+            <p id="kick-player-message">Remove this player from the lobby?</p>
+            <p class="modal-hint" data-i18n="admin.kickPlayerNote">They lost their connection. Removing them frees their slot — they can scan the QR code again any time.</p>
+            <div class="modal-actions">
+                <button id="kick-player-confirm-btn" class="btn btn-primary" data-i18n="admin.kickPlayerRemove">Remove</button>
+                <button id="kick-player-cancel-btn" class="btn btn-secondary" data-i18n="common.cancel">Cancel</button>
             </div>
         </div>
     </div>
@@ -1471,10 +1799,16 @@
     <script src="/beatify/static/js/utils.js?v={{ASSET_VER}}"></script>
     <!-- Story 44.1: Playlist requests module -->
     <script src="/beatify/static/js/playlist-requests.min.js?v={{ASSET_VER}}"></script>
-    <!-- #1052: LLM-assisted playlist generator (load before playlist-hub so the Mine-tab button finds it) -->
+    <!-- #1052: LLM-assisted playlist generator. Read off `window` by the hub's
+         Mine tab; a classic script, so it must precede admin.min.js. -->
     <script src="/beatify/static/js/playlist-generator.min.js?v={{ASSET_VER}}"></script>
-    <script type="module" src="/beatify/static/js/playlist-hub.js?v={{ASSET_VER}}"></script>
-    <script type="module" src="/beatify/static/js/wizard.js?v={{ASSET_VER}}"></script>
+    <!-- #2680: playlist-hub.js and wizard.js used to be two more module tags
+         right here. wizard.js imports ./admin/sections/library.js, which
+         admin.min.js inlines — so the page ran two copies of library.js (and of
+         library-ai.js, admin/state.js, game-constants.js,
+         providers.generated.js), each with its own module-level state, and load
+         order decided which one a click reached. Both are imports of the admin
+         bundle now: one copy, one state, two fewer requests. -->
     <!-- #1180: Title & Artist mode bonus-flag precedence (exposes
          window.BeatifyTitleArtist; must load before admin.min.js uses it). -->
     <script type="module" src="/beatify/static/js/title-artist-bonuses.js?v={{ASSET_VER}}"></script>
@@ -1482,14 +1816,19 @@
          loaded before admin.min.js so window.NoSleep is available when
          _requestWakeLock() runs on game start. -->
     <script src="/beatify/static/js/vendor/no-sleep.min.js?v={{ASSET_VER}}"></script>
-    <!-- #1279 step 2: admin.min.js is now an ES module (imports admin/util.js).
-         type="module" loads deferred — its window.* compat shims (escapeHtml,
-         loadStatus, BeatifyHome, …) are set before any consumer reads them,
-         because every consumer (party-lights, tts-settings, wizard) reads admin
-         globals event-driven (after DOMContentLoaded / on click), never at
+    <!-- #1279 step 2: admin.min.js is an ES module (type="module", deferred).
+         #2637: party-lights.js and tts-settings.js used to follow as two classic
+         <script> tags whose only job was to hand admin.js a config getter on
+         `window`. They are imports of the bundle now, so they cannot be loaded
+         in the wrong order and `npm run build:check` covers them.
+         The window globals this bundle still publishes (loadStatus,
+         loadSavedSettings, BeatifyHome, BeatifyPersistSetup,
+         BeatifyNoteLocalSetupWrite) are read by wizard.js, which is a bundle
+         module since #2680 but also a dependency of admin.js — `window` breaks
+         that cycle. BEATIFY_VERSION is read by playlist-requests.js, a classic
+         script that cannot import from the bundle at all. Every one of those
+         reads is event-driven (after DOMContentLoaded / on click), never at
          parse time. -->
     <script type="module" src="/beatify/static/js/admin.min.js?v={{ASSET_VER}}"></script>
-    <script src="/beatify/static/js/party-lights.min.js?v={{ASSET_VER}}"></script>
-    <script src="/beatify/static/js/tts-settings.js?v={{ASSET_VER}}"></script>
 </body>
 </html>

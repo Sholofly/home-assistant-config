@@ -10,12 +10,33 @@
  * Pure helpers are also imported by custom_components/beatify/www/js/__tests__/wizard.test.js.
  */
 
+import { getLibrarySourceStatus, mountLibraryPanel } from './admin/sections/library.js';
 import {
     mount as plhMount,
     setSelection as plhSetSelection,
     refresh as plhRefresh,
     getPlaylistByPath as plhGetPlaylistByPath,
 } from './playlist-hub.js';
+import { PROVIDERS } from './providers.generated.js';
+import {
+    MIN_ROUNDS,
+    roundCountOptions,
+    clampRoundCount,
+    availableSongs,
+    estimateGameMinutes,
+} from './round-count.js';
+// #2625/#2626: the difficulty hints and the auto-advance delays come from the
+// shared mirror of const.py. Both used to be written out again right here — the
+// hints under a "keep in sync" comment that was the only safeguard.
+import {
+    REVEAL_AUTO_ADVANCE_OPTIONS,
+    SAMPLE_DURATION_OPTIONS,
+    SUDDEN_DEATH_MIN_PLAYERS,
+    autoAdvanceChipLabel,
+    difficultyHint,
+    normalizeRevealAutoAdvance,
+    normalizeSampleDuration,
+} from './game-constants.js';
 
 const LS_WIZARD_STATE = 'beatify_wizard_state';   // 'step1'|'step2'|'step3'|'step4'|'done'|'dismissed'
 const LS_SELECTED_PLAYER = 'beatify_last_player'; // set by admin.js when a speaker is picked
@@ -121,6 +142,15 @@ export function shouldShowPill(localStorage) {
  * @param {boolean} value - the new value for that toggle.
  * @returns {Object} a new flags object with precedence applied.
  */
+// Issue #1799 — the hint line of a mode card. When the mode is gated by an
+// unmet requirement, the line carries the requirement itself instead of the
+// mode description: on touch there is no hover, so the `title` tooltip that
+// used to be the only explanation never shows.
+export function modeHintHtml(disabled, gateText, hintHtml) {
+    if (!disabled) return `<div class="wiz-mode-hint">${hintHtml}</div>`;
+    return `<div class="wiz-mode-hint gated">🔒 ${escapeText(gateText)}</div>`;
+}
+
 export function applyGameModeTogglePrecedence(flags, key, value) {
     const next = { ...flags };
     switch (key) {
@@ -225,14 +255,37 @@ const chosenPlaylists = new Set(); // paths — multi-select
 // Step 4 (game mode) — default to what admin.js uses when beatify_game_settings is empty
 let chosenDifficulty = 'normal';
 let chosenDuration = 45;
+// #3152: seconds the song plays in a round. 0 = the whole round, which is what
+// every game did before the setting existed.
+let chosenSampleDuration = 0;
 let chosenRevealAutoAdvance = 0; // #1028: REVEAL auto-advance seconds (0 = off, default)
+// #1475: rounds per game. 0 = every song, which is what every game did before
+// this setting existed. `customRoundsOpen` only tracks whether the number field
+// is revealed — the value itself always lives in chosenMaxRounds.
+let chosenMaxRounds = 0;
+let customRoundsOpen = false;
 let chosenLanguage = 'en';
 // Game-mode toggles (defaults match admin.js: artistChallenge on, movieQuiz on, intro off, closestWins off)
 let chosenArtistChallenge = true;
 let chosenMovieQuiz = true;
 let chosenIntroMode = false;
 let chosenClosestWins = false;
+let chosenSuddenDeath = true; // Issue #827 — default ON (unlike the other bonuses); gated to >=3 players
 let chosenTitleArtistMode = false; // #1180
+// #2692: the six modes that shipped complete and unreachable — their only
+// switches lived in the flat admin panel that CSS hides (admin.html:581-656,
+// styles.css:10181). All six default OFF, which is what every game has been
+// running since the wizard rewrite; the play style below is what turns them on.
+let chosenRampupOrder = false;        // #1726
+let chosenFinaleDouble = false;       // #1725
+let chosenFinaleTiebreaker = false;   // #1725
+let chosenComebackToken = false;      // #1724
+let chosenBetScaling = false;         // #1727
+let chosenSabotage = false;           // #1665
+// #2692: which play style is selected, or null for a hand-picked combination.
+let chosenPlayStyle = 'classic';
+// #2692: whether the eleven individual switches are unfolded.
+let modesExpanded = false;
 const chosenLevelUps = { lights: false, tts: false };
 // Details the user sets when a level-up is toggled on
 let cachedLights = null; // HA lights from /api/lights
@@ -367,6 +420,44 @@ function _setProgress(step) {
     });
 }
 
+let _wizLibraryInst = null;
+
+function _isLibraryProvider() {
+    return chosenProvider === 'ma_library';
+}
+
+/**
+ * Step 3 has two faces: the Playlist Hub for streaming providers, or the
+ * Crate Digger panel (settings + background scan) for ma_library — which
+ * GENERATES its playlist, so picking curated ones makes no sense there.
+ */
+function _syncStep3Mode() {
+    const hub = document.getElementById('playlist-hub-root');
+    const wrap = document.getElementById('wiz-library-wrap');
+    if (!hub || !wrap) return;
+    const isLib = _isLibraryProvider();
+    hub.classList.toggle('hidden', isLib);
+    wrap.classList.toggle('hidden', !isLib);
+    // Upstream hides the wizard's CTA band on frame 3 because the Playlist
+    // Hub brings its own Back/Continue. Crate Digger has no hub, so without
+    // this flag step 3 has no navigation at all. library.css restores the
+    // band for `body.wiz-lib-step`.
+    document.body.classList.toggle('wiz-lib-step', isLib);
+    if (isLib) {
+        const root = document.getElementById('wiz-library-root');
+        if (root && !_wizLibraryInst) {
+            _wizLibraryInst = mountLibraryPanel(root, {
+                mode: 'wizard',
+                onChanged: _persistGameSettings,
+                // #2939: the playlist check re-labels Continue ("Continue with 37 songs").
+                onSourceChanged: () => { if (currentStep === 3) _updateCta(); },
+            });
+        } else if (_wizLibraryInst) {
+            _wizLibraryInst.refresh();
+        }
+    }
+}
+
 function _showFrame(n) {
     document.querySelectorAll('.wiz-frame').forEach((frame) => {
         const frameNum = parseInt(frame.dataset.frame, 10);
@@ -374,6 +465,11 @@ function _showFrame(n) {
         else frame.setAttribute('hidden', '');
     });
     currentStep = n;
+    if (n === 3) {
+        _syncStep3Mode();
+    } else {
+        document.body.classList.remove('wiz-lib-step');
+    }
     _setProgress(Math.min(n, TOTAL_STEPS));
     _updateCta();
     // Persist wizard state so refresh / revisit resumes at the right step.
@@ -392,7 +488,7 @@ function _updateCta() {
     // Step 3 hands the entire CTA to the Playlist Hub — hide the legacy
     // wiz-next AND wiz-back so we don't stack chrome. Hub renders its
     // own Back + Continue in a single row.
-    if (currentStep === 3) {
+    if (currentStep === 3 && !_isLibraryProvider()) {
         nextBtn.style.display = 'none';
         backBtn.style.display = 'none';
     } else {
@@ -408,6 +504,19 @@ function _updateCta() {
         // Block Continue unless the picked provider is supported on the picked
         // speaker — prevents #772-style silent failures at playback time.
         nextBtn.disabled = !chosenProvider || !_providerSupported(chosenProvider);
+    } else if (currentStep === 3 && _isLibraryProvider()) {
+        // Crate Digger generates its own playlist — nothing to select, so
+        // Continue is always available. #2939: with a Music Assistant playlist
+        // as the source it needs a checked playlist with usable songs, and
+        // the button carries the number, so the collapsed "37 of 45" line is
+        // not the only place the host reads it.
+        const src = getLibrarySourceStatus();
+        if (src.playlist && src.ready) {
+            nextBtn.textContent = _t('wizard.continueWithSongs', 'Continue with {n} songs', { n: String(src.songs) });
+        } else {
+            nextBtn.textContent = _t('wizard.continue', 'Continue');
+        }
+        nextBtn.disabled = src.playlist && !src.ready;
     } else if (currentStep === 3) {
         // Not shown — hub's Continue takes over. Keep the disabled/text
         // logic so if CSS ever un-hides it the behavior is correct.
@@ -452,7 +561,7 @@ function _platformLabel(raw) {
 // SVG icon for the speaker-row avatar. Single generic speaker silhouette —
 // the platform name already appears below, no need to disambiguate by icon.
 const SPEAKER_ICON = `<svg class="wiz-row-avatar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><circle cx="12" cy="15" r="3"/><line x1="12" y1="7" x2="12.01" y2="7"/></svg>`;
-const PLAYLIST_ICON = `<svg class="wiz-row-avatar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`;
+// #2583: PLAYLIST_ICON was declared here and never used.
 
 // Summarize a speaker's service capabilities for the Step 1 badge.
 function _capabilityBadge(player) {
@@ -506,6 +615,10 @@ function _renderSpeakers() {
             const speakerChanged = chosenSpeaker !== newSpeaker;
             chosenSpeaker = newSpeaker;
             try { localStorage.setItem(LS_SELECTED_PLAYER, chosenSpeaker); } catch (e) { /* private mode */ }
+            // #1927: tell admin.js that this device just changed its speaker, so
+            // an /api/status snapshot that was already in flight cannot reconcile
+            // the fresh pick away. The POST still happens at wizard finish.
+            try { window.BeatifyNoteLocalSetupWrite?.(); } catch (e) { /* admin core not loaded */ }
             // Switching speakers invalidates the provider step — stale explainer
             // would reference the previous platform, and a previously-picked
             // provider may no longer be supported.
@@ -524,14 +637,11 @@ function _renderSpeakers() {
     });
 }
 
-const PROVIDERS = [
-    { id: 'spotify', label: 'Spotify' },
-    { id: 'apple_music', label: 'Apple Music' },
-    { id: 'youtube_music', label: 'YouTube Music' },
-    { id: 'tidal', label: 'Tidal' },
-    { id: 'deezer', label: 'Deezer' },
-    { id: 'amazon_music', label: 'Amazon Music' },
-];
+// #2713: the chip list IS the integration's provider registry, generated from
+// providers.py. It used to be typed out here as well, so a provider added in
+// Python appeared in the wizard only if somebody remembered this file — and a
+// chip nobody added is not an error, just an option the host never sees.
+// Order, labels and the second lines all come from the registry.
 
 // Lock icon SVG for dimmed provider chips (#772 UX).
 const CHIP_LOCK_ICON = `<svg class="chip-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`;
@@ -613,8 +723,20 @@ function _renderProviders() {
         if (active && supported) classes.push('active');
         if (!supported) classes.push('disabled');
         const lock = supported ? '' : CHIP_LOCK_ICON;
-        const aria = supported ? '' : 'aria-disabled="true"';
-        return `<button type="button" class="${classes.join(' ')}" data-provider="${p.id}" ${aria}><span>${p.label}</span>${lock}</button>`;
+        // #1583: aria-pressed conveys the single-select state to screen readers
+        // (these are native <button>s, so role + Enter/Space activation are native).
+        const pressed = active && supported ? 'true' : 'false';
+        const aria = supported ? `aria-pressed="${pressed}"` : 'aria-pressed="false" aria-disabled="true"';
+        // An optional second line explains a provider whose name alone
+        // doesn't say what it plays — Crate Digger draws from the host's own
+        // Music Assistant library, which new players can't guess.
+        const sub = p.sub
+            ? `<span class="wiz-provider-sub">${_t(p.subKey || '', p.sub)}</span>`
+            : '';
+        const labelHtml = sub
+            ? `<span class="wiz-provider-label"><span>${p.label}</span>${sub}</span>`
+            : `<span>${p.label}</span>`;
+        return `<button type="button" class="${classes.join(' ')}${sub ? ' wiz-provider-chip--stacked' : ''}" data-provider="${p.id}" ${aria}>${labelHtml}${lock}</button>`;
     }).join('');
     list.querySelectorAll('[data-provider]').forEach((btn) => {
         btn.addEventListener('click', () => {
@@ -739,6 +861,8 @@ function _renderPlaylists() {
         // wizard's own chrome.
         showBack: true,
         backLabel: _t('wizard.back', 'Back'),
+        // #2987: "STEP 3 · PLAYLIST", like the eyebrow on every other step.
+        eyebrow: _t('wizard.step3.eyebrow', 'Step 3 · Playlist'),
         onSelectionChange(paths) {
             chosenPlaylists.clear();
             for (const p of paths) chosenPlaylists.add(p);
@@ -782,35 +906,24 @@ const DIFFICULTIES = [
     { id: 'hard', labelKey: 'wizard.step4.hard', labelFallback: 'Hard' },
 ];
 
-// Mirrors DIFFICULTY_SCORING in custom_components/beatify/const.py — keep in sync.
-// Scoring tiers: exact match, "close" band, "near" band.
-const DIFFICULTY_HINTS = {
-    easy: {
-        fallback: 'Forgiving: 10 pts for an exact year, 5 pts within ±7 years, 1 pt within ±10 years.',
-        key: 'wizard.step4.difficultyHintEasy',
-    },
-    normal: {
-        fallback: 'Balanced: 10 pts for an exact year, 5 pts within ±3 years, 1 pt within ±5 years.',
-        key: 'wizard.step4.difficultyHintNormal',
-    },
-    hard: {
-        fallback: 'Sharp: 10 pts for an exact year, 3 pts within ±2 years, otherwise 0.',
-        key: 'wizard.step4.difficultyHintHard',
-    },
-};
 const DURATIONS = [15, 30, 45, 60]; // seconds per round
-const AUTO_ADVANCE_OPTIONS = [
-    { id: 0, labelKey: 'wizard.step4.autoAdvanceOff', labelFallback: 'Off' },
-    { id: 30, label: '30s' },
-    { id: 60, label: '60s' },
-    { id: 90, label: '90s' },
-];
+// #2626: built from REVEAL_AUTO_ADVANCE_OPTIONS (the mirror of const.py) rather
+// than hand-listed. A delay the server does not accept can no longer reach a
+// chip, which is how a chip could look selected while the game ran with
+// auto-advance off.
+export const AUTO_ADVANCE_OPTIONS = REVEAL_AUTO_ADVANCE_OPTIONS.map((seconds) => {
+    const label = autoAdvanceChipLabel(seconds);
+    return label.key
+        ? { id: seconds, labelKey: label.key, labelFallback: label.fallback }
+        : { id: seconds, label: label.fallback };
+});
 const LANGUAGES = [
     { id: 'en', label: 'English' },
     { id: 'de', label: 'Deutsch' },
     { id: 'es', label: 'Español' },
     { id: 'fr', label: 'Français' },
     { id: 'nl', label: 'Nederlands' },
+    { id: 'it', label: 'Italiano' },
 ];
 
 /**
@@ -849,6 +962,74 @@ function _renderChipGroup(elId, items, active, onPick) {
             onPick(items[0] && typeof items[0] === 'number' ? parseInt(raw, 10) : raw);
         });
     });
+}
+
+/**
+ * The "Song plays for" chips on step 4 (#3152).
+ *
+ * "Whole round" first, then one chip per SAMPLE_DURATION_OPTIONS entry, in the
+ * same markup as the timer chips. A step that is not shorter than the answer
+ * time stays visible but is disabled: the host sees that it exists and why it
+ * is out of reach, and the server would reject it anyway.
+ *
+ * @param {number} chosen - selected sample length, 0 = whole round
+ * @param {number} roundDuration - selected answer time in seconds
+ * @param {Function} t - translate(key, fallback)
+ * @returns {string} button HTML
+ */
+export function sampleChipsHtml(chosen, roundDuration, t) {
+    const active = normalizeSampleDuration(chosen, roundDuration);
+    const chips = [{ id: 0, label: t('wizard.step4.sampleWholeRound', 'Whole round'), disabled: false }]
+        .concat(SAMPLE_DURATION_OPTIONS.map((seconds) => ({
+            id: seconds,
+            label: `${seconds}s`,
+            disabled: !(seconds < roundDuration),
+        })));
+    return chips
+        .map((chip) => {
+            const off = chip.disabled ? ' disabled aria-disabled="true"' : '';
+            return `<button type="button" class="wiz-chip ${chip.id === active ? 'active' : ''}" data-value="${chip.id}"${off}>${chip.label}</button>`;
+        })
+        .join('');
+}
+
+/**
+ * The line under the "Song plays for" chips (#3152). Empty for "Whole round" —
+ * there is nothing to explain when the song simply runs with the timer.
+ *
+ * @param {number} chosen - selected sample length, 0 = whole round
+ * @param {number} roundDuration - selected answer time in seconds
+ * @param {Function} t - translate(key, fallback)
+ * @returns {string} hint text, or ''
+ */
+export function sampleHintText(chosen, roundDuration, t) {
+    const sample = normalizeSampleDuration(chosen, roundDuration);
+    if (!sample) return '';
+    return t('wizard.step4.sampleHint', 'Music stops after {song}s. Players keep {round}s to answer.')
+        .replace('{song}', String(sample))
+        .replace('{round}', String(roundDuration));
+}
+
+function _renderSampleDuration() {
+    // A shorter answer time can leave the chosen sample no longer shorter than
+    // the round. That falls back to "Whole round" here, on every render.
+    chosenSampleDuration = normalizeSampleDuration(chosenSampleDuration, chosenDuration);
+    const el = document.getElementById('wiz-sample');
+    if (el) {
+        el.innerHTML = sampleChipsHtml(chosenSampleDuration, chosenDuration, _t);
+        el.querySelectorAll('.wiz-chip:not([disabled])').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                chosenSampleDuration = normalizeSampleDuration(parseInt(btn.dataset.value, 10), chosenDuration);
+                _renderGameMode();
+            });
+        });
+    }
+    const hint = document.getElementById('wiz-sample-hint');
+    if (hint) {
+        const text = sampleHintText(chosenSampleDuration, chosenDuration, _t);
+        hint.textContent = text;
+        hint.classList.toggle('hidden', !text);
+    }
 }
 
 // Apply a Step-4 toggle through the pure precedence helper and write the
@@ -917,7 +1098,191 @@ const GAME_MODES = [
         get: () => chosenClosestWins,
         set: (v) => { _setGameModeToggle('closest', v); },
     },
+    // Issue #827 — Sudden Death. Standalone toggle (not part of the
+    // year-round/TA precedence group), so it sets chosenSuddenDeath directly.
+    // Defaults ON, but is gated to >=3 connected players (see _renderGameModes).
+    {
+        key: 'suddenDeath',
+        icon: '💀',
+        titleKey: 'admin.suddenDeathMode',
+        titleFallback: 'Sudden Death',
+        hintKey: 'admin.suddenDeathModeHint',
+        hintFallback: 'When the timer runs out, the lowest-scoring player is eliminated. Last player standing wins. Requires at least {min} players.',
+        get: () => chosenSuddenDeath,
+        set: (v) => { chosenSuddenDeath = v; },
+    },
+    // #2692: the six that were finished and unreachable. Their strings already
+    // ship in all six locales (admin.* keys), so the cards need no new copy —
+    // only a place to be rendered.
+    {
+        key: 'rampupOrder',
+        icon: '📈',
+        titleKey: 'admin.rampupOrder',
+        titleFallback: 'Ramp-up Ordering',
+        hintKey: 'admin.rampupOrderHint',
+        hintFallback: 'Easy rounds first, the hardest known song saved for the finale.',
+        get: () => chosenRampupOrder,
+        set: (v) => { chosenRampupOrder = v; },
+    },
+    {
+        key: 'finaleDouble',
+        icon: '✨',
+        titleKey: 'admin.finaleDouble',
+        titleFallback: 'Finale ×2',
+        hintKey: 'admin.finaleDoubleHint',
+        hintFallback: "Double every player's score on the final round.",
+        get: () => chosenFinaleDouble,
+        set: (v) => { chosenFinaleDouble = v; },
+    },
+    {
+        key: 'finaleTiebreaker',
+        icon: '⚔️',
+        titleKey: 'admin.finaleTiebreaker',
+        titleFallback: 'Finale Tiebreaker',
+        hintKey: 'admin.finaleTiebreakerHint',
+        hintFallback: 'A tie for first plays one more song instead of sharing the win.',
+        get: () => chosenFinaleTiebreaker,
+        set: (v) => { chosenFinaleTiebreaker = v; },
+    },
+    {
+        key: 'comebackToken',
+        icon: '🎁',
+        titleKey: 'admin.comebackToken',
+        titleFallback: 'Comeback Token',
+        hintKey: 'admin.comebackTokenHint',
+        hintFallback: 'After halftime the trailing third is handed a steal.',
+        get: () => chosenComebackToken,
+        set: (v) => { chosenComebackToken = v; },
+    },
+    {
+        key: 'betScaling',
+        icon: '🎲',
+        titleKey: 'admin.difficultyBetScaling',
+        titleFallback: 'Difficulty Bet Scaling',
+        hintKey: 'admin.difficultyBetScalingHint',
+        hintFallback: "Scale a won bet's payout with difficulty.",
+        get: () => chosenBetScaling,
+        set: (v) => { chosenBetScaling = v; },
+    },
+    {
+        key: 'sabotage',
+        icon: '💣',
+        titleKey: 'admin.sabotage',
+        titleFallback: 'Sabotage',
+        hintKey: 'admin.sabotageHint',
+        hintFallback: 'Every player gets one sabotage token per game.',
+        get: () => chosenSabotage,
+        set: (v) => { chosenSabotage = v; },
+    },
 ];
+
+// #2692: the play styles.
+//
+// The six modes did not go missing because they were hard to reach — they went
+// missing because a host with eight guests watching makes ONE decision, not
+// six. A style is that one decision; the eleven switches stay reachable one tap
+// below it for anyone who wants a different combination.
+//
+// `modes` lists every key the style turns ON. Everything not named is turned
+// OFF, so picking a style is a complete statement rather than an addition to
+// whatever was set before — otherwise switching from Chaos to Classic would
+// silently leave Sabotage running.
+//
+// Sabotage appears in exactly one style, and that style is never the default:
+// it is the only mode that actively takes something away from a guest, and an
+// angry guest the host cannot explain is worse than an unused feature.
+export const PLAY_STYLES = [
+    {
+        key: 'classic',
+        glyph: '🎵',
+        accent: 'cyan',
+        nameKey: 'wizard.step4.styleClassic',
+        nameFallback: 'Classic',
+        lineKey: 'wizard.step4.styleClassicLine',
+        lineFallback: 'Guess the year, nothing else. For rounds where people talk.',
+        modes: ['artist'],
+    },
+    {
+        key: 'dramatic',
+        glyph: '🏆',
+        accent: 'pink',
+        nameKey: 'wizard.step4.styleDramatic',
+        nameFallback: 'Dramatic',
+        lineKey: 'wizard.step4.styleDramaticLine',
+        lineFallback: 'It builds, and the last round decides it.',
+        modes: ['artist', 'rampupOrder', 'finaleDouble', 'finaleTiebreaker', 'comebackToken'],
+    },
+    {
+        key: 'chaos',
+        glyph: '💣',
+        accent: 'orange',
+        nameKey: 'wizard.step4.styleChaos',
+        nameFallback: 'Chaos',
+        lineKey: 'wizard.step4.styleChaosLine',
+        lineFallback: 'They get to mess with each other. Not for the in-laws.',
+        modes: [
+            'artist', 'rampupOrder', 'finaleDouble', 'finaleTiebreaker',
+            'comebackToken', 'sabotage', 'betScaling', 'intro',
+        ],
+    },
+];
+
+/**
+ * Apply a play style: every mode it names ON, every other mode OFF.
+ *
+ * Pure over the GAME_MODES setters so it can be unit-tested through them, and
+ * exported for exactly that reason. The "everything else OFF" half is the part
+ * worth testing — a style that only adds would leave Sabotage running after a
+ * host switched from Chaos back to Classic, which is precisely the kind of
+ * silent state #2692 is about.
+ *
+ * `suddenDeath` is deliberately left alone: it defaults ON, is gated on the
+ * player count, and is not a flavour of the evening but a rule about it.
+ */
+export function applyPlayStyle(styleKey) {
+    const style = PLAY_STYLES.find((s) => s.key === styleKey);
+    if (!style) return false;
+    GAME_MODES.forEach((m) => {
+        if (m.key === 'suddenDeath') return;
+        m.set(style.modes.indexOf(m.key) !== -1);
+    });
+    chosenPlayStyle = style.key;
+    return true;
+}
+
+/**
+ * Which style the current switch positions correspond to, or null.
+ *
+ * Recomputed rather than trusted from `chosenPlayStyle`, because the host can
+ * flip a single switch after picking a style — and then the style label is a
+ * lie. Returning null is what makes the UI drop back to "Custom" honestly.
+ */
+export function detectPlayStyle() {
+    const onKeys = GAME_MODES
+        .filter((m) => m.key !== 'suddenDeath' && m.get())
+        .map((m) => m.key)
+        .sort();
+    const match = PLAY_STYLES.find((s) => {
+        const want = s.modes.slice().sort();
+        return want.length === onKeys.length
+            && want.every((k, i) => k === onKeys[i]);
+    });
+    return match ? match.key : null;
+}
+
+// Issue #827 — Sudden Death needs SUDDEN_DEATH_MIN_PLAYERS connected players to
+// be playable; the floor itself lives in const.py (#2699).
+// The wizard already fetches /beatify/api/status into cachedStatus; an active
+// game's connected players live under active_game.players (built by
+// build_status_response → game_state.get_state()). No game / no players ⇒ 0.
+function _connectedPlayerCount() {
+    const game = cachedStatus && cachedStatus.active_game;
+    const players = game && Array.isArray(game.players) ? game.players : [];
+    // Count only genuinely connected players — the backend keeps disconnected
+    // players in the list with connected:false, and the ≥3 floor is about who
+    // can actually play (mirrors the server-side connected check in #827).
+    return players.filter(function (p) { return p && p.connected !== false; }).length;
+}
 
 // Core game mode — exactly one selected. Backed by the chosenTitleArtistMode
 // boolean (Jahr = false, Titel & Interpret = true). Clicking routes through the
@@ -973,13 +1338,94 @@ function _renderCoreMode() {
             _renderCoreMode();
             _renderDifficulty();
             _renderGameModes();
+            // #2692: Title & Artist hides two cards, which changes both the
+            // switch count and whether the current combination is still a style.
+            _renderPlayStyles();
         });
+    });
+}
+
+/**
+ * #2692: render the three play styles.
+ *
+ * Only the selected style shows what it switches on. Listing all three
+ * expansions at once turns the one decision back into a comparison table, and
+ * a comparison table is what the host has no time for.
+ */
+function _renderPlayStyles() {
+    const el = document.getElementById('wiz-play-styles');
+    if (!el) return;
+
+    // Recomputed from the switches, never trusted from the last click — a
+    // single manual toggle must drop the label back to "Custom".
+    const active = detectPlayStyle();
+
+    el.innerHTML = PLAY_STYLES.map((style) => {
+        const on = style.key === active;
+        const names = style.modes
+            .map((k) => {
+                const m = GAME_MODES.find((g) => g.key === k);
+                return m ? `${m.icon} ${_t(m.titleKey, m.titleFallback)}` : '';
+            })
+            .filter(Boolean)
+            .join(' · ');
+        return `<div class="wiz-style-panel ${on ? 'sel' : 'dim'}" data-style="${style.key}"
+                     data-accent="${style.accent}" role="button" tabindex="0" aria-pressed="${on}">
+            <div class="wiz-style-glyph" aria-hidden="true">${style.glyph}</div>
+            <div class="wiz-style-body">
+                <div class="wiz-style-name">${_t(style.nameKey, style.nameFallback)}</div>
+                <div class="wiz-style-line">${_t(style.lineKey, style.lineFallback)}</div>
+                <div class="wiz-style-what">${escapeAttr(names)}</div>
+            </div>
+        </div>`;
+    }).join('');
+
+    el.querySelectorAll('[data-style]').forEach((panel) => {
+        panel.addEventListener('click', () => {
+            applyPlayStyle(panel.dataset.style);
+            _renderPlayStyles();
+            _renderGameModes();
+        });
+    });
+
+    // The fold label carries the count so the switches never look absent.
+    const countEl = document.getElementById('wiz-modes-toggle-count');
+    if (countEl) {
+        const visible = GAME_MODES.filter((m) => !(
+            chosenTitleArtistMode && (m.key === 'artist' || m.key === 'closest')
+        )).length;
+        countEl.textContent = _t(
+            'wizard.step4.switchCount',
+            '{count} switches',
+            { count: visible },
+        );
+    }
+}
+
+/** #2692: fold/unfold the individual switch list. Wired once. */
+function _wireModesToggle() {
+    const btn = document.getElementById('wiz-modes-toggle');
+    const list = document.getElementById('wiz-modes');
+    if (!btn || !list || btn.dataset.wired === '1') return;
+    btn.dataset.wired = '1';
+    btn.addEventListener('click', () => {
+        modesExpanded = !modesExpanded;
+        list.hidden = !modesExpanded;
+        btn.setAttribute('aria-expanded', modesExpanded ? 'true' : 'false');
     });
 }
 
 function _renderGameModes() {
     const el = document.getElementById('wiz-modes');
     if (!el) return;
+    // #2692: the list starts folded; the style above answers the step.
+    el.hidden = !modesExpanded;
+    _wireModesToggle();
+    // Issue #827 — Sudden Death is only playable at or above the const.py floor.
+    // When below that, force the choice off so an undersized game never starts in
+    // Sudden Death, and render the card disabled (dimmed, non-interactive).
+    const suddenDeathDisabled = _connectedPlayerCount() < SUDDEN_DEATH_MIN_PLAYERS;
+    if (suddenDeathDisabled) chosenSuddenDeath = false;
     el.innerHTML = GAME_MODES.map((m) => {
         const on = m.get();
         // #1180: hide modes incompatible with Title & Artist mode (artist
@@ -987,11 +1433,29 @@ function _renderGameModes() {
         if (chosenTitleArtistMode && (m.key === 'artist' || m.key === 'closest')) {
             return '';
         }
-        return `<div class="wiz-mode-card ${on ? 'on' : ''}" data-mode="${m.key}" role="button" tabindex="0">
+        // Issue #827 — disabled Sudden Death card: dimmed, non-interactive, with
+        // a tooltip explaining the player-count requirement.
+        // Issue #1799 — the tooltip is hover-only, so on touch (the primary way
+        // the wizard is used) the requirement was invisible and the dimmed card
+        // read as broken. Swap the hint line for the requirement itself, and
+        // mark it .gated so the CSS can keep it legible against the dimming.
+        const disabled = m.key === 'suddenDeath' && suddenDeathDisabled;
+        // #2699: the floor is `{min}`-interpolated into all three strings, so
+        // the number on screen can only ever be the one const.py holds.
+        const minParams = { min: SUDDEN_DEATH_MIN_PLAYERS };
+        const titleAttr = disabled
+            ? ` title="${escapeAttr(_t('admin.suddenDeathDisabledTooltip', 'Sudden Death needs at least {min} players.', minParams))}"`
+            : '';
+        const hint = modeHintHtml(
+            disabled,
+            _t('admin.suddenDeathDisabledGate', 'Needs at least {min} players', minParams),
+            _t(m.hintKey, m.hintFallback, minParams),
+        );
+        return `<div class="wiz-mode-card ${on ? 'on' : ''}${disabled ? ' disabled' : ''}" data-mode="${m.key}" role="button" tabindex="0" aria-disabled="${disabled}"${titleAttr}>
             <div class="wiz-mode-icon" aria-hidden="true">${m.icon}</div>
             <div class="wiz-mode-body">
                 <div class="wiz-mode-title">${_t(m.titleKey, m.titleFallback)}</div>
-                <div class="wiz-mode-hint">${_t(m.hintKey, m.hintFallback)}</div>
+                ${hint}
             </div>
             <div class="wiz-lvl-toggle"></div>
         </div>`;
@@ -1000,8 +1464,12 @@ function _renderGameModes() {
         card.addEventListener('click', () => {
             const mode = GAME_MODES.find((m) => m.key === card.dataset.mode);
             if (!mode) return;
+            // Issue #827 — the disabled Sudden Death card must not be flippable on.
+            if (mode.key === 'suddenDeath' && suddenDeathDisabled) return;
             mode.set(!mode.get());
             _renderGameModes();
+            // #2692: a hand-flipped switch can invalidate the style label.
+            _renderPlayStyles();
         });
     });
 }
@@ -1009,8 +1477,9 @@ function _renderGameModes() {
 function _renderDifficultyHint() {
     const el = document.getElementById('wiz-difficulty-hint');
     if (!el) return;
-    const hint = DIFFICULTY_HINTS[chosenDifficulty] || DIFFICULTY_HINTS.normal;
-    el.textContent = _t(hint.key, hint.fallback);
+    // #2625: composed from DIFFICULTY_SCORING, not restated. The locale strings
+    // hold the sentence; every number in it comes from const.py.
+    el.textContent = difficultyHint(chosenDifficulty, _t);
 }
 
 // Difficulty area depends on the core mode. Jahr: year-distance chips + hint.
@@ -1037,6 +1506,93 @@ function _renderDifficulty() {
     }
 }
 
+// #1475: rounds chips + the revealed number field.
+//
+// Not built through _renderChipGroup because two of the chips are not plain
+// values: "All" carries the pool size in its label and "Custom" toggles a field
+// instead of setting the value. Sharing the .wiz-chip markup keeps it visually
+// identical to the timer group above it.
+function _renderRounds() {
+    const el = document.getElementById('wiz-rounds');
+    if (!el) return;
+    const pool = availableSongs(Array.from(chosenPlaylists), (cachedStatus && cachedStatus.playlists) || []);
+    const options = roundCountOptions(pool);
+    const isCustom = customRoundsOpen
+        || (chosenMaxRounds > 0 && !options.some((o) => o.id === chosenMaxRounds));
+
+    el.innerHTML = options
+        .map((opt) => {
+            let label;
+            let isActive;
+            if (opt.kind === 'all') {
+                label = pool > 0
+                    ? `${_t('wizard.step4.roundsAll', 'All')} (${pool})`
+                    : _t('wizard.step4.roundsAll', 'All');
+                isActive = !isCustom && chosenMaxRounds === 0;
+            } else if (opt.kind === 'custom') {
+                label = _t('wizard.step4.roundsCustom', 'Custom');
+                isActive = isCustom;
+            } else {
+                label = String(opt.id);
+                isActive = !isCustom && chosenMaxRounds === opt.id;
+            }
+            return `<button type="button" class="wiz-chip ${isActive ? 'active' : ''}" data-value="${opt.id}">${label}</button>`;
+        })
+        .join('');
+
+    el.querySelectorAll('.wiz-chip').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const raw = btn.dataset.value;
+            if (raw === 'custom') {
+                customRoundsOpen = true;
+                // Seed the field with the current cap so the host edits a
+                // number instead of facing an empty box; "All" seeds MIN.
+                if (chosenMaxRounds === 0) chosenMaxRounds = clampRoundCount(MIN_ROUNDS, pool);
+            } else {
+                customRoundsOpen = false;
+                chosenMaxRounds = clampRoundCount(parseInt(raw, 10), pool);
+            }
+            _renderGameMode();
+        });
+    });
+
+    const field = document.getElementById('wiz-rounds-custom');
+    if (field) {
+        field.classList.toggle('hidden', !isCustom);
+        const input = field.querySelector('input');
+        if (input) {
+            input.min = String(MIN_ROUNDS);
+            if (pool > 0) input.max = String(pool);
+            if (document.activeElement !== input) {
+                input.value = chosenMaxRounds > 0 ? String(chosenMaxRounds) : '';
+            }
+            if (!input.dataset.wired) {
+                input.dataset.wired = '1';
+                // Clamp on blur, not on every keystroke: clamping while typing
+                // turns a half-entered "2" (heading for 25) into 10 and eats
+                // the next digit.
+                input.addEventListener('change', () => {
+                    const p = availableSongs(Array.from(chosenPlaylists), (cachedStatus && cachedStatus.playlists) || []);
+                    chosenMaxRounds = clampRoundCount(input.value, p);
+                    if (chosenMaxRounds === 0) customRoundsOpen = false;
+                    _renderGameMode();
+                });
+            }
+        }
+    }
+
+    const hint = document.getElementById('wiz-rounds-hint');
+    if (hint) {
+        const effective = chosenMaxRounds > 0 ? chosenMaxRounds : pool;
+        const minutes = estimateGameMinutes(effective, chosenDuration);
+        hint.textContent = minutes > 0
+            ? _t('wizard.step4.roundsHint', 'approx. {min} min for {rounds} rounds')
+                .replace('{min}', String(minutes))
+                .replace('{rounds}', String(effective))
+            : '';
+    }
+}
+
 function _renderGameMode() {
     _renderCoreMode();
     _renderDifficulty();
@@ -1044,8 +1600,10 @@ function _renderGameMode() {
         chosenDuration = val;
         _renderGameMode();
     });
+    _renderSampleDuration();  // #3152
+    _renderRounds();
     _renderChipGroup('wiz-autoadvance', AUTO_ADVANCE_OPTIONS, chosenRevealAutoAdvance, (val) => {
-        chosenRevealAutoAdvance = parseInt(val, 10) || 0;
+        chosenRevealAutoAdvance = normalizeRevealAutoAdvance(val);
         _renderGameMode();
     });
     _renderChipGroup('wiz-language', LANGUAGES, chosenLanguage, async (val) => {
@@ -1064,6 +1622,7 @@ function _renderGameMode() {
         _renderGameMode();
     });
     _renderGameModes();
+    _renderPlayStyles();   // #2692
 }
 
 function _lightsDetailHtml() {
@@ -1383,25 +1942,40 @@ export function buildTtsPayload(prevTts, { enabled, entityId, preset, presets })
     return ttsPayload;
 }
 
+/**
+ * Build the `beatify_party_lights` entry the wizard persists (#3159).
+ *
+ * #1011: `enabled` must be written so party-lights.js hydrates the toggle
+ * (it reads `saved.enabled || false`); without it the start-game request sent
+ * `enabled: false` and lights never reacted. #3159: it must also be written
+ * when false, otherwise switching lights off in the wizard never persists.
+ */
+export function buildLightsPayload({ enabled, entityIds, intensity, mode, wledPresets }) {
+    const payload = {
+        enabled: !!enabled,
+        lights: Array.from(entityIds),
+        intensity,
+        light_mode: mode,
+    };
+    if (mode === 'wled' && Object.keys(wledPresets).length > 0) {
+        payload.wled_presets = wledPresets;
+    }
+    return payload;
+}
+
 function _persistLevelUpDetails() {
     try {
-        if (chosenLevelUps.lights) {
-            // #1011: include `enabled: true` so party-lights.js hydrates the
-            // toggle state (it reads `saved.enabled || false`). Without this,
-            // the wizard saved lights + entities but the admin start-game
-            // request sent `enabled: false`, and the server skipped
-            // configure_party_lights — lights never reacted during the game.
-            const payload = {
-                enabled: true,
-                lights: Array.from(chosenLightEntityIds),
-                intensity: chosenLightIntensity,
-                light_mode: chosenLightMode,
-            };
-            if (chosenLightMode === 'wled' && Object.keys(chosenWledPresets).length > 0) {
-                payload.wled_presets = chosenWledPresets;
-            }
-            localStorage.setItem('beatify_party_lights', JSON.stringify(payload));
-        }
+        // #3159: always write the lights entry. Persisting only when the card was
+        // on meant switching lights off in the wizard never reached storage, so
+        // every later game still started with the old `enabled: true`. The
+        // entities stay stored, like the TTS block below.
+        localStorage.setItem('beatify_party_lights', JSON.stringify(buildLightsPayload({
+            enabled: chosenLevelUps.lights,
+            entityIds: chosenLightEntityIds,
+            intensity: chosenLightIntensity,
+            mode: chosenLightMode,
+            wledPresets: chosenWledPresets,
+        })));
         // Write a complete config: enabled + entity + preset + all 23
         // announce_* booleans, so the admin TTS panel and game engine read a
         // consistent state. BeatifyTtsPresets is exposed by tts-settings.js.
@@ -1433,10 +2007,13 @@ function _renderDoneSummary() {
     const speaker = _speakerLabel(chosenSpeaker);
     const providerMatch = chosenProvider ? PROVIDERS.find((p) => p.id === chosenProvider) : null;
     const provider = providerMatch ? providerMatch.label : (chosenProvider ? chosenProvider.replace(/_/g, ' ') : '—');
+    // #3004: every value on the card goes through _t. The level-ups are named
+    // the way step 5 names them; "none" has its own key because it has to
+    // agree with the "Atmosphere" label in the gendered languages.
     const extras = [];
-    if (chosenLevelUps.lights) extras.push('lights');
-    if (chosenLevelUps.tts) extras.push('voice');
-    const atmosphere = extras.length ? extras.join(' + ') : 'none';
+    if (chosenLevelUps.lights) extras.push(_t('wizard.step5.lights.title', 'Party lights'));
+    if (chosenLevelUps.tts) extras.push(_t('wizard.step5.tts.title', 'Voice announcements'));
+    const atmosphere = extras.length ? extras.join(' + ') : _t('wizard.summary.atmosphereNone', 'none');
 
     // Playlists: compact single name when one picked, count + preview when many
     let playlistLabel = '—';
@@ -1444,7 +2021,10 @@ function _renderDoneSummary() {
         playlistLabel = _playlistName(Array.from(chosenPlaylists)[0]);
     } else if (chosenPlaylists.size > 1) {
         const first = _playlistName(Array.from(chosenPlaylists)[0]);
-        playlistLabel = `${chosenPlaylists.size} picked · ${first} + more`;
+        playlistLabel = _t('wizard.summary.playlistsPicked', '{n} picked · {first} + more', {
+            n: String(chosenPlaylists.size),
+            first,
+        });
     }
 
     // #1180: lead the mode line with the core game mode so the host can confirm
@@ -1453,16 +2033,57 @@ function _renderDoneSummary() {
     const coreModeLabel = chosenTitleArtistMode
         ? _t('wizard.step4.modeTitleArtist', 'Title & Artist')
         : _t('wizard.step4.modeYear', 'Year mode');
+    const roundsPart = ` · ${roundsSummaryPart(chosenMaxRounds, _t)}`;
+    // #3004: the same label as the difficulty chip on step 4, not the raw id.
+    const difficultyLabel = _t(`wizard.step4.${chosenDifficulty}`, chosenDifficulty);
     const modeSummary = chosenTitleArtistMode
-        ? `${coreModeLabel} · ${chosenDuration}s · ${chosenLanguage.toUpperCase()}`
-        : `${coreModeLabel} · ${chosenDifficulty} · ${chosenDuration}s · ${chosenLanguage.toUpperCase()}`;
+        ? `${coreModeLabel} · ${chosenDuration}s${roundsPart} · ${chosenLanguage.toUpperCase()}`
+        : `${coreModeLabel} · ${difficultyLabel} · ${chosenDuration}s${roundsPart} · ${chosenLanguage.toUpperCase()}`;
 
-    el.innerHTML = `
-        <div class="wiz-done-line"><span>${_t('wizard.summary.speaker', 'Speaker')}</span><strong>${speaker}</strong></div>
-        <div class="wiz-done-line"><span>${_t('wizard.summary.service', 'Service')}</span><strong>${provider}</strong></div>
-        <div class="wiz-done-line"><span>${_t('wizard.summary.playlist', 'Playlist')}</span><strong>${playlistLabel}</strong></div>
-        <div class="wiz-done-line"><span>${_t('wizard.summary.mode', 'Mode')}</span><strong>${modeSummary}</strong></div>
-        <div class="wiz-done-line"><span>${_t('wizard.summary.atmosphere', 'Atmosphere')}</span><strong>${atmosphere}</strong></div>
+    el.innerHTML = doneSummaryHtml({ speaker, provider, playlistLabel, modeSummary, atmosphere }, _t);
+}
+
+/**
+ * The round count on the summary's mode line (#2988).
+ *
+ * #1475 left it out for "All songs" because that is the default — but the
+ * round count is the setting that decides how long the game runs, and with it
+ * missing the host could not see it at all. A cap reads "10 rounds"; no cap
+ * reads "All songs", the words the TV lobby uses for the same setting since
+ * #2958, rather than a pool size nobody chose.
+ *
+ * @param {number} maxRounds - the chosen cap, 0 for all songs
+ * @param {function(string, string): string} t - key, fallback
+ */
+export function roundsSummaryPart(maxRounds, t) {
+    return maxRounds > 0
+        ? `${maxRounds} ${t('wizard.summary.rounds', 'rounds')}`
+        : t('dashboard.allSongs', 'All songs');
+}
+
+// Issue #2874 — the "you're ready" summary on the last wizard step. `speaker` is
+// the device's friendly_name and `playlistLabel` a playlist name, so every value
+// goes through escapeText before it reaches innerHTML (same rule as #1370). The
+// labels are our own translations and stay as they are.
+//
+// #2995: the mode line runs to five segments ("Jahres-Modus · normal · 45s ·
+// Alle Songs · DE") and wraps on a phone in most languages. Each segment is its
+// own no-wrap span, so the line only breaks between segments — never inside
+// "Alle Songs" or "10 Runden", and never leaving a lone "DE" behind. The "·"
+// stays at the end of the line it closes. Same text as before, only split.
+export function doneSummaryHtml({ speaker, provider, playlistLabel, modeSummary, atmosphere }, t) {
+    const line = (key, fallback, valueHtml) =>
+        `<div class="wiz-done-line"><span>${t(key, fallback)}</span><strong>${valueHtml}</strong></div>`;
+    const segments = String(modeSummary).split(' · ');
+    const modeHtml = segments
+        .map((seg, i) => `<span class="wiz-done-seg">${escapeText(seg)}${i < segments.length - 1 ? ' ·' : ''}</span>`)
+        .join(' ');
+    return `
+        ${line('wizard.summary.speaker', 'Speaker', escapeText(speaker))}
+        ${line('wizard.summary.service', 'Service', escapeText(provider))}
+        ${line('wizard.summary.playlist', 'Playlist', escapeText(playlistLabel))}
+        ${line('wizard.summary.mode', 'Mode', modeHtml)}
+        ${line('wizard.summary.atmosphere', 'Atmosphere', escapeText(atmosphere))}
     `;
 }
 
@@ -1481,7 +2102,7 @@ function _playlistName(id) {
 }
 
 // Merge wizard choices into beatify_game_settings so admin.js picks them up on load.
-// Preserves existing keys (artistChallenge, introMode, closestWinsMode) the wizard doesn't touch.
+// Preserves existing keys (artistChallenge, introMode, closestWinsMode, suddenDeathMode) the wizard doesn't touch.
 function _persistGameSettings() {
     try {
         const raw = localStorage.getItem(LS_GAME_SETTINGS);
@@ -1491,13 +2112,26 @@ function _persistGameSettings() {
             provider: chosenProvider || existing.provider,
             difficulty: chosenDifficulty,
             duration: chosenDuration,
+            sampleDuration: normalizeSampleDuration(chosenSampleDuration, chosenDuration),  // #3152
             revealAutoAdvance: chosenRevealAutoAdvance,
+            maxRounds: chosenMaxRounds,  // #1475
             language: chosenLanguage,
             artistChallenge: chosenArtistChallenge,
             movieQuiz: chosenMovieQuiz,
             introMode: chosenIntroMode,
             closestWinsMode: chosenClosestWins,
+            suddenDeathMode: chosenSuddenDeath,  // Issue #827
             titleArtistMode: chosenTitleArtistMode,  // #1180
+            // #2692: the six that had no path out of the wizard at all. The key
+            // names match what admin/util.js `applySavedSettings` reads, which
+            // is the only reason they reach the server.
+            rampupOrder: chosenRampupOrder,               // #1726
+            finaleDouble: chosenFinaleDouble,             // #1725
+            finaleTiebreaker: chosenFinaleTiebreaker,     // #1725
+            comebackToken: chosenComebackToken,           // #1724
+            difficultyBetScaling: chosenBetScaling,       // #1727
+            sabotage: chosenSabotage,                     // #1665
+            playStyle: detectPlayStyle(),                 // null = hand-picked
         };
         if (chosenPlaylists.size > 0) {
             // admin.js stores selectedPlaylists as [{ path, songCount }]; include minimally.
@@ -1525,6 +2159,18 @@ export async function show(stepOverride) {
         chosenSpeaker = ls ? ls.getItem(LS_SELECTED_PLAYER) : null;
         const rawSettings = ls ? ls.getItem(LS_GAME_SETTINGS) : null;
         const savedSettings = rawSettings ? JSON.parse(rawSettings) : null;
+
+        // #2692: hydrate the six previously-unreachable modes, so reopening the
+        // wizard shows what the game is actually set to rather than resetting
+        // it to off the moment the host taps Continue.
+        if (savedSettings) {
+            if (typeof savedSettings.rampupOrder === 'boolean') chosenRampupOrder = savedSettings.rampupOrder;
+            if (typeof savedSettings.finaleDouble === 'boolean') chosenFinaleDouble = savedSettings.finaleDouble;
+            if (typeof savedSettings.finaleTiebreaker === 'boolean') chosenFinaleTiebreaker = savedSettings.finaleTiebreaker;
+            if (typeof savedSettings.comebackToken === 'boolean') chosenComebackToken = savedSettings.comebackToken;
+            if (typeof savedSettings.difficultyBetScaling === 'boolean') chosenBetScaling = savedSettings.difficultyBetScaling;
+            if (typeof savedSettings.sabotage === 'boolean') chosenSabotage = savedSettings.sabotage;
+        }
 
         // #1354 + #815 + #822: resolve the game-language default from the
         // BROWSER on EVERY wizard open, regardless of whether saved settings
@@ -1561,11 +2207,25 @@ export async function show(stepOverride) {
             if (s.provider) chosenProvider = s.provider;
             if (s.difficulty) chosenDifficulty = s.difficulty;
             if (s.duration) chosenDuration = s.duration;
-            if (typeof s.revealAutoAdvance === 'number') chosenRevealAutoAdvance = s.revealAutoAdvance;
+            // #3152: a blob written before this setting has no key and stays
+            // on "whole round"; a stored step the round no longer allows does
+            // too.
+            chosenSampleDuration = normalizeSampleDuration(s.sampleDuration, chosenDuration);
+            // #1475: only a positive number is a cap; anything else stays 0
+            // ("all songs"), so a settings blob written before this release
+            // keeps behaving exactly as it did.
+            if (typeof s.maxRounds === 'number' && Number.isFinite(s.maxRounds) && s.maxRounds > 0) {
+                chosenMaxRounds = Math.floor(s.maxRounds);
+            }
+            // #2626: a blob from an older build (or another device) can hold a
+            // delay the server no longer accepts — normalize before it becomes a
+            // selected chip.
+            if (typeof s.revealAutoAdvance === 'number') chosenRevealAutoAdvance = normalizeRevealAutoAdvance(s.revealAutoAdvance);
             if (typeof s.artistChallenge === 'boolean') chosenArtistChallenge = s.artistChallenge;
             if (typeof s.movieQuiz === 'boolean') chosenMovieQuiz = s.movieQuiz;
             if (typeof s.introMode === 'boolean') chosenIntroMode = s.introMode;
             if (typeof s.closestWinsMode === 'boolean') chosenClosestWins = s.closestWinsMode;
+            if (typeof s.suddenDeathMode === 'boolean') chosenSuddenDeath = s.suddenDeathMode;  // Issue #827
             if (typeof s.titleArtistMode === 'boolean') chosenTitleArtistMode = s.titleArtistMode;
             if (Array.isArray(s.selectedPlaylists)) {
                 s.selectedPlaylists.forEach((entry) => {
@@ -1593,6 +2253,14 @@ export function hide({ dismissed } = {}) {
         try { localStorage.setItem(LS_WIZARD_STATE, 'dismissed'); } catch (e) { /* private mode */ }
     }
     _updatePill();
+    // #1940: the home view is already on screen underneath — refresh it, or the
+    // user is left looking at the placeholder meta line ("—") instead of the
+    // speaker, playlist and mode the next game will use. Only the *completion*
+    // path called BeatifyHome.enter() (which refreshes); skipping the wizard
+    // went straight to a stale screen.
+    try {
+        window.BeatifyHome?.refresh?.();
+    } catch (e) { /* home view not mounted — nothing to refresh */ }
 }
 
 function _updatePill() {
@@ -1643,6 +2311,12 @@ async function _advance() {
         // stale/default values. See window.loadSavedSettings in admin.js (#1180).
         if (typeof window !== 'undefined' && typeof window.loadSavedSettings === 'function') {
             try { await window.loadSavedSettings(); } catch (e) { /* non-fatal */ }
+        }
+        // #1663: persist the freshly-completed setup server-side so the host is
+        // recognised as configured on any other device — even before the first
+        // game starts. Best-effort; localStorage still drives this device.
+        if (typeof window !== 'undefined' && typeof window.BeatifyPersistSetup === 'function') {
+            try { await window.BeatifyPersistSetup(); } catch (e) { /* non-fatal */ }
         }
         if (typeof window !== 'undefined' && typeof window.loadStatus === 'function') {
             window.loadStatus();

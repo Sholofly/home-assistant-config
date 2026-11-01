@@ -12,6 +12,7 @@ COORDINATOR_DECOS_KEY = "decos"
 
 DEFAULT_CONSIDER_HOME = DEFAULT_CONSIDER_HOME_SPAN.total_seconds()
 DEFAULT_DECO_POSTFIX = "Deco"
+DEFAULT_LINK_CLIENT_DEVICES = True
 DEFAULT_SCAN_INTERVAL = 30
 DEFAULT_TIMEOUT_ERROR_RETRIES = 1
 DEFAULT_TIMEOUT_SECONDS = 30
@@ -22,6 +23,8 @@ DEVICE_TYPE_DECO = "deco"
 # Attributes
 ATTR_BSSID_BAND2_4 = "bssid_band2_4"
 ATTR_BSSID_BAND5 = "bssid_band5"
+ATTR_BACKHAUL_BSSID_BAND2_4 = "backhaul_bssid_band2_4"
+ATTR_BACKHAUL_BSSID_BAND5 = "backhaul_bssid_band5"
 ATTR_CONNECTION_TYPE = "connection_type"
 ATTR_DECO_DEVICE = "deco_device"
 ATTR_DECO_MAC = "deco_mac"
@@ -41,6 +44,8 @@ CONF_CLIENT_PREFIX = "client_prefix"
 CONF_CLIENT_POSTFIX = "client_postfix"
 CONF_DECO_PREFIX = "deco_prefix"
 CONF_DECO_POSTFIX = "deco_postfix"
+CONF_DEVICE_LIST_INTERVAL = "device_list_interval"
+CONF_LINK_CLIENT_DEVICES = "link_client_devices"
 CONF_TIMEOUT_ERROR_RETRIES = "timeout_error_retries"
 CONF_TIMEOUT_SECONDS = "timeout_seconds"
 CONF_VERIFY_SSL = "verify_ssl"
@@ -54,4 +59,11 @@ SERVICE_REBOOT_DECO = "reboot_deco"
 SERVICE_PAUSE_POLLING = "pause_polling"
 SERVICE_RESUME_POLLING = "resume_polling"
 # Platforms
-PLATFORMS = ["device_tracker", "sensor", "binary_sensor", "switch", "select"]
+PLATFORMS = [
+    "device_tracker",
+    "sensor",
+    "binary_sensor",
+    "switch",
+    "select",
+    "button",
+]

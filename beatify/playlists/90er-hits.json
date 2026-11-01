@@ -1,6 +1,6 @@
 {
   "name": "90s Hits",
-  "version": "1.11",
+  "version": "1.35",
   "tags": [
     "1990s",
     "pop",
@@ -39,13 +39,13 @@
       "awards_nl": [],
       "isrc": "USAM19090005",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/1691630008",
-        "de": "applemusic://track/1691630008",
-        "gb": "applemusic://track/1691630008",
-        "fr": "applemusic://track/1691630008",
-        "es": "applemusic://track/1691630008",
-        "nl": "applemusic://track/1691630008",
-        "it": "applemusic://track/1691630008"
+        "us": "applemusic://track/1445752097",
+        "de": "applemusic://track/1445752097",
+        "gb": "applemusic://track/1445752097",
+        "fr": "applemusic://track/1445752097",
+        "es": "applemusic://track/1445752097",
+        "nl": "applemusic://track/1445752097",
+        "it": "applemusic://track/1445752097"
       }
     },
     {
@@ -125,7 +125,8 @@
         "es": "applemusic://track/1687229538",
         "nl": "applemusic://track/1687229538",
         "it": "applemusic://track/1687229538"
-      }
+      },
+      "uri_tidal": "tidal://track/272643"
     },
     {
       "year": 1992,
@@ -164,7 +165,8 @@
         "es": "applemusic://track/1871618419",
         "nl": "applemusic://track/1871618419",
         "it": "applemusic://track/1871618419"
-      }
+      },
+      "uri_tidal": "tidal://track/126624134"
     },
     {
       "year": 1992,
@@ -203,7 +205,8 @@
         "es": "applemusic://track/266234578",
         "nl": "applemusic://track/266234578",
         "it": "applemusic://track/266234578"
-      }
+      },
+      "uri_tidal": "tidal://track/5120357"
     },
     {
       "year": 1993,
@@ -242,7 +245,8 @@
         "es": "applemusic://track/1731434189",
         "nl": "applemusic://track/1731434189",
         "it": "applemusic://track/1731434189"
-      }
+      },
+      "uri_tidal": "tidal://track/492802426"
     },
     {
       "year": 1994,
@@ -281,7 +285,8 @@
         "es": "applemusic://track/272899288",
         "nl": "applemusic://track/272899288",
         "it": "applemusic://track/272899288"
-      }
+      },
+      "uri_tidal": "tidal://track/356344488"
     },
     {
       "year": 1994,
@@ -398,7 +403,8 @@
         "es": "applemusic://track/1890512928",
         "nl": "applemusic://track/1697155301",
         "it": "applemusic://track/1697155301"
-      }
+      },
+      "uri_tidal": "tidal://track/23495818"
     },
     {
       "year": 1995,
@@ -436,7 +442,8 @@
         "es": "applemusic://track/1443833241",
         "nl": "applemusic://track/1443833241",
         "it": "applemusic://track/1526639885"
-      }
+      },
+      "uri_tidal": "tidal://track/1192615"
     },
     {
       "year": 1995,
@@ -474,7 +481,8 @@
         "es": "applemusic://track/1637173347",
         "nl": "applemusic://track/1637173347",
         "it": "applemusic://track/1637173347"
-      }
+      },
+      "uri_tidal": "tidal://track/40409748"
     },
     {
       "year": 1995,
@@ -512,7 +520,8 @@
         "es": "applemusic://track/1847889648",
         "nl": "applemusic://track/1847889648",
         "it": "applemusic://track/1847889648"
-      }
+      },
+      "uri_tidal": "tidal://track/490862247"
     },
     {
       "year": 1995,
@@ -551,7 +560,8 @@
         "es": "applemusic://track/1777307809",
         "nl": "applemusic://track/1777307809",
         "it": "applemusic://track/1777307809"
-      }
+      },
+      "uri_tidal": "tidal://track/1104151"
     },
     {
       "year": 1996,
@@ -590,7 +600,8 @@
         "es": "applemusic://track/1706251973",
         "nl": "applemusic://track/1706251973",
         "it": "applemusic://track/1706251973"
-      }
+      },
+      "uri_tidal": "tidal://track/31782835"
     },
     {
       "year": 1996,
@@ -629,7 +640,8 @@
         "es": "applemusic://track/843678544",
         "nl": "applemusic://track/843678544",
         "it": "applemusic://track/843678544"
-      }
+      },
+      "uri_tidal": "tidal://track/2985865"
     },
     {
       "year": 1997,
@@ -668,7 +680,8 @@
         "es": "applemusic://track/1512941086",
         "nl": "applemusic://track/1512941086",
         "it": "applemusic://track/1512941086"
-      }
+      },
+      "uri_tidal": "tidal://track/169082"
     },
     {
       "year": 1997,
@@ -706,7 +719,8 @@
         "es": "applemusic://track/1584859582",
         "nl": "applemusic://track/1584859582",
         "it": "applemusic://track/1584859582"
-      }
+      },
+      "uri_tidal": "tidal://track/5254633"
     },
     {
       "year": 1997,
@@ -740,12 +754,12 @@
       "isrc": "USSM10027246",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1695903012",
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
+        "de": "applemusic://track/1382314942",
+        "gb": "applemusic://track/1382314942",
+        "fr": "applemusic://track/1440918860",
+        "es": "applemusic://track/1440918860",
+        "nl": "applemusic://track/1440918860",
+        "it": "applemusic://track/1440918860"
       }
     },
     {
@@ -825,7 +839,8 @@
         "es": "applemusic://track/1689821388",
         "nl": "applemusic://track/1689821388",
         "it": "applemusic://track/1689821388"
-      }
+      },
+      "uri_tidal": "tidal://track/251355813"
     },
     {
       "year": 1997,
@@ -863,7 +878,8 @@
         "es": "applemusic://track/1692115822",
         "nl": "applemusic://track/1692115822",
         "it": "applemusic://track/1692115822"
-      }
+      },
+      "uri_tidal": "tidal://track/631814"
     },
     {
       "year": 1997,
@@ -901,7 +917,8 @@
         "es": "applemusic://track/1635638730",
         "nl": "applemusic://track/1635638730",
         "it": "applemusic://track/285296230"
-      }
+      },
+      "uri_tidal": "tidal://track/500426"
     },
     {
       "year": 1997,
@@ -939,7 +956,8 @@
         "es": "applemusic://track/1442885469",
         "nl": "applemusic://track/1442885469",
         "it": "applemusic://track/1442885469"
-      }
+      },
+      "uri_tidal": "tidal://track/2876035"
     },
     {
       "year": 1997,
@@ -978,7 +996,8 @@
         "es": "applemusic://track/309484308",
         "nl": "applemusic://track/309484308",
         "it": "applemusic://track/309484308"
-      }
+      },
+      "uri_tidal": "tidal://track/4916778"
     },
     {
       "year": 1998,
@@ -1016,7 +1035,8 @@
         "es": "applemusic://track/1612523682",
         "nl": "applemusic://track/1443364301",
         "it": "applemusic://track/1612523682"
-      }
+      },
+      "uri_tidal": "tidal://track/5254618"
     },
     {
       "year": 1998,
@@ -1094,7 +1114,8 @@
         "es": "applemusic://track/211424460",
         "nl": "applemusic://track/829669334",
         "it": "applemusic://track/211424460"
-      }
+      },
+      "uri_tidal": "tidal://track/488529"
     },
     {
       "year": 1998,
@@ -1133,7 +1154,8 @@
         "es": "applemusic://track/1616963931",
         "nl": "applemusic://track/1616963931",
         "it": "applemusic://track/1616963931"
-      }
+      },
+      "uri_tidal": "tidal://track/81069399"
     },
     {
       "year": 1999,
@@ -1172,7 +1194,8 @@
         "es": "applemusic://track/1799780289",
         "nl": "applemusic://track/1799780289",
         "it": "applemusic://track/1799780289"
-      }
+      },
+      "uri_tidal": "tidal://track/674625"
     },
     {
       "year": 1999,
@@ -1195,11 +1218,12 @@
       "fun_fact_de": "Sohn von Randy Bachman (Bachman-Turner Overdrive). Dieser One-Hit-Wonder verglich seine Angebetete mit Kleopatra, Jeanne d’Arc und Aphrodite.",
       "fun_fact_es": "Hijo de Randy Bachman (Bachman-Turner Overdrive). Este artista de un solo éxito comparó a su amor platónico con Cleopatra, Juana de Arco y Afrodita.",
       "fun_fact_fr": "Fils de Randy Bachman (Bachman-Turner Overdrive), cet artiste d'un seul tube comparait la femme de ses rêves à Cléopâtre, Jeanne d'Arc et Aphrodite.",
-      "uri_apple_music": "",
+      "uri_apple_music": "applemusic://track/158610105",
       "uri_youtube_music": "https://music.youtube.com/watch?v=_ElORM9O-0U",
       "uri_deezer": "deezer://track/623469",
       "fun_fact_nl": "Zoon van Randy Bachman (Bachman-Turner Overdrive). Deze eenaggers vergeleek zijn crush met Cleopatra, Jeanne d'Arc en Aphrodite.",
-      "awards_nl": []
+      "awards_nl": [],
+      "uri_tidal": "tidal://track/1311156"
     },
     {
       "year": 1999,
@@ -1224,11 +1248,12 @@
       "fun_fact_de": "Geschrieben von Wyclef Jean. Der Titelsong ihres Comeback-Albums zeigte eine reifere, weniger divenhaft Whitney. Der Song handelt von bedingungsloser Liebe.",
       "fun_fact_es": "Escrita por Wyclef Jean. El tema principal de su álbum de regreso mostró una Whitney más madura, menos diva del pop. La canción habla del amor incondicional.",
       "fun_fact_fr": "Écrit par Wyclef Jean, ce titre phare de son album de retour montrait une Whitney plus mature, loin de l'image de pop diva. La chanson parle d'amour inconditionnel.",
-      "uri_apple_music": "",
+      "uri_apple_music": "applemusic://track/251090745",
       "uri_youtube_music": "https://music.youtube.com/watch?v=kxZD0VQvfqU",
       "uri_deezer": "deezer://track/962260",
       "fun_fact_nl": "Geschreven door Wyclef Jean. De titelsong van haar comeback-album toonde een volwassenere, minder popdiva Whitney. Het nummer gaat over onvoorwaardelijke liefde.",
-      "awards_nl": []
+      "awards_nl": [],
+      "uri_tidal": "tidal://track/517436"
     },
     {
       "artist": "Captain Hollywood Project",
@@ -1247,13 +1272,14 @@
         "it": "applemusic://track/1210900245"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=qOaqT7lfx2A",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/70979182",
       "uri_deezer": "deezer://track/143157064",
       "fun_fact": "A chart hit by Captain Hollywood Project (1994).",
       "fun_fact_de": "Ein Chart-Hit von Captain Hollywood Project (1994).",
       "fun_fact_es": "Un éxito de Captain Hollywood Project (1994).",
       "fun_fact_fr": "Un tube de Captain Hollywood Project (1994).",
-      "fun_fact_nl": "Een chart-hit van Captain Hollywood Project (1994)."
+      "fun_fact_nl": "Een chart-hit van Captain Hollywood Project (1994).",
+      "fun_fact_it": "Un successo in classifica di Captain Hollywood Project (1994)."
     },
     {
       "artist": "The Mavericks",
@@ -1272,13 +1298,14 @@
         "it": "applemusic://track/6762969228"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=TMgcQUD-oxM",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/2529172",
       "uri_deezer": "deezer://track/2510626",
       "fun_fact": "A chart hit by The Mavericks (1999).",
       "fun_fact_de": "Ein Chart-Hit von The Mavericks (1999).",
       "fun_fact_es": "Un éxito de The Mavericks (1999).",
       "fun_fact_fr": "Un tube de The Mavericks (1999).",
-      "fun_fact_nl": "Een chart-hit van The Mavericks (1999)."
+      "fun_fact_nl": "Een chart-hit van The Mavericks (1999).",
+      "fun_fact_it": "Un successo in classifica di The Mavericks (1999)."
     },
     {
       "artist": "Oleta Adams",
@@ -1297,13 +1324,14 @@
         "it": "applemusic://track/1443923780"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=xc68sRFZ650",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/632622",
       "uri_deezer": "deezer://track/2276583",
       "fun_fact": "A chart hit by Oleta Adams (1993).",
       "fun_fact_de": "Ein Chart-Hit von Oleta Adams (1993).",
       "fun_fact_es": "Un éxito de Oleta Adams (1993).",
       "fun_fact_fr": "Un tube de Oleta Adams (1993).",
-      "fun_fact_nl": "Een chart-hit van Oleta Adams (1993)."
+      "fun_fact_nl": "Een chart-hit van Oleta Adams (1993).",
+      "fun_fact_it": "Un successo in classifica di Oleta Adams (1993)."
     },
     {
       "artist": "iNi Kamoze",
@@ -1322,38 +1350,14 @@
         "it": "applemusic://track/204001889"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=KP3sd-Fyw0s",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/38036096",
       "uri_deezer": "deezer://track/13211888",
       "fun_fact": "A chart hit by iNi Kamoze (1995).",
       "fun_fact_de": "Ein Chart-Hit von iNi Kamoze (1995).",
       "fun_fact_es": "Un éxito de iNi Kamoze (1995).",
       "fun_fact_fr": "Un tube de iNi Kamoze (1995).",
-      "fun_fact_nl": "Een chart-hit van iNi Kamoze (1995)."
-    },
-    {
-      "artist": "Bachman-Turner Overdrive",
-      "title": "You Ain't Seen Nothing Yet",
-      "year": 1974,
-      "isrc": "USPR39401742",
-      "uri": "spotify:track:0HOrDVS349XFcpCYsO2hAP",
-      "uri_apple_music": "applemusic://track/1891837843",
-      "uri_apple_music_by_region": {
-        "us": "applemusic://track/1891837843",
-        "de": "applemusic://track/1891837843",
-        "gb": "applemusic://track/1891837843",
-        "fr": "applemusic://track/1891837843",
-        "es": "applemusic://track/1891837843",
-        "nl": "applemusic://track/1891837843",
-        "it": "applemusic://track/1891837843"
-      },
-      "uri_youtube_music": "https://music.youtube.com/watch?v=w3fRBzRngdc",
-      "uri_tidal": null,
-      "uri_deezer": "deezer://track/2447245",
-      "fun_fact": "A chart hit by Bachman-Turner Overdrive (1990).",
-      "fun_fact_de": "Ein Chart-Hit von Bachman-Turner Overdrive (1990).",
-      "fun_fact_es": "Un éxito de Bachman-Turner Overdrive (1990).",
-      "fun_fact_fr": "Un tube de Bachman-Turner Overdrive (1990).",
-      "fun_fact_nl": "Een chart-hit van Bachman-Turner Overdrive (1990)."
+      "fun_fact_nl": "Een chart-hit van iNi Kamoze (1995).",
+      "fun_fact_it": "Un successo in classifica di iNi Kamoze (1995)."
     },
     {
       "artist": "Ace of Base",
@@ -1372,41 +1376,14 @@
         "it": "applemusic://track/285140604"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=Pdbg44M37Q4",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/40186742",
       "uri_deezer": "deezer://track/93851026",
       "fun_fact": "A chart hit by Ace of Base (1993).",
       "fun_fact_de": "Ein Chart-Hit von Ace of Base (1993).",
       "fun_fact_es": "Un éxito de Ace of Base (1993).",
       "fun_fact_fr": "Un tube de Ace of Base (1993).",
-      "fun_fact_nl": "Een chart-hit van Ace of Base (1993)."
-    },
-    {
-      "artist": "Lil' Louis",
-      "title": "French Kiss - The Original Underground Mix",
-      "year": 1989,
-      "isrc": "USSM18900036",
-      "uri": "spotify:track:7hnqJYCKZFW7vMoykaraZG",
-      "uri_apple_music": "applemusic://track/190367461",
-      "uri_apple_music_by_region": {
-        "us": "applemusic://track/190367461",
-        "de": "applemusic://track/190367461",
-        "gb": "applemusic://track/190367461",
-        "fr": "applemusic://track/190367461",
-        "es": "applemusic://track/190367461",
-        "nl": "applemusic://track/190367461",
-        "it": "applemusic://track/190367461"
-      },
-      "uri_youtube_music": "https://music.youtube.com/watch?v=rmOAVfEDyhA",
-      "uri_tidal": null,
-      "uri_deezer": "deezer://track/15273623",
-      "alt_artists": [
-        "The World"
-      ],
-      "fun_fact": "A chart hit by Lil' Louis (1996).",
-      "fun_fact_de": "Ein Chart-Hit von Lil' Louis (1996).",
-      "fun_fact_es": "Un éxito de Lil' Louis (1996).",
-      "fun_fact_fr": "Un tube de Lil' Louis (1996).",
-      "fun_fact_nl": "Een chart-hit van Lil' Louis (1996)."
+      "fun_fact_nl": "Een chart-hit van Ace of Base (1993).",
+      "fun_fact_it": "Un successo in classifica di Ace of Base (1993)."
     },
     {
       "artist": "Salt-N-Pepa",
@@ -1416,7 +1393,7 @@
       "uri": "spotify:track:6hTBP6QLwJdxbKyLlLXrGo",
       "uri_apple_music": "applemusic://track/1443097885",
       "uri_apple_music_by_region": {
-        "us": null,
+        "us": "applemusic://track/1641990794",
         "de": "applemusic://track/1443097885",
         "gb": "applemusic://track/1443097885",
         "fr": "applemusic://track/1443097885",
@@ -1425,13 +1402,14 @@
         "it": "applemusic://track/1443097885"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=8zWhI5ZjkDY",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/50750906",
       "uri_deezer": "deezer://track/106737988",
       "fun_fact": "A chart hit by Salt-N-Pepa (1992).",
       "fun_fact_de": "Ein Chart-Hit von Salt-N-Pepa (1992).",
       "fun_fact_es": "Un éxito de Salt-N-Pepa (1992).",
       "fun_fact_fr": "Un tube de Salt-N-Pepa (1992).",
-      "fun_fact_nl": "Een chart-hit van Salt-N-Pepa (1992)."
+      "fun_fact_nl": "Een chart-hit van Salt-N-Pepa (1992).",
+      "fun_fact_it": "Un successo in classifica di Salt-N-Pepa (1992)."
     },
     {
       "artist": "Right Said Fred",
@@ -1450,38 +1428,14 @@
         "it": "applemusic://track/1668462471"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=t2wh9gkcG5g",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/273106248",
       "uri_deezer": "deezer://track/2126822947",
       "fun_fact": "A chart hit by Right Said Fred (1991).",
       "fun_fact_de": "Ein Chart-Hit von Right Said Fred (1991).",
       "fun_fact_es": "Un éxito de Right Said Fred (1991).",
       "fun_fact_fr": "Un tube de Right Said Fred (1991).",
-      "fun_fact_nl": "Een chart-hit van Right Said Fred (1991)."
-    },
-    {
-      "artist": "Thin Lizzy",
-      "title": "The Boys Are Back In Town",
-      "year": 1976,
-      "isrc": "GBF087600063",
-      "uri": "spotify:track:43DeSV93pJPT4lCZaWZ6b1",
-      "uri_apple_music": "applemusic://track/1644749134",
-      "uri_apple_music_by_region": {
-        "us": "applemusic://track/1644749134",
-        "de": "applemusic://track/1644749134",
-        "gb": "applemusic://track/1644749134",
-        "fr": "applemusic://track/1644749134",
-        "es": "applemusic://track/1644749134",
-        "nl": "applemusic://track/1644749134",
-        "it": "applemusic://track/1644749134"
-      },
-      "uri_youtube_music": "https://music.youtube.com/watch?v=56b4TTT609c",
-      "uri_tidal": null,
-      "uri_deezer": "deezer://track/1101200",
-      "fun_fact": "A chart hit by Thin Lizzy (1996).",
-      "fun_fact_de": "Ein Chart-Hit von Thin Lizzy (1996).",
-      "fun_fact_es": "Un éxito de Thin Lizzy (1996).",
-      "fun_fact_fr": "Un tube de Thin Lizzy (1996).",
-      "fun_fact_nl": "Een chart-hit van Thin Lizzy (1996)."
+      "fun_fact_nl": "Een chart-hit van Right Said Fred (1991).",
+      "fun_fact_it": "Un successo in classifica di Right Said Fred (1991)."
     },
     {
       "artist": "Snow",
@@ -1500,13 +1454,14 @@
         "it": "applemusic://track/1812635294"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=-1hbR_Y9gE0",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/10905690",
       "uri_deezer": "deezer://track/3884974",
       "fun_fact": "A chart hit by Snow (1992).",
       "fun_fact_de": "Ein Chart-Hit von Snow (1992).",
       "fun_fact_es": "Un éxito de Snow (1992).",
       "fun_fact_fr": "Un tube de Snow (1992).",
-      "fun_fact_nl": "Een chart-hit van Snow (1992)."
+      "fun_fact_nl": "Een chart-hit van Snow (1992).",
+      "fun_fact_it": "Un successo in classifica di Snow (1992)."
     },
     {
       "artist": "Sailor",
@@ -1525,38 +1480,14 @@
         "it": "applemusic://track/253940644"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=ro9PcVa8q9Y",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/538935",
       "uri_deezer": "deezer://track/1048185",
       "fun_fact": "A chart hit by Sailor (1993).",
       "fun_fact_de": "Ein Chart-Hit von Sailor (1993).",
       "fun_fact_es": "Un éxito de Sailor (1993).",
       "fun_fact_fr": "Un tube de Sailor (1993).",
-      "fun_fact_nl": "Een chart-hit van Sailor (1993)."
-    },
-    {
-      "artist": "Ziggy Marley & The Melody Makers",
-      "title": "Tomorrow People",
-      "year": 1988,
-      "isrc": "USVI28800002",
-      "uri": "spotify:track:07QZEz7d4OS6vmS1iiwJCc",
-      "uri_apple_music": "applemusic://track/712869766",
-      "uri_apple_music_by_region": {
-        "us": "applemusic://track/712869766",
-        "de": "applemusic://track/712869766",
-        "gb": "applemusic://track/712869766",
-        "fr": "applemusic://track/712869766",
-        "es": "applemusic://track/712869766",
-        "nl": "applemusic://track/712869766",
-        "it": "applemusic://track/712869766"
-      },
-      "uri_youtube_music": "https://music.youtube.com/watch?v=tdBDFwL3pyI",
-      "uri_tidal": null,
-      "uri_deezer": "deezer://track/3133926",
-      "fun_fact": "A chart hit by Ziggy Marley & The Melody Makers (1997).",
-      "fun_fact_de": "Ein Chart-Hit von Ziggy Marley & The Melody Makers (1997).",
-      "fun_fact_es": "Un éxito de Ziggy Marley & The Melody Makers (1997).",
-      "fun_fact_fr": "Un tube de Ziggy Marley & The Melody Makers (1997).",
-      "fun_fact_nl": "Een chart-hit van Ziggy Marley & The Melody Makers (1997)."
+      "fun_fact_nl": "Een chart-hit van Sailor (1993).",
+      "fun_fact_it": "Un successo in classifica di Sailor (1993)."
     },
     {
       "artist": "Funkstar De Luxe",
@@ -1575,13 +1506,14 @@
         "it": "applemusic://track/1842243063"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=Uj9y8MKP5y0",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/72501769",
       "uri_deezer": "deezer://track/347192701",
       "fun_fact": "A chart hit by Funkstar De Luxe (1999).",
       "fun_fact_de": "Ein Chart-Hit von Funkstar De Luxe (1999).",
       "fun_fact_es": "Un éxito de Funkstar De Luxe (1999).",
       "fun_fact_fr": "Un tube de Funkstar De Luxe (1999).",
-      "fun_fact_nl": "Een chart-hit van Funkstar De Luxe (1999)."
+      "fun_fact_nl": "Een chart-hit van Funkstar De Luxe (1999).",
+      "fun_fact_it": "Un successo in classifica di Funkstar De Luxe (1999)."
     },
     {
       "artist": "Lou Bega",
@@ -1589,44 +1521,25 @@
       "year": 1999,
       "isrc": "DEH259900010",
       "uri": "spotify:track:6x4tKaOzfNJpEJHySoiJcs",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1322068804",
       "uri_apple_music_by_region": {
-        "us": null,
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
+        "us": "applemusic://track/1322068804",
+        "de": "applemusic://track/1322068804",
+        "gb": "applemusic://track/1322068804",
+        "fr": "applemusic://track/1322068804",
+        "es": "applemusic://track/1322068804",
         "nl": "applemusic://track/1656111119",
-        "it": null
+        "it": "applemusic://track/1322068804"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=RUBvqz3ozv8",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/81794041",
       "uri_deezer": "deezer://track/434625962",
       "fun_fact": "A chart hit by Lou Bega (1999).",
       "fun_fact_de": "Ein Chart-Hit von Lou Bega (1999).",
       "fun_fact_es": "Un éxito de Lou Bega (1999).",
       "fun_fact_fr": "Un tube de Lou Bega (1999).",
-      "fun_fact_nl": "Een chart-hit van Lou Bega (1999)."
-    },
-    {
-      "artist": "Run–D.M.C.",
-      "title": "It's Like That",
-      "year": 1983,
-      "isrc": null,
-      "uri": "spotify:track:0CtkjgZpkgnW7U6WmHsakD",
-      "uri_apple_music": null,
-      "uri_apple_music_by_region": {},
-      "uri_youtube_music": "https://music.youtube.com/watch?v=g6nthFTiPiI",
-      "uri_tidal": null,
-      "uri_deezer": null,
-      "alt_artists": [
-        "Jason Nevins"
-      ],
-      "fun_fact": "A chart hit by Run–D.M.C. (1993).",
-      "fun_fact_de": "Ein Chart-Hit von Run–D.M.C. (1993).",
-      "fun_fact_es": "Un éxito de Run–D.M.C. (1993).",
-      "fun_fact_fr": "Un tube de Run–D.M.C. (1993).",
-      "fun_fact_nl": "Een chart-hit van Run–D.M.C. (1993)."
+      "fun_fact_nl": "Een chart-hit van Lou Bega (1999).",
+      "fun_fact_it": "Un successo in classifica di Lou Bega (1999)."
     },
     {
       "artist": "Britney Spears",
@@ -1645,38 +1558,14 @@
         "it": "applemusic://track/1744492452"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=91Niv2q4gvc",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/1631745",
       "uri_deezer": "deezer://track/540175",
       "fun_fact": "A chart hit by Britney Spears (1999).",
       "fun_fact_de": "Ein Chart-Hit von Britney Spears (1999).",
       "fun_fact_es": "Un éxito de Britney Spears (1999).",
       "fun_fact_fr": "Un tube de Britney Spears (1999).",
-      "fun_fact_nl": "Een chart-hit van Britney Spears (1999)."
-    },
-    {
-      "artist": "Eros Ramazzotti",
-      "title": "Ma che bello questo amore",
-      "year": 1987,
-      "isrc": "ITB008770681",
-      "uri": "spotify:track:12s8fpxTKhQl4HmKUKEYZv",
-      "uri_apple_music": "applemusic://track/254548590",
-      "uri_apple_music_by_region": {
-        "us": "applemusic://track/254548590",
-        "de": "applemusic://track/1308691199",
-        "gb": "applemusic://track/1308691199",
-        "fr": "applemusic://track/1308691199",
-        "es": "applemusic://track/1308691199",
-        "nl": "applemusic://track/1308691199",
-        "it": "applemusic://track/1308691199"
-      },
-      "uri_youtube_music": "https://music.youtube.com/watch?v=XLkHOnm0LIs",
-      "uri_tidal": null,
-      "uri_deezer": "deezer://track/604846",
-      "fun_fact": "A chart hit by Eros Ramazzotti (1997).",
-      "fun_fact_de": "Ein Chart-Hit von Eros Ramazzotti (1997).",
-      "fun_fact_es": "Un éxito de Eros Ramazzotti (1997).",
-      "fun_fact_fr": "Un tube de Eros Ramazzotti (1997).",
-      "fun_fact_nl": "Een chart-hit van Eros Ramazzotti (1997)."
+      "fun_fact_nl": "Een chart-hit van Britney Spears (1999).",
+      "fun_fact_it": "Un successo in classifica di Britney Spears (1999)."
     },
     {
       "artist": "The Kelly Family",
@@ -1695,41 +1584,14 @@
         "it": "applemusic://track/1630278728"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=jTJF0FTe_B0",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/74192305",
       "uri_deezer": "deezer://track/363760591",
       "fun_fact": "A chart hit by The Kelly Family (1996).",
       "fun_fact_de": "Ein Chart-Hit von The Kelly Family (1996).",
       "fun_fact_es": "Un éxito de The Kelly Family (1996).",
       "fun_fact_fr": "Un tube de The Kelly Family (1996).",
-      "fun_fact_nl": "Een chart-hit van The Kelly Family (1996)."
-    },
-    {
-      "artist": "KC",
-      "title": "Shake Your Booty - Live",
-      "year": 1990,
-      "isrc": "GBAYE7600024",
-      "uri": "spotify:track:4gcxYHlffrCstGw7EPWB88",
-      "uri_apple_music": "applemusic://track/1580630968",
-      "uri_apple_music_by_region": {
-        "us": "applemusic://track/1580630968",
-        "de": "applemusic://track/697243024",
-        "gb": "applemusic://track/697243024",
-        "fr": "applemusic://track/697243024",
-        "es": "applemusic://track/697243024",
-        "nl": "applemusic://track/697243024",
-        "it": "applemusic://track/697243024"
-      },
-      "uri_youtube_music": "https://music.youtube.com/watch?v=X6klWgHxTns",
-      "uri_tidal": null,
-      "uri_deezer": "deezer://track/3151319",
-      "alt_artists": [
-        "The Sunshine Band"
-      ],
-      "fun_fact": "A chart hit by KC (1990).",
-      "fun_fact_de": "Ein Chart-Hit von KC (1990).",
-      "fun_fact_es": "Un éxito de KC (1990).",
-      "fun_fact_fr": "Un tube de KC (1990).",
-      "fun_fact_nl": "Een chart-hit van KC (1990)."
+      "fun_fact_nl": "Een chart-hit van The Kelly Family (1996).",
+      "fun_fact_it": "Un successo in classifica di The Kelly Family (1996)."
     },
     {
       "artist": "Aqua",
@@ -1748,38 +1610,14 @@
         "it": "applemusic://track/1893188079"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=XE5w3b_Nmzc",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/633693",
       "uri_deezer": "deezer://track/1115046",
       "fun_fact": "A chart hit by Aqua (1997).",
       "fun_fact_de": "Ein Chart-Hit von Aqua (1997).",
       "fun_fact_es": "Un éxito de Aqua (1997).",
       "fun_fact_fr": "Un tube de Aqua (1997).",
-      "fun_fact_nl": "Een chart-hit van Aqua (1997)."
-    },
-    {
-      "artist": "The Osmonds",
-      "title": "Goin' Home",
-      "year": 1973,
-      "isrc": "USPR37307332",
-      "uri": "spotify:track:0p84j3ol6LPVQwW7cPB3y4",
-      "uri_apple_music": "applemusic://track/1825391722",
-      "uri_apple_music_by_region": {
-        "us": "applemusic://track/1825391722",
-        "de": "applemusic://track/1825391722",
-        "gb": "applemusic://track/1825391722",
-        "fr": "applemusic://track/1825391722",
-        "es": "applemusic://track/1825391722",
-        "nl": "applemusic://track/1825391722",
-        "it": "applemusic://track/1825391722"
-      },
-      "uri_youtube_music": "https://music.youtube.com/watch?v=5Oxu6G34qus",
-      "uri_tidal": null,
-      "uri_deezer": "deezer://track/1182485",
-      "fun_fact": "A chart hit by The Osmonds (1996).",
-      "fun_fact_de": "Ein Chart-Hit von The Osmonds (1996).",
-      "fun_fact_es": "Un éxito de The Osmonds (1996).",
-      "fun_fact_fr": "Un tube de The Osmonds (1996).",
-      "fun_fact_nl": "Een chart-hit van The Osmonds (1996)."
+      "fun_fact_nl": "Een chart-hit van Aqua (1997).",
+      "fun_fact_it": "Un successo in classifica di Aqua (1997)."
     },
     {
       "artist": "The Bangles",
@@ -1790,7 +1628,7 @@
       "uri_apple_music": "applemusic://track/331129387",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/331129387",
-        "de": "applemusic://track/292101155",
+        "de": "applemusic://track/355893446",
         "gb": "applemusic://track/331129387",
         "fr": "applemusic://track/331129387",
         "es": "applemusic://track/200008030",
@@ -1798,63 +1636,14 @@
         "it": "applemusic://track/200008030"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=cTfNA_M8yiE",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/1743534",
       "uri_deezer": "deezer://track/1056919",
       "fun_fact": "A chart hit by The Bangles (1990).",
       "fun_fact_de": "Ein Chart-Hit von The Bangles (1990).",
       "fun_fact_es": "Un éxito de The Bangles (1990).",
       "fun_fact_fr": "Un tube de The Bangles (1990).",
-      "fun_fact_nl": "Een chart-hit van The Bangles (1990)."
-    },
-    {
-      "artist": "Middle Of The Road",
-      "title": "Sacramento (A Wonderful Town)",
-      "year": 1971,
-      "isrc": "ITB007100338",
-      "uri": "spotify:track:6hAUzkpIfh81JFJFq72iVN",
-      "uri_apple_music": "applemusic://track/255672947",
-      "uri_apple_music_by_region": {
-        "us": "applemusic://track/255672947",
-        "de": "applemusic://track/255672947",
-        "gb": "applemusic://track/255672947",
-        "fr": "applemusic://track/255672947",
-        "es": "applemusic://track/255672947",
-        "nl": "applemusic://track/829669438",
-        "it": "applemusic://track/255672947"
-      },
-      "uri_youtube_music": "https://music.youtube.com/watch?v=8INT8crRqhk",
-      "uri_tidal": null,
-      "uri_deezer": "deezer://track/991963",
-      "fun_fact": "A chart hit by Middle Of The Road (1992).",
-      "fun_fact_de": "Ein Chart-Hit von Middle Of The Road (1992).",
-      "fun_fact_es": "Un éxito de Middle Of The Road (1992).",
-      "fun_fact_fr": "Un tube de Middle Of The Road (1992).",
-      "fun_fact_nl": "Een chart-hit van Middle Of The Road (1992)."
-    },
-    {
-      "artist": "Wild Cherry",
-      "title": "Play That Funky Music",
-      "year": 1976,
-      "isrc": "USSM19912699",
-      "uri": "spotify:track:1zz3XExGFBdG49DSpDSaru",
-      "uri_apple_music": "applemusic://track/1695886340",
-      "uri_apple_music_by_region": {
-        "us": "applemusic://track/1695886340",
-        "de": "applemusic://track/1695886340",
-        "gb": "applemusic://track/1695886340",
-        "fr": "applemusic://track/1695886340",
-        "es": "applemusic://track/1695886340",
-        "nl": "applemusic://track/1695886340",
-        "it": "applemusic://track/1695886340"
-      },
-      "uri_youtube_music": "https://music.youtube.com/watch?v=yILr8KdTPsU",
-      "uri_tidal": null,
-      "uri_deezer": "deezer://track/1067076",
-      "fun_fact": "A chart hit by Wild Cherry (1990).",
-      "fun_fact_de": "Ein Chart-Hit von Wild Cherry (1990).",
-      "fun_fact_es": "Un éxito de Wild Cherry (1990).",
-      "fun_fact_fr": "Un tube de Wild Cherry (1990).",
-      "fun_fact_nl": "Een chart-hit van Wild Cherry (1990)."
+      "fun_fact_nl": "Een chart-hit van The Bangles (1990).",
+      "fun_fact_it": "Un successo in classifica di The Bangles (1990)."
     },
     {
       "artist": "Gigi D'Agostino",
@@ -1873,7 +1662,7 @@
         "it": "applemusic://track/384919391"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=ZuY2s58bRrE",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/63545799",
       "uri_deezer": "deezer://track/61419158",
       "alt_artists": [],
       "fun_fact": "Gigi D'Agostino's hypnotic 1999 cover of Nik Kershaw's 1984 song, a Lento Violento landmark.",
@@ -1881,7 +1670,6 @@
       "fun_fact_es": "La hipnótica versión de Gigi D'Agostino del tema de Nik Kershaw de 1984, un clásico del Lento Violento.",
       "fun_fact_fr": "La reprise hypnotique par Gigi D'Agostino du titre de Nik Kershaw de 1984, un classique du Lento Violento.",
       "fun_fact_nl": "Gigi D'Agostino's hypnotische cover van Nik Kershaws nummer uit 1984 — een Lento Violento-klassieker.",
-      "chart_info": "",
       "certifications": "",
       "awards": "",
       "awards_nl": ""
@@ -1889,7 +1677,7 @@
     {
       "artist": "Liquido",
       "title": "Narcotic",
-      "year": 1999,
+      "year": 1998,
       "isrc": "DEG129800581",
       "uri": "spotify:track:1H5VQuShs4qfwBXyHF0PeH",
       "uri_apple_music": "applemusic://track/1857765665",
@@ -1903,7 +1691,7 @@
         "it": "applemusic://track/1857765665"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=wxb2ZXAOWWQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/489946237",
       "uri_deezer": "deezer://track/3776251662",
       "alt_artists": [],
       "fun_fact": "The German band's biggest hit, built on a swirling organ riff inescapable on 90s radio.",
@@ -1911,7 +1699,6 @@
       "fun_fact_es": "El mayor éxito de la banda alemana, con un riff de órgano omnipresente en la radio de los 90.",
       "fun_fact_fr": "Le plus grand succès du groupe allemand, porté par un riff d'orgue incontournable des radios 90s.",
       "fun_fact_nl": "De grootste hit van de Duitse band, met een orgelriff die de jaren 90-radio beheerste.",
-      "chart_info": "",
       "certifications": "",
       "awards": "",
       "awards_nl": ""
@@ -1933,7 +1720,7 @@
         "it": "applemusic://track/330241516"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=Eht9W25tDZo",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/15214695",
       "uri_deezer": "deezer://track/99360002",
       "alt_artists": [],
       "fun_fact": "John Larkin turned his lifelong stutter into rapid-fire scat singing — a worldwide novelty smash.",
@@ -1941,7 +1728,6 @@
       "fun_fact_es": "John Larkin convirtió su tartamudez de toda la vida en scat veloz: un éxito mundial.",
       "fun_fact_fr": "John Larkin a transformé son bégaiement en scat effréné — un tube mondial.",
       "fun_fact_nl": "John Larkin maakte van zijn levenslange gestotter razendsnelle scat — een wereldwijde hit.",
-      "chart_info": "",
       "certifications": "",
       "awards": "",
       "awards_nl": ""
@@ -1963,7 +1749,7 @@
         "it": "applemusic://track/257425447"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=NrVqLGQlieA",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/539111445",
       "uri_deezer": "deezer://track/89629797",
       "alt_artists": [],
       "fun_fact": "The Italian trio's everything-is-blue earworm topped charts across the globe.",
@@ -1971,7 +1757,6 @@
       "fun_fact_es": "El pegadizo tema azul del trío italiano encabezó las listas de todo el mundo.",
       "fun_fact_fr": "Le tube tout-en-bleu du trio italien a dominé les classements du monde entier.",
       "fun_fact_nl": "De alles-is-blauw-oorworm van het Italiaanse trio stond wereldwijd bovenaan.",
-      "chart_info": "",
       "certifications": "",
       "awards": "",
       "awards_nl": ""
@@ -1993,7 +1778,7 @@
         "it": "applemusic://track/505475126"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=VAmq5-wcLHE",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/14237868",
       "uri_deezer": "deezer://track/17347911",
       "alt_artists": [],
       "fun_fact": "One of the biggest Eurodance hits of 1993, number one in over a dozen countries.",
@@ -2001,7 +1786,6 @@
       "fun_fact_es": "Uno de los mayores éxitos del Eurodance de 1993, número uno en más de doce países.",
       "fun_fact_fr": "L'un des plus grands tubes Eurodance de 1993, numéro un dans plus de douze pays.",
       "fun_fact_nl": "Een van de grootste eurodance-hits van 1993, nummer één in meer dan twaalf landen.",
-      "chart_info": "",
       "certifications": "",
       "awards": "",
       "awards_nl": ""
@@ -2023,7 +1807,7 @@
         "it": "applemusic://track/1877135727"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=_Jl-QpJNKiQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/498818578",
       "uri_deezer": "deezer://track/3843390961",
       "alt_artists": [],
       "fun_fact": "The German group's tropical Eurodance smash, a summer-party staple ever since.",
@@ -2031,7 +1815,6 @@
       "fun_fact_es": "El éxito tropical de Eurodance del grupo alemán, fijo en las fiestas de verano desde entonces.",
       "fun_fact_fr": "Le tube Eurodance tropical du groupe allemand, incontournable des fêtes d'été depuis.",
       "fun_fact_nl": "De tropische eurodance-hit van de Duitse groep, sindsdien een vaste zomerfeestklassieker.",
-      "chart_info": "",
       "certifications": "",
       "awards": "",
       "awards_nl": ""
@@ -2053,7 +1836,7 @@
         "it": "applemusic://track/1614485368"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=Q266UWljhlc",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/490900616",
       "uri_deezer": "deezer://track/3801448032",
       "alt_artists": [],
       "fun_fact": "The Nigerian-Swedish artist's signature hit, a Eurodance anthem of self-determination.",
@@ -2061,7 +1844,6 @@
       "fun_fact_es": "El éxito emblemático del artista nigeriano-sueco, un himno Eurodance de autodeterminación.",
       "fun_fact_fr": "Le tube emblématique de l'artiste nigérian-suédois, un hymne Eurodance à l'autodétermination.",
       "fun_fact_nl": "De kenmerkende hit van de Nigeriaans-Zweedse artiest, een eurodance-hymne van zelfbeschikking.",
-      "chart_info": "",
       "certifications": "",
       "awards": "",
       "awards_nl": ""
@@ -2083,7 +1865,7 @@
         "it": "applemusic://track/1614485367"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=sUYa5FZTyBk",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/490902836",
       "uri_deezer": "deezer://track/3801341602",
       "alt_artists": [],
       "fun_fact": "A gospel-tinged Eurodance hit produced by Denniz Pop, an early Cheiron Studios success.",
@@ -2091,7 +1873,6 @@
       "fun_fact_es": "Un éxito Eurodance con tintes gospel producido por Denniz Pop, primer triunfo de Cheiron Studios.",
       "fun_fact_fr": "Un tube Eurodance teinté de gospel produit par Denniz Pop, premier succès des studios Cheiron.",
       "fun_fact_nl": "Een eurodance-hit met gospeltintje, geproduceerd door Denniz Pop — een vroege Cheiron-successtory.",
-      "chart_info": "",
       "certifications": "",
       "awards": "",
       "awards_nl": ""
@@ -2113,7 +1894,7 @@
         "it": "applemusic://track/1675507902"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=gne9jY-EDm4",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/159124166",
       "uri_deezer": "deezer://track/134706074",
       "alt_artists": [],
       "fun_fact": "The Dutch duo's 'techno techno' chant dominated European charts for weeks.",
@@ -2121,7 +1902,6 @@
       "fun_fact_es": "El cántico 'techno techno' del dúo neerlandés dominó las listas europeas durante semanas.",
       "fun_fact_fr": "Le refrain « techno techno » du duo néerlandais a dominé les classements européens des semaines durant.",
       "fun_fact_nl": "Het 'techno techno'-refrein van het Nederlandse duo beheerste wekenlang de Europese hitlijsten.",
-      "chart_info": "",
       "certifications": "",
       "awards": "",
       "awards_nl": ""
@@ -2143,7 +1923,7 @@
         "it": "applemusic://track/1776875105"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=cPw9cSM3zCM",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/63163488",
       "uri_deezer": "deezer://track/3065901421",
       "alt_artists": [],
       "fun_fact": "A happy-hardcore anthem from the Dutch duo, covered many times since.",
@@ -2151,7 +1931,6 @@
       "fun_fact_es": "Un himno happy hardcore del dúo neerlandés, versionado muchas veces desde entonces.",
       "fun_fact_fr": "Un hymne happy hardcore du duo néerlandais, repris de nombreuses fois depuis.",
       "fun_fact_nl": "Een happy hardcore-hymne van het Nederlandse duo, sindsdien vaak gecoverd.",
-      "chart_info": "",
       "certifications": "",
       "awards": "",
       "awards_nl": ""
@@ -2173,7 +1952,7 @@
         "it": "applemusic://track/1803633859"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=maPrpcHwXsc",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/305653802",
       "uri_deezer": "deezer://track/3289112261",
       "alt_artists": [],
       "fun_fact": "The German act's breakthrough — happy hardcore that crossed into the mainstream charts.",
@@ -2181,7 +1960,6 @@
       "fun_fact_es": "El éxito que lanzó al proyecto alemán: happy hardcore que llegó a las listas mayoritarias.",
       "fun_fact_fr": "La révélation du projet allemand — du happy hardcore qui a percé dans les classements grand public.",
       "fun_fact_nl": "De doorbraak van het Duitse project — happy hardcore die de reguliere hitlijsten haalde.",
-      "chart_info": "",
       "certifications": "",
       "awards": "",
       "awards_nl": ""
@@ -2203,7 +1981,7 @@
         "it": "applemusic://track/1692345571"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=OMfZE53YoEU",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/279179207",
       "uri_deezer": "deezer://track/2168791307",
       "alt_artists": [],
       "fun_fact": "The 1994 debut single that launched German rave act Scooter, shouting out fellow DJs by name.",
@@ -2211,7 +1989,6 @@
       "fun_fact_es": "El sencillo debut de 1994 que lanzó al grupo rave alemán Scooter, saludando a otros DJ por su nombre.",
       "fun_fact_fr": "Le premier single de 1994 qui a lancé le groupe rave allemand Scooter, citant d'autres DJ par leur nom.",
       "fun_fact_nl": "De debuutsingle uit 1994 waarmee de Duitse rave-act Scooter doorbrak, met groeten aan mede-dj's.",
-      "chart_info": "",
       "certifications": "",
       "awards": "",
       "awards_nl": ""
@@ -2233,7 +2010,7 @@
         "it": "applemusic://track/1443342983"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=B6GdsRIbTSk",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/634519",
       "uri_deezer": "deezer://track/2184743",
       "alt_artists": [],
       "fun_fact": "Linda Perry's raw-voiced anthem — the band's only hit, but an enduring one.",
@@ -2241,7 +2018,6 @@
       "fun_fact_es": "El himno de voz desgarrada de Linda Perry: el único éxito de la banda, pero imperecedero.",
       "fun_fact_fr": "L'hymne à la voix éraillée de Linda Perry — l'unique tube du groupe, mais un tube durable.",
       "fun_fact_nl": "Linda Perry's rauwe stemhymne — de enige hit van de band, maar een blijvende.",
-      "chart_info": "",
       "certifications": "",
       "awards": "",
       "awards_nl": ""
@@ -2263,7 +2039,7 @@
         "it": "applemusic://track/1517449902"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=hpSrLjc5SMs",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/156876007",
       "uri_deezer": "deezer://track/985745702",
       "alt_artists": [],
       "fun_fact": "Noel Gallagher's most famous song and Britpop's defining singalong.",
@@ -2271,7 +2047,6 @@
       "fun_fact_es": "La canción más famosa de Noel Gallagher y el coro emblemático del britpop.",
       "fun_fact_fr": "La chanson la plus célèbre de Noel Gallagher et l'hymne à reprendre en chœur de la britpop.",
       "fun_fact_nl": "Noel Gallaghers beroemdste nummer en het bepalende meezingnummer van de britpop.",
-      "chart_info": "",
       "certifications": "",
       "awards": "",
       "awards_nl": ""
@@ -2293,7 +2068,7 @@
         "it": "applemusic://track/512526688"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=FpkawF5GWMI",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/38963629",
       "uri_deezer": "deezer://track/94676692",
       "alt_artists": [],
       "fun_fact": "The Swedish group's reggae-pop breakthrough, a worldwide number one.",
@@ -2301,7 +2076,6 @@
       "fun_fact_es": "El éxito reggae-pop que lanzó al grupo sueco, número uno en todo el mundo.",
       "fun_fact_fr": "La révélation reggae-pop du groupe suédois, numéro un mondial.",
       "fun_fact_nl": "De reggae-pop-doorbraak van de Zweedse groep, wereldwijd een nummer één.",
-      "chart_info": "",
       "certifications": "",
       "awards": "",
       "awards_nl": ""
@@ -2323,7 +2097,7 @@
         "it": "applemusic://track/260655284"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=GWtSamzbGOs",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/3381203",
       "uri_deezer": "deezer://track/5363024",
       "alt_artists": [],
       "fun_fact": "The Finnish act's breakbeat hit, immortalised by its phone-rewinding music video.",
@@ -2331,7 +2105,6 @@
       "fun_fact_es": "El éxito breakbeat del grupo finlandés, inmortalizado por su videoclip del móvil que rebobina.",
       "fun_fact_fr": "Le tube breakbeat du groupe finlandais, immortalisé par son clip où un portable rembobine la scène.",
       "fun_fact_nl": "De breakbeat-hit van de Finse act, vereeuwigd door de videoclip met de terugspoelende telefoon.",
-      "chart_info": "",
       "certifications": "",
       "awards": "",
       "awards_nl": ""
@@ -2344,16 +2117,16 @@
       "uri": "spotify:track:3L9RIFcNF9IDGPRE96EO7N",
       "uri_apple_music": "applemusic://track/880365276",
       "uri_apple_music_by_region": {
-        "us": null,
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
+        "us": "applemusic://track/880365276",
+        "de": "applemusic://track/1821145079",
+        "gb": "applemusic://track/797196798",
+        "fr": "applemusic://track/1443842946",
+        "es": "applemusic://track/1821145079",
+        "nl": "applemusic://track/1821145079",
+        "it": "applemusic://track/1443842946"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=LL8zTK1Ffu0",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/441956660",
       "uri_deezer": "deezer://track/1428926582",
       "alt_artists": [],
       "fun_fact": "The Italian Eurodance classic fronted by Olga Souza's soaring vocals.",
@@ -2361,7 +2134,6 @@
       "fun_fact_es": "El clásico italiano del Eurodance con la voz vibrante de Olga Souza.",
       "fun_fact_fr": "Le classique Eurodance italien porté par la voix éclatante d'Olga Souza.",
       "fun_fact_nl": "De Italiaanse eurodance-klassieker met de stralende zang van Olga Souza.",
-      "chart_info": "",
       "certifications": "",
       "awards": "",
       "awards_nl": ""
@@ -2383,7 +2155,7 @@
         "it": "applemusic://track/1673414301"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=_SQy6X5g7JU",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/1291238",
       "uri_deezer": "deezer://track/13166572",
       "alt_artists": [],
       "fun_fact": "The German-American duo's signature Eurodance hit.",
@@ -2391,7 +2163,6 @@
       "fun_fact_es": "El éxito Eurodance emblemático del dúo germano-estadounidense.",
       "fun_fact_fr": "Le tube Eurodance emblématique du duo germano-américain.",
       "fun_fact_nl": "De kenmerkende eurodance-hit van het Duits-Amerikaanse duo.",
-      "chart_info": "",
       "certifications": "",
       "awards": "",
       "awards_nl": ""
@@ -2413,7 +2184,7 @@
         "it": "applemusic://track/1827554491"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=-5qqrMu_AZc",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/219775152",
       "uri_deezer": "deezer://track/763300",
       "alt_artists": [],
       "fun_fact": "Built on a Stevie Wonder sample, 1995's biggest hit and an Oscar-nominated soundtrack song.",
@@ -2421,7 +2192,6 @@
       "fun_fact_es": "Sobre un sample de Stevie Wonder: el mayor éxito de 1995 y tema de banda sonora nominado al Óscar.",
       "fun_fact_fr": "Bâti sur un sample de Stevie Wonder, le plus grand tube de 1995 et chanson de film nommée aux Oscars.",
       "fun_fact_nl": "Gebouwd op een Stevie Wonder-sample — de grootste hit van 1995 en een Oscar-genomineerd soundtracknummer.",
-      "chart_info": "",
       "certifications": "",
       "awards": "",
       "awards_nl": ""
@@ -2443,7 +2213,7 @@
         "it": "applemusic://track/1714235527"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=Qvu033SBMYU",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/70681623",
       "uri_deezer": "deezer://track/6177415",
       "alt_artists": [],
       "fun_fact": "The Italian singer's dance anthem, revived decades later as a football-terrace chant.",
@@ -2451,7 +2221,6 @@
       "fun_fact_es": "El himno dance de la cantante italiana, revivido décadas después como cántico de estadio.",
       "fun_fact_fr": "L'hymne dance de la chanteuse italienne, ressuscité des décennies plus tard en chant de stade.",
       "fun_fact_nl": "De dance-hymne van de Italiaanse zangeres, decennia later herleefd als voetbalstadionlied.",
-      "chart_info": "",
       "certifications": "",
       "awards": "",
       "awards_nl": ""
@@ -2462,7 +2231,7 @@
       "year": 1997,
       "isrc": "GBAAA9700049",
       "uri": "spotify:track:5yEPxDjbbzUzyauGtnmVEC",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1443258189",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/6763237471",
         "de": "applemusic://track/6763237471",
@@ -2473,7 +2242,7 @@
         "it": "applemusic://track/6763237471"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=_UWOHofs0kA",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/77892506",
       "uri_deezer": "deezer://track/432946922",
       "alt_artists": [],
       "fun_fact": "The sweeping Britpop classic, famous for the lawsuit over its orchestral sample.",
@@ -2481,7 +2250,6 @@
       "fun_fact_es": "El épico clásico britpop, célebre por el pleito sobre su sample orquestal.",
       "fun_fact_fr": "Le classique britpop grandiose, célèbre pour le procès autour de son sample orchestral.",
       "fun_fact_nl": "De meeslepende britpop-klassieker, berucht om de rechtszaak over de orkestsample.",
-      "chart_info": "",
       "certifications": "",
       "awards": "",
       "awards_nl": ""
@@ -2492,7 +2260,7 @@
       "year": 1997,
       "isrc": "USUR19700175",
       "uri": "spotify:track:1HEBjmt2n8wmQvag4VqczV",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/713773457",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1893192107",
         "de": "applemusic://track/1893192107",
@@ -2503,7 +2271,7 @@
         "it": "applemusic://track/1893192107"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=yW5oTzftgjY",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/2893885",
       "uri_deezer": "deezer://track/651773022",
       "alt_artists": [],
       "fun_fact": "The British anarchist collective's 'I get knocked down' anthem, an unlikely global smash.",
@@ -2511,7 +2279,6 @@
       "fun_fact_es": "El himno 'I get knocked down' del colectivo anarquista británico, un éxito mundial inesperado.",
       "fun_fact_fr": "L'hymne « I get knocked down » du collectif anarchiste britannique, un succès mondial inattendu.",
       "fun_fact_nl": "De 'I get knocked down'-hymne van het Britse anarchistische collectief, een onverwachte wereldhit.",
-      "chart_info": "",
       "certifications": "",
       "awards": "",
       "awards_nl": ""
@@ -2522,7 +2289,7 @@
       "year": 1996,
       "isrc": "ITA169500003",
       "uri": "spotify:track:3boi65u59Ex9jbhLXcXwre",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1499501875",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1237756427",
         "de": "applemusic://track/1606222112",
@@ -2533,7 +2300,7 @@
         "it": "applemusic://track/1606222112"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=DMJgiky90pE",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/74123548",
       "uri_deezer": "deezer://track/91348522",
       "alt_artists": [],
       "fun_fact": "The Italian producer's dream-house instrumental, written to calm ravers at the end of a night.",
@@ -2541,7 +2308,6 @@
       "fun_fact_es": "El instrumental dream house del productor italiano, creado para calmar a los ravers al final de la noche.",
       "fun_fact_fr": "L'instrumental dream house du producteur italien, conçu pour apaiser les ravers en fin de nuit.",
       "fun_fact_nl": "Het dream house-instrumental van de Italiaanse producer, gemaakt om ravers aan het eind van de nacht te kalmeren.",
-      "chart_info": "",
       "certifications": "",
       "awards": "",
       "awards_nl": ""
@@ -2563,7 +2329,7 @@
         "it": "applemusic://track/1626933600"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=NruQh0QDTTM",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/1291239",
       "uri_deezer": "deezer://track/4096754",
       "alt_artists": [],
       "fun_fact": "The duo's biggest US hit and a Eurodance dancefloor staple.",
@@ -2571,7 +2337,6 @@
       "fun_fact_es": "El mayor éxito del dúo en EE. UU. y un fijo de las pistas de Eurodance.",
       "fun_fact_fr": "Le plus grand succès américain du duo et un incontournable des pistes Eurodance.",
       "fun_fact_nl": "De grootste Amerikaanse hit van het duo en een vaste eurodance-dansvloerklassieker.",
-      "chart_info": "",
       "certifications": "",
       "awards": "",
       "awards_nl": ""
@@ -2593,7 +2358,7 @@
         "it": "applemusic://track/147109214"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=e_s49nGBrgQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/70687210",
       "uri_deezer": "deezer://track/76714937",
       "alt_artists": [],
       "fun_fact": "The British-Italian Eurodance hit with its instantly recognisable vocal hook.",
@@ -2601,7 +2366,6 @@
       "fun_fact_es": "El éxito Eurodance británico-italiano con su gancho vocal reconocible al instante.",
       "fun_fact_fr": "Le tube Eurodance anglo-italien à l'accroche vocale immédiatement reconnaissable.",
       "fun_fact_nl": "De Brits-Italiaanse eurodance-hit met zijn direct herkenbare vocale hook.",
-      "chart_info": "",
       "certifications": "",
       "awards": "",
       "awards_nl": ""
@@ -2612,7 +2376,7 @@
       "year": 1999,
       "isrc": "DEA310001549",
       "uri": "spotify:track:0l3795cAVGOHNdHvooZ25S",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/384919381",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1210811729",
         "de": "applemusic://track/1436144752",
@@ -2623,7 +2387,7 @@
         "it": "applemusic://track/1210811729"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=WS_uN8ggab8",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/63261250",
       "uri_deezer": "deezer://track/105891914",
       "alt_artists": [],
       "fun_fact": "A melancholic Italo-dance classic from his landmark album 'L'Amour Toujours'.",
@@ -2631,7 +2395,6 @@
       "fun_fact_es": "Un melancólico clásico del Italo dance de su álbum emblemático 'L'Amour Toujours'.",
       "fun_fact_fr": "Un classique mélancolique de l'Italo dance, tiré de son album phare « L'Amour Toujours ».",
       "fun_fact_nl": "Een melancholische italo-danceklassieker van zijn mijlpaalalbum 'L'Amour Toujours'.",
-      "chart_info": "",
       "certifications": "",
       "awards": "",
       "awards_nl": ""
@@ -2642,7 +2405,7 @@
       "year": 1999,
       "isrc": "GBHAD2400076",
       "uri": "spotify:track:4Y8q64VnhD0vFYy9g2WFpi",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1823912862",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1764524416",
         "de": "applemusic://track/1764524416",
@@ -2653,7 +2416,7 @@
         "it": "applemusic://track/1764524416"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=A9jzKnbNcu0",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/98426487",
       "uri_deezer": "deezer://track/2960513391",
       "alt_artists": [],
       "fun_fact": "The British DJ's euphoric dance-pop crossover, a delayed worldwide number one.",
@@ -2661,7 +2424,6 @@
       "fun_fact_es": "El eufórico cruce dance-pop de la DJ británica, un número uno mundial tardío.",
       "fun_fact_fr": "Le crossover dance-pop euphorique de la DJ britannique, un numéro un mondial tardif.",
       "fun_fact_nl": "De euforische dance-popcrossover van de Britse dj, een late wereldwijde nummer één.",
-      "chart_info": "",
       "certifications": "",
       "awards": "",
       "awards_nl": ""
@@ -2672,7 +2434,7 @@
       "year": 1997,
       "isrc": "GBAWV9700657",
       "uri": "spotify:track:1arJHhz6TxMV50SNvSmGnV",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1171366701",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1160733023",
         "de": "applemusic://track/1160733023",
@@ -2683,7 +2445,7 @@
         "it": "applemusic://track/1160733023"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=xXahlXQhMF4",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/65545333",
       "uri_deezer": "deezer://track/133204794",
       "alt_artists": [],
       "fun_fact": "The German act's globe-trotting Eurodance hit featuring vocalist Rodriguez.",
@@ -2691,7 +2453,6 @@
       "fun_fact_es": "El trotamundos éxito Eurodance del proyecto alemán con el vocalista Rodriguez.",
       "fun_fact_fr": "Le tube Eurodance globe-trotter du projet allemand avec le chanteur Rodriguez.",
       "fun_fact_nl": "De wereldreizende eurodance-hit van de Duitse act met zanger Rodriguez.",
-      "chart_info": "",
       "certifications": "",
       "awards": "",
       "awards_nl": ""
@@ -2713,7 +2474,7 @@
         "it": "applemusic://track/1890587723"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=gM65SDMiXBE",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/235077794",
       "uri_deezer": "deezer://track/1802253167",
       "alt_artists": [],
       "fun_fact": "The Dutch group's cheerfully relentless party anthem.",
@@ -2721,7 +2482,6 @@
       "fun_fact_es": "El alegre e incansable himno fiestero del grupo neerlandés.",
       "fun_fact_fr": "L'hymne festif joyeusement increvable du groupe néerlandais.",
       "fun_fact_nl": "De vrolijk-onvermoeibare feesthymne van de Nederlandse groep.",
-      "chart_info": "",
       "certifications": "",
       "awards": "",
       "awards_nl": ""
@@ -2743,7 +2503,7 @@
         "it": "applemusic://track/276609794"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=xIp1qppUOio",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/14635323",
       "uri_deezer": "deezer://track/2208313",
       "alt_artists": [],
       "fun_fact": "The German act's dark, choir-driven Eurodance hit.",
@@ -2751,7 +2511,6 @@
       "fun_fact_es": "El oscuro éxito Eurodance del proyecto alemán, marcado por los coros.",
       "fun_fact_fr": "Le tube Eurodance sombre et porté par les chœurs du projet allemand.",
       "fun_fact_nl": "De duistere, door koren gedreven eurodance-hit van de Duitse act.",
-      "chart_info": "",
       "certifications": "",
       "awards": "",
       "awards_nl": ""
@@ -2773,7 +2532,7 @@
         "it": "applemusic://track/1835522437"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=g4BGP7Hei_c",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/235077797",
       "uri_deezer": "deezer://track/1802256287",
       "alt_artists": [],
       "fun_fact": "The Dutch group's holiday anthem, built on Typically Tropical's 1975 song.",
@@ -2781,7 +2540,6 @@
       "fun_fact_es": "El himno vacacional del grupo neerlandés, basado en el tema de Typically Tropical de 1975.",
       "fun_fact_fr": "L'hymne de vacances du groupe néerlandais, bâti sur le titre de Typically Tropical de 1975.",
       "fun_fact_nl": "De vakantiehymne van de Nederlandse groep, gebouwd op het nummer van Typically Tropical uit 1975.",
-      "chart_info": "",
       "certifications": "",
       "awards": "",
       "awards_nl": ""
@@ -2792,7 +2550,7 @@
       "year": 1997,
       "isrc": "USIR19500279",
       "uri": "spotify:track:7H8zey5My6uNdD2TxeCb9F",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1440845557",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1442266778",
         "de": "applemusic://track/1442266778",
@@ -2803,7 +2561,7 @@
         "it": "applemusic://track/1442266778"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=Q7uiJcxIsK4",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/35971918",
       "uri_deezer": "deezer://track/24246391",
       "alt_artists": [],
       "fun_fact": "Gwen Stefani's heartbreak ballad about the band's own romance — their breakthrough hit.",
@@ -2811,7 +2569,6 @@
       "fun_fact_es": "La balada de desamor de Gwen Stefani sobre el romance interno de la banda: su éxito revelación.",
       "fun_fact_fr": "La ballade de rupture de Gwen Stefani sur la romance interne du groupe — leur tube révélation.",
       "fun_fact_nl": "Gwen Stefani's liefdesverdrietballad over de romance binnen de band — hun doorbraakhit.",
-      "chart_info": "",
       "certifications": "",
       "awards": "",
       "awards_nl": ""
@@ -2833,7 +2590,7 @@
         "it": "applemusic://track/1437353056"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=yYfzC8cY4j8",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/491283204",
       "uri_deezer": "deezer://track/3785942552",
       "alt_artists": [],
       "fun_fact": "One of the best-selling singles of the 90s and a Eurodance cornerstone.",
@@ -2841,7 +2598,6 @@
       "fun_fact_es": "Uno de los sencillos más vendidos de los 90 y una piedra angular del Eurodance.",
       "fun_fact_fr": "L'un des singles les plus vendus des années 90 et une pierre angulaire de l'Eurodance.",
       "fun_fact_nl": "Een van de best verkochte singles van de jaren 90 en een hoeksteen van de eurodance.",
-      "chart_info": "",
       "certifications": "",
       "awards": "",
       "awards_nl": ""
@@ -2852,7 +2608,7 @@
       "year": 1999,
       "isrc": "USIR19902530",
       "uri": "spotify:track:5EYdTPdJD74r9EVZBztqGG",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1704947040",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1821521803",
         "de": "applemusic://track/1821521803",
@@ -2863,7 +2619,7 @@
         "it": "applemusic://track/1821521803"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=523Lqlk4fm8",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/35465609",
       "uri_deezer": "deezer://track/89748393",
       "alt_artists": [],
       "fun_fact": "The American band's cheeky, innuendo-packed novelty hit.",
@@ -2871,7 +2627,6 @@
       "fun_fact_es": "El descarado éxito novedad de la banda estadounidense, lleno de dobles sentidos.",
       "fun_fact_fr": "Le tube novelty effronté et bourré de sous-entendus du groupe américain.",
       "fun_fact_nl": "De brutale, dubbelzinnige novelty-hit van de Amerikaanse band.",
-      "chart_info": "",
       "certifications": "",
       "awards": "",
       "awards_nl": ""
@@ -2893,7 +2648,7 @@
         "it": "applemusic://track/218434179"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=QFGMQZyvnmY",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/3834238",
       "uri_deezer": "deezer://track/61639624",
       "alt_artists": [],
       "fun_fact": "André Tanneberger's guitar-riff trance track, a UK number one and his breakthrough.",
@@ -2901,7 +2656,6 @@
       "fun_fact_es": "El tema trance con riff de guitarra de André Tanneberger, número uno en el Reino Unido y su despegue.",
       "fun_fact_fr": "Le morceau trance à riff de guitare d'André Tanneberger, numéro un au Royaume-Uni et sa révélation.",
       "fun_fact_nl": "André Tannebergers trancetrack met gitaarriff — een Britse nummer één en zijn doorbraak.",
-      "chart_info": "",
       "certifications": "",
       "awards": "",
       "awards_nl": ""
@@ -2909,7 +2663,7 @@
     {
       "artist": "Alice Deejay",
       "title": "Better Off Alone",
-      "year": 1999,
+      "year": 1998,
       "isrc": "NLC529811129",
       "uri": "spotify:track:5XVjNRubJUW0iPhhSWpLCj",
       "uri_apple_music": "applemusic://track/1631123438",
@@ -2923,7 +2677,7 @@
         "it": "applemusic://track/1703698474"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=Ck0LO6b6OQc",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/47469776",
       "uri_deezer": "deezer://track/1802291377",
       "alt_artists": [],
       "fun_fact": "The Dutch trance-pop hit that started life as a DJ Jurgen instrumental.",
@@ -2931,7 +2685,6 @@
       "fun_fact_es": "El éxito neerlandés de trance-pop que nació como instrumental de DJ Jurgen.",
       "fun_fact_fr": "Le tube trance-pop néerlandais qui a débuté comme instrumental de DJ Jurgen.",
       "fun_fact_nl": "De Nederlandse trance-pophit die begon als een instrumentaal van DJ Jurgen.",
-      "chart_info": "",
       "certifications": "",
       "awards": "",
       "awards_nl": ""
@@ -2942,7 +2695,7 @@
       "year": 1996,
       "isrc": "DED169600128",
       "uri": "spotify:track:37tzoWY1ubBQKGXiWdO5Qv",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/217353621",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/217353621",
         "de": "applemusic://track/585659458",
@@ -2953,7 +2706,7 @@
         "it": "applemusic://track/585659458"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=nzQDQcELNuU",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/1843333",
       "uri_deezer": "deezer://track/1044489",
       "alt_artists": [],
       "fun_fact": "The Latin-pop trio's worldwide hit from the Eurodance hitmakers behind Real McCoy.",
@@ -2961,7 +2714,6 @@
       "fun_fact_es": "El éxito mundial del trío de latin pop, obra de los creadores de Eurodance tras Real McCoy.",
       "fun_fact_fr": "Le tube mondial du trio latin-pop, signé par les faiseurs de tubes Eurodance derrière Real McCoy.",
       "fun_fact_nl": "De wereldhit van het latin-poptrio, van de eurodance-hitmakers achter Real McCoy.",
-      "chart_info": "",
       "certifications": "",
       "awards": "",
       "awards_nl": ""
@@ -2983,41 +2735,43 @@
         "it": "applemusic://track/1498447546"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=fUwf21uaVvw",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/490882871",
       "uri_deezer": "deezer://track/3802703102",
-      "fun_fact": "A chart hit by SNAP! (2026).",
-      "fun_fact_de": "Ein Chart-Hit von SNAP! (2026).",
-      "fun_fact_es": "Un éxito de SNAP! (2026).",
-      "fun_fact_fr": "Un tube de SNAP! (2026).",
-      "fun_fact_nl": "Een chart-hit van SNAP! (2026)."
+      "fun_fact": "A chart hit by SNAP! (1990).",
+      "fun_fact_de": "Ein Chart-Hit von SNAP! (1990).",
+      "fun_fact_es": "Un éxito de SNAP! (1990).",
+      "fun_fact_fr": "Un tube de SNAP! (1990).",
+      "fun_fact_nl": "Een chart-hit van SNAP! (1990).",
+      "fun_fact_it": "Un successo in classifica di SNAP! (1990)."
     },
     {
       "artist": "Incognito",
-      "title": "Always There - Edit",
+      "title": "Always There",
       "year": 1991,
-      "isrc": "USGR10001014",
+      "isrc": "GBF080201451",
       "uri": "spotify:track:6BxLhB782dObX1y4kDJDIU",
-      "uri_apple_music": "applemusic://track/1669406231",
+      "uri_apple_music": "applemusic://track/1669819164",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/1669406231",
-        "de": "applemusic://track/1669406231",
-        "gb": "applemusic://track/1442391217",
-        "fr": "applemusic://track/1669406231",
-        "es": "applemusic://track/1669406231",
-        "nl": "applemusic://track/1669406231",
-        "it": "applemusic://track/1669406231"
+        "us": "applemusic://track/1669819164",
+        "de": "applemusic://track/1669819164",
+        "gb": "applemusic://track/1669819164",
+        "fr": "applemusic://track/1669819164",
+        "es": "applemusic://track/1669819164",
+        "nl": "applemusic://track/1669819164",
+        "it": "applemusic://track/1669819164"
       },
-      "uri_youtube_music": "https://music.youtube.com/watch?v=TLYdt-uIe-U",
-      "uri_tidal": null,
-      "uri_deezer": "deezer://track/2133777737",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=KEDvTH-YLug",
+      "uri_tidal": "tidal://track/3718218",
+      "uri_deezer": "deezer://track/2135848457",
       "alt_artists": [
         "Jocelyn Brown"
       ],
-      "fun_fact": "A chart hit by Incognito (2010).",
-      "fun_fact_de": "Ein Chart-Hit von Incognito (2010).",
-      "fun_fact_es": "Un éxito de Incognito (2010).",
-      "fun_fact_fr": "Un tube de Incognito (2010).",
-      "fun_fact_nl": "Een chart-hit van Incognito (2010)."
+      "fun_fact": "A chart hit by Incognito (1991).",
+      "fun_fact_de": "Ein Chart-Hit von Incognito (1991).",
+      "fun_fact_es": "Un éxito de Incognito (1991).",
+      "fun_fact_fr": "Un tube de Incognito (1991).",
+      "fun_fact_nl": "Een chart-hit van Incognito (1991).",
+      "fun_fact_it": "Un successo in classifica di Incognito (1991)."
     },
     {
       "artist": "Die Toten Hosen",
@@ -3036,13 +2790,14 @@
         "it": "applemusic://track/478013623"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=tR4vamT51Nw",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/11016866",
       "uri_deezer": "deezer://track/142393497",
-      "fun_fact": "A chart hit by Die Toten Hosen (2011).",
-      "fun_fact_de": "Ein Chart-Hit von Die Toten Hosen (2011).",
-      "fun_fact_es": "Un éxito de Die Toten Hosen (2011).",
-      "fun_fact_fr": "Un tube de Die Toten Hosen (2011).",
-      "fun_fact_nl": "Een chart-hit van Die Toten Hosen (2011)."
+      "fun_fact": "A chart hit by Die Toten Hosen (1996).",
+      "fun_fact_de": "Ein Chart-Hit von Die Toten Hosen (1996).",
+      "fun_fact_es": "Un éxito de Die Toten Hosen (1996).",
+      "fun_fact_fr": "Un tube de Die Toten Hosen (1996).",
+      "fun_fact_nl": "Een chart-hit van Die Toten Hosen (1996).",
+      "fun_fact_it": "Un successo in classifica di Die Toten Hosen (1996)."
     },
     {
       "artist": "Roxette",
@@ -3061,13 +2816,14 @@
         "it": "applemusic://track/726418680"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=GX1Y7ri_0zU",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/131246",
       "uri_deezer": "deezer://track/89388951",
-      "fun_fact": "A chart hit by Roxette (2014).",
-      "fun_fact_de": "Ein Chart-Hit von Roxette (2014).",
-      "fun_fact_es": "Un éxito de Roxette (2014).",
-      "fun_fact_fr": "Un tube de Roxette (2014).",
-      "fun_fact_nl": "Een chart-hit van Roxette (2014)."
+      "fun_fact": "A chart hit by Roxette (1992).",
+      "fun_fact_de": "Ein Chart-Hit von Roxette (1992).",
+      "fun_fact_es": "Un éxito de Roxette (1992).",
+      "fun_fact_fr": "Un tube de Roxette (1992).",
+      "fun_fact_nl": "Een chart-hit van Roxette (1992).",
+      "fun_fact_it": "Un successo in classifica di Roxette (1992)."
     },
     {
       "artist": "DJ BoBo",
@@ -3086,13 +2842,14 @@
         "it": "applemusic://track/1508311027"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=SGeDy6txc2k",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/136025744",
       "uri_deezer": "deezer://track/918091092",
-      "fun_fact": "A chart hit by DJ BoBo (2017).",
-      "fun_fact_de": "Ein Chart-Hit von DJ BoBo (2017).",
-      "fun_fact_es": "Un éxito de DJ BoBo (2017).",
-      "fun_fact_fr": "Un tube de DJ BoBo (2017).",
-      "fun_fact_nl": "Een chart-hit van DJ BoBo (2017)."
+      "fun_fact": "A chart hit by DJ BoBo (1996).",
+      "fun_fact_de": "Ein Chart-Hit von DJ BoBo (1996).",
+      "fun_fact_es": "Un éxito de DJ BoBo (1996).",
+      "fun_fact_fr": "Un tube de DJ BoBo (1996).",
+      "fun_fact_nl": "Een chart-hit van DJ BoBo (1996).",
+      "fun_fact_it": "Un successo in classifica di DJ BoBo (1996)."
     },
     {
       "artist": "The Adventures Of Stevie V",
@@ -3100,16 +2857,17 @@
       "year": 1990,
       "isrc": null,
       "uri": "spotify:track:3lcUQs5nyrjoHpQR9Vo2aA",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1778288336",
       "uri_apple_music_by_region": {},
       "uri_youtube_music": "https://music.youtube.com/watch?v=BlaWhtHmUw4",
-      "uri_tidal": null,
-      "uri_deezer": null,
-      "fun_fact": "A chart hit by The Adventures Of Stevie V (2013).",
-      "fun_fact_de": "Ein Chart-Hit von The Adventures Of Stevie V (2013).",
-      "fun_fact_es": "Un éxito de The Adventures Of Stevie V (2013).",
-      "fun_fact_fr": "Un tube de The Adventures Of Stevie V (2013).",
-      "fun_fact_nl": "Een chart-hit van The Adventures Of Stevie V (2013)."
+      "uri_tidal": "tidal://track/40845268",
+      "uri_deezer": "deezer://track/78304375",
+      "fun_fact": "A chart hit by The Adventures Of Stevie V (1990).",
+      "fun_fact_de": "Ein Chart-Hit von The Adventures Of Stevie V (1990).",
+      "fun_fact_es": "Un éxito de The Adventures Of Stevie V (1990).",
+      "fun_fact_fr": "Un tube de The Adventures Of Stevie V (1990).",
+      "fun_fact_nl": "Een chart-hit van The Adventures Of Stevie V (1990).",
+      "fun_fact_it": "Un successo in classifica di The Adventures Of Stevie V (1990)."
     },
     {
       "artist": "The Offspring",
@@ -3128,13 +2886,14 @@
         "it": "applemusic://track/1893463652"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=BepGmpLT9HA",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/67367328",
       "uri_deezer": "deezer://track/137233982",
-      "fun_fact": "A chart hit by The Offspring (2016).",
-      "fun_fact_de": "Ein Chart-Hit von The Offspring (2016).",
-      "fun_fact_es": "Un éxito de The Offspring (2016).",
-      "fun_fact_fr": "Un tube de The Offspring (2016).",
-      "fun_fact_nl": "Een chart-hit van The Offspring (2016)."
+      "fun_fact": "A chart hit by The Offspring (1998).",
+      "fun_fact_de": "Ein Chart-Hit von The Offspring (1998).",
+      "fun_fact_es": "Un éxito de The Offspring (1998).",
+      "fun_fact_fr": "Un tube de The Offspring (1998).",
+      "fun_fact_nl": "Een chart-hit van The Offspring (1998).",
+      "fun_fact_it": "Un successo in classifica di The Offspring (1998)."
     },
     {
       "artist": "Rozalla",
@@ -3144,7 +2903,7 @@
       "uri": "spotify:track:4rkiST7hsHEuU5EMvApemD",
       "uri_apple_music": "applemusic://track/685311338",
       "uri_apple_music_by_region": {
-        "us": null,
+        "us": "applemusic://track/1808533367",
         "de": "applemusic://track/685311338",
         "gb": "applemusic://track/685311338",
         "fr": "applemusic://track/685311338",
@@ -3153,13 +2912,14 @@
         "it": "applemusic://track/685311338"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=gMKC5OfNJfs",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/31499183",
       "uri_deezer": "deezer://track/12169961",
-      "fun_fact": "A chart hit by Rozalla (2010).",
-      "fun_fact_de": "Ein Chart-Hit von Rozalla (2010).",
-      "fun_fact_es": "Un éxito de Rozalla (2010).",
-      "fun_fact_fr": "Un tube de Rozalla (2010).",
-      "fun_fact_nl": "Een chart-hit van Rozalla (2010)."
+      "fun_fact": "A chart hit by Rozalla (1991).",
+      "fun_fact_de": "Ein Chart-Hit von Rozalla (1991).",
+      "fun_fact_es": "Un éxito de Rozalla (1991).",
+      "fun_fact_fr": "Un tube de Rozalla (1991).",
+      "fun_fact_nl": "Een chart-hit van Rozalla (1991).",
+      "fun_fact_it": "Un successo in classifica di Rozalla (1991)."
     },
     {
       "artist": "Reel 2 Real",
@@ -3178,17 +2938,18 @@
         "it": "applemusic://track/1641440790"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=3gEyEfMtZOE",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/91519909",
       "uri_deezer": "deezer://track/1880251197",
       "alt_artists": [
         "The Mad Stuntman",
         "Erick Morillo"
       ],
-      "fun_fact": "A chart hit by Reel 2 Real (2022).",
-      "fun_fact_de": "Ein Chart-Hit von Reel 2 Real (2022).",
-      "fun_fact_es": "Un éxito de Reel 2 Real (2022).",
-      "fun_fact_fr": "Un tube de Reel 2 Real (2022).",
-      "fun_fact_nl": "Een chart-hit van Reel 2 Real (2022)."
+      "fun_fact": "A chart hit by Reel 2 Real (1993).",
+      "fun_fact_de": "Ein Chart-Hit von Reel 2 Real (1993).",
+      "fun_fact_es": "Un éxito de Reel 2 Real (1993).",
+      "fun_fact_fr": "Un tube de Reel 2 Real (1993).",
+      "fun_fact_nl": "Een chart-hit van Reel 2 Real (1993).",
+      "fun_fact_it": "Un successo in classifica di Reel 2 Real (1993)."
     },
     {
       "artist": "Scooter",
@@ -3207,13 +2968,14 @@
         "it": "applemusic://track/1692345562"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=TcfxxUVc20M",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/279179198",
       "uri_deezer": "deezer://track/2168791217",
-      "fun_fact": "A chart hit by Scooter (2013).",
-      "fun_fact_de": "Ein Chart-Hit von Scooter (2013).",
-      "fun_fact_es": "Un éxito de Scooter (2013).",
-      "fun_fact_fr": "Un tube de Scooter (2013).",
-      "fun_fact_nl": "Een chart-hit van Scooter (2013)."
+      "fun_fact": "A chart hit by Scooter (1998).",
+      "fun_fact_de": "Ein Chart-Hit von Scooter (1998).",
+      "fun_fact_es": "Un éxito de Scooter (1998).",
+      "fun_fact_fr": "Un tube de Scooter (1998).",
+      "fun_fact_nl": "Een chart-hit van Scooter (1998).",
+      "fun_fact_it": "Un successo in classifica di Scooter (1998)."
     },
     {
       "artist": "Fettes Brot",
@@ -3232,13 +2994,14 @@
         "it": "applemusic://track/1840884443"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=q-UPoJxfW0A",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/461018685",
       "uri_deezer": "deezer://track/3558361541",
-      "fun_fact": "A chart hit by Fettes Brot (2016).",
-      "fun_fact_de": "Ein Chart-Hit von Fettes Brot (2016).",
-      "fun_fact_es": "Un éxito de Fettes Brot (2016).",
-      "fun_fact_fr": "Un tube de Fettes Brot (2016).",
-      "fun_fact_nl": "Een chart-hit van Fettes Brot (2016)."
+      "fun_fact": "A chart hit by Fettes Brot (1996).",
+      "fun_fact_de": "Ein Chart-Hit von Fettes Brot (1996).",
+      "fun_fact_es": "Un éxito de Fettes Brot (1996).",
+      "fun_fact_fr": "Un tube de Fettes Brot (1996).",
+      "fun_fact_nl": "Een chart-hit van Fettes Brot (1996).",
+      "fun_fact_it": "Un successo in classifica di Fettes Brot (1996)."
     },
     {
       "artist": "The Bucketheads",
@@ -3248,7 +3011,7 @@
       "uri": "spotify:track:0qQiqwzddwQmtoGcF3Uzm5",
       "uri_apple_music": "applemusic://track/925643803",
       "uri_apple_music_by_region": {
-        "us": null,
+        "us": "applemusic://track/1014142025",
         "de": "applemusic://track/925643803",
         "gb": "applemusic://track/925643803",
         "fr": "applemusic://track/925643803",
@@ -3257,13 +3020,14 @@
         "it": "applemusic://track/925643803"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=X4UGPCR3zEQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/40845613",
       "uri_deezer": "deezer://track/73219903",
-      "fun_fact": "A chart hit by The Bucketheads (2013).",
-      "fun_fact_de": "Ein Chart-Hit von The Bucketheads (2013).",
-      "fun_fact_es": "Un éxito de The Bucketheads (2013).",
-      "fun_fact_fr": "Un tube de The Bucketheads (2013).",
-      "fun_fact_nl": "Een chart-hit van The Bucketheads (2013)."
+      "fun_fact": "A chart hit by The Bucketheads (1994).",
+      "fun_fact_de": "Ein Chart-Hit von The Bucketheads (1994).",
+      "fun_fact_es": "Un éxito de The Bucketheads (1994).",
+      "fun_fact_fr": "Un tube de The Bucketheads (1994).",
+      "fun_fact_nl": "Een chart-hit van The Bucketheads (1994).",
+      "fun_fact_it": "Un successo in classifica di The Bucketheads (1994)."
     },
     {
       "artist": "Tokyo Ghetto Pussy",
@@ -3282,13 +3046,14 @@
         "it": "applemusic://track/394874967"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=K_t1xV6PEOU",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/4673711",
       "uri_deezer": "deezer://track/7395378",
-      "fun_fact": "A chart hit by Tokyo Ghetto Pussy (2010).",
-      "fun_fact_de": "Ein Chart-Hit von Tokyo Ghetto Pussy (2010).",
-      "fun_fact_es": "Un éxito de Tokyo Ghetto Pussy (2010).",
-      "fun_fact_fr": "Un tube de Tokyo Ghetto Pussy (2010).",
-      "fun_fact_nl": "Een chart-hit van Tokyo Ghetto Pussy (2010)."
+      "fun_fact": "A chart hit by Tokyo Ghetto Pussy (1995).",
+      "fun_fact_de": "Ein Chart-Hit von Tokyo Ghetto Pussy (1995).",
+      "fun_fact_es": "Un éxito de Tokyo Ghetto Pussy (1995).",
+      "fun_fact_fr": "Un tube de Tokyo Ghetto Pussy (1995).",
+      "fun_fact_nl": "Een chart-hit van Tokyo Ghetto Pussy (1995).",
+      "fun_fact_it": "Un successo in classifica di Tokyo Ghetto Pussy (1995)."
     },
     {
       "year": 1999,
@@ -3379,24 +3144,25 @@
       "year": 1994,
       "isrc": "USA371073864",
       "uri": "spotify:track:5jCdKF1UAVD4fqkZ9GIWTf",
-      "uri_apple_music": "applemusic://track/1514374612",
+      "uri_apple_music": "applemusic://track/1301373868",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/1514374612",
-        "de": "applemusic://track/1495923562",
-        "gb": "applemusic://track/1495923562",
-        "fr": "applemusic://track/1495923562",
-        "es": "applemusic://track/1495923562",
-        "nl": "applemusic://track/1495923562",
-        "it": "applemusic://track/1495923562"
+        "us": "applemusic://track/1301373868",
+        "de": "applemusic://track/1301373868",
+        "gb": "applemusic://track/1301373868",
+        "fr": "applemusic://track/1301373868",
+        "es": "applemusic://track/1301373868",
+        "nl": "applemusic://track/1301373868",
+        "it": "applemusic://track/1301373868"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=uWyun5JpwaU",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/10395309",
       "uri_deezer": "deezer://track/857730702",
-      "fun_fact": "A chart hit by Aswad (2009).",
-      "fun_fact_de": "Ein Chart-Hit von Aswad (2009).",
-      "fun_fact_es": "Un éxito de Aswad (2009).",
-      "fun_fact_fr": "Un tube de Aswad (2009).",
-      "fun_fact_nl": "Een chart-hit van Aswad (2009)."
+      "fun_fact": "A chart hit by Aswad (1994).",
+      "fun_fact_de": "Ein Chart-Hit von Aswad (1994).",
+      "fun_fact_es": "Un éxito de Aswad (1994).",
+      "fun_fact_fr": "Un tube de Aswad (1994).",
+      "fun_fact_nl": "Een chart-hit van Aswad (1994).",
+      "fun_fact_it": "Un successo in classifica di Aswad (1994)."
     },
     {
       "artist": "Crystal Waters",
@@ -3415,7 +3181,7 @@
         "it": "applemusic://track/1549264424"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=NqThf-MpCjs",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/35708638",
       "uri_deezer": "deezer://track/907649",
       "fun_fact": "Released in 1991 as Crystal Waters' debut single, inspired by a homeless woman she saw daily near her Washington D.C. apartment. The 'la da dee, la da da' hook propelled it to the top of European charts and to #8 on the Billboard Hot 100.",
       "fun_fact_de": "1991 als Crystal Waters' Debut-Single erschienen, inspiriert von einer obdachlosen Frau, die sie täglich in der Nähe ihrer Wohnung in Washington D.C. sah. Der „la da dee, la da da\"-Hook brachte den Song an die Spitze europäischer Charts und auf Platz 8 der Billboard Hot 100.",
@@ -3440,13 +3206,14 @@
         "it": "applemusic://track/1730509612"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=LCp77Yf54_k",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/151322",
       "uri_deezer": "deezer://track/3102138",
-      "fun_fact": "A chart hit by Blur (2000).",
-      "fun_fact_de": "Ein Chart-Hit von Blur (2000).",
-      "fun_fact_es": "Un éxito de Blur (2000).",
-      "fun_fact_fr": "Un tube de Blur (2000).",
-      "fun_fact_nl": "Een chart-hit van Blur (2000)."
+      "fun_fact": "A chart hit by Blur (1994).",
+      "fun_fact_de": "Ein Chart-Hit von Blur (1994).",
+      "fun_fact_es": "Un éxito de Blur (1994).",
+      "fun_fact_fr": "Un tube de Blur (1994).",
+      "fun_fact_nl": "Een chart-hit van Blur (1994).",
+      "fun_fact_it": "Un successo in classifica di Blur (1994)."
     },
     {
       "artist": "Spice Girls",
@@ -3465,13 +3232,14 @@
         "it": "applemusic://track/715809044"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=YQmrQzirOR4",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/16389909",
       "uri_deezer": "deezer://track/45523761",
-      "fun_fact": "A chart hit by Spice Girls (2007).",
-      "fun_fact_de": "Ein Chart-Hit von Spice Girls (2007).",
-      "fun_fact_es": "Un éxito de Spice Girls (2007).",
-      "fun_fact_fr": "Un tube de Spice Girls (2007).",
-      "fun_fact_nl": "Een chart-hit van Spice Girls (2007)."
+      "fun_fact": "A chart hit by Spice Girls (1996).",
+      "fun_fact_de": "Ein Chart-Hit von Spice Girls (1996).",
+      "fun_fact_es": "Un éxito de Spice Girls (1996).",
+      "fun_fact_fr": "Un tube de Spice Girls (1996).",
+      "fun_fact_nl": "Een chart-hit van Spice Girls (1996).",
+      "fun_fact_it": "Un successo in classifica di Spice Girls (1996)."
     },
     {
       "artist": "Shaggy",
@@ -3490,13 +3258,14 @@
         "it": "applemusic://track/1807404008"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=SA130vlAPTE",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/1838950",
       "uri_deezer": "deezer://track/3159507",
-      "fun_fact": "A chart hit by Shaggy (2008).",
-      "fun_fact_de": "Ein Chart-Hit von Shaggy (2008).",
-      "fun_fact_es": "Un éxito de Shaggy (2008).",
-      "fun_fact_fr": "Un tube de Shaggy (2008).",
-      "fun_fact_nl": "Een chart-hit van Shaggy (2008)."
+      "fun_fact": "A chart hit by Shaggy (1993).",
+      "fun_fact_de": "Ein Chart-Hit von Shaggy (1993).",
+      "fun_fact_es": "Un éxito de Shaggy (1993).",
+      "fun_fact_fr": "Un tube de Shaggy (1993).",
+      "fun_fact_nl": "Een chart-hit van Shaggy (1993).",
+      "fun_fact_it": "Un successo in classifica di Shaggy (1993)."
     },
     {
       "artist": "Five",
@@ -3515,16 +3284,1157 @@
         "it": "applemusic://track/958426231"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=tli9j-MUVGI",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/109643",
       "uri_deezer": "deezer://track/13138714",
       "alt_artists": [
         "Steve Mac"
       ],
-      "fun_fact": "A chart hit by Five (2003).",
-      "fun_fact_de": "Ein Chart-Hit von Five (2003).",
-      "fun_fact_es": "Un éxito de Five (2003).",
-      "fun_fact_fr": "Un tube de Five (2003).",
-      "fun_fact_nl": "Een chart-hit van Five (2003)."
+      "fun_fact": "A chart hit by Five (1999).",
+      "fun_fact_de": "Ein Chart-Hit von Five (1999).",
+      "fun_fact_es": "Un éxito de Five (1999).",
+      "fun_fact_fr": "Un tube de Five (1999).",
+      "fun_fact_nl": "Een chart-hit van Five (1999).",
+      "fun_fact_it": "Un successo in classifica di Five (1999)."
+    },
+    {
+      "year": 1990,
+      "uri": "spotify:track:2QkFENeLttDT4GISXvVeFq",
+      "artist": "The Farm",
+      "title": "All Together Now",
+      "alt_artists": [
+        "The La's",
+        "The Stone Roses"
+      ],
+      "certifications": [
+        "Gold (UK)"
+      ],
+      "fun_fact": "Inspired by the 1914 Christmas Truce during WWI, the song became a football anthem and was later used for the 2004 European Championship.",
+      "fun_fact_de": "Inspiriert vom Weihnachtsfrieden 1914 im Ersten Weltkrieg wurde der Song zur Fußballhymne und wurde bei der Europameisterschaft 2004 verwendet.",
+      "fun_fact_es": "Inspirada en la Tregua de Navidad de 1914 durante la Primera Guerra Mundial, la canción se convirtió en un himno del fútbol y fue usada en la Eurocopa 2004.",
+      "fun_fact_fr": "Inspirée par la Trêve de Noël de 1914 pendant la Première Guerre mondiale, la chanson est devenue un hymne du football et a été utilisée pour le Championnat d'Europe 2004.",
+      "awards": [],
+      "uri_apple_music": "applemusic://track/302229811",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=jUvzuuh0tnk",
+      "uri_tidal": "tidal://track/490869826",
+      "uri_deezer": "deezer://track/3783098662",
+      "fun_fact_nl": "Geïnspireerd op het Kerstbestand van 1914 tijdens WO I werd het nummer een voetbalhymne en werd later gebruikt voor het Europees Kampioenschap van 2004.",
+      "awards_nl": [],
+      "isrc": "USRE19901615",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1543366109",
+        "de": "applemusic://track/284576492",
+        "gb": "applemusic://track/6773112917",
+        "fr": "applemusic://track/6773112801",
+        "es": "applemusic://track/284576492",
+        "nl": "applemusic://track/284576492",
+        "it": "applemusic://track/6773112801"
+      }
+    },
+    {
+      "year": 1991,
+      "uri": "spotify:track:7bljdWZ5t9VqfBbGFjwZ98",
+      "artist": "Orchestral Manoeuvres In The Dark",
+      "title": "Sailing On The Seven Seas",
+      "alt_artists": [
+        "Depeche Mode",
+        "Pet Shop Boys"
+      ],
+      "certifications": [],
+      "fun_fact": "This comeback single marked OMD's return to the charts after a quiet period, reaching #3 in the UK and becoming their biggest hit since the mid-80s.",
+      "fun_fact_de": "Diese Comeback-Single markierte OMDs Rückkehr in die Charts nach einer ruhigen Phase und erreichte #3 in Großbritannien.",
+      "fun_fact_es": "Este sencillo de regreso marcó el retorno de OMD a las listas después de un período tranquilo, alcanzando el #3 en el Reino Unido.",
+      "fun_fact_fr": "Ce single de retour a marqué le retour d'OMD dans les charts après une période calme, atteignant la 3e place au Royaume-Uni.",
+      "awards": [],
+      "uri_apple_music": "applemusic://track/714617957",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=lMST3H69-Os",
+      "uri_tidal": "tidal://track/1577114",
+      "uri_deezer": "deezer://track/3156233",
+      "fun_fact_nl": "Deze comeback-single markeerde OMD's terugkeer naar de hitparade na een rustige periode, bereikte nummer 3 in het VK en werd hun grootste hit sinds het midden van de jaren 80.",
+      "awards_nl": [],
+      "isrc": "GBAAA9100038",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/6762969233",
+        "de": "applemusic://track/6762969233",
+        "gb": "applemusic://track/6762969233",
+        "fr": "applemusic://track/6762969233",
+        "es": "applemusic://track/6762969233",
+        "nl": "applemusic://track/6762969233",
+        "it": "applemusic://track/6762969233"
+      }
+    },
+    {
+      "year": 1991,
+      "uri": "spotify:track:3ShEGKdskF0ke7iW2u9gjD",
+      "artist": "Zucchero",
+      "alt_artists": [
+        "Eros Ramazzotti",
+        "Vasco Rossi"
+      ],
+      "title": "Senza Una Donna",
+      "chart_info": {
+        "billboard_peak": 4,
+        "uk_peak": 4,
+        "weeks_on_chart": 15
+      },
+      "certifications": [
+        "Gold (US)",
+        "Gold (UK)"
+      ],
+      "awards": [],
+      "fun_fact": "This Italian-English duet with Paul Young became an international hit. Zucchero (meaning 'Sugar' in Italian) is one of Italy's most successful artists. The song took six years to become popular internationally.",
+      "fun_fact_de": "Dieses italienisch-englische Duett mit Paul Young wurde ein internationaler Hit. Zucchero (italienisch für 'Zucker') ist einer von Italiens erfolgreichsten Künstlern.",
+      "fun_fact_es": "Este dueto italiano-inglés con Paul Young se convirtió en un éxito internacional. Zucchero (que significa 'Azúcar' en italiano) es uno de los artistas más exitosos de Italia.",
+      "fun_fact_fr": "Ce duo italo-anglais avec Paul Young est devenu un succès international. Zucchero (qui signifie 'Sucre' en italien) est l'un des artistes les plus couronnés de succès en Italie. La chanson a mis six ans avant de percer à l'international.",
+      "uri_apple_music": "applemusic://track/98318466",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=4tZ1I1eJXJs",
+      "uri_tidal": "tidal://track/37668277",
+      "uri_deezer": "deezer://track/89748761",
+      "fun_fact_nl": "Dit Italiaans-Engels duet met Paul Young werd een internationale hit. Zucchero (Italiaans voor 'Suiker') is een van Italië's meest succesvolle artiesten. Het nummer deed er zes jaar over om internationaal populair te worden.",
+      "awards_nl": [],
+      "isrc": "USBKY0509747",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/98318466",
+        "de": "applemusic://track/98318466",
+        "gb": "applemusic://track/98318466",
+        "fr": "applemusic://track/98318466",
+        "es": "applemusic://track/98318466",
+        "nl": "applemusic://track/98318466",
+        "it": "applemusic://track/98318466"
+      }
+    },
+    {
+      "year": 1990,
+      "uri": "spotify:track:0XwjdpwvEwukcg3XU4Ibzt",
+      "artist": "Jon Bon Jovi",
+      "alt_artists": [
+        "Bon Jovi",
+        "Richie Sambora",
+        "Bryan Adams"
+      ],
+      "title": "Blaze Of Glory",
+      "isrc": "USPG19090003",
+      "uri_apple_music": "applemusic://track/1440657907",
+      "uri_deezer": "deezer://track/1104054",
+      "fun_fact": "Written for Young Guns II after Emilio Estevez asked to use 'Wanted Dead or Alive' and Bon Jovi decided to write something new instead — it won him a Golden Globe.",
+      "fun_fact_de": "Geschrieben für Young Guns II, nachdem Emilio Estevez um 'Wanted Dead or Alive' gebeten hatte und Bon Jovi lieber etwas Neues schrieb — es brachte ihm einen Golden Globe.",
+      "fun_fact_es": "Escrita para Young Guns II después de que Emilio Estevez pidiera usar 'Wanted Dead or Alive' y Bon Jovi prefiriera componer algo nuevo; le valió un Globo de Oro.",
+      "fun_fact_fr": "Écrite pour Young Guns II après qu'Emilio Estevez eut demandé 'Wanted Dead or Alive' et que Bon Jovi eut préféré composer du neuf — elle lui a valu un Golden Globe.",
+      "fun_fact_nl": "Geschreven voor Young Guns II nadat Emilio Estevez om 'Wanted Dead or Alive' vroeg en Bon Jovi liever iets nieuws schreef — het leverde hem een Golden Globe op.",
+      "fun_fact_it": "Scritta per Young Guns II dopo che Emilio Estevez chiese 'Wanted Dead or Alive' e Bon Jovi preferì comporre qualcosa di nuovo: gli valse un Golden Globe.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=MfmYCM4CS8o"
+    },
+    {
+      "year": 1991,
+      "uri": "spotify:track:6O7nMW8pIAk8m9ub6azaF9",
+      "artist": "Bee Gees",
+      "alt_artists": [
+        "Barry Gibb",
+        "Robin Gibb",
+        "Andy Gibb"
+      ],
+      "title": "Secret Love",
+      "isrc": "USWB10104657",
+      "uri_apple_music": "applemusic://track/1445670131",
+      "uri_deezer": "deezer://track/139138769",
+      "fun_fact": "By 1991 the Bee Gees had been written off as a disco act twice over; this single put them back in the UK top five without a trace of falsetto disco.",
+      "fun_fact_de": "1991 galten die Bee Gees zweimal als abgeschriebene Disco-Band; diese Single brachte sie ohne eine Spur Falsett-Disco zurück in die britischen Top fünf.",
+      "fun_fact_es": "En 1991 a los Bee Gees se les había dado por acabados como grupo disco dos veces; este sencillo les devolvió al top cinco británico sin rastro de falsete disco.",
+      "fun_fact_fr": "En 1991, les Bee Gees avaient été enterrés deux fois comme groupe disco ; ce single les a ramenés dans le top cinq britannique sans la moindre trace de falsetto disco.",
+      "fun_fact_nl": "In 1991 waren de Bee Gees al twee keer afgeschreven als discoband; deze single bracht ze zonder een spoor van falsetdisco terug in de Britse top vijf.",
+      "fun_fact_it": "Nel 1991 i Bee Gees erano stati dati per finiti come gruppo disco due volte; questo singolo li riportò nella top cinque britannica senza traccia di falsetto disco.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=iVseOSFTGAw"
+    },
+    {
+      "year": 1991,
+      "uri": "spotify:track:5hkDVHllJDgj4ynguaT2Ax",
+      "artist": "Mike + The Mechanics",
+      "alt_artists": [
+        "Genesis",
+        "Phil Collins",
+        "Marillion"
+      ],
+      "title": "Word Of Mouth",
+      "isrc": "GB5KW1900093",
+      "uri_apple_music": "applemusic://track/1721958582",
+      "uri_deezer": "deezer://track/2598565422",
+      "fun_fact": "Mike Rutherford ran this band alongside Genesis, and for a while the side project charted in Britain more reliably than the main one.",
+      "fun_fact_de": "Mike Rutherford betrieb diese Band neben Genesis, und eine Zeit lang war das Nebenprojekt in Britannien chartsicherer als die Hauptband.",
+      "fun_fact_es": "Mike Rutherford llevaba este grupo en paralelo a Genesis, y durante un tiempo el proyecto paralelo entraba en las listas británicas con más fiabilidad que el principal.",
+      "fun_fact_fr": "Mike Rutherford menait ce groupe en parallèle de Genesis, et pendant un temps le projet parallèle se classait plus sûrement que le principal au Royaume-Uni.",
+      "fun_fact_nl": "Mike Rutherford leidde deze band naast Genesis, en een tijdlang scoorde het zijproject in Groot-Brittannië betrouwbaarder dan de hoofdband.",
+      "fun_fact_it": "Mike Rutherford portava avanti questa band accanto ai Genesis, e per un periodo il progetto parallelo entrava in classifica in Gran Bretagna più del principale.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=7jbSwMU7H0w"
+    },
+    {
+      "year": 1991,
+      "uri": "spotify:track:5o5U2r5F3ojvkhLSqRbY1Y",
+      "artist": "Chesney Hawkes",
+      "alt_artists": [
+        "Nik Kershaw",
+        "Bros",
+        "Rick Astley"
+      ],
+      "title": "The One and Only",
+      "isrc": "GBAYK9100001",
+      "uri_apple_music": "applemusic://track/1629183924",
+      "uri_deezer": "deezer://track/1787674467",
+      "fun_fact": "Nik Kershaw wrote it, Hawkes was nineteen when it went to number one for five weeks, and he never had another top forty hit — the definition of the term.",
+      "fun_fact_de": "Nik Kershaw schrieb den Song, Hawkes war neunzehn, als er fünf Wochen auf Platz eins stand, und er hatte nie wieder einen Top-vierzig-Hit — die Definition des Begriffs.",
+      "fun_fact_es": "La escribió Nik Kershaw, Hawkes tenía diecinueve años cuando estuvo cinco semanas en el número uno, y nunca volvió al top cuarenta: la definición del término.",
+      "fun_fact_fr": "Nik Kershaw l'a écrite, Hawkes avait dix-neuf ans quand elle est restée cinq semaines première, et il n'a jamais eu d'autre top quarante — la définition du terme.",
+      "fun_fact_nl": "Nik Kershaw schreef het, Hawkes was negentien toen het vijf weken op nummer één stond, en hij had nooit meer een top-veertig-hit — de definitie van het begrip.",
+      "fun_fact_it": "La scrisse Nik Kershaw, Hawkes aveva diciannove anni quando restò cinque settimane al primo posto, e non ebbe mai più una top quaranta: la definizione del termine.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=ZvMsp7s78Do"
+    },
+    {
+      "year": 1992,
+      "uri": "spotify:track:28CbxqvoML43nJMU68VPx1",
+      "artist": "Shakespears Sister",
+      "alt_artists": [
+        "Bananarama",
+        "Siobhan Fahey",
+        "Eurythmics"
+      ],
+      "title": "Hello (Turn Your Radio On)",
+      "isrc": "GBANP9200003",
+      "uri_apple_music": "applemusic://track/1321520085",
+      "uri_deezer": "deezer://track/432716532",
+      "fun_fact": "Siobhan Fahey had left Bananarama for this duo, and the follow-up to 'Stay' turned the same gothic pop towards the radio dial itself.",
+      "fun_fact_de": "Siobhan Fahey hatte Bananarama für dieses Duo verlassen, und der Nachfolger von 'Stay' richtete denselben gotischen Pop auf die Radioskala selbst.",
+      "fun_fact_es": "Siobhan Fahey había dejado Bananarama por este dúo, y la continuación de 'Stay' dirigió el mismo pop gótico hacia el propio dial de la radio.",
+      "fun_fact_fr": "Siobhan Fahey avait quitté Bananarama pour ce duo, et la suite de 'Stay' a tourné la même pop gothique vers le cadran de la radio.",
+      "fun_fact_nl": "Siobhan Fahey had Bananarama verlaten voor dit duo, en de opvolger van 'Stay' richtte diezelfde gotische pop op de radioschaal zelf.",
+      "fun_fact_it": "Siobhan Fahey aveva lasciato le Bananarama per questo duo, e il seguito di 'Stay' rivolse lo stesso pop gotico alla manopola della radio.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=IrbFydtLF-Y"
+    },
+    {
+      "year": 1993,
+      "uri": "spotify:track:4t1fWWJQs5V9YErfsrDslC",
+      "artist": "Aerosmith",
+      "alt_artists": [
+        "Guns N Roses",
+        "Bon Jovi",
+        "Alice Cooper"
+      ],
+      "title": "Cryin",
+      "isrc": "USIR10000430",
+      "uri_apple_music": "applemusic://track/1680799490",
+      "uri_deezer": "deezer://track/2246520677",
+      "fun_fact": "The video made Alicia Silverstone a star and Aerosmith an MTV band again; the three clips from that album are still shown as a trilogy.",
+      "fun_fact_de": "Das Video machte Alicia Silverstone zum Star und Aerosmith wieder zur MTV-Band; die drei Clips dieses Albums werden bis heute als Trilogie gezeigt.",
+      "fun_fact_es": "El vídeo convirtió a Alicia Silverstone en estrella y devolvió a Aerosmith a la MTV; los tres clips de aquel disco se siguen mostrando como trilogía.",
+      "fun_fact_fr": "Le clip a fait d'Alicia Silverstone une star et d'Aerosmith un groupe MTV à nouveau ; les trois clips de cet album sont encore présentés comme une trilogie.",
+      "fun_fact_nl": "De video maakte Alicia Silverstone een ster en Aerosmith weer een MTV-band; de drie clips van dat album worden nog steeds als trilogie getoond.",
+      "fun_fact_it": "Il video rese Alicia Silverstone una star e riportò gli Aerosmith su MTV; i tre clip di quell'album sono ancora mostrati come trilogia.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=qfNmyxV2Ncw"
+    },
+    {
+      "year": 1993,
+      "uri": "spotify:track:4LxrmBgBLQc2oU60r6cBPW",
+      "artist": "Mr. Big",
+      "alt_artists": [
+        "Cat Stevens",
+        "Extreme",
+        "Nelson"
+      ],
+      "title": "Wild World",
+      "isrc": "USDEI0907987",
+      "uri_apple_music": "applemusic://track/1270576307",
+      "uri_deezer": "deezer://track/6063716",
+      "fun_fact": "The band followed their acoustic number one with another Cat Stevens cover, and the softer route worked in Europe long after it stopped working at home.",
+      "fun_fact_de": "Die Band ließ ihrer akustischen Nummer eins ein weiteres Cat-Stevens-Cover folgen, und der weichere Weg trug in Europa noch lange, als er daheim nicht mehr trug.",
+      "fun_fact_es": "El grupo siguió su número uno acústico con otra versión de Cat Stevens, y la vía más suave funcionó en Europa mucho después de dejar de funcionar en casa.",
+      "fun_fact_fr": "Le groupe a fait suivre son numéro un acoustique d'une autre reprise de Cat Stevens, et cette voie plus douce a marché en Europe bien après avoir cessé de marcher chez eux.",
+      "fun_fact_nl": "De band liet hun akoestische nummer één volgen door nog een Cat Stevens-cover, en de zachtere weg werkte in Europa nog lang nadat hij thuis niet meer werkte.",
+      "fun_fact_it": "La band fece seguire al suo numero uno acustico un'altra cover di Cat Stevens, e la via più morbida funzionò in Europa molto dopo che a casa aveva smesso.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=Za9LY6Q3EuI"
+    },
+    {
+      "year": 1994,
+      "uri": "spotify:track:1vyWVgVwYfd15EGzz5zeej",
+      "artist": "Erasure",
+      "alt_artists": [
+        "Pet Shop Boys",
+        "Depeche Mode",
+        "Yazoo"
+      ],
+      "title": "Always",
+      "isrc": "GBAJH9400001",
+      "uri_apple_music": "applemusic://track/1436488400",
+      "uri_deezer": "deezer://track/3783086782",
+      "fun_fact": "A decade after the fact the song found a second life inside a video game, where a level built around it introduced it to players born after it charted.",
+      "fun_fact_de": "Ein Jahrzehnt später fand der Song ein zweites Leben in einem Videospiel, dessen um ihn herum gebautes Level ihn Spielern nahebrachte, die nach seiner Chartzeit geboren waren.",
+      "fun_fact_es": "Una década después la canción tuvo una segunda vida dentro de un videojuego, cuyo nivel construido a su alrededor la presentó a jugadores nacidos después de su paso por las listas.",
+      "fun_fact_fr": "Une décennie plus tard, la chanson a connu une seconde vie dans un jeu vidéo, dont un niveau bâti autour d'elle l'a fait découvrir à des joueurs nés après son passage en tête.",
+      "fun_fact_nl": "Een decennium later kreeg het nummer een tweede leven in een videospel, waarvan een level eromheen het introduceerde bij spelers die na de hitperiode waren geboren.",
+      "fun_fact_it": "Un decennio dopo la canzone ebbe una seconda vita in un videogioco, il cui livello costruito attorno a essa la fece conoscere a giocatori nati dopo il suo passaggio in classifica.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=lAbCd7dET_w"
+    },
+    {
+      "year": 1994,
+      "uri": "spotify:track:4wYCe9tSmUolNU4WmJKbZy",
+      "artist": "East 17",
+      "alt_artists": [
+        "Take That",
+        "Boyzone",
+        "Bad Boys Inc"
+      ],
+      "title": "Stay Another Day",
+      "isrc": "GBANP9400042",
+      "uri_apple_music": "applemusic://track/1313407184",
+      "uri_deezer": "deezer://track/428735552",
+      "fun_fact": "Tony Mortimer wrote it about his brother's suicide; it was released as a Christmas single with sleigh bells added, and most listeners heard only the bells.",
+      "fun_fact_de": "Tony Mortimer schrieb den Song über den Suizid seines Bruders; er erschien als Weihnachtssingle mit hinzugefügten Schlittenglocken, und die meisten hörten nur die Glocken.",
+      "fun_fact_es": "Tony Mortimer la escribió sobre el suicidio de su hermano; salió como sencillo navideño con cascabeles añadidos, y la mayoría solo oyó los cascabeles.",
+      "fun_fact_fr": "Tony Mortimer l'a écrite sur le suicide de son frère ; elle est sortie comme single de Noël avec des grelots ajoutés, et la plupart n'ont entendu que les grelots.",
+      "fun_fact_nl": "Tony Mortimer schreef het over de zelfdoding van zijn broer; het verscheen als kerstsingle met toegevoegde sleebellen, en de meesten hoorden alleen de bellen.",
+      "fun_fact_it": "Tony Mortimer la scrisse sul suicidio del fratello; uscì come singolo natalizio con sonagli aggiunti, e i più sentirono solo i sonagli.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=-wNhdjoF-6M"
+    },
+    {
+      "year": 1996,
+      "uri": "spotify:track:0KPWi8mDRagwxnwaA0di8a",
+      "artist": "Skunk Anansie",
+      "alt_artists": [
+        "Garbage",
+        "No Doubt",
+        "Placebo"
+      ],
+      "title": "Hedonism (Just Because You Feel Good)",
+      "isrc": "GBBTF9600005",
+      "uri_apple_music": "applemusic://track/336927563",
+      "uri_deezer": "deezer://track/2629609432",
+      "fun_fact": "Skin wrote the line about wanting someone to fail as a study of spite, and the band's one ballad became their biggest hit by a distance.",
+      "fun_fact_de": "Skin schrieb die Zeile über den Wunsch, jemanden scheitern zu sehen, als Studie über Missgunst, und die eine Ballade der Band wurde mit Abstand ihr größter Hit.",
+      "fun_fact_es": "Skin escribió el verso sobre desear que alguien fracase como un estudio del rencor, y la única balada del grupo se convirtió con diferencia en su mayor éxito.",
+      "fun_fact_fr": "Skin a écrit ce vers sur le désir de voir quelqu'un échouer comme une étude de la rancœur, et l'unique ballade du groupe est devenue de loin son plus grand succès.",
+      "fun_fact_nl": "Skin schreef de regel over willen dat iemand faalt als een studie in wrok, en de enige ballade van de band werd veruit hun grootste hit.",
+      "fun_fact_it": "Skin scrisse il verso sul desiderare il fallimento altrui come studio del rancore, e l'unica ballata della band divenne di gran lunga il loro successo maggiore.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=LLs-JP5FGAg"
+    },
+    {
+      "year": 1996,
+      "uri": "spotify:track:0Uqs7ilt5kGX9NzFDWTBrP",
+      "artist": "Backstreet Boys",
+      "alt_artists": [
+        "NSYNC",
+        "Boyzone",
+        "Take That"
+      ],
+      "title": "Quit Playing Games (With My Heart)",
+      "isrc": "USJI19710152",
+      "uri_apple_music": "applemusic://track/217939769",
+      "uri_deezer": "deezer://track/4274199",
+      "fun_fact": "The group were a European act for two full years before America noticed; this single charted in Germany long before it charted at home.",
+      "fun_fact_de": "Die Gruppe war zwei volle Jahre eine europäische Band, bevor Amerika sie bemerkte; diese Single stand in Deutschland lange vor der Heimat in den Charts.",
+      "fun_fact_es": "El grupo fue una banda europea durante dos años completos antes de que América los notara; este sencillo entró en listas en Alemania mucho antes que en casa.",
+      "fun_fact_fr": "Le groupe a été européen pendant deux années entières avant que l'Amérique ne les remarque ; ce single a été classé en Allemagne bien avant chez eux.",
+      "fun_fact_nl": "De groep was twee volle jaren een Europese act voordat Amerika hen opmerkte; deze single stond in Duitsland allang in de lijsten voordat dat thuis gebeurde.",
+      "fun_fact_it": "Il gruppo fu una band europea per due anni interi prima che l'America se ne accorgesse; questo singolo entrò in classifica in Germania molto prima che in patria.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=Ug88HO2mg44"
+    },
+    {
+      "year": 1996,
+      "uri": "spotify:track:1PEqh7awkpuepLBSq8ZwqD",
+      "artist": "Donna Lewis",
+      "alt_artists": [
+        "Natalie Imbruglia",
+        "Sixpence None the Richer",
+        "Des ree"
+      ],
+      "title": "I Love You Always Forever",
+      "isrc": "USAT29600040",
+      "uri_apple_music": "applemusic://track/281708889",
+      "uri_deezer": "deezer://track/846048",
+      "fun_fact": "The Welsh singer took the title from a line in a Henry David Thoreau-quoting novel by H. E. Bates, and it spent nine weeks stuck at number two in America.",
+      "fun_fact_de": "Die walisische Sängerin nahm den Titel aus einer Zeile eines Romans von H. E. Bates, und er hing in Amerika neun Wochen auf Platz zwei fest.",
+      "fun_fact_es": "La cantante galesa tomó el título de un verso de una novela de H. E. Bates, y se quedó nueve semanas atascada en el número dos en Estados Unidos.",
+      "fun_fact_fr": "La chanteuse galloise a tiré le titre d'une phrase d'un roman de H. E. Bates, et le morceau est resté bloqué neuf semaines à la deuxième place aux États-Unis.",
+      "fun_fact_nl": "De Welshe zangeres ontleende de titel aan een zin uit een roman van H. E. Bates, en het bleef negen weken steken op nummer twee in Amerika.",
+      "fun_fact_it": "La cantante gallese prese il titolo da una frase di un romanzo di H. E. Bates, e restò bloccata nove settimane al secondo posto in America."
+    },
+    {
+      "year": 1997,
+      "uri": "spotify:track:2YOuBWIyHgyvHnLMpjzBf2",
+      "artist": "Dario G",
+      "alt_artists": [
+        "Faithless",
+        "Robert Miles",
+        "Chicane"
+      ],
+      "title": "Sunchyme",
+      "isrc": "GBAHT9802853",
+      "uri_apple_music": "applemusic://track/1629187353",
+      "uri_deezer": "deezer://track/1787703427",
+      "fun_fact": "The whole record is built on a Dream Academy song from 1985, and the trio named themselves after a football manager rather than any of its members.",
+      "fun_fact_de": "Die ganze Platte baut auf einem Song von The Dream Academy aus dem Jahr 1985 auf, und das Trio benannte sich nach einem Fußballtrainer statt nach einem seiner Mitglieder.",
+      "fun_fact_es": "Todo el disco se construye sobre una canción de The Dream Academy de 1985, y el trío se puso el nombre de un entrenador de fútbol y no de ninguno de sus miembros.",
+      "fun_fact_fr": "Tout le disque repose sur un morceau de The Dream Academy de 1985, et le trio s'est nommé d'après un entraîneur de football plutôt que d'après l'un de ses membres.",
+      "fun_fact_nl": "De hele plaat is gebouwd op een nummer van The Dream Academy uit 1985, en het trio noemde zich naar een voetbaltrainer in plaats van naar een van de leden.",
+      "fun_fact_it": "L'intero disco è costruito su un brano dei Dream Academy del 1985, e il trio prese il nome da un allenatore di calcio anziché da uno dei suoi membri."
+    },
+    {
+      "year": 1998,
+      "uri": "spotify:track:2II03llydk4YnkBBvoYB3B",
+      "artist": "Madonna",
+      "alt_artists": [
+        "Björk",
+        "Kylie Minogue",
+        "Sinéad O Connor"
+      ],
+      "title": "Frozen",
+      "isrc": "USWB19800001",
+      "uri_apple_music": "applemusic://track/952683",
+      "uri_deezer": "deezer://track/778758",
+      "fun_fact": "A Belgian court briefly banned the song from sale in the country over a plagiarism claim that was overturned years later on appeal.",
+      "fun_fact_de": "Ein belgisches Gericht verbot den Verkauf des Songs im Land vorübergehend wegen eines Plagiatsvorwurfs, der Jahre später in der Berufung aufgehoben wurde.",
+      "fun_fact_es": "Un tribunal belga prohibió brevemente la venta de la canción en el país por una demanda de plagio que años después se anuló en apelación.",
+      "fun_fact_fr": "Un tribunal belge a brièvement interdit la vente du morceau dans le pays pour une accusation de plagiat annulée des années plus tard en appel.",
+      "fun_fact_nl": "Een Belgische rechtbank verbood de verkoop van het nummer in het land tijdelijk wegens een plagiaatclaim die jaren later in hoger beroep werd vernietigd.",
+      "fun_fact_it": "Un tribunale belga vietò brevemente la vendita del brano nel paese per un'accusa di plagio annullata anni dopo in appello."
+    },
+    {
+      "year": 1998,
+      "uri": "spotify:track:4AstOWewI6yGeMh6ysWFCW",
+      "artist": "Sasha",
+      "alt_artists": [
+        "Xavier Naidoo",
+        "Nena",
+        "Peter Maffay"
+      ],
+      "title": "If You Believe",
+      "isrc": "DEA629862595",
+      "uri_apple_music": "applemusic://track/124952477",
+      "uri_deezer": "deezer://track/686338",
+      "fun_fact": "Sascha Schmitz sang in English throughout and was routinely taken for a British act by German listeners who had never seen his name written down.",
+      "fun_fact_de": "Sascha Schmitz sang durchgehend auf Englisch und wurde von deutschen Hörern, die seinen Namen nie geschrieben gesehen hatten, regelmäßig für einen Briten gehalten.",
+      "fun_fact_es": "Sascha Schmitz cantaba siempre en inglés y los oyentes alemanes que nunca habían visto su nombre escrito lo tomaban habitualmente por un artista británico.",
+      "fun_fact_fr": "Sascha Schmitz chantait toujours en anglais et les auditeurs allemands qui n'avaient jamais vu son nom écrit le prenaient couramment pour un Britannique.",
+      "fun_fact_nl": "Sascha Schmitz zong altijd in het Engels en werd door Duitse luisteraars die zijn naam nooit geschreven hadden gezien geregeld voor een Brit aangezien.",
+      "fun_fact_it": "Sascha Schmitz cantava sempre in inglese e gli ascoltatori tedeschi che non avevano mai visto il suo nome scritto lo scambiavano abitualmente per un britannico."
+    },
+    {
+      "year": 1999,
+      "uri": "spotify:track:5MmWgG5KgiqSxkOZdVXRQA",
+      "artist": "Travis",
+      "alt_artists": [
+        "Oasis",
+        "Coldplay",
+        "Snow Patrol"
+      ],
+      "title": "Why Does It Always Rain On Me?",
+      "isrc": "GBBPF9900287",
+      "uri_apple_music": "applemusic://track/1458139090",
+      "uri_deezer": "deezer://track/657189912",
+      "fun_fact": "Fran Healy wrote it on a rare sunny holiday in Israel, and at Glastonbury the year it charted the rain began during the first chorus.",
+      "fun_fact_de": "Fran Healy schrieb den Song in einem seltenen sonnigen Urlaub in Israel, und in Glastonbury setzte im Chartjahr der Regen während des ersten Refrains ein.",
+      "fun_fact_es": "Fran Healy la escribió en unas raras vacaciones soleadas en Israel, y en Glastonbury, el año que entró en listas, la lluvia empezó durante el primer estribillo.",
+      "fun_fact_fr": "Fran Healy l'a écrite lors de rares vacances ensoleillées en Israël, et à Glastonbury, l'année de son classement, la pluie a commencé pendant le premier refrain.",
+      "fun_fact_nl": "Fran Healy schreef het tijdens een zeldzame zonnige vakantie in Israël, en op Glastonbury begon in het hitjaar de regen tijdens het eerste refrein.",
+      "fun_fact_it": "Fran Healy la scrisse durante una rara vacanza soleggiata in Israele, e a Glastonbury, l'anno in cui entrò in classifica, la pioggia iniziò durante il primo ritornello."
+    },
+    {
+      "year": 1999,
+      "uri": "spotify:track:0Fr54TvVCUMH9gdA6JMopJ",
+      "artist": "Andru Donalds",
+      "alt_artists": [
+        "Air Supply",
+        "Enigma",
+        "Des ree"
+      ],
+      "title": "All Out Of Love",
+      "isrc": "DEG129902203",
+      "uri_apple_music": "applemusic://track/723608871",
+      "uri_deezer": "deezer://track/3380088",
+      "fun_fact": "The Jamaican singer was working with Michael Cretu of Enigma when he recut this Air Supply ballad, and the remake outsold the original across Europe.",
+      "fun_fact_de": "Der jamaikanische Sänger arbeitete mit Michael Cretu von Enigma, als er diese Air-Supply-Ballade neu aufnahm, und die Neufassung verkaufte sich europaweit besser als das Original.",
+      "fun_fact_es": "El cantante jamaicano trabajaba con Michael Cretu de Enigma cuando regrabó esta balada de Air Supply, y la nueva versión vendió más que el original en Europa.",
+      "fun_fact_fr": "Le chanteur jamaïcain travaillait avec Michael Cretu d'Enigma quand il a réenregistré cette ballade d'Air Supply, et la reprise s'est mieux vendue que l'original en Europe.",
+      "fun_fact_nl": "De Jamaicaanse zanger werkte met Michael Cretu van Enigma toen hij deze Air Supply-ballade opnieuw opnam, en de remake verkocht in Europa beter dan het origineel.",
+      "fun_fact_it": "Il cantante giamaicano lavorava con Michael Cretu degli Enigma quando reincise questa ballata degli Air Supply, e il rifacimento vendette in Europa più dell'originale."
+    },
+    {
+      "year": 1999,
+      "uri": "spotify:track:7bOYOD0d7ByMTXvJnQVl8d",
+      "artist": "Blondie",
+      "alt_artists": [
+        "Debbie Harry",
+        "The Pretenders",
+        "Garbage"
+      ],
+      "title": "Maria",
+      "isrc": "USBY29800018",
+      "uri_apple_music": null,
+      "uri_deezer": "deezer://track/3805884212",
+      "fun_fact": "Blondie returned after seventeen years apart and went straight to number one in Britain, seventeen years after 'Atomic' had done the same.",
+      "fun_fact_de": "Blondie kehrten nach siebzehn Jahren Trennung zurück und gingen in Britannien direkt auf Platz eins — siebzehn Jahre nachdem 'Atomic' dasselbe geschafft hatte.",
+      "fun_fact_es": "Blondie volvió tras diecisiete años separados y llegó directa al número uno en Gran Bretaña, diecisiete años después de que 'Atomic' hiciera lo mismo.",
+      "fun_fact_fr": "Blondie est revenu après dix-sept ans de séparation et est allé droit à la première place britannique, dix-sept ans après qu'« Atomic » eut fait de même.",
+      "fun_fact_nl": "Blondie keerde na zeventien jaar terug en ging in Groot-Brittannië rechtstreeks naar nummer één, zeventien jaar nadat 'Atomic' hetzelfde had gedaan.",
+      "fun_fact_it": "I Blondie tornarono dopo diciassette anni di separazione e andarono dritti al primo posto in Gran Bretagna, diciassette anni dopo che 'Atomic' aveva fatto lo stesso."
+    },
+    {
+      "year": 1990,
+      "uri": "spotify:track:31KFfR180bYoPqqy671tXm",
+      "artist": "Stevie B",
+      "alt_artists": [
+        "Milli Vanilli",
+        "Jon Secada",
+        "Corona"
+      ],
+      "title": "Because I Love You",
+      "isrc": "BXTNN1600052",
+      "uri_apple_music": "applemusic://track/287556086",
+      "uri_deezer": "deezer://track/133941436",
+      "fun_fact": "Stevie B came out of the Miami freestyle scene, and this ballad — the least typical thing he ever recorded — was the only one to reach number one.",
+      "fun_fact_de": "Stevie B kam aus der Miami-Freestyle-Szene; ausgerechnet diese Ballade, das Untypischste, was er je aufnahm, wurde sein einziger Nummer-eins-Hit.",
+      "fun_fact_es": "Stevie B venía de la escena freestyle de Miami, y esta balada, lo menos típico que grabó nunca, fue lo único que llegó al número uno.",
+      "fun_fact_fr": "Stevie B venait de la scène freestyle de Miami, et cette ballade — la chose la moins typique qu'il ait enregistrée — fut la seule à atteindre la première place.",
+      "fun_fact_nl": "Stevie B kwam uit de Miami-freestylescene, en deze ballade — het minst typische wat hij ooit opnam — was het enige dat nummer één werd.",
+      "fun_fact_it": "Stevie B veniva dalla scena freestyle di Miami, e questa ballata, la cosa meno tipica che abbia mai inciso, fu l'unica ad arrivare al primo posto."
+    },
+    {
+      "year": 1990,
+      "uri": "spotify:track:6J6RWKCPN5RFKHUKEUFjxS",
+      "artist": "New Kids On The Block",
+      "alt_artists": [
+        "Backstreet Boys",
+        "Take That",
+        "Bros"
+      ],
+      "title": "Step by Step",
+      "isrc": "USSM19917887",
+      "uri_apple_music": "applemusic://track/157281771",
+      "uri_deezer": "deezer://track/1065849",
+      "fun_fact": "The group had five members from working-class Boston and outsold every other act in America for two straight years.",
+      "fun_fact_de": "Die Gruppe bestand aus fünf Jungen aus dem Arbeitermilieu Bostons und verkaufte zwei Jahre in Folge mehr als jeder andere Act in Amerika.",
+      "fun_fact_es": "El grupo tenía cinco miembros del Boston obrero y vendió más que cualquier otro artista en Estados Unidos dos años seguidos.",
+      "fun_fact_fr": "Le groupe comptait cinq membres issus du Boston ouvrier et a vendu plus que tout autre artiste en Amérique deux années de suite.",
+      "fun_fact_nl": "De groep had vijf leden uit het arbeidersmilieu van Boston en verkocht twee jaar op rij meer dan elke andere act in Amerika.",
+      "fun_fact_it": "Il gruppo aveva cinque membri della Boston operaia e vendette più di ogni altro artista in America per due anni di fila."
+    },
+    {
+      "year": 1990,
+      "uri": "spotify:track:48eiLW57CqSmCYNZRM2J8M",
+      "artist": "Bette Midler",
+      "alt_artists": [
+        "Nanci Griffith",
+        "Cher",
+        "Barbra Streisand"
+      ],
+      "title": "From a Distance",
+      "isrc": "USAT20706111",
+      "uri_apple_music": null,
+      "uri_deezer": "deezer://track/4736207",
+      "fun_fact": "Julie Gold wrote it in 1985 while working as a secretary; Nanci Griffith recorded it first and Midler made it a hit five years later.",
+      "fun_fact_de": "Julie Gold schrieb den Song 1985 als Sekretärin; Nanci Griffith nahm ihn zuerst auf, Midler machte fünf Jahre später einen Hit daraus.",
+      "fun_fact_es": "Julie Gold la escribió en 1985 mientras trabajaba de secretaria; Nanci Griffith la grabó primero y Midler la convirtió en éxito cinco años después.",
+      "fun_fact_fr": "Julie Gold l'a écrite en 1985 alors qu'elle était secrétaire ; Nanci Griffith l'a enregistrée en premier et Midler en a fait un tube cinq ans plus tard.",
+      "fun_fact_nl": "Julie Gold schreef het in 1985 als secretaresse; Nanci Griffith nam het als eerste op en Midler maakte er vijf jaar later een hit van.",
+      "fun_fact_it": "Julie Gold la scrisse nel 1985 mentre faceva la segretaria; Nanci Griffith la incise per prima e Midler ne fece un successo cinque anni dopo."
+    },
+    {
+      "year": 1990,
+      "uri": "spotify:track:5jVJAojK3LFKETjI2gYb8O",
+      "artist": "Nick Kamen",
+      "alt_artists": [
+        "Rick Astley",
+        "Nick Heyward",
+        "Johnny Hates Jazz"
+      ],
+      "title": "I Promised Myself",
+      "isrc": "GBAHT1400334",
+      "uri_apple_music": "applemusic://track/1453505140",
+      "uri_deezer": "deezer://track/88310763",
+      "fun_fact": "Kamen was discovered by Madonna, and this record was a modest hit at the time that became a European standard through later cover versions.",
+      "fun_fact_de": "Kamen wurde von Madonna entdeckt; die Platte war damals ein mäßiger Erfolg und wurde erst durch spätere Coverversionen ein europäischer Standard.",
+      "fun_fact_es": "A Kamen lo descubrió Madonna; el disco fue un éxito modesto entonces y se volvió un estándar europeo gracias a versiones posteriores.",
+      "fun_fact_fr": "Kamen a été découvert par Madonna ; le disque fut un succès modeste à l'époque et n'est devenu un standard européen que par des reprises ultérieures.",
+      "fun_fact_nl": "Kamen werd ontdekt door Madonna; de plaat was destijds een bescheiden hit en werd pas via latere covers een Europese standard.",
+      "fun_fact_it": "Kamen fu scoperto da Madonna; il disco fu un successo modesto all'epoca e divenne uno standard europeo solo grazie a cover successive."
+    },
+    {
+      "year": 1991,
+      "uri": "spotify:track:6fXzdWgyZhDeLmlzC7Mvco",
+      "artist": "Army Of Lovers",
+      "alt_artists": [
+        "Ace of Base",
+        "Dr. Alban",
+        "Roxette"
+      ],
+      "title": "Crucified",
+      "isrc": "SEBFN9101010",
+      "uri_apple_music": "applemusic://track/1442520826",
+      "uri_deezer": "deezer://track/979444",
+      "fun_fact": "The Swedish group dressed as baroque courtiers and set church-choir samples over a dance beat, which nobody had asked for and everybody bought.",
+      "fun_fact_de": "Die schwedische Gruppe kleidete sich wie Barockhöflinge und legte Kirchenchor-Samples über einen Dance-Beat — danach hatte niemand gefragt, gekauft haben es alle.",
+      "fun_fact_es": "El grupo sueco se vestía de cortesanos barrocos y ponía samples de coro eclesiástico sobre un ritmo dance; nadie lo había pedido y todos lo compraron.",
+      "fun_fact_fr": "Le groupe suédois s'habillait en courtisans baroques et posait des samples de chœur d'église sur un beat dance ; personne ne l'avait demandé, tout le monde l'a acheté.",
+      "fun_fact_nl": "De Zweedse groep kleedde zich als barokke hovelingen en zette kerkkoorsamples op een dancebeat; niemand had erom gevraagd en iedereen kocht het.",
+      "fun_fact_it": "Il gruppo svedese si vestiva da cortigiani barocchi e metteva campioni di coro da chiesa su un ritmo dance; nessuno l'aveva chiesto e tutti lo comprarono."
+    },
+    {
+      "year": 1991,
+      "uri": "spotify:track:3IDsegNBHC4pjGCOMTQYlU",
+      "artist": "Amy Grant",
+      "alt_artists": [
+        "Whitney Houston",
+        "Mariah Carey",
+        "Celine Dion"
+      ],
+      "title": "Baby, Baby",
+      "isrc": "USSP30765178",
+      "uri_apple_music": "applemusic://track/1440833131",
+      "uri_deezer": "deezer://track/3145500",
+      "fun_fact": "Grant wrote it about her newborn daughter and had spent a decade as a gospel singer before this crossed her over to pop radio.",
+      "fun_fact_de": "Grant schrieb den Song über ihre neugeborene Tochter; sie war zuvor ein Jahrzehnt Gospelsängerin, bevor er sie ins Popradio brachte.",
+      "fun_fact_es": "Grant la escribió sobre su hija recién nacida; llevaba una década como cantante de gospel antes de que esto la llevara a la radio pop.",
+      "fun_fact_fr": "Grant l'a écrite pour sa fille nouveau-née ; elle avait passé dix ans comme chanteuse de gospel avant que ce titre ne l'amène à la radio pop.",
+      "fun_fact_nl": "Grant schreef het over haar pasgeboren dochter; ze was tien jaar gospelzangeres geweest voordat dit haar naar de popradio bracht.",
+      "fun_fact_it": "Grant la scrisse per la figlia appena nata; era stata cantante gospel per un decennio prima che questo brano la portasse alle radio pop."
+    },
+    {
+      "year": 1991,
+      "uri": "spotify:track:6tXnRSvuNgOq4QcxpIN54r",
+      "artist": "Crowded House",
+      "alt_artists": [
+        "Split Enz",
+        "Midnight Oil",
+        "INXS"
+      ],
+      "title": "Weather With You",
+      "isrc": "USCA29100164",
+      "uri_apple_music": "applemusic://track/724472291",
+      "uri_deezer": "deezer://track/3123902",
+      "fun_fact": "The New Zealand band never had a hit with it at home; it was a top ten record in Britain and a standard in Germany instead.",
+      "fun_fact_de": "Die neuseeländische Band hatte damit daheim keinen Hit; in Britannien kam der Song in die Top zehn und wurde in Deutschland zum Standard.",
+      "fun_fact_es": "El grupo neozelandés nunca tuvo éxito con ella en casa; fue top diez en Gran Bretaña y un clásico en Alemania.",
+      "fun_fact_fr": "Le groupe néo-zélandais n'a jamais eu de succès avec elle chez lui ; ce fut un top dix britannique et un standard en Allemagne.",
+      "fun_fact_nl": "De Nieuw-Zeelandse band had er thuis nooit een hit mee; het werd een top tien in Groot-Brittannië en een standard in Duitsland.",
+      "fun_fact_it": "Il gruppo neozelandese non ebbe successo in patria; fu una top ten in Gran Bretagna e uno standard in Germania."
+    },
+    {
+      "year": 1991,
+      "uri": "spotify:track:2WElktskrNJEwgpp5Vouxk",
+      "artist": "Right Said Fred",
+      "alt_artists": [
+        "Vanilla Ice",
+        "MC Hammer",
+        "Snap!"
+      ],
+      "title": "I'm Too Sexy",
+      "isrc": "GBCKK0966701",
+      "uri_apple_music": "applemusic://track/1536969306",
+      "uri_deezer": "deezer://track/2625962812",
+      "fun_fact": "The Fairbrass brothers were session bassists who had played on records by Bowie and Boy George before they wrote a joke about themselves.",
+      "fun_fact_de": "Die Brüder Fairbrass waren Studiobassisten und hatten für Bowie und Boy George gespielt, bevor sie einen Witz über sich selbst schrieben.",
+      "fun_fact_es": "Los hermanos Fairbrass eran bajistas de sesión que habían tocado con Bowie y Boy George antes de escribir una broma sobre sí mismos.",
+      "fun_fact_fr": "Les frères Fairbrass étaient bassistes de studio et avaient joué pour Bowie et Boy George avant d'écrire une blague sur eux-mêmes.",
+      "fun_fact_nl": "De broers Fairbrass waren sessiebassisten die bij Bowie en Boy George hadden gespeeld voordat ze een grap over zichzelf schreven.",
+      "fun_fact_it": "I fratelli Fairbrass erano bassisti turnisti che avevano suonato per Bowie e Boy George prima di scrivere una battuta su se stessi."
+    },
+    {
+      "year": 1992,
+      "uri": "spotify:track:1kgdslQYmeTR4thk9whoRw",
+      "artist": "Eric Clapton",
+      "alt_artists": [
+        "Phil Collins",
+        "Sting",
+        "Peter Gabriel"
+      ],
+      "title": "Tears in Heaven",
+      "isrc": "USRE19100010",
+      "uri_apple_music": "applemusic://track/1648144423",
+      "uri_deezer": "deezer://track/4654895",
+      "fun_fact": "Clapton wrote it after his four-year-old son fell from a New York window, and stopped performing it years later because it had done its work.",
+      "fun_fact_de": "Clapton schrieb den Song, nachdem sein vierjähriger Sohn aus einem New Yorker Fenster gestürzt war, und hörte Jahre später auf, ihn zu spielen — er hatte seinen Zweck erfüllt.",
+      "fun_fact_es": "Clapton la escribió tras la caída de su hijo de cuatro años desde una ventana en Nueva York, y años después dejó de tocarla porque ya había cumplido su función.",
+      "fun_fact_fr": "Clapton l'a écrite après la chute de son fils de quatre ans d'une fenêtre à New York, et a cessé de la jouer des années plus tard : elle avait fait son œuvre.",
+      "fun_fact_nl": "Clapton schreef het nadat zijn vierjarige zoon uit een raam in New York was gevallen, en stopte jaren later met spelen omdat het zijn werk had gedaan.",
+      "fun_fact_it": "Clapton la scrisse dopo la caduta del figlio di quattro anni da una finestra a New York, e anni dopo smise di suonarla perché aveva fatto il suo lavoro."
+    },
+    {
+      "year": 1992,
+      "uri": "spotify:track:2EoIt9vdgFRNW03u5IvFsQ",
+      "artist": "Billy Ray Cyrus",
+      "alt_artists": [
+        "Alan Jackson",
+        "Garth Brooks",
+        "Shania Twain"
+      ],
+      "title": "Achy Breaky Heart",
+      "isrc": "USPG19290113",
+      "uri_apple_music": "applemusic://track/1442285450",
+      "uri_deezer": "deezer://track/921154",
+      "fun_fact": "The song started a line-dancing craze that filled American dance halls for two years, and Cyrus has said he is fine with being remembered for it.",
+      "fun_fact_de": "Der Song löste eine Line-Dance-Welle aus, die amerikanische Tanzsäle zwei Jahre füllte; Cyrus sagt, er habe kein Problem damit, dafür erinnert zu werden.",
+      "fun_fact_es": "La canción desató una fiebre de line dance que llenó los salones estadounidenses durante dos años, y Cyrus dice que le parece bien que se le recuerde por ella.",
+      "fun_fact_fr": "La chanson a lancé une vague de line dance qui a rempli les salles américaines pendant deux ans, et Cyrus dit qu'il accepte d'en rester le symbole.",
+      "fun_fact_nl": "Het nummer ontketende een linedancerage die Amerikaanse danszalen twee jaar vulde, en Cyrus zegt dat hij er vrede mee heeft daarom herinnerd te worden.",
+      "fun_fact_it": "La canzone scatenò una moda del line dance che riempì le sale americane per due anni, e Cyrus dice di essere sereno all'idea di essere ricordato per questo.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=byQIPdHMpjc"
+    },
+    {
+      "year": 1992,
+      "uri": "spotify:track:3Ib3SJV8ZXuLvDiDb2w1As",
+      "artist": "Soul Asylum",
+      "alt_artists": [
+        "Gin Blossoms",
+        "Counting Crows",
+        "Toad the Wet Sprocket"
+      ],
+      "title": "Runaway Train",
+      "isrc": "USSM10906865",
+      "uri_apple_music": "applemusic://track/466738518",
+      "uri_deezer": "deezer://track/12000643",
+      "fun_fact": "The video showed photographs of real missing children, and several were found because someone recognised a face on MTV.",
+      "fun_fact_de": "Das Video zeigte Fotos echter vermisster Kinder; mehrere wurden gefunden, weil jemand ein Gesicht bei MTV wiedererkannte.",
+      "fun_fact_es": "El vídeo mostraba fotos de niños desaparecidos reales, y varios fueron encontrados porque alguien reconoció una cara en MTV.",
+      "fun_fact_fr": "Le clip montrait des photos d'enfants réellement disparus, et plusieurs ont été retrouvés parce que quelqu'un avait reconnu un visage sur MTV.",
+      "fun_fact_nl": "De video toonde foto's van echte vermiste kinderen, en meerdere werden gevonden doordat iemand een gezicht herkende op MTV.",
+      "fun_fact_it": "Il video mostrava foto di bambini realmente scomparsi, e diversi furono ritrovati perché qualcuno riconobbe un volto su MTV.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=NRtvqT_wMeY"
+    },
+    {
+      "year": 1993,
+      "uri": "spotify:track:3IuSgREoO5y88HdIcE2Xee",
+      "artist": "Meat Loaf",
+      "alt_artists": [
+        "Bonnie Tyler",
+        "Jim Steinman",
+        "Bryan Adams"
+      ],
+      "title": "I'd Do Anything For Love (But I Won't Do That)",
+      "isrc": "USMC19341323",
+      "uri_apple_music": "applemusic://track/1612740301",
+      "uri_deezer": "deezer://track/1682774297",
+      "fun_fact": "Jim Steinman never says in the lyric what 'that' is, and Meat Loaf spent thirty years being asked the question in interviews.",
+      "fun_fact_de": "Jim Steinman sagt im Text nie, was 'das' ist — Meat Loaf wurde dreißig Jahre lang in Interviews danach gefragt.",
+      "fun_fact_es": "Jim Steinman nunca dice en la letra qué es 'eso', y a Meat Loaf le hicieron esa pregunta en entrevistas durante treinta años.",
+      "fun_fact_fr": "Jim Steinman ne dit jamais dans le texte ce qu'est « cela », et on a posé la question à Meat Loaf pendant trente ans en interview.",
+      "fun_fact_nl": "Jim Steinman zegt in de tekst nooit wat 'dat' is, en Meat Loaf kreeg de vraag dertig jaar lang in interviews.",
+      "fun_fact_it": "Jim Steinman non dice mai nel testo cosa sia 'quello', e a Meat Loaf lo chiesero nelle interviste per trent'anni.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=9X_ViIPA-Gc"
+    },
+    {
+      "year": 1993,
+      "uri": "spotify:track:0D2t9hxLR86LXCTjSngqyC",
+      "artist": "Pet Shop Boys",
+      "alt_artists": [
+        "Village People",
+        "Erasure",
+        "Communards"
+      ],
+      "title": "Go West",
+      "isrc": "GBCEW9300055",
+      "uri_apple_music": "applemusic://track/709434688",
+      "uri_deezer": "deezer://track/7460106",
+      "fun_fact": "The Village People original from 1979 was a gay anthem; the Pet Shop Boys recorded it as the Soviet Union collapsed and made it about that instead.",
+      "fun_fact_de": "Das Original der Village People von 1979 war eine Schwulenhymne; die Pet Shop Boys nahmen den Song beim Zerfall der Sowjetunion auf und machten ihn dazu.",
+      "fun_fact_es": "El original de Village People de 1979 era un himno gay; los Pet Shop Boys lo grabaron mientras caía la Unión Soviética y lo convirtieron en otra cosa.",
+      "fun_fact_fr": "L'original des Village People de 1979 était un hymne gay ; les Pet Shop Boys l'ont enregistré à la chute de l'Union soviétique et en ont fait autre chose.",
+      "fun_fact_nl": "Het origineel van Village People uit 1979 was een homohymne; de Pet Shop Boys namen het op tijdens het uiteenvallen van de Sovjet-Unie en maakten er dat van.",
+      "fun_fact_it": "L'originale dei Village People del 1979 era un inno gay; i Pet Shop Boys lo incisero mentre crollava l'Unione Sovietica e ne fecero altro.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=GER396B6M7w"
+    },
+    {
+      "year": 1993,
+      "uri": "spotify:track:2YLequ2SIjgAGe2A6QvO1h",
+      "artist": "DJ BoBo",
+      "alt_artists": [
+        "Haddaway",
+        "Dr. Alban",
+        "Snap!"
+      ],
+      "title": "It's My Life",
+      "isrc": "DEMI69600004",
+      "uri_apple_music": "applemusic://track/1505831927",
+      "uri_deezer": "deezer://track/918238932",
+      "fun_fact": "René Baumann was a Swiss breakdancer and hairdresser who pressed his first record himself and sold it out of a car.",
+      "fun_fact_de": "René Baumann war Schweizer Breakdancer und Friseur, presste seine erste Platte selbst und verkaufte sie aus dem Auto.",
+      "fun_fact_es": "René Baumann era un bailarín de breakdance y peluquero suizo que prensó su primer disco él mismo y lo vendía desde el coche.",
+      "fun_fact_fr": "René Baumann était un breakdancer et coiffeur suisse qui a pressé son premier disque lui-même et le vendait depuis sa voiture.",
+      "fun_fact_nl": "René Baumann was een Zwitserse breakdancer en kapper die zijn eerste plaat zelf perste en vanuit een auto verkocht.",
+      "fun_fact_it": "René Baumann era un breakdancer e parrucchiere svizzero che stampò il primo disco da sé e lo vendeva dall'auto.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=3wsXysoAMHw"
+    },
+    {
+      "year": 1993,
+      "uri": "spotify:track:42MOQv8uspw7Jt6XSujAm7",
+      "artist": "Haddaway",
+      "alt_artists": [
+        "Dr. Alban",
+        "Culture Beat",
+        "Corona"
+      ],
+      "title": "Life",
+      "isrc": "DEA410500403",
+      "uri_apple_music": "applemusic://track/1731413661",
+      "uri_deezer": "deezer://track/3782976022",
+      "fun_fact": "Nestor Haddaway was born in Trinidad and recorded in Cologne; the follow-up to 'What Is Love' sold a million on the strength of the first one.",
+      "fun_fact_de": "Nestor Haddaway wurde in Trinidad geboren und nahm in Köln auf; der Nachfolger von 'What Is Love' verkaufte sich eine Million Mal auf Kredit des ersten.",
+      "fun_fact_es": "Nestor Haddaway nació en Trinidad y grabó en Colonia; el sucesor de 'What Is Love' vendió un millón gracias al empuje del primero.",
+      "fun_fact_fr": "Nestor Haddaway est né à Trinidad et enregistrait à Cologne ; la suite de « What Is Love » s'est vendue à un million grâce au premier.",
+      "fun_fact_nl": "Nestor Haddaway werd geboren in Trinidad en nam op in Keulen; de opvolger van 'What Is Love' verkocht een miljoen op krediet van de eerste.",
+      "fun_fact_it": "Nestor Haddaway nacque a Trinidad e incise a Colonia; il seguito di 'What Is Love' vendette un milione sulla scia del primo.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=xyaGQPjXGyE"
+    },
+    {
+      "year": 1993,
+      "uri": "spotify:track:6vGW3d8X48CBaLdU0PQbey",
+      "artist": "M People",
+      "alt_artists": [
+        "Everything But The Girl",
+        "Lisa Stansfield",
+        "Soul II Soul"
+      ],
+      "title": "Moving on Up",
+      "isrc": "GBARL9300289",
+      "uri_apple_music": "applemusic://track/943232443",
+      "uri_deezer": "deezer://track/600153",
+      "fun_fact": "Heather Small sang for a band named after its manager's initials, and this became the anthem of a British election campaign five years later.",
+      "fun_fact_de": "Heather Small sang für eine Band, die nach den Initialen ihres Managers benannt war; fünf Jahre später wurde der Song die Hymne eines britischen Wahlkampfs.",
+      "fun_fact_es": "Heather Small cantaba para un grupo llamado por las iniciales de su mánager, y esto se convirtió cinco años después en el himno de una campaña electoral británica.",
+      "fun_fact_fr": "Heather Small chantait pour un groupe nommé d'après les initiales de son manager, et le titre est devenu cinq ans plus tard l'hymne d'une campagne électorale britannique.",
+      "fun_fact_nl": "Heather Small zong voor een band genoemd naar de initialen van hun manager, en dit werd vijf jaar later de hymne van een Britse verkiezingscampagne.",
+      "fun_fact_it": "Heather Small cantava per un gruppo chiamato con le iniziali del suo manager, e cinque anni dopo il brano divenne l'inno di una campagna elettorale britannica.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=zkHOVJINRD8"
+    },
+    {
+      "year": 1994,
+      "uri": "spotify:track:4sv1iemiMkkZVTUbV16C8L",
+      "artist": "Youssou N'Dour",
+      "alt_artists": [
+        "Neneh Cherry",
+        "Baaba Maal",
+        "Angélique Kidjo"
+      ],
+      "title": "7 Seconds",
+      "isrc": "USSM10021897",
+      "uri_apple_music": "applemusic://track/456868718",
+      "uri_deezer": "deezer://track/85275132",
+      "fun_fact": "The song is sung in English, French and Wolof, and the video was shot in a single unbroken take with the two singers never looking at each other.",
+      "fun_fact_de": "Der Song wird auf Englisch, Französisch und Wolof gesungen; das Video entstand in einer einzigen ungeschnittenen Einstellung, in der sich die beiden nie ansehen.",
+      "fun_fact_es": "La canción se canta en inglés, francés y wolof, y el vídeo se rodó en un solo plano continuo en el que los dos nunca se miran.",
+      "fun_fact_fr": "La chanson est chantée en anglais, français et wolof, et le clip a été tourné en un seul plan-séquence où les deux ne se regardent jamais.",
+      "fun_fact_nl": "Het nummer wordt in het Engels, Frans en Wolof gezongen, en de video werd in één ononderbroken take opgenomen waarin de twee elkaar nooit aankijken.",
+      "fun_fact_it": "La canzone è cantata in inglese, francese e wolof, e il video fu girato in un unico piano sequenza in cui i due non si guardano mai.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=GbfBML1LHfs"
+    },
+    {
+      "year": 1994,
+      "uri": "spotify:track:39tA7koBZwRzaes3ffpGz7",
+      "artist": "The Kelly Family",
+      "alt_artists": [
+        "Die Kelly Family",
+        "Blümchen",
+        "Pur"
+      ],
+      "title": "An Angel",
+      "isrc": "DEC649500267",
+      "uri_apple_music": "applemusic://track/1440883862",
+      "uri_deezer": "deezer://track/363760541",
+      "fun_fact": "The family had busked across Europe out of a bus for fifteen years before this single sold five million copies in German-speaking countries.",
+      "fun_fact_de": "Die Familie hatte fünfzehn Jahre lang aus einem Bus heraus in Europa auf der Straße gespielt, bevor diese Single im deutschsprachigen Raum fünf Millionen Mal verkauft wurde.",
+      "fun_fact_es": "La familia había tocado por Europa desde un autobús durante quince años antes de que este sencillo vendiera cinco millones en los países germanohablantes.",
+      "fun_fact_fr": "La famille avait joué dans la rue à travers l'Europe depuis un bus pendant quinze ans avant que ce single ne se vende à cinq millions dans les pays germanophones.",
+      "fun_fact_nl": "Het gezin had vijftien jaar vanuit een bus door Europa op straat gespeeld voordat deze single vijf miljoen keer verkocht in het Duitstalige gebied.",
+      "fun_fact_it": "La famiglia aveva suonato per strada in tutta Europa da un autobus per quindici anni prima che questo singolo vendesse cinque milioni nei paesi di lingua tedesca.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=aUpmd4nm7YM"
+    },
+    {
+      "year": 1995,
+      "uri": "spotify:track:7eYhN6ciVsXBfb7kVjmvgt",
+      "artist": "Shaggy",
+      "alt_artists": [
+        "Ini Kamoze",
+        "Chaka Demus",
+        "Inner Circle"
+      ],
+      "title": "Mr Boombastic",
+      "isrc": "FR8GV1904450",
+      "uri_apple_music": "applemusic://track/724654640",
+      "uri_deezer": "deezer://track/873344582",
+      "fun_fact": "Orville Burrell served in the US Marines in the Gulf War before recording; the deep voice is his own and not an effect.",
+      "fun_fact_de": "Orville Burrell diente vor seinen Aufnahmen im Golfkrieg bei den US-Marines; die tiefe Stimme ist seine eigene, kein Effekt.",
+      "fun_fact_es": "Orville Burrell sirvió en los Marines estadounidenses en la Guerra del Golfo antes de grabar; la voz grave es suya y no un efecto.",
+      "fun_fact_fr": "Orville Burrell a servi dans les Marines américains pendant la guerre du Golfe avant d'enregistrer ; la voix grave est la sienne, pas un effet.",
+      "fun_fact_nl": "Orville Burrell diende voor zijn opnames bij de Amerikaanse mariniers in de Golfoorlog; de lage stem is de zijne en geen effect.",
+      "fun_fact_it": "Orville Burrell prestò servizio nei Marines americani nella Guerra del Golfo prima di incidere; la voce profonda è la sua, non un effetto.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=6W5pq4bIzIw"
+    },
+    {
+      "year": 1995,
+      "uri": "spotify:track:6vcdzohhBSbNdsZBh5IRpQ",
+      "artist": "Take That",
+      "alt_artists": [
+        "Boyzone",
+        "East 17",
+        "Robbie Williams"
+      ],
+      "title": "Back for Good",
+      "isrc": "GBARL9500020",
+      "uri_apple_music": "applemusic://track/299699600",
+      "uri_deezer": "deezer://track/848836952",
+      "fun_fact": "Gary Barlow wrote it in fifteen minutes and it was the band's only American hit; they split up eight months after it charted.",
+      "fun_fact_de": "Gary Barlow schrieb den Song in fünfzehn Minuten; es blieb der einzige US-Hit der Band, die sich acht Monate später auflöste.",
+      "fun_fact_es": "Gary Barlow la escribió en quince minutos y fue el único éxito estadounidense del grupo; se separaron ocho meses después.",
+      "fun_fact_fr": "Gary Barlow l'a écrite en quinze minutes et ce fut leur seul tube américain ; le groupe s'est séparé huit mois plus tard.",
+      "fun_fact_nl": "Gary Barlow schreef het in vijftien minuten en het bleef de enige Amerikaanse hit van de band; acht maanden later ging de groep uit elkaar.",
+      "fun_fact_it": "Gary Barlow la scrisse in quindici minuti e fu l'unico successo americano della band; si sciolsero otto mesi dopo.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=N2ICtCO8TCw"
+    },
+    {
+      "year": 1995,
+      "uri": "spotify:track:4oGTdOClZUxcM2H3UmXlwL",
+      "artist": "Alanis Morissette",
+      "alt_artists": [
+        "Sheryl Crow",
+        "Meredith Brooks",
+        "Natalie Imbruglia"
+      ],
+      "title": "Ironic",
+      "isrc": "USMV20500296",
+      "uri_apple_music": "applemusic://track/1031419968",
+      "uri_deezer": "deezer://track/789250",
+      "fun_fact": "Almost none of the situations in the lyric are actually ironic, which has kept English teachers arguing about the song for thirty years.",
+      "fun_fact_de": "Fast keine der im Text geschilderten Situationen ist tatsächlich ironisch — worüber Englischlehrer seit dreißig Jahren streiten.",
+      "fun_fact_es": "Casi ninguna de las situaciones de la letra es realmente irónica, lo que lleva treinta años dando de qué discutir a los profesores de inglés.",
+      "fun_fact_fr": "Presque aucune des situations du texte n'est réellement ironique, ce qui fait débattre les professeurs d'anglais depuis trente ans.",
+      "fun_fact_nl": "Bijna geen van de situaties in de tekst is echt ironisch, waarover leraren Engels al dertig jaar discussiëren.",
+      "fun_fact_it": "Quasi nessuna delle situazioni del testo è davvero ironica, cosa su cui gli insegnanti di inglese discutono da trent'anni.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=Jne9t8sHpUc"
+    },
+    {
+      "year": 1996,
+      "uri": "spotify:track:2c4rr33mgGC4c9cWzqdYxN",
+      "artist": "Céline Dion",
+      "alt_artists": [
+        "Whitney Houston",
+        "Mariah Carey",
+        "Toni Braxton"
+      ],
+      "title": "Because You Loved Me",
+      "isrc": "CAC220400029",
+      "uri_apple_music": "applemusic://track/1473319252",
+      "uri_deezer": "deezer://track/607222",
+      "fun_fact": "Diane Warren wrote it about her father, and Dion sings it as a love song — the writer has said she prefers people not to know.",
+      "fun_fact_de": "Diane Warren schrieb den Song über ihren Vater, Dion singt ihn als Liebeslied — die Autorin sagt, ihr sei es lieber, wenn man das nicht weiß.",
+      "fun_fact_es": "Diane Warren la escribió sobre su padre y Dion la canta como una canción de amor; la autora ha dicho que prefiere que no se sepa.",
+      "fun_fact_fr": "Diane Warren l'a écrite sur son père et Dion la chante comme une chanson d'amour ; l'autrice a dit préférer qu'on l'ignore.",
+      "fun_fact_nl": "Diane Warren schreef het over haar vader en Dion zingt het als liefdeslied; de schrijfster zegt dat ze liever heeft dat men dat niet weet.",
+      "fun_fact_it": "Diane Warren la scrisse sul padre e Dion la canta come una canzone d'amore; l'autrice ha detto di preferire che non si sappia.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=fpl4if07ics"
+    },
+    {
+      "year": 1996,
+      "uri": "spotify:track:75LAaoFubEA34fwwLc6xUK",
+      "artist": "Mr. President",
+      "alt_artists": [
+        "Fun Factory",
+        "Culture Beat",
+        "Masterboy"
+      ],
+      "title": "Jojo Action",
+      "isrc": "DEA629761810",
+      "uri_apple_music": "applemusic://track/1877136192",
+      "uri_deezer": "deezer://track/3843409721",
+      "fun_fact": "The Bremen group had a hit in Germany with a song built on a title nobody could explain, including the band.",
+      "fun_fact_de": "Die Bremer Gruppe hatte in Deutschland einen Hit mit einem Song, dessen Titel niemand erklären konnte — die Band eingeschlossen.",
+      "fun_fact_es": "El grupo de Bremen tuvo un éxito en Alemania con una canción cuyo título nadie sabía explicar, la banda incluida.",
+      "fun_fact_fr": "Le groupe de Brême a eu un tube en Allemagne avec une chanson dont personne, pas même le groupe, ne savait expliquer le titre.",
+      "fun_fact_nl": "De groep uit Bremen had een hit in Duitsland met een nummer waarvan niemand de titel kon uitleggen, de band incluis.",
+      "fun_fact_it": "Il gruppo di Brema ebbe un successo in Germania con una canzone il cui titolo nessuno sapeva spiegare, band compresa.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=9uJK6BHb14U"
+    },
+    {
+      "year": 1996,
+      "uri": "spotify:track:5Ihd9HrPvOADyVoonH9ZjB",
+      "artist": "Toni Braxton",
+      "alt_artists": [
+        "Whitney Houston",
+        "Mariah Carey",
+        "Céline Dion"
+      ],
+      "title": "Un-Break My Heart",
+      "isrc": "USLF29600015",
+      "uri_apple_music": "applemusic://track/526521417",
+      "uri_deezer": "deezer://track/67163992",
+      "fun_fact": "Braxton had to be persuaded to record a Diane Warren ballad she thought was too sentimental; it spent eleven weeks at number one.",
+      "fun_fact_de": "Braxton musste überredet werden, eine Diane-Warren-Ballade aufzunehmen, die ihr zu sentimental war — sie stand elf Wochen auf Platz eins.",
+      "fun_fact_es": "Hubo que convencer a Braxton para grabar una balada de Diane Warren que le parecía demasiado sentimental; estuvo once semanas en el número uno.",
+      "fun_fact_fr": "Il a fallu convaincre Braxton d'enregistrer une ballade de Diane Warren qu'elle jugeait trop sentimentale ; elle est restée onze semaines première.",
+      "fun_fact_nl": "Braxton moest worden overtuigd om een ballade van Diane Warren op te nemen die ze te sentimenteel vond; het stond elf weken op nummer één.",
+      "fun_fact_it": "Braxton dovette essere convinta a incidere una ballata di Diane Warren che riteneva troppo sentimentale; restò undici settimane al primo posto.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=p2Rch6WvPJE"
+    },
+    {
+      "year": 1996,
+      "uri": "spotify:track:3l1TpFpMBEuQ3YOZVNeMKp",
+      "artist": "X-Perience",
+      "alt_artists": [
+        "Sylver",
+        "Groove Coverage",
+        "La Bouche"
+      ],
+      "title": "A Neverending Dream",
+      "isrc": "DEA629663339",
+      "uri_apple_music": "applemusic://track/43689021",
+      "uri_deezer": "deezer://track/706041",
+      "fun_fact": "The Bavarian duo mixed a female singer over trance, which German radio then repeated for the rest of the decade.",
+      "fun_fact_de": "Das bayerische Duo mischte eine Sängerin über Trance — ein Muster, das das deutsche Radio den Rest des Jahrzehnts wiederholte.",
+      "fun_fact_es": "El dúo bávaro mezcló una voz femenina sobre trance, un patrón que la radio alemana repitió el resto de la década.",
+      "fun_fact_fr": "Le duo bavarois mêlait une voix féminine à de la trance, un schéma que la radio allemande a répété tout le reste de la décennie.",
+      "fun_fact_nl": "Het Beierse duo mengde een vrouwenstem over trance, een patroon dat de Duitse radio de rest van het decennium herhaalde.",
+      "fun_fact_it": "Il duo bavarese mescolava una voce femminile alla trance, uno schema che la radio tedesca ripeté per il resto del decennio.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=ytTqmOANYJc"
+    },
+    {
+      "year": 1997,
+      "uri": "spotify:track:3sryjPEihgzXH84vu943pX",
+      "artist": "Bell Book & Candle",
+      "alt_artists": [
+        "Selig",
+        "Fury in the Slaughterhouse",
+        "Die Happy"
+      ],
+      "title": "Rescue Me",
+      "isrc": "DEC739700458",
+      "uri_apple_music": "applemusic://track/402655446",
+      "uri_deezer": "deezer://track/13131332",
+      "fun_fact": "A Berlin band singing English rockabilly pop reached the German top ten with their first single and never got near it again.",
+      "fun_fact_de": "Eine Berliner Band mit englischem Rockabilly-Pop kam mit der ersten Single in die deutschen Top zehn und danach nie wieder in die Nähe.",
+      "fun_fact_es": "Un grupo berlinés de rockabilly pop en inglés llegó al top diez alemán con su primer sencillo y nunca volvió a acercarse.",
+      "fun_fact_fr": "Un groupe berlinois de rockabilly pop en anglais a atteint le top dix allemand avec son premier single et ne s'en est jamais réapproché.",
+      "fun_fact_nl": "Een Berlijnse band met Engelse rockabillypop haalde met hun eerste single de Duitse top tien en kwam daar nooit meer in de buurt.",
+      "fun_fact_it": "Un gruppo berlinese di rockabilly pop in inglese entrò nella top ten tedesca col primo singolo e non ci si riavvicinò mai più.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=S-F4N084M6U"
+    },
+    {
+      "year": 1997,
+      "uri": "spotify:track:5qGwqO0lkbBXw4xNfzT7SF",
+      "artist": "Spice Girls",
+      "alt_artists": [
+        "All Saints",
+        "B*Witched",
+        "Steps"
+      ],
+      "title": "Spice Up Your Life",
+      "isrc": "GBAAA9710052",
+      "uri_apple_music": "applemusic://track/724614188",
+      "uri_deezer": "deezer://track/3134155",
+      "fun_fact": "The single came out the week the group's film premiered, and it was the last one recorded with all five members.",
+      "fun_fact_de": "Die Single erschien in der Woche der Filmpremiere der Gruppe und war die letzte Aufnahme mit allen fünf Mitgliedern.",
+      "fun_fact_es": "El sencillo salió la semana del estreno de la película del grupo y fue el último grabado con las cinco integrantes.",
+      "fun_fact_fr": "Le single est sorti la semaine de la première de leur film et fut le dernier enregistré à cinq.",
+      "fun_fact_nl": "De single verscheen in de week van de filmpremière van de groep en was de laatste opname met alle vijf leden.",
+      "fun_fact_it": "Il singolo uscì la settimana della prima del loro film e fu l'ultimo inciso con tutte e cinque.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=9wfpXI5PKlw"
+    },
+    {
+      "year": 1998,
+      "uri": "spotify:track:3AC8WrZdwW6bycdNtm15fD",
+      "artist": "Jessica Folcker",
+      "alt_artists": [
+        "Robyn",
+        "Ace of Base",
+        "Meja"
+      ],
+      "title": "How Will I Know (Who You Are)",
+      "isrc": "NLA379800019",
+      "uri_apple_music": "applemusic://track/575971771",
+      "uri_deezer": "deezer://track/61794716",
+      "fun_fact": "Folcker sang backing vocals for Ace of Base before going solo, and her records did better in Germany than in Sweden.",
+      "fun_fact_de": "Folcker sang Backing Vocals für Ace of Base, bevor sie solo ging; ihre Platten liefen in Deutschland besser als in Schweden.",
+      "fun_fact_es": "Folcker cantó coros para Ace of Base antes de ir en solitario, y sus discos funcionaron mejor en Alemania que en Suecia.",
+      "fun_fact_fr": "Folcker a chanté les chœurs pour Ace of Base avant sa carrière solo, et ses disques ont mieux marché en Allemagne qu'en Suède.",
+      "fun_fact_nl": "Folcker zong achtergrondzang voor Ace of Base voordat ze solo ging, en haar platen deden het beter in Duitsland dan in Zweden.",
+      "fun_fact_it": "Folcker cantò i cori per gli Ace of Base prima di andare da sola, e i suoi dischi andarono meglio in Germania che in Svezia.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=5sJ4oxGDqzQ"
+    },
+    {
+      "year": 1998,
+      "uri": "spotify:track:144JMbvbR5txNzoZ112wo4",
+      "artist": "Cher",
+      "alt_artists": [
+        "Madonna",
+        "Tina Turner",
+        "Kylie Minogue"
+      ],
+      "title": "Strong Enough",
+      "isrc": "GBAHT9803037",
+      "uri_apple_music": "applemusic://track/73273625",
+      "uri_deezer": "deezer://track/786748",
+      "fun_fact": "Cher was fifty-two and had been written off twice; the album this came from made her the oldest woman ever to top the American chart.",
+      "fun_fact_de": "Cher war zweiundfünfzig und zweimal abgeschrieben worden; das Album machte sie zur ältesten Frau, die je die US-Charts anführte.",
+      "fun_fact_es": "Cher tenía cincuenta y dos años y la habían dado por acabada dos veces; el disco la convirtió en la mujer de más edad en encabezar la lista estadounidense.",
+      "fun_fact_fr": "Cher avait cinquante-deux ans et avait été enterrée deux fois ; l'album en a fait la femme la plus âgée à dominer le classement américain.",
+      "fun_fact_nl": "Cher was tweeënvijftig en al twee keer afgeschreven; het album maakte haar de oudste vrouw die ooit de Amerikaanse lijst aanvoerde.",
+      "fun_fact_it": "Cher aveva cinquantadue anni ed era stata data per finita due volte; l'album la rese la donna più anziana ad aver mai guidato la classifica americana.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=tXOgmvZyzxk"
+    },
+    {
+      "year": 1999,
+      "uri": "spotify:track:3v0uXfyMEZ1lGvBOv1Y4ar",
+      "artist": "S Club 7",
+      "alt_artists": [
+        "Steps",
+        "B*Witched",
+        "Five"
+      ],
+      "title": "Bring It All Back",
+      "isrc": "GBCVL9900001",
+      "uri_apple_music": "applemusic://track/1440920784",
+      "uri_deezer": "deezer://track/3040577",
+      "fun_fact": "The group was assembled for a television series and had to act as well as sing; the debut single went straight into the British top ten.",
+      "fun_fact_de": "Die Gruppe wurde für eine Fernsehserie zusammengestellt und musste auch schauspielern; die Debütsingle ging direkt in die britischen Top zehn.",
+      "fun_fact_es": "El grupo se formó para una serie de televisión y tenía que actuar además de cantar; el primer sencillo entró directo al top diez británico.",
+      "fun_fact_fr": "Le groupe a été monté pour une série télévisée et devait jouer autant que chanter ; le premier single est entré directement au top dix britannique.",
+      "fun_fact_nl": "De groep werd samengesteld voor een televisieserie en moest ook acteren; de debuutsingle ging rechtstreeks de Britse top tien in.",
+      "fun_fact_it": "Il gruppo fu messo insieme per una serie televisiva e doveva recitare oltre che cantare; il singolo d'esordio entrò dritto nella top ten britannica.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=GLQ0biK-ZgA"
+    },
+    {
+      "year": 1999,
+      "uri": "spotify:track:7GHKA8GIMcND6c5nN1sFnD",
+      "artist": "Tom Jones",
+      "alt_artists": [
+        "Mousse T.",
+        "Tom Jones",
+        "Right Said Fred"
+      ],
+      "title": "Sexbomb",
+      "isrc": "GBBRL9970040",
+      "uri_apple_music": "applemusic://track/1440715352",
+      "uri_deezer": "deezer://track/2459527",
+      "fun_fact": "Mousse T. produces from Hanover, and this remix put a fifty-nine-year-old Welsh singer back into the European top five.",
+      "fun_fact_de": "Mousse T. produziert aus Hannover; dieser Remix brachte einen neunundfünfzigjährigen walisischen Sänger zurück in die europäischen Top fünf.",
+      "fun_fact_es": "Mousse T. produce desde Hannover, y este remix devolvió a un cantante galés de cincuenta y nueve años al top cinco europeo.",
+      "fun_fact_fr": "Mousse T. produit depuis Hanovre, et ce remix a ramené un chanteur gallois de cinquante-neuf ans dans le top cinq européen.",
+      "fun_fact_nl": "Mousse T. produceert vanuit Hannover, en deze remix bracht een negenenvijftigjarige Welshe zanger terug in de Europese top vijf.",
+      "fun_fact_it": "Mousse T. produce da Hannover, e questo remix riportò un cantante gallese di cinquantanove anni nella top cinque europea.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=WZ32gSLNHfA"
+    },
+    {
+      "year": 1999,
+      "uri": "spotify:track:4bW1aidYiqN0xXxwaXnHKc",
+      "artist": "The Corrs",
+      "alt_artists": [
+        "The Cranberries",
+        "Sixpence None the Richer",
+        "Natalie Imbruglia"
+      ],
+      "title": "Radio",
+      "isrc": "USAT29901742",
+      "uri_apple_music": "applemusic://track/28046743",
+      "uri_deezer": "deezer://track/747685",
+      "fun_fact": "Three sisters and a brother from Dundalk who all played their instruments live, which was unusual for a band sold on looks.",
+      "fun_fact_de": "Drei Schwestern und ein Bruder aus Dundalk, die ihre Instrumente alle live spielten — ungewöhnlich für eine Band, die über ihr Aussehen verkauft wurde.",
+      "fun_fact_es": "Tres hermanas y un hermano de Dundalk que tocaban todos sus instrumentos en directo, algo raro en un grupo vendido por su imagen.",
+      "fun_fact_fr": "Trois sœurs et un frère de Dundalk qui jouaient tous leurs instruments en direct, chose rare pour un groupe vendu sur son apparence.",
+      "fun_fact_nl": "Drie zussen en een broer uit Dundalk die allemaal live hun instrumenten speelden, ongebruikelijk voor een band die op uiterlijk werd verkocht.",
+      "fun_fact_it": "Tre sorelle e un fratello di Dundalk che suonavano tutti dal vivo, cosa insolita per un gruppo venduto sull'aspetto.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=js-Wg53U-3k"
     }
   ]
 }

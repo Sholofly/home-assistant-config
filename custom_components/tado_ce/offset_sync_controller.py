@@ -16,7 +16,9 @@ from .const import (
     DEVICE_OFFSET_MIN,
     SMART_VALVE_CLOUD_RATE_LIMIT,
     SMART_VALVE_DEBOUNCE_WINDOW,
+    SVC_OFFSET_MAX_STEP,
     SVC_OFFSET_MIN_CHANGE,
+    SVC_OFFSET_TRV_EPSILON,
 )
 
 if TYPE_CHECKING:
@@ -26,6 +28,7 @@ if TYPE_CHECKING:
 
 from .climate_helpers import SensorProxy, subscribe_external_sensors
 from .exceptions import TadoAuthError, TadoRateLimitError
+from .polling import is_daytime
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -40,16 +43,18 @@ class OffsetSyncRuntime:
     last_written_offset: float | None = None
     last_offset_write_ts: float | None = None
     paused_until_ts: float | None = None
-    # Zone-fetch epoch (coordinator._last_cloud_zone_fetch) in effect at the
+    # Zone-fetch epoch (coordinator.zone_fetch_epoch_for_write) in effect at the
     # last confirmed write. Settling-gate compares it against the current
     # epoch: a write is only allowed once a newer zone-state poll has
     # refreshed inside_temperature to reflect that write.
     zone_fetch_at_last_write: datetime | None = None
+    # inside_temperature at the last write; a newer epoch alone doesn't prove this zone's reading refreshed.
+    inside_temp_at_last_write: float | None = None
     unsub_external_sensors: list[CALLBACK_TYPE] = field(default_factory=list)
-    # Set in async_deactivate before unsub/cancel so in-flight sensor
-    # callbacks and scheduled debounce timers short-circuit instead of
-    # writing to a deactivated controller.
+    # Set by _stop() (deactivate or discard) so late sensor callbacks and queued debounces do nothing.
     deactivated: bool = False
+    # Set by discard(): nothing may be saved for this controller, it failed to start or its zone id changed hands.
+    discarded: bool = False
 
 
 @dataclass(frozen=True)
@@ -57,7 +62,7 @@ class OffsetCalc:
     """Result of calculate_desired_offset: clamped value plus clamp tag.
 
     clamp_direction is "none" (in range), "hit_max" (raw > +10), or
-    "hit_min" (raw < -10). A raw value exactly on the limit is "none";
+    "hit_min" (raw < -9.9). A raw value exactly on the limit is "none";
     only true overshoots flag.
     """
 
@@ -91,6 +96,11 @@ class OffsetSyncController:
         # debug log so users debugging oscillation can tell whether a
         # given line came from a poll tick or a real-time sensor update.
         self._last_trigger: str = "poll"
+        self._withheld_logged: bool = False
+        # Logged once while the zone waits for the first real zone update after a restart.
+        self._awaiting_fetch_logged: bool = False
+        # The cloud offset read is held back until the first real zone update after a restart.
+        self._offset_load_pending: bool = False
 
     # ------------------------------------------------------------------
     # Properties
@@ -110,19 +120,27 @@ class OffsetSyncController:
         inside_temperature: float,
         current_device_offset: float,
         external_temp: float,
+        max_step: float,
     ) -> OffsetCalc:
         """Calculate the offset that would make Tado display external_temp.
 
         TRV raw reading = inside_temperature - current_device_offset.
-        desired_offset = external_temp - TRV raw, clamped to ±10°C.
+        desired_offset = external_temp - TRV raw, stepped to at most
+        max_step away from current_device_offset (inside_temperature can be
+        momentarily unreliable), then clamped to Tado's ±10°C device limit.
 
-        Returns OffsetCalc with the clamped value and a clamp tag so the
-        caller can surface to the user when the physical gap exceeds
-        Tado's storage limit.
+        Returns OffsetCalc with the stepped-and-clamped value and a clamp
+        tag reflecting only the device-limit clamp, so the caller can
+        surface to the user when the physical gap exceeds Tado's storage
+        limit.
         """
         trv_raw = inside_temperature - current_device_offset
         raw_desired = external_temp - trv_raw
-        clamped = round(max(DEVICE_OFFSET_MIN, min(raw_desired, DEVICE_OFFSET_MAX)), 1)
+        stepped = max(
+            current_device_offset - max_step,
+            min(raw_desired, current_device_offset + max_step),
+        )
+        clamped = round(max(DEVICE_OFFSET_MIN, min(stepped, DEVICE_OFFSET_MAX)), 1)
 
         if raw_desired > DEVICE_OFFSET_MAX:
             direction = "hit_max"
@@ -184,20 +202,29 @@ class OffsetSyncController:
             return False
         return time.monotonic() < paused_until
 
-    def is_settling(self) -> bool:
+    def is_settling(self, inside_temperature: float) -> bool:
         """Return True while inside_temperature has not refreshed since the last write.
 
-        Suppresses writes until the cloud zone-state poll reflects the last
-        offset write, so the controller can't march on stale feedback (the
-        dead-time oscillation).
+        Suppresses on either a stale zone-fetch epoch or an unchanged reading,
+        since a newer epoch alone doesn't guarantee this zone's own reading
+        refreshed.
         """
         at_write = self._runtime.zone_fetch_at_last_write
         if at_write is None:
             return False  # never written, nothing to settle against
+
+        last_seen = self._runtime.inside_temp_at_last_write
+        if last_seen is not None and abs(inside_temperature - last_seen) < SVC_OFFSET_TRV_EPSILON:
+            return True  # same reading as last write, not a fresh measurement
+
         current = self._coordinator.last_zone_fetch_ts()
         if current is None:
             return False  # no fetch recorded yet, don't block
         return current <= at_write  # not advanced → still settling
+
+    def is_quiet_hours(self) -> bool:
+        """Return True outside the configured day window, reusing Smart Polling's hours rather than a dedicated setting."""
+        return not is_daytime(self._coordinator.config_manager)
 
     def on_external_offset_write(self) -> None:
         """Pause sync for one rate-limit window after an external offset write."""
@@ -241,12 +268,38 @@ class OffsetSyncController:
         self._last_trigger = "poll"
 
         from .climate_helpers import read_external_sensor
-        from .helpers import get_zone_state
+        from .helpers import get_zone_state_for_control, is_reading_withheld
 
-        zone_data = get_zone_state(self._coordinator.data, self._zone_id)
+        zone_data = get_zone_state_for_control(self._coordinator, self._zone_id)
         if zone_data is None:
-            self._log_decision(trigger, outcome="skip_no_zone_data")
+            if self._coordinator.last_zone_fetch_ts() is None:
+                if not self._awaiting_fetch_logged:
+                    self._awaiting_fetch_logged = True
+                    _LOGGER.info(
+                        "Offset Sync: zone %s is waiting for the first zone update from Tado "
+                        "after the restart before it writes an offset",
+                        self._zone_id,
+                    )
+                self._log_decision(trigger, outcome="skip_no_fetch_yet")
+            else:
+                self._log_decision(trigger, outcome="skip_no_zone_data")
             return
+        self._awaiting_fetch_logged = False
+
+        if self._offset_load_pending:
+            self._offset_load_pending = False
+            await self._async_load_offset_from_api()
+
+        if is_reading_withheld(self._coordinator.data, self._zone_id, "insideTemperature"):
+            if not self._withheld_logged:
+                self._withheld_logged = True
+                _LOGGER.info(
+                    "Offset Sync: zone %s room temperature has stopped updating because its main device has been offline for four hours or more, pausing until it updates again",
+                    self._zone_id,
+                )
+            self._log_decision(trigger, outcome="skip_withheld")
+            return
+        self._withheld_logged = False
 
         try:
             inside_temperature = float(
@@ -261,20 +314,9 @@ class OffsetSyncController:
             self._log_decision(trigger, outcome="skip_no_inside_temp")
             return
 
-        # Gate on the schedule / overlay having a heating target. A 17°C
-        # overnight block still counts as ON; only an explicit OFF block
-        # or overlay sets power to OFF. Offset writes trigger TRV motor
-        # recalibration (mechanical noise), so we skip when there's no
-        # heating decision for the offset to influence.
         zone_setting = zone_data.get("setting") or {}
         power = zone_setting.get("power", "OFF")
         target = (zone_setting.get("temperature") or {}).get("celsius")
-        if power != "ON":
-            self._log_decision(
-                trigger, outcome="skip_power_off",
-                power=power, target=target, trv=inside_temperature,
-            )
-            return
 
         external_temp = read_external_sensor(
             self._hass, self._zcm, self._zone_id, "external_temp_sensor",
@@ -305,13 +347,16 @@ class OffsetSyncController:
             )
             return
 
-        calc = self.calculate_desired_offset(
-            inside_temperature, physics_offset, external_temp,
-        )
-        desired_offset = calc.value
-
         zone_config = self._zcm.get_zone_config(self._zone_id)
         min_change = float(zone_config.get("svc_offset_min_change", SVC_OFFSET_MIN_CHANGE))
+        # Never smaller than min_change, or should_write's threshold
+        # becomes permanently unreachable.
+        max_step = max(SVC_OFFSET_MAX_STEP, min_change)
+
+        calc = self.calculate_desired_offset(
+            inside_temperature, physics_offset, external_temp, max_step,
+        )
+        desired_offset = calc.value
         effective_current = physics_offset
 
         if not self.should_write(desired_offset, effective_current, min_change):
@@ -325,9 +370,20 @@ class OffsetSyncController:
             )
             return
 
-        if self.is_settling():
+        if self.is_settling(inside_temperature):
             self._log_decision(
                 trigger, outcome="skip_settling",
+                power=power, target=target, ext=external_temp,
+                trv=inside_temperature, current_offset=physics_offset,
+                last_written=self._runtime.last_written_offset,
+                desired=desired_offset, min_change=min_change,
+                clamp=calc.clamp_direction,
+            )
+            return
+
+        if self.is_quiet_hours():
+            self._log_decision(
+                trigger, outcome="skip_quiet_hours",
                 power=power, target=target, ext=external_temp,
                 trv=inside_temperature, current_offset=physics_offset,
                 last_written=self._runtime.last_written_offset,
@@ -358,6 +414,18 @@ class OffsetSyncController:
             )
             return
 
+        # One write per device plus the readback; a held write leaves the offset alone until the next sensor change.
+        if self._coordinator.is_quota_spend_held(len(self._get_zone_device_serials()) + 1):
+            self._log_decision(
+                trigger, outcome="eval_reserve_held",
+                power=power, target=target, ext=external_temp,
+                trv=inside_temperature, current_offset=physics_offset,
+                last_written=self._runtime.last_written_offset,
+                desired=desired_offset, min_change=min_change,
+                clamp=calc.clamp_direction,
+            )
+            return
+
         self._log_decision(
             trigger, outcome="eval_write_attempt",
             power=power, target=target, ext=external_temp,
@@ -368,7 +436,9 @@ class OffsetSyncController:
         )
 
         try:
-            await self._async_write_offset(desired_offset, calc.clamp_direction)
+            await self._async_write_offset(
+                desired_offset, inside_temperature, calc.clamp_direction,
+            )
         except (TadoAuthError, TadoRateLimitError) as e:
             from .error_dispatch import handle_background_write_error
 
@@ -383,7 +453,7 @@ class OffsetSyncController:
     # ------------------------------------------------------------------
 
     async def _async_write_offset(
-        self, offset: float, clamp_direction: str = "none",
+        self, offset: float, inside_temperature: float, clamp_direction: str = "none",
     ) -> None:
         """Write offset to every device in the zone, gated by readback.
 
@@ -476,7 +546,8 @@ class OffsetSyncController:
 
         self._runtime.last_written_offset = readback
         self._runtime.last_offset_write_ts = time.monotonic()
-        self._runtime.zone_fetch_at_last_write = self._coordinator.last_zone_fetch_ts()
+        self._runtime.zone_fetch_at_last_write = self._coordinator.zone_fetch_epoch_for_write()
+        self._runtime.inside_temp_at_last_write = inside_temperature
 
         raw_offsets = self._coordinator.data_loader.get_cached("offsets")
         cached_offsets: dict[str, float] = (
@@ -500,8 +571,8 @@ class OffsetSyncController:
 
         if clamp_direction != "none":
             direction_desc = (
-                "above the +10°C maximum" if clamp_direction == "hit_max"
-                else "below the -10°C minimum"
+                f"above the +{DEVICE_OFFSET_MAX:g}°C maximum" if clamp_direction == "hit_max"
+                else f"below the {DEVICE_OFFSET_MIN:g}°C minimum"
             )
             _LOGGER.warning(
                 "Offset Sync: zone %s wrote offset %.1f°C, but the required "
@@ -557,17 +628,36 @@ class OffsetSyncController:
             f"{last:.1f}" if last is not None else "unknown",
         )
 
-    async def async_deactivate(self) -> None:
-        """Unsubscribe sensors and persist state without changing the device offset."""
-        # Order matters: flag first so any sensor event that slips
-        # through short-circuits; cancel before unsub so a pending
-        # debounce firing between the two also sees the flag.
+    def _stop(self) -> None:
+        """Stop reacting: flag first so a late sensor event short-circuits, cancel before unsub so a pending debounce also sees it."""
         self._runtime.deactivated = True
         self._action_debouncer.cancel(f"offset_sync_{self._zone_id}")
 
         for unsub in self._runtime.unsub_external_sensors:
             unsub()
         self._runtime.unsub_external_sensors.clear()
+
+    def adopt_predecessor(self, previous: OffsetSyncController) -> None:
+        """Take over the settle marks of the controller this one replaces, so a reading from before its write stays unsettled."""
+        self._runtime.zone_fetch_at_last_write = previous._runtime.zone_fetch_at_last_write
+        self._runtime.inside_temp_at_last_write = previous._runtime.inside_temp_at_last_write
+        _LOGGER.debug(
+            "Offset Sync: zone %s controller took over the previous controller's last write marks",
+            self._zone_id,
+        )
+
+    def discard(self) -> None:
+        """Stop without saving, for a controller that failed to start or whose zone id changed hands."""
+        self._stop()
+        self._runtime.discarded = True
+        _LOGGER.info(
+            "Offset Sync: zone %s controller discarded without saving",
+            self._zone_id,
+        )
+
+    async def async_deactivate(self) -> None:
+        """Unsubscribe sensors and persist state without changing the device offset."""
+        self._stop()
 
         await self.async_persist_state()
 
@@ -591,6 +681,8 @@ class OffsetSyncController:
         so stale fields left over from older versions are cleared on
         the first persist after upgrade.
         """
+        if self._runtime.discarded:
+            return
         state_dict: dict[str, float | None] = {
             "last_written_offset": self._runtime.last_written_offset,
         }
@@ -608,7 +700,7 @@ class OffsetSyncController:
                 "current offset from Tado",
                 self._zone_id,
             )
-            await self._async_load_offset_from_api()
+            await self._async_load_offset_unless_waiting()
             return
 
         try:
@@ -633,7 +725,14 @@ class OffsetSyncController:
                 "starting fresh",
                 self._zone_id,
             )
-            await self._async_load_offset_from_api()
+            await self._async_load_offset_unless_waiting()
+
+    async def _async_load_offset_unless_waiting(self) -> None:
+        """Read the offset from Tado now, or on the first evaluation after a real zone update."""
+        if self._coordinator.last_zone_fetch_ts() is None:
+            self._offset_load_pending = True
+            return
+        await self._async_load_offset_from_api()
 
     async def _async_load_offset_from_api(self) -> None:
         """Read the device offset from Tado for a fresh install or corrupt state."""
@@ -687,7 +786,12 @@ class OffsetSyncController:
 
     def get_attributes(self) -> dict[str, Any]:
         """Return attributes for the climate entity's extra_state_attributes."""
-        active = not self._runtime.deactivated and not self.is_paused()
+        # Nothing is written before a real zone fetch, so a restored controller is not reported as active yet.
+        active = (
+            not self._runtime.deactivated
+            and not self.is_paused()
+            and self._coordinator.last_zone_fetch_ts() is not None
+        )
         return {
             "valve_control_active": active,
             "valve_control_mode": "offset_sync",

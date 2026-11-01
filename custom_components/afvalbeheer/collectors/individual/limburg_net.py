@@ -10,7 +10,7 @@ from ...models import WasteCollection
 from ...const import (
     WASTE_TYPE_BULKLITTER, WASTE_TYPE_BULKYGARDENWASTE, WASTE_TYPE_GREEN,
     WASTE_TYPE_GLASS, WASTE_TYPE_GREY, WASTE_TYPE_PACKAGES, WASTE_TYPE_PAPER,
-    WASTE_TYPE_TEXTILE
+    WASTE_TYPE_TEXTILE, DEFAULT_REQUEST_TIMEOUT
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -43,26 +43,32 @@ class LimburgNetCollector(WasteCollector):
     def __init__(self, hass, waste_collector, postcode, street_number, suffix, custom_mapping, street_name, city_name):
         super().__init__(hass, waste_collector, postcode, street_number, suffix, custom_mapping)
         self.city_name = city_name
-        self.street_name = street_name.replace(" ", "+")
+        self.street_name = street_name
         self.main_url = "https://limburg.net/api-proxy/public"
         self.city_id = None
         self.street_id = None
 
     def __fetch_address(self):
         _LOGGER.debug("Fetching address from Limburg.net")
-        response = requests.get('{}/afval-kalender/gemeenten/search?query={}'.format(
-            self.main_url, self.city_name)).json()
+        response = requests.get(
+            '{}/afval-kalender/gemeenten/search'.format(self.main_url),
+            params={'query': self.city_name},
+            timeout=DEFAULT_REQUEST_TIMEOUT
+        ).json()
 
-        if not response[0]['nisCode']:
+        if not response or not response[0].get('nisCode'):
             _LOGGER.error('City not found!')
             return
 
         self.city_id = response[0]["nisCode"]
 
-        response = requests.get('{}/afval-kalender/gemeente/{}/straten/search?query={}'.format(
-            self.main_url, self.city_id, self.street_name)).json()
+        response = requests.get(
+            '{}/afval-kalender/gemeente/{}/straten/search'.format(self.main_url, self.city_id),
+            params={'query': self.street_name},
+            timeout=DEFAULT_REQUEST_TIMEOUT
+        ).json()
 
-        if not response[0]['nummer']:
+        if not response or not response[0].get('nummer'):
             _LOGGER.error('Street not found!')
             return
 
@@ -79,9 +85,12 @@ class LimburgNetCollector(WasteCollector):
                 today = (today.replace(day=1) + timedelta(days=32)).replace(day=1)
             year = today.year
             month = today.month
-            get_url = '{}/kalender/{}/{}-{}?straatNummer={}&huisNummer={}&toevoeging={}'.format(
-                    self.main_url, self.city_id, year, month, self.street_id, self.street_number, self.suffix)
-            month_json = requests.get(get_url).json()
+            get_url = '{}/kalender/{}/{}-{}'.format(self.main_url, self.city_id, year, month)
+            month_json = requests.get(
+                get_url,
+                params={'straatNummer': self.street_id, 'huisNummer': self.street_number, 'toevoeging': self.suffix},
+                timeout=DEFAULT_REQUEST_TIMEOUT
+            ).json()
             data = data + month_json['events']
 
         return data

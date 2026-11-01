@@ -3,7 +3,7 @@
  * These helpers drive the state machine: when to show, where to resume, when to show the pill.
  */
 import { describe, it, expect, beforeEach } from 'vitest';
-import { resumeAtStep, shouldTrigger, shouldShowPill, providerSupportedForPlayer, capabilityBadgeForPlayer, applyGameModeTogglePrecedence, difficultyDisplayFor, buildWizChip, resolveGameLanguageDefault, buildTtsPayload } from '../wizard.js';
+import { resumeAtStep, shouldTrigger, shouldShowPill, providerSupportedForPlayer, capabilityBadgeForPlayer, applyGameModeTogglePrecedence, difficultyDisplayFor, buildWizChip, resolveGameLanguageDefault, buildTtsPayload, modeHintHtml, doneSummaryHtml, buildLightsPayload } from '../wizard.js';
 
 function makeLS(initial = {}) {
     const store = { ...initial };
@@ -536,5 +536,183 @@ describe('buildTtsPayload (#1401 — preserve tts_pre_round_delay)', () => {
         });
         expect('tts_pre_round_delay' in out).toBe(false);
         expect(out.preset).toBe('standard');
+    });
+});
+
+// ---------------------------------------------------------------------------
+// modeHintHtml — the gated mode card explains itself without hover (#1799)
+describe('modeHintHtml', () => {
+    it('renders the mode description when the card is not gated', () => {
+        const out = modeHintHtml(false, 'Needs at least 3 players', 'Last one out each round.');
+        expect(out).toBe('<div class="wiz-mode-hint">Last one out each round.</div>');
+        expect(out).not.toContain('gated');
+    });
+
+    it('replaces the description with the requirement when the card is gated', () => {
+        const out = modeHintHtml(true, 'Needs at least 3 players', 'Last one out each round.');
+        expect(out).toContain('wiz-mode-hint gated');
+        expect(out).toContain('Needs at least 3 players');
+        // The requirement must be visible on its own — not hidden behind hover.
+        expect(out).not.toContain('Last one out each round.');
+    });
+
+    it('escapes the gate text', () => {
+        const out = modeHintHtml(true, '<img src=x onerror=alert(1)>', 'hint');
+        expect(out).not.toContain('<img');
+        expect(out).toContain('&lt;img');
+    });
+});
+
+// ---------------------------------------------------------------------------
+// doneSummaryHtml — LAN-supplied names are escaped in the final summary (#2874,
+// same rule as the speaker list in #1370)
+describe('doneSummaryHtml (#2874)', () => {
+    const t = (_key, fallback) => fallback;
+    const base = {
+        speaker: 'Esszimmer',
+        provider: 'Spotify',
+        playlistLabel: '80s Hits',
+        modeSummary: 'Year mode · normal · 30s · EN',
+        atmosphere: 'lights + voice',
+    };
+
+    it('renders normal names unchanged', () => {
+        const out = doneSummaryHtml(base, t);
+        expect(out).toContain('<span>Speaker</span><strong>Esszimmer</strong>');
+        expect(out).toContain('<strong>80s Hits</strong>');
+        expect(out.match(/<strong>((?:<span class="wiz-done-seg">[^<]*<\/span> ?)+)<\/strong>/)[1].replace(/<[^>]+>/g, '')).toBe('Year mode · normal · 30s · EN');
+        expect(out).toContain('<strong>lights + voice</strong>');
+    });
+
+    it('escapes a crafted friendly_name and playlist name instead of rendering elements', () => {
+        const out = doneSummaryHtml({
+            ...base,
+            speaker: '<img src=x onerror=alert(1)>',
+            playlistLabel: '<b>Party</b> & more',
+        }, t);
+        expect(out).not.toContain('<img');
+        expect(out).not.toContain('<b>');
+        expect(out).toContain('<strong>&lt;img src=x onerror=alert(1)&gt;</strong>');
+        expect(out).toContain('<strong>&lt;b&gt;Party&lt;/b&gt; &amp; more</strong>');
+        // Only the summary's own markup is left as tags.
+        const tags = out.match(/<\/?([a-z]+)/g).map((m) => m.replace(/[</]/g, ''));
+        expect(new Set(tags)).toEqual(new Set(['div', 'span', 'strong']));
+    });
+
+    it('escapes provider, mode and atmosphere too', () => {
+        const out = doneSummaryHtml({
+            ...base,
+            provider: '<svg onload=1>',
+            modeSummary: '<i>x</i>',
+            atmosphere: '<script>1</script>',
+        }, t);
+        expect(out).not.toMatch(/<(svg|i|script)\b/);
+        expect(out).toContain('&lt;svg onload=1&gt;');
+    });
+});
+
+describe('doneSummaryHtml mode line wraps between segments (#2995)', () => {
+    const t = (_key, fallback) => fallback;
+    const out = doneSummaryHtml({
+        speaker: 'Esszimmer',
+        provider: 'Spotify',
+        playlistLabel: '80s Hits · Party',
+        modeSummary: 'Jahres-Modus · normal · 45s · Alle Songs · DE',
+        atmosphere: 'none',
+    }, t);
+
+    it('renders each mode segment as its own no-wrap span, dot kept on the left', () => {
+        const segs = [...out.matchAll(/<span class="wiz-done-seg">([^<]*)<\/span>/g)].map((m) => m[1]);
+        expect(segs).toEqual(['Jahres-Modus ·', 'normal ·', '45s ·', 'Alle Songs ·', 'DE']);
+    });
+
+    it('keeps the visible text exactly as before', () => {
+        const mode = out.match(/<span>Mode<\/span><strong>(.*?)<\/strong>/)[1].replace(/<[^>]+>/g, '');
+        expect(mode).toBe('Jahres-Modus · normal · 45s · Alle Songs · DE');
+    });
+
+    it('leaves the other lines as plain text (the playlist name is not split)', () => {
+        expect(out).toContain('<strong>80s Hits · Party</strong>');
+    });
+
+    it('escapes each segment', () => {
+        const x = doneSummaryHtml({ speaker: '', provider: '', playlistLabel: '', modeSummary: '<b>a</b> · b', atmosphere: '' }, t);
+        expect(x).toContain('<span class="wiz-done-seg">&lt;b&gt;a&lt;/b&gt; ·</span>');
+        expect(x).not.toContain('<b>');
+    });
+
+});
+
+describe('#1940 — hiding the wizard refreshes the home view', () => {
+    it('calls BeatifyHome.refresh() when the wizard is dismissed', async () => {
+        const { hide } = await import('../wizard.js');
+        const calls = [];
+        const root = {
+            classList: { add() {}, remove() {} },
+            setAttribute() {},
+        };
+        globalThis.document = {
+            getElementById: (id) => (id === 'wizard-root' ? root : null),
+            body: { classList: { add() {}, remove() {} } },
+        };
+        globalThis.window = globalThis;
+        globalThis.BeatifyHome = { refresh: () => calls.push('refresh') };
+        globalThis.localStorage = {
+            getItem: () => null,
+            setItem: () => {},
+            removeItem: () => {},
+        };
+
+        hide({ dismissed: true });
+
+        // Skipping setup used to leave the home view on its "—" placeholder:
+        // only the *completion* path called enter(), which refreshes.
+        expect(calls).toEqual(['refresh']);
+    });
+
+    it('does not throw when the home view is not mounted', async () => {
+        const { hide } = await import('../wizard.js');
+        const root = { classList: { add() {}, remove() {} }, setAttribute() {} };
+        globalThis.document = {
+            getElementById: (id) => (id === 'wizard-root' ? root : null),
+            body: { classList: { add() {}, remove() {} } },
+        };
+        globalThis.window = globalThis;
+        delete globalThis.BeatifyHome;
+        globalThis.localStorage = { getItem: () => null, setItem: () => {}, removeItem: () => {} };
+
+        expect(() => hide({})).not.toThrow();
+    });
+});
+
+// ------------------------------------------------------------------
+// buildLightsPayload — what the wizard persists for party lights (#3159)
+// ------------------------------------------------------------------
+describe('buildLightsPayload', () => {
+    const base = {
+        entityIds: new Set(['light.a', 'light.b']),
+        intensity: 'medium',
+        mode: 'standard',
+        wledPresets: {},
+    };
+
+    it('writes enabled:true and the entities when lights are on', () => {
+        const p = buildLightsPayload({ ...base, enabled: true });
+        expect(p.enabled).toBe(true);
+        expect(p.lights).toEqual(['light.a', 'light.b']);
+    });
+
+    it('writes an explicit enabled:false but keeps the entities when lights are off (#3159)', () => {
+        const p = buildLightsPayload({ ...base, enabled: false });
+        expect(p.enabled).toBe(false);
+        expect(p.lights).toEqual(['light.a', 'light.b']);
+        expect(p.intensity).toBe('medium');
+    });
+
+    it('adds wled_presets only in wled mode with presets', () => {
+        const presets = { start: 1 };
+        expect(buildLightsPayload({ ...base, enabled: true, mode: 'wled', wledPresets: presets }).wled_presets).toEqual(presets);
+        expect(buildLightsPayload({ ...base, enabled: true, mode: 'wled', wledPresets: {} })).not.toHaveProperty('wled_presets');
+        expect(buildLightsPayload({ ...base, enabled: true, wledPresets: presets })).not.toHaveProperty('wled_presets');
     });
 });

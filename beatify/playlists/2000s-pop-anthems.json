@@ -1,6 +1,6 @@
 {
   "name": "2000s Pop Anthems",
-  "version": "1.11",
+  "version": "1.34",
   "tags": [
     "2000s",
     "pop",
@@ -89,6 +89,15 @@
       "fun_fact_nl": "In de videoclip is te zien hoe Kelly Rowland op een beroemde manier probeert Nelly te sms'en via een Microsoft Excel-spreadsheet.",
       "awards_nl": [
         "Grammy Award – Beste Rap/Zang-samenwerking"
+      ],
+      "awards_it": [
+        "Grammy per la migliore collaborazione rap/cantata"
+      ],
+      "awards_de": [
+        "Grammy - Beste Rap/Gesang-Zusammenarbeit"
+      ],
+      "awards_es": [
+        "Grammy - Mejor Colaboración Rap/Cantada"
       ],
       "isrc": "USUR10200370",
       "uri_apple_music_by_region": {
@@ -181,6 +190,15 @@
       "awards_nl": [
         "Grammy Award – Beste Vrouwelijke Pop Zangprestatie"
       ],
+      "awards_it": [
+        "Grammy per la migliore interpretazione vocale pop femminile"
+      ],
+      "awards_de": [
+        "Grammy - Beste weibliche Pop-Gesangsdarbietung"
+      ],
+      "awards_es": [
+        "Grammy - Mejor Interpretación Vocal Pop Femenina"
+      ],
       "isrc": "GBCTA0400231",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1687386491",
@@ -233,6 +251,18 @@
         "Grammy Award – Beste Vrouwelijke R&B Zangprestatie",
         "Grammy Award – Beste R&B-nummer"
       ],
+      "awards_it": [
+        "Grammy per la migliore interpretazione vocale R&B femminile",
+        "Grammy per la migliore canzone R&B"
+      ],
+      "awards_de": [
+        "Grammy - Beste weibliche R&B-Gesangsdarbietung",
+        "Grammy - Bester R&B-Song"
+      ],
+      "awards_es": [
+        "Grammy - Mejor Interpretación Vocal R&B Femenina",
+        "Grammy - Mejor Canción R&B"
+      ],
       "isrc": "USIR20500195",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1443208143",
@@ -281,6 +311,15 @@
       "fun_fact_nl": "De Moulin Rouge-versie bevat Christina Aguilera, Lil' Kim, Mýa en Pink — vier van de grootste vrouwelijke artiesten van dat tijdperk die samen optreden.",
       "awards_nl": [
         "Grammy Award – Beste Popsamenwerking met Zang"
+      ],
+      "awards_it": [
+        "Grammy per la migliore collaborazione pop con parti vocali"
+      ],
+      "awards_de": [
+        "Grammy - Beste Pop-Zusammenarbeit mit Gesang"
+      ],
+      "awards_es": [
+        "Grammy - Mejor Colaboración Pop con Voces"
       ],
       "isrc": "USIR10110334",
       "uri_apple_music_by_region": {
@@ -413,6 +452,15 @@
       "fun_fact_nl": "De iconische lach aan het begin van het nummer werd ingesproken door de stemacteur van bassist Murdoc Niccals, en de geanimeerde videoclip won een Grammy voor Beste Videoclip.",
       "awards_nl": [
         "Grammy Award – Beste Popsamenwerking met Zang"
+      ],
+      "awards_it": [
+        "Grammy per la migliore collaborazione pop con parti vocali"
+      ],
+      "awards_de": [
+        "Grammy - Beste Pop-Zusammenarbeit mit Gesang"
+      ],
+      "awards_es": [
+        "Grammy - Mejor Colaboración Pop con Voces"
       ],
       "isrc": "GBAYE1400422",
       "uri_apple_music_by_region": {
@@ -547,6 +595,15 @@
       "awards_nl": [
         "Grammy Award – Beste Hardrockprestatie"
       ],
+      "awards_it": [
+        "Grammy per la migliore interpretazione hard rock"
+      ],
+      "awards_de": [
+        "Grammy - Beste Hard-Rock-Darbietung"
+      ],
+      "awards_es": [
+        "Grammy - Mejor Interpretación de Hard Rock"
+      ],
       "isrc": "USWU30200093",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1645901771",
@@ -637,6 +694,15 @@
       "fun_fact_nl": "De videoclip in stripboekthema parodieert meerdere beroemdheden en toont Eminem als een superheld genaamd 'Rap Boy', een persiflage op Robin uit Batman.",
       "awards_nl": [
         "Grammy Award – Beste Muziekvideo (Korte Vorm)"
+      ],
+      "awards_it": [
+        "Grammy per il miglior video musicale (Short Form)"
+      ],
+      "awards_de": [
+        "Grammy - Bestes Musikvideo (Short Form)"
+      ],
+      "awards_es": [
+        "Grammy - Mejor Vídeo Musical (Short Form)"
       ],
       "isrc": "USIR10211038",
       "uri_apple_music_by_region": {
@@ -814,6 +880,18 @@
       "awards_nl": [
         "Grammy Award – Lied van het Jaar",
         "Grammy Award – Beste Popprestatie door Duo of Groep"
+      ],
+      "awards_it": [
+        "Grammy per la canzone dell'anno",
+        "Grammy per la migliore interpretazione pop di un duo o gruppo"
+      ],
+      "awards_de": [
+        "Grammy - Song des Jahres",
+        "Grammy - Beste Pop-Darbietung eines Duos oder einer Gruppe"
+      ],
+      "awards_es": [
+        "Grammy - Canción del Año",
+        "Grammy - Mejor Interpretación Pop de Dúo o Grupo"
       ],
       "isrc": "GBAYE1600217",
       "uri_apple_music_by_region": {
@@ -1023,13 +1101,22 @@
       "fun_fact_de": "Die Debütsingle des australischen Synth-Pop-Duos brauchte Jahre, um ein globaler Hit zu werden, und gewann durch TV-Platzierungen und TikTok in den 2020ern massive Popularität.",
       "fun_fact_es": "El sencillo debut del dúo australiano de synth-pop tardó años en convertirse en un éxito global, ganando enorme popularidad a través de apariciones en TV y volviéndose viral en TikTok en los 2020.",
       "fun_fact_fr": "Le premier single du duo australien de synth-pop a mis des années avant de devenir un tube mondial, gagnant une popularité massive grâce aux placements TV et en devenant viral sur TikTok dans les années 2020.",
-      "uri_apple_music": "applemusic://track/712862708",
+      "uri_apple_music": "applemusic://track/1449912309",
       "uri_youtube_music": "https://music.youtube.com/watch?v=eimgRedLkkU",
-      "uri_tidal": "tidal://track/3233354",
+      "uri_tidal": "tidal://track/103015734",
       "uri_deezer": "deezer://track/4286051",
       "fun_fact_nl": "De debuutsingle van het Australische synth-popduo deed er jaren over om een wereldwijde hit te worden, won massaal aan populariteit door tv-plaatsingen en ging viraal op TikTok in de jaren 2020.",
       "awards_nl": [
         "ARIA Award – Beste Poprelease"
+      ],
+      "awards_it": [
+        "ARIA Award per la migliore pubblicazione pop"
+      ],
+      "awards_de": [
+        "ARIA Award - Beste Pop-Veröffentlichung"
+      ],
+      "awards_es": [
+        "Premio ARIA - Mejor Lanzamiento Pop"
       ],
       "isrc": "AUEI10800039",
       "uri_apple_music_by_region": {
@@ -1043,7 +1130,7 @@
       }
     },
     {
-      "year": 2000,
+      "year": 1999,
       "uri": "spotify:track:48UPSzbZjgc449aqz8bxox",
       "artist": "Red Hot Chili Peppers",
       "alt_artists": [
@@ -1121,6 +1208,15 @@
       "fun_fact_nl": "De iconische Bollywood-strijkerssample van het nummer is afkomstig uit 'Tere Mere Beech Mein' uit de Indiase film Ek Duuje Ke Liye uit 1981. Het leverde Britney haar enige Grammy Award op.",
       "awards_nl": [
         "Grammy Award – Beste Dance-opname"
+      ],
+      "awards_it": [
+        "Grammy per la migliore registrazione dance"
+      ],
+      "awards_de": [
+        "Grammy - Beste Dance-Aufnahme"
+      ],
+      "awards_es": [
+        "Grammy - Mejor Grabación Dance"
       ],
       "isrc": "USJI10301005",
       "uri_apple_music_by_region": {
@@ -1216,6 +1312,18 @@
         "Grammy Award – Beste Rapnummer",
         "Grammy Award – Beste Rap/Zang-samenwerking"
       ],
+      "awards_it": [
+        "Grammy per la migliore canzone rap",
+        "Grammy per la migliore collaborazione rap/cantata"
+      ],
+      "awards_de": [
+        "Grammy - Bester Rap-Song",
+        "Grammy - Beste Rap/Gesang-Zusammenarbeit"
+      ],
+      "awards_es": [
+        "Grammy - Mejor Canción de Rap",
+        "Grammy - Mejor Colaboración Rap/Cantada"
+      ],
       "isrc": "USJZ10900031",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1440750745",
@@ -1268,6 +1376,18 @@
         "Grammy Award – Beste Vrouwelijke Pop Zangprestatie",
         "Grammy Award – Beste Korte Muziekvideo"
       ],
+      "awards_it": [
+        "Grammy per la migliore interpretazione vocale pop femminile",
+        "Grammy per il miglior video musicale di forma breve"
+      ],
+      "awards_de": [
+        "Grammy - Beste weibliche Pop-Gesangsdarbietung",
+        "Grammy - Bestes Kurzform-Musikvideo"
+      ],
+      "awards_es": [
+        "Grammy - Mejor Interpretación Vocal Pop Femenina",
+        "Grammy - Mejor Vídeo Musical de Formato Corto"
+      ],
       "isrc": "USUM70918596",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1688497897",
@@ -1316,6 +1436,15 @@
       "fun_fact_nl": "Timbaland produceerde de track met zware elektronische vervorming, en veel dj's dachten aanvankelijk dat het een nieuwe artiest was in plaats van Justin Timberlake vanwege de dramatische verandering in geluid.",
       "awards_nl": [
         "Grammy Award – Beste Dance-opname"
+      ],
+      "awards_it": [
+        "Grammy per la migliore registrazione dance"
+      ],
+      "awards_de": [
+        "Grammy - Beste Dance-Aufnahme"
+      ],
+      "awards_es": [
+        "Grammy - Mejor Grabación Dance"
       ],
       "isrc": "USJI10600269",
       "uri_apple_music_by_region": {
@@ -1366,6 +1495,15 @@
       "awards_nl": [
         "Grammy Award – Beste Rockprestatie door Duo of Groep met Zang"
       ],
+      "awards_it": [
+        "Grammy per la migliore interpretazione rock di un duo o gruppo con parti vocali"
+      ],
+      "awards_de": [
+        "Grammy - Beste Rock-Darbietung eines Duos oder einer Gruppe mit Gesang"
+      ],
+      "awards_es": [
+        "Grammy - Mejor Interpretación Rock de Dúo o Grupo con Voz"
+      ],
       "isrc": "USRC10800300",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1441530830",
@@ -1414,6 +1552,15 @@
       "fun_fact_nl": "Chris Martin bedacht de pianoriff diep in de nacht en nam hem bijna niet op omdat hij bedoeld was voor een ander bandproject. Het won de Grammy voor Record of the Year in 2004.",
       "awards_nl": [
         "Grammy Award – Opname van het Jaar"
+      ],
+      "awards_it": [
+        "Grammy per il disco dell'anno"
+      ],
+      "awards_de": [
+        "Grammy - Aufnahme des Jahres"
+      ],
+      "awards_es": [
+        "Grammy - Grabación del Año"
       ],
       "isrc": "GBAYE1600193",
       "uri_apple_music_by_region": {
@@ -1632,6 +1779,15 @@
       "awards_nl": [
         "Grammy Award – Beste Rap Soloprestatie"
       ],
+      "awards_it": [
+        "Grammy per la migliore interpretazione rap solista"
+      ],
+      "awards_de": [
+        "Grammy - Beste Rap-Solodarbietung"
+      ],
+      "awards_es": [
+        "Grammy - Mejor Interpretación de Rap Solista"
+      ],
       "isrc": "USIR10000448",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1440866926",
@@ -1682,7 +1838,8 @@
         "es": "applemusic://track/1749002902",
         "nl": "applemusic://track/1749002902",
         "it": "applemusic://track/1749002902"
-      }
+      },
+      "uri_tidal": "tidal://track/23267439"
     },
     {
       "year": 2006,
@@ -1717,13 +1874,13 @@
       "awards_nl": [],
       "isrc": "USUM70601449",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/1705971765",
-        "de": "applemusic://track/1705971765",
-        "gb": "applemusic://track/1705971765",
-        "fr": "applemusic://track/1705971765",
-        "es": "applemusic://track/1705971765",
-        "nl": "applemusic://track/1705971765",
-        "it": "applemusic://track/1705971765"
+        "us": "applemusic://track/1442463828",
+        "de": "applemusic://track/1442463828",
+        "gb": "applemusic://track/1442463828",
+        "fr": "applemusic://track/1444221235",
+        "es": "applemusic://track/1445131669",
+        "nl": "applemusic://track/1442463828",
+        "it": "applemusic://track/1442463828"
       }
     },
     {
@@ -1764,6 +1921,15 @@
       "awards_nl": [
         "Grammy Award – Beste Dance-opname"
       ],
+      "awards_it": [
+        "Grammy per la migliore registrazione dance"
+      ],
+      "awards_de": [
+        "Grammy - Beste Dance-Aufnahme"
+      ],
+      "awards_es": [
+        "Grammy - Mejor Grabación Dance"
+      ],
       "isrc": "USUM70824409",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1710465533",
@@ -1786,11 +1952,6 @@
         "DMX"
       ],
       "title": "Till I Collapse",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [
         "Diamond (US)"
       ],
@@ -1853,6 +2014,15 @@
       "fun_fact_nl": "Het nummer was oorspronkelijk geschreven voor Britney Spears, die het weigerde. Het stond 10 opeenvolgende weken op nummer 1 in het VK tijdens een van de regenachtigste zomers ooit gemeten.",
       "awards_nl": [
         "Grammy Award – Beste Rap/Zang-samenwerking"
+      ],
+      "awards_it": [
+        "Grammy per la migliore collaborazione rap/cantata"
+      ],
+      "awards_de": [
+        "Grammy - Beste Rap/Gesang-Zusammenarbeit"
+      ],
+      "awards_es": [
+        "Grammy - Mejor Colaboración Rap/Cantada"
       ],
       "isrc": "USUM70736771",
       "uri_apple_music_by_region": {
@@ -1986,6 +2156,15 @@
       "awards_nl": [
         "BRIT Award – Beste Britse Rockact (band)"
       ],
+      "awards_it": [
+        "Brit Award per il miglior artista rock britannico (band)"
+      ],
+      "awards_de": [
+        "BRIT Award - Bester britischer Rock-Act (band)"
+      ],
+      "awards_es": [
+        "Premio BRIT - Mejor Artista de Rock Británico (band)"
+      ],
       "isrc": "GBCEL0300192",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/315844084",
@@ -2034,6 +2213,15 @@
       "fun_fact_nl": "Ironisch genoeg namen The Game en 50 Cent deze samenwerking op vlak voor hun beroemde vete die de G-Unit-rapgroep uiteendreef.",
       "awards_nl": [
         "Grammy-nominatie – Beste Rapprestatie door Duo of Groep"
+      ],
+      "awards_it": [
+        "Candidatura al Grammy per la migliore interpretazione rap di un duo o gruppo"
+      ],
+      "awards_de": [
+        "Grammy-Nominierung - Beste Rap-Darbietung eines Duos oder einer Gruppe"
+      ],
+      "awards_es": [
+        "Nominación al Grammy - Mejor Interpretación de Rap de Dúo o Grupo"
       ],
       "isrc": "USIR10401121",
       "uri_apple_music_by_region": {
@@ -2170,6 +2358,18 @@
         "Grammy Award – Beste Vrouwelijke R&B Zangprestatie",
         "Grammy Award – Beste R&B-nummer"
       ],
+      "awards_it": [
+        "Grammy per la migliore interpretazione vocale R&B femminile",
+        "Grammy per la migliore canzone R&B"
+      ],
+      "awards_de": [
+        "Grammy - Beste weibliche R&B-Gesangsdarbietung",
+        "Grammy - Bester R&B-Song"
+      ],
+      "awards_es": [
+        "Grammy - Mejor Interpretación Vocal R&B Femenina",
+        "Grammy - Mejor Canción R&B"
+      ],
       "isrc": "USJAY0300452",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1721921218",
@@ -2253,13 +2453,22 @@
       "fun_fact_de": "André 3000 spielte alle Instrumente selbst. Die Textzeile 'shake it like a Polaroid picture' veranlasste Polaroid zu einer Erklärung, dass Schütteln die Fotos tatsächlich beschädigt.",
       "fun_fact_es": "André 3000 tocó todos los instrumentos él mismo. La letra 'shake it like a Polaroid picture' llevó a Polaroid a emitir un comunicado diciendo que agitar las fotos en realidad las daña.",
       "fun_fact_fr": "André 3000 a joué tous les instruments lui-même. La réplique 'shake it like a Polaroid picture' a poussé Polaroid à publier un communiqué expliquant que secouer les photos les endommage en réalité.",
-      "uri_apple_music": "",
+      "uri_apple_music": "applemusic://track/1032178989",
       "uri_youtube_music": "https://music.youtube.com/watch?v=PWgvGjAhvIw",
       "uri_tidal": "tidal://track/1772295",
       "uri_deezer": "deezer://track/628266",
       "fun_fact_nl": "André 3000 speelde alle instrumenten zelf. De tekst 'shake it like a Polaroid picture' zette Polaroid ertoe aan een verklaring af te geven dat het schudden van foto's ze in feite beschadigt.",
       "awards_nl": [
         "Grammy Award – Beste Urban/Alternatieve Prestatie"
+      ],
+      "awards_it": [
+        "Grammy per la migliore interpretazione urban/alternative"
+      ],
+      "awards_de": [
+        "Grammy - Beste Urban/Alternative-Darbietung"
+      ],
+      "awards_es": [
+        "Grammy - Mejor Interpretación Urbana/Alternativa"
       ]
     },
     {
@@ -2466,6 +2675,15 @@
       "awards_nl": [
         "Grammy Award – Beste Rapprestatie door Duo of Groep"
       ],
+      "awards_it": [
+        "Grammy per la migliore interpretazione rap di un duo o gruppo"
+      ],
+      "awards_de": [
+        "Grammy - Beste Rap-Darbietung eines Duos oder einer Gruppe"
+      ],
+      "awards_es": [
+        "Grammy - Mejor Interpretación de Rap de Dúo o Grupo"
+      ],
       "isrc": "USLF20000357",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1741741469",
@@ -2641,6 +2859,15 @@
       "awards_nl": [
         "Grammy Award – Beste Vrouwelijke R&B Zangprestatie"
       ],
+      "awards_it": [
+        "Grammy per la migliore interpretazione vocale R&B femminile"
+      ],
+      "awards_de": [
+        "Grammy - Beste weibliche R&B-Gesangsdarbietung"
+      ],
+      "awards_es": [
+        "Grammy - Mejor Interpretación Vocal R&B Femenina"
+      ],
       "isrc": "USMC10111369",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1691778424",
@@ -2732,6 +2959,15 @@
       "awards_nl": [
         "Grammy Award – Beste Rap Soloprestatie"
       ],
+      "awards_it": [
+        "Grammy per la migliore interpretazione rap solista"
+      ],
+      "awards_de": [
+        "Grammy - Beste Rap-Solodarbietung"
+      ],
+      "awards_es": [
+        "Grammy - Mejor Interpretación de Rap Solista"
+      ],
       "isrc": "USUM70741299",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1443830216",
@@ -2744,7 +2980,7 @@
       }
     },
     {
-      "year": 2007,
+      "year": 2005,
       "uri": "spotify:track:1jJci4qxiYcOHhQR247rEU",
       "artist": "MGMT",
       "alt_artists": [
@@ -3202,6 +3438,18 @@
         "Grammy Award – Opname van het Jaar",
         "Grammy Award – Beste Rockprestatie door Duo of Groep"
       ],
+      "awards_it": [
+        "Grammy per il disco dell'anno",
+        "Grammy per la migliore interpretazione rock di un duo o gruppo"
+      ],
+      "awards_de": [
+        "Grammy - Aufnahme des Jahres",
+        "Grammy - Beste Rock-Darbietung eines Duos oder einer Gruppe"
+      ],
+      "awards_es": [
+        "Grammy - Grabación del Año",
+        "Grammy - Mejor Interpretación Rock de Dúo o Grupo"
+      ],
       "isrc": "USRC10800301",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1351343570",
@@ -3549,6 +3797,21 @@
         "Grammy Award – Beste Rapnummer",
         "Grammy Award – Beste Rap Soloprestatie"
       ],
+      "awards_it": [
+        "Oscar per la migliore canzone originale",
+        "Grammy per la migliore canzone rap",
+        "Grammy per la migliore interpretazione rap solista"
+      ],
+      "awards_de": [
+        "Oscar - Bester Filmsong",
+        "Grammy - Bester Rap-Song",
+        "Grammy - Beste Rap-Solodarbietung"
+      ],
+      "awards_es": [
+        "Óscar - Mejor Canción Original",
+        "Grammy - Mejor Canción de Rap",
+        "Grammy - Mejor Interpretación de Rap Solista"
+      ],
       "isrc": "USIR10211559",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1444221569",
@@ -3759,13 +4022,13 @@
       "awards_nl": [],
       "isrc": "USDW10110256",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/1706919742",
-        "de": "applemusic://track/1706919742",
-        "gb": "applemusic://track/1706919742",
-        "fr": "applemusic://track/1706919742",
-        "es": "applemusic://track/1706919742",
-        "nl": "applemusic://track/1706919742",
-        "it": "applemusic://track/1706919742"
+        "us": "applemusic://track/1450030115",
+        "de": "applemusic://track/1450030115",
+        "gb": "applemusic://track/1450030115",
+        "fr": "applemusic://track/1450030115",
+        "es": "applemusic://track/1450030115",
+        "nl": "applemusic://track/1450030115",
+        "it": "applemusic://track/1450030115"
       }
     },
     {
@@ -4018,6 +4281,18 @@
         "Grammy Award – Beste Rapnummer",
         "Grammy Award – Beste Rap/Zang-samenwerking"
       ],
+      "awards_it": [
+        "Grammy per la migliore canzone rap",
+        "Grammy per la migliore collaborazione rap/cantata"
+      ],
+      "awards_de": [
+        "Grammy - Bester Rap-Song",
+        "Grammy - Beste Rap/Gesang-Zusammenarbeit"
+      ],
+      "awards_es": [
+        "Grammy - Mejor Canción de Rap",
+        "Grammy - Mejor Colaboración Rap/Cantada"
+      ],
       "isrc": "USJZ10900010",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1440932648",
@@ -4054,7 +4329,7 @@
       "fun_fact_de": "Gagas ikonischer VMA-Auftritt 2009, bei dem sie auf der Bühne zu bluten schien, gilt als einer der größten VMA-Momente aller Zeiten.",
       "fun_fact_es": "La icónica actuación de Gaga en los VMA 2009, donde pareció sangrar en el escenario, se considera uno de los mejores momentos de los VMA.",
       "fun_fact_fr": "La prestation iconique de Gaga aux VMA 2009, où elle semblait saigner sur scène en interprétant Paparazzi, est considérée comme l'un des moments les plus marquants de l'histoire des VMA.",
-      "uri_apple_music": "applemusic://track/1768335618",
+      "uri_apple_music": "applemusic://track/1440818663",
       "uri_youtube_music": "https://music.youtube.com/watch?v=d2smz_1L2_0",
       "uri_tidal": "tidal://track/77707018",
       "uri_deezer": "deezer://track/4709950",
@@ -4814,13 +5089,13 @@
       "awards_nl": [],
       "isrc": "USIR10312186",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/1674978860",
-        "de": "applemusic://track/1674978860",
-        "gb": "applemusic://track/1674978860",
-        "fr": "applemusic://track/1674978860",
-        "es": "applemusic://track/1674978860",
-        "nl": "applemusic://track/1674978860",
-        "it": "applemusic://track/1674978860"
+        "us": "applemusic://track/1440874577",
+        "de": "applemusic://track/1440874577",
+        "gb": "applemusic://track/1440874577",
+        "fr": "applemusic://track/1440874577",
+        "es": "applemusic://track/1440874577",
+        "nl": "applemusic://track/1440874577",
+        "it": "applemusic://track/1440874577"
       }
     },
     {
@@ -4866,7 +5141,7 @@
       }
     },
     {
-      "year": 2000,
+      "year": 1999,
       "uri": "spotify:track:4BggEwLhGfrbrl7JBhC8EC",
       "artist": "Crazy Town",
       "alt_artists": [
@@ -5513,7 +5788,7 @@
       "fun_fact_de": "Das Aerobic-Musikvideo im Stil der 80er-Jahre-Fitnessvideos wurde zu einem der meistgesehenen Clips im frühen Internet und trieb den Song auf Platz 1 in Großbritannien. Es sampelt Steve Winwoods 'Valerie'.",
       "fun_fact_es": "El video musical de aeróbic, inspirado en cintas de ejercicio de los 80, se convirtió en uno de los videos más vistos del internet temprano y ayudó a llevar la canción al #1 en el Reino Unido. Samplea 'Valerie' de Steve Winwood.",
       "fun_fact_fr": "Le clip sur le thème de l'aérobic, inspiré des cassettes de fitness des années 80, est devenu l'une des vidéos les plus regardées du début d'internet et a propulsé le titre en tête des charts britanniques. Il sample 'Valerie' de Steve Winwood.",
-      "uri_apple_music": "",
+      "uri_apple_music": "applemusic://track/1216951257",
       "uri_youtube_music": "https://music.youtube.com/watch?v=lw3iCVeTe30",
       "uri_tidal": "tidal://track/71508889",
       "uri_deezer": "deezer://track/144203048",
@@ -5657,11 +5932,6 @@
         "The Offspring"
       ],
       "title": "Savior",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [
         "2x Platinum (US)"
       ],
@@ -6047,7 +6317,7 @@
       "fun_fact_fr": "4 Minutes a atteint la première place dans 21 pays, devenant le 13e numéro 1 de Madonna au Royaume-Uni. Le concept 'sauver le monde' du titre se reflète dans un clip montrant une barre noire défilante détruisant tout sur son passage.",
       "uri_apple_music": "applemusic://track/329064704",
       "uri_youtube_music": "https://music.youtube.com/watch?v=aAQZPBwz2CI",
-      "uri_tidal": "tidal://track/3094547",
+      "uri_tidal": "tidal://track/1751610",
       "uri_deezer": "deezer://track/3824997331",
       "fun_fact_nl": "4 Minutes stond bovenaan de hitlijsten in 21 landen, waarmee het Madonna's 13e nummer 1-hit in het VK werd. Het 'save the world'-concept van het nummer kwam tot uiting in een videoclip met een scrollende zwarte balk die alles op zijn pad vernietigde.",
       "awards_nl": [],
@@ -6142,7 +6412,7 @@
         "gb": "applemusic://track/1706933474",
         "fr": "applemusic://track/1706933474",
         "es": "applemusic://track/1706933474",
-        "nl": "applemusic://track/1587385929",
+        "nl": "applemusic://track/1440864350",
         "it": "applemusic://track/1622293444"
       }
     },
@@ -6288,13 +6558,14 @@
         "it": "applemusic://track/1653454753"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=0UTUAPJ1G-4",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/74210303",
       "uri_deezer": "deezer://track/662713",
       "fun_fact": "A chart hit by Sean Paul (2005).",
       "fun_fact_de": "Ein Chart-Hit von Sean Paul (2005).",
       "fun_fact_es": "Un éxito de Sean Paul (2005).",
       "fun_fact_fr": "Un tube de Sean Paul (2005).",
-      "fun_fact_nl": "Een chart-hit van Sean Paul (2005)."
+      "fun_fact_nl": "Een chart-hit van Sean Paul (2005).",
+      "fun_fact_it": "Un successo in classifica di Sean Paul (2005)."
     },
     {
       "artist": "Peter Fox",
@@ -6313,13 +6584,14 @@
         "it": "applemusic://track/291805255"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=-_t7YnKZOUc",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/11010228",
       "uri_deezer": "deezer://track/2200214",
       "fun_fact": "A chart hit by Peter Fox (2008).",
       "fun_fact_de": "Ein Chart-Hit von Peter Fox (2008).",
       "fun_fact_es": "Un éxito de Peter Fox (2008).",
       "fun_fact_fr": "Un tube de Peter Fox (2008).",
-      "fun_fact_nl": "Een chart-hit van Peter Fox (2008)."
+      "fun_fact_nl": "Een chart-hit van Peter Fox (2008).",
+      "fun_fact_it": "Un successo in classifica di Peter Fox (2008)."
     },
     {
       "artist": "MIKA",
@@ -6327,24 +6599,25 @@
       "year": 2007,
       "isrc": "USC7R0600114",
       "uri": "spotify:track:0KM2y796j63t5RHhvRUxld",
-      "uri_apple_music": "applemusic://track/1834497088",
+      "uri_apple_music": "applemusic://track/1440763926",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/1834497088",
-        "de": "applemusic://track/1834497088",
-        "gb": "applemusic://track/1834497088",
-        "fr": "applemusic://track/1834497088",
-        "es": "applemusic://track/1834497088",
-        "nl": "applemusic://track/1834497088",
-        "it": "applemusic://track/1834497088"
+        "us": "applemusic://track/1440763926",
+        "de": "applemusic://track/1444394181",
+        "gb": "applemusic://track/1443261869",
+        "fr": "applemusic://track/1440803062",
+        "es": "applemusic://track/1445020122",
+        "nl": "applemusic://track/1440803062",
+        "it": null
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=lKtmF_JQ98k",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/1219375",
       "uri_deezer": "deezer://track/953606",
       "fun_fact": "A chart hit by MIKA (2007).",
       "fun_fact_de": "Ein Chart-Hit von MIKA (2007).",
       "fun_fact_es": "Un éxito de MIKA (2007).",
       "fun_fact_fr": "Un tube de MIKA (2007).",
-      "fun_fact_nl": "Een chart-hit van MIKA (2007)."
+      "fun_fact_nl": "Een chart-hit van MIKA (2007).",
+      "fun_fact_it": "Un successo in classifica di MIKA (2007)."
     },
     {
       "artist": "Manu Chao",
@@ -6363,13 +6636,14 @@
         "it": "applemusic://track/1699431226"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=JmHXXf3p9lI",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/43419928",
       "uri_deezer": "deezer://track/71608366",
-      "fun_fact": "A chart hit by Manu Chao (2008).",
-      "fun_fact_de": "Ein Chart-Hit von Manu Chao (2008).",
-      "fun_fact_es": "Un éxito de Manu Chao (2008).",
-      "fun_fact_fr": "Un tube de Manu Chao (2008).",
-      "fun_fact_nl": "Een chart-hit van Manu Chao (2008)."
+      "fun_fact": "A chart hit by Manu Chao (2001).",
+      "fun_fact_de": "Ein Chart-Hit von Manu Chao (2001).",
+      "fun_fact_es": "Un éxito de Manu Chao (2001).",
+      "fun_fact_fr": "Un tube de Manu Chao (2001).",
+      "fun_fact_nl": "Een chart-hit van Manu Chao (2001).",
+      "fun_fact_it": "Un successo in classifica di Manu Chao (2001)."
     },
     {
       "artist": "Justin Timberlake",
@@ -6388,7 +6662,7 @@
         "it": "applemusic://track/908949044"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=g_V6wqBlADw",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/555115",
       "uri_deezer": "deezer://track/15489383",
       "alt_artists": [
         "Timbaland"
@@ -6397,7 +6671,8 @@
       "fun_fact_de": "Ein Chart-Hit von Justin Timberlake (2006).",
       "fun_fact_es": "Un éxito de Justin Timberlake (2006).",
       "fun_fact_fr": "Un tube de Justin Timberlake (2006).",
-      "fun_fact_nl": "Een chart-hit van Justin Timberlake (2006)."
+      "fun_fact_nl": "Een chart-hit van Justin Timberlake (2006).",
+      "fun_fact_it": "Un successo in classifica di Justin Timberlake (2006)."
     },
     {
       "artist": "Steps",
@@ -6416,13 +6691,14 @@
         "it": "applemusic://track/1308728510"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=cn3HqvVkFj4",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/9063123",
       "uri_deezer": "deezer://track/886889672",
       "fun_fact": "A chart hit by Steps (2001).",
       "fun_fact_de": "Ein Chart-Hit von Steps (2001).",
       "fun_fact_es": "Un éxito de Steps (2001).",
       "fun_fact_fr": "Un tube de Steps (2001).",
-      "fun_fact_nl": "Een chart-hit van Steps (2001)."
+      "fun_fact_nl": "Een chart-hit van Steps (2001).",
+      "fun_fact_it": "Un successo in classifica di Steps (2001)."
     },
     {
       "artist": "Daft Punk",
@@ -6430,16 +6706,17 @@
       "year": 2002,
       "isrc": null,
       "uri": "spotify:track:2Uy6EhQXAYkXA6MohPgjpV",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/697402070",
       "uri_apple_music_by_region": {},
       "uri_youtube_music": "https://music.youtube.com/watch?v=wU26xVT_vBU",
-      "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_tidal": "tidal://track/124215",
+      "uri_deezer": "deezer://track/3135553",
       "fun_fact": "A chart hit by Daft Punk (2002).",
       "fun_fact_de": "Ein Chart-Hit von Daft Punk (2002).",
       "fun_fact_es": "Un éxito de Daft Punk (2002).",
       "fun_fact_fr": "Un tube de Daft Punk (2002).",
-      "fun_fact_nl": "Een chart-hit van Daft Punk (2002)."
+      "fun_fact_nl": "Een chart-hit van Daft Punk (2002).",
+      "fun_fact_it": "Un successo in classifica di Daft Punk (2002)."
     },
     {
       "artist": "Fedde Le Grand",
@@ -6458,13 +6735,14 @@
         "it": "applemusic://track/1539215862"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=Aivzwnexylg",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/161301486",
       "uri_deezer": "deezer://track/1134280742",
       "fun_fact": "A chart hit by Fedde Le Grand (2006).",
       "fun_fact_de": "Ein Chart-Hit von Fedde Le Grand (2006).",
       "fun_fact_es": "Un éxito de Fedde Le Grand (2006).",
       "fun_fact_fr": "Un tube de Fedde Le Grand (2006).",
-      "fun_fact_nl": "Een chart-hit van Fedde Le Grand (2006)."
+      "fun_fact_nl": "Een chart-hit van Fedde Le Grand (2006).",
+      "fun_fact_it": "Un successo in classifica di Fedde Le Grand (2006)."
     },
     {
       "artist": "Katy Perry",
@@ -6483,13 +6761,14 @@
         "it": "applemusic://track/1670727807"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=usvTbqTHwyw",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/1919425",
       "uri_deezer": "deezer://track/3169161",
       "fun_fact": "A chart hit by Katy Perry (2008).",
       "fun_fact_de": "Ein Chart-Hit von Katy Perry (2008).",
       "fun_fact_es": "Un éxito de Katy Perry (2008).",
       "fun_fact_fr": "Un tube de Katy Perry (2008).",
-      "fun_fact_nl": "Een chart-hit van Katy Perry (2008)."
+      "fun_fact_nl": "Een chart-hit van Katy Perry (2008).",
+      "fun_fact_it": "Un successo in classifica di Katy Perry (2008)."
     },
     {
       "artist": "Vengaboys",
@@ -6508,13 +6787,14 @@
         "it": "applemusic://track/1755762817"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=q5GQ3IFqOUA",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/235080211",
       "uri_deezer": "deezer://track/1802244787",
       "fun_fact": "A chart hit by Vengaboys (2000).",
       "fun_fact_de": "Ein Chart-Hit von Vengaboys (2000).",
       "fun_fact_es": "Un éxito de Vengaboys (2000).",
       "fun_fact_fr": "Un tube de Vengaboys (2000).",
-      "fun_fact_nl": "Een chart-hit van Vengaboys (2000)."
+      "fun_fact_nl": "Een chart-hit van Vengaboys (2000).",
+      "fun_fact_it": "Un successo in classifica di Vengaboys (2000)."
     },
     {
       "artist": "Bob Sinclar",
@@ -6533,7 +6813,7 @@
         "it": "applemusic://track/1771109022"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=h_7P0O-RSiE",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/347610129",
       "uri_deezer": "deezer://track/2635211862",
       "alt_artists": [
         "Gary Pine"
@@ -6542,7 +6822,8 @@
       "fun_fact_de": "Ein Chart-Hit von Bob Sinclar (2005).",
       "fun_fact_es": "Un éxito de Bob Sinclar (2005).",
       "fun_fact_fr": "Un tube de Bob Sinclar (2005).",
-      "fun_fact_nl": "Een chart-hit van Bob Sinclar (2005)."
+      "fun_fact_nl": "Een chart-hit van Bob Sinclar (2005).",
+      "fun_fact_it": "Un successo in classifica di Bob Sinclar (2005)."
     },
     {
       "artist": "Flo Rida",
@@ -6561,7 +6842,7 @@
         "it": "applemusic://track/1689511710"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=uUL8a7eJCk8",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/1653995",
       "uri_deezer": "deezer://track/717358",
       "alt_artists": [
         "T-Pain"
@@ -6570,7 +6851,8 @@
       "fun_fact_de": "Ein Chart-Hit von Flo Rida (2008).",
       "fun_fact_es": "Un éxito de Flo Rida (2008).",
       "fun_fact_fr": "Un tube de Flo Rida (2008).",
-      "fun_fact_nl": "Een chart-hit van Flo Rida (2008)."
+      "fun_fact_nl": "Een chart-hit van Flo Rida (2008).",
+      "fun_fact_it": "Un successo in classifica di Flo Rida (2008)."
     },
     {
       "artist": "MadHouse",
@@ -6578,16 +6860,17 @@
       "year": 2000,
       "isrc": null,
       "uri": "spotify:track:0PLGnOgmf8RPgZNkaaSYyM",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/338484852",
       "uri_apple_music_by_region": {},
       "uri_youtube_music": "https://music.youtube.com/watch?v=YZo-cb6GNS0",
-      "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_tidal": "tidal://track/36507114",
+      "uri_deezer": "deezer://track/4631883",
       "fun_fact": "A chart hit by MadHouse (2000).",
       "fun_fact_de": "Ein Chart-Hit von MadHouse (2000).",
       "fun_fact_es": "Un éxito de MadHouse (2000).",
       "fun_fact_fr": "Un tube de MadHouse (2000).",
-      "fun_fact_nl": "Een chart-hit van MadHouse (2000)."
+      "fun_fact_nl": "Een chart-hit van MadHouse (2000).",
+      "fun_fact_it": "Un successo in classifica di MadHouse (2000)."
     },
     {
       "artist": "Sugababes",
@@ -6606,13 +6889,14 @@
         "it": "applemusic://track/1559115647"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=7BdJ06RfKJQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/579059",
       "uri_deezer": "deezer://track/1104527",
       "fun_fact": "A chart hit by Sugababes (2002).",
       "fun_fact_de": "Ein Chart-Hit von Sugababes (2002).",
       "fun_fact_es": "Un éxito de Sugababes (2002).",
       "fun_fact_fr": "Un tube de Sugababes (2002).",
-      "fun_fact_nl": "Een chart-hit van Sugababes (2002)."
+      "fun_fact_nl": "Een chart-hit van Sugababes (2002).",
+      "fun_fact_it": "Un successo in classifica di Sugababes (2002)."
     },
     {
       "artist": "Christina Aguilera",
@@ -6631,13 +6915,14 @@
         "it": "applemusic://track/1739511485"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=8vfY1Y369OE",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/5121510",
       "uri_deezer": "deezer://track/62417689",
       "fun_fact": "A chart hit by Christina Aguilera (2006).",
       "fun_fact_de": "Ein Chart-Hit von Christina Aguilera (2006).",
       "fun_fact_es": "Un éxito de Christina Aguilera (2006).",
       "fun_fact_fr": "Un tube de Christina Aguilera (2006).",
-      "fun_fact_nl": "Een chart-hit van Christina Aguilera (2006)."
+      "fun_fact_nl": "Een chart-hit van Christina Aguilera (2006).",
+      "fun_fact_it": "Un successo in classifica di Christina Aguilera (2006)."
     },
     {
       "artist": "Juanes",
@@ -6656,13 +6941,14 @@
         "it": "applemusic://track/1691654012"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=ahZv0523mYM",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/229701914",
       "uri_deezer": "deezer://track/1098747",
       "fun_fact": "A chart hit by Juanes (2002).",
       "fun_fact_de": "Ein Chart-Hit von Juanes (2002).",
       "fun_fact_es": "Un éxito de Juanes (2002).",
       "fun_fact_fr": "Un tube de Juanes (2002).",
-      "fun_fact_nl": "Een chart-hit van Juanes (2002)."
+      "fun_fact_nl": "Een chart-hit van Juanes (2002).",
+      "fun_fact_it": "Un successo in classifica di Juanes (2002)."
     },
     {
       "artist": "The Killers",
@@ -6681,13 +6967,14 @@
         "it": "applemusic://track/1711666094"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=m2zUrruKjDQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/23273347",
       "uri_deezer": "deezer://track/953097",
-      "fun_fact": "A chart hit by The Killers (2007).",
-      "fun_fact_de": "Ein Chart-Hit von The Killers (2007).",
-      "fun_fact_es": "Un éxito de The Killers (2007).",
-      "fun_fact_fr": "Un tube de The Killers (2007).",
-      "fun_fact_nl": "Een chart-hit van The Killers (2007)."
+      "fun_fact": "A chart hit by The Killers (2003).",
+      "fun_fact_de": "Ein Chart-Hit von The Killers (2003).",
+      "fun_fact_es": "Un éxito de The Killers (2003).",
+      "fun_fact_fr": "Un tube de The Killers (2003).",
+      "fun_fact_nl": "Een chart-hit van The Killers (2003).",
+      "fun_fact_it": "Un successo in classifica di The Killers (2003)."
     },
     {
       "artist": "Destiny's Child",
@@ -6706,13 +6993,14 @@
         "it": "applemusic://track/1308508647"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=xV1Kt9M5ON8",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/5128263",
       "uri_deezer": "deezer://track/4006939",
       "fun_fact": "A chart hit by Destiny's Child (2001).",
       "fun_fact_de": "Ein Chart-Hit von Destiny's Child (2001).",
       "fun_fact_es": "Un éxito de Destiny's Child (2001).",
       "fun_fact_fr": "Un tube de Destiny's Child (2001).",
-      "fun_fact_nl": "Een chart-hit van Destiny's Child (2001)."
+      "fun_fact_nl": "Een chart-hit van Destiny's Child (2001).",
+      "fun_fact_it": "Un successo in classifica di Destiny's Child (2001)."
     },
     {
       "artist": "Kylie Minogue",
@@ -6731,41 +7019,14 @@
         "it": "applemusic://track/697335612"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=eKvT8qZ-AyM",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/151842",
       "uri_deezer": "deezer://track/3151534",
       "fun_fact": "A chart hit by Kylie Minogue (2000).",
       "fun_fact_de": "Ein Chart-Hit von Kylie Minogue (2000).",
       "fun_fact_es": "Un éxito de Kylie Minogue (2000).",
       "fun_fact_fr": "Un tube de Kylie Minogue (2000).",
-      "fun_fact_nl": "Een chart-hit van Kylie Minogue (2000)."
-    },
-    {
-      "artist": "James Brown",
-      "title": "Get Up I Feel Like Being Like A Sex Machine, Pts. 1 & 2",
-      "year": 2005,
-      "isrc": "USF067025050",
-      "uri": "spotify:track:6hpmTwgNCz81H2bFEREx29",
-      "uri_apple_music": "applemusic://track/1646679726",
-      "uri_apple_music_by_region": {
-        "us": "applemusic://track/1646679726",
-        "de": "applemusic://track/1646679726",
-        "gb": "applemusic://track/1646679726",
-        "fr": "applemusic://track/1646679726",
-        "es": "applemusic://track/1646679726",
-        "nl": "applemusic://track/1452460238",
-        "it": "applemusic://track/1646679726"
-      },
-      "uri_youtube_music": "https://music.youtube.com/watch?v=hY_LBqmyNrk",
-      "uri_tidal": null,
-      "uri_deezer": "deezer://track/548876882",
-      "alt_artists": [
-        "The Original J.B.s"
-      ],
-      "fun_fact": "A chart hit by James Brown (2005).",
-      "fun_fact_de": "Ein Chart-Hit von James Brown (2005).",
-      "fun_fact_es": "Un éxito de James Brown (2005).",
-      "fun_fact_fr": "Un tube de James Brown (2005).",
-      "fun_fact_nl": "Een chart-hit van James Brown (2005)."
+      "fun_fact_nl": "Een chart-hit van Kylie Minogue (2000).",
+      "fun_fact_it": "Un successo in classifica di Kylie Minogue (2000)."
     },
     {
       "artist": "Rihanna",
@@ -6784,13 +7045,14 @@
         "it": "applemusic://track/1440655153"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=pHQvdENN8GM",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/4883270",
       "uri_deezer": "deezer://track/1574660",
       "fun_fact": "A chart hit by Rihanna (2005).",
       "fun_fact_de": "Ein Chart-Hit von Rihanna (2005).",
       "fun_fact_es": "Un éxito de Rihanna (2005).",
       "fun_fact_fr": "Un tube de Rihanna (2005).",
-      "fun_fact_nl": "Een chart-hit van Rihanna (2005)."
+      "fun_fact_nl": "Een chart-hit van Rihanna (2005).",
+      "fun_fact_it": "Un successo in classifica di Rihanna (2005)."
     },
     {
       "artist": "Black Eyed Peas",
@@ -6809,13 +7071,14 @@
         "it": "applemusic://track/6768419236"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=mRaQAdynxto",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/37890784",
       "uri_deezer": "deezer://track/2435238",
       "fun_fact": "A chart hit by Black Eyed Peas (2006).",
       "fun_fact_de": "Ein Chart-Hit von Black Eyed Peas (2006).",
       "fun_fact_es": "Un éxito de Black Eyed Peas (2006).",
       "fun_fact_fr": "Un tube de Black Eyed Peas (2006).",
-      "fun_fact_nl": "Een chart-hit van Black Eyed Peas (2006)."
+      "fun_fact_nl": "Een chart-hit van Black Eyed Peas (2006).",
+      "fun_fact_it": "Un successo in classifica di Black Eyed Peas (2006)."
     },
     {
       "artist": "Beyoncé",
@@ -6834,13 +7097,14 @@
         "it": "applemusic://track/1308507633"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=4z-bOdAdias",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/2024984",
       "uri_deezer": "deezer://track/2485118",
       "fun_fact": "A chart hit by Beyoncé (2008).",
       "fun_fact_de": "Ein Chart-Hit von Beyoncé (2008).",
       "fun_fact_es": "Un éxito de Beyoncé (2008).",
       "fun_fact_fr": "Un tube de Beyoncé (2008).",
-      "fun_fact_nl": "Een chart-hit van Beyoncé (2008)."
+      "fun_fact_nl": "Een chart-hit van Beyoncé (2008).",
+      "fun_fact_it": "Un successo in classifica di Beyoncé (2008)."
     },
     {
       "artist": "Hilary Duff",
@@ -6859,13 +7123,14 @@
         "it": "applemusic://track/1751609527"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=Qe2pjBYskUU",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/37090641",
       "uri_deezer": "deezer://track/24171441",
       "fun_fact": "A chart hit by Hilary Duff (2005).",
       "fun_fact_de": "Ein Chart-Hit von Hilary Duff (2005).",
       "fun_fact_es": "Un éxito de Hilary Duff (2005).",
       "fun_fact_fr": "Un tube de Hilary Duff (2005).",
-      "fun_fact_nl": "Een chart-hit van Hilary Duff (2005)."
+      "fun_fact_nl": "Een chart-hit van Hilary Duff (2005).",
+      "fun_fact_it": "Un successo in classifica di Hilary Duff (2005)."
     },
     {
       "artist": "The Pussycat Dolls",
@@ -6884,7 +7149,7 @@
         "it": "applemusic://track/1569519431"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=HtGZbWyXhd4",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/566981",
       "uri_deezer": "deezer://track/1161006",
       "alt_artists": [
         "will.i.am"
@@ -6893,7 +7158,8 @@
       "fun_fact_de": "Ein Chart-Hit von The Pussycat Dolls (2005).",
       "fun_fact_es": "Un éxito de The Pussycat Dolls (2005).",
       "fun_fact_fr": "Un tube de The Pussycat Dolls (2005).",
-      "fun_fact_nl": "Een chart-hit van The Pussycat Dolls (2005)."
+      "fun_fact_nl": "Een chart-hit van The Pussycat Dolls (2005).",
+      "fun_fact_it": "Un successo in classifica di The Pussycat Dolls (2005)."
     },
     {
       "artist": "Danzel",
@@ -6912,13 +7178,14 @@
         "it": "applemusic://track/1250458072"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=lG0nkCy2IrI",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/75330756",
       "uri_deezer": "deezer://track/375141931",
       "fun_fact": "A chart hit by Danzel (2004).",
       "fun_fact_de": "Ein Chart-Hit von Danzel (2004).",
       "fun_fact_es": "Un éxito de Danzel (2004).",
       "fun_fact_fr": "Un tube de Danzel (2004).",
-      "fun_fact_nl": "Een chart-hit van Danzel (2004)."
+      "fun_fact_nl": "Een chart-hit van Danzel (2004).",
+      "fun_fact_it": "Un successo in classifica di Danzel (2004)."
     },
     {
       "artist": "Safri Duo",
@@ -6929,21 +7196,22 @@
       "uri_apple_music": "applemusic://track/1443760448",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1443760448",
-        "de": "applemusic://track/1443760448",
-        "gb": "applemusic://track/1443760448",
-        "fr": "applemusic://track/1443760448",
-        "es": "applemusic://track/1443760448",
-        "nl": "applemusic://track/1443760448",
-        "it": "applemusic://track/1443760448"
+        "de": "applemusic://track/1440772979",
+        "gb": "applemusic://track/1649583878",
+        "fr": "applemusic://track/1440772979",
+        "es": "applemusic://track/1442599564",
+        "nl": "applemusic://track/1452801932",
+        "it": "applemusic://track/1442599564"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=o_ZBzGlYS6g",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/578434",
       "uri_deezer": "deezer://track/1399345572",
-      "fun_fact": "A chart hit by Safri Duo (2021).",
-      "fun_fact_de": "Ein Chart-Hit von Safri Duo (2021).",
-      "fun_fact_es": "Un éxito de Safri Duo (2021).",
-      "fun_fact_fr": "Un tube de Safri Duo (2021).",
-      "fun_fact_nl": "Een chart-hit van Safri Duo (2021)."
+      "fun_fact": "A chart hit by Safri Duo (2000).",
+      "fun_fact_de": "Ein Chart-Hit von Safri Duo (2000).",
+      "fun_fact_es": "Un éxito de Safri Duo (2000).",
+      "fun_fact_fr": "Un tube de Safri Duo (2000).",
+      "fun_fact_nl": "Een chart-hit van Safri Duo (2000).",
+      "fun_fact_it": "Un successo in classifica di Safri Duo (2000)."
     },
     {
       "artist": "S Club",
@@ -6962,13 +7230,14 @@
         "it": "applemusic://track/1584857947"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=w60C081sLtI",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/44814701",
       "uri_deezer": "deezer://track/98981562",
-      "fun_fact": "A chart hit by S Club (2015).",
-      "fun_fact_de": "Ein Chart-Hit von S Club (2015).",
-      "fun_fact_es": "Un éxito de S Club (2015).",
-      "fun_fact_fr": "Un tube de S Club (2015).",
-      "fun_fact_nl": "Een chart-hit van S Club (2015)."
+      "fun_fact": "A chart hit by S Club (2001).",
+      "fun_fact_de": "Ein Chart-Hit von S Club (2001).",
+      "fun_fact_es": "Un éxito de S Club (2001).",
+      "fun_fact_fr": "Un tube de S Club (2001).",
+      "fun_fact_nl": "Een chart-hit van S Club (2001).",
+      "fun_fact_it": "Un successo in classifica di S Club (2001)."
     },
     {
       "artist": "Daft Punk",
@@ -6976,16 +7245,17 @@
       "year": 2001,
       "isrc": null,
       "uri": "spotify:track:5W3cjX2J3tjhG8zb6u0qHn",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/697195787",
       "uri_apple_music_by_region": {},
       "uri_youtube_music": "https://music.youtube.com/watch?v=JhulBGMA7G4",
-      "uri_tidal": null,
-      "uri_deezer": null,
-      "fun_fact": "A chart hit by Daft Punk (2022).",
-      "fun_fact_de": "Ein Chart-Hit von Daft Punk (2022).",
-      "fun_fact_es": "Un éxito de Daft Punk (2022).",
-      "fun_fact_fr": "Un tube de Daft Punk (2022).",
-      "fun_fact_nl": "Een chart-hit van Daft Punk (2022)."
+      "uri_tidal": "tidal://track/1550549",
+      "uri_deezer": "deezer://track/3135556",
+      "fun_fact": "A chart hit by Daft Punk (2001).",
+      "fun_fact_de": "Ein Chart-Hit von Daft Punk (2001).",
+      "fun_fact_es": "Un éxito de Daft Punk (2001).",
+      "fun_fact_fr": "Un tube de Daft Punk (2001).",
+      "fun_fact_nl": "Een chart-hit van Daft Punk (2001).",
+      "fun_fact_it": "Un successo in classifica di Daft Punk (2001)."
     },
     {
       "artist": "Daddy DJ",
@@ -6995,22 +7265,23 @@
       "uri": "spotify:track:6MPTmoLt4IaL1XKRgKER4I",
       "uri_apple_music": null,
       "uri_apple_music_by_region": {
-        "us": null,
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
+        "us": "applemusic://track/1468603436",
+        "de": "applemusic://track/1468603436",
+        "gb": "applemusic://track/1468603999",
+        "fr": "applemusic://track/1468603436",
+        "es": "applemusic://track/1468603436",
+        "nl": "applemusic://track/1468603436",
+        "it": "applemusic://track/1468603436"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=QWBMCtIllEM",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/111279010",
       "uri_deezer": "deezer://track/3477676331",
-      "fun_fact": "A chart hit by Daddy DJ (2022).",
-      "fun_fact_de": "Ein Chart-Hit von Daddy DJ (2022).",
-      "fun_fact_es": "Un éxito de Daddy DJ (2022).",
-      "fun_fact_fr": "Un tube de Daddy DJ (2022).",
-      "fun_fact_nl": "Een chart-hit van Daddy DJ (2022)."
+      "fun_fact": "A chart hit by Daddy DJ (2000).",
+      "fun_fact_de": "Ein Chart-Hit von Daddy DJ (2000).",
+      "fun_fact_es": "Un éxito de Daddy DJ (2000).",
+      "fun_fact_fr": "Un tube de Daddy DJ (2000).",
+      "fun_fact_nl": "Een chart-hit van Daddy DJ (2000).",
+      "fun_fact_it": "Un successo in classifica di Daddy DJ (2000)."
     },
     {
       "artist": "Girls Aloud",
@@ -7029,13 +7300,14 @@
         "it": "applemusic://track/1681137250"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=ogJJoVqfXHY",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/50421567",
       "uri_deezer": "deezer://track/2321097235",
-      "fun_fact": "A chart hit by Girls Aloud (2023).",
-      "fun_fact_de": "Ein Chart-Hit von Girls Aloud (2023).",
-      "fun_fact_es": "Un éxito de Girls Aloud (2023).",
-      "fun_fact_fr": "Un tube de Girls Aloud (2023).",
-      "fun_fact_nl": "Een chart-hit van Girls Aloud (2023)."
+      "fun_fact": "A chart hit by Girls Aloud (2002).",
+      "fun_fact_de": "Ein Chart-Hit von Girls Aloud (2002).",
+      "fun_fact_es": "Un éxito de Girls Aloud (2002).",
+      "fun_fact_fr": "Un tube de Girls Aloud (2002).",
+      "fun_fact_nl": "Een chart-hit van Girls Aloud (2002).",
+      "fun_fact_it": "Un successo in classifica di Girls Aloud (2002)."
     },
     {
       "artist": "Counting Crows",
@@ -7054,13 +7326,14 @@
         "it": "applemusic://track/1691419161"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=GEo7W-uJNkc",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/71943313",
       "uri_deezer": "deezer://track/145425722",
-      "fun_fact": "A chart hit by Counting Crows (2017).",
-      "fun_fact_de": "Ein Chart-Hit von Counting Crows (2017).",
-      "fun_fact_es": "Un éxito de Counting Crows (2017).",
-      "fun_fact_fr": "Un tube de Counting Crows (2017).",
-      "fun_fact_nl": "Een chart-hit van Counting Crows (2017)."
+      "fun_fact": "A chart hit by Counting Crows (2004).",
+      "fun_fact_de": "Ein Chart-Hit von Counting Crows (2004).",
+      "fun_fact_es": "Un éxito de Counting Crows (2004).",
+      "fun_fact_fr": "Un tube de Counting Crows (2004).",
+      "fun_fact_nl": "Een chart-hit van Counting Crows (2004).",
+      "fun_fact_it": "Un successo in classifica di Counting Crows (2004)."
     },
     {
       "artist": "Alphabeat",
@@ -7079,38 +7352,40 @@
         "it": "applemusic://track/1700327230"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=ey8BvkgO4bk",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/8296025",
       "uri_deezer": "deezer://track/14194027",
-      "fun_fact": "A chart hit by Alphabeat (2013).",
-      "fun_fact_de": "Ein Chart-Hit von Alphabeat (2013).",
-      "fun_fact_es": "Un éxito de Alphabeat (2013).",
-      "fun_fact_fr": "Un tube de Alphabeat (2013).",
-      "fun_fact_nl": "Een chart-hit van Alphabeat (2013)."
+      "fun_fact": "A chart hit by Alphabeat (2007).",
+      "fun_fact_de": "Ein Chart-Hit von Alphabeat (2007).",
+      "fun_fact_es": "Un éxito de Alphabeat (2007).",
+      "fun_fact_fr": "Un tube de Alphabeat (2007).",
+      "fun_fact_nl": "Een chart-hit van Alphabeat (2007).",
+      "fun_fact_it": "Un successo in classifica di Alphabeat (2007)."
     },
     {
       "artist": "Alex Gaudino",
       "title": "Destination Calabria (Feat. Crystal Waters) - Original Radio Edit",
       "year": 2007,
-      "isrc": "QZK6H2557367",
+      "isrc": "ITL010600343",
       "uri": "spotify:track:2QMdxS78DaXP8aS8qJqGzU",
       "uri_apple_music": null,
       "uri_apple_music_by_region": {
-        "us": null,
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
+        "us": "applemusic://track/348366650",
+        "de": "applemusic://track/348366650",
+        "gb": "applemusic://track/348366650",
+        "fr": "applemusic://track/348366650",
+        "es": "applemusic://track/348366650",
+        "nl": "applemusic://track/348366650",
+        "it": "applemusic://track/348366498"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=oGDjI40SjrA",
-      "uri_tidal": null,
-      "uri_deezer": "deezer://track/3305815511",
-      "fun_fact": "A chart hit by Alex Gaudino (2025).",
-      "fun_fact_de": "Ein Chart-Hit von Alex Gaudino (2025).",
-      "fun_fact_es": "Un éxito de Alex Gaudino (2025).",
-      "fun_fact_fr": "Un tube de Alex Gaudino (2025).",
-      "fun_fact_nl": "Een chart-hit van Alex Gaudino (2025)."
+      "uri_tidal": "tidal://track/79783653",
+      "uri_deezer": "deezer://track/5406699",
+      "fun_fact": "A chart hit by Alex Gaudino (2007).",
+      "fun_fact_de": "Ein Chart-Hit von Alex Gaudino (2007).",
+      "fun_fact_es": "Un éxito de Alex Gaudino (2007).",
+      "fun_fact_fr": "Un tube de Alex Gaudino (2007).",
+      "fun_fact_nl": "Een chart-hit van Alex Gaudino (2007).",
+      "fun_fact_it": "Un successo in classifica di Alex Gaudino (2007)."
     },
     {
       "artist": "Akcent",
@@ -7129,13 +7404,14 @@
         "it": "applemusic://track/1823040456"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=Kj0wBAtCN5o",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/103536544",
       "uri_deezer": "deezer://track/3432957681",
-      "fun_fact": "A chart hit by Akcent (2025).",
-      "fun_fact_de": "Ein Chart-Hit von Akcent (2025).",
-      "fun_fact_es": "Un éxito de Akcent (2025).",
-      "fun_fact_fr": "Un tube de Akcent (2025).",
-      "fun_fact_nl": "Een chart-hit van Akcent (2025)."
+      "fun_fact": "A chart hit by Akcent (2005).",
+      "fun_fact_de": "Ein Chart-Hit von Akcent (2005).",
+      "fun_fact_es": "Un éxito de Akcent (2005).",
+      "fun_fact_fr": "Un tube de Akcent (2005).",
+      "fun_fact_nl": "Een chart-hit van Akcent (2005).",
+      "fun_fact_it": "Un successo in classifica di Akcent (2005)."
     },
     {
       "artist": "Rednex",
@@ -7145,7 +7421,7 @@
       "uri": "spotify:track:7xXSaVgEvUrV1GCc3oO8HC",
       "uri_apple_music": "applemusic://track/1269627144",
       "uri_apple_music_by_region": {
-        "us": null,
+        "us": "applemusic://track/1751829853",
         "de": "applemusic://track/1269627144",
         "gb": "applemusic://track/1269627144",
         "fr": "applemusic://track/1269627144",
@@ -7154,13 +7430,14 @@
         "it": "applemusic://track/1269627144"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=WFGhOkCzp2g",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/77267276",
       "uri_deezer": "deezer://track/393003352",
-      "fun_fact": "A chart hit by Rednex (2017).",
-      "fun_fact_de": "Ein Chart-Hit von Rednex (2017).",
-      "fun_fact_es": "Un éxito de Rednex (2017).",
-      "fun_fact_fr": "Un tube de Rednex (2017).",
-      "fun_fact_nl": "Een chart-hit van Rednex (2017)."
+      "fun_fact": "A chart hit by Rednex (2000).",
+      "fun_fact_de": "Ein Chart-Hit von Rednex (2000).",
+      "fun_fact_es": "Un éxito de Rednex (2000).",
+      "fun_fact_fr": "Un tube de Rednex (2000).",
+      "fun_fact_nl": "Een chart-hit van Rednex (2000).",
+      "fun_fact_it": "Un successo in classifica di Rednex (2000)."
     },
     {
       "artist": "Tiësto",
@@ -7179,16 +7456,920 @@
         "it": "applemusic://track/1793821664"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=ChNc3td4YQw",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/415034837",
       "uri_deezer": "deezer://track/3212563591",
       "alt_artists": [
         "BT"
       ],
-      "fun_fact": "A chart hit by Tiësto (2010).",
-      "fun_fact_de": "Ein Chart-Hit von Tiësto (2010).",
-      "fun_fact_es": "Un éxito de Tiësto (2010).",
-      "fun_fact_fr": "Un tube de Tiësto (2010).",
-      "fun_fact_nl": "Een chart-hit van Tiësto (2010)."
+      "fun_fact": "A chart hit by Tiësto (2004).",
+      "fun_fact_de": "Ein Chart-Hit von Tiësto (2004).",
+      "fun_fact_es": "Un éxito de Tiësto (2004).",
+      "fun_fact_fr": "Un tube de Tiësto (2004).",
+      "fun_fact_nl": "Een chart-hit van Tiësto (2004).",
+      "fun_fact_it": "Un successo in classifica di Tiësto (2004)."
+    },
+    {
+      "year": 2000,
+      "uri": "spotify:track:3FhNJaCNypOAnZccdYGAWN",
+      "artist": "Reamonn",
+      "alt_artists": [
+        "Silbermond",
+        "Juli",
+        "Rea Garvey"
+      ],
+      "title": "Supergirl",
+      "isrc": "DEG120000973",
+      "uri_apple_music": "applemusic://track/712743105",
+      "uri_deezer": "deezer://track/3135405",
+      "fun_fact": "The band formed in Ravensburg around an Irish singer, and their first single is still the one German radio reaches for twenty-five years later.",
+      "fun_fact_de": "Die Band entstand in Ravensburg um einen irischen Sänger, und ihre erste Single ist auch fünfundzwanzig Jahre später die, zu der das deutsche Radio greift.",
+      "fun_fact_es": "El grupo se formó en Ravensburg en torno a un cantante irlandés, y su primer sencillo sigue siendo el que la radio alemana elige veinticinco años después.",
+      "fun_fact_fr": "Le groupe s'est formé à Ravensburg autour d'un chanteur irlandais, et leur premier single reste celui que la radio allemande choisit vingt-cinq ans plus tard.",
+      "fun_fact_nl": "De band ontstond in Ravensburg rond een Ierse zanger, en hun eerste single is vijfentwintig jaar later nog steeds waar de Duitse radio naar grijpt.",
+      "fun_fact_it": "Il gruppo nacque a Ravensburg attorno a un cantante irlandese, e il loro primo singolo è ancora quello che la radio tedesca sceglie venticinque anni dopo.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=ucI3IpuM-NQ"
+    },
+    {
+      "year": 2001,
+      "uri": "spotify:track:15f8Cv8RXUlOOCIf2oaceN",
+      "artist": "Shakira",
+      "alt_artists": [
+        "Jennifer Lopez",
+        "Alanis Morissette",
+        "Nelly Furtado"
+      ],
+      "title": "Underneath Your Clothes",
+      "isrc": "NLB630100361",
+      "uri_apple_music": "applemusic://track/1593887500",
+      "uri_deezer": "deezer://track/15210161",
+      "fun_fact": "It came from the album on which Shakira crossed into English, written with Lester Mendez while she was still learning to write lyrics in the language.",
+      "fun_fact_de": "Der Song stammt aus dem Album, mit dem Shakira ins Englische wechselte, geschrieben mit Lester Mendez, während sie das Texten in dieser Sprache noch lernte.",
+      "fun_fact_es": "Viene del disco con el que Shakira dio el salto al inglés, escrita con Lester Mendez cuando aún estaba aprendiendo a componer letras en ese idioma.",
+      "fun_fact_fr": "Elle vient de l'album avec lequel Shakira est passée à l'anglais, écrite avec Lester Mendez alors qu'elle apprenait encore à écrire des textes dans cette langue.",
+      "fun_fact_nl": "Het komt van het album waarmee Shakira overstapte op het Engels, geschreven met Lester Mendez toen ze nog leerde teksten in die taal te schrijven.",
+      "fun_fact_it": "Viene dall'album con cui Shakira passò all'inglese, scritta con Lester Mendez mentre stava ancora imparando a scrivere testi in quella lingua.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=uwBwKcQ1k84"
+    },
+    {
+      "year": 2001,
+      "uri": "spotify:track:78PKCefXwDLbl4FVO1Pjzh",
+      "artist": "Ozzy Osbourne",
+      "alt_artists": [
+        "Black Sabbath",
+        "Alice Cooper",
+        "Meat Loaf"
+      ],
+      "title": "Dreamer",
+      "isrc": "USSM10110213",
+      "uri_apple_music": "applemusic://track/307631403",
+      "uri_deezer": "deezer://track/1513119462",
+      "fun_fact": "Osbourne wrote an environmental ballad in the manner of 'Imagine' and got the closest thing to a soft-rock hit of his career out of it.",
+      "fun_fact_de": "Osbourne schrieb eine Umweltballade in der Art von 'Imagine' und bekam daraus den am ehesten als Softrock-Hit durchgehenden Song seiner Laufbahn.",
+      "fun_fact_es": "Osbourne escribió una balada ecologista al estilo de 'Imagine' y obtuvo con ella lo más parecido a un éxito de soft rock de toda su carrera.",
+      "fun_fact_fr": "Osbourne a écrit une ballade écologiste à la manière d'« Imagine » et en a tiré ce qui ressemble le plus à un tube soft rock de sa carrière.",
+      "fun_fact_nl": "Osbourne schreef een milieuballade in de trant van 'Imagine' en kreeg er het dichtst bij een softrockhit uit zijn loopbaan mee.",
+      "fun_fact_it": "Osbourne scrisse una ballata ambientalista alla maniera di 'Imagine' e ne ricavò la cosa più simile a un successo soft rock della sua carriera.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=LCCiwPEdEpg"
+    },
+    {
+      "year": 2001,
+      "uri": "spotify:track:4SAHTVRe6EBhgAOWl49yPf",
+      "artist": "Westlife",
+      "alt_artists": [
+        "Boyzone",
+        "Take That",
+        "Blue"
+      ],
+      "title": "World of Our Own",
+      "isrc": "GBARL0100292",
+      "uri_apple_music": "applemusic://track/1267957350",
+      "uri_deezer": "deezer://track/391575942",
+      "fun_fact": "The Irish group had already put seven singles straight to number one in Britain, a run no act had managed before them.",
+      "fun_fact_de": "Die irische Gruppe hatte in Britannien bereits sieben Singles direkt auf Platz eins gebracht — eine Serie, die vor ihnen niemand geschafft hatte.",
+      "fun_fact_es": "El grupo irlandés ya había colocado siete sencillos directamente en el número uno británico, una racha que nadie había logrado antes.",
+      "fun_fact_fr": "Le groupe irlandais avait déjà placé sept singles directement à la première place britannique, une série que personne n'avait réussie avant eux.",
+      "fun_fact_nl": "De Ierse groep had al zeven singles rechtstreeks op nummer één in Groot-Brittannië gezet, een reeks die niemand vóór hen had gehaald.",
+      "fun_fact_it": "Il gruppo irlandese aveva già portato sette singoli direttamente al primo posto britannico, una serie che nessuno aveva ottenuto prima.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=eTQyzCEtGBQ"
+    },
+    {
+      "year": 2002,
+      "uri": "spotify:track:6LefIBy3hzTN6Yd1m81gpC",
+      "artist": "Céline Dion",
+      "alt_artists": [
+        "Whitney Houston",
+        "Mariah Carey",
+        "Shania Twain"
+      ],
+      "title": "A New Day Has Come",
+      "isrc": "CAC220100155",
+      "uri_apple_music": "applemusic://track/1481513255",
+      "uri_deezer": "deezer://track/763662102",
+      "fun_fact": "Dion had stopped recording for two years to raise her son, and this was the record that announced she was coming back.",
+      "fun_fact_de": "Dion hatte zwei Jahre nicht aufgenommen, um ihren Sohn großzuziehen, und mit dieser Platte kündigte sie ihre Rückkehr an.",
+      "fun_fact_es": "Dion había dejado de grabar durante dos años para criar a su hijo, y este fue el disco con el que anunció su regreso.",
+      "fun_fact_fr": "Dion avait cessé d'enregistrer pendant deux ans pour élever son fils, et c'est ce disque qui a annoncé son retour.",
+      "fun_fact_nl": "Dion had twee jaar niet opgenomen om haar zoon groot te brengen, en dit was de plaat waarmee ze haar terugkeer aankondigde.",
+      "fun_fact_it": "Dion aveva smesso di incidere per due anni per crescere il figlio, e fu questo il disco che annunciò il suo ritorno.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=NaGLVS5b_ZY"
+    },
+    {
+      "year": 2003,
+      "uri": "spotify:track:4EdOyT1E50Nhnv6dGOmIT4",
+      "artist": "Nelly Furtado",
+      "alt_artists": [
+        "Alanis Morissette",
+        "Dido",
+        "Norah Jones"
+      ],
+      "title": "Powerless (Say What You Want)",
+      "isrc": "USDW10300628",
+      "uri_apple_music": "applemusic://track/1460193857",
+      "uri_deezer": "deezer://track/7574983",
+      "fun_fact": "The banjo running through it belongs to a song about being told to look less Portuguese, which is the argument the title is making.",
+      "fun_fact_de": "Das durchlaufende Banjo gehört zu einem Song darüber, weniger portugiesisch auszusehen — genau das ist die Behauptung des Titels.",
+      "fun_fact_es": "El banjo que la recorre pertenece a una canción sobre que le pidan a uno parecer menos portuguesa, que es justo lo que sostiene el título.",
+      "fun_fact_fr": "Le banjo qui la traverse appartient à une chanson sur le fait qu'on demande de paraître moins portugaise, ce que dit précisément le titre.",
+      "fun_fact_nl": "De banjo die er doorheen loopt hoort bij een lied over het verzoek er minder Portugees uit te zien, precies wat de titel beweert.",
+      "fun_fact_it": "Il banjo che l'attraversa appartiene a una canzone sul sentirsi chiedere di sembrare meno portoghese, che è esattamente ciò che dice il titolo.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=PygftD5gAR4"
+    },
+    {
+      "year": 2004,
+      "uri": "spotify:track:2mTHOerIGzhdTOm1pgW4kf",
+      "artist": "Sarah Connor",
+      "alt_artists": [
+        "Yvonne Catterfeld",
+        "Jeanette Biedermann",
+        "Nena"
+      ],
+      "title": "Living To Love You",
+      "isrc": "DEX570400039",
+      "uri_apple_music": null,
+      "uri_deezer": "deezer://track/1157534",
+      "fun_fact": "Connor sang in English from the start and reached number one in Germany with a ballad most of her listeners could not translate word for word.",
+      "fun_fact_de": "Connor sang von Anfang an auf Englisch und kam in Deutschland mit einer Ballade auf Platz eins, die die meisten ihrer Hörer nicht Wort für Wort übersetzen konnten.",
+      "fun_fact_es": "Connor cantó en inglés desde el principio y llegó al número uno en Alemania con una balada que la mayoría de sus oyentes no podía traducir palabra por palabra.",
+      "fun_fact_fr": "Connor a chanté en anglais dès le début et a atteint la première place en Allemagne avec une ballade que la plupart de ses auditeurs ne pouvaient pas traduire mot à mot.",
+      "fun_fact_nl": "Connor zong vanaf het begin in het Engels en werd in Duitsland nummer één met een ballade die de meeste luisteraars niet woord voor woord konden vertalen.",
+      "fun_fact_it": "Connor cantò in inglese fin dall'inizio e arrivò al primo posto in Germania con una ballata che la maggior parte dei suoi ascoltatori non sapeva tradurre parola per parola.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=YIEfguNqvJo"
+    },
+    {
+      "year": 2005,
+      "uri": "spotify:track:0mUyMawtxj1CJ76kn9gIZK",
+      "artist": "Daniel Powter",
+      "alt_artists": [
+        "James Blunt",
+        "Gavin DeGraw",
+        "Jason Mraz"
+      ],
+      "title": "Bad Day",
+      "isrc": "USWB10401971",
+      "uri_apple_music": "applemusic://track/63816165",
+      "uri_deezer": "deezer://track/6685848",
+      "fun_fact": "American Idol used it every week to send home the eliminated contestant, and that weekly slot rather than radio made it the biggest song of its year.",
+      "fun_fact_de": "American Idol spielte den Song jede Woche beim Ausscheiden eines Kandidaten, und dieser wöchentliche Platz statt des Radios machte ihn zum größten Song seines Jahres.",
+      "fun_fact_es": "American Idol lo usaba cada semana para despedir al concursante eliminado, y ese hueco semanal, más que la radio, lo convirtió en la canción del año.",
+      "fun_fact_fr": "American Idol le passait chaque semaine au départ du candidat éliminé, et c'est ce créneau hebdomadaire, plus que la radio, qui en a fait la chanson de l'année.",
+      "fun_fact_nl": "American Idol gebruikte het elke week om de afvaller uit te zwaaien, en die wekelijkse plek maakte het meer dan de radio tot het grootste nummer van dat jaar.",
+      "fun_fact_it": "American Idol lo usava ogni settimana per congedare il concorrente eliminato, e fu quello spazio settimanale, più della radio, a farne la canzone dell'anno.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=gH476CxJxfg"
+    },
+    {
+      "year": 2005,
+      "uri": "spotify:track:0q1uLsz1YBitp0iRj8a4UG",
+      "artist": "Katie Melua",
+      "alt_artists": [
+        "Norah Jones",
+        "Dido",
+        "Amy Macdonald"
+      ],
+      "title": "Nine Million Bicycles",
+      "isrc": "GBDVY0500059",
+      "uri_apple_music": "applemusic://track/1528517557",
+      "uri_deezer": "deezer://track/3786240782",
+      "fun_fact": "A New Scientist columnist publicly objected to the line about the universe being twelve billion years old, and Melua recorded a corrected version in reply.",
+      "fun_fact_de": "Ein Kolumnist des New Scientist beschwerte sich öffentlich über die Zeile vom zwölf Milliarden Jahre alten Universum, und Melua nahm zur Antwort eine korrigierte Fassung auf.",
+      "fun_fact_es": "Un columnista de New Scientist objetó públicamente al verso sobre un universo de doce mil millones de años, y Melua grabó una versión corregida como respuesta.",
+      "fun_fact_fr": "Un chroniqueur de New Scientist a publiquement contesté le vers sur un univers vieux de douze milliards d'années, et Melua a enregistré une version corrigée en réponse.",
+      "fun_fact_nl": "Een columnist van New Scientist maakte publiek bezwaar tegen de regel over een twaalf miljard jaar oud heelal, en Melua nam als antwoord een gecorrigeerde versie op.",
+      "fun_fact_it": "Un editorialista di New Scientist contestò pubblicamente il verso sull'universo di dodici miliardi di anni, e Melua incise per risposta una versione corretta.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=rrPUJsZQSkw"
+    },
+    {
+      "year": 2006,
+      "uri": "spotify:track:0HyAWcYFr2GfEvwDX2q3a4",
+      "artist": "Mathou",
+      "alt_artists": [
+        "Xavier Naidoo",
+        "Sasha",
+        "Söhne Mannheims"
+      ],
+      "title": "You Never Walk Alone",
+      "isrc": "DEBL60638276",
+      "uri_apple_music": "applemusic://track/188729584",
+      "uri_deezer": "deezer://track/61476518",
+      "fun_fact": "The German singer built a radio hit out of the phrase football crowds sing, and stripped it of the terrace melody entirely.",
+      "fun_fact_de": "Der deutsche Sänger machte aus der Zeile, die Fußballkurven singen, einen Radiohit — und ließ die Stadionmelodie vollständig weg.",
+      "fun_fact_es": "El cantante alemán convirtió en éxito radiofónico la frase que corean las gradas de fútbol, quitándole por completo la melodía del estadio.",
+      "fun_fact_fr": "Le chanteur allemand a fait un tube radio de la phrase que chantent les tribunes de football, en lui retirant entièrement la mélodie des stades.",
+      "fun_fact_nl": "De Duitse zanger maakte een radiohit van de zin die voetbalvakken zingen, en liet de stadionmelodie volledig weg.",
+      "fun_fact_it": "Il cantante tedesco fece un successo radiofonico dalla frase che cantano le curve di calcio, togliendole del tutto la melodia da stadio.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=CwCwCLvH2Jk"
+    },
+    {
+      "year": 2006,
+      "uri": "spotify:track:734t1GgKDg0Nc19tqxlJ0s",
+      "artist": "Take That",
+      "alt_artists": [
+        "Robbie Williams",
+        "Westlife",
+        "Boyzone"
+      ],
+      "title": "Patience",
+      "isrc": "GBUM70604827",
+      "uri_apple_music": "applemusic://track/1440762915",
+      "uri_deezer": "deezer://track/1574788",
+      "fun_fact": "The comeback single arrived eleven years after the band split and without Robbie Williams, and it spent four weeks at number one anyway.",
+      "fun_fact_de": "Die Comeback-Single kam elf Jahre nach der Trennung und ohne Robbie Williams — und stand trotzdem vier Wochen auf Platz eins.",
+      "fun_fact_es": "El sencillo del regreso llegó once años después de la separación y sin Robbie Williams, y aun así pasó cuatro semanas en el número uno.",
+      "fun_fact_fr": "Le single du retour est arrivé onze ans après la séparation et sans Robbie Williams, et il est resté quatre semaines premier malgré tout.",
+      "fun_fact_nl": "De comebacksingle kwam elf jaar na de breuk en zonder Robbie Williams, en stond toch vier weken op nummer één.",
+      "fun_fact_it": "Il singolo del ritorno arrivò undici anni dopo lo scioglimento e senza Robbie Williams, e restò comunque quattro settimane al primo posto.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=273eSvOwpKk"
+    },
+    {
+      "year": 2006,
+      "uri": "spotify:track:6ucR4KfvsBFWCMVFDvyKKl",
+      "artist": "Timbaland",
+      "alt_artists": [
+        "OneRepublic",
+        "Ryan Tedder",
+        "Justin Timberlake"
+      ],
+      "title": "Apologize",
+      "isrc": "USUM70722793",
+      "uri_apple_music": "applemusic://track/1440771632",
+      "uri_deezer": "deezer://track/916841",
+      "fun_fact": "OneRepublic had already released it and been dropped by their label; Timbaland's remix a year later turned the same recording into a worldwide hit.",
+      "fun_fact_de": "OneRepublic hatten den Song bereits veröffentlicht und waren von ihrem Label fallen gelassen worden; Timbalands Remix ein Jahr später machte aus derselben Aufnahme einen Welthit.",
+      "fun_fact_es": "OneRepublic ya la había publicado y su sello los había dejado caer; el remix de Timbaland un año después convirtió la misma grabación en un éxito mundial.",
+      "fun_fact_fr": "OneRepublic l'avait déjà sortie et leur label les avait lâchés ; le remix de Timbaland un an plus tard a fait de ce même enregistrement un tube mondial.",
+      "fun_fact_nl": "OneRepublic had het al uitgebracht en was door hun label gedropt; Timbalands remix een jaar later maakte van dezelfde opname een wereldhit.",
+      "fun_fact_it": "I OneRepublic l'avevano già pubblicata ed erano stati scaricati dall'etichetta; il remix di Timbaland un anno dopo fece della stessa incisione un successo mondiale.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=ZSM3w1v-A_Y"
+    },
+    {
+      "year": 2006,
+      "uri": "spotify:track:38LgksKBjt5aes7nlOXPIL",
+      "artist": "Sunrise Avenue",
+      "alt_artists": [
+        "The Rasmus",
+        "HIM",
+        "Negative"
+      ],
+      "title": "Fairytale Gone Bad",
+      "isrc": "FIB3A0600060",
+      "uri_apple_music": "applemusic://track/715844988",
+      "uri_deezer": "deezer://track/3153933",
+      "fun_fact": "The Finnish band broke in Germany first and stayed there, playing to arenas in a country where nobody could place their home town.",
+      "fun_fact_de": "Die finnische Band schaffte den Durchbruch zuerst in Deutschland und blieb dort — Arenen in einem Land, in dem niemand ihre Heimatstadt einordnen konnte.",
+      "fun_fact_es": "El grupo finlandés triunfó primero en Alemania y allí se quedó, llenando pabellones en un país donde nadie sabía situar su ciudad natal.",
+      "fun_fact_fr": "Le groupe finlandais a percé d'abord en Allemagne et y est resté, remplissant des salles dans un pays où personne ne situait leur ville natale.",
+      "fun_fact_nl": "De Finse band brak eerst door in Duitsland en bleef daar, met arena's in een land waar niemand hun woonplaats kon plaatsen.",
+      "fun_fact_it": "Il gruppo finlandese sfondò prima in Germania e lì restò, riempiendo palazzetti in un paese dove nessuno sapeva collocare la loro città.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=OUyfQLd3bCs"
+    },
+    {
+      "year": 2007,
+      "uri": "spotify:track:4IwOkUNrbkZRGZmYeY7XOO",
+      "artist": "A Fine Frenzy",
+      "alt_artists": [
+        "Regina Spektor",
+        "Sara Bareilles",
+        "Vanessa Carlton"
+      ],
+      "title": "Almost Lover",
+      "isrc": "USVI20700644",
+      "uri_apple_music": "applemusic://track/724597654",
+      "uri_deezer": "deezer://track/3154015",
+      "fun_fact": "Alison Sudol was twenty-two and recorded it with piano and little else; the song reached far more people in Europe than in her own country.",
+      "fun_fact_de": "Alison Sudol war zweiundzwanzig und nahm den Song mit Klavier und wenig sonst auf; er erreichte in Europa weit mehr Menschen als in ihrem eigenen Land.",
+      "fun_fact_es": "Alison Sudol tenía veintidós años y la grabó con piano y poco más; la canción llegó a mucha más gente en Europa que en su propio país.",
+      "fun_fact_fr": "Alison Sudol avait vingt-deux ans et l'a enregistrée au piano et presque rien d'autre ; la chanson a touché bien plus de monde en Europe que dans son pays.",
+      "fun_fact_nl": "Alison Sudol was tweeëntwintig en nam het op met piano en weinig meer; het nummer bereikte in Europa veel meer mensen dan in haar eigen land.",
+      "fun_fact_it": "Alison Sudol aveva ventidue anni e la incise con pianoforte e poco altro; la canzone raggiunse in Europa molte più persone che nel suo paese.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=I_S_TbD1XFM"
+    },
+    {
+      "year": 2008,
+      "uri": "spotify:track:69sRLJM4Wy2ykLs92f7prG",
+      "artist": "Leona Lewis",
+      "alt_artists": [
+        "Snow Patrol",
+        "Kelly Clarkson",
+        "Alexandra Burke"
+      ],
+      "title": "Run",
+      "isrc": "GBHMU0800023",
+      "uri_apple_music": "applemusic://track/299246218",
+      "uri_deezer": "deezer://track/2485011",
+      "fun_fact": "Snow Patrol had released it twice without a hit; Lewis's version went straight to number one on downloads alone in its first week.",
+      "fun_fact_de": "Snow Patrol hatten den Song zweimal ohne Erfolg veröffentlicht; die Fassung von Lewis ging in der ersten Woche allein über Downloads direkt auf Platz eins.",
+      "fun_fact_es": "Snow Patrol la había publicado dos veces sin éxito; la versión de Lewis llegó directa al número uno solo con descargas en su primera semana.",
+      "fun_fact_fr": "Snow Patrol l'avait sortie deux fois sans succès ; la version de Lewis est allée droit à la première place sur les seuls téléchargements dès la première semaine.",
+      "fun_fact_nl": "Snow Patrol had het twee keer zonder succes uitgebracht; de versie van Lewis ging in de eerste week alleen op downloads rechtstreeks naar nummer één.",
+      "fun_fact_it": "Gli Snow Patrol l'avevano pubblicata due volte senza successo; la versione di Lewis andò dritta al primo posto con i soli download nella prima settimana.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=jqpAgMxhx30"
+    },
+    {
+      "year": 2009,
+      "uri": "spotify:track:4N6R6yqkFUTyF3AYOdR0T7",
+      "artist": "Gossip",
+      "alt_artists": [
+        "Yeah Yeah Yeahs",
+        "Scissor Sisters",
+        "Garbage"
+      ],
+      "title": "Heavy Cross",
+      "isrc": "USSM10902231",
+      "uri_apple_music": "applemusic://track/316795262",
+      "uri_deezer": "deezer://track/3056960",
+      "fun_fact": "The song was an American indie record until a German phone advert picked it up, after which it spent most of a year in the German top ten.",
+      "fun_fact_de": "Der Song war eine amerikanische Indieplatte, bis eine deutsche Handywerbung ihn aufgriff — danach stand er fast ein Jahr in den deutschen Top zehn.",
+      "fun_fact_es": "La canción era un disco indie estadounidense hasta que un anuncio de móviles alemán la recogió; después pasó casi un año en el top diez alemán.",
+      "fun_fact_fr": "Le morceau était un disque indé américain jusqu'à ce qu'une publicité allemande pour la téléphonie le reprenne ; il est ensuite resté près d'un an dans le top dix allemand.",
+      "fun_fact_nl": "Het nummer was een Amerikaanse indieplaat tot een Duitse telefoonreclame het oppikte; daarna stond het bijna een jaar in de Duitse top tien.",
+      "fun_fact_it": "Il brano era un disco indie americano finché una pubblicità tedesca di telefonia lo riprese; dopo restò quasi un anno nella top ten tedesca.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=5mQVljB7JGw"
+    },
+    {
+      "year": 2009,
+      "uri": "spotify:track:3clsCV1f1E9u1Fge9ntulk",
+      "artist": "Lady Gaga",
+      "alt_artists": [
+        "Madonna",
+        "Kylie Minogue",
+        "Rihanna"
+      ],
+      "title": "Alejandro",
+      "isrc": "USUM70905526",
+      "uri_apple_music": "applemusic://track/1476727671",
+      "uri_deezer": "deezer://track/4709938",
+      "fun_fact": "The horn line quotes ABBA's 'Fernando' closely enough that Gaga has named it as the starting point, and the names in the title follow the same pattern.",
+      "fun_fact_de": "Die Bläserlinie zitiert ABBAs 'Fernando' so deutlich, dass Gaga es selbst als Ausgangspunkt genannt hat, und die Namen im Titel folgen demselben Muster.",
+      "fun_fact_es": "La línea de metales cita 'Fernando' de ABBA de forma tan clara que Gaga la ha señalado como punto de partida, y los nombres del título siguen el mismo patrón.",
+      "fun_fact_fr": "La ligne de cuivres cite « Fernando » d'ABBA d'assez près pour que Gaga l'ait désignée comme point de départ, et les prénoms du titre suivent le même schéma.",
+      "fun_fact_nl": "De blazerslijn citeert ABBA's 'Fernando' zo duidelijk dat Gaga het zelf als uitgangspunt heeft genoemd, en de namen in de titel volgen hetzelfde patroon.",
+      "fun_fact_it": "La linea di fiati cita 'Fernando' degli ABBA così da vicino che Gaga l'ha indicata come punto di partenza, e i nomi nel titolo seguono lo stesso schema.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=niqrrmev4mA"
+    },
+    {
+      "year": 2009,
+      "uri": "spotify:track:7nuBU1HCcOwG5f1orN4ByW",
+      "artist": "Caro Emerald",
+      "alt_artists": [
+        "Postmodern Jukebox",
+        "Nina Simone",
+        "Alice Francis"
+      ],
+      "title": "A Night Like This",
+      "isrc": "NLHR30900011",
+      "uri_apple_music": "applemusic://track/647779610",
+      "uri_deezer": "deezer://track/13551002",
+      "fun_fact": "The Dutch singer sold a forties swing record to a downloading audience, and her debut album kept the Netherlands number one spot for thirty weeks.",
+      "fun_fact_de": "Die niederländische Sängerin verkaufte eine Swingplatte der Vierziger an ein Download-Publikum, und ihr Debütalbum hielt dreißig Wochen Platz eins in den Niederlanden.",
+      "fun_fact_es": "La cantante neerlandesa vendió un disco de swing de los cuarenta a un público de descargas, y su álbum debut mantuvo el número uno neerlandés durante treinta semanas.",
+      "fun_fact_fr": "La chanteuse néerlandaise a vendu un disque de swing des années quarante à un public de téléchargement, et son premier album a tenu trente semaines la première place aux Pays-Bas.",
+      "fun_fact_nl": "De Nederlandse zangeres verkocht een swingplaat uit de jaren veertig aan een downloadpubliek, en haar debuutalbum hield dertig weken de Nederlandse nummer één vast.",
+      "fun_fact_it": "La cantante olandese vendette un disco swing degli anni quaranta a un pubblico da download, e il suo album d'esordio tenne trenta settimane il primo posto nei Paesi Bassi.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=74LXx0wSqMI"
+    },
+    {
+      "year": 2009,
+      "uri": "spotify:track:3Cm2bgwzocxsB5sD6g8VSL",
+      "artist": "a-ha",
+      "alt_artists": [
+        "Morten Harket",
+        "Roxette",
+        "Erasure"
+      ],
+      "title": "Foot Of The Mountain",
+      "isrc": "NOUM70900248",
+      "uri_apple_music": "applemusic://track/1443573745",
+      "uri_deezer": "deezer://track/4190292",
+      "fun_fact": "After years of guitars the band went back to the synthesiser sound of their first record, and announced their break-up on the tour that followed.",
+      "fun_fact_de": "Nach Jahren mit Gitarren kehrte die Band zum Synthesizer-Klang ihrer ersten Platte zurück und kündigte auf der folgenden Tournee ihre Trennung an.",
+      "fun_fact_es": "Tras años de guitarras el grupo volvió al sonido de sintetizador de su primer disco, y anunció su separación en la gira que siguió.",
+      "fun_fact_fr": "Après des années de guitares, le groupe est revenu au son de synthétiseur de son premier disque, et a annoncé sa séparation lors de la tournée qui a suivi.",
+      "fun_fact_nl": "Na jaren gitaren keerde de band terug naar het synthesizergeluid van hun eerste plaat, en kondigde tijdens de daaropvolgende tournee hun einde aan.",
+      "fun_fact_it": "Dopo anni di chitarre la band tornò al suono di sintetizzatore del primo disco, e annunciò lo scioglimento nella tournée che seguì.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=m36SBHLmYXc"
+    },
+    {
+      "year": 2000,
+      "uri": "spotify:track:583xVl0Sbj93uU4ceixgU8",
+      "artist": "Anastacia",
+      "alt_artists": [
+        "Pink",
+        "Christina Aguilera",
+        "Jennifer Lopez"
+      ],
+      "title": "I'm Outta Love",
+      "isrc": "USSM19921724",
+      "uri_apple_music": "applemusic://track/250558355",
+      "uri_deezer": "deezer://track/833622",
+      "fun_fact": "Anastacia was thirty-one and had been turned down for a decade for looking wrong; the voice on this record settled the argument.",
+      "fun_fact_de": "Anastacia war einunddreißig und ein Jahrzehnt lang abgelehnt worden, weil sie nicht passend aussah; die Stimme auf dieser Platte beendete die Debatte.",
+      "fun_fact_es": "Anastacia tenía treinta y uno y llevaba una década siendo rechazada por su aspecto; la voz de este disco zanjó la discusión.",
+      "fun_fact_fr": "Anastacia avait trente et un ans et essuyait des refus depuis dix ans pour son apparence ; la voix de ce disque a clos le débat.",
+      "fun_fact_nl": "Anastacia was eenendertig en werd al tien jaar afgewezen omdat ze er verkeerd uitzag; de stem op deze plaat beëindigde de discussie.",
+      "fun_fact_it": "Anastacia aveva trentun anni ed era stata rifiutata per un decennio per il suo aspetto; la voce di questo disco chiuse la discussione.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=TnOy6HEf7HU"
+    },
+    {
+      "year": 2000,
+      "uri": "spotify:track:62bOmKYxYg7dhrC6gH9vFn",
+      "artist": "*NSYNC",
+      "alt_artists": [
+        "Backstreet Boys",
+        "Westlife",
+        "Five"
+      ],
+      "title": "Bye Bye Bye",
+      "isrc": "USJI10000001",
+      "uri_apple_music": "applemusic://track/254906599",
+      "uri_deezer": "deezer://track/632447",
+      "fun_fact": "The group sued their own manager while this was in the charts, and won back the rights to their name.",
+      "fun_fact_de": "Die Gruppe verklagte ihren eigenen Manager, während der Song in den Charts stand — und gewann die Rechte am eigenen Namen zurück.",
+      "fun_fact_es": "El grupo demandó a su propio mánager mientras la canción estaba en listas y recuperó los derechos sobre su nombre.",
+      "fun_fact_fr": "Le groupe a poursuivi son propre manager pendant que le titre était en tête des ventes et a récupéré les droits sur son nom.",
+      "fun_fact_nl": "De groep klaagde hun eigen manager aan terwijl dit in de lijsten stond, en won de rechten op hun naam terug.",
+      "fun_fact_it": "Il gruppo fece causa al proprio manager mentre il brano era in classifica e riottenne i diritti sul proprio nome.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=Eo-KmOd3i7s"
+    },
+    {
+      "year": 2001,
+      "uri": "spotify:track:4l49RkY90qqeJZ72nVbdkC",
+      "artist": "Sylver",
+      "alt_artists": [
+        "Cascada",
+        "Groove Coverage",
+        "Lasgo"
+      ],
+      "title": "Forever in Love",
+      "isrc": "BEAA10114101",
+      "uri_apple_music": "applemusic://track/1541606765",
+      "uri_deezer": "deezer://track/135335118",
+      "fun_fact": "The Belgian trio built a career on trance versions of ballads, and their records charted higher in Germany than at home.",
+      "fun_fact_de": "Das belgische Trio baute seine Laufbahn auf Trance-Fassungen von Balladen; die Platten liefen in Deutschland besser als daheim.",
+      "fun_fact_es": "El trío belga construyó su carrera con versiones trance de baladas, y sus discos entraron más alto en Alemania que en su país.",
+      "fun_fact_fr": "Le trio belge a bâti sa carrière sur des versions trance de ballades, et leurs disques se classaient mieux en Allemagne que chez eux.",
+      "fun_fact_nl": "Het Belgische trio bouwde een carrière op trance-versies van ballades, en hun platen scoorden in Duitsland hoger dan thuis.",
+      "fun_fact_it": "Il trio belga costruì la carriera su versioni trance di ballate, e i loro dischi andavano meglio in Germania che in patria.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=zVXoee6N5lQ"
+    },
+    {
+      "year": 2002,
+      "uri": "spotify:track:4DRqC64lihScDSfDRLVHrX",
+      "artist": "Orange Blue",
+      "alt_artists": [
+        "Reamonn",
+        "Sasha",
+        "Söhne Mannheims"
+      ],
+      "title": "She's Got That Light",
+      "isrc": "DEH840000056",
+      "uri_apple_music": "applemusic://track/1225177986",
+      "uri_deezer": "deezer://track/348209571",
+      "fun_fact": "A German band singing English soft rock, and the single spent months on German radio while the album barely sold.",
+      "fun_fact_de": "Eine deutsche Band mit englischem Softrock — die Single lief monatelang im deutschen Radio, während das Album kaum verkauft wurde.",
+      "fun_fact_es": "Un grupo alemán de soft rock en inglés; el sencillo sonó meses en la radio alemana mientras el disco apenas se vendía.",
+      "fun_fact_fr": "Un groupe allemand de soft rock en anglais ; le single a tourné des mois à la radio allemande alors que l'album se vendait à peine.",
+      "fun_fact_nl": "Een Duitse band met Engelse softrock; de single draaide maanden op de Duitse radio terwijl het album nauwelijks verkocht.",
+      "fun_fact_it": "Un gruppo tedesco di soft rock in inglese; il singolo passò per mesi nelle radio tedesche mentre l'album vendeva a stento.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=HnZPif5CQ-w"
+    },
+    {
+      "year": 2002,
+      "uri": "spotify:track:5xEM5hIgJ1jjgcEBfpkt2F",
+      "artist": "Avril Lavigne",
+      "alt_artists": [
+        "Michelle Branch",
+        "Kelly Clarkson",
+        "Pink"
+      ],
+      "title": "Complicated",
+      "isrc": "USAR10200223",
+      "uri_apple_music": "applemusic://track/315025823",
+      "uri_deezer": "deezer://track/15587465",
+      "fun_fact": "Lavigne was seventeen and had a record deal for a country album; she refused to make it and wrote this instead.",
+      "fun_fact_de": "Lavigne war siebzehn und hatte einen Plattenvertrag für ein Country-Album; sie weigerte sich, es zu machen, und schrieb stattdessen diesen Song.",
+      "fun_fact_es": "Lavigne tenía diecisiete años y un contrato para un disco de country; se negó a hacerlo y escribió esto en su lugar.",
+      "fun_fact_fr": "Lavigne avait dix-sept ans et un contrat pour un album de country ; elle a refusé de le faire et a écrit ceci à la place.",
+      "fun_fact_nl": "Lavigne was zeventien en had een platencontract voor een countryalbum; ze weigerde het te maken en schreef dit in plaats daarvan.",
+      "fun_fact_it": "Lavigne aveva diciassette anni e un contratto per un album country; si rifiutò di farlo e scrisse questo.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=5NPBIwQyPWE"
+    },
+    {
+      "year": 2002,
+      "uri": "spotify:track:4w1lzcaoZ1IC2K5TwjalRP",
+      "artist": "Vanessa Carlton",
+      "alt_artists": [
+        "Michelle Branch",
+        "Sara Bareilles",
+        "Norah Jones"
+      ],
+      "title": "A Thousand Miles",
+      "isrc": "USIR10210955",
+      "uri_apple_music": "applemusic://track/1699263739",
+      "uri_deezer": "deezer://track/983832",
+      "fun_fact": "Carlton wrote it at nineteen about a person who never noticed her, and the piano figure was practised for years before it became a song.",
+      "fun_fact_de": "Carlton schrieb den Song mit neunzehn über jemanden, der sie nie bemerkte; die Klavierfigur hatte sie jahrelang geübt, bevor daraus ein Lied wurde.",
+      "fun_fact_es": "Carlton la escribió a los diecinueve sobre alguien que nunca la miró, y la figura de piano la practicó años antes de que fuera una canción.",
+      "fun_fact_fr": "Carlton l'a écrite à dix-neuf ans sur quelqu'un qui ne l'a jamais remarquée, et le motif de piano a été travaillé des années avant de devenir une chanson.",
+      "fun_fact_nl": "Carlton schreef het op haar negentiende over iemand die haar nooit opmerkte, en de pianofiguur oefende ze jaren voordat het een lied werd.",
+      "fun_fact_it": "Carlton la scrisse a diciannove anni su qualcuno che non la notò mai, e la figura di pianoforte la esercitò per anni prima che diventasse una canzone.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=Cwkej79U3ek"
+    },
+    {
+      "year": 2003,
+      "uri": "spotify:track:4h9E8Ydm3wBuIUwFZYmQtq",
+      "artist": "Alexander Klaws",
+      "alt_artists": [
+        "Daniel Küblböck",
+        "Mark Medlock",
+        "Juliette Schoppmann"
+      ],
+      "title": "Free Like the Wind",
+      "isrc": "DEC730300413",
+      "uri_apple_music": "applemusic://track/255031533",
+      "uri_deezer": "deezer://track/598666",
+      "fun_fact": "Klaws won the first German season of the talent show, and this was the follow-up single that had to prove the win was not a fluke.",
+      "fun_fact_de": "Klaws gewann die erste deutsche Staffel der Castingshow; mit dieser zweiten Single musste er beweisen, dass der Sieg kein Zufall war.",
+      "fun_fact_es": "Klaws ganó la primera edición alemana del concurso, y este fue el sencillo siguiente que debía demostrar que la victoria no fue casualidad.",
+      "fun_fact_fr": "Klaws a gagné la première saison allemande du télécrochet, et ce single suivant devait prouver que la victoire n'était pas un hasard.",
+      "fun_fact_nl": "Klaws won het eerste Duitse seizoen van de talentenjacht, en dit was de opvolgsingle die moest bewijzen dat de zege geen toeval was.",
+      "fun_fact_it": "Klaws vinse la prima edizione tedesca del talent, e questo fu il singolo successivo che doveva dimostrare che la vittoria non era stata un caso.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=KMHsNUWIS98"
+    },
+    {
+      "year": 2003,
+      "uri": "spotify:track:6si71supnBUhddjR2FJc2L",
+      "artist": "Dido",
+      "alt_artists": [
+        "Nelly Furtado",
+        "Sarah McLachlan",
+        "Moby"
+      ],
+      "title": "White Flag",
+      "isrc": "GBBXH0300035",
+      "uri_apple_music": "applemusic://track/427875172",
+      "uri_deezer": "deezer://track/2654326",
+      "fun_fact": "Dido's brother Rollo produced it, and the video ends with the singer dying in a car — which the label wanted cut.",
+      "fun_fact_de": "Didos Bruder Rollo produzierte den Song; im Video stirbt die Sängerin in einem Auto — die Plattenfirma wollte das herausschneiden.",
+      "fun_fact_es": "Su hermano Rollo la produjo, y el vídeo termina con la cantante muriendo en un coche, algo que el sello quería cortar.",
+      "fun_fact_fr": "Son frère Rollo l'a produite, et le clip se termine par la mort de la chanteuse dans une voiture, ce que le label voulait couper.",
+      "fun_fact_nl": "Haar broer Rollo produceerde het, en de video eindigt met de zangeres die in een auto sterft — wat het label eruit wilde knippen.",
+      "fun_fact_it": "Il fratello Rollo la produsse, e il video finisce con la cantante che muore in un'auto, cosa che l'etichetta voleva tagliare.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=j-fWDrZSiZs"
+    },
+    {
+      "year": 2003,
+      "uri": "spotify:track:2dRrRVZ2P7yc5FFeGTKLNd",
+      "artist": "Sarah Connor",
+      "alt_artists": [
+        "Xavier Naidoo",
+        "Joana Zimmer",
+        "Mark Medlock"
+      ],
+      "title": "Music Is The Key",
+      "isrc": "DEE860300940",
+      "uri_apple_music": "applemusic://track/1600265508",
+      "uri_deezer": "deezer://track/1590299512",
+      "fun_fact": "Connor recorded it with an American a cappella group and it became the theme of a German television gala for years afterwards.",
+      "fun_fact_de": "Connor nahm den Song mit einer amerikanischen A-cappella-Gruppe auf; er wurde jahrelang das Titellied einer deutschen Fernsehgala.",
+      "fun_fact_es": "Connor la grabó con un grupo estadounidense a capela y durante años fue la sintonía de una gala televisiva alemana.",
+      "fun_fact_fr": "Connor l'a enregistrée avec un groupe a cappella américain et elle est restée des années le générique d'un gala télévisé allemand.",
+      "fun_fact_nl": "Connor nam het op met een Amerikaanse a-capellagroep en het was jarenlang de tune van een Duitse tv-gala.",
+      "fun_fact_it": "Connor la incise con un gruppo a cappella americano e per anni fu la sigla di un galà televisivo tedesco.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=5EmNiiAutno"
+    },
+    {
+      "year": 2004,
+      "uri": "spotify:track:5ClXLJW6OLZuTLCwhmX9h9",
+      "artist": "Infernal",
+      "alt_artists": [
+        "Cascada",
+        "Sylver",
+        "Groove Coverage"
+      ],
+      "title": "From Paris to Berlin",
+      "isrc": "DKCC50400404",
+      "uri_apple_music": "applemusic://track/252065201",
+      "uri_deezer": "deezer://track/579912712",
+      "fun_fact": "A Danish duo named a song after two cities they had not toured, and it became one of the biggest European dance records of the decade.",
+      "fun_fact_de": "Ein dänisches Duo benannte einen Song nach zwei Städten, in denen es nie gespielt hatte — er wurde eine der größten europäischen Dance-Platten des Jahrzehnts.",
+      "fun_fact_es": "Un dúo danés tituló una canción con dos ciudades en las que no había actuado, y se convirtió en uno de los mayores discos dance europeos de la década.",
+      "fun_fact_fr": "Un duo danois a intitulé une chanson d'après deux villes où il n'avait jamais joué, et elle est devenue l'un des plus grands disques dance européens de la décennie.",
+      "fun_fact_nl": "Een Deens duo noemde een nummer naar twee steden waar het nooit had gespeeld, en het werd een van de grootste Europese danceplaten van het decennium.",
+      "fun_fact_it": "Un duo danese intitolò una canzone a due città in cui non aveva mai suonato, e divenne uno dei più grandi dischi dance europei del decennio.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=THt5u-i2d9k"
+    },
+    {
+      "year": 2005,
+      "uri": "spotify:track:0Tn6mtt28qapllUQSAYYen",
+      "artist": "Joana Zimmer",
+      "alt_artists": [
+        "Sarah Connor",
+        "Yvonne Catterfeld",
+        "Anastacia"
+      ],
+      "title": "I Believe",
+      "isrc": "DEN120408862",
+      "uri_apple_music": "applemusic://track/1444310742",
+      "uri_deezer": "deezer://track/2315289",
+      "fun_fact": "Zimmer has been blind since birth and reached the German top five with her first single, then largely left the industry.",
+      "fun_fact_de": "Zimmer ist von Geburt an blind und kam mit ihrer ersten Single in die deutschen Top fünf; danach zog sie sich weitgehend zurück.",
+      "fun_fact_es": "Zimmer es ciega de nacimiento y llegó al top cinco alemán con su primer sencillo; después se retiró en gran medida.",
+      "fun_fact_fr": "Zimmer est aveugle de naissance et a atteint le top cinq allemand avec son premier single, avant de quitter en grande partie le métier.",
+      "fun_fact_nl": "Zimmer is blind vanaf haar geboorte en haalde met haar eerste single de Duitse top vijf; daarna verliet ze de branche grotendeels.",
+      "fun_fact_it": "Zimmer è cieca dalla nascita e arrivò nella top cinque tedesca col primo singolo; poi lasciò in gran parte il settore.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=5UUGt2p_hwY"
+    },
+    {
+      "year": 2005,
+      "uri": "spotify:track:1kOAGK7iEoIk1iwWXtHTGR",
+      "artist": "Melanie C",
+      "alt_artists": [
+        "Spice Girls",
+        "Emma Bunton",
+        "Geri Halliwell"
+      ],
+      "title": "First Day of My Life",
+      "isrc": "GBHMK0500015",
+      "uri_apple_music": "applemusic://track/81250639",
+      "uri_deezer": "deezer://track/689130",
+      "fun_fact": "Melanie C wrote it after leaving the Spice Girls and a long illness; it went to number one in Germany but not in Britain.",
+      "fun_fact_de": "Melanie C schrieb den Song nach dem Ausstieg bei den Spice Girls und einer langen Krankheit; er ging in Deutschland auf Platz eins, in Britannien nicht.",
+      "fun_fact_es": "Melanie C la escribió tras dejar las Spice Girls y una larga enfermedad; llegó al número uno en Alemania, pero no en Gran Bretaña.",
+      "fun_fact_fr": "Melanie C l'a écrite après avoir quitté les Spice Girls et une longue maladie ; elle a atteint la première place en Allemagne, pas au Royaume-Uni.",
+      "fun_fact_nl": "Melanie C schreef het na haar vertrek bij de Spice Girls en een lange ziekte; het werd nummer één in Duitsland, maar niet in Groot-Brittannië.",
+      "fun_fact_it": "Melanie C la scrisse dopo l'uscita dalle Spice Girls e una lunga malattia; arrivò al primo posto in Germania, non in Gran Bretagna.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=W9n5AkJU-so"
+    },
+    {
+      "year": 2006,
+      "uri": "spotify:track:1q9l6c8bAzqWcvO3DM6FsR",
+      "artist": "Scissor Sisters",
+      "alt_artists": [
+        "Mika",
+        "Franz Ferdinand",
+        "Jamiroquai"
+      ],
+      "title": "I Don't Feel Like Dancin'",
+      "isrc": "GBUM70602587",
+      "uri_apple_music": "applemusic://track/1442963300",
+      "uri_deezer": "deezer://track/2504050",
+      "fun_fact": "Elton John co-wrote and played piano on it, and the band had to be talked into keeping the falsetto chorus.",
+      "fun_fact_de": "Elton John schrieb mit und spielte Klavier; die Band musste überredet werden, den Falsett-Refrain zu behalten.",
+      "fun_fact_es": "Elton John coescribió y tocó el piano, y hubo que convencer al grupo para que mantuviera el estribillo en falsete.",
+      "fun_fact_fr": "Elton John a coécrit et joué du piano, et il a fallu convaincre le groupe de garder le refrain en fausset.",
+      "fun_fact_nl": "Elton John schreef mee en speelde piano, en de band moest worden overtuigd om het falsetrefrein te houden.",
+      "fun_fact_it": "Elton John coscrisse e suonò il pianoforte, e la band dovette essere convinta a tenere il ritornello in falsetto.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=4H5I6y1Qvz0"
+    },
+    {
+      "year": 2006,
+      "uri": "spotify:track:3ZFTkvIE7kyPt6Nu3PEa7V",
+      "artist": "Shakira",
+      "alt_artists": [
+        "Jennifer Lopez",
+        "Beyoncé",
+        "Nelly Furtado"
+      ],
+      "title": "Hips Don't Lie",
+      "isrc": "USSM10600677",
+      "uri_apple_music": "applemusic://track/482267480",
+      "uri_deezer": "deezer://track/88897841",
+      "fun_fact": "The horn line comes from a 1970s Colombian cumbia, and the song made Shakira the first Latin artist with a global number one in two languages.",
+      "fun_fact_de": "Die Bläserlinie stammt aus einer kolumbianischen Cumbia der Siebziger; der Song machte Shakira zur ersten lateinamerikanischen Künstlerin mit einem weltweiten Nummer-eins-Hit in zwei Sprachen.",
+      "fun_fact_es": "La línea de metales viene de una cumbia colombiana de los setenta, y la canción hizo de Shakira la primera artista latina con un número uno mundial en dos idiomas.",
+      "fun_fact_fr": "La ligne de cuivres vient d'une cumbia colombienne des années soixante-dix, et la chanson a fait de Shakira la première artiste latine avec un numéro un mondial en deux langues.",
+      "fun_fact_nl": "De blazerslijn komt uit een Colombiaanse cumbia uit de jaren zeventig, en het nummer maakte Shakira de eerste Latijns-Amerikaanse artiest met een wereldwijde nummer één in twee talen.",
+      "fun_fact_it": "La linea di fiati viene da una cumbia colombiana degli anni settanta, e la canzone rese Shakira la prima artista latina con un numero uno mondiale in due lingue.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=DUT5rEU6pqM"
+    },
+    {
+      "year": 2007,
+      "uri": "spotify:track:3DuHOCe1dbf3XKF8uoc5oM",
+      "artist": "Natasha Bedingfield",
+      "alt_artists": [
+        "Natalie Imbruglia",
+        "Leona Lewis",
+        "Katie Melua"
+      ],
+      "title": "Soulmate",
+      "isrc": "GBARL0700096",
+      "uri_apple_music": "applemusic://track/257727943",
+      "uri_deezer": "deezer://track/15621382",
+      "fun_fact": "Bedingfield's brother Daniel had a number one three years before her, making them the first siblings to top the British chart separately.",
+      "fun_fact_de": "Bedingfields Bruder Daniel hatte drei Jahre vor ihr einen Nummer-eins-Hit — sie waren die ersten Geschwister, die getrennt an der Spitze der britischen Charts standen.",
+      "fun_fact_es": "Su hermano Daniel tuvo un número uno tres años antes que ella, lo que los convirtió en los primeros hermanos en encabezar la lista británica por separado.",
+      "fun_fact_fr": "Son frère Daniel a eu un numéro un trois ans avant elle, ce qui en fait le premier frère et sœur à dominer séparément le classement britannique.",
+      "fun_fact_nl": "Haar broer Daniel had drie jaar eerder een nummer één, waarmee ze het eerste broer-zusduo waren dat apart de Britse lijst aanvoerde.",
+      "fun_fact_it": "Suo fratello Daniel ebbe un numero uno tre anni prima di lei: furono i primi fratelli a guidare separatamente la classifica britannica.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=P27MPi3ZhCg"
+    },
+    {
+      "year": 2007,
+      "uri": "spotify:track:2sgBTNHz9ckmqj3rx3ez4M",
+      "artist": "Kaiser Chiefs",
+      "alt_artists": [
+        "Arctic Monkeys",
+        "Franz Ferdinand",
+        "The Killers"
+      ],
+      "title": "Ruby",
+      "isrc": "GBDVX0600080",
+      "uri_apple_music": "applemusic://track/1443919262",
+      "uri_deezer": "deezer://track/26608051",
+      "fun_fact": "The band are from Leeds and named themselves after a football chant; nobody in the group has ever said who Ruby is.",
+      "fun_fact_de": "Die Band kommt aus Leeds und benannte sich nach einem Fußballgesang; wer Ruby ist, hat nie jemand aus der Gruppe gesagt.",
+      "fun_fact_es": "El grupo es de Leeds y se puso el nombre por un cántico de fútbol; nadie de la banda ha dicho nunca quién es Ruby.",
+      "fun_fact_fr": "Le groupe vient de Leeds et s'est nommé d'après un chant de supporters ; personne dans le groupe n'a jamais dit qui est Ruby.",
+      "fun_fact_nl": "De band komt uit Leeds en noemde zich naar een voetbalkreet; niemand in de groep heeft ooit gezegd wie Ruby is.",
+      "fun_fact_it": "Il gruppo viene da Leeds e prese il nome da un coro da stadio; nessuno nella band ha mai detto chi sia Ruby.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=qObzgUfCl28"
+    },
+    {
+      "year": 2007,
+      "uri": "spotify:track:4CanxrTGxjh0KL80lhUOgR",
+      "artist": "Mark Medlock",
+      "alt_artists": [
+        "Alexander Klaws",
+        "Daniel Küblböck",
+        "Sasha"
+      ],
+      "title": "Summer Love",
+      "isrc": "DEE860800263",
+      "uri_apple_music": "applemusic://track/279404486",
+      "uri_deezer": "deezer://track/95662612",
+      "fun_fact": "Medlock won the German talent show and Dieter Bohlen wrote the single; it went straight to number one and stayed there for six weeks.",
+      "fun_fact_de": "Medlock gewann die deutsche Castingshow, Dieter Bohlen schrieb die Single; sie ging direkt auf Platz eins und blieb dort sechs Wochen.",
+      "fun_fact_es": "Medlock ganó el concurso alemán y Dieter Bohlen escribió el sencillo; llegó directo al número uno y se quedó seis semanas.",
+      "fun_fact_fr": "Medlock a gagné le télécrochet allemand et Dieter Bohlen a écrit le single ; il est allé droit à la première place et y est resté six semaines.",
+      "fun_fact_nl": "Medlock won de Duitse talentenjacht en Dieter Bohlen schreef de single; die ging rechtstreeks naar nummer één en bleef er zes weken.",
+      "fun_fact_it": "Medlock vinse il talent tedesco e Dieter Bohlen scrisse il singolo; andò dritto al primo posto e vi restò sei settimane.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=NkBCdeu4vgw"
+    },
+    {
+      "year": 2007,
+      "uri": "spotify:track:2T3jgoAMbBXiMMD8pSc6QL",
+      "artist": "Amy Macdonald",
+      "alt_artists": [
+        "KT Tunstall",
+        "Katie Melua",
+        "Duffy"
+      ],
+      "title": "This Is The Life",
+      "isrc": "GBUM70607840",
+      "uri_apple_music": "applemusic://track/1440717953",
+      "uri_deezer": "deezer://track/882691",
+      "fun_fact": "Macdonald was nineteen and wrote it about Glasgow nights out; the album sold three million copies, most of them on the continent.",
+      "fun_fact_de": "Macdonald war neunzehn und schrieb den Song über Glasgower Nächte; das Album verkaufte sich drei Millionen Mal, größtenteils auf dem Kontinent.",
+      "fun_fact_es": "Macdonald tenía diecinueve años y la escribió sobre las noches de Glasgow; el disco vendió tres millones de copias, la mayoría en el continente.",
+      "fun_fact_fr": "Macdonald avait dix-neuf ans et l'a écrite sur les nuits de Glasgow ; l'album s'est vendu à trois millions d'exemplaires, surtout sur le continent.",
+      "fun_fact_nl": "Macdonald was negentien en schreef het over Glasgowse stapavonden; het album verkocht drie miljoen keer, grotendeels op het continent.",
+      "fun_fact_it": "Macdonald aveva diciannove anni e la scrisse sulle notti di Glasgow; l'album vendette tre milioni di copie, per lo più nel continente.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=iRYvuS9OxdA"
+    },
+    {
+      "year": 2008,
+      "uri": "spotify:track:7HTX5cE4qzHALfgO2xSvMd",
+      "artist": "Milow",
+      "alt_artists": [
+        "Milow",
+        "Jason Mraz",
+        "Mando Diao"
+      ],
+      "title": "Ayo Technology",
+      "isrc": "BEA890800003",
+      "uri_apple_music": "applemusic://track/1842961342",
+      "uri_deezer": "deezer://track/3441449911",
+      "fun_fact": "A Belgian singer turned a 50 Cent record into an acoustic ballad as a joke for radio, and it became the biggest hit of his career.",
+      "fun_fact_de": "Ein belgischer Sänger machte aus einer 50-Cent-Platte im Scherz eine Akustikballade fürs Radio — es wurde der größte Hit seiner Laufbahn.",
+      "fun_fact_es": "Un cantante belga convirtió un disco de 50 Cent en una balada acústica como broma para la radio, y fue el mayor éxito de su carrera.",
+      "fun_fact_fr": "Un chanteur belge a transformé un disque de 50 Cent en ballade acoustique pour rire à la radio, et c'est devenu le plus grand tube de sa carrière.",
+      "fun_fact_nl": "Een Belgische zanger maakte van een 50 Cent-plaat als grap voor de radio een akoestische ballade, en het werd de grootste hit van zijn loopbaan.",
+      "fun_fact_it": "Un cantante belga trasformò per scherzo un disco di 50 Cent in una ballata acustica per la radio, e divenne il successo più grande della sua carriera.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=DE9IchvpOPk"
+    },
+    {
+      "year": 2009,
+      "uri": "spotify:track:5WhqLY64g8U6tkUAFv6dzD",
+      "artist": "Mando Diao",
+      "alt_artists": [
+        "The Hives",
+        "The Hellacopters",
+        "Kaiser Chiefs"
+      ],
+      "title": "Black Saturday",
+      "isrc": "SEYBD1300102",
+      "uri_apple_music": "applemusic://track/1617774512",
+      "uri_deezer": "deezer://track/1708226717",
+      "fun_fact": "The Swedish band named themselves after a dream one member had, and sold more records in Germany than in Sweden every year they existed.",
+      "fun_fact_de": "Die schwedische Band benannte sich nach dem Traum eines Mitglieds und verkaufte in jedem Jahr ihres Bestehens in Deutschland mehr Platten als in Schweden.",
+      "fun_fact_es": "El grupo sueco se puso el nombre por el sueño de uno de sus miembros y vendió más discos en Alemania que en Suecia todos los años de su existencia.",
+      "fun_fact_fr": "Le groupe suédois s'est nommé d'après le rêve d'un de ses membres et a vendu plus de disques en Allemagne qu'en Suède chaque année de son existence.",
+      "fun_fact_nl": "De Zweedse band noemde zich naar de droom van een van de leden en verkocht elk jaar van hun bestaan in Duitsland meer platen dan in Zweden.",
+      "fun_fact_it": "Il gruppo svedese prese il nome dal sogno di un membro e vendette in Germania più dischi che in Svezia in ogni anno della sua esistenza.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=HymfdPeYxEo"
+    },
+    {
+      "year": 2009,
+      "uri": "spotify:track:4Dm32oO01YpIubCHaAtKkN",
+      "artist": "Kelly Clarkson",
+      "alt_artists": [
+        "Pink",
+        "Katy Perry",
+        "Avril Lavigne"
+      ],
+      "title": "My Life Would Suck Without You",
+      "isrc": "GBCTA0800348",
+      "uri_apple_music": "applemusic://track/305149906",
+      "uri_deezer": "deezer://track/62118994",
+      "fun_fact": "Max Martin wrote it, and the single made the biggest one-week jump in American chart history at the time, from 97 to 1.",
+      "fun_fact_de": "Max Martin schrieb den Song; die Single machte damals den größten Wochensprung der US-Chartgeschichte, von Platz 97 auf 1.",
+      "fun_fact_es": "La escribió Max Martin, y el sencillo dio el mayor salto semanal de la historia de las listas estadounidenses hasta entonces, del 97 al 1.",
+      "fun_fact_fr": "Max Martin l'a écrite, et le single a réalisé le plus grand bond hebdomadaire de l'histoire des classements américains, de la 97e à la 1re place.",
+      "fun_fact_nl": "Max Martin schreef het, en de single maakte de grootste weeksprong in de Amerikaanse hitlijstgeschiedenis tot dan, van 97 naar 1.",
+      "fun_fact_it": "La scrisse Max Martin, e il singolo fece il più grande balzo settimanale della storia delle classifiche americane, dal 97 al primo posto.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=cRM70Jw7F4M"
+    },
+    {
+      "year": 2009,
+      "uri": "spotify:track:52hQY9AntPqOQM46N9BnfC",
+      "artist": "INNA",
+      "alt_artists": [
+        "Alexandra Stan",
+        "Edward Maya",
+        "Cascada"
+      ],
+      "title": "Amazing",
+      "isrc": "ROROT0901606",
+      "uri_apple_music": "applemusic://track/891266908",
+      "uri_deezer": "deezer://track/81661460",
+      "fun_fact": "Elena Alexandra Apostoleanu records as INNA and was part of a wave of Romanian dance acts that European radio played without ever naming the country.",
+      "fun_fact_de": "Elena Alexandra Apostoleanu nimmt als INNA auf und gehörte zu einer Welle rumänischer Dance-Acts, die das europäische Radio spielte, ohne je das Land zu nennen.",
+      "fun_fact_es": "Elena Alexandra Apostoleanu graba como INNA y formó parte de una oleada de artistas dance rumanos que la radio europea pinchaba sin nombrar nunca el país.",
+      "fun_fact_fr": "Elena Alexandra Apostoleanu enregistre sous le nom d'INNA et faisait partie d'une vague d'artistes dance roumains que les radios européennes passaient sans jamais nommer le pays.",
+      "fun_fact_nl": "Elena Alexandra Apostoleanu neemt op als INNA en hoorde bij een golf Roemeense dance-acts die de Europese radio draaide zonder ooit het land te noemen.",
+      "fun_fact_it": "Elena Alexandra Apostoleanu incide come INNA e faceva parte di un'ondata di artisti dance rumeni che le radio europee passavano senza mai nominare il paese.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=gKHe12T6GMY"
+    },
+    {
+      "year": 2009,
+      "uri": "spotify:track:7mDCg8XTEyDNPzC5Jdt7mu",
+      "artist": "Taio Cruz",
+      "alt_artists": [
+        "Jason Derulo",
+        "Flo Rida",
+        "Sean Kingston"
+      ],
+      "title": "Break Your Heart",
+      "isrc": "GBUM70908662",
+      "uri_apple_music": "applemusic://track/1840456303",
+      "uri_deezer": "deezer://track/7063921",
+      "fun_fact": "Cruz wrote for other artists first, including a British number one at nineteen, before recording anything under his own name.",
+      "fun_fact_de": "Cruz schrieb zuerst für andere, mit neunzehn darunter ein britischer Nummer-eins-Hit, bevor er unter eigenem Namen etwas aufnahm.",
+      "fun_fact_es": "Cruz escribió primero para otros artistas, incluido un número uno británico a los diecinueve, antes de grabar nada con su propio nombre.",
+      "fun_fact_fr": "Cruz a d'abord écrit pour d'autres, dont un numéro un britannique à dix-neuf ans, avant d'enregistrer sous son propre nom.",
+      "fun_fact_nl": "Cruz schreef eerst voor anderen, waaronder een Britse nummer één op zijn negentiende, voordat hij iets onder eigen naam opnam.",
+      "fun_fact_it": "Cruz scrisse prima per altri, tra cui un numero uno britannico a diciannove anni, prima di incidere a proprio nome.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=y_SI2EDM6Lo"
+    },
+    {
+      "year": 2009,
+      "uri": "spotify:track:76VWuBu8qoFxzfhpfW0lE6",
+      "artist": "Lily Allen",
+      "alt_artists": [
+        "Kate Nash",
+        "Amy Winehouse",
+        "Duffy"
+      ],
+      "title": "Not Fair",
+      "isrc": "GBAYE0802261",
+      "uri_apple_music": "applemusic://track/732024601",
+      "uri_deezer": "deezer://track/4622568",
+      "fun_fact": "Allen set a complaint about a boyfriend to a country waltz with a pedal steel, which is not where anyone expected her to go.",
+      "fun_fact_de": "Allen setzte eine Beschwerde über einen Freund in einen Country-Walzer mit Pedal-Steel — dorthin hatte niemand sie erwartet.",
+      "fun_fact_es": "Allen puso una queja sobre su novio en un vals country con pedal steel, un sitio al que nadie esperaba que fuera.",
+      "fun_fact_fr": "Allen a mis une plainte contre son petit ami sur une valse country avec pedal steel, là où personne ne l'attendait.",
+      "fun_fact_nl": "Allen zette een klacht over haar vriend op een countrywals met pedal steel, waar niemand haar verwachtte.",
+      "fun_fact_it": "Allen mise una lamentela sul fidanzato in un valzer country con pedal steel, un posto in cui nessuno se l'aspettava.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=fUYaosyR4bE"
     }
   ]
 }

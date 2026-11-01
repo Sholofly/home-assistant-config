@@ -14,7 +14,9 @@ and every caller / test are unchanged.
 The mixin relies on attributes that the host class owns and that live on
 ``self`` at runtime:
 
-* ``self._hass`` — Home Assistant instance (for the TTS provider).
+* ``self._service_factories`` — the #2638 injection bundle; its ``tts`` factory
+  builds the announcement service ``configure_tts`` installs.
+  The mixin no longer touches ``self._hass`` at all.
 * ``self._bg_tasks`` — set of fire-and-forget background tasks.
 * ``self.media_player`` — speaker entity the audio is routed through.
 * ``self.language`` — game language (resolved defensively via ``_lang``).
@@ -29,15 +31,23 @@ the attributes exist before any announcement fires.
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import logging
-from typing import Any
+import time
+from typing import TYPE_CHECKING, Any
 
 from . import tts_phrases
+from .challenges import STATUS_NEAR_MISS_ACCEPTED
+from .text_match import STATUS_EXACT, STATUS_FUZZY, STATUS_NEAR_MISS
+from .state_contract import GameStateBase
+
+if TYPE_CHECKING:
+    from .protocols import TtsProtocol
 
 _LOGGER = logging.getLogger(__name__)
 
 
-class TtsAnnouncerMixin:
+class TtsAnnouncerMixin(GameStateBase):
     """Spoken-announcement behavior for :class:`GameState`.
 
     See module docstring for the host-class attributes this mixin reads.
@@ -51,7 +61,13 @@ class TtsAnnouncerMixin:
         bloating ``GameState.__init__``.
         """
         # Issue #447: TTS announcement service
-        self._tts_service: Any = None  # TTSService (lazy import)
+        # #2638: built by the injected TTS factory (see game/protocols.py).
+        self._tts_service: TtsProtocol | None = None
+        # #2724: the announcement tasks still waiting for their turn at the
+        # speaker. `_bg_tasks` also holds party-light flashes and media work,
+        # so a caller that wants to wait for *speech* — the REST end-game
+        # teardown — needs the narrower set. Tasks remove themselves when done.
+        self._announce_tasks: set[asyncio.Task] = set()
         self._tts_announce_game_start: bool = True
         self._tts_announce_winner: bool = True
         # Issue #471 Phase 1: Game Flow announcements
@@ -84,6 +100,10 @@ class TtsAnnouncerMixin:
         self._tts_announce_intro_round: bool = True
         self._tts_announce_steal_unlocked: bool = True
         self._tts_announce_steal_used: bool = True
+        # #2734: an, weil das Stechen die einzige Lage ist, in der das Spiel
+        # weitergeht, obwohl der Raum es fuer beendet haelt. Wer sie abschaltet,
+        # hoert dann gar nichts — die Anzeige erklaert es weiterhin.
+        self._tts_announce_finale_playoff: bool = True
         # Steal-unlock is announced once per player per game.
         self._tts_steal_unlocked_announced: set[str] = set()
         # Issue #1211: seconds to add to the deadline so the timer only starts
@@ -121,6 +141,7 @@ class TtsAnnouncerMixin:
         announce_intro_round: bool = True,
         announce_steal_unlocked: bool = True,
         announce_steal_used: bool = True,
+        announce_finale_playoff: bool = True,
         # Issue #1211: seconds to add to the round deadline when pre-round TTS
         # fires, so the countdown only starts once music has actually resumed.
         tts_pre_round_delay: float = 0.0,
@@ -135,13 +156,19 @@ class TtsAnnouncerMixin:
         the most common host expectation (round start + time's up + correct
         answer announced; per-round 3-2-1 countdown opt-in only).
         """
-        from custom_components.beatify.services.tts import TTSService  # noqa: PLC0415
-
-        self._tts_service = TTSService(
-            self._hass,
-            tts_entity_id=entity_id,
-            media_player_entity_id=self.media_player,
-        )
+        # #2638: the concrete TTSService is built by the injected ``tts``
+        # factory. With no factory wired (a game-logic unit test) the flags
+        # below are still applied but no announcement is ever spoken — every
+        # announce_* method already guards on ``self._tts_service``.
+        factory = self._service_factories.tts
+        if factory is None:
+            _LOGGER.debug("No TTS factory wired — announcements unavailable")
+            self._tts_service = None
+        else:
+            self._tts_service = factory(
+                tts_entity_id=entity_id,
+                media_player_entity_id=self.media_player,
+            )
         self._tts_announce_game_start = announce_game_start
         self._tts_announce_winner = announce_winner
         self._tts_announce_round_start = announce_round_start
@@ -165,6 +192,7 @@ class TtsAnnouncerMixin:
         self._tts_announce_intro_round = announce_intro_round
         self._tts_announce_steal_unlocked = announce_steal_unlocked
         self._tts_announce_steal_used = announce_steal_used
+        self._tts_announce_finale_playoff = announce_finale_playoff
         # Issue #1211: deadline offset to compensate for pre-round TTS overhead.
         self._tts_pre_round_delay = max(0.0, float(tts_pre_round_delay))
         # Fresh game — no prior leader, no steal unlocks announced yet.
@@ -175,6 +203,47 @@ class TtsAnnouncerMixin:
         """Disable TTS announcements."""
         self._tts_service = None
 
+    #: How long :meth:`drain_announcements` will wait at most (#2724). Two
+    #: queued phrases can reserve at most 2 x ``_TTS_MAX_ESTIMATE_S`` of
+    #: speaker time, so this never truncates a real end-game ceremony; it
+    #: exists so a wedged TTS provider cannot hold an HTTP request open.
+    _ANNOUNCE_DRAIN_TIMEOUT_S = 26.0
+
+    async def drain_announcements(self, timeout: float | None = None) -> bool:
+        """Wait until every queued announcement has reached the speaker (#2724).
+
+        ``_tts_announce`` does not speak inline: it reserves a slot in the
+        estimated speaker timeline and hands the phrase to a background task
+        that sleeps until its turn. So right after ``advance_to_end`` has
+        called ``announce_winner`` and ``announce_podium``, both phrases are
+        still only *queued* — the podium one typically sleeps out the winner's
+        estimate first.
+
+        Anything that tears the game down in the same breath therefore has to
+        wait here first. ``end_game`` calls ``disable_tts`` (``_tts_service =
+        None``) and then ``_reset_game_internals`` (which moves ``self.round``,
+        tripping the staleness guard): a podium task that wakes after either of
+        those is dropped, or dies on ``None.speak`` and is swallowed as "TTS
+        announcement failed" — silently, which is how #2724 stayed invisible.
+
+        Returns:
+            True when the queue drained, False when ``timeout`` cut it short.
+        """
+        pending = {t for t in self._announce_tasks if not t.done()}
+        if not pending:
+            return True
+        limit = self._ANNOUNCE_DRAIN_TIMEOUT_S if timeout is None else timeout
+        _, still_pending = await asyncio.wait(pending, timeout=limit)
+        if still_pending:
+            _LOGGER.warning(
+                "Announcement queue did not drain within %.1fs — %d phrase(s) "
+                "may be lost (#2724)",
+                limit,
+                len(still_pending),
+            )
+            return False
+        return True
+
     def _lang(self) -> str:
         """Resolve the game's TTS language, defaulting to English.
 
@@ -183,38 +252,189 @@ class TtsAnnouncerMixin:
         """
         return tts_phrases.normalize_language(getattr(self, "language", None))
 
-    async def _tts_announce(self, message: str) -> None:
-        """Speak a TTS announcement (fire-and-forget)."""
-        if self._tts_service:
-            try:
-                task = asyncio.create_task(
-                    self._tts_service.speak(message, language=self._lang())
+    # Rough speech rate used to estimate how long an announcement occupies the
+    # speaker. Beatify never learns when audio actually FINISHES (tts.speak is
+    # called with blocking=False and MA queues announcements internally), so
+    # an estimate is the only signal available without polling the device.
+    _TTS_WORDS_PER_SECOND = 2.6
+    _TTS_OVERHEAD_S = 1.6  # provider round-trip + device chime/attention
+    _TTS_MAX_ESTIMATE_S = 12.0
+
+    @classmethod
+    def _estimate_speech_seconds(cls, message: str) -> float:
+        """Estimate how long `message` will occupy the speaker. Pure."""
+        words = len([w for w in str(message).split() if w])
+        est = cls._TTS_OVERHEAD_S + (words / cls._TTS_WORDS_PER_SECOND)
+        return min(est, cls._TTS_MAX_ESTIMATE_S)
+
+    def estimate_round_start_announcements(self) -> float:
+        """Estimated seconds the ENABLED round-start announcements will take.
+
+        Built from the very phrases ``announce_round_start`` /
+        ``announce_countdown`` would speak, so the round deadline can be
+        shifted by the real announcement cost instead of a hand-tuned
+        "Timer delay" guess (a 60s round was starting its song with 49s left).
+        """
+        if not self._tts_service:
+            return 0.0
+        total = 0.0
+        with contextlib.suppress(Exception):
+            lang = self._lang()
+            if getattr(self, "_tts_announce_round_start", False):
+                total += self._estimate_speech_seconds(
+                    tts_phrases.phrase(
+                        lang,
+                        "round_start",
+                        round=tts_phrases.spoken_number(lang, self.round),
+                    )
                 )
-                self._bg_tasks.add(task)
-                task.add_done_callback(self._bg_tasks.discard)
-            except Exception:  # noqa: BLE001
-                _LOGGER.warning("TTS announcement failed")
+            if getattr(self, "_tts_announce_countdown", False):
+                total += self._estimate_speech_seconds(
+                    tts_phrases.phrase(lang, "countdown")
+                )
+        return total
+
+    def announcement_busy_seconds(self) -> float:
+        """Seconds the speaker is still expected to be announcing (0 = free)."""
+        until = getattr(self, "_announce_busy_until", 0.0)
+        return max(0.0, until - time.monotonic())
+
+    async def _tts_announce(self, message: str) -> None:
+        """Speak a TTS announcement, serialized and staleness-guarded.
+
+        Announcements used to be pure fire-and-forget: every call spawned a
+        task that immediately handed the text to `tts.speak` with
+        blocking=False. Music Assistant then queued them per player, so on a
+        slow device the AUDIO lagged behind the game while the code believed
+        each announcement was done the moment the service call returned. Two
+        user-visible failures came out of that (both reported on voice
+        satellites, both only with TTS enabled):
+
+        * Phrases arrived out of order — the previous round's "time's up"
+          played after the next round had already started, followed by that
+          round's countdown.
+        * Rounds skipped their song. Playback starts while the device is
+          still working through queued announcements, so the play
+          verification window saw the announcement instead of the expected
+          track, timed out, and the song was dropped.
+
+        Fix: announcements queue behind each other using an estimated
+        duration, and an announcement that is no longer relevant when it
+        reaches the front of the queue is DROPPED rather than played late —
+        a "time's up" belonging to a finished round is worse than silence.
+        `announcement_busy_seconds()` lets the round start wait for the
+        speaker instead of racing it.
+        """
+        if not self._tts_service:
+            return
+
+        lock = getattr(self, "_announce_lock", None)
+        if lock is None:
+            lock = asyncio.Lock()
+            self._announce_lock = lock
+        # Snapshot the context this announcement belongs to; if the game has
+        # moved on by the time we reach the front of the queue, drop it.
+        # Staleness keys on the ROUND ONLY. Keying on the phase too silently
+        # swallowed every end-of-round announcement (reveal / "nobody got it"
+        # / time's up): those are fired exactly AS the phase changes
+        # PLAYING -> REVEAL, so they were always "stale" by the time they
+        # reached the front of the queue. A phase change within the same
+        # round is normal; only a NEW ROUND makes a pending phrase wrong.
+        # #2334: `self.round`, not `current_round`. GameState has no attribute
+        # by that name — it has the `round` property from
+        # RoundManagerDelegationMixin, and GameState composes both mixins, so
+        # it was on this object all along. With the wrong name both sides of
+        # the comparison below resolved to None, `None != None` was never
+        # true, and this guard has never dropped a single announcement.
+        round_at_enqueue = self.round
+
+        # RESERVE the speaker window NOW, at enqueue — not when this phrase
+        # reaches the front of the queue. Everything that asks "is the speaker
+        # still announcing?" runs immediately after the announcements are
+        # fired (the resume watchdog arms, the round deadline is computed, the
+        # song-end poll starts), so a window that only appears once speech
+        # begins reads as zero to all of them. Hardware showed the cost: the
+        # watchdog's anticipatory kick never fired at all, leaving the
+        # observational path (2 idle polls) to do the work.
+        est = self._estimate_speech_seconds(message)
+        now = time.monotonic()
+        start_at = max(now, getattr(self, "_announce_busy_until", 0.0))
+        self._announce_busy_until = start_at + est
+
+        async def _run() -> None:
+            async with lock:
+                delay = start_at - time.monotonic()
+                if delay > 0:
+                    await asyncio.sleep(delay)
+                round_now = self.round
+                if round_now != round_at_enqueue:
+                    _LOGGER.info(
+                        "TTS: dropping stale announcement (queued in round %s, "
+                        "now round %s): %.40s",
+                        round_at_enqueue,
+                        round_now,
+                        message,
+                    )
+                    # Give the reservation back if nothing queued behind us,
+                    # so a dropped phrase doesn't hold the speaker "busy".
+                    if abs(self._announce_busy_until - (start_at + est)) < 0.01:
+                        self._announce_busy_until = start_at
+                    return
+                try:
+                    # Checked on entry; a disable during the wait lands in the
+                    # except below, as it always has.
+                    await self._tts_service.speak(message, language=self._lang())  # type: ignore[union-attr]
+                except Exception:  # noqa: BLE001
+                    _LOGGER.warning("TTS announcement failed")
+                    if abs(self._announce_busy_until - (start_at + est)) < 0.01:
+                        self._announce_busy_until = start_at
+
+        try:
+            task = asyncio.create_task(_run())
+            self._bg_tasks.add(task)
+            task.add_done_callback(self._bg_tasks.discard)
+            # #2724: also tracked on their own so a teardown can wait for
+            # speech alone, without waiting on light flashes or media work.
+            self._announce_tasks.add(task)
+            task.add_done_callback(self._announce_tasks.discard)
+        except Exception:  # noqa: BLE001
+            _LOGGER.warning("TTS announcement failed")
 
     async def announce_game_start(self) -> None:
         """Announce game start (use case 16)."""
         if not self._tts_service or not self._tts_announce_game_start:
             return
         lang = self._lang()
-        message = tts_phrases.phrase(
-            lang,
-            "game_start",
-            rounds=tts_phrases.spoken_number(lang, self.total_rounds),
-            difficulty=tts_phrases.difficulty_label(lang, self.difficulty),
-        )
+        difficulty = tts_phrases.difficulty_label(lang, self.difficulty)
+        # #2981: with no round cap (``max_rounds == 0``, "all songs") the pool
+        # size is not a round count anyone chose — the lobby stopped showing it
+        # in #2958, so the speaker leaves it out too.
+        if not getattr(self, "max_rounds", 0):
+            message = tts_phrases.phrase(lang, "game_start_open", difficulty=difficulty)
+        else:
+            message = tts_phrases.phrase(
+                lang,
+                "game_start",
+                rounds=tts_phrases.spoken_number(lang, self.total_rounds),
+                difficulty=difficulty,
+            )
         await self._tts_announce(message)
 
     async def announce_winner(self) -> None:
-        """Announce the winner (use case 18)."""
+        """Announce the winner (use case 18).
+
+        #2548: reads ``compute_winners()`` rather than a plain score max. In a
+        Sudden Death game the finish order is survival-first (#827/#1749), so a
+        late-eliminated high scorer is NOT the winner — the END screen and the
+        leaderboard have said so since #1749, while the speaker went on
+        crowning them and contradicted the screen in front of the whole room.
+        """
         if not self._tts_service or not self._tts_announce_winner or not self.players:
             return
         lang = self._lang()
-        top_score = max(p.score for p in self.players.values())
-        winners = [p for p in self.players.values() if p.score == top_score]
+        winners, top_score = self.compute_winners()
+        if not winners:
+            return
         points = tts_phrases.spoken_number(lang, top_score)
         if len(winners) == 1:
             message = tts_phrases.phrase(
@@ -279,6 +499,16 @@ class TtsAnnouncerMixin:
         players = list(self.players.values())
         frags: list[str] = []
 
+        # #3062: in Title & Artist mode the year is not what anyone guessed —
+        # the answer is the song's title and artist, and "who got it" comes
+        # from the per-field title/artist statuses, not from years_off (which
+        # is always None there, so every round used to end in "nobody got it").
+        challenge = self.title_artist_challenge if self.title_artist_mode else None
+        if challenge is not None:
+            self._reveal_title_artist_frags(lang, players, challenge, frags)
+            await self._reveal_tail_frags(lang, players, frags)
+            return
+
         # Correct answer.
         if self._tts_announce_correct_answer and correct_year is not None:
             year = tts_phrases.spoken_number(lang, correct_year, "year")
@@ -294,12 +524,66 @@ class TtsAnnouncerMixin:
         elif self.closest_wins_mode and not exact and self._tts_announce_closest_guess:
             submitted = [p for p in players if p.submitted and p.years_off is not None]
             if submitted:
-                winner = min(submitted, key=lambda p: p.years_off)
+                # `submitted` is filtered to years_off is not None above.
+                winner = min(submitted, key=lambda p: p.years_off)  # type: ignore[arg-type, return-value]
                 if winner.round_score > 0:
                     frags.append(tts_phrases.phrase(lang, "closest", name=winner.name))
         elif had_submitters and not exact and self._tts_announce_nobody_correct:
             frags.append(tts_phrases.phrase(lang, "nobody"))
 
+        await self._reveal_tail_frags(lang, players, frags)
+
+    def _reveal_title_artist_frags(
+        self, lang: str, players: list, challenge: Any, frags: list[str]
+    ) -> None:
+        """Answer + accuracy fragments for a Title & Artist round (#3062).
+
+        Answer: "The answer was {title} by {artist}." Accuracy: players who got
+        BOTH fields (exact or fuzzy) are named with the "exact" line; the
+        "nobody got it" line fires only when no submitter got either field
+        right AND no near-miss is still open for the community vote (a pending
+        near-miss may yet be accepted, so "nobody" would be premature).
+        """
+        title = (challenge.correct_title or "").strip()
+        artist = (challenge.correct_artist or "").strip()
+        if self._tts_announce_correct_answer and title and artist:
+            frags.append(
+                tts_phrases.phrase(
+                    lang, "answer_title_artist", title=title, artist=artist
+                )
+            )
+
+        right = (STATUS_EXACT, STATUS_FUZZY, STATUS_NEAR_MISS_ACCEPTED)
+        guesses = challenge.guesses
+        submitters = [p for p in players if p.submitted]
+        both: list[str] = []
+        any_right = False
+        pending = False
+        for p in submitters:
+            guess = guesses.get(p.name) or {}
+            title_status = guess.get("title_status")
+            artist_status = guess.get("artist_status")
+            if title_status in right and artist_status in right:
+                both.append(p.name)
+            if title_status in right or artist_status in right:
+                any_right = True
+            if STATUS_NEAR_MISS in (title_status, artist_status):
+                pending = True
+        if both and self._tts_announce_exact_guess:
+            names = tts_phrases.join_names(lang, both)
+            frags.append(tts_phrases.phrase(lang, "exact", names=names))
+        elif (
+            submitters
+            and not any_right
+            and not pending
+            and self._tts_announce_nobody_correct
+        ):
+            frags.append(tts_phrases.phrase(lang, "nobody"))
+
+    async def _reveal_tail_frags(
+        self, lang: str, players: list, frags: list[str]
+    ) -> None:
+        """Streak / bet / steal / standings fragments, then speak (#3062 split)."""
         # Streak milestones — streak_bonus is non-zero only on the exact
         # round a milestone (3/5/10/15/20/25) is reached.
         if self._tts_announce_streak_milestone:
@@ -336,6 +620,26 @@ class TtsAnnouncerMixin:
                 frags.append(tts_phrases.phrase(lang, "bet_won", name=p.name))
             elif p.bet_outcome == "lost" and self._tts_announce_bet_lost:
                 frags.append(tts_phrases.phrase(lang, "bet_lost", name=p.name))
+
+        # #2721: Comeback Tokens are announced as one halftime sentence, not as
+        # N streak unlocks. The old loop said "{name} unlocked steal" for a
+        # player who had just answered nothing right — to the room that reads
+        # as a broken streak counter, which is exactly what #2721 reports.
+        #
+        # The names are still added to the dedup set below, so the per-player
+        # line never fires for them afterwards; they are announced here once,
+        # together, with the reason.
+        comeback_names = list(self.comeback_granted_this_round)
+        for name in comeback_names:
+            self._tts_steal_unlocked_announced.add(name)
+        if comeback_names and self._tts_announce_steal_unlocked:
+            frags.append(
+                tts_phrases.phrase(
+                    lang,
+                    "comeback_tokens",
+                    names=tts_phrases.join_names(lang, comeback_names),
+                )
+            )
 
         # Steal unlocks — once per player per game. The dedup set is updated
         # regardless of the toggle so a mid-game toggle-on can't replay it.
@@ -417,14 +721,18 @@ class TtsAnnouncerMixin:
         """
         if not self._tts_service or not self._tts_announce_podium:
             return
-        ranked = sorted(self.players.values(), key=lambda p: p.score, reverse=True)
-        podium = [p for p in ranked if p.score > 0][:3]
+        # #2548: the podium follows get_final_leaderboard's ranking, which is
+        # survival-first once Sudden Death has claimed anyone (#827). Sorting by
+        # score here put eliminated players on a podium the screen ranks below
+        # the cut-line.
+        ranked = self.get_final_leaderboard()
+        podium = [entry for entry in ranked if entry.get("score", 0) > 0][:3]
         if not podium:
             return
         lang = self._lang()
         segments = [
             f"{tts_phrases.place_label(lang, i + 1)}: "
-            f"{podium[i].name}{'!' if i == 0 else '.'}"
+            f"{podium[i]['name']}{'!' if i == 0 else '.'}"
             for i in reversed(range(len(podium)))
         ]
         await self._tts_announce(" ".join(segments))
@@ -453,5 +761,28 @@ class TtsAnnouncerMixin:
         await self._tts_announce(
             tts_phrases.phrase(
                 self._lang(), "steal_used", stealer=stealer_name, target=target_name
+            )
+        )
+
+    async def announce_finale_playoff(self, names: list[str]) -> None:
+        """Announce a finale playoff round (#2734).
+
+        Called only once the playoff round has actually started. #2722 built the
+        screens for this and deliberately left the voice out, because the
+        trigger was still under repair: a wrong banner is read once, a wrong
+        voice interrupts the room and cannot be unheard. The caller therefore
+        waits for ``start_round()`` to confirm before speaking.
+
+        Kept to one sentence on purpose — it plays over a room that thinks the
+        game is over.
+        """
+        if not self._tts_service or not self._tts_announce_finale_playoff:
+            return
+        if not names:
+            return
+        lang = self._lang()
+        await self._tts_announce(
+            tts_phrases.phrase(
+                lang, "finale_playoff", names=tts_phrases.join_names(lang, names)
             )
         )

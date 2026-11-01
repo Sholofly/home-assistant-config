@@ -13,6 +13,7 @@ import logging
 import socket
 from ipaddress import ip_address
 from pathlib import Path
+from time import monotonic
 from typing import TYPE_CHECKING
 from urllib.parse import urlencode, urlsplit
 
@@ -25,21 +26,22 @@ from custom_components.beatify.game.state import GamePhase
 from custom_components.beatify.game.playlist import async_discover_playlists
 from custom_components.beatify.server.base import (
     RateLimitMixin,
-    _apply_cache_tokens,
     _apply_html_lang,
     _get_html,
     _get_version,
     _json_error,
     _read_file,
+    async_apply_cache_tokens,
 )
 from custom_components.beatify.server.companion_auth import is_authorized_http
 from custom_components.beatify.server.serializers import (
     build_status_response,
 )
+from custom_components.beatify.server.setup_state import read_setup, write_setup
 from custom_components.beatify.services.lights import PartyLightsService
 from custom_components.beatify.services.media_player import (
     album_art_signature_is_valid,
-    async_get_media_players,
+    async_get_media_players_with_remap,
 )
 
 # Re-export game views
@@ -48,14 +50,39 @@ from custom_components.beatify.server.game_views import (  # noqa: F401
     ForceResetView,
     GameStatusView,
     RematchGameView,
+    SetSuddenDeathView,
     StartGameplayView,
+    UpdateLobbyView,
     StartGameView,
+)
+from .library_views import (  # noqa: F401 — re-exported for __init__
+    LibraryPoolStatusView,
+    LibraryPoolBuildView,
+    LibraryPoolExportView,
+    LibraryPoolRefreshView,
+    LibraryPoolBackupView,
+    LibraryRecentSongsView,
+    LibrarySongCorrectView,
+    LibrarySongLookupView,
+    LibraryPoolRestoreView,
+    LibrarySettingsView,
+    LibraryPoolPreviewView,
+    LibraryPlaylistResolveView,
+    LibraryPlaylistGenerateView,
+    LibraryMaPlaylistsView,
+    LibraryMaPlaylistCheckView,
 )
 
 # Re-export playlist views
 from custom_components.beatify.server.playlist_views import (  # noqa: F401
+    NextPlaylistsView,
     PlaylistRequestsView,
     SavePlaylistView,
+)
+
+# Re-export mix view (#1538 — Smart Playlist Mixer)
+from custom_components.beatify.server.mix_views import (  # noqa: F401
+    MixPlaylistView,
 )
 
 # Re-export stats views
@@ -119,7 +146,9 @@ class AdminView(HomeAssistantView):
             _LOGGER.error("Admin page not found: %s", html_path)
             return web.Response(text="Admin page not found", status=500)
         return _html_response(
-            _apply_html_lang(_apply_cache_tokens(html_content, self.hass), self.hass)
+            _apply_html_lang(
+                await async_apply_cache_tokens(self.hass, html_content), self.hass
+            )
         )
 
 
@@ -142,7 +171,9 @@ class LauncherView(HomeAssistantView):
             _LOGGER.error("Launcher page not found: %s", html_path)
             return web.Response(text="Launcher page not found", status=500)
         return _html_response(
-            _apply_html_lang(_apply_cache_tokens(html_content, self.hass), self.hass)
+            _apply_html_lang(
+                await async_apply_cache_tokens(self.hass, html_content), self.hass
+            )
         )
 
 
@@ -165,7 +196,9 @@ class PlayerView(HomeAssistantView):
             _LOGGER.error("Player page not found: %s", html_path)
             return web.Response(text="Player page not found", status=500)
         return _html_response(
-            _apply_html_lang(_apply_cache_tokens(html_content, self.hass), self.hass)
+            _apply_html_lang(
+                await async_apply_cache_tokens(self.hass, html_content), self.hass
+            )
         )
 
 
@@ -203,6 +236,14 @@ _REFRESH_COOKIE = "beatify_refresh"
 # refresh tokens are long-lived. 30 days lines up with HA's own refresh-
 # token rotation window and means a user who hits the admin once a month
 # never has to re-do the full OAuth dance.
+#
+# #1932: this is 30 days of INACTIVITY, not 30 days of existence. The
+# callback sets the cookie and every successful /beatify/auth/refresh
+# re-issues it with a fresh Max-Age, so the clock restarts on each use.
+# Before that, the cookie died 30 days after the FIRST login no matter how
+# often the user came back — which is the opposite of what the paragraph
+# above promises, and put every install on a 30-day fuse back through the
+# full OAuth round trip.
 _REFRESH_COOKIE_MAX_AGE = 30 * 24 * 60 * 60
 
 
@@ -444,10 +485,7 @@ class BeatifyAuthRefreshView(HomeAssistantView):
             return response
 
         # #1369: the fresh access token is returned ONLY in the JSON body —
-        # the frontend caches it in memory, never in a cookie. HA's
-        # refresh-token grant does NOT return a new refresh_token (the
-        # long-lived one stays in the HttpOnly cookie), so no Set-Cookie is
-        # needed here beyond wiping any legacy JS-readable access cookie.
+        # the frontend caches it in memory, never in a cookie.
         response = web.json_response(
             {
                 "access_token": parsed["access_token"],
@@ -458,8 +496,13 @@ class BeatifyAuthRefreshView(HomeAssistantView):
         _set_session_cookies(
             response,
             request,
-            # Don't overwrite the long-lived refresh cookie.
-            refresh_token=None,
+            # #1932: roll the refresh cookie. HA's refresh-token grant does not
+            # mint a new refresh_token, so this re-issues the SAME value the
+            # request arrived with — the point is the fresh Max-Age. Without it
+            # the cookie expired 30 days after the first login however active
+            # the user was, and the next page load fell all the way back to the
+            # /auth/authorize round trip.
+            refresh_token=refresh_token,
         )
         return response
 
@@ -494,7 +537,7 @@ class SwJsView(HomeAssistantView):
         # waiting for HTTP cache to expire on the SW bootstrap itself. Tokens
         # ({{ASSET_VER}}) are substituted at serve time (#1266).
         return web.Response(
-            text=_apply_cache_tokens(content, self.hass),
+            text=await async_apply_cache_tokens(self.hass, content),
             content_type="application/javascript",
             headers=_NO_CACHE_HEADERS,
         )
@@ -516,20 +559,50 @@ class StatusView(HomeAssistantView):
         """Initialize the status view."""
         self.hass = hass
 
-    async def get(self, request: web.Request) -> web.Response:  # noqa: ARG002
+    async def get(self, request: web.Request) -> web.Response:
         """Return current status as JSON."""
-        # Fetch media players fresh (not cached) - Story 8-2
-        media_players = await async_get_media_players(self.hass)
+        # Fetch media players fresh (not cached) - Story 8-2.
+        # #1704: the player list and the native→MA twin remap (#1627: lets the
+        # admin frontend heal a stale saved selection pointing at a now-hidden
+        # native twin) come from a SINGLE entity-registry walk instead of two
+        # back-to-back walks (async_get_media_players +
+        # async_get_native_twin_remap), via the #1739 combined helper.
+        (
+            media_players,
+            media_player_twin_remap,
+        ) = await async_get_media_players_with_remap(self.hass)
 
-        # Fetch playlists fresh (not cached) - Issue #135
+        # Discover playlists (#1704: memoised — reuses the parsed corpus unless a
+        # file changed on disk; the heavy json.loads/validate/count now runs in
+        # the executor, not on the event loop, on every /api/status request).
+        # #2716: the result is no longer written back to hass.data[DOMAIN].
+        # Nothing read that copy — it was rewritten on every request and then
+        # ignored, including by build_status_response below, which takes the
+        # list as a parameter.
         playlists = await async_discover_playlists(self.hass)
-        self.hass.data.setdefault(DOMAIN, {})["playlists"] = playlists
 
+        # #1663: server-side "setup complete" flag + saved picks so a configured
+        # instance stays configured on a new device/browser. Disk read offloaded
+        # to the executor (blocking I/O off the event loop).
+        saved_setup = await self.hass.async_add_executor_job(read_setup, self.hass)
+
+        # #2332: this view stays unauthenticated on purpose — the wizard
+        # (`wizard.js`) and the playlist hub fetch it with a bare `fetch` and
+        # no token, so a hard `is_authorized_http` gate here would break setup
+        # and the playlist picker. What must not stay open is the answer:
+        # `active_game` carried `admin_song.year` to anyone who could reach
+        # the port, because the #1366 redaction was only ever wired into the
+        # WebSocket path. Players are unauthenticated by design and on the
+        # same network, so reading it was one browser tab away and left no
+        # trace. Authorized callers (the admin screen) get the full payload.
         status = build_status_response(
             self.hass,
             version=_get_version(self.hass),
             media_players=media_players,
             playlists=playlists,
+            media_player_twin_remap=media_player_twin_remap,
+            saved_setup=saved_setup,
+            redact_answers=not is_authorized_http(request, self.hass),
         )
 
         return web.json_response(status)
@@ -563,6 +636,52 @@ class CapabilitiesView(HomeAssistantView):
                 "tts_service_count": len(tts_services),
             }
         )
+
+
+class SetupView(HomeAssistantView):
+    """Persist the host's "setup complete" blob server-side (#1663).
+
+    The first-run wizard stores the host's picks in ``localStorage`` only, so a
+    configured instance looks unconfigured on a new device. The admin frontend
+    POSTs its setup blob here after the wizard finishes / a game starts; the
+    blob is stored verbatim and surfaced back via ``/beatify/api/status``
+    (``setup_complete`` + ``saved_setup``) so any device can re-hydrate it.
+    """
+
+    url = "/beatify/api/setup"
+    name = "beatify:api:setup"
+    # requires_auth=False + in-handler check, matching CapabilitiesView so the
+    # HA Companion app (which can't reliably attach a Bearer token) still works.
+    requires_auth = False
+
+    def __init__(self, hass: HomeAssistant) -> None:
+        """Initialize the setup view."""
+        self.hass = hass
+
+    async def post(self, request: web.Request) -> web.Response:
+        """Persist the setup blob sent by the admin frontend."""
+        if not is_authorized_http(request, self.hass):
+            return _json_error("Unauthorized", 401, code="UNAUTHORIZED")
+        try:
+            body = await request.json()
+        except (json.JSONDecodeError, ValueError):
+            return _json_error("Invalid JSON", 400, code="INVALID_REQUEST")
+        if not isinstance(body, dict):
+            return _json_error("Invalid setup payload", 400, code="INVALID_REQUEST")
+
+        # Store only the two keys the frontend re-hydrates. Everything is opaque
+        # to the server — it never parses the client-side settings schema.
+        blob = {
+            "last_player": body.get("last_player"),
+            "game_settings": body.get("game_settings"),
+        }
+        try:
+            await self.hass.async_add_executor_job(write_setup, self.hass, blob)
+        except OSError:
+            return _json_error(
+                "Failed to persist setup", 500, code="SETUP_WRITE_FAILED"
+            )
+        return web.json_response({"ok": True})
 
 
 class LightsView(HomeAssistantView):
@@ -644,6 +763,16 @@ class TtsEntitiesView(HomeAssistantView):
         return web.json_response({"entities": entities})
 
 
+# Error bodies for the album-art proxy, so the shared fetch can report a
+# status to every waiting client and each one renders the same page (#2709).
+_ALBUM_ART_ERRORS: dict[int, str] = {
+    403: "forbidden",
+    413: "image too large",
+    415: "not an image",
+    502: "upstream fetch failed",
+}
+
+
 class AlbumArtView(HomeAssistantView):
     """Same-origin proxy for media-player album art (#933).
 
@@ -662,9 +791,25 @@ class AlbumArtView(HomeAssistantView):
     # Cap the re-served image so a hostile/huge upstream can't exhaust memory.
     _MAX_BYTES = 5 * 1024 * 1024
 
+    # How long a fetched cover stays servable from memory (#2709). Everyone in
+    # the room asks for the same cover within one round, so this only has to
+    # outlive a round; the next round brings a different signed URL anyway.
+    _CACHE_TTL = 300.0
+
     def __init__(self, hass: HomeAssistant) -> None:
         """Initialize the album-art proxy view."""
         self.hass = hass
+        # Single-entry cache (#2709): only the current round's cover is ever
+        # asked for, so a second entry would be dead weight and a second copy
+        # of up to 5 MB. A new cover evicts the old one.
+        self._cached_url: str | None = None
+        self._cached_body: bytes = b""
+        self._cached_type: str = ""
+        self._cached_at: float = 0.0
+        # In-flight fetches, keyed by signed URL. Twenty phones asking at the
+        # same instant join the one fetch already running instead of starting
+        # twenty of their own.
+        self._inflight: dict[str, asyncio.Task] = {}
 
     async def get(self, request: web.Request) -> web.Response:
         """Fetch the upstream image and re-serve it same-origin (#933, hardened #1356).
@@ -681,6 +826,13 @@ class AlbumArtView(HomeAssistantView):
           that is exactly where the Music Assistant LAN server lives (#933).
         * **No redirects**, a **read-size cap** and an **``image/*``
           content-type check** so the proxy can only ever return a bounded image.
+
+        Everyone in the room wants the same picture at the same moment, so the
+        fetch is shared (#2709): a server-side single-entry cache keyed by the
+        signed URL, plus in-flight coalescing so twenty phones asking at once
+        become one upstream request. ``Cache-Control`` alone helped only a
+        browser that had already seen the image — useless in round one of a
+        party where every phone is new.
         """
         raw_url = request.query.get("url", "")
         signature = request.query.get("sig", "")
@@ -690,10 +842,68 @@ class AlbumArtView(HomeAssistantView):
             _LOGGER.warning("Album-art proxy rejected an unsigned/forged URL")
             return web.Response(status=403, text="forbidden")
 
+        # Only past the signature gate — the cache must never be a way to read
+        # bytes without presenting a signature the integration itself issued.
+        cached = self._cache_get(raw_url)
+        if cached is not None:
+            return self._image_response(*cached)
+
+        task = self._inflight.get(raw_url)
+        if task is None:
+            task = asyncio.create_task(self._fetch(raw_url))
+            self._inflight[raw_url] = task
+            task.add_done_callback(lambda _t: self._inflight.pop(raw_url, None))
+
+        # shield(): a guest closing their browser cancels their handler, and
+        # that must not cancel the fetch the other twenty are waiting on.
+        try:
+            status, body, content_type = await asyncio.shield(task)
+        except asyncio.CancelledError:
+            raise
+        except Exception:  # noqa: BLE001 — a failed share is still just a 502
+            _LOGGER.warning("Album-art proxy fetch failed")
+            return web.Response(status=502, text="upstream fetch failed")
+
+        if status != 200:
+            return web.Response(status=status, text=_ALBUM_ART_ERRORS[status])
+        return self._image_response(body, content_type)
+
+    def _cache_get(self, raw_url: str) -> tuple[bytes, str] | None:
+        """Return the cached image for ``raw_url`` while it is still fresh."""
+        if self._cached_url != raw_url or not self._cached_body:
+            return None
+        if monotonic() - self._cached_at > self._CACHE_TTL:
+            return None
+        return self._cached_body, self._cached_type
+
+    def _cache_put(self, raw_url: str, body: bytes, content_type: str) -> None:
+        """Store one image, evicting whatever the previous round left behind."""
+        self._cached_url = raw_url
+        self._cached_body = body
+        self._cached_type = content_type
+        self._cached_at = monotonic()
+
+    @staticmethod
+    def _image_response(body: bytes, content_type: str) -> web.Response:
+        """Re-serve an image same-origin."""
+        return web.Response(
+            body=body,
+            content_type=content_type,
+            headers={"Cache-Control": "public, max-age=86400"},
+        )
+
+    async def _fetch(self, raw_url: str) -> tuple[int, bytes, str]:
+        """Fetch one image upstream, for every client waiting on it (#2709).
+
+        Returns ``(status, body, content_type)``; on anything but 200 the body
+        is empty and the caller turns the status into the matching error page.
+        Only a successful fetch is cached — a transient 502 must not stick
+        around for the rest of the TTL.
+        """
         host = urlsplit(raw_url).hostname
         if not host or not await self._host_is_allowed(host):
             _LOGGER.warning("Album-art proxy refused a disallowed host")
-            return web.Response(status=403, text="forbidden")
+            return 403, b"", ""
 
         session = async_get_clientsession(self.hass)
         try:
@@ -703,28 +913,26 @@ class AlbumArtView(HomeAssistantView):
                 allow_redirects=False,
             ) as resp:
                 if resp.status != 200:
-                    return web.Response(status=502, text="upstream fetch failed")
+                    return 502, b"", ""
                 content_type = resp.headers.get("Content-Type", "")
                 if not content_type.startswith("image/"):
-                    return web.Response(status=415, text="not an image")
+                    return 415, b"", ""
                 declared = resp.headers.get("Content-Length")
                 if declared is not None and declared.isdigit():
                     if int(declared) > self._MAX_BYTES:
-                        return web.Response(status=413, text="image too large")
+                        return 413, b"", ""
                 body = bytearray()
                 async for chunk in resp.content.iter_chunked(65536):
                     body += chunk
                     if len(body) > self._MAX_BYTES:
-                        return web.Response(status=413, text="image too large")
+                        return 413, b"", ""
         except (ClientError, asyncio.TimeoutError):
             _LOGGER.warning("Album-art proxy fetch failed")
-            return web.Response(status=502, text="upstream fetch failed")
+            return 502, b"", ""
 
-        return web.Response(
-            body=bytes(body),
-            content_type=content_type,
-            headers={"Cache-Control": "public, max-age=86400"},
-        )
+        image = bytes(body)
+        self._cache_put(raw_url, image, content_type)
+        return 200, image, content_type
 
     async def _host_is_allowed(self, host: str) -> bool:
         """Reject hosts that resolve to loopback/link-local/reserved ranges (#1356)."""

@@ -22,14 +22,21 @@ from .climate_helpers import (
     unsubscribe_external_sensors,
 )
 from .const import (
+    DEFAULT_WINDOW_TYPE,
     ENTITY_DATA_PREHEAT_ADVISOR,
     ENTITY_DATA_PREHEAT_NOW,
     ENTITY_DATA_WINDOW_PREDICTED,
     INSIGHT_READING_THROTTLE_SECONDS,
     SIGNAL_HOMEKIT_UPDATE,
+    WINDOW_U_VALUES,
     is_climate_zone,
 )
-from .device_manager import get_device_name_suffix, get_hub_device_info, get_zone_device_info
+from .device_manager import (
+    get_bridge_device_info,
+    get_device_name_suffix,
+    get_hub_device_info,
+    get_zone_device_info,
+)
 from .entity_registry import ENTITY_REGISTRY, get_entity_category
 from .format_helpers import (
     format_confidence as _format_confidence,
@@ -48,6 +55,7 @@ from .format_helpers import (
 )
 from .helpers import (
     PerEntityAvailabilityMixin,
+    connection_value_to_bool,
     get_zone_state,
     get_zone_states,
     mask_serial,
@@ -116,12 +124,18 @@ async def async_setup_entry(
             if is_climate_zone(zone_type):
                 sensors.append(TadoWindowPredictedSensor(coordinator, zone_id, zone_name, zone_type, home_id))
 
-    # Bridge connected sensor (only when bridge credentials configured)
+    # Bridge connected sensor: local pairing when configured, cloud-only otherwise
     bridge_serial = entry.options.get("bridge_serial")
     bridge_auth_key = entry.options.get("bridge_auth_key")
-    if bridge_serial and bridge_auth_key:
-        sensors.append(TadoBridgeConnectedSensor(coordinator))
-        _LOGGER.debug("Binary Sensor: bridge connected sensor created")
+    if bridge_serial and bridge_auth_key and coordinator.config_manager.get_bridge_enabled():
+        sensors.append(TadoBridgeConnectedSensor(coordinator, bridge_serial))
+        _LOGGER.debug("Binary Sensor: bridge connected sensor created (local)")
+    else:
+        cloud_bridge = _find_bridge_device(zones_info, coordinator.data.get("home_devices"))
+        cloud_serial = (cloud_bridge or {}).get("shortSerialNo")
+        if cloud_serial:
+            sensors.append(TadoBridgeConnectedSensor(coordinator, cloud_serial))
+            _LOGGER.debug("Binary Sensor: bridge connected sensor created (cloud-only)")
 
     # Device connection sensors (per device)
     if zones_info:
@@ -131,7 +145,7 @@ async def async_setup_entry(
     zones_data = await hass.async_add_executor_job(data_loader.load_zones_file)
     if zones_data:
         zone_states = zones_data.get("zoneStates") or {}
-        zone_types = {str(z.get("id")): z.get("type", "HEATING") for z in (zones_info or [])}
+        zone_types = {str(z.get("id")): z.get("type") or "" for z in (zones_info or [])}
         zone_names = {str(z.get("id")): z.get("name", f"Zone {z.get('id')}") for z in (zones_info or [])}
         for zone_id in zone_states:
             if zone_types.get(zone_id) == "HOT_WATER":
@@ -149,23 +163,6 @@ async def async_setup_entry(
     _LOGGER.info("Binary Sensor: created %d entity(ies)", len(sensors))
 
 
-def _connection_value_to_bool(conn: dict[str, Any] | None) -> bool | None:
-    """Parse a Tado `connectionState` dict's value to a tri-state bool.
-
-    Tado returns the value as a JSON bool or, in some responses, the string
-    "true"/"false". Returns None when the value is missing (unknown), so a
-    caller can distinguish offline from not-yet-reported.
-    """
-    if not conn:
-        return None
-    raw = conn.get("value")
-    if isinstance(raw, bool):
-        return raw
-    if isinstance(raw, str):
-        return raw.upper() == "TRUE"
-    return None
-
-
 # Internet Bridge / Gateway device types as they appear in the home device
 # list. A GW bridge has no Bridge API (that boundary is TADO_BRIDGE_MODELS),
 # but it still lists here with its own connectionState, so reading its online
@@ -181,6 +178,17 @@ def _find_bridge_in_home_devices(home_devices: list[Any] | None) -> dict[str, An
     return None
 
 
+def _find_bridge_device(
+    zones_info: list[Any] | None, home_devices: list[Any] | None,
+) -> dict[str, Any] | None:
+    """Return the bridge/gateway device dict from either a zone's own devices or the home level."""
+    for zone in zones_info or []:
+        for dev in zone.get("devices") or []:
+            if isinstance(dev, dict) and dev.get("deviceType") in _BRIDGE_DEVICE_TYPES:
+                return dev
+    return _find_bridge_in_home_devices(home_devices)
+
+
 def _create_device_connection_sensors(
     coordinator: TadoDataUpdateCoordinator,
     zones_info: list[dict[str, Any]],
@@ -191,7 +199,7 @@ def _create_device_connection_sensors(
     for zone in zones_info:
         zone_id = str(zone.get("id"))
         zone_name = zone.get("name", f"Zone {zone_id}")
-        zone_type = zone.get("type", "HEATING")
+        zone_type = zone.get("type") or ""
         for device in zone.get("devices") or []:
             serial = device.get("shortSerialNo")
             if serial:
@@ -213,7 +221,6 @@ class TadoHomeSensor(PerEntityAvailabilityMixin, CoordinatorEntity["TadoDataUpda
     _attr_has_entity_name = True
 
     def __init__(self, coordinator: TadoDataUpdateCoordinator) -> None:
-        """Initialize the Home Sensor."""
         super().__init__(coordinator)
         _meta = ENTITY_REGISTRY["binary_sensor_home"]
         self._attr_translation_key = _meta.translation_key
@@ -298,7 +305,6 @@ class TadoOpenWindowSensor(PerEntityAvailabilityMixin, CoordinatorEntity["TadoDa
         zone_type: str = "HEATING",
         home_id: str = "",
     ) -> None:
-        """Initialize the Open Window Sensor."""
         super().__init__(coordinator)
         _meta = ENTITY_REGISTRY["binary_sensor_window"]
         self._zone_id = zone_id
@@ -378,7 +384,6 @@ class TadoPreheatNowSensor(PerEntityAvailabilityMixin, CoordinatorEntity["TadoDa
         zone_type: str = "HEATING",
         home_id: str = "",
     ) -> None:
-        """Initialize the Preheat Now Sensor."""
         super().__init__(coordinator)
         _meta = ENTITY_REGISTRY["binary_sensor_preheat_now"]
         self._zone_id = zone_id
@@ -480,7 +485,7 @@ class TadoPreheatNowSensor(PerEntityAvailabilityMixin, CoordinatorEntity["TadoDa
             try:
                 recommended_str = preheat_state_val
                 now = dt_util.now()
-                recommended_time = datetime.strptime(recommended_str, "%H:%M").replace(  # type: ignore[arg-type]
+                recommended_time = datetime.strptime(recommended_str, "%H:%M").replace(
                     year=now.year,
                     month=now.month,
                     day=now.day,
@@ -594,13 +599,13 @@ def _restore_window_detection_state(
         try:
             sensor._last_count_reset_date = date.fromisoformat(date_str)
         except ValueError:
-            pass  # Corrupt date: keep default
+            _LOGGER.debug("binary_sensor: corrupt last_count_reset_date %r, keeping default", date_str)
     detected_str = data.get("last_detected_at")
     if isinstance(detected_str, str):
         try:
             sensor._last_detected_at = parse_iso_datetime(detected_str)
         except (ValueError, TypeError):
-            pass  # Corrupt timestamp: keep default
+            _LOGGER.debug("binary_sensor: corrupt last_detected_at %r, keeping default", detected_str)
     if isinstance(data.get("anomaly_readings"), int):
         sensor._anomaly_readings = data["anomaly_readings"]
     # Restore temp_history with staleness pruning (>1 hour = stale)
@@ -625,7 +630,6 @@ class TadoWindowPredictedSensor(PerEntityAvailabilityMixin, CoordinatorEntity["T
         zone_type: str = "HEATING",
         home_id: str = "",
     ) -> None:
-        """Initialize the Window Predicted Sensor."""
         super().__init__(coordinator)
         _meta = ENTITY_REGISTRY["binary_sensor_window_predicted"]
         self._zone_id = zone_id
@@ -799,7 +803,7 @@ class TadoWindowPredictedSensor(PerEntityAvailabilityMixin, CoordinatorEntity["T
                 try:
                     return float(state.state)
                 except (ValueError, TypeError):
-                    pass
+                    _LOGGER.debug("binary_sensor: outdoor_entity %s has non-numeric state %r", outdoor_entity, state.state)
         return None
 
     def _get_seasonal_baseline(self) -> float | None:
@@ -948,7 +952,11 @@ class TadoWindowPredictedSensor(PerEntityAvailabilityMixin, CoordinatorEntity["T
 
             if use_passive:
                 outdoor_temp = self._get_outdoor_temp()
-                window_u_value = zcm.get_window_u_value(self._zone_id) if zcm else 2.7
+                window_u_value = (
+                    zcm.get_passive_detector_window_u_value(self._zone_id)
+                    if zcm
+                    else WINDOW_U_VALUES[DEFAULT_WINDOW_TYPE]
+                )
                 seasonal_baseline = self._get_seasonal_baseline()
 
                 result = detect_window_passive(
@@ -987,16 +995,6 @@ class TadoWindowPredictedSensor(PerEntityAvailabilityMixin, CoordinatorEntity["T
             self._anomaly_readings = result.anomaly_readings
             self._data_present = True
 
-            # Publish computed data to coordinator for cross-component access
-            self.coordinator.publish_entity_data(
-                self._zone_id,
-                ENTITY_DATA_WINDOW_PREDICTED,
-                {
-                    "state": "on" if result.detected else "off",
-                    "recommendation": result.recommendation,
-                },
-            )
-
         except Exception as e:
             _LOGGER.debug(
                 "Binary Sensor: zone %s window predicted update "
@@ -1005,6 +1003,16 @@ class TadoWindowPredictedSensor(PerEntityAvailabilityMixin, CoordinatorEntity["T
                 self._zone_id, e,
             )
             self._data_present = False
+        finally:
+            self._publish_window_predicted()
+
+    def _publish_window_predicted(self) -> None:
+        """Publish the current detection, or an unavailable state that consumers ignore."""
+        if self._data_present:
+            payload = {"state": "on" if self._attr_is_on else "off", "recommendation": self._recommendation}
+        else:
+            payload = {"state": "unavailable", "recommendation": ""}
+        self.coordinator.publish_entity_data(self._zone_id, ENTITY_DATA_WINDOW_PREDICTED, payload)
 
 
 class TadoDeviceConnectionBinarySensor(
@@ -1024,7 +1032,6 @@ class TadoDeviceConnectionBinarySensor(
         device: dict[str, Any],
         zones_info: list[dict[str, Any]] | None = None,
     ) -> None:
-        """Initialize the Device Connection Binary Sensor."""
         super().__init__(coordinator)
         self._zone_id = zone_id
         self._device_serial = device.get("shortSerialNo", "unknown")
@@ -1050,7 +1057,7 @@ class TadoDeviceConnectionBinarySensor(
             self._attr_translation_placeholders = {"device_suffix": suffix}
 
         conn = device.get("connectionState") or {}
-        self._attr_is_on = _connection_value_to_bool(conn)
+        self._attr_is_on = connection_value_to_bool(conn)
         self._connection_timestamp = conn.get("timestamp")
         self._firmware = device.get("currentFwVersion")
         self._offline_minutes: int | None = None
@@ -1084,12 +1091,12 @@ class TadoDeviceConnectionBinarySensor(
                     for device in zone.get("devices") or []:
                         if device.get("shortSerialNo") == self._device_serial:
                             conn = device.get("connectionState") or {}
-                            self._attr_is_on = _connection_value_to_bool(conn)
+                            self._attr_is_on = connection_value_to_bool(conn)
                             self._connection_timestamp = conn.get("timestamp")
                             self._firmware = device.get("currentFwVersion")
 
                             self._offline_minutes = None
-                            if self._connection_timestamp and not self._attr_is_on:
+                            if self._connection_timestamp and self._attr_is_on is False:
                                 try:
                                     last_seen_dt = parse_iso_datetime(
                                         self._connection_timestamp,
@@ -1106,7 +1113,12 @@ class TadoDeviceConnectionBinarySensor(
                                         err,
                                     )
 
-                            connection_state = "Online" if self._attr_is_on else "Offline"
+                            if self._attr_is_on is True:
+                                connection_state = "Online"
+                            elif self._attr_is_on is False:
+                                connection_state = "Offline"
+                            else:
+                                connection_state = "Unknown"
                             self._recommendation = calculate_connection_recommendation(
                                 connection_state=connection_state,
                                 zone_name=self._zone_name,
@@ -1143,7 +1155,6 @@ class TadoHotWaterPowerBinarySensor(PerEntityAvailabilityMixin, CoordinatorEntit
         zone_name: str,
         zone_type: str = "HOT_WATER",
     ) -> None:
-        """Initialize the Hot Water Power Binary Sensor."""
         super().__init__(coordinator)
         self._zone_id = zone_id
         self._zone_name = zone_name
@@ -1194,7 +1205,6 @@ class TadoHomeKitConnectedSensor(CoordinatorEntity["TadoDataUpdateCoordinator"],
     _attr_device_class = BinarySensorDeviceClass.CONNECTIVITY
 
     def __init__(self, coordinator: TadoDataUpdateCoordinator) -> None:
-        """Initialize the HomeKit Connected Sensor."""
         super().__init__(coordinator)
         _meta = ENTITY_REGISTRY["binary_sensor_homekit_connected"]
         self._attr_translation_key = _meta.translation_key
@@ -1216,7 +1226,7 @@ class TadoHomeKitConnectedSensor(CoordinatorEntity["TadoDataUpdateCoordinator"],
                 delta = dt_util.utcnow() - connected_dt
                 uptime = str(delta).split(".")[0]  # Remove microseconds
             except (ValueError, TypeError):
-                pass
+                _LOGGER.debug("binary_sensor: corrupt last_connected %r, omitting uptime", stats.get("last_connected"))
 
         # Mapped/unmapped zone counts
         mapped_zones = 0
@@ -1267,11 +1277,10 @@ class TadoBridgeConnectedSensor(
     _attr_device_class = BinarySensorDeviceClass.CONNECTIVITY
     _attr_has_entity_name = True
 
-    def __init__(self, coordinator: TadoDataUpdateCoordinator) -> None:
-        """Initialize the TadoBridgeConnectedSensor."""
+    def __init__(self, coordinator: TadoDataUpdateCoordinator, bridge_serial: str) -> None:
         super().__init__(coordinator)
         _meta = ENTITY_REGISTRY["binary_sensor_bridge_connected"]
-        self._attr_device_info = get_hub_device_info(coordinator.home_id)
+        self._attr_device_info = get_bridge_device_info(bridge_serial, coordinator.home_id)
         self._attr_unique_id = f"tado_ce_{coordinator.home_id}_{_meta.unique_id_suffix}"
         self._attr_translation_key = _meta.translation_key
         self._attr_entity_registry_enabled_default = _meta.enabled_default
@@ -1284,38 +1293,37 @@ class TadoBridgeConnectedSensor(
         """State = the bridge's real online flag.
 
         Primary: `bridgeConnected` from the bridge-auth poll (zero cloud quota),
-        present whenever a boiler-side device is wired. Fallback: the bridge
-        device's own `connectionState` from the home device list, for
-        boiler-less setups whose bridge-auth body collapses without
-        `bridgeConnected`. When neither is available, stay Unknown (don't guess).
+        present whenever a boiler-side device is wired and local pairing is
+        configured. Fallback: the bridge/gateway device's own `connectionState`
+        from zones_info or the home device list, used whenever the primary
+        isn't a plain bool: no local pairing configured, the first local poll
+        hasn't landed yet, or a boiler-less body collapsed without
+        `bridgeConnected`.
         """
         data = self.coordinator.data or {}
         bridge = data.get("bridge")
         flag = bridge.get("bridgeConnected") if isinstance(bridge, dict) else None
         if isinstance(flag, bool):
             self._attr_is_on = flag
-        elif isinstance(bridge, dict):
-            # Bridge body present but no bridgeConnected (collapsed boiler-less
-            # body) → fall back to the bridge device's own connectionState.
-            dev = _find_bridge_in_home_devices(data.get("home_devices"))
-            self._attr_is_on = _connection_value_to_bool((dev or {}).get("connectionState"))
         else:
-            # Bridge poll hasn't run yet → Unknown; do not read the fallback.
-            self._attr_is_on = None
+            dev = _find_bridge_device(data.get("zones_info"), data.get("home_devices"))
+            self._attr_is_on = connection_value_to_bool((dev or {}).get("connectionState"))
         self.async_write_ha_state()
 
     @property
     def available(self) -> bool:
-        """Available when the Tado cloud is reachable, so we can observe the bridge.
+        """Available when we can actually observe the bridge.
 
-        The health tracker records whether recent bridge API calls succeeded and
-        only flips to disconnected after several consecutive failures, so a single
-        transient timeout does not flap this. When the cloud is unreachable we
-        cannot observe the bridge at all, so the sensor is unavailable rather than
-        reporting a stale on or off.
+        Locally paired: the health tracker records whether recent bridge API
+        calls succeeded, only flipping to disconnected after several
+        consecutive failures so a single transient timeout doesn't flap this.
+        Cloud-only (no health tracker, since nothing is polling it locally):
+        falls back to whether the coordinator's last cloud sync succeeded.
         """
         health = self.coordinator.bridge_health_tracker
-        return health is not None and health.state.is_connected
+        if health is not None:
+            return health.state.is_connected
+        return super().available
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:

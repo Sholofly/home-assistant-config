@@ -1,0 +1,425 @@
+# custom_components/googlefindmy/Auth/token_retrieval.py
+#
+#  GoogleFindMyTools - A set of tools to interact with the Google Find My API
+#  Copyright © 2024 Leon Böttger. All rights reserved.
+#
+
+from __future__ import annotations
+
+import asyncio
+import logging
+import secrets
+from collections.abc import Awaitable, Callable
+from types import ModuleType
+from typing import Any
+
+from custom_components.googlefindmy.Auth.aas_token_retrieval import (
+    _mask_email_for_logs,
+    async_get_aas_token,
+)
+from custom_components.googlefindmy.Auth.token_cache import TokenCache
+from custom_components.googlefindmy.exceptions import MissingTokenCacheError
+
+from .gpsoauth_loader import (
+    GpsoauthModule,
+    load_gpsoauth_exceptions,
+    require_gpsoauth,
+)
+from .gpsoauth_loader import (
+    gpsoauth as _gpsoauth_proxy,
+)
+
+_LOGGER = logging.getLogger(__name__)
+
+# Optional gpsoauth exceptions module (``None`` when the dependency is absent).
+# Mirrors ``aas_token_retrieval.gpsoauth_exceptions`` so both credential-exchange
+# paths can classify a genuine gpsoauth ``AuthError`` structurally (by type),
+# independent of its (possibly HTTP-generic) message text. Kept at module scope
+# so tests can monkeypatch it, exactly like the AAS exchange path.
+gpsoauth_exceptions: ModuleType | None = load_gpsoauth_exceptions()
+
+
+class InvalidAasTokenError(RuntimeError):
+    """Raised when the cached AAS token is rejected by gpsoauth."""
+
+
+def _gpsoauth() -> GpsoauthModule:
+    """Return the optional gpsoauth module with runtime import."""
+
+    return require_gpsoauth()
+
+
+gpsoauth = _gpsoauth_proxy
+
+
+def _is_invalid_aas_error_text(text: str, *, allow_http_generic: bool = False) -> bool:
+    """Return True when the error string indicates an invalid AAS token.
+
+    The gpsoauth-specific tokens (``badauthentication``, ``needsbrowser``, and
+    the ``invalid`` + credential vocabulary) are unique to the gpsoauth
+    ``Error`` field and stay active on every call. The HTTP-generic tokens
+    (``unauthorized`` / ``forbidden``) are only honoured when
+    ``allow_http_generic`` is set, because an arbitrary transport/network
+    exception string must not be able to masquerade as an invalid AAS token
+    and discard otherwise-valid credential material. Callers that pass the
+    structured gpsoauth ``Error`` field opt in via ``allow_http_generic=True``;
+    callers that pass a generic ``str(err)`` from an ``except Exception`` block
+    keep the safe default (``False``).
+    """
+
+    lowered = text.lower()
+    if "badauthentication" in lowered:
+        return True
+    if "needsbrowser" in lowered:
+        return True
+    if allow_http_generic and ("unauthorized" in lowered or "forbidden" in lowered):
+        return True
+    if "invalid" in lowered:
+        if "token" in lowered or "auth" in lowered or "credential" in lowered:
+            return True
+    return False
+
+
+_CLIENT_SIG: str = "38918a453d07199354f8b19af05ec6562ced5788"
+
+
+def _extract_android_id_from_credentials(fcm_creds: Any) -> int | None:
+    """Parse the android_id from an FCM credential bundle."""
+
+    if not isinstance(fcm_creds, dict):
+        return None
+
+    gcm_block = fcm_creds.get("gcm")
+    candidate: Any = None
+    if isinstance(gcm_block, dict):
+        candidate = gcm_block.get("android_id")
+
+    if isinstance(candidate, int):
+        return candidate
+    if isinstance(candidate, str):
+        try:
+            return int(candidate, 0)
+        except (TypeError, ValueError):
+            _LOGGER.debug("android_id value from FCM credentials is not numeric")
+            return None
+    if candidate is not None:
+        _LOGGER.debug(
+            "Unsupported android_id type in FCM credentials",
+            extra={"android_id_type": type(candidate).__name__},
+        )
+    return None
+
+
+def _coerce_android_id(value: object, source: str) -> int | None:
+    """Normalize cached Android IDs into integers for gpsoauth."""
+
+    if isinstance(value, int):
+        return value
+    if isinstance(value, str):
+        try:
+            return int(value, 0)
+        except (TypeError, ValueError):
+            _LOGGER.debug("android_id value from %s is not numeric", source)
+            return None
+    if value is not None:
+        _LOGGER.debug(
+            "Unsupported android_id type from %s",
+            source,
+            extra={"android_id_type": type(value).__name__},
+        )
+    return None
+
+
+async def _resolve_android_id(*, cache: TokenCache, username: str) -> int:
+    """Resolve a per-user android_id from cache, credentials, or a new value."""
+
+    cache_key = f"android_id_{username}"
+
+    try:
+        fcm_creds = await cache.get("fcm_credentials")
+    except Exception as err:  # noqa: BLE001
+        _LOGGER.debug("Failed to read FCM credentials from cache", exc_info=err)
+        fcm_creds = None
+
+    android_id = _extract_android_id_from_credentials(fcm_creds)
+    if android_id is not None:
+        try:
+            await cache.set(cache_key, android_id)
+        except Exception as err:  # noqa: BLE001
+            _LOGGER.debug(
+                "Failed to persist android_id from FCM credentials", exc_info=err
+            )
+        return android_id
+
+    try:
+        cached_android_id = await cache.get(cache_key)
+    except Exception as err:  # noqa: BLE001
+        _LOGGER.debug("Failed to read cached android_id", exc_info=err)
+        cached_android_id = None
+
+    android_id = _coerce_android_id(cached_android_id, "cache")
+    if android_id is not None:
+        return android_id
+
+    android_id = secrets.randbelow(0xF000000000000000) + 0x1000000000000000
+    _LOGGER.warning(
+        "Generated new android_id for %s; cache was missing a stored identifier.",
+        _mask_email_for_logs(username),
+    )
+    try:
+        await cache.set(cache_key, android_id)
+    except Exception as err:  # noqa: BLE001
+        _LOGGER.debug("Failed to persist generated android_id", exc_info=err)
+    return android_id
+
+
+def _perform_oauth_sync(
+    username: str,
+    aas_token: str,
+    scope: str,
+    play_services: bool,
+    *,
+    android_id: int,
+) -> str:
+    """Blocking gpsoauth.perform_oauth call, factored for reuse.
+
+    Args:
+        username: Google account email (for request context).
+        aas_token: AAS token to authorize the OAuth scope exchange.
+        scope: OAuth scope suffix (e.g., "android_device_manager").
+        play_services: If True, use the Play Services app id; else ADM app id.
+        android_id: Device-specific Android ID used for the OAuth exchange.
+
+    Returns:
+        The OAuth access token (string) for the requested scope.
+
+    Raises:
+        InvalidAasTokenError: If gpsoauth explicitly rejects the supplied AAS token.
+        RuntimeError: If the gpsoauth exchange fails or returns an invalid response.
+    """
+    request_app = (
+        "com.google.android.gms" if play_services else "com.google.android.apps.adm"
+    )
+
+    gpsoauth = _gpsoauth()
+
+    try:
+        auth_response: dict[str, Any] = gpsoauth.perform_oauth(
+            username,
+            aas_token,
+            android_id,  # Use per-user Android ID
+            service="oauth2:https://www.googleapis.com/auth/" + scope,
+            app=request_app,
+            client_sig=_CLIENT_SIG,
+        )
+        if not auth_response:
+            raise ValueError("No response from gpsoauth.perform_oauth")
+
+        token_value = auth_response.get("Token")
+        if not isinstance(token_value, str) or not token_value:
+            legacy_value = auth_response.get("Auth")
+            if isinstance(legacy_value, str) and legacy_value:
+                token_value = legacy_value
+
+        if isinstance(token_value, str) and token_value:
+            return token_value
+
+        error_detail = str(auth_response.get("Error", "")).strip()
+        if error_detail and _is_invalid_aas_error_text(
+            error_detail, allow_http_generic=True
+        ):
+            raise InvalidAasTokenError(
+                f"gpsoauth rejected the AAS token while requesting scope '{scope}': {error_detail}"
+            )
+        raise KeyError("Neither 'Token' nor 'Auth' found in gpsoauth response")
+    except InvalidAasTokenError:
+        raise
+    except Exception as err:  # noqa: BLE001
+        message: str = str(err)
+        # A typed gpsoauth ``AuthError`` is a definitive credential rejection,
+        # independent of its message text. gpsoauth may raise it instead of
+        # returning an ``Error`` dict, and its text can be HTTP-generic only
+        # (e.g. "HTTP 403 Forbidden"), which the text matcher deliberately
+        # gates off (``allow_http_generic=False``). Classify it structurally,
+        # mirroring the AAS exchange path (``aas_token_retrieval`` treats
+        # ``gpsoauth.AuthError`` by type), so the rejected AAS token is
+        # invalidated/regenerated instead of being left in cache for a retry.
+        is_typed_autherror = gpsoauth_exceptions is not None and isinstance(
+            err, gpsoauth_exceptions.AuthError
+        )
+        if is_typed_autherror:
+            raise InvalidAasTokenError(
+                f"gpsoauth rejected the AAS token while requesting scope '{scope}': {message}"
+            ) from err
+        # Generic exception string: keep ``allow_http_generic=False`` so a
+        # transport/network error whose text merely contains "unauthorized" or
+        # "forbidden" cannot masquerade as an invalid AAS token. Only the
+        # gpsoauth-specific vocabulary may promote this to InvalidAasTokenError.
+        if message and _is_invalid_aas_error_text(message):
+            raise InvalidAasTokenError(
+                f"gpsoauth rejected the AAS token while requesting scope '{scope}': {message}"
+            ) from err
+        # AP-2 field probe (typed-vs-untyped denial). The vendor auth endpoint is
+        # reverse-engineered: a genuine credential denial arrives as an ``Error``
+        # dict (handled above) or a typed ``gpsoauth.AuthError``; anything else
+        # reaching this fall-through is, by the vendor model, a transport or
+        # intermediary artifact and is (correctly) surfaced as a retryable
+        # ``RuntimeError``. Record the classification *signature* so a field
+        # occurrence of "untyped error whose text still carries an HTTP auth
+        # marker, treated as transient" -- the fingerprint of a *missed* denial
+        # slipping past ``allow_http_generic=False`` -- becomes observable.
+        # Redaction: only the exception type name, the typed-flag and which
+        # markers are present; never ``str(err)`` (may carry a token or email).
+        # ``is_typed_autherror`` is structurally False here (the typed branch
+        # raised above); it is logged verbatim so the fall-through signature is
+        # explicit rather than implied.
+        http_auth_markers = [
+            marker
+            for marker in ("401", "403", "unauthorized", "forbidden")
+            if marker in message.lower()
+        ]
+        _LOGGER.debug(
+            "Auth token fetch for scope %r fell through to a retryable "
+            "RuntimeError (err_type=%s, is_typed_autherror=%s, "
+            "http_auth_markers=%s)",
+            scope,
+            type(err).__name__,
+            is_typed_autherror,
+            http_auth_markers,
+        )
+        raise RuntimeError(
+            f"Failed to get auth token for scope '{scope}': {err}"
+        ) from err
+
+
+def request_token(
+    username: str,
+    scope: str,
+    play_services: bool = False,
+    *,
+    aas_token: str | None = None,
+    cache: TokenCache | None = None,
+) -> str:
+    """Synchronous token request via gpsoauth (CLI/tests only).
+
+    IMPORTANT:
+    - This function is blocking. If you are inside Home Assistant (or any running
+      event loop), **do not** call this function directly — use
+      `await async_request_token(...)` or run this function in an executor thread.
+    - You may inject an `aas_token` to avoid touching any global/async cache (e.g., for
+      entry-scoped tests or isolated tooling).
+
+    Args:
+        username: Google account email.
+        scope: OAuth scope suffix.
+        play_services: Use the Play Services app id instead of ADM when True.
+        aas_token: Optional AAS token to shortcut async cache lookup.
+        cache: Entry-scoped TokenCache instance used for resolving AAS tokens when
+            `aas_token` is not provided. Falls back to the default cache in
+            single-entry CLI/test scenarios.
+
+    Raises:
+        RuntimeError: if called while an event loop is running.
+    """
+    # Guard against misuse in a running event loop.
+    try:
+        asyncio.get_running_loop()
+    except RuntimeError:
+        # No running loop in this thread → safe to continue.
+        pass
+    else:
+        # A loop exists and is running → disallow direct sync call.
+        raise RuntimeError(
+            "request_token() was called while an event loop is running. "
+            "Use `await async_request_token(...)` in async contexts."
+        )
+
+    # Resolve the TokenCache (required for multi-account isolation).
+    if cache is None:
+        raise MissingTokenCacheError()
+
+    # Resolve the AAS token: prefer injected token; otherwise use async provider in an isolated loop.
+    if aas_token is None:
+        aas_token = asyncio.run(async_get_aas_token(cache=cache))
+
+    android_id = asyncio.run(_resolve_android_id(cache=cache, username=username))
+
+    # Perform the blocking OAuth exchange.
+    return _perform_oauth_sync(
+        username,
+        aas_token,
+        scope,
+        play_services,
+        android_id=android_id,
+    )
+
+
+async def async_request_token(  # noqa: PLR0913
+    username: str,
+    scope: str,
+    play_services: bool = False,
+    *,
+    cache: TokenCache,
+    aas_provider: Callable[[], Awaitable[str]] | None = None,
+    aas_token: str | None = None,
+) -> str:
+    """Async wrapper for the OAuth token request (HA-safe).
+
+    Behavior:
+    - Uses an injected `aas_token` if provided; otherwise awaits the supplied
+      `aas_provider()`; otherwise falls back to the default `async_get_aas_token()`.
+    - Runs the blocking `gpsoauth.perform_oauth` in a thread pool to keep the
+      event loop responsive.
+    - This arrangement allows entry-scoped token resolution (e.g., via
+      `entry.runtime_data.get_aas_token`) without global singletons.
+
+    Args:
+        username: Google account email.
+        scope: OAuth scope suffix.
+        play_services: Use the Play Services app id instead of ADM when True.
+        cache: Entry-scoped TokenCache to read/write intermediate credentials.
+        aas_provider: Optional async callable that returns an AAS token.
+        aas_token: Optional pre-fetched AAS token (takes precedence over provider).
+
+    Returns:
+        OAuth access token string for the requested scope.
+
+    Raises:
+        InvalidAasTokenError: If gpsoauth rejects the cached AAS token during the exchange.
+    """
+    # Get the AAS token from injected token → injected provider → default provider.
+    if cache is None:
+        raise MissingTokenCacheError()
+
+    if aas_token is None:
+        if aas_provider is not None:
+            aas_token = await aas_provider()
+        else:
+
+            async def _default_aas_provider() -> str:
+                return await async_get_aas_token(cache=cache)
+
+            aas_provider = _default_aas_provider
+            aas_token = await aas_provider()
+
+    # Offload the blocking OAuth exchange to a worker thread.
+    loop = asyncio.get_running_loop()
+    android_id = await _resolve_android_id(cache=cache, username=username)
+
+    try:
+        return await loop.run_in_executor(
+            None,
+            lambda: _perform_oauth_sync(
+                username,
+                aas_token,
+                scope,
+                play_services,
+                android_id=android_id,
+            ),
+        )
+    except InvalidAasTokenError:
+        _LOGGER.warning(
+            "gpsoauth rejected the cached AAS token; a fresh AAS token will be required.",
+            extra={"oauth_scope": scope},
+        )
+        raise

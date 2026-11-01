@@ -22,12 +22,15 @@ from __future__ import annotations
 
 import logging
 import hashlib
-import inspect
+import json
 import math
+import re
+import traceback
 import uuid
 import asyncio
+import functools
 from asyncio import Task
-from collections.abc import Coroutine
+from collections.abc import Callable, Coroutine
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, Any, cast
 import numpy as np
@@ -35,27 +38,38 @@ import numpy as np
 if TYPE_CHECKING:
     from .store import StoreBridge
 
+from homeassistant.components import persistent_notification
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import Context, Event, HomeAssistant, State, callback
 from homeassistant.helpers.event import (
     async_call_later,
     async_track_state_change_event,
+    async_track_state_report_event,
     async_track_time_interval,
 )
 from homeassistant.helpers.dispatcher import async_dispatcher_send
 from homeassistant.exceptions import HomeAssistantError
-from homeassistant.const import STATE_UNAVAILABLE, STATE_HOME
+from homeassistant.const import EVENT_HOMEASSISTANT_STOP, STATE_UNAVAILABLE, STATE_HOME
 from homeassistant.util import dt as dt_util
+import voluptuous as vol
+
 import homeassistant.helpers.event as evt
+from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers import script as script_helper
 from homeassistant.helpers import translation
+from homeassistant.helpers.start import async_at_started
+from homeassistant.helpers.storage import Store
 
+from .const import NOTIFY_QUEUE_STORE_SUFFIX, STORAGE_KEY
 from .const import (
+    resolve_off_delay_default,
+    CADENCE_RESET_FROM_STATES,
     DOMAIN,
     CONF_POWER_SENSOR,
+    CONF_PROFILE_EVIDENCE_SOURCES,
     CONF_MIN_POWER,
     CONF_OFF_DELAY,
-    CONF_NOTIFY_SERVICE,
     CONF_NOTIFY_ACTIONS,
     CONF_NOTIFY_START_SERVICES,
     CONF_NOTIFY_FINISH_SERVICES,
@@ -63,56 +77,23 @@ from .const import (
     CONF_NOTIFY_CYCLE_TIMERS,
     CONF_NOTIFY_PEOPLE,
     CONF_NOTIFY_ONLY_WHEN_HOME,
-    CONF_NOTIFY_FIRE_EVENTS,
-    CONF_NOTIFY_EVENTS,
     CONF_NO_UPDATE_ACTIVE_TIMEOUT,
     CONF_LOW_POWER_NO_UPDATE_TIMEOUT, # Import new constant
-    CONF_SMOOTHING_WINDOW,
-    CONF_PROFILE_DURATION_TOLERANCE,
-    CONF_INTERRUPTED_MIN_SECONDS,
     CONF_PROGRESS_RESET_DELAY,
     CONF_LEARNING_CONFIDENCE,
-    CONF_DURATION_TOLERANCE,
-    CONF_AUTO_LABEL_CONFIDENCE,
     CONF_AUTO_MAINTENANCE,
     CONF_MAINTENANCE_REMINDER_CYCLES,
-    DEFAULT_MAINTENANCE_REMINDER_CYCLES,
     CONF_PROFILE_MATCH_INTERVAL,
     CONF_PROFILE_MATCH_MIN_DURATION_RATIO,
     CONF_PROFILE_MATCH_MAX_DURATION_RATIO,
-    CONF_MAX_PAST_CYCLES,
-    CONF_MAX_FULL_TRACES_PER_PROFILE,
-    CONF_MAX_FULL_TRACES_UNLABELED,
     CONF_WATCHDOG_INTERVAL,
     CONF_AUTO_TUNE_NOISE_EVENTS_THRESHOLD,
-    CONF_COMPLETION_MIN_SECONDS,
     CONF_NOTIFY_BEFORE_END_MINUTES,
-    CONF_PROFILE_MATCH_THRESHOLD,
-    CONF_PROFILE_UNMATCH_THRESHOLD,
     CONF_DEVICE_TYPE,
-    CONF_START_DURATION_THRESHOLD,
-    CONF_RUNNING_DEAD_ZONE,
-    CONF_END_REPEAT_COUNT,
-    CONF_MIN_OFF_GAP,
-    CONF_START_ENERGY_THRESHOLD,
-    CONF_END_ENERGY_THRESHOLD,
-    CONF_START_THRESHOLD_W,
-    CONF_STOP_THRESHOLD_W,
-    CONF_POWER_OFF_THRESHOLD_W,
-    CONF_POWER_OFF_DELAY,
-    CONF_SAMPLING_INTERVAL,
     CONF_SAVE_DEBUG_TRACES,
     CONF_DTW_BANDWIDTH,
-    CONF_EXTERNAL_END_TRIGGER_ENABLED,
     CONF_EXTERNAL_END_TRIGGER,
     CONF_EXTERNAL_END_TRIGGER_INVERTED,
-    CONF_ANTI_WRINKLE_ENABLED,
-    CONF_ANTI_WRINKLE_MAX_POWER,
-    CONF_ANTI_WRINKLE_MAX_DURATION,
-    CONF_ANTI_WRINKLE_EXIT_POWER,
-    CONF_DELAY_START_DETECT_ENABLED,
-    CONF_DELAY_CONFIRM_SECONDS,
-    CONF_DELAY_TIMEOUT_HOURS,
     CONF_PUMP_STUCK_DURATION,
     DEFAULT_PUMP_STUCK_DURATION,
     EVENT_PUMP_STUCK,
@@ -125,63 +106,90 @@ from .const import (
     NOTIFY_EVENT_TIMER,
     EVENT_CYCLE_STARTED,
     EVENT_CYCLE_ENDED,
+    EVENT_CYCLE_STALLED,
+    SIGNAL_DEVICE_TRIGGER,
+    TRIGGER_ANTI_WRINKLE_STARTED,
+    TRIGGER_CYCLE_ENDED,
+    TRIGGER_CYCLE_FINISHED,
+    TRIGGER_CYCLE_STALLED,
+    TRIGGER_CYCLE_STARTED,
+    TRIGGER_CYCLE_OVERRUN,
+    TRIGGER_FINISHING_SOON,
+    TRIGGER_MAINTENANCE_DUE,
+    TRIGGER_MAINTENANCE_RECHECK_S,
+    TRIGGER_MAINTENANCE_IDLE_CHECK_S,
+    TRIGGER_PHASE_STARTED,
+    TRIGGER_PROGRAM_RECOGNISED,
+    DATA_TRIGGER_LISTENERS,
+    TRIGGER_MILESTONE_REACHED,
+    TRIGGER_PUMP_STUCK,
+    TRIGGER_STILL_TUMBLING,
+    TRIGGER_UNLOAD_PENDING,
+    TRIGGER_UNLOADED,
+    CYCLE_ANOMALY_STALLED,
     DEFAULT_MIN_POWER,
+    power_unit_scale,
+    is_energy_counter,
     DEFAULT_OFF_DELAY,
     DEFAULT_NO_UPDATE_ACTIVE_TIMEOUT,
+    DEFAULT_LOW_POWER_NO_UPDATE_TIMEOUT,
     DEFAULT_NO_UPDATE_ACTIVE_TIMEOUT_BY_DEVICE,
-    DEFAULT_SMOOTHING_WINDOW,
-    DEFAULT_PROFILE_DURATION_TOLERANCE,
-    DEFAULT_INTERRUPTED_MIN_SECONDS,
-    DEFAULT_COMPLETION_MIN_SECONDS,
     DEFAULT_NOTIFY_BEFORE_END_MINUTES,
-    DEFAULT_PROFILE_MATCH_THRESHOLD,
     DEFAULT_PROFILE_UNMATCH_THRESHOLD,
-    DEFAULT_SAMPLING_INTERVAL,
     DEFAULT_PROGRESS_RESET_DELAY,
-    DEFAULT_POWER_OFF_THRESHOLD_W,
-    DEFAULT_POWER_OFF_DELAY,
+    DEFAULT_PROFILE_EVIDENCE_SOURCES,
     DEFAULT_LEARNING_CONFIDENCE,
-    DEFAULT_DURATION_TOLERANCE,
-    DEFAULT_AUTO_LABEL_CONFIDENCE,
     DEFAULT_AUTO_MAINTENANCE,
     DEFAULT_PROFILE_MATCH_INTERVAL,
     DEFAULT_PROFILE_MATCH_MIN_DURATION_RATIO,
-    DEFAULT_PROFILE_MATCH_MIN_DURATION_RATIO_BY_DEVICE,
-    DEFAULT_ANTI_WRINKLE_ENABLED,
-    DEFAULT_ANTI_WRINKLE_MAX_POWER,
-    DEFAULT_ANTI_WRINKLE_MAX_DURATION,
-    DEFAULT_ANTI_WRINKLE_EXIT_POWER,
-    DEFAULT_DELAY_START_DETECT_ENABLED,
-    DEFAULT_DELAY_CONFIRM_SECONDS,
-    DEFAULT_DELAY_TIMEOUT_HOURS,
     DEFAULT_PROFILE_MATCH_MAX_DURATION_RATIO,
-    DEFAULT_MAX_PAST_CYCLES,
-    DEFAULT_MAX_FULL_TRACES_PER_PROFILE,
     CONF_NOTIFY_TITLE,
     CONF_NOTIFY_ICON,
+    CONF_NOTIFY_ICON_COLOR,
     CONF_NOTIFY_START_MESSAGE,
     CONF_NOTIFY_FINISH_MESSAGE,
     CONF_NOTIFY_PRE_COMPLETE_MESSAGE,
     CONF_NOTIFY_LIVE_INTERVAL_SECONDS,
     CONF_NOTIFY_LIVE_OVERRUN_PERCENT,
     CONF_NOTIFY_LIVE_CHRONOMETER,
+    CONF_NOTIFY_LIVE_STICKY,
+    CONF_NOTIFY_LIVE_CLICK_ACTION,
+    CONF_NOTIFY_LIVE_SILENT,
+    DEFAULT_NOTIFY_LIVE_STICKY,
+    DEFAULT_NOTIFY_LIVE_CLICK_ACTION,
+    DEFAULT_NOTIFY_LIVE_SILENT,
     CONF_NOTIFY_REMINDER_MESSAGE,
     CONF_NOTIFY_TIMEOUT_SECONDS,
     CONF_NOTIFY_CHANNEL,
     CONF_NOTIFY_FINISH_CHANNEL,
     CONF_ENERGY_PRICE_STATIC,
     CONF_ENERGY_PRICE_ENTITY,
+    CONF_ENERGY_PRICE_DYNAMIC,
+    DEFAULT_ENERGY_PRICE_DYNAMIC,
+    PRICE_TIMELINE_MAX_POINTS,
+    PRICE_TIMELINE_PRICE_DECIMALS,
     CONF_ENERGY_SENSOR,
     CONF_PEAK_RATE_THRESHOLD,
     CONF_PEAK_RATE_MESSAGE,
     DEFAULT_PEAK_RATE_MESSAGE,
     CONF_DOOR_SENSOR_ENTITY,
+    CONF_DOOR_OPENS_AT_END,
+    CONF_DOOR_END_DWELL_SECONDS,
+    DEFAULT_DOOR_OPENS_AT_END,
+    DEFAULT_DOOR_END_DWELL_SECONDS,
     CONF_PAUSE_CUTS_POWER,
     CONF_SWITCH_ENTITY,
     CONF_NOTIFY_UNLOAD_DELAY_MINUTES,
     CONF_NOTIFY_UNLOAD_MESSAGE,
+    CONF_NOTIFY_UNLOAD_REPEAT,
     DEFAULT_NOTIFY_UNLOAD_DELAY_MINUTES,
     DEFAULT_NOTIFY_UNLOAD_MESSAGE,
+    DEFAULT_NOTIFY_UNLOAD_REPEAT,
+    NOTIFY_UNLOAD_REPEAT_MAX_REMINDERS,
+    CONF_UNLOAD_CONFIRM_ENTITY,
+    CONF_UNLOAD_TRACK_WITHOUT_DOOR,
+    UNLOAD_CONFIRM_REPLAY_GRACE_S,
+    DEFAULT_UNLOAD_TRACK_WITHOUT_DOOR,
     CONF_NOTIFY_MILESTONES,
     CONF_NOTIFY_MILESTONE_MESSAGE,
     DEFAULT_NOTIFY_MILESTONES,
@@ -196,7 +204,6 @@ from .const import (
     DEFAULT_NOTIFY_PRE_COMPLETE_MESSAGE,
     DEFAULT_NOTIFY_LIVE_WAITING_MESSAGE,
     DEFAULT_NOTIFY_ONLY_WHEN_HOME,
-    DEFAULT_NOTIFY_FIRE_EVENTS,
     DEFAULT_NOTIFY_LIVE_INTERVAL_SECONDS,
     DEFAULT_NOTIFY_LIVE_OVERRUN_PERCENT,
     DEFAULT_NOTIFY_LIVE_CHRONOMETER,
@@ -205,31 +212,21 @@ from .const import (
     DEFAULT_NOTIFY_CHANNEL,
     DEFAULT_NOTIFY_FINISH_CHANNEL,
 
-    DEFAULT_MAX_FULL_TRACES_UNLABELED,
     DEFAULT_DTW_BANDWIDTH,
-    DEFAULT_WATCHDOG_INTERVAL,
+    WATCHDOG_LATE_TICK_FACTOR,
+    resolve_sampling_interval_default,
+    resolve_watchdog_interval_default,
     CONF_MATCH_PERSISTENCE,
     DEFAULT_MATCH_PERSISTENCE,
-    DEFAULT_MATCH_REVERT_RATIO,
+    MATCH_LABEL_MIN_MARGIN,
+    ENABLE_ML_END_GUARD,
     DEFAULT_AUTO_TUNE_NOISE_EVENTS_THRESHOLD,
     DEFAULT_DEVICE_TYPE,
-    DEFAULT_START_DURATION_THRESHOLD,
-    DEFAULT_RUNNING_DEAD_ZONE,
-    DEFAULT_END_REPEAT_COUNT,
-    DEFAULT_MIN_OFF_GAP,
-    DEFAULT_MIN_OFF_GAP_BY_DEVICE,
+    DEFAULT_UNMATCHED_WATCHDOG_CEILING,
+    DEFAULT_UNMATCHED_WATCHDOG_CEILING_BY_DEVICE,
     DEFAULT_MAX_DEFERRAL_SECONDS,
-    DEFAULT_START_ENERGY_THRESHOLDS_BY_DEVICE,
-    DEFAULT_END_ENERGY_THRESHOLD,
-    DEVICE_COMPLETION_THRESHOLDS,
     CYCLE_UNDERRUN_ANOMALY_RATIO,
     ENERGY_ANOMALY_Z_THRESHOLD,
-    TERMINAL_DROP_MIN_CLEAN_CYCLES,
-    TERMINAL_DROP_MIN_QUIET_SPAN_S,
-    TERMINAL_DROP_EARLINESS_RATIO,
-    TERMINAL_DROP_MIN_PEAK_RATIO,
-    TERMINAL_DROP_PEAK_FAMILIAR_TOL,
-    ML_MATCH_COMMIT_THRESHOLD,
     STATE_RUNNING,
     STATE_OFF,
     STATE_STARTING,
@@ -241,24 +238,68 @@ from .const import (
     STATE_IDLE,
     STATE_UNKNOWN,
 )
-from .cycle_detector import CycleDetector, CycleDetectorConfig
+from .detector_config import (
+    apply_detector_config,
+    build_detector_config,
+    terminal_drop_baseline_for,
+    terminal_drop_enabled,
+    terminal_drop_fires,
+    terminal_drop_may_fire,
+)
+from .cycle_detector import (
+    MatchContext,
+    CycleDetector,
+    STANDBY_LEVEL_RECENT_CYCLES,
+    TERMINAL_PROBE_RETURNS,
+    learned_standby_level_w,
+    standby_near_stop_ceiling,
+    terminal_high_for_guards,
+)
 from .learning import LearningManager
 from .profile_store import (
+    MatchResult,
     ProfileStore,
+    cycle_report_energy_wh,
     decompress_power_data,
-    is_terminal_drop,
-    terminal_drop_baseline,
 )
-from .signal_processing import integrate_wh, energy_gap_threshold_s
+from .signal_processing import (
+    median_fast,
+    percentile_linear,
+    integrate_wh,
+    energy_gap_threshold_s,
+    compact_price_timeline,
+    cycle_cost,
+)
 from .recorder import CycleRecorder
 from .diag_buffer import DiagBuffer
 from .log_utils import DeviceLoggerAdapter
-from .time_utils import power_data_to_offsets
+
+# Per-entity anchors for the unload-confirm replay window (register items 367, 368).
+# `{entity_id: datetime}` in `hass.data`, so it survives entry reloads, resets on an
+# HA restart, and never carries over between different configured entities.
+_UNLOAD_CONFIRM_ANCHOR_KEY = f"{DOMAIN}_unload_confirm_anchors"
+from .options_utils import option_float, option_int
+from .time_utils import power_data_to_offsets, utc_now
+from . import analysis
 from . import progress as progress_mod
 from . import notification_rules as notif_rules
-from .phase_segmenter import phase_matching_enabled
+from . import match_rules
+from . import trigger_rules
+from .maintenance import effective_reminders
+from .frontend import PANEL_URL_PATH
 
 _LOGGER = logging.getLogger(__name__)
+
+# Sentinel "message" understood by the Home Assistant companion app as "dismiss the
+# card carrying this tag" rather than as text to display. It is only meaningful
+# alongside a `tag`, and only on mobile_app targets - see _send_notification_service,
+# which must never deliver it as a visible message.
+_CLEAR_NOTIFICATION_MARKER = "clear_notification"
+
+# A notification accent colour (#454) typed without its leading "#". Matches the
+# three CSS hex forms the companion apps accept (RGB, RRGGBB, AARRGGBB) so the
+# "#" can be added back; anything else is left alone.
+_HEX_COLOR_RE = re.compile(r"[0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8}")
 
 # Finish-type notification events that would wake someone and are therefore gated by
 # the quiet-hours (do-not-disturb) window. Live-progress ticks (NOTIFY_EVENT_LIVE)
@@ -266,6 +307,150 @@ _LOGGER = logging.getLogger(__name__)
 _QUIET_HOURS_EVENT_TYPES = frozenset(
     {NOTIFY_EVENT_FINISH, NOTIFY_EVENT_CLEAN, "pre_complete"}
 )
+
+# Held notifications persisted across a restart (audit MANAGER-16). Not persisted:
+# a live update (the next tick replaces it), a cycle timer (its Resume action is
+# wired for one session) and the unload nag (the Clean state it belongs to is not
+# restored, and the door may have opened meanwhile). Start and pre-complete belong
+# to the cycle under way, so they are restored only while one still is.
+_NOTIFY_QUEUE_TRANSIENT_EVENTS = frozenset(
+    {NOTIFY_EVENT_LIVE, NOTIFY_EVENT_TIMER, NOTIFY_EVENT_CLEAN}
+)
+_NOTIFY_QUEUE_CYCLE_EVENTS = frozenset({NOTIFY_EVENT_START, "pre_complete"})
+# A saved queue older than this is dropped on restore instead of delivered: a
+# "finished" from days ago is noise. Longer than any quiet window.
+_NOTIFY_QUEUE_MAX_AGE_S = 24 * 3600
+
+
+# Detector states in which the power sensor must not be swapped out. Every state
+# with an in-flight cycle, plus ANTI_WRINKLE: its tumble pulses are still being
+# attributed to the cycle that just finished, so re-pointing the listener there
+# would splice a different appliance into that tail.
+_SENSOR_SWAP_BLOCKED_STATES = frozenset(
+    {
+        STATE_STARTING,
+        STATE_RUNNING,
+        STATE_PAUSED,
+        STATE_ENDING,
+        STATE_ANTI_WRINKLE,
+    }
+)
+
+# #478: the live triggers whose announcement the snapshot keeps (trigger_marks).
+_MARKED_TRIGGERS = frozenset({
+    TRIGGER_PROGRAM_RECOGNISED, TRIGGER_PHASE_STARTED,
+    TRIGGER_FINISHING_SOON, TRIGGER_CYCLE_OVERRUN,
+})
+
+# #478: the device triggers fired as the state entity enters a state.
+_STATE_TRIGGERS = {
+    STATE_ANTI_WRINKLE: TRIGGER_ANTI_WRINKLE_STARTED,
+    STATE_CLEAN: TRIGGER_UNLOAD_PENDING,
+}
+
+# States in which a cycle is under way, so a manually picked program applies to it
+# right now rather than being armed for the next one (#411). ANTI_WRINKLE is
+# excluded on purpose: its tumble pulses belong to the cycle that already ended,
+# so a program chosen there is meant for the next run.
+_CYCLE_IN_PROGRESS_STATES = frozenset(
+    {
+        STATE_STARTING,
+        STATE_RUNNING,
+        STATE_PAUSED,
+        STATE_ENDING,
+    }
+)
+
+
+# Device classes and units that prove a configured "energy price entity" is not a
+# price at all (#439). The panel's picker lists every `sensor.`, so the obvious
+# mistake is to point it at the plug's own energy counter - and because a price
+# entity outranks the static price, the cycle is then costed at
+# `kWh_used * current_meter_reading`, which looks like a plausible number and is
+# nonsense. A price is never measured in W or kWh; `monetary` and unitless or
+# "EUR/kWh"-style sensors are left alone.
+_NON_PRICE_DEVICE_CLASSES = frozenset(
+    {"energy", "energy_storage", "power", "gas", "water", "current", "voltage"}
+)
+_NON_PRICE_UNITS = frozenset(
+    {"w", "kw", "mw", "wh", "kwh", "mwh", "va", "kva", "varh", "a", "ma", "v", "mv"}
+)
+
+
+# "Not passed", where None is a real value (an unmatched cycle's program).
+_UNSET: Any = object()
+
+# Kept out of the ha_washdata_cycle_ended event: HA's 32 KB event limit. A chatty
+# dynamic tariff can add hundreds of price entries (#426); the cost and effective
+# price it produced ride along instead.
+_EVENT_EXCLUDED_FIELDS = frozenset(
+    {"power_data", "debug_data", "power_trace", "price_timeline"}
+)
+
+
+def _finite_power(raw: Any) -> float | None:
+    """Parse a power sensor's state string, rejecting non-finite values.
+
+    ``float()`` accepts ``"nan"``, ``"inf"`` and ``"infinity"``, and a power
+    reading is compared against thresholds exactly like the options
+    ``options_utils.option_float`` already guards: every comparison against
+    ``nan`` is False, so a single such reading does not raise, it silently
+    switches gates OFF. With ``_current_power`` set to ``nan`` both the
+    unmatched-cycle watchdog (`< start_threshold_w`) and the high-power silence
+    deferral (`> min_power`) evaluate False, so a running cycle loses the guards
+    that decide whether it ends at all.
+
+    Returns None for anything unusable, which is the "sensor is non-numeric"
+    outcome every caller already handles. A real meter never reports either
+    value, so no valid reading changes behaviour.
+    """
+    try:
+        power = float(raw)
+    except (TypeError, ValueError, OverflowError):
+        return None
+    if not math.isfinite(power):
+        return None
+    return power
+
+
+def _snapshot_time(raw: Any) -> datetime | None:
+    """A timestamp from the active-cycle snapshot as aware UTC, else None.
+
+    A naive value is a legacy local stamp, read in HA's zone like every other
+    snapshot field. Never raises: a junk value restores as "unknown".
+    """
+    if not isinstance(raw, str) or not raw:
+        return None
+    try:
+        parsed = dt_util.parse_datetime(raw)
+    except (TypeError, ValueError, OverflowError):
+        return None
+    if parsed is None:
+        return None
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=dt_util.now().tzinfo)
+    return dt_util.as_utc(parsed)
+
+
+def _coerce_price_timeline(raw: Any) -> list[tuple[float, float]]:
+    """Coerce a persisted price timeline back into ``(ts, price)`` tuples (#426).
+
+    JSON round-trips the pairs as lists, and a hand-edited or truncated store must
+    not be able to break cycle restoration, so anything unparseable is dropped
+    rather than raised on.
+    """
+    result: list[tuple[float, float]] = []
+    if not isinstance(raw, (list, tuple)):
+        return result
+    for entry in raw:
+        if not isinstance(entry, (list, tuple)) or len(entry) < 2:
+            continue
+        try:
+            result.append((float(entry[0]), float(entry[1])))
+        except (TypeError, ValueError, OverflowError):
+            continue
+    result.sort(key=lambda item: item[0])
+    return result
 
 
 def _sanitize_ranking(raw_list: list[dict[str, Any]], limit: int = 5) -> list[dict[str, Any]]:
@@ -281,6 +466,55 @@ def _sanitize_ranking(raw_list: list[dict[str, Any]], limit: int = 5) -> list[di
         })
     return out
 
+
+def _apply_post_cycle_anomalies(cycle_data: dict[str, Any], store: Any) -> None:
+    """Stamp the post-cycle A1 underrun and A2 energy anomalies onto ``cycle_data``.
+
+    Runs at cycle end after the runtime overrun anomaly is frozen onto the cycle.
+    ``store`` is the device's ProfileStore (only its median-duration and energy-stats
+    lookups are used, and only when the guards pass). Each rule is independent and
+    never raises: a failure leaves that rule's fields unset. Purely informational,
+    never a notification.
+    """
+    # A1: Underrun check - computed post-cycle only, not a live signal.
+    # Only applied when no runtime anomaly was detected (underrun and overrun are mutually exclusive).
+    try:
+        if not cycle_data.get("anomaly") or cycle_data["anomaly"] == "none":
+            _uc_profile = cycle_data.get("profile_name")
+            _uc_dur = float(cycle_data.get("duration", 0))
+            if _uc_profile and _uc_dur > 0:
+                _uc_median = store.get_profile_median_duration(_uc_profile)
+                if (
+                    isinstance(_uc_median, (int, float))
+                    and not isinstance(_uc_median, bool)
+                    and _uc_median > 0
+                    and _uc_dur < _uc_median * CYCLE_UNDERRUN_ANOMALY_RATIO
+                ):
+                    cycle_data["anomaly"] = "underrun"
+                    cycle_data["underrun_ratio"] = round(_uc_dur / _uc_median, 3)
+    except Exception:  # noqa: BLE001
+        pass
+
+    # A2: Energy spike/low anomaly - stored separately from duration anomaly.
+    try:
+        _ea_profile = cycle_data.get("profile_name")
+        _ea_energy = float(cycle_data.get("energy_wh", 0))
+        if _ea_profile and _ea_energy > 0:
+            _ea_stats = store.get_profile_energy_stats(_ea_profile)
+            if (
+                isinstance(_ea_stats, dict)
+                and isinstance(_ea_stats.get("std_wh"), (int, float))
+                and _ea_stats["std_wh"] > 0
+            ):
+                _ea_z = (_ea_energy - _ea_stats["avg_wh"]) / _ea_stats["std_wh"]
+                cycle_data["energy_z_score"] = round(_ea_z, 2)
+                if _ea_z > ENERGY_ANOMALY_Z_THRESHOLD:
+                    cycle_data["energy_anomaly"] = "energy_spike"
+                elif _ea_z < -ENERGY_ANOMALY_Z_THRESHOLD:
+                    cycle_data["energy_anomaly"] = "energy_low"
+    except Exception:  # noqa: BLE001
+        pass
+
 # Notification-data keys that may only be forwarded to mobile_app_* notify targets.
 # Strict-schema platforms (e.g. Signal) reject unknown keys, so these are added per
 # service only when the target is a mobile app. Includes the iOS Live Activity
@@ -291,11 +525,16 @@ _MOBILE_ONLY_EXTRA_KEYS = (
     "timeout",
     "channel",
     "priority",
+    "ttl",
     "actions",
     "sticky",
+    "clickAction",
+    "url",
     "subtitle",
     "content_state",
     "activity",
+    "silent",
+    "push",
 )
 
 
@@ -305,44 +544,86 @@ def _pn_create(
     *,
     title: str | None = None,
     notification_id: str | None = None,
-) -> None:
-    """Best-effort persistent notification creation.
+) -> bool:
+    """Best-effort persistent notification creation; True when it was posted.
 
-    Deliberately goes through ``hass.components.persistent_notification`` rather than
-    a direct ``homeassistant.components.persistent_notification`` import: the test
-    suite stubs out the whole ``homeassistant`` module and mocks this dynamic
-    attribute, so a direct import would both fail under test and bypass those mocks.
-    Failures are logged at debug (not silently swallowed) so a stuck notification is
-    at least visible in the logs.
+    Calls ``homeassistant.components.persistent_notification`` directly. This used
+    to go through the ``components`` accessor on ``hass``, which Home Assistant
+    removed: ``getattr`` found nothing and the helper returned silently, so every
+    sidebar card (the fallback for users with no notify target, the auto-pause
+    timer card) was dropped while the caller logged it as delivered - and the 12
+    test modules that mocked that accessor kept passing (audit PLATFORM-01).
     """
     try:
-        components = getattr(cast(Any, hass), "components", None)
-        pn = getattr(cast(Any, components), "persistent_notification", None)
-        if pn is None:
-            return
-        result = pn.async_create(message, title=title, notification_id=notification_id)
-        if inspect.iscoroutine(result):
-            hass.async_create_task(result)
+        persistent_notification.async_create(
+            hass, message, title=title, notification_id=notification_id
+        )
+        return True
     except Exception:  # noqa: BLE001 - best-effort; surface the failure in logs
-        _LOGGER.debug("persistent_notification create failed (id=%s)", notification_id, exc_info=True)
+        _LOGGER.warning(
+            "persistent_notification create failed (id=%s)", notification_id, exc_info=True
+        )
+        return False
 
 
 def _pn_dismiss(hass: HomeAssistant, notification_id: str) -> None:
-    """Best-effort persistent notification dismissal.
-
-    Uses the ``hass.components`` accessor for the same test-mocking reason as
-    :func:`_pn_create`; failures are logged at debug rather than swallowed.
-    """
+    """Best-effort persistent notification dismissal (see :func:`_pn_create`)."""
     try:
-        components = getattr(cast(Any, hass), "components", None)
-        pn = getattr(cast(Any, components), "persistent_notification", None)
-        if pn is None:
-            return
-        result = pn.async_dismiss(notification_id)
-        if inspect.iscoroutine(result):
-            hass.async_create_task(result)
+        persistent_notification.async_dismiss(hass, notification_id)
     except Exception:  # noqa: BLE001 - best-effort; surface the failure in logs
-        _LOGGER.debug("persistent_notification dismiss failed (id=%s)", notification_id, exc_info=True)
+        _LOGGER.warning(
+            "persistent_notification dismiss failed (id=%s)", notification_id, exc_info=True
+        )
+
+
+def _read_switch_state(mgr: Any) -> match_rules.SwitchState:
+    """The manager's switching fields as the shared rules read them.
+
+    Module-level, not a method, so a test binding only
+    ``_async_do_perform_matching`` onto a stub manager still runs the real path.
+    The two dicts are passed by reference, as the rules always mutated them.
+    """
+    return match_rules.SwitchState(
+        current_program=mgr._current_program,
+        matched_duration=mgr._matched_profile_duration,
+        last_confidence=mgr._last_match_confidence,
+        last_member_confidence=mgr._last_member_confidence,
+        score_history=mgr._score_history,
+        persistence_counter=mgr._match_persistence_counter,
+        unmatch_counter=mgr._unmatch_persistence_counter,
+        current_candidate=mgr._current_match_candidate,
+    )
+
+
+def _write_switch_state(
+    mgr: Any, state: match_rules.SwitchState, log: list[match_rules.LogLine]
+) -> None:
+    """Write back what the shared rules decided, then emit their log lines."""
+    mgr._current_program = state.current_program
+    mgr._matched_profile_duration = state.matched_duration
+    mgr._last_match_confidence = state.last_confidence
+    mgr._last_member_confidence = state.last_member_confidence
+    mgr._score_history = state.score_history
+    mgr._match_persistence_counter = state.persistence_counter
+    mgr._unmatch_persistence_counter = state.unmatch_counter
+    mgr._current_match_candidate = state.current_candidate
+    _emit_rule_log(mgr._logger, log)
+
+
+def _emit_rule_log(logger: Any, log: list[match_rules.LogLine]) -> None:
+    for level, msg, args in log:
+        logger.log(level, msg, *args)
+
+
+def _option_then_data(config_entry: Any, key: str, default: Any) -> Any:
+    """``options[key]``, else ``data[key]``, else ``default``.
+
+    A device added after its last schema migration keeps its structural keys
+    (min_power, off_delay) in ``entry.data`` only, and ``ws_set_options`` writes
+    ``{**options, **changes}`` - so options-only reads on reload reset them to the
+    defaults at the first unrelated settings save (register item 388a).
+    """
+    return config_entry.options.get(key, config_entry.data.get(key, default))
 
 
 class WashDataManager:
@@ -368,20 +649,28 @@ class WashDataManager:
         self.power_sensor_entity_id = config_entry.options.get(
             CONF_POWER_SENSOR, config_entry.data.get(CONF_POWER_SENSOR)
         )
+        self._power_scale_logged = False  # #481: say once that kW is converted
+        # A sensor change saved while a cycle was under way, applied once the
+        # detector leaves _SENSOR_SWAP_BLOCKED_STATES (audit MANAGER-11).
+        self._pending_power_sensor: str | None = None
         self.device_type = config_entry.options.get(
             CONF_DEVICE_TYPE,
             config_entry.data.get(CONF_DEVICE_TYPE, DEFAULT_DEVICE_TYPE),
         )
+        # The sensor platform's add callback, kept so an in-place device type change
+        # can add the pump-only sensor (sensor.async_reconcile_device_type_sensors).
+        self.sensor_add_entities: Any = None
 
         # Initialize attributes to satisfy pylint
         self._off_delay = float(DEFAULT_OFF_DELAY)
         self._no_update_active_timeout = float(DEFAULT_NO_UPDATE_ACTIVE_TIMEOUT)
-        self._low_power_no_update_timeout = 3600.0 # Default 1h
+        self._low_power_no_update_timeout = DEFAULT_LOW_POWER_NO_UPDATE_TIMEOUT
         self._notify_before_end_minutes = float(DEFAULT_NOTIFY_BEFORE_END_MINUTES)
         self._notify_start_services: list[str] = []
         self._notify_finish_services: list[str] = []
         self._notify_live_services: list[str] = []
         self._notify_actions: list[dict[str, Any]] = []
+        self._warned_notify_templates: set[str] = set()
         self._notify_script: Any = None  # cached Script; invalidated on options reload
         self._notify_people: list[str] = []
         self._notify_cycle_timers: list[dict[str, Any]] = []
@@ -391,10 +680,12 @@ class WashDataManager:
         self._remove_timer_action_listener: Any | None = None
         self._timer_ui_strings: dict[str, str] = {}
         self._notify_only_when_home = DEFAULT_NOTIFY_ONLY_WHEN_HOME
-        self._notify_fire_events = DEFAULT_NOTIFY_FIRE_EVENTS
         self._notify_live_interval_seconds = DEFAULT_NOTIFY_LIVE_INTERVAL_SECONDS
         self._notify_live_overrun_percent = DEFAULT_NOTIFY_LIVE_OVERRUN_PERCENT
         self._notify_live_chronometer = DEFAULT_NOTIFY_LIVE_CHRONOMETER
+        self._notify_live_sticky = DEFAULT_NOTIFY_LIVE_STICKY
+        self._notify_live_click_action = DEFAULT_NOTIFY_LIVE_CLICK_ACTION
+        self._notify_live_silent = DEFAULT_NOTIFY_LIVE_SILENT
         self._notify_timeout_seconds = DEFAULT_NOTIFY_TIMEOUT_SECONDS
         self._pending_notifications: list[dict[str, Any]] = []
         # Quiet-hours (do-not-disturb) hold queue + release timer. Finish-type
@@ -402,6 +693,12 @@ class WashDataManager:
         # at the end of the window by a single async_call_later timer.
         self._quiet_pending_notifications: list[dict[str, Any]] = []
         self._remove_quiet_hours_timer: Any | None = None
+        # Both queues outlive a restart through this file (audit MANAGER-16).
+        self._notify_queue_store: Store[dict[str, Any]] | None = None
+        self._notify_queue_on_disk = False
+        self._remove_ha_stop_listener: Callable[[], None] | None = None
+        self._remove_maintenance_timer: Callable[[], None] | None = None
+        self._remove_notify_queue_restore: Callable[[], None] | None = None
         self._remove_notify_people_listener = None
         self._live_notification_sent_count = 0
 
@@ -422,10 +719,24 @@ class WashDataManager:
         self._energy_meter_start: float | None = None
         self._energy_meter_source: str | None = None
 
+        # Dynamic energy price timeline for the current cycle (#426): the price in
+        # force at each point of the cycle, as ``(unix_ts, price_per_kwh)`` pairs,
+        # appended by the price-entity listener below. Absolute timestamps, not
+        # offsets: the stored cycle's start time can end up later than the detector's
+        # (leading-zero trim, a split), and converting once at cycle end against the
+        # figure actually persisted is the only way the two axes cannot drift apart.
+        # Survives a restart via the active-cycle snapshot; any price change that
+        # happened while HA was down is recovered from the recorder at cycle end.
+        self._price_timeline: list[tuple[float, float]] = []
+        self._remove_price_listener: Callable[[], None] | None = None
+        # Entity id already reported as "not a price" (#439), so the rejection is
+        # logged once per misconfiguration instead of on every cycle.
+        self._warned_price_entity: str | None = None
+
         # Pause tracking (user-triggered)
         self._user_pause_start: datetime | None = None
         self._total_user_paused_seconds: float = 0.0
-        self._is_user_paused: bool = False
+        self._user_paused_flag: bool = False
         self._pause_cuts_power: bool = bool(
             config_entry.options.get(CONF_PAUSE_CUTS_POWER, False)
         )
@@ -434,7 +745,28 @@ class WashDataManager:
         self._door_sensor_entity: str | None = config_entry.options.get(
             CONF_DOOR_SENSOR_ENTITY
         ) or None
+        # Auto-open dishwasher (#342): a sustained door-open at cycle end finalizes
+        # the cycle after a dwell instead of setting the sticky user-pause.
+        self._door_opens_at_end: bool = bool(
+            config_entry.options.get(CONF_DOOR_OPENS_AT_END, DEFAULT_DOOR_OPENS_AT_END)
+        )
+        self._door_end_dwell_seconds: int = int(
+            config_entry.options.get(CONF_DOOR_END_DWELL_SECONDS, DEFAULT_DOOR_END_DWELL_SECONDS)
+        )
+        self._remove_door_end_dwell: Any = None
         self._remove_door_sensor_listener = None
+        # Unload confirmation without a door sensor (#451): an entity whose
+        # activation means "unloaded", and/or a plain opt-in for the Mark Unloaded
+        # button and the mark_unloaded service.
+        self._unload_confirm_entity: str | None = config_entry.options.get(
+            CONF_UNLOAD_CONFIRM_ENTITY
+        ) or None
+        self._unload_track_without_door: bool = bool(
+            config_entry.options.get(
+                CONF_UNLOAD_TRACK_WITHOUT_DOOR, DEFAULT_UNLOAD_TRACK_WITHOUT_DOOR
+            )
+        )
+        self._remove_unload_confirm_listener = None
         self._is_clean_state: bool = False
         self._clean_state_start: datetime | None = None
         self._notified_clean_laundry: bool = False
@@ -446,6 +778,19 @@ class WashDataManager:
                 CONF_NOTIFY_UNLOAD_DELAY_MINUTES, DEFAULT_NOTIFY_UNLOAD_DELAY_MINUTES
             )
         )
+        # Repeat the unload reminder until dismissed / door-open (opt-in, #374).
+        self._notify_unload_repeat: bool = bool(
+            config_entry.options.get(
+                CONF_NOTIFY_UNLOAD_REPEAT, DEFAULT_NOTIFY_UNLOAD_REPEAT
+            )
+        )
+        # Set when the user taps the reminder's "stop reminding" action; timestamp of
+        # the last reminder sent, used to pace the repeats; and the mobile action
+        # listener remover (mirrors the timer-pause interactive-notification wiring).
+        self._unload_nag_dismissed: bool = False
+        self._last_unload_nag_time: datetime | None = None
+        self._unload_nag_count: int = 0  # repeat-mode safety bound (#374)
+        self._remove_unload_action_listener: Any | None = None
         self._live_notification_cap = 0
         self._last_live_notification_time: datetime | None = None
         self._live_waiting_notification_sent = False
@@ -458,14 +803,52 @@ class WashDataManager:
         # persistent-notification fallback). The clean-laundry nag uses its own tag
         # since it fires up to an hour after finish and should not clobber the thread.
         self._lifecycle_tag = f"ha_washdata_{self.entry_id}_lifecycle"
-        self._lifecycle_pn_id = self._lifecycle_tag
         self._clean_tag = f"ha_washdata_{self.entry_id}_clean"
-        # Backwards-compatible alias for existing live-notification call sites/tests.
-        self._live_notification_tag = self._lifecycle_tag
+        # #446: the live progress updates need their OWN tag, because on iOS a Live
+        # Activity is a separate UI surface from the notification and is ended only
+        # by `clear_notification` with the activity's tag. While this was an alias
+        # for the lifecycle tag there was no way to end it: clearing would have
+        # dismissed the finished card that shares the tag, which is why the cycle-end
+        # path deliberately skipped the service clear - and so the activity was never
+        # ended at all. Reporter's lock screen sat frozen at 98% / 0:00 for an hour
+        # after the cycle finished, and on an earlier run the chronometer counted
+        # upward to 4:12:20; it survives until Apple's ~8 h expiry or a manual
+        # dismiss. Handover keeps the mobile app to one visible entry at a time: the
+        # first live tick clears the lifecycle tag (dropping the start alert), and
+        # cycle end clears this one after the finished alert has been delivered.
+        self._live_notification_tag = f"ha_washdata_{self.entry_id}_live"
         self._start_event_fired = False
+        # Device triggers (#478). cycle_started rides on _start_event_fired, which
+        # the snapshot persists; _cycle_ended_pending owes that start its
+        # cycle_ended, whatever the end turns out to be (a ghost included), and is
+        # rebuilt from that flag on restore. The two state triggers fire once per
+        # cycle end: _trigger_end_seq counts the ends this manager saw, and each
+        # state remembers the end it fired for, so a probe that leaves and
+        # re-enters the state stays quiet and a state restored at setup (no end
+        # seen yet) never fires.
+        self._cycle_ended_pending = False
+        self._trigger_end_seq = 0
+        self._state_trigger_fired: dict[str, int] = {
+            STATE_ANTI_WRINKLE: 0,
+            STATE_CLEAN: 0,
+        }
+        self._trigger_ended_program: str | None = None
+        # Triggers v2 (#478): the edges of what the entities show (state, pause,
+        # program, phase, remaining time, overrun), checked on every entity
+        # refresh and baselined after the restore so a restart replays nothing;
+        # the post-finish tumble tracker (still_tumbling); the due maintenance
+        # tasks, re-read at most every TRIGGER_MAINTENANCE_RECHECK_S.
+        self._live_triggers = trigger_rules.LiveTriggerTracker()
+        self._tumble_tracker = trigger_rules.TumbleTracker()
+        self._maintenance_triggers = trigger_rules.MaintenanceDueTracker()
+        self._maintenance_checked: tuple[datetime, int] | None = None
+        self._tumble_held: dict[str, Any] | None = None
+        self._restored_trigger_marks: Any = None
         self._cycle_start_time: datetime | None = None
-        # Per-cycle UUID used to key ranking snapshots; prevents cross-contamination
-        # between cycles that happen to share the same second-resolution start_time.
+        # Per-cycle UUID: the identity token the live match and the cycle-end tail
+        # check so work for one cycle never lands on the next, even when both share
+        # a second-resolution start_time. (Named for the live_match ranking
+        # snapshots it first keyed; those were removed in 0.5.8.)
         self._ranking_snapshot_cycle_id: str = ""
 
         # State
@@ -481,14 +864,22 @@ class WashDataManager:
         self._remove_power_off_timer: Any | None = None
         self._last_reading_time: datetime | None = None
         self._last_real_reading_time: datetime | None = None # Track last real sensor update
+        # Register item 266, restart hazard. The silence clock and sensor value a
+        # restored cycle's snapshot carried, consumed once by the setup read; and
+        # the report that read took, which the resync must not mistake for a
+        # missed one (it would hand the restart's own write back as fresh).
+        self._restored_sensor_clock: tuple[datetime, float | None] | None = None
+        self._setup_report_ts: datetime | None = None
         self._noise_events: list[datetime] = []
         self._noise_max_powers: list[float] = []
         self._last_match_result = None
         self._last_phase_estimate_time = None
-        self._sample_intervals: list[float] = []
-        self._sample_interval_stats: dict[str, Any] = {}
         self._matching_task: Task[Any] | None = None
+        # True while a power reading is being handled: the handler refreshes the
+        # entities once when it returns, so what it calls does not (register item 456).
+        self._in_power_event = False
         self._cycle_end_task: Task[Any] | None = None
+        self._banked_tail_repair_task: Task[Any] | None = None
         # Detached store-touching tasks (matching trigger, active-cycle clear,
         # post-cycle processing) tracked so async_shutdown can cancel them before a
         # reload/unload swaps the ProfileStore out from under them.
@@ -499,38 +890,42 @@ class WashDataManager:
         self._remove_state_expiry_timer = None
 
         # Components
-        match_threshold = config_entry.options.get(
-            CONF_PROFILE_MATCH_THRESHOLD, DEFAULT_PROFILE_MATCH_THRESHOLD
-        )
-        unmatch_threshold = config_entry.options.get(
-            CONF_PROFILE_UNMATCH_THRESHOLD, DEFAULT_PROFILE_UNMATCH_THRESHOLD
-        )
-        self._unmatch_threshold = unmatch_threshold
+        # Fixed since 0.5.9 (no longer a setting; forcing 0.35 on every corpus
+        # entry that set another value was neutral or better on the LOO switching
+        # replay and identical on the Playground parity replay).
+        self._unmatch_threshold = DEFAULT_PROFILE_UNMATCH_THRESHOLD
 
         self.profile_store = ProfileStore(
             hass,
             self.entry_id,
             min_duration_ratio=config_entry.options.get(
                 CONF_PROFILE_MATCH_MIN_DURATION_RATIO,
-                DEFAULT_PROFILE_MATCH_MIN_DURATION_RATIO_BY_DEVICE.get(
-                    self.device_type, DEFAULT_PROFILE_MATCH_MIN_DURATION_RATIO
-                ),
+                DEFAULT_PROFILE_MATCH_MIN_DURATION_RATIO,
             ),
             max_duration_ratio=config_entry.options.get(
                 CONF_PROFILE_MATCH_MAX_DURATION_RATIO,
                 DEFAULT_PROFILE_MATCH_MAX_DURATION_RATIO,
             ),
             save_debug_traces=config_entry.options.get(CONF_SAVE_DEBUG_TRACES, False),
-            match_threshold=match_threshold,
-            unmatch_threshold=unmatch_threshold,
             device_name=config_entry.title,
         )
         self.profile_store.dtw_bandwidth = float(
             config_entry.options.get(CONF_DTW_BANDWIDTH, DEFAULT_DTW_BANDWIDTH)
         )
+        # Stage-4 energy discriminator: integrated energy for WM/washer-dryer,
+        # mean power elsewhere (see analysis.stage4_energy_mode).
+        self.profile_store.energy_mode = analysis.stage4_energy_mode(self.device_type)
+        # Which cycle categories may shape a profile. The store cannot read entry
+        # options, so the manager pushes this in (same as energy_mode above).
+        self.profile_store.evidence_sources = config_entry.options.get(
+            CONF_PROFILE_EVIDENCE_SOURCES, DEFAULT_PROFILE_EVIDENCE_SOURCES
+        )
         self.learning_manager = LearningManager(
             hass, self.entry_id, self.profile_store, self.device_type,
             device_name=config_entry.title,
+            # Its store saves and suggestion passes are cancelled with ours on an
+            # unload (audit MANAGER-13), not left writing the swapped-out store.
+            spawn=self._spawn_tracked,
         )
         self.recorder = CycleRecorder(hass, self.entry_id, device_name=config_entry.title)
         self._store_bridge: Any = None  # lazy community-store bridge (online features)
@@ -539,31 +934,28 @@ class WashDataManager:
         min_power = config_entry.options.get(
             CONF_MIN_POWER, config_entry.data.get(CONF_MIN_POWER, DEFAULT_MIN_POWER)
         )
-        off_delay = config_entry.options.get(
-            CONF_OFF_DELAY, config_entry.data.get(CONF_OFF_DELAY, DEFAULT_OFF_DELAY)
+        off_delay = _option_then_data(
+            config_entry, CONF_OFF_DELAY, resolve_off_delay_default(self.device_type)
         )
         progress_reset_delay = config_entry.options.get(
             CONF_PROGRESS_RESET_DELAY, DEFAULT_PROGRESS_RESET_DELAY
         )
-        self._no_update_active_timeout = float(
-            config_entry.options.get(
-                CONF_NO_UPDATE_ACTIVE_TIMEOUT,
-                DEFAULT_NO_UPDATE_ACTIVE_TIMEOUT,
+        self._load_runtime_options(config_entry)
+        # Device-scaled ceiling for the unmatched (expected == 0) zombie guard (#404).
+        # Not a user option; purely a function of device_type, so it is recomputed
+        # alongside device_type on reconfigure.
+        self._unmatched_watchdog_ceiling = float(
+            DEFAULT_UNMATCHED_WATCHDOG_CEILING_BY_DEVICE.get(
+                self.device_type, DEFAULT_UNMATCHED_WATCHDOG_CEILING
             )
         )
-        self._low_power_no_update_timeout = float(
-            config_entry.options.get(CONF_LOW_POWER_NO_UPDATE_TIMEOUT, 3600.0)
-        )
-        self._off_delay = float(config_entry.options.get(CONF_OFF_DELAY, DEFAULT_OFF_DELAY))
-        self._learning_confidence = config_entry.options.get(
-            CONF_LEARNING_CONFIDENCE, DEFAULT_LEARNING_CONFIDENCE
-        )
-        self._duration_tolerance = config_entry.options.get(
-            CONF_DURATION_TOLERANCE, DEFAULT_DURATION_TOLERANCE
-        )
-        self._auto_label_confidence = config_entry.options.get(
-            CONF_AUTO_LABEL_CONFIDENCE, DEFAULT_AUTO_LABEL_CONFIDENCE
-        )
+        # Coerced here rather than at the point of use. Both thresholds are compared
+        # against a match confidence inside the cycle-end tail, and that tail runs as
+        # a spawned task: a non-numeric option (an import file is hand-editable, and
+        # strip_null_options only removes nulls) raised there instead, killing the task
+        # before async_add_cycle and losing the whole cycle. Same #389 failure shape,
+        # one step later. Falls back to the default rather than to 0, which would
+        # silently auto-label everything.
 
         self._profile_match_interval = int(
             config_entry.options.get(
@@ -587,9 +979,6 @@ class WashDataManager:
                 CONF_NOTIFY_ONLY_WHEN_HOME, DEFAULT_NOTIFY_ONLY_WHEN_HOME
             )
         )
-        self._notify_fire_events = bool(
-            config_entry.options.get(CONF_NOTIFY_FIRE_EVENTS, DEFAULT_NOTIFY_FIRE_EVENTS)
-        )
         self._notify_live_interval_seconds = int(
             config_entry.options.get(
                 CONF_NOTIFY_LIVE_INTERVAL_SECONDS,
@@ -608,37 +997,26 @@ class WashDataManager:
                 DEFAULT_NOTIFY_LIVE_CHRONOMETER,
             )
         )
+        self._notify_live_sticky = bool(
+            config_entry.options.get(
+                CONF_NOTIFY_LIVE_STICKY, DEFAULT_NOTIFY_LIVE_STICKY
+            )
+        )
+        self._notify_live_click_action = str(
+            config_entry.options.get(
+                CONF_NOTIFY_LIVE_CLICK_ACTION, DEFAULT_NOTIFY_LIVE_CLICK_ACTION
+            )
+            or ""
+        ).strip()
+        self._notify_live_silent = bool(
+            config_entry.options.get(
+                CONF_NOTIFY_LIVE_SILENT, DEFAULT_NOTIFY_LIVE_SILENT
+            )
+        )
         self._notify_timeout_seconds = int(
             config_entry.options.get(
                 CONF_NOTIFY_TIMEOUT_SECONDS, DEFAULT_NOTIFY_TIMEOUT_SECONDS
             )
-        )
-
-        # Advanced options
-        smoothing_window = int(config_entry.options.get("smoothing_window", 5))
-        interrupted_min_seconds = int(
-            config_entry.options.get("interrupted_min_seconds", 150)
-        )
-        # Get device specific default for completion threshold
-        device_default_completion = DEVICE_COMPLETION_THRESHOLDS.get(
-            self.device_type, DEFAULT_COMPLETION_MIN_SECONDS
-        )
-        completion_min_seconds = int(
-            config_entry.options.get(
-                CONF_COMPLETION_MIN_SECONDS, device_default_completion
-            )
-        )
-
-        start_duration_threshold = float(
-            config_entry.options.get(
-                CONF_START_DURATION_THRESHOLD, DEFAULT_START_DURATION_THRESHOLD
-            )
-        )
-        running_dead_zone = int(
-            config_entry.options.get(CONF_RUNNING_DEAD_ZONE, DEFAULT_RUNNING_DEAD_ZONE)
-        )
-        end_repeat_count = int(
-            config_entry.options.get(CONF_END_REPEAT_COUNT, DEFAULT_END_REPEAT_COUNT)
         )
 
         self._logger.info(
@@ -648,110 +1026,28 @@ class WashDataManager:
             self.device_type,
         )
 
-        config = CycleDetectorConfig(
-            min_power=float(min_power),
-            off_delay=int(off_delay),
-            smoothing_window=smoothing_window,
-            interrupted_min_seconds=interrupted_min_seconds,
-            completion_min_seconds=completion_min_seconds,
-            start_duration_threshold=start_duration_threshold,
-            running_dead_zone=running_dead_zone,
-            end_repeat_count=end_repeat_count,
-            min_off_gap=int(
-                config_entry.options.get(
-                    CONF_MIN_OFF_GAP,
-                    DEFAULT_MIN_OFF_GAP_BY_DEVICE.get(
-                        self.device_type, DEFAULT_MIN_OFF_GAP
-                    ),
-                )
-            ),
-            start_energy_threshold=float(
-                config_entry.options.get(
-                    CONF_START_ENERGY_THRESHOLD,
-                    DEFAULT_START_ENERGY_THRESHOLDS_BY_DEVICE.get(self.device_type, 0.2)
-                )
-            ),
-            end_energy_threshold=float(
-                config_entry.options.get(CONF_END_ENERGY_THRESHOLD, DEFAULT_END_ENERGY_THRESHOLD)
-            ),
-            start_threshold_w=float(
-                config_entry.options.get(
-                    CONF_START_THRESHOLD_W,
-                    float(min_power) + max(1.0, 0.1 * float(min_power)),
-                )
-            ),
-            stop_threshold_w=float(
-                config_entry.options.get(
-                    CONF_STOP_THRESHOLD_W,
-                    float(min_power) * 0.6 if float(min_power) > 0 else 2.0,
-                )
-            ),
-            power_off_threshold_w=float(
-                config_entry.options.get(
-                    CONF_POWER_OFF_THRESHOLD_W, DEFAULT_POWER_OFF_THRESHOLD_W
-                )
-            ),
-            power_off_delay=float(
-                config_entry.options.get(CONF_POWER_OFF_DELAY, DEFAULT_POWER_OFF_DELAY)
-            ),
-            min_duration_ratio=float(
-                config_entry.options.get(
-                    CONF_PROFILE_MATCH_MIN_DURATION_RATIO,
-                    DEFAULT_PROFILE_MATCH_MIN_DURATION_RATIO_BY_DEVICE.get(
-                        self.device_type, DEFAULT_PROFILE_MATCH_MIN_DURATION_RATIO
-                    ),
-                )
-            ),
-            match_interval=int(
-                config_entry.options.get(
-                    CONF_PROFILE_MATCH_INTERVAL, DEFAULT_PROFILE_MATCH_INTERVAL
-                )
-            ),
-            anti_wrinkle_enabled=bool(
-                config_entry.options.get(
-                    CONF_ANTI_WRINKLE_ENABLED, DEFAULT_ANTI_WRINKLE_ENABLED
-                )
-            ),
-            anti_wrinkle_max_power=float(
-                config_entry.options.get(
-                    CONF_ANTI_WRINKLE_MAX_POWER, DEFAULT_ANTI_WRINKLE_MAX_POWER
-                )
-            ),
-            anti_wrinkle_max_duration=float(
-                config_entry.options.get(
-                    CONF_ANTI_WRINKLE_MAX_DURATION, DEFAULT_ANTI_WRINKLE_MAX_DURATION
-                )
-            ),
-            anti_wrinkle_exit_power=float(
-                config_entry.options.get(
-                    CONF_ANTI_WRINKLE_EXIT_POWER, DEFAULT_ANTI_WRINKLE_EXIT_POWER
-                )
-            ),
-            delay_detect_enabled=bool(
-                config_entry.options.get(
-                    CONF_DELAY_START_DETECT_ENABLED, DEFAULT_DELAY_START_DETECT_ENABLED
-                )
-            ),
-            delay_confirm_seconds=float(
-                config_entry.options.get(
-                    CONF_DELAY_CONFIRM_SECONDS, DEFAULT_DELAY_CONFIRM_SECONDS
-                )
-            ),
-            delay_timeout_seconds=float(
-                config_entry.options.get(
-                    CONF_DELAY_TIMEOUT_HOURS, DEFAULT_DELAY_TIMEOUT_HOURS
-                )
-            ) * 3600.0,
+        # One builder for the constructor, the options reload and every replay
+        # harness (audit F2 / DETECT-12; item 351 was these copies drifting).
+        config = build_detector_config(
+            config_entry.options, config_entry.data, self.device_type
         )
         self._config = config
 
 
         def profile_matcher_wrapper(
             readings: list[tuple[datetime, float]],
-        ) -> tuple[str | None, float, float, str | None]:
+        ) -> tuple[str | None, float, float, str | None] | None:
             """Wraps profile store matching logic with detector callback signature.
 
-            Returns: None (async offload)
+            The real match is offloaded to an async task that calls
+            ``detector.update_match`` later, so this returns ``None`` in that case -
+            the detector's contract is "None == async offload, I'll be called back"
+            (see ``_try_profile_match``). It must NOT return a placeholder tuple:
+            a non-empty tuple is truthy, so the detector would feed it straight into
+            ``update_match`` on every match tick, spuriously logging the
+            "invalid raw_expected_duration 0.0" debug line and momentarily zeroing
+            ``_last_match_confidence`` between real async updates. Only the manual
+            override path below returns a genuine synchronous tuple.
             """
             # Manual program override
             if self._manual_program_active and self._current_program:
@@ -767,21 +1063,59 @@ class WashDataManager:
                     self._current_program,
                     elapsed_seconds,
                 )
+                # Elements 9 and 10 matter even here. update_match CLEARS
+                # _matched_tail_power and _matched_terminal_high for any tuple
+                # shorter than this, on the sound reasoning that a newly matched
+                # profile must not inherit the previous one's tail - but a manual
+                # pin names its profile, so the answer is to supply that profile's
+                # own values rather than nothing. Left empty, the #364 tail guard
+                # and the #399 anti-crease spin wait both sat inert for every
+                # hand-picked program, so a washer could finalize in the quiet
+                # before its terminal spin and record the spin as a second cycle.
+                # Elements 5-8 stay False: a manual pin is certain by definition,
+                # so there is no mismatch or ambiguity to report.
+                terminal_high = self._terminal_high_for_guards(self._current_program)
                 return (
                     self._current_program,
                     1.0,
                     expected_duration,
                     manual_phase or "Manual",
+                    False,
+                    False,
+                    False,
+                    False,
+                    self.profile_store.profile_tail_power(self._current_program),
+                    terminal_high,
+                    # Element 11 (register item 297): same reasoning as elements 9 and 10 - a
+                    # manual pin names its profile, so it must supply that
+                    # profile's own measurements rather than leaving the guard
+                    # inert. Without it a hand-picked program would still bank
+                    # Smart Termination's confirmation delay as cycle time.
+                    self.profile_store.profile_terminal_quiet_seconds(
+                        self._current_program
+                    ),
+                    # Element 12: no candidates on a manual pin; 0.0 is "none".
+                    0.0,
+                    # Element 13 (register item 384): the pinned profile's
+                    # user-vouched length, which floors a dishwasher's kept tail.
+                    self.profile_store.profile_trusted_min_duration(
+                        self._current_program
+                    ),
                 )
 
             if not readings:
-                return (None, 0.0, 0.0, None)
+                return None
 
-            # Snapshotted for thread safety indirectly by task logic
-            # We don't need a wrapper task if we unify with _update_estimates matching
-            # but for now let's keep the detector callback as a trigger
-            self._spawn_tracked(self._async_perform_combined_matching(readings))
-            return (None, 0.0, 0.0, None)
+            # Which cycle this match is FOR, captured NOW: the detector calls this
+            # synchronously from an active state. The task body runs later, and on
+            # the reading that finishes the cycle the detector has already reset by
+            # then, so identity captured inside the task described the NEXT state
+            # and the stale result re-armed the finished detector (audit LIVE-01).
+            identity = self._match_identity()
+            self._spawn_tracked(
+                self._async_perform_combined_matching(readings, identity)
+            )
+            return None
 
         self.detector = CycleDetector(
             config,
@@ -804,29 +1138,26 @@ class WashDataManager:
         self._terminal_drop_refresh_n: int | None = None
 
         self._remove_listener = None
+        self._remove_report_listener = None  # state_reported (unchanged re-reports) #363/#329
         self._remove_external_trigger_listener = None  # External cycle end trigger
         self._remove_watchdog = None
         self._watchdog_interval = int(
-            config_entry.options.get(CONF_WATCHDOG_INTERVAL, DEFAULT_WATCHDOG_INTERVAL)
-        )
-        self._match_persistence = int(
-            config_entry.options.get(CONF_MATCH_PERSISTENCE, DEFAULT_MATCH_PERSISTENCE)
-        )
-        self._sampling_interval = float(
-            config_entry.options.get(CONF_SAMPLING_INTERVAL, DEFAULT_SAMPLING_INTERVAL)
-        )
-        self._noise_events_threshold = int(
             config_entry.options.get(
-                CONF_AUTO_TUNE_NOISE_EVENTS_THRESHOLD,
-                DEFAULT_AUTO_TUNE_NOISE_EVENTS_THRESHOLD,
+                CONF_WATCHDOG_INTERVAL,
+                resolve_watchdog_interval_default(self.device_type),
             )
+        )
+        # The reading throttle: the device type's cadence (no longer a setting since
+        # 0.5.9; the start-gate replay was identical or earlier at the default).
+        self._sampling_interval = float(
+            resolve_sampling_interval_default(self.device_type)
         )
         self._current_program: str = "off"
         self._time_remaining: float | None = None
         self._total_duration: float | None = None
-        self._last_total_duration_update: datetime | None = None
         self._cycle_progress: float = 0.0
         self._smoothed_progress: float = 0.0  # Smoothed progress tracking for EMA
+        self._smoothed_for_program: str | None = None  # the program that EMA tracks
         # Live projected total energy/cost for the running cycle (None until a
         # reliable progress estimate exists). Derived from accumulated energy and
         # the (ML-blended) progress fraction; surfaced as progress-sensor attrs.
@@ -838,6 +1169,10 @@ class WashDataManager:
         # and frozen onto the cycle at end for panel badging.
         self._cycle_anomaly: str = "none"
         self._overrun_ratio: float = 0.0
+        # Where this run maps onto its matched profile's envelope, 0-1, from the
+        # DTW alignment that already runs for the verified-pause decision. Visible
+        # only: nothing reads it back. None until an alignment has produced one.
+        self._envelope_position: float | None = None
         # Post-cycle anomaly cache: holds energy/underrun anomaly from the last
         # completed cycle so sensor attributes can surface them after idle.
         self._last_cycle_post_anomaly: dict = {}
@@ -851,11 +1186,12 @@ class WashDataManager:
         self._last_match_ambiguous: bool = False
         self._matched_profile_duration: float | None = None
         self._last_match_confidence: float = 0.0
-        # Sample interval tracking (seconds) for adaptive timing
-        # Profile matching duration tolerance (0.25 = ±25%)
-        self._profile_duration_tolerance: float = float(
-            config_entry.options.get("profile_duration_tolerance", 0.25)
-        )
+        # Stage-5 companion to the above (item 206): what the SELECTED group member
+        # earned on its own curve, vs the group's score in _last_match_confidence.
+        # None for every non-group match, and the label gate then behaves exactly as
+        # before. Kept as a separate field rather than replacing the confidence,
+        # because the confidence is what the detector's end-detection gates read.
+        self._last_member_confidence: float | None = None
 
 
         self._remove_maintenance_scheduler = None
@@ -864,7 +1200,6 @@ class WashDataManager:
         self._ml_training_running = False  # True while a training run is in flight
         self._profile_sample_repair_stats: dict[str, int] | None = None
 
-        self._last_suggestion_update: datetime | None = None
 
         # Pump Monitor state
         self._pump_stuck_duration: int = int(
@@ -873,6 +1208,9 @@ class WashDataManager:
         self._pump_stuck: bool = False  # True once the stuck threshold has fired for this cycle
 
         self._manual_program_active: bool = False
+        # The user's standing program choice for the current or next cycle (#411).
+        # Rehydrated from the store during setup so arming survives a restart.
+        self._armed_program: str | None = None
         self._notified_start: bool = False
         self._notified_pre_completion: bool = False
         self._last_match_result: Any = None  # Stores full MatchResult object
@@ -881,8 +1219,34 @@ class WashDataManager:
         self._unmatch_persistence_counter: int = 0  # Tracks consecutive low-confidence matches
         self._current_match_candidate: str | None = None  # Pending profile name
 
+    _MATCH_ACTIVE_STATES = (STATE_STARTING, STATE_RUNNING, STATE_PAUSED, STATE_ENDING)
+
+    def _match_identity(self) -> tuple[str, datetime | None, bool]:
+        """The cycle a live match belongs to: snapshot id, cycle start, active."""
+        return (
+            self._ranking_snapshot_cycle_id,
+            self.detector.current_cycle_start,
+            self.detector.state in self._MATCH_ACTIVE_STATES,
+        )
+
+    def _match_still_current(self, identity: tuple[str, datetime | None, bool]) -> bool:
+        """True while the cycle a live match was dispatched for is still running.
+
+        Checked after EVERY await in the match task (items 388e, audit LIVE-01/02):
+        the cycle can end, or the next one start, while the matcher or the
+        alignment check is in the executor. A match dispatched while no cycle was
+        active (a direct call) only requires the same cycle identity.
+        """
+        token, start, was_active = identity
+        cur_token, cur_start, is_active = self._match_identity()
+        if cur_token != token or cur_start != start:
+            return False
+        return is_active or not was_active
+
     async def _async_perform_combined_matching(
-        self, readings: list[tuple[datetime, float]]
+        self,
+        readings: list[tuple[datetime, float]],
+        identity: tuple[str, datetime | None, bool] | None = None,
     ) -> None:
         """PRIMARY matching task: Updates both Manager and Detector using best method."""
         self._logger.debug(
@@ -906,272 +1270,91 @@ class WashDataManager:
                 self._logger.debug("Matching skipped: no real profiles configured yet")
                 return
 
-            self._matching_task = self.hass.async_create_task(self._async_do_perform_matching(readings))
+            self._matching_task = self.hass.async_create_task(
+                self._async_do_perform_matching(
+                    readings, identity if identity is not None else self._match_identity()
+                )
+            )
         except Exception as e:
             self._logger.error("Perform combined matching trigger failed: %s", e)
 
-    async def _async_do_perform_matching(self, readings: list[tuple[datetime, float]]) -> None:
+    async def _async_do_perform_matching(
+        self,
+        readings: list[tuple[datetime, float]],
+        identity: tuple[str, datetime | None, bool] | None = None,
+    ) -> None:
         """Inner task to handle actual matching logic."""
+        if identity is None:
+            identity = self._match_identity()
         try:
             end_time = readings[-1][0]
             start_time = readings[0][0]
             current_duration = (end_time - start_time).total_seconds()
+            # Which cycle this match is FOR (item 388e) is `identity`, captured at
+            # dispatch. The await below yields the loop, and the cycle can end - or
+            # the next one start - before it returns; applying the result then
+            # rewrote `_current_program` and the expected duration on a finished
+            # cycle, and pushed it into the detector, so the next cycle reached
+            # RUNNING already "matched".
 
             # 1. RUN BETTER ASYNC MATCHING
+            # in_progress: this is the live match on a cycle that is still running,
+            # so Stage 4 grades each candidate on the same elapsed stretch instead
+            # of on its complete duration/energy (#400). The two final-match paths
+            # (_run_final_match_from_cycle_data, _async_process_cycle_end) leave it
+            # off - there the cycle really is complete.
             result = await self.profile_store.async_match_profile(
                  readings,
-                 current_duration
+                 current_duration,
+                 in_progress=True,
+                 # Lets the #288 prefix term ignore longer programmes that never
+                 # pause below this threshold, so cannot explain a quiet (#424).
+                 stop_threshold_w=float(self.detector.config.stop_threshold_w),
             )
+
+            if not self._match_still_current(identity):
+                self._logger.debug(
+                    "Discarding a live match that returned after its cycle ended "
+                    "(detector %s)", self.detector.state,
+                )
+                return
 
             # 2. UPDATE MANAGER STATE (Estimates, Program Name, etc.)
             self._last_match_result = result
             self._last_match_ambiguous = result.is_ambiguous
 
-            profile_name = result.best_profile
-            confidence = result.confidence
-            matched_duration = result.expected_duration
-            phase_name = result.matched_phase
-
             # --- Switching Logic (Temporal Persistence) ---
-            should_switch = False
-            switch_reason = ""
-
-            # Identify current program score from results
-            current_program_score = 0.0
-            for c in result.candidates:
-                if c.get("name") == self._current_program:
-                    current_program_score = c.get("score", 0.0)
-                    break
-
-            # CASE: Divergence Detection (Score Drop)
-            # If current matched program has a significant drop from its own peak score,
-            # we should consider unmatching it even if it's still the "best" candidate.
-            if (
-                self._current_program not in ("detecting...", "off", "starting", "unknown")
-                and profile_name == self._current_program
-            ):
-                history: list[float] = self._score_history.get(self._current_program, [])
-                if len(history) > 3:
-                    peak_score = max(history)
-                    # If score drops by more than 40% from peak AND is below threshold, unmatch.
-                    # This catches divergence faster than waiting for fixed unmatch_threshold.
-                    if confidence < peak_score * (1.0 - DEFAULT_MATCH_REVERT_RATIO):
-                        self._unmatch_persistence_counter += 1
-                        if self._unmatch_persistence_counter >= self._match_persistence:
-                            self._current_program = "detecting..."
-                            self._matched_profile_duration = None
-                            self._unmatch_persistence_counter = 0
-                            self._logger.info(
-                                "Divergence detected for profile '%s' (confidence %.3f < 60%% of peak %.3f). "
-                                "Reverting to detection.",
-                                profile_name, confidence, peak_score
-                            )
-                            # Reset profile_name so Case 3 doesn't re-trigger
-                            profile_name = "detecting..."
-
-            # Update persistence for the best profile
-            if profile_name and profile_name != "detecting...":
-                self._match_persistence_counter[profile_name] = self._match_persistence_counter.get(profile_name, 0) + 1
-
-                # Check if this is the same candidate as before
-                if profile_name != self._current_match_candidate:
-                    # Reset counter for old candidate if it wasn't locked in
-                    self._current_match_candidate = profile_name
-                    self._match_persistence_counter[profile_name] = 1
-            else:
-                self._current_match_candidate = None
-
-            is_persistent = profile_name and self._match_persistence_counter.get(profile_name, 0) >= self._match_persistence
-
-            # --- Live-match features: compute always for ranking history + ML gate ---
-            # Features are cheap scalars derived from the current trace.  We compute
-            # them whenever there is a non-ambiguous candidate so they can be recorded
-            # as a training snapshot regardless of whether ML models are opted in.
-            # The opt-in ML commit check then uses the same features when enabled.
-            ml_commit_score: float | None = None
-            _live_feat: dict[str, float] | None = None
-            _top2_score: float | None = None
-            if (
-                profile_name
-                and profile_name != "detecting..."
-                and not result.is_ambiguous
-                and self._current_program in ("detecting...",)
-            ):
-                try:
-                    from .ml.feature_extraction import live_match_features  # noqa: PLC0415
-
-                    first_ts = readings[0][0]
-                    pts = [
-                        ((ts - first_ts).total_seconds(), float(pw))
-                        for ts, pw in readings
-                    ]
-                    top1_dist = max(0.0, 1.0 - confidence)
-                    top2_raw: float | None = None
-                    if len(result.candidates) > 1:
-                        s2 = result.candidates[1].get("score", 0.0) or 0.0
-                        top2_raw = max(0.0, 1.0 - float(s2))
-                        _top2_score = float(result.candidates[1].get("score", 0.0) or 0.0)
-                    n_profiles = len(self.profile_store.get_profiles())
-                    _live_feat = live_match_features(
-                        points=pts,
-                        elapsed_s=current_duration,
-                        top1_distance=top1_dist,
-                        top2_distance=top2_raw,
-                        top1_median_duration_s=float(result.expected_duration or 0),
-                        candidate_count=max(1, n_profiles),
-                    )
-                    # --- ML early-commit gate (opt-in) ---
-                    # When the user has opted into experimental ML models, query the
-                    # live_match_commit model for P(top-1 is correct).
-                    try:
-                        from .ml.engine import ml_models_enabled, resolve_scorer  # noqa: PLC0415
-                        if ml_models_enabled(self.config_entry.options):
-                            match_fn, _ = resolve_scorer("live_match", self.profile_store)
-                            if match_fn is not None:
-                                ml_commit_score = float(match_fn(_live_feat))
-                                self._logger.debug(
-                                    "Live-match ML commit score for '%s': %.3f (threshold %.2f)",
-                                    profile_name,
-                                    ml_commit_score,
-                                    ML_MATCH_COMMIT_THRESHOLD,
-                                )
-                    except Exception:  # noqa: BLE001
-                        pass
-                except Exception:  # noqa: BLE001 - ML must never break matching
-                    pass
-
-            # --- Record ranking snapshot for live_match on-device training ---
-            # Snapshot is recorded unconditionally (not gated on ML opt-in) so that
-            # training data accumulates even before the user enables ML models.
-            # Confirmed labels are back-filled at cycle end.
-            if _live_feat is not None and self._cycle_start_time:
-                try:
-                    self.profile_store.record_match_ranking_snapshot(
-                        start_time_iso=self._cycle_start_time.isoformat(),
-                        features=_live_feat,
-                        top1_profile=profile_name or "",
-                        top1_score=float(confidence),
-                        top2_score=_top2_score,
-                        candidate_count=max(1, len(self.profile_store.get_profiles())),
-                        cycle_id=self._ranking_snapshot_cycle_id,
-                    )
-                except Exception:  # noqa: BLE001 - never break matching
-                    pass
-
-            ml_early_commit = (
-                ml_commit_score is not None
-                and ml_commit_score >= ML_MATCH_COMMIT_THRESHOLD
-                and confidence >= 0.30
+            # The rules live in `match_rules` (audit PLAYGROUND-01/03), shared with
+            # the Playground replay so it makes the decisions made here. Step 1:
+            # margin, divergence revert, persistence. `profile_name` is the tick's
+            # name from here on - "detecting..." after a divergence revert, which is
+            # also what the detector is handed below.
+            switch_state = _read_switch_state(self)
+            tick = match_rules.begin_tick(
+                switch_state, result, self._match_persistence, current_duration
             )
+            _write_switch_state(self, switch_state, tick.log)
+            profile_name = tick.profile_name
+            confidence = tick.confidence
+            matched_duration = tick.matched_duration
+            phase_name = tick.phase_name
 
-            # Case 1: Initial Match from "detecting..."
-            if (
-                profile_name
-                and confidence >= 0.15
-                and (not result.is_ambiguous or is_persistent)
-                and (not self._matched_profile_duration or self._current_program == "detecting...")
-            ):
-                if is_persistent:
-                    should_switch = True
-                    switch_reason = f"initial_match (persistent {self._match_persistence_counter[profile_name]}x)"
-                elif ml_early_commit:
-                    should_switch = True
-                    switch_reason = (
-                        f"initial_match (ML commit score {ml_commit_score:.3f} >= {ML_MATCH_COMMIT_THRESHOLD})"
-                    )
-                else:
-                    self._logger.debug(
-                        "Match persistence: %s at %d/%d matches. Stay at detecting...",
-                        profile_name, self._match_persistence_counter.get(profile_name, 0), self._match_persistence
-                    )
+            # Step 2 (match_rules.decide_switch): Case 1 initial commit, Case 2
+            # decisive-margin / trend switch, Case 3 unmatch, and the switch itself.
+            switch_state = _read_switch_state(self)
+            switch_log = match_rules.decide_switch(
+                switch_state,
+                tick,
+                result,
+                self._match_persistence,
+                self._unmatch_threshold,
+            )
+            _write_switch_state(self, switch_state, switch_log)
 
-            # Case 2: Mid-cycle override (different profile)
-            elif (
-                profile_name
-                and self._current_program != profile_name
-                and self._current_program not in ("detecting...", "off", "starting", "unknown")
-            ):
-                # High Confidence Override: Bypass persistence if match is VERY strong
-                if confidence > 0.8 and (confidence - current_program_score) > 0.15:
-                    should_switch = True
-                    switch_reason = f"high_confidence_override ({confidence:.3f} vs {current_program_score:.3f})"
-
-                # Normal Switch: Requires persistence AND either better score + trend
-                elif is_persistent:
-                    if confidence > current_program_score and self._analyze_trend(profile_name):
-                        # Add a minimum score gap for mid-cycle switching (0.05) to prevent flapping
-                        if (confidence - current_program_score) > 0.05:
-                            should_switch = True
-                            switch_reason = f"positive_trend_persistent ({confidence:.3f} > {current_program_score:.3f})"
-
-            # Case 3: Unmatching (confidence drop)
-            elif (
-                self._current_program not in ("detecting...", "off", "starting", "unknown")
-                and profile_name == self._current_program
-                and confidence < self._unmatch_threshold
-            ):
-                self._unmatch_persistence_counter += 1
-                is_unmatch_persistent = self._unmatch_persistence_counter >= self._match_persistence
-
-                if is_unmatch_persistent:
-                    self._current_program = "detecting..."
-                    self._matched_profile_duration = None
-                    self._unmatch_persistence_counter = 0
-                    self._logger.info(
-                        "Unmatched profile '%s' (confidence %.3f < threshold %.3f persistent %dx). "
-                        "Reverting to detection.",
-                        profile_name,
-                        confidence,
-                        self._unmatch_threshold,
-                        self._match_persistence
-                    )
-                else:
-                    self._logger.debug(
-                        "Unmatch persistence: %s at %d/%d low-confidence matches. Stay at %s...",
-                        profile_name, self._unmatch_persistence_counter, self._match_persistence, profile_name
-                    )
-
-            # Reset unmatch counter if confidence is healthy
-            # AND we didn't just detect a divergence
-            elif (
-                profile_name == self._current_program
-                and confidence >= self._unmatch_threshold
-                and not (len(self._score_history.get(self._current_program, [])) > 3 and confidence < max(self._score_history[self._current_program]) * (1.0 - DEFAULT_MATCH_REVERT_RATIO))
-            ):
-                self._unmatch_persistence_counter = 0
-
-            if should_switch:
-                if profile_name is None:
-                    self._current_program = "detecting..."
-                else:
-                    self._current_program = profile_name
-                self._last_match_confidence = confidence
-                self._unmatch_persistence_counter = 0 # Reset on switch
-                if profile_name in self._match_persistence_counter:
-                    self._match_persistence_counter[profile_name] = self._match_persistence # Lock it in
-
-                avg_duration = float(matched_duration)
-                self._matched_profile_duration = avg_duration if avg_duration > 0 else None
-                self._logger.info(
-                     "Switching to profile '%s' (reason: %s). Expected duration: %.0fs (%smin)",
-                     profile_name, switch_reason, avg_duration, int(avg_duration / 60),
-                )
-            elif profile_name == self._current_program:
-                # Same program, but update confidence for sensors
-                self._last_match_confidence = confidence
-            elif not self._matched_profile_duration:
-                self._current_program = "detecting..."
-
-            self._last_estimate_time = dt_util.now()
+            self._last_estimate_time = utc_now()
 
             # Update score history for all candidates to track trends
-            for cand in result.candidates:
-                cname = cand.get("name")
-                if cname:
-                    history = self._score_history.setdefault(cname, [])
-                    history.append(float(cand.get("score", 0.0)))
-                    if len(history) > 20:
-                        history.pop(0)
+            match_rules.record_scores(switch_state, result.candidates)
 
             # Note: _update_remaining_only() and notify move to end of flow
 
@@ -1187,7 +1370,10 @@ class WashDataManager:
             # authoritative and must not be re-judged by the envelope heuristic
             # (see the verified_pause override below).
             stop_thresh = float(self.detector.config.stop_threshold_w)
-            if current_matched and current_power < stop_thresh and not self._is_user_paused:
+            alignment: tuple[bool, float] | None = None
+            if match_rules.needs_alignment_check(
+                current_matched, current_power, stop_thresh, self._is_user_paused
+            ):
                 formatted = power_data_to_offsets(cast(list[list[Any] | tuple[Any, ...]], readings))
                 try:
                     profile_store_any = cast(Any, self.profile_store)
@@ -1195,6 +1381,15 @@ class WashDataManager:
                     is_confirmed, mapped_time, _ = (
                         await verify_alignment(current_matched, formatted)
                     )
+                    if not self._match_still_current(identity):
+                        # Same race as the matcher await above (audit LIVE-02): a
+                        # verified pause and the old match must not land on a
+                        # finished detector and carry into the next cycle.
+                        self._logger.debug(
+                            "Discarding a live match whose alignment check returned "
+                            "after its cycle ended"
+                        )
+                        return
                 except Exception as e: # pylint: disable=broad-exception-caught
                     self._logger.error(
                         "Alignment verification crashed for profile %s: %s",
@@ -1202,82 +1397,113 @@ class WashDataManager:
                     )
                     is_confirmed = False
                     mapped_time = 0.0
+                alignment = (is_confirmed, mapped_time)
 
-                if is_confirmed:
-                    if not verified_pause:
-                        self._logger.info(
-                            "Envelope verified expected low power phase for %s. Enabling verified pause.",
-                            current_matched
-                        )
-                    verified_pause = True
-                    # Smart Termination within Envelope block
-                    try:
-                        profile = self.profile_store.get_profile(current_matched)
-                        if profile:
-                            avg_dur = profile.get("avg_duration", 0)
-                            if avg_dur > 0 and (mapped_time / avg_dur) > 0.95:
-                                verified_pause = False
-                                self._logger.info("Smart Termination: Near end of profile. Releasing pause lock.")
-                    except Exception as e:
-                        self._logger.debug("Smart Termination alignment verification failed: %s", e)
-                else:
-                    if verified_pause:
-                        self._logger.info(
-                            "Envelope indicates UNEXPECTED low power for %s. Disabling verified pause.",
-                            current_matched
-                        )
-                    verified_pause = False
-
-            # --- High Power Clear ---
-            stop_threshold = getattr(self.detector.config, "stop_threshold_w", 5.0)
-
-            if current_power > stop_threshold * 10:
-                verified_pause = False
-
-            # A user-initiated pause (Pause Cycle button, or the door-open soft
-            # pause) stays in force until the user resumes (issue #306).  The
-            # heuristics above only govern *auto-detected* low-power phases; without
-            # this override they clear verified_pause and the cycle is finalized
-            # (leaving the "Paused by user" state, e.g. a dishwasher closes at the
-            # 1 h min-off-gap timeout) instead of waiting for Resume.  Re-asserting
-            # here also repairs the flag after a restart, since the detector state
-            # snapshot does not persist _verified_pause.
-            if self._is_user_paused:
-                verified_pause = True
-
-            # --- Consistency Override ---
-            # If envelope verified or mismatched, ensure manager program matches
-            if profile_name != self._current_program and (verified_pause or result.is_confident_mismatch):
-                if profile_name:
-                    self._current_program = profile_name
-                    self._last_match_confidence = confidence
-                    # Try to fetch duration if we switched back to matched
-                    try:
-                        prof = self.profile_store.get_profile(profile_name)
-                        if prof:
-                            self._matched_profile_duration = float(prof.get("avg_duration", 0))
-                    except Exception as e:
-                        self._logger.debug("Failed to fetch profile duration on switch: %s", e)
-                else:
-                    self._current_program = "detecting..."
-                    self._matched_profile_duration = None
-
-            # --- HEURISTICS (Descriptive Phases) ---
-            if not phase_name:
-                if self.device_type == "dishwasher" and self.detector.is_waiting_low_power():
-                    phase_name = "Drying"
-                elif self.device_type == "washing_machine" and current_power > 200:
-                    phase_name = "Spinning"
-                elif self.device_type == "washing_machine" and self.detector.is_waiting_low_power():
-                    phase_name = "Rinsing/Soaking"
-
-            # Push updates to detector
-            self.detector.set_verified_pause(verified_pause)
-            self.detector.update_match(
-                (profile_name, confidence, matched_duration, phase_name,
-                 result.is_confident_mismatch, result.is_ambiguous,
-                 result.is_prefix_ambiguous)
+            # Confirmed alignment, the 95%-of-span release, the high-power clear,
+            # the #375 sustained-quiet release and the user-pause override
+            # (match_rules.decide_verified_pause). The quiet tally is the GAP-FREE
+            # one: a telemetry outage is unobserved time and must not satisfy the
+            # #375 quiet floor (falls back to the plain tally on an older detector).
+            pause = match_rules.decide_alignment_pause(
+                verified_pause=verified_pause,
+                current_matched=current_matched,
+                alignment=alignment,
+                envelope_span=self.profile_store.envelope_time_span,
             )
+            if pause.envelope_position is not None:
+                self._envelope_position = pause.envelope_position
+            _emit_rule_log(self._logger, pause.log)
+            pause = match_rules.decide_pause_release(
+                verified_pause=pause.verified_pause,
+                current_matched=current_matched,
+                current_power=current_power,
+                stop_threshold_w=getattr(self.detector.config, "stop_threshold_w", 5.0),
+                user_paused=self._is_user_paused,
+                expected_duration=self.detector.expected_duration_seconds,
+                current_duration=current_duration,
+                time_below=getattr(
+                    self.detector,
+                    "_time_below_threshold_gapfree",
+                    getattr(self.detector, "_time_below_threshold", 0.0),
+                ),
+                program=self._current_program,
+            )
+            _emit_rule_log(self._logger, pause.log)
+            verified_pause = pause.verified_pause
+
+            # --- Consistency Override (verified pause / confident mismatch) ---
+            switch_state = _read_switch_state(self)
+            override_log = match_rules.consistency_override(
+                switch_state, tick, result, verified_pause, self.profile_store.get_profile
+            )
+            _write_switch_state(self, switch_state, override_log)
+
+            # Register item 469(b): an ambiguous tick in ENDING engages no new
+            # verified pause (the detector refuses its match if it would defer).
+            pause = match_rules.hold_in_ending(
+                ending=self.detector.state == STATE_ENDING,
+                is_ambiguous=bool(result.is_ambiguous),
+                current_matched=current_matched,
+                prev_verified=getattr(self.detector, "_verified_pause", False),
+                verified_pause=verified_pause,
+                user_paused=self._is_user_paused,
+            )
+            _emit_rule_log(self._logger, pause.log)
+            # Push updates to detector
+            self.detector.set_verified_pause(pause.verified_pause)
+            # A divergence revert revokes the detector's match (no name, revoke flag).
+            profile_name, revoke = match_rules.detector_match(tick, result)
+            # Built by name (audit DETECT-15); see CycleDetector.MatchContext.
+            terminal_high = self._terminal_high_for_guards(profile_name)
+            # Half-interval matching until the first commit (audit LIVE-17).
+            self.detector.set_match_committed(
+                match_rules.program_is_committed(self._current_program)
+            )
+            self.detector.update_match(MatchContext(
+                profile_name=profile_name,
+                confidence=confidence,
+                expected_duration=matched_duration,
+                phase_name=phase_name,
+                is_confident_mismatch=revoke,
+                is_ambiguous=result.is_ambiguous,
+                is_prefix_ambiguous_full_shape=result.is_prefix_ambiguous_full_shape,
+                tail_power=(
+                    self.profile_store.profile_tail_power(profile_name) if profile_name else None
+                ),
+                terminal_high=terminal_high,
+                # Item 297: the profile's measured post-activity quiet span, which
+                # bounds how much of Smart Termination's delay the tail may keep.
+                terminal_quiet_s=(
+                    self.profile_store.profile_terminal_quiet_seconds(profile_name)
+                    if profile_name else None
+                ),
+                # Item 330: from the FULL candidate population, carried on the
+                # result (`result.candidates` is the top 5 and would hide the very
+                # programme an ambiguous match may be warning about).
+                longest_candidate_s=float(
+                    getattr(result, "longest_candidate_duration_s", 0.0) or 0.0
+                ),
+                # Item 384: the shortest length the user has vouched for.
+                trusted_min_s=(
+                    self.profile_store.profile_trusted_min_duration(profile_name)
+                    if profile_name else None
+                ),
+                # Audit DETECT-16: the pause catalogue for the hazard end gate.
+                pause_catalogue=(
+                    self.profile_store.profile_pause_catalogue(
+                        profile_name, float(self.detector.config.stop_threshold_w)
+                    ) if profile_name else None
+                ),
+                # #452: the same below the near-stop ceiling, for the stall display.
+                # Lazy: read only when a flat run is long enough to be judged.
+                stall_catalogue=(
+                    functools.partial(
+                        self.profile_store.profile_pause_catalogue,
+                        profile_name,
+                        standby_near_stop_ceiling(self.detector.config.stop_threshold_w),
+                    ) if profile_name else None
+                ),
+            ))
 
             # --- LOGGING (Unified) ---
             self._logger.info(
@@ -1291,7 +1517,7 @@ class WashDataManager:
             # Fallback for restart-recovery: fires only if the immediate notification in
             # _on_state_change was missed (e.g., HA restarted mid-cycle before snapshot).
             if not getattr(self, "_notified_start", False):
-                if self._notify_fire_events and not self._start_event_fired:
+                if not self._start_event_fired:
                     self.hass.bus.async_fire(
                         EVENT_CYCLE_STARTED,
                         {
@@ -1300,11 +1526,18 @@ class WashDataManager:
                             "device_type": self.device_type,
                             "program": self._current_program,
                             "start_time": (
-                                self._cycle_start_time or dt_util.now()
+                                self._cycle_start_time or utc_now()
                             ).isoformat(),
                         },
                     )
                     self._start_event_fired = True
+                    self._cycle_ended_pending = True
+                    self._on_trigger_cycle_started()
+                    self._fire_device_trigger(
+                        TRIGGER_CYCLE_STARTED,
+                        self._current_program,
+                        start_time=(self._cycle_start_time or utc_now()).isoformat(),
+                    )
 
                 if self._notify_start_services or self._notify_actions:
                     msg_template = self.config_entry.options.get(
@@ -1339,7 +1572,7 @@ class WashDataManager:
                     self._check_pre_completion_notification()
 
             self._check_live_progress_notification()
-            self._notify_update()
+            self._notify_update_deferrable()
 
         except Exception as e:
             self._logger.error("Perform combined matching failed: %s", e, exc_info=True)
@@ -1361,23 +1594,18 @@ class WashDataManager:
         return _sanitize_ranking(raw_list)
 
     @property
-    def phase_description(self) -> str:
-        """Return a description of the current phase.
+    def phase_description(self) -> str | None:
+        """The current phase: a name from the matched profile's ranges, or None.
 
-        Prefers the *functional* progress-driven phase (the visual per-profile
-        phase configurator's ranges, indexed by the live ML-blended progress) so
-        the readout stays accurate even when a cycle runs longer/shorter than the
-        profile's nominal timeline. Falls back to the matcher's phase, then the
-        detector sub-state/state.
+        Only the *functional* progress-driven phase (the visual per-profile phase
+        configurator's ranges, indexed by the live ML-blended progress). None -
+        the sensor's ``unknown`` - when no range applies (audit PROGRESS-11): the
+        old fallbacks were the matcher's nearest-range guess, power heuristics
+        ("Spinning" over 200 W, so a 2 kW heater read Spinning) and the detector
+        sub-state, all English free text no translation could reach. The cycle
+        state itself stays on the state sensor (a translated slug).
         """
-        live = self._current_phase_from_progress()
-        if live:
-            return live
-        if self._last_match_result and self._last_match_result.matched_phase:
-            return self._last_match_result.matched_phase
-        if self.detector.sub_state:
-            return self.detector.sub_state
-        return self.detector.state
+        return self._current_phase_from_progress()
 
     def _current_phase_from_progress(self) -> str | None:
         """Live phase from the profile's configured ranges + ML-blended progress.
@@ -1385,15 +1613,18 @@ class WashDataManager:
         This is the *merge* of the visual phase configurator with the runtime
         estimator: one phase definition (the per-profile ranges the user draws),
         indexed by the smoothed progress fraction rather than raw elapsed seconds,
-        so overrun/underrun cycles still name the phase correctly. Returns None
-        (caller falls back) when not running, no profile is matched, or the
-        profile has no configured phase ranges. Never raises.
+        so overrun/underrun cycles still name the phase correctly. The fraction
+        maps onto the matched profile's expected duration (or the ranges' end if
+        they run longer), so ranges read at their real minutes (audit
+        PROGRESS-10). Returns None when not running, no profile is matched, the
+        profile has no phase ranges, or no range covers this point. Never raises.
         """
         return progress_mod.current_phase(
             self.profile_store,
             self.detector.state,
             self._current_program,
             self._cycle_progress,
+            self._matched_profile_duration,
         )
 
     @property
@@ -1411,6 +1642,26 @@ class WashDataManager:
             return None
         return getattr(result, "ambiguity_margin", None)
 
+    @property
+    def match_uncertainty(self) -> dict[str, Any] | None:
+        """Top two of an undecided live match, for the panel (MATCH-DECIDE-15).
+
+        Display only (``match_rules.live_match_uncertainty``). None while idle, on
+        a hand-picked program, or once the match is decided.
+        """
+        try:
+            if self.manual_program_active:
+                return None
+            if self.detector.state not in (
+                STATE_STARTING, STATE_RUNNING, STATE_PAUSED, STATE_USER_PAUSED, STATE_ENDING,
+            ):
+                return None
+            return match_rules.live_match_uncertainty(
+                self._last_match_result, self._current_program
+            )
+        except Exception:  # pylint: disable=broad-exception-caught
+            return None
+
     # Note: last_match_details property is defined later in the class
     # It returns MatchResult from _last_match_result
     async def _attempt_state_restoration(self) -> None:
@@ -1423,26 +1674,74 @@ class WashDataManager:
         power_is_valid = False
 
         if state and state.state not in (STATE_UNKNOWN, STATE_UNAVAILABLE):
-            try:
-                current_power = float(state.state)
-                power_is_valid = True
-            except (ValueError, TypeError):
-                # Power sensor state is not numeric during restoration; treat as 0W
+            _restore_power = self._state_power(state)
+            if _restore_power is None:
+                # Not numeric, or nan/inf: treat as 0W and do not restore by power.
+                # Leaving power_is_valid False is what keeps a non-finite reading out
+                # of the restore decision, whose comparisons would silently be False.
                 self._logger.debug(
-                    "Power sensor %s state %r is not numeric during restoration; "
-                    "treating as 0W and not restoring by power",
+                    "Power sensor %s state %r is not a finite number during "
+                    "restoration; treating as 0W and not restoring by power",
                     self.power_sensor_entity_id,
                     getattr(state, "state", None),
                 )
+            else:
+                current_power = _restore_power
+                power_is_valid = True
 
         should_restore = False
         active_snapshot_to_restore: dict[str, Any] | None = (
             active_snapshot if isinstance(active_snapshot, dict) else None
         )
 
+        snap = active_snapshot_to_restore or {}
+        snap_last_real = _snapshot_time(snap.get("last_real_reading_time"))
+
+        def is_live_silent_tail(now: datetime) -> bool:
+            """A cycle waiting out a silent low-power tail (register item 266).
+
+            The windows in ``is_viable_restore`` age the snapshot, but a silent
+            tail is not stale: the watchdog keeps such a cycle for as long as its
+            staleness budget allows silence (1 h, a dishwasher 4 h, the profile's
+            remaining time, a verified pause), and saves came only with real
+            readings, so a drying dishwasher's snapshot aged past 30 min while
+            Home Assistant was watching it. Restore what the watchdog would hold:
+            same budget, judged on the sensor's real silence, and only while the
+            sensor still reads low. Past that budget the watchdog would have
+            force-ended it, so it is genuinely stale and is still dropped.
+            """
+            if snap_last_real is None or not power_is_valid:
+                return False
+            if current_power >= self._config.min_power:
+                return False
+            if snap.get("state") not in (STATE_RUNNING, STATE_PAUSED, STATE_ENDING):
+                return False
+            try:
+                waiting = float(snap.get("time_below") or 0.0) > 0.0
+                expected = float(snap.get("expected_duration") or 0.0)
+            except (TypeError, ValueError, OverflowError):
+                return False
+            if not waiting:
+                return False
+            start = _snapshot_time(snap.get("current_cycle_start"))
+            elapsed = (now - start).total_seconds() if start is not None else 0.0
+            budget = self._low_power_silence_budget_s(
+                elapsed, expected, bool(snap.get("is_user_paused"))
+            )
+            silence = (now - snap_last_real).total_seconds()
+            if silence > budget:
+                return False
+            self._logger.info(
+                "Restoring a cycle in a silent low-power tail: sensor silent "
+                "%.0fs, within the watchdog's %.0fs budget",
+                silence,
+                budget,
+            )
+            return True
+
         # Helper to check if a snapshot is viable
         def is_viable_restore(last_save_time: datetime) -> bool:
-            now = dt_util.now()
+            now = utc_now()
             # Handle timezone mismatch gracefully
             if last_save_time.tzinfo is None:
                 # Assume naive means local system time, convert to aware
@@ -1460,7 +1759,7 @@ class WashDataManager:
                 and current_power >= self._config.min_power
             ):
                 return True
-            return False
+            return is_live_silent_tail(now)
 
         last_save = self.profile_store.get_last_active_save()
         if last_save and last_save.tzinfo is None:
@@ -1469,8 +1768,8 @@ class WashDataManager:
 
         if active_snapshot_to_restore is not None and last_save and is_viable_restore(last_save):
             should_restore = True
-            age = (dt_util.now() - last_save).total_seconds()
-            age = (dt_util.now() - last_save).total_seconds()
+            age = (utc_now() - last_save).total_seconds()
+            age = (utc_now() - last_save).total_seconds()
             self._logger.info(
                 "Found recently saved active cycle (last_save=%s, age=%.0fs), restoring...",
                 last_save,
@@ -1484,84 +1783,43 @@ class WashDataManager:
             # might have missed data
             active_snapshot_to_restore["dynamic_min_duration"] = None
 
-        # FALLBACK: Resurrection Logic
-        if not should_restore:
-            past_cycles = self.profile_store.get_past_cycles()
-            if past_cycles:
-                last_cycle = past_cycles[-1]
-                last_end_str = last_cycle.get("end_time")
-                if last_end_str:
-                    last_end = dt_util.parse_datetime(last_end_str)
-                    if last_end:
-                        gap = (dt_util.now() - last_end).total_seconds()
-                        is_recent = gap < 1200  # 20 mins
-                        status = last_cycle.get("status")
+        # A snapshot of a cycle that is already stored is not an active cycle: an
+        # HA restart between the cycle-end tail persisting the cycle and clearing
+        # the snapshot used to restore it, so the cycle ended twice - two stored
+        # copies, two "finished" pushes and lifetime energy counted twice on a
+        # TOTAL_INCREASING sensor (audit MANAGER-04).
+        if should_restore and active_snapshot_to_restore is not None:
+            snap_start = dt_util.parse_datetime(
+                str(active_snapshot_to_restore.get("current_cycle_start") or "")
+            )
+            if snap_start is not None and snap_start.tzinfo is None:
+                snap_start = snap_start.replace(tzinfo=dt_util.now().tzinfo)
+            if snap_start is not None:
+                for stored in self.profile_store.get_past_cycles()[-5:]:
+                    stored_start = dt_util.parse_datetime(
+                        str(stored.get("start_time") or "")
+                    )
+                    if stored_start is not None and stored_start.tzinfo is None:
+                        stored_start = stored_start.replace(tzinfo=dt_util.now().tzinfo)
+                    if stored_start is not None and abs(
+                        (stored_start - snap_start).total_seconds()
+                    ) < 1.0:
+                        self._logger.info(
+                            "Active-cycle snapshot belongs to stored cycle %s; "
+                            "not restoring it",
+                            stored.get("id"),
+                        )
+                        should_restore = False
+                        active_snapshot_to_restore = None
+                        await self.profile_store.async_clear_active_cycle()
+                        break
 
-                        if is_recent and status != "completed":
-                            self._logger.info(
-                                "Found recent interrupted cycle in history "
-                                "(id=%s, gap=%.0fs). Resurrecting...",
-                                last_cycle["id"],
-                                gap,
-                            )
-                            try:
-                                power_data = decompress_power_data(last_cycle)
-                                if power_data:
-                                    # decompress_power_data returns (offset_seconds, watts)
-                                    # tuples, but restore_state_snapshot parses reading[0]
-                                    # as an ISO datetime. Convert offsets to absolute ISO
-                                    # timestamps (base = cycle start) so the resurrected
-                                    # trace is not silently dropped (B4).
-                                    _res_start = dt_util.parse_datetime(
-                                        last_cycle["start_time"]
-                                    )
-                                    if _res_start is not None:
-                                        if _res_start.tzinfo is None:
-                                            _res_start = _res_start.replace(
-                                                tzinfo=dt_util.now().tzinfo
-                                            )
-                                        power_readings = [
-                                            (
-                                                (
-                                                    _res_start
-                                                    + timedelta(seconds=float(off))
-                                                ).isoformat(),
-                                                p,
-                                            )
-                                            for off, p in power_data
-                                        ]
-                                    else:
-                                        power_readings = power_data
-                                    active_snapshot_to_restore = {
-                                        # Reconstruct basic running state
-                                        "state": "running",
-                                        "sub_state": "Resurrected",
-                                        "current_cycle_start": last_cycle["start_time"],
-                                        "last_active_time": last_cycle["end_time"],
-                                        "low_power_start": None,
-                                        "cycle_max_power": (
-                                            max([p for _, p in power_data])
-                                            if power_data
-                                            else 0
-                                        ),
-                                        "power_readings": power_readings,
-                                        "ma_buffer": (
-                                            [p for _, p in power_data[-10:]]
-                                            if power_data
-                                            else []
-                                        ),
-                                        "end_condition_count": 0,
-                                        "extension_count": 0,
-                                        "dynamic_min_duration": None,
-                                        "matched_profile": last_cycle.get(
-                                            "profile_name"
-                                        ),
-                                    }
-                                    should_restore = True
-                                    past_cycles.pop()
-                                    await self.profile_store.async_save()
-                            except Exception as e:
-                                self._logger.error("Failed to resurrect cycle: %s", e)
+        # (The "resurrection" fallback that re-opened the last stored cycle when it
+        # was interrupted or force-stopped less than 20 min ago is gone: it popped
+        # the stored cycle and re-ended it on any restart or settings save, so the
+        # lifetime energy was counted twice, a second "finished" push went out and
+        # a force_stopped cycle was re-stored as completed - audit MANAGER-03. The
+        # 60 s active-cycle snapshot is what covers a mid-cycle restart.)
 
         if should_restore and active_snapshot_to_restore:
             try:
@@ -1579,10 +1837,42 @@ class WashDataManager:
                         "state": STATE_PAUSED,
                     }
 
-                self.detector.restore_state_snapshot(active_snapshot_to_restore)
+                if self.detector.restore_state_snapshot(active_snapshot_to_restore) is False:
+                    # The detector already logged the traceback.
+                    await self._async_keep_failed_restore(
+                        active_snapshot_to_restore,
+                        last_save,
+                        self.detector.restore_error or "restore_state_snapshot failed",
+                        traceback_logged=True,
+                    )
+                    return
+
+                # Anti-wrinkle keepalive anchor (#339). The keepalive in
+                # _handle_state_expiry needs a "sensor last spoke" timestamp, but
+                # _last_real_reading_time is only ever set by a live reading, so a
+                # restart into ANTI_WRINKLE with an already-silent plug leaves it
+                # None and the keepalive can never fire -- pinning the mode until
+                # the next cycle. The snapshot save is driven by real readings, so
+                # last_save is the best available proxy. Scoped to ANTI_WRINKLE so
+                # no other timer sees a synthetic anchor.
+                if self.detector.state == STATE_ANTI_WRINKLE and last_save:
+                    self._last_real_reading_time = snap_last_real or last_save
+                    # The cycle end started the expiry timer that runs that
+                    # keepalive; a restart into the tail must start it too.
+                    self._start_state_expiry_timer()
 
                 # Restore if in any active state (Running, Paused, Ending)
                 if self.detector.state in (STATE_RUNNING, STATE_PAUSED, STATE_ENDING):
+                    # The sensor's pre-restart silence clock (register item 266).
+                    # The setup read then decides whether the entity's startup
+                    # write is a new report or just the old value written again.
+                    if snap_last_real is not None:
+                        self._last_real_reading_time = snap_last_real
+                        self._restored_sensor_clock = (
+                            snap_last_real,
+                            _finite_power(snap.get("last_sensor_power")),
+                        )
+
                     # Restore manual program flag if present
                     self._manual_program_active = active_snapshot_to_restore.get(
                         "manual_program", False
@@ -1597,6 +1887,14 @@ class WashDataManager:
                         "energy_meter_source"
                     )
 
+                    # Restore the dynamic price timeline (#426). Prices recorded
+                    # before the restart stay valid; a change that happened while HA
+                    # was down is recovered from the recorder at cycle end, guided by
+                    # the restart gap recorded a few lines below.
+                    self._price_timeline = _coerce_price_timeline(
+                        active_snapshot_to_restore.get("price_timeline")
+                    )
+
                     # If we restored into a low-power state, ensure we don't
                     # immediately quit. For now we just log this; the cycle
                     # detector's off_delay will handle actual shutdown.
@@ -1609,21 +1907,107 @@ class WashDataManager:
                             self._config.min_power,
                         )
 
-                    if self.detector.matched_profile:
-                        self._current_program = self.detector.matched_profile
+                    # The committed program and its expected duration. Until the
+                    # snapshot carried them, the detector's match was all there was:
+                    # the last tick's raw winner, not necessarily the displayed
+                    # program, and no `_matched_profile_duration`, so the ETA was blank
+                    # and the first tick another candidate led reverted the program to
+                    # "detecting..." (decide_switch's no-duration branch).
+                    if "committed_program" in active_snapshot_to_restore:
+                        committed = active_snapshot_to_restore.get("committed_program")
+                        committed_duration = active_snapshot_to_restore.get(
+                            "committed_program_duration"
+                        )
+                    else:  # snapshot from an older version
+                        committed = self.detector.matched_profile
+                        committed_duration = self.detector.expected_duration_seconds
+                    committed_profile = (
+                        self.profile_store.get_profile(committed)
+                        if isinstance(committed, str) and committed
+                        else None
+                    )
+                    if committed_profile is not None:
+                        self._current_program = committed
+                        self._matched_profile_duration = self._profile_duration(
+                            committed_duration
+                        ) or self._profile_duration(committed_profile.get("avg_duration"))
                         self._logger.info(
-                            "Restored/Resurrected washer cycle with profile: %s",
+                            "Restored washer cycle with profile: %s (duration=%.0fs)",
                             self._current_program,
+                            self._matched_profile_duration or 0.0,
                         )
                     else:
                         self._current_program = "detecting..."
-                    
+
+                    # Re-pin a manual program override across the restart (#404
+                    # secondary bug). _manual_program_active was restored above, but
+                    # _matched_profile_duration was not; without this the manual
+                    # matcher tuple would feed expected_duration=0 on the next tick,
+                    # wipe the detector's matched_profile, and drop the cycle to
+                    # "detecting..." + the unmatched watchdog guard. The duration is
+                    # re-read from the (possibly since-learned) profile, so an empty
+                    # profile stays active with a None duration rather than being lost.
+                    if self._manual_program_active:
+                        manual_name = (
+                            active_snapshot_to_restore.get("manual_program_name")
+                            or self.detector.matched_profile
+                        )
+                        profile = (
+                            self.profile_store.get_profile(manual_name)
+                            if manual_name
+                            else None
+                        )
+                        if profile is not None:
+                            self._current_program = manual_name
+                            self._matched_profile_duration = self._profile_duration(
+                                profile.get("avg_duration")
+                            )
+                            self._logger.info(
+                                "Restored manual program override: %s (duration=%.0fs)",
+                                manual_name,
+                                self._matched_profile_duration or 0.0,
+                            )
+                        else:
+                            # The chosen profile was deleted while HA was down.
+                            self._manual_program_active = False
+                            self._logger.info(
+                                "Manual program %r no longer exists after restart; "
+                                "reverting to auto-detect",
+                                manual_name,
+                            )
+
                     # Restore persisted start-notification/event flags from snapshot.
                     self._notified_start = bool(
                         active_snapshot_to_restore.get("notified_start", False)
                     )
                     self._start_event_fired = bool(
                         active_snapshot_to_restore.get("start_event_fired", False)
+                    )
+                    # The restored cycle's start was signalled: its end owes a
+                    # cycle_ended trigger (#478).
+                    self._cycle_ended_pending = self._start_event_fired
+                    # One-shot per-cycle state (audit MANAGER-08); junk is dropped.
+                    _fired = active_snapshot_to_restore.get("fired_cycle_timers")
+                    self._fired_cycle_timers = {
+                        int(i) for i in (_fired if isinstance(_fired, list) else [])
+                        if isinstance(i, int) and not isinstance(i, bool)
+                    }
+                    self._notified_pre_completion = bool(
+                        active_snapshot_to_restore.get("notified_pre_completion", False)
+                    )
+                    self._pump_stuck = bool(
+                        active_snapshot_to_restore.get("pump_stuck", False)
+                    )
+                    self._restored_trigger_marks = active_snapshot_to_restore.get(
+                        "trigger_marks"
+                    )
+                    _gaps = active_snapshot_to_restore.get("restart_gaps")
+                    self._restart_gaps = [
+                        g for g in (_gaps if isinstance(_gaps, list) else [])
+                        if isinstance(g, dict)
+                    ]
+                    self._live_activity_started = bool(
+                        active_snapshot_to_restore.get("live_activity_started", False)
                     )
 
                     # Restore user-pause state from snapshot.
@@ -1646,6 +2030,11 @@ class WashDataManager:
                     if self._is_user_paused:
                         self.detector.set_verified_pause(True)
 
+                    # Auto-open dishwasher: arm the dwell if we restored into ENDING
+                    # with the door already open. _on_state_change is not called
+                    # during restoration, so the transition guard there would not fire.
+                    self._maybe_arm_door_end_dwell_if_open()
+
                     # Record the restart gap so the Cycles tab can shade it and
                     # anomaly detection can surface it.  Only meaningful when
                     # last_save is known and the dark period exceeds 30 s.
@@ -1653,7 +2042,7 @@ class WashDataManager:
                     # gap-fill analysis); synthetic fill is intentionally NOT added
                     # to _power_readings to prevent circular-bias inflation.
                     if last_save:
-                        gap_end = dt_util.now()
+                        gap_end = utc_now()
                         gap_secs = (gap_end - last_save).total_seconds()
                         if gap_secs > 30:
                             self._restart_gaps.append({
@@ -1661,8 +2050,11 @@ class WashDataManager:
                                 "end_ts": gap_end.isoformat(),
                                 "gap_seconds": round(gap_secs, 1),
                                 "profile": self.detector.matched_profile,
+                                # `_last_match_confidence`: the detector has no
+                                # `match_confidence` attribute, so this was always
+                                # None (audit DETECT-09).
                                 "match_confidence": getattr(
-                                    self.detector, "match_confidence", None
+                                    self.detector, "_last_match_confidence", None
                                 ),
                             })
                             self._logger.info(
@@ -1675,14 +2067,198 @@ class WashDataManager:
                     self._start_watchdog()
                 else:
                     await self.profile_store.async_clear_active_cycle()
-            except Exception as err:
-                self._logger.warning("Failed to restore active cycle: %s, clearing", err)
-                await self.profile_store.async_clear_active_cycle()
+            except Exception:  # noqa: BLE001
+                await self._async_keep_failed_restore(
+                    active_snapshot_to_restore, last_save, traceback.format_exc()
+                )
         else:
             if last_save:
-                age = (dt_util.now() - last_save).total_seconds()
+                age = (utc_now() - last_save).total_seconds()
                 self._logger.info("Active cycle too stale (age=%.0fs), clearing", age)
             await self.profile_store.async_clear_active_cycle()
+
+    async def _async_keep_failed_restore(
+        self,
+        snapshot: dict[str, Any],
+        last_save: datetime | None,
+        error: str,
+        *,
+        traceback_logged: bool = False,
+    ) -> None:
+        """A snapshot that could not be restored: say so, keep it, start from OFF.
+
+        It used to be deleted after one log line, so the running cycle vanished
+        without a trace (register item 266 follow-up). It is kept, the last one per
+        device, for the diagnostics download; the active slot is cleared so the
+        next restart does not trip over it again, and the detector starts OFF so
+        the appliance's next cycle is detected normally. Never raises.
+        """
+        now = utc_now()
+        age = (now - last_save).total_seconds() if last_save is not None else None
+        self._logger.warning(
+            "Could not restore the active cycle (state %r, snapshot age %s); kept it "
+            "for diagnostics and starting from OFF%s",
+            snapshot.get("state"),
+            f"{age:.0f}s" if age is not None else "unknown",
+            "" if traceback_logged else f":\n{error}",
+        )
+        if snapshot.get("start_event_fired") is True:
+            # Its start was announced before the restart (#478): the end it is owed
+            # goes out now, since nothing restored will ever finish it.
+            self._cycle_ended_pending = True
+            if self._cycle_start_time is None:
+                self._cycle_start_time = _snapshot_time(snapshot.get("current_cycle_start"))
+            self._end_dropped_cycle()
+        try:
+            self.detector.reset()
+        except Exception:  # noqa: BLE001
+            self._logger.debug("Detector reset after a failed restore raised", exc_info=True)
+        await self.profile_store.async_keep_failed_restore({
+            "failed_at": now.isoformat(),
+            "last_active_save": last_save.isoformat() if last_save is not None else None,
+            "age_s": round(age, 1) if age is not None else None,
+            "error": error,
+            "snapshot": snapshot,
+        })
+        try:
+            await self.profile_store.async_clear_active_cycle()
+        except Exception:  # noqa: BLE001
+            self._logger.debug("Clearing a failed snapshot raised", exc_info=True)
+
+    async def _async_repair_banked_tails(self) -> None:
+        """One-time repair of cycles that banked the end-of-cycle confirmation
+        delay as cycle time (register item 297).
+
+        Runs in the background after setup. Never raises: the store method already
+        swallows its own failures and leaves the history untouched, and this
+        wrapper exists only so a scheduling error cannot surface as an unhandled
+        task exception.
+        """
+        try:
+            result = await self.profile_store.async_repair_banked_tails(
+                float(self.detector.config.stop_threshold_w), self.device_type
+            )
+            if result.get("repaired"):
+                self._logger.info(
+                    "Repaired %d of %d stored cycles that had banked the "
+                    "end-of-cycle confirmation delay (%.0f min reclaimed); profile "
+                    "averages and envelopes rebuilt.",
+                    result["repaired"],
+                    result["examined"],
+                    result["reclaimed_s"] / 60.0,
+                )
+        except Exception as exc:  # pylint: disable=broad-exception-caught
+            self._logger.warning("Banked-tail repair could not run: %s", exc)
+
+    def async_schedule_banked_tail_repair(self) -> None:
+        """Run the one-time banked-tail repair now if the marker is armed.
+
+        `async_setup` is one caller, and covers the storage migration that arms
+        the marker at v12->v13. An **import** arms it too - both
+        `async_import_data` and `async_import_data_selective` set it for a payload
+        old enough to carry banked tails - and an import does not reliably reload
+        the entry: the WS handlers only call `async_update_entry` when the payload
+        brings options with it, so a cycles-only import, or any selective import
+        with `apply_settings=False`, left the marker set and the imported tails
+        feeding `avg_duration`, the ETA and Smart Termination until the next
+        restart.
+
+        Cheap when there is nothing to do - the marker is the whole test, and the
+        repair clears it. A second call while the first is still in flight is a
+        no-op rather than a second walk of the history: the repair only clears the
+        marker at the end, so the check alone would not stop two concurrent runs
+        from rebuilding the same envelopes.
+        """
+        if self.profile_store.banked_tail_repair_pending() is not True:
+            return
+        existing = self._banked_tail_repair_task
+        if existing is not None and not existing.done():
+            return
+        self._banked_tail_repair_task = self._spawn_tracked(
+            self._async_repair_banked_tails()
+        )
+
+    def _terminal_high_for_guards(self, profile_name: str | None) -> Any:
+        """Element 10: the matched profile's last high-power block, or None.
+
+        Two callers with two different bars, and the bar has to travel with the
+        block (register item 351):
+
+        * **anti-crease** (#399) measures against ``anti_wrinkle_max_power``, the
+          dryer's "a tumble is below this" level. Only meaningful while
+          anti-wrinkle is on, and it sends a triple.
+        * **the standby-band finalise** (#296 / #445) shares the same predicate,
+          and used to get nothing at all: element 10 was supplied ONLY when
+          anti-wrinkle was enabled, and `DEFAULT_ANTI_WRINKLE_ENABLED` is False,
+          so `_anticrease_spin_pending` returned False immediately and a washer
+          could finalise on the quiet plateau before its final spin - recording
+          that spin as a second cycle. Measured over the 273-cycle replay corpus:
+          the standby band fires on 14 cycles, 11 of them with the guard inert,
+          and 6 of those 11 have a reading above `min_power` still ahead, i.e.
+          would split. This arms it against a share of the cycle's own peak, the
+          same `STANDBY_BAND_MAX_FRACTION` the plateau test uses, which recovers
+          5 of the 6 for one extra bounded wait. Sent as a QUAD so
+          `_high_power_seconds_since` counts against that bar too.
+
+        Returns None when nothing applies, which leaves the guard exactly as
+        inert as it was - the fail-open direction every input here takes.
+        """
+        # One implementation, shared with the Playground's sim tuple - see
+        # `cycle_detector.terminal_high_for_guards` for why it is not inlined here.
+        return terminal_high_for_guards(
+            self.profile_store,
+            self.detector.config,
+            getattr(self.detector, "_cycle_max_power", 0.0),
+            profile_name,
+        )
+
+    def _load_runtime_options(self, config_entry: Any) -> None:
+        """Manager-level tunables, read the same way at setup and on reload (388c)."""
+        options = config_entry.options
+        self._no_update_active_timeout = float(
+            options.get(CONF_NO_UPDATE_ACTIVE_TIMEOUT, DEFAULT_NO_UPDATE_ACTIVE_TIMEOUT)
+        )
+        self._low_power_no_update_timeout = float(
+            options.get(CONF_LOW_POWER_NO_UPDATE_TIMEOUT, DEFAULT_LOW_POWER_NO_UPDATE_TIMEOUT)
+        )
+        self._off_delay = float(
+            _option_then_data(
+                config_entry, CONF_OFF_DELAY, resolve_off_delay_default(self.device_type)
+            )
+        )
+        # Coerced here rather than at the point of use. Both thresholds are compared
+        # against a match confidence inside the cycle-end tail, and that tail runs as
+        # a spawned task: a non-numeric option (an import file is hand-editable, and
+        # strip_null_options only removes nulls) raised there instead, killing the task
+        # before async_add_cycle and losing the whole cycle. Same #389 failure shape,
+        # one step later. Falls back to the default rather than to 0, which would
+        # silently auto-label everything.
+        self._learning_confidence = option_float(
+            options.get(CONF_LEARNING_CONFIDENCE, DEFAULT_LEARNING_CONFIDENCE),
+            DEFAULT_LEARNING_CONFIDENCE,
+        )
+        # (No `_auto_label_confidence`: it was write-only. The learning manager
+        # reads the option itself at cycle end.)
+        # Clamped to >= 1, the same floor `SuggestionEngine` applies to this key:
+        # its interval cap is computed FROM this number, and zero would disable the
+        # gate rather than tighten it (every `counter >= 0` is true).
+        self._match_persistence = option_int(
+            options.get(CONF_MATCH_PERSISTENCE, DEFAULT_MATCH_PERSISTENCE),
+            DEFAULT_MATCH_PERSISTENCE,
+            minimum=1,
+        )
+        self._progress_reset_delay = int(
+            options.get(CONF_PROGRESS_RESET_DELAY, DEFAULT_PROGRESS_RESET_DELAY)
+        )
+        # Read here, not only in the constructor (audit MANAGER-15): the last
+        # manager tunable an options reload left stale.
+        self._noise_events_threshold = option_int(
+            options.get(
+                CONF_AUTO_TUNE_NOISE_EVENTS_THRESHOLD,
+                DEFAULT_AUTO_TUNE_NOISE_EVENTS_THRESHOLD,
+            ),
+            DEFAULT_AUTO_TUNE_NOISE_EVENTS_THRESHOLD,
+        )
 
     async def async_setup(self) -> None:
         """Set up the manager."""
@@ -1702,6 +2278,7 @@ class WashDataManager:
                     "timer_default_message": "{device}: {minutes} min timer",
                     "timer_pause_action_title": "Resume Cycle",
                     "timer_pause_body_suffix": "The cycle is paused. Open the WashData panel to resume.",
+                    "unload_dismiss_action_title": "Stop reminding",
                     "vs_typical_longer": "{pct}% longer than usual",
                     "vs_typical_shorter": "{pct}% shorter than usual",
                     "notify_live_waiting_message": "{device}: No profile matched yet.",
@@ -1709,30 +2286,39 @@ class WashDataManager:
             }
         except Exception:  # noqa: BLE001
             pass
-        # Apply configurable duration tolerance to profile store
+
+        # Re-scope custom phases stranded under another device type (#450). Cheap,
+        # idempotent and saves only on a change, so it runs on every setup rather
+        # than behind a one-shot marker: a reconfigure that changes device_type
+        # would otherwise strand the phases all over again.
         try:
-            self.profile_store.set_duration_tolerance(self._profile_duration_tolerance)
-            self.profile_store.set_retention_limits(
-                max_past_cycles=int(
-                    self.config_entry.options.get(
-                        CONF_MAX_PAST_CYCLES, DEFAULT_MAX_PAST_CYCLES
-                    )
-                ),
-                max_full_traces_per_profile=int(
-                    self.config_entry.options.get(
-                        CONF_MAX_FULL_TRACES_PER_PROFILE,
-                        DEFAULT_MAX_FULL_TRACES_PER_PROFILE,
-                    )
-                ),
-                max_full_traces_unlabeled=int(
-                    self.config_entry.options.get(
-                        CONF_MAX_FULL_TRACES_UNLABELED,
-                        DEFAULT_MAX_FULL_TRACES_UNLABELED,
-                    )
-                ),
+            rescoped = await self.profile_store.async_repair_custom_phase_scope(
+                self.device_type
             )
-        except Exception:
-            pass
+            if rescoped:
+                self._logger.info(
+                    "Re-scoped %d custom phase(s) that were stored under another "
+                    "device type and could not be shown, edited or deleted.",
+                    rescoped,
+                )
+        except Exception:  # pylint: disable=broad-exception-caught
+            self._logger.exception("Failed re-scoping custom phases for %s", self.entry_id)
+        # After the re-scope, so a custom phase it brought back is not duplicated.
+        try:
+            adopted = await self.profile_store.async_adopt_retired_builtin_phases(
+                self.device_type
+            )
+            if adopted:
+                self._logger.info(
+                    "Kept %d built-in phase(s) of a device type removed in 0.5.9 "
+                    "as custom phases, because profiles still use them.",
+                    adopted,
+                )
+        except Exception:  # pylint: disable=broad-exception-caught
+            self._logger.exception("Failed keeping retired built-in phases for %s", self.entry_id)
+
+        # Preset maintenance reminders count from when they first apply (#461).
+        self._sync_maintenance_baselines()
 
         # Repair broken sample_cycle_id references (can happen after aggressive retention)
         try:
@@ -1752,13 +2338,24 @@ class WashDataManager:
                 "Failed repairing profile sample references for %s", self.entry_id
             )
 
-        # Subscribe to power sensor updates
-        self._remove_listener = async_track_state_change_event(
-            self.hass, [self.power_sensor_entity_id], self._async_power_changed
-        )
+        # The idle display's standby level, from the stored cycles (#452).
+        await self._async_refresh_standby_level()
+
+        # Subscribe to power sensor updates (state changes AND unchanged re-reports)
+        self._subscribe_power_sensor()
 
         # Attempt to restore state (BEFORE starting listener)
         await self._attempt_state_restoration()
+        # What the restored cycle shows was announced before the restart (#478).
+        self._trigger_baseline()
+        # A day-interval maintenance task falls due at any time, also while an idle
+        # plug that reports only on change sends nothing (#478).
+        if self._remove_maintenance_timer is not None:
+            self._remove_maintenance_timer()
+        self._remove_maintenance_timer = async_track_time_interval(
+            self.hass, self._maintenance_tick,
+            timedelta(seconds=TRIGGER_MAINTENANCE_IDLE_CHECK_S),
+        )
 
         # Restore last cycle end time to ensure ghost cycle suppression works after restart
         try:
@@ -1778,24 +2375,28 @@ class WashDataManager:
         # Load recorder state
         await self.recorder.async_load()
 
+        # Rehydrate a program armed before a restart (#411). Arming is an
+        # idle-time action, so the wait between picking a program and starting the
+        # machine can easily span a Home Assistant restart.
+        try:
+            self._armed_program = self.profile_store.get_armed_program()
+            if self._armed_program:
+                self._logger.info(
+                    "Program %r is armed for the next cycle", self._armed_program
+                )
+        except Exception:  # pylint: disable=broad-exception-caught
+            self._armed_program = None
+
         # Force initial update from current state (in case it's already stable)
-        state = self.hass.states.get(self.power_sensor_entity_id)
-        if state and state.state not in (STATE_UNKNOWN, STATE_UNAVAILABLE):
-            try:
-                power = float(state.state)
-                now = dt_util.now()
-                self.detector.process_reading(power, now)
-            except (ValueError, TypeError):
-                pass
+        self._read_power_state_at_setup()
 
         # Trigger migration/compression of old cycle format
         # This is safe to run repeatedly (it skips already compressed cycles)
         await self.profile_store.async_migrate_cycles_to_compressed()
 
-        # Backfill match_confidence for labeled cycles that predate the field
-        self.hass.async_create_task(
-            self.profile_store.async_backfill_match_confidence()
-        )
+        # Backfill match_confidence for labeled cycles that predate the field.
+        # Tracked (audit MANAGER-13): it saves the store.
+        self._spawn_tracked(self.profile_store.async_backfill_match_confidence())
 
         # Subscribe to external cycle end trigger (if enabled)
         await self._setup_external_end_trigger()
@@ -1803,8 +2404,24 @@ class WashDataManager:
         # Subscribe to door sensor (if configured)
         await self._setup_door_sensor_listener()
 
+        # Subscribe to the unload confirmation entity (if configured, #451)
+        await self._setup_unload_confirm_listener()
+
+        # Subscribe to the dynamic energy price entity (if configured, #426)
+        await self._setup_price_listener()
+
         # Subscribe to person presence changes for notification gating
         await self._setup_notify_people_listener()
+
+        # HA does not unload entries on a stop, so the stop gets its own hook to keep
+        # the held notifications and a fresh snapshot (audit MANAGER-16); what it
+        # kept is re-dispatched once HA has started and notify services exist.
+        self._remove_ha_stop_listener = self.hass.bus.async_listen(
+            EVENT_HOMEASSISTANT_STOP, self._async_on_ha_stop
+        )
+        self._remove_notify_queue_restore = async_at_started(
+            self.hass, self._schedule_notify_queue_restore
+        )
 
         # Register schedulers (maintenance + ML training). These are also re-
         # registered on every config reload; calling them here ensures they
@@ -1812,8 +2429,42 @@ class WashDataManager:
         await self._setup_maintenance_scheduler()
         self._setup_ml_training_scheduler()
 
+        # One-time repair of cycles that banked Smart Termination's confirmation
+        # delay as cycle time (register item 297). Flagged by the v12->v13 storage
+        # migration and done here rather than in the migration itself, because
+        # deciding where a cycle's real activity ended needs stop_threshold_w and
+        # that lives in entry.options. Idempotent, marked done in the store, and it
+        # never raises - a failed repair leaves the history untouched.
+        # `is True` rather than a truthiness check: the flag is written as a real
+        # bool by the migration, so anything else here is a stub or a hand-edited
+        # store and must not trigger a rewrite of the user's history.
+        #
+        # LAST in async_setup, deliberately. The repair's own cycle loop takes no
+        # awaits, but it then awaits an envelope rebuild per touched profile, and
+        # every await hands the loop back to the rest of setup - which rewrites the
+        # very cycles it is rebuilding from. `async_repair_profile_samples` can
+        # drop a profile or re-point its sample, and
+        # `async_migrate_cycles_to_compressed` replaces `power_data` wholesale.
+        # Running last also means those legacy ISO-offset traces are already
+        # converted and therefore trimmable: started earlier, such a cycle gets its
+        # duration corrected and its trace left as it was, because `_safe_offset`
+        # rejects an ISO string and `kept` comes back empty.
+        # Backgrounded, not awaited. It walks up to 200 stored traces and rebuilds
+        # envelopes, and anything awaited inside async_setup is billed to the
+        # integration's reported startup time (register item 158 / #408). Nothing
+        # needs it before the first cycle ends. Tracked, because it writes to the
+        # ProfileStore: an untracked task would keep writing to the store a reload
+        # had already swapped out.
+        self.async_schedule_banked_tail_repair()
+
     def _load_notify_services(self, config_entry: ConfigEntry) -> None:
-        """Load notification service lists, migrating legacy single-service config."""
+        """Load the per-event notification service lists.
+
+        No fallback to the deprecated single ``notify_service``: it kept notifying
+        after the user cleared every list (#472). The 3.11 -> 3.12 migration
+        converts it by the old fallback's rule and drops it, so a stray copy (an
+        old import, a hand-edited entry) is inert.
+        """
         self._notify_start_services = list(config_entry.options.get(CONF_NOTIFY_START_SERVICES, []) or [])
         self._notify_finish_services = list(config_entry.options.get(CONF_NOTIFY_FINISH_SERVICES, []) or [])
         self._notify_live_services = list(config_entry.options.get(CONF_NOTIFY_LIVE_SERVICES, []) or [])
@@ -1822,17 +2473,6 @@ class WashDataManager:
             t for t in raw_timers
             if isinstance(t, dict) and isinstance(t.get("offset_minutes"), (int, float)) and t["offset_minutes"] > 0
         ]
-        # Backward compat: migrate old single notify_service + notify_events to new per-event lists
-        if not (self._notify_start_services or self._notify_finish_services or self._notify_live_services):
-            _old_svc = config_entry.options.get(CONF_NOTIFY_SERVICE, "")
-            _old_events = list(config_entry.options.get(CONF_NOTIFY_EVENTS, []) or [])
-            if _old_svc:
-                if not _old_events or NOTIFY_EVENT_START in _old_events:
-                    self._notify_start_services = [_old_svc]
-                if not _old_events or NOTIFY_EVENT_FINISH in _old_events:
-                    self._notify_finish_services = [_old_svc]
-                if not _old_events or NOTIFY_EVENT_LIVE in _old_events:
-                    self._notify_live_services = [_old_svc]
 
     async def async_reload_config(self, config_entry: ConfigEntry) -> None:
         """
@@ -1846,52 +2486,7 @@ class WashDataManager:
         self.config_entry = config_entry
 
         # Check if power sensor changed
-        new_sensor = config_entry.options.get(
-            CONF_POWER_SENSOR, config_entry.data.get(CONF_POWER_SENSOR)
-        )
-        if new_sensor and new_sensor != self.power_sensor_entity_id:
-            # Block sensor changes when a cycle is active to prevent inconsistent state
-            d_state = self.detector.state
-            self._logger.debug(
-                "Reloading config: detector.state=%r (type=%s), RUNNING=%r",
-                d_state,
-                type(d_state),
-                STATE_RUNNING,
-            )
-            if d_state == STATE_RUNNING:
-                self._logger.warning(
-                    "Cannot change power sensor from %s to %s while a cycle "
-                    "is active. Please wait for the current cycle to complete "
-                    "before changing the power sensor.",
-                    self.power_sensor_entity_id,
-                    new_sensor,
-                )
-                # Skip sensor change but continue with other config updates
-                return
-
-            self._logger.info(
-                "Power sensor changed: %s -> %s", self.power_sensor_entity_id, new_sensor
-            )
-            self.power_sensor_entity_id = new_sensor
-            # Remove old listener
-            if self._remove_listener:
-                self._remove_listener()
-            # Attach new listener
-            self._remove_listener = async_track_state_change_event(
-                self.hass, [self.power_sensor_entity_id], self._async_power_changed
-            )
-            # Force update from new sensor
-            state = self.hass.states.get(self.power_sensor_entity_id)
-            if state and state.state not in (STATE_UNKNOWN, STATE_UNAVAILABLE):
-                try:
-                    power = float(state.state)
-                    self.detector.process_reading(power, dt_util.now())
-                except ValueError:
-                    self._logger.debug(
-                        "Initial power value for %s after config reload is not numeric: %r",
-                        self.power_sensor_entity_id,
-                        state.state,
-                    )
+        self._apply_power_sensor_option()
 
         # Update device type
         self.device_type = config_entry.options.get(
@@ -1901,145 +2496,62 @@ class WashDataManager:
         # Propagate to learning pipeline (captured at construction time)
         self.learning_manager.device_type = self.device_type
         self.learning_manager.suggestion_engine.device_type = self.device_type
+        # A saved reminder change (or an import) may switch a preset maintenance
+        # reminder on or off: re-stamp its counting origin (#461).
+        self._sync_maintenance_baselines()
+        # Recompute the device-scaled unmatched-guard ceiling (#404): it tracks
+        # device_type, which the reconfigure flow can change.
+        self._unmatched_watchdog_ceiling = float(
+            DEFAULT_UNMATCHED_WATCHDOG_CEILING_BY_DEVICE.get(
+                self.device_type, DEFAULT_UNMATCHED_WATCHDOG_CEILING
+            )
+        )
 
         # Update detector config in-place
         old_min_power = self.detector.config.min_power
         old_off_delay = self.detector.config.off_delay
-        old_smoothing = self.detector.config.smoothing_window
         old_interrupted_min = self.detector.config.interrupted_min_seconds
 
-        # Get new values from config
-        new_min_power = float(
-            config_entry.options.get(CONF_MIN_POWER, DEFAULT_MIN_POWER)
+        # Every detector field from the one builder the constructor uses, applied
+        # onto the live config object in place (audit F2): the field-by-field copy
+        # that lived here is how the reload drifted from setup (items 351, 388a).
+        new_detector_config = build_detector_config(
+            config_entry.options, config_entry.data, self.device_type
         )
-        new_off_delay = int(config_entry.options.get(CONF_OFF_DELAY, DEFAULT_OFF_DELAY))
-        new_smoothing = int(
-            config_entry.options.get(CONF_SMOOTHING_WINDOW, DEFAULT_SMOOTHING_WINDOW)
-        )
-        new_interrupted_min = int(
-            config_entry.options.get(
-                CONF_INTERRUPTED_MIN_SECONDS, DEFAULT_INTERRUPTED_MIN_SECONDS
-            )
-        )
-        self.detector.config.match_interval = int(
-            config_entry.options.get(
-                CONF_PROFILE_MATCH_INTERVAL, DEFAULT_PROFILE_MATCH_INTERVAL
-            )
-        )
+        new_min_power = new_detector_config.min_power
+        new_off_delay = new_detector_config.off_delay
+        new_interrupted_min = new_detector_config.interrupted_min_seconds
+        apply_detector_config(self.detector.config, new_detector_config)
+
         self.profile_store.dtw_bandwidth = float(
             config_entry.options.get(CONF_DTW_BANDWIDTH, DEFAULT_DTW_BANDWIDTH)
         )
-
-        # Device default
-        dev_def = DEVICE_COMPLETION_THRESHOLDS.get(
-            self.device_type, DEFAULT_COMPLETION_MIN_SECONDS
+        # Re-plumbed on every reload, not just at construction (issue #407): this is
+        # a panel checkbox, and an options change reloads in place without rebuilding
+        # the store, so without this line the toggle only took effect on an HA restart.
+        self.profile_store.save_debug_traces = config_entry.options.get(
+            CONF_SAVE_DEBUG_TRACES, False
         )
-        new_completion_min = int(
-            config_entry.options.get(CONF_COMPLETION_MIN_SECONDS, dev_def)
+        # Stage-4 energy discriminator: integrated energy for WM/washer-dryer,
+        # mean power elsewhere (see analysis.stage4_energy_mode).
+        self.profile_store.energy_mode = analysis.stage4_energy_mode(self.device_type)
+        # Which cycle categories may shape a profile. Changing it changes every
+        # profile's curve, so rebuild them all now: envelopes are otherwise only rebuilt
+        # on a cycle end or a label change, so the user would tick the box and see
+        # nothing happen for days.
+        _prev_evidence = self.profile_store.evidence_sources
+        self.profile_store.evidence_sources = config_entry.options.get(
+            CONF_PROFILE_EVIDENCE_SOURCES, DEFAULT_PROFILE_EVIDENCE_SOURCES
         )
-
-        new_start_threshold = float(
-            config_entry.options.get(
-                CONF_START_DURATION_THRESHOLD, DEFAULT_START_DURATION_THRESHOLD
+        if self.profile_store.evidence_sources != _prev_evidence:
+            self._logger.info(
+                "Profile evidence sources changed %s -> %s; rebuilding all envelopes",
+                list(_prev_evidence), list(self.profile_store.evidence_sources),
             )
-        )
-        new_running_dead_zone = int(
-            config_entry.options.get(CONF_RUNNING_DEAD_ZONE, DEFAULT_RUNNING_DEAD_ZONE)
-        )
-        new_end_repeat_count = int(
-            config_entry.options.get(CONF_END_REPEAT_COUNT, DEFAULT_END_REPEAT_COUNT)
-        )
-
-        # Power Hysteresis Thresholds
-        new_start_threshold_w = float(
-            config_entry.options.get(
-                CONF_START_THRESHOLD_W,
-                float(new_min_power) + max(1.0, 0.1 * float(new_min_power)),
-            )
-        )
-        new_stop_threshold_w = float(
-            config_entry.options.get(
-                CONF_STOP_THRESHOLD_W,
-                max(0.0, float(new_min_power) - max(0.5, 0.1 * float(new_min_power))),
-            )
-        )
-        new_power_off_threshold_w = float(
-            config_entry.options.get(
-                CONF_POWER_OFF_THRESHOLD_W, DEFAULT_POWER_OFF_THRESHOLD_W
-            )
-        )
-        new_power_off_delay = float(
-            config_entry.options.get(CONF_POWER_OFF_DELAY, DEFAULT_POWER_OFF_DELAY)
-        )
-
-        new_start_energy = float(
-            config_entry.options.get(
-                CONF_START_ENERGY_THRESHOLD,
-                DEFAULT_START_ENERGY_THRESHOLDS_BY_DEVICE.get(self.device_type, 0.2)
-            )
-        )
-        new_end_energy = float(
-            config_entry.options.get(CONF_END_ENERGY_THRESHOLD, DEFAULT_END_ENERGY_THRESHOLD)
-        )
-
-        new_anti_wrinkle_enabled = bool(
-            config_entry.options.get(
-                CONF_ANTI_WRINKLE_ENABLED, DEFAULT_ANTI_WRINKLE_ENABLED
-            )
-        )
-        new_anti_wrinkle_max_power = float(
-            config_entry.options.get(
-                CONF_ANTI_WRINKLE_MAX_POWER, DEFAULT_ANTI_WRINKLE_MAX_POWER
-            )
-        )
-        new_anti_wrinkle_max_duration = float(
-            config_entry.options.get(
-                CONF_ANTI_WRINKLE_MAX_DURATION, DEFAULT_ANTI_WRINKLE_MAX_DURATION
-            )
-        )
-        new_anti_wrinkle_exit_power = float(
-            config_entry.options.get(
-                CONF_ANTI_WRINKLE_EXIT_POWER, DEFAULT_ANTI_WRINKLE_EXIT_POWER
-            )
-        )
-        new_delay_detect_enabled = bool(
-            config_entry.options.get(
-                CONF_DELAY_START_DETECT_ENABLED, DEFAULT_DELAY_START_DETECT_ENABLED
-            )
-        )
-        new_delay_confirm_seconds = float(
-            config_entry.options.get(
-                CONF_DELAY_CONFIRM_SECONDS, DEFAULT_DELAY_CONFIRM_SECONDS
-            )
-        )
-        new_delay_timeout_seconds = float(
-            config_entry.options.get(
-                CONF_DELAY_TIMEOUT_HOURS, DEFAULT_DELAY_TIMEOUT_HOURS
-            )
-        ) * 3600.0
-
-        # Apply all detector config updates
-        self.detector.config.min_power = new_min_power
-        self.detector.config.off_delay = new_off_delay
-        self.detector.config.smoothing_window = new_smoothing
-        self.detector.config.interrupted_min_seconds = new_interrupted_min
-        self.detector.config.completion_min_seconds = new_completion_min
-        self.detector.config.start_duration_threshold = new_start_threshold
-        self.detector.config.running_dead_zone = new_running_dead_zone
-        self.detector.config.end_repeat_count = new_end_repeat_count
-        self.detector.config.start_threshold_w = new_start_threshold_w
-        self.detector.config.stop_threshold_w = new_stop_threshold_w
-        self.detector.config.power_off_threshold_w = new_power_off_threshold_w
-        self.detector.config.power_off_delay = new_power_off_delay
-        self.detector.config.start_energy_threshold = new_start_energy
-        self.detector.config.end_energy_threshold = new_end_energy
-        self.detector.config.anti_wrinkle_enabled = new_anti_wrinkle_enabled
-        self.detector.config.anti_wrinkle_max_power = new_anti_wrinkle_max_power
-        self.detector.config.anti_wrinkle_max_duration = new_anti_wrinkle_max_duration
-        self.detector.config.anti_wrinkle_exit_power = new_anti_wrinkle_exit_power
-        self.detector.config.delay_detect_enabled = new_delay_detect_enabled
-        self.detector.config.delay_confirm_seconds = new_delay_confirm_seconds
-        self.detector.config.delay_timeout_seconds = new_delay_timeout_seconds
+            # Tracked, not fire-and-forget: this writes to the ProfileStore, so a
+            # reload/unload mid-rebuild must be able to cancel it before the store is
+            # swapped out (see _spawn_tracked).
+            self._spawn_tracked(self.profile_store.async_rebuild_all_envelopes())
 
         # Pump Monitor setting
         self._pump_stuck_duration = int(
@@ -2049,18 +2561,15 @@ class WashDataManager:
         if (
             old_min_power != new_min_power
             or old_off_delay != new_off_delay
-            or old_smoothing != new_smoothing
             or old_interrupted_min != new_interrupted_min
         ):
             self._logger.info(
                 "Updated detector config: min_power %.1fW->%.1fW, off_delay %ds->%ds, "
-                "smoothing %d->%d, interrupted_min %ds->%ds",
+                "interrupted_min %ds->%ds",
                 old_min_power,
                 new_min_power,
                 old_off_delay,
                 new_off_delay,
-                old_smoothing,
-                new_smoothing,
                 old_interrupted_min,
                 new_interrupted_min,
             )
@@ -2071,9 +2580,7 @@ class WashDataManager:
         new_min_ratio = float(
             config_entry.options.get(
                 CONF_PROFILE_MATCH_MIN_DURATION_RATIO,
-                DEFAULT_PROFILE_MATCH_MIN_DURATION_RATIO_BY_DEVICE.get(
-                    self.device_type, DEFAULT_PROFILE_MATCH_MIN_DURATION_RATIO
-                ),
+                DEFAULT_PROFILE_MATCH_MIN_DURATION_RATIO,
             )
         )
         new_max_ratio = float(
@@ -2087,10 +2594,6 @@ class WashDataManager:
             self.profile_store.set_duration_ratio_limits(
                 min_ratio=new_min_ratio, max_ratio=new_max_ratio
             )
-            # Keep the detector's copy in sync: _should_defer_finish() reads
-            # detector.config.min_duration_ratio, which otherwise keeps the
-            # construction-time value until a restart (diverging from the matcher).
-            self.detector.config.min_duration_ratio = new_min_ratio
             self._logger.info(
                 "Updated duration ratios: min %.2f→%.2f, max %.2f→%.2f",
                 old_min_ratio,
@@ -2111,11 +2614,6 @@ class WashDataManager:
             self._logger.info("Updated match interval: %ds→%ds", old_interval, new_interval)
 
         # Update other configurable options
-        self._profile_duration_tolerance = float(
-            config_entry.options.get(
-                CONF_PROFILE_DURATION_TOLERANCE, DEFAULT_PROFILE_DURATION_TOLERANCE
-            )
-        )
 
 
         # Update notification settings
@@ -2131,9 +2629,6 @@ class WashDataManager:
             config_entry.options.get(
                 CONF_NOTIFY_ONLY_WHEN_HOME, DEFAULT_NOTIFY_ONLY_WHEN_HOME
             )
-        )
-        self._notify_fire_events = bool(
-            config_entry.options.get(CONF_NOTIFY_FIRE_EVENTS, DEFAULT_NOTIFY_FIRE_EVENTS)
         )
         self._notify_before_end_minutes = int(
             config_entry.options.get(
@@ -2158,6 +2653,22 @@ class WashDataManager:
                 DEFAULT_NOTIFY_LIVE_CHRONOMETER,
             )
         )
+        self._notify_live_sticky = bool(
+            config_entry.options.get(
+                CONF_NOTIFY_LIVE_STICKY, DEFAULT_NOTIFY_LIVE_STICKY
+            )
+        )
+        self._notify_live_click_action = str(
+            config_entry.options.get(
+                CONF_NOTIFY_LIVE_CLICK_ACTION, DEFAULT_NOTIFY_LIVE_CLICK_ACTION
+            )
+            or ""
+        ).strip()
+        self._notify_live_silent = bool(
+            config_entry.options.get(
+                CONF_NOTIFY_LIVE_SILENT, DEFAULT_NOTIFY_LIVE_SILENT
+            )
+        )
         self._notify_timeout_seconds = int(
             config_entry.options.get(
                 CONF_NOTIFY_TIMEOUT_SECONDS, DEFAULT_NOTIFY_TIMEOUT_SECONDS
@@ -2167,17 +2678,49 @@ class WashDataManager:
         # Reload door sensor / pause config
         self._pause_cuts_power = bool(config_entry.options.get(CONF_PAUSE_CUTS_POWER, False))
         self._door_sensor_entity = config_entry.options.get(CONF_DOOR_SENSOR_ENTITY) or None
+        self._door_opens_at_end = bool(
+            config_entry.options.get(CONF_DOOR_OPENS_AT_END, DEFAULT_DOOR_OPENS_AT_END)
+        )
+        self._door_end_dwell_seconds = int(
+            config_entry.options.get(CONF_DOOR_END_DWELL_SECONDS, DEFAULT_DOOR_END_DWELL_SECONDS)
+        )
         self._notify_unload_delay_minutes = int(
             config_entry.options.get(
                 CONF_NOTIFY_UNLOAD_DELAY_MINUTES, DEFAULT_NOTIFY_UNLOAD_DELAY_MINUTES
+            )
+        )
+        self._notify_unload_repeat = bool(
+            config_entry.options.get(
+                CONF_NOTIFY_UNLOAD_REPEAT, DEFAULT_NOTIFY_UNLOAD_REPEAT
+            )
+        )
+        self._unload_confirm_entity = config_entry.options.get(
+            CONF_UNLOAD_CONFIRM_ENTITY
+        ) or None
+        self._unload_track_without_door = bool(
+            config_entry.options.get(
+                CONF_UNLOAD_TRACK_WITHOUT_DOOR, DEFAULT_UNLOAD_TRACK_WITHOUT_DOOR
             )
         )
 
         # Re-subscribe to external cycle end trigger
         await self._setup_external_end_trigger()
 
-        # Re-subscribe to door sensor
+        # Re-subscribe to door sensor. Cancel any dwell armed for the previous door
+        # config first — after a sensor/auto-open/dwell change the old sensor may no
+        # longer emit the close event that cancels it, so a stale timer could finalize
+        # the cycle on outdated config. Re-evaluate for the new configuration after.
+        self._cancel_door_end_dwell()
         await self._setup_door_sensor_listener()
+        self._maybe_arm_door_end_dwell_if_open()
+
+        # Re-subscribe to the unload confirmation entity (#451).
+        await self._setup_unload_confirm_listener()
+
+        # Re-subscribe to the dynamic energy price entity (#426). A changed entity
+        # (or the toggle being turned off) takes effect from here on; the samples
+        # already recorded for a running cycle stay - they were true when taken.
+        await self._setup_price_listener()
 
         # Re-subscribe to person presence changes for notification gating
         await self._setup_notify_people_listener()
@@ -2187,14 +2730,13 @@ class WashDataManager:
         # user doesn't have to wait for the next power sensor poll.
         if self.detector.state in (STATE_RUNNING, STATE_PAUSED, STATE_ENDING):
             if self._notify_live_services or self._notify_actions:
-                self._reset_live_notification_state()
+                # Counters and timers only: a settings save is not a cycle
+                # boundary, so the live activity must stay "already started".
+                self._reset_live_notification_state(keep_activity_started=True)
                 self._check_live_progress_notification()
 
         # Trigger entity updates to reflect any changes
         async_dispatcher_send(self.hass, f"ha_washdata_update_{self.entry_id}")
-
-        if self.detector:
-            self.detector.config.profile_duration_tolerance = self._profile_duration_tolerance
 
         # Schedule midnight maintenance if enabled
         await self._setup_maintenance_scheduler()
@@ -2204,19 +2746,121 @@ class WashDataManager:
 
         # Update sampling interval
         old_sampling = self._sampling_interval
-        new_sampling = float(
-            config_entry.options.get(CONF_SAMPLING_INTERVAL, DEFAULT_SAMPLING_INTERVAL)
-        )
+        # Follows a device-type change (no longer a setting since 0.5.9).
+        new_sampling = float(resolve_sampling_interval_default(self.device_type))
         if old_sampling != new_sampling:
             self._sampling_interval = new_sampling
             self._logger.info(
                 "Updated sampling interval: %.1fs -> %.1fs", old_sampling, new_sampling
             )
 
-        # RESTORE STATE (only if recent enough, otherwise treat as stale)
-        await self._attempt_state_restoration()
+        # Watchdog cadence: like sampling above, this was only read at construction, so a
+        # changed CONF_WATCHDOG_INTERVAL (or a device-type change selecting a new default)
+        # otherwise kept the old cadence until the manager was recreated. Re-arm an active
+        # watchdog so the new interval takes effect mid-cycle.
+        old_watchdog = self._watchdog_interval
+        new_watchdog = int(
+            config_entry.options.get(
+                CONF_WATCHDOG_INTERVAL,
+                resolve_watchdog_interval_default(self.device_type),
+            )
+        )
+        if old_watchdog != new_watchdog:
+            self._watchdog_interval = new_watchdog
+            self._logger.info(
+                "Updated watchdog interval: %ds -> %ds", old_watchdog, new_watchdog
+            )
+            if self._remove_watchdog:  # active cycle: cancel and re-register at the new cadence
+                self._stop_watchdog()
+                self._start_watchdog()
+
+        # Manager-level settings the reload used to skip (item 388c): one loader
+        # shared with __init__, so the two cannot drift again.
+        self._load_runtime_options(config_entry)
+
+        # RESTORE STATE (only if recent enough, otherwise treat as stale) - but
+        # never over a cycle that is running right now (item 388b). An options
+        # reload keeps the live detector; restoring the snapshot (up to 60 s old)
+        # over it rolled the cycle back: readings dropped, a phantom restart gap
+        # written onto the cycle, the quiet timers reset.
+        # The in-place reload never restores the snapshot at all (audit MANAGER-04):
+        # the live detector is always fresher than a snapshot of up to 60 s ago, and
+        # an IDLE detector with a snapshot still present means the cycle-end tail
+        # has not cleared it yet - restoring then re-opened the finished cycle and
+        # ended it a second time (two stored copies, two pushes, double energy).
+        self._logger.debug(
+            "Options reload: keeping the live detector state (%s), not restoring "
+            "the snapshot",
+            self.detector.state,
+        )
+        # The idle display's standby level depends on the stop/start thresholds.
+        await self._async_refresh_standby_level()
 
         self._logger.info("Configuration reloaded successfully")
+
+    def _apply_power_sensor_option(self) -> None:
+        """Re-point the power listener at the configured sensor, if it changed.
+
+        Never while a cycle is under way (_SENSOR_SWAP_BLOCKED_STATES): the swap is
+        parked in ``_pending_power_sensor`` and ``_on_state_change`` applies it once
+        the detector leaves those states (audit MANAGER-11). It used to be dropped
+        until the next reload, while the panel already showed the new sensor.
+        """
+        new_sensor = self.config_entry.options.get(
+            CONF_POWER_SENSOR, self.config_entry.data.get(CONF_POWER_SENSOR)
+        )
+        if not new_sensor or new_sensor == self.power_sensor_entity_id:
+            self._pending_power_sensor = None
+            return
+        d_state = self.detector.state
+        if d_state in _SENSOR_SWAP_BLOCKED_STATES:
+            # Park the change but continue with the other config updates: returning
+            # from the reload would silently drop every setting saved alongside the
+            # sensor in the same submission.
+            self._pending_power_sensor = new_sensor
+            self._logger.warning(
+                "Power sensor change %s -> %s deferred: the detector is in state %s. "
+                "It takes effect when the current cycle ends.",
+                self.power_sensor_entity_id,
+                new_sensor,
+                d_state,
+            )
+            return
+        self._pending_power_sensor = None
+        self._logger.info(
+            "Power sensor changed: %s -> %s", self.power_sensor_entity_id, new_sensor
+        )
+        self.power_sensor_entity_id = new_sensor
+        # Re-attach change + report listeners to the new sensor
+        # (helper removes the old ones first).
+        self._subscribe_power_sensor()
+        # Force update from new sensor
+        state = self.hass.states.get(self.power_sensor_entity_id)
+        if state and state.state not in (STATE_UNKNOWN, STATE_UNAVAILABLE):
+            _reload_power = self._state_power(state)
+            if _reload_power is not None:
+                self.detector.process_reading(_reload_power, utc_now())
+            else:
+                self._logger.debug(
+                    "Initial power value for %s after config reload is not a "
+                    "finite number: %r",
+                    self.power_sensor_entity_id,
+                    state.state,
+                )
+
+    async def _async_apply_pending_power_sensor(self) -> None:
+        """Apply a parked sensor swap (see _apply_power_sensor_option).
+
+        A task, not inline in _on_state_change: that callback runs inside the
+        detector's own process_reading, and the swap feeds the new sensor's
+        reading straight back into it. HA starts tasks eagerly, so yield once
+        first or the body would still run inside that call.
+        """
+        await asyncio.sleep(0)
+        if self._is_shutdown or self._pending_power_sensor is None:
+            return
+        self._apply_power_sensor_option()
+        self._notify_update()
 
     def _spawn_tracked(self, coro: Coroutine[Any, Any, Any]) -> Task[Any]:
         """Create a detached task and track it so shutdown can cancel it.
@@ -2255,13 +2899,35 @@ class WashDataManager:
         # Drain cancelled tasks so they don't race the freshly-reloaded ProfileStore.
         if _to_await:
             await asyncio.gather(*_to_await, return_exceptions=True)
+        for _unsub_name in (
+            "_remove_ha_stop_listener", "_remove_notify_queue_restore", "_remove_maintenance_timer",
+        ):
+            _unsub = getattr(self, _unsub_name, None)
+            if _unsub is not None:
+                _unsub()
+                setattr(self, _unsub_name, None)
+        # Keep the held notifications for the entry's next setup (audit MANAGER-16)
+        # before the queues are cleared below.
+        await self._async_persist_notification_queues()
         if self._remove_listener:
             self._remove_listener()
+        if self._remove_report_listener:
+            self._remove_report_listener()
+            self._remove_report_listener = None
         if self._remove_external_trigger_listener:
             self._remove_external_trigger_listener()
         if self._remove_door_sensor_listener:
             self._remove_door_sensor_listener()
             self._remove_door_sensor_listener = None
+        if self._remove_unload_confirm_listener:
+            self._remove_unload_confirm_listener()
+            self._remove_unload_confirm_listener = None
+        if self._remove_price_listener:
+            self._remove_price_listener()
+            self._remove_price_listener = None
+        self._cancel_door_end_dwell()
+        # Drop the repeat-unload-reminder dismiss action listener (#374).
+        self._remove_unload_dismiss_listener()
         if self._remove_notify_people_listener:
             self._remove_notify_people_listener()
             self._remove_notify_people_listener = None
@@ -2302,9 +2968,28 @@ class WashDataManager:
             self._logger.debug("Failed to clear live notification on shutdown", exc_info=True)
 
         # Save active state before shutdown
-        if self.detector.state in {STATE_RUNNING, STATE_PAUSED, STATE_STARTING, STATE_ENDING}:
+        if (
+            self.detector.state in {STATE_RUNNING, STATE_PAUSED, STATE_STARTING, STATE_ENDING}
+            or self._in_anticrease_tail()
+        ):
             snapshot = self._augment_active_snapshot(self.detector.get_state_snapshot())
             await self.profile_store.async_save_active_cycle(snapshot)
+
+        # A debounced cycle-end write still pending must land before a reload loads
+        # this store again from disk (HA's own final write covers only a stop), and
+        # nothing may be debounced past this point.
+        # A task cancelled above may have been on its way to a save (the learning
+        # pass's feedback request, a suggestion cleanup, audit MANAGER-13): its
+        # change is in memory but never reached disk, so write the store once now
+        # rather than lose it to the reload that reads the file next.
+        try:
+            self.profile_store.coalesce_saves(0)
+            if _to_await:
+                await self.profile_store.async_save()
+            else:
+                await self.profile_store.async_flush_saves()
+        except Exception:  # noqa: BLE001 - never block an unload on a save
+            self._logger.debug("Flushing pending store writes failed", exc_info=True)
 
         self._last_reading_time = None
 
@@ -2315,15 +3000,8 @@ class WashDataManager:
             self._remove_external_trigger_listener()
             self._remove_external_trigger_listener = None
 
-        # Check if enabled
-        enabled = self.config_entry.options.get(
-            CONF_EXTERNAL_END_TRIGGER_ENABLED, False
-        )
-        if not enabled:
-            self._logger.debug("External cycle end trigger is disabled")
-            return
-
-        # Get entity ID
+        # On whenever an entity is set (0.5.9: the separate on/off flag is gone;
+        # the 3.12 migration cleared the entity where that flag was off).
         entity_id = self.config_entry.options.get(CONF_EXTERNAL_END_TRIGGER, "")
         if not entity_id:
             self._logger.debug("External cycle end trigger: no entity configured")
@@ -2354,6 +3032,142 @@ class WashDataManager:
             self.hass, [entity_id], self._handle_door_sensor_change
         )
 
+    async def _setup_unload_confirm_listener(self) -> None:
+        """Subscribe to the optional unload confirmation entity (#451).
+
+        Deliberately domain-agnostic: the point of the option is that a door sensor
+        is not available, so whatever the user already has - a Zigbee button
+        (``event.*`` or a ``sensor.*`` action), an ``input_button`` helper, a motion
+        sensor, a scene - can say "the load has been taken out".
+        """
+        if self._remove_unload_confirm_listener:
+            self._remove_unload_confirm_listener()
+            self._remove_unload_confirm_listener = None
+
+        entity_id = self._unload_confirm_entity
+        if not entity_id:
+            return
+
+        self._logger.info("Setting up unload confirmation listener: %s", entity_id)
+        self._remove_unload_confirm_listener = async_track_state_change_event(
+            self.hass, [entity_id], self._handle_unload_confirm_change
+        )
+        # Anchor the replay window PER ENTITY, in `hass.data` so it survives entry
+        # reloads and resets on an HA restart.
+        #
+        # Not per subscribe: a settings save is a full entry reload here (the log
+        # shows a fresh `Manager init`), and re-arming on it would cost the user a
+        # press for two minutes after every save - the same lost-press bug this
+        # window exists beside, just narrower. A reload cannot produce a replay
+        # anyway, because MQTT is not reloaded with us and the entity keeps its
+        # state, so no `unknown -> value` transition occurs.
+        #
+        # But not per PROCESS either: keyed on the entity, a newly CONFIGURED
+        # confirmation entity gets its own window instead of inheriting an expired
+        # one from whatever was configured before it. Without that, pointing the
+        # option at a fresh `unknown` entity hours into a session left it with no
+        # protection at all, and its first retained value would clear a waiting
+        # Clean state. Old keys are left behind deliberately - the dict is bounded
+        # by the distinct entities a user has ever chosen here.
+        anchors = self.hass.data.setdefault(_UNLOAD_CONFIRM_ANCHOR_KEY, {})
+        if isinstance(anchors, dict):
+            anchors.setdefault(entity_id, utc_now())
+
+    async def _setup_price_listener(self) -> None:
+        """Subscribe to the dynamic energy price entity (#426).
+
+        Only when a price *entity* is configured and dynamic pricing is on: a
+        static price cannot move, so there is nothing to track. Registered for the
+        entity's whole lifetime rather than per cycle - the appended samples are
+        gated on the detector being active, and a subscription that only exists
+        while a cycle runs would miss the price in force at the moment it starts.
+        """
+        if self._remove_price_listener:
+            self._remove_price_listener()
+            self._remove_price_listener = None
+
+        if not self._dynamic_pricing_enabled():
+            return
+
+        entity_id = self._price_entity_id()
+        if not entity_id:
+            return
+        self._logger.debug("Setting up dynamic price listener: %s", entity_id)
+        self._remove_price_listener = async_track_state_change_event(
+            self.hass, [entity_id], self._handle_price_change
+        )
+
+    def _dynamic_pricing_enabled(self) -> bool:
+        """Whether cost should be integrated against a moving price (#426)."""
+        options = self.config_entry.options
+        if not self._price_entity_id():
+            return False
+        return bool(
+            options.get(CONF_ENERGY_PRICE_DYNAMIC, DEFAULT_ENERGY_PRICE_DYNAMIC)
+        )
+
+    @callback
+    def _handle_price_change(self, event: Event[evt.EventStateChangedData]) -> None:
+        """Record a price change onto the running cycle's timeline (#426)."""
+        new_state = event.data.get("new_state")
+        if new_state is None:
+            return
+        try:
+            price = float(new_state.state)
+        except (ValueError, TypeError, OverflowError):
+            # unknown/unavailable/non-numeric: carry the last known price forward
+            # rather than charging the cycle at zero for the outage.
+            return
+        self._append_price_sample(price)
+
+    def _append_price_sample(self, price: float | None) -> None:
+        """Append ``price`` to the current cycle's timeline, deduplicated.
+
+        No-op when no cycle is running - the timeline describes one cycle - and
+        when the price is unchanged, so a template sensor that re-emits the same
+        number every few seconds costs one comparison and nothing else.
+        """
+        if price is None:
+            return
+        if self.detector.state not in (
+            STATE_STARTING,
+            STATE_RUNNING,
+            STATE_PAUSED,
+            STATE_ENDING,
+        ):
+            return
+        try:
+            value = round(float(price), PRICE_TIMELINE_PRICE_DECIMALS)
+        except (ValueError, TypeError, OverflowError):
+            return
+        if not math.isfinite(value):
+            # Same rule as _finite_power: "nan"/"inf" parse cleanly and would ride
+            # into the stored timeline. nan also defeats the dedup below, since it
+            # compares unequal to itself, so every report would append a point.
+            return
+        if self._price_timeline and self._price_timeline[-1][1] == value:
+            return
+        self._price_timeline.append((utc_now().timestamp(), value))
+        # Hard bound so a pathologically chatty price entity cannot grow the
+        # in-memory list without limit during a long cycle; the stored timeline is
+        # compacted again (by price step) at cycle end.
+        if len(self._price_timeline) > PRICE_TIMELINE_MAX_POINTS * 4:
+            self._price_timeline = [
+                (offset, price_val)
+                for offset, price_val in compact_price_timeline(
+                    self._price_timeline,
+                    max_points=PRICE_TIMELINE_MAX_POINTS * 2,
+                    decimals=PRICE_TIMELINE_PRICE_DECIMALS,
+                )
+            ]
+
+    def _start_price_timeline(self) -> None:
+        """Open a fresh price timeline for a cycle that just started (#426)."""
+        self._price_timeline = []
+        if not self._dynamic_pricing_enabled():
+            return
+        self._append_price_sample(self._resolve_energy_price())
+
     @callback
     def _handle_door_sensor_change(self, event: Event[evt.EventStateChangedData]) -> None:
         """Handle door sensor state changes.
@@ -2382,13 +3196,21 @@ class WashDataManager:
         if door_open:
             if self._is_clean_state:
                 # User opened the door after the cycle - laundry retrieved
-                self._logger.debug("Door opened: clearing Clean state")
-                self._is_clean_state = False
-                self._clean_state_start = None
-                self._notified_clean_laundry = False
-                # Dismiss a delivered clean reminder (and purge any queued ones)
-                # so it does not linger on the phone after the laundry is taken.
-                self._clear_clean_notification()
+                self.mark_unloaded("door opened", how="door")
+            elif (
+                self._door_opens_at_end
+                and self.detector.state in (STATE_RUNNING, STATE_ENDING)
+            ):
+                # Auto-open dishwasher (#342): the machine pops its door at the end.
+                # A sustained open means the cycle finished; a brief open (adding an
+                # item) does not. Arm a dwell timer instead of the sticky user-pause
+                # (which would strand the cycle in user_paused). If the door stays
+                # open past the dwell we finalize; if it closes first we cancel.
+                self._logger.debug(
+                    "Door opened on auto-open device: arming %ss end dwell",
+                    self._door_end_dwell_seconds,
+                )
+                self._arm_door_end_dwell()
                 self._notify_update()
             elif self.detector.state in (STATE_RUNNING, STATE_STARTING, STATE_PAUSED, STATE_ENDING):
                 # Door opened during active cycle → soft pause confirmation
@@ -2398,9 +3220,262 @@ class WashDataManager:
                 self.detector.set_verified_pause(True)
                 if not self._is_user_paused:
                     self._is_user_paused = True
-                    self._user_pause_start = dt_util.now()
+                    self._user_pause_start = utc_now()
                 self._notify_update()
-        # Door closing is intentionally not handled - no auto-resume
+        else:
+            # Door closed: cancel a pending auto-open finalize (it was a brief open,
+            # not the end-of-cycle door pop). No auto-resume otherwise (#342).
+            if self._remove_door_end_dwell is not None:
+                self._logger.debug("Door closed before end dwell: cancelling finalize")
+                self._cancel_door_end_dwell()
+                self._notify_update()
+
+    @callback
+    def _handle_unload_confirm_change(self, event: Event[evt.EventStateChangedData]) -> None:
+        """Treat an activation of the unload confirmation entity as "unloaded" (#451).
+
+        Any change to a real state counts, because the entity is whatever the user
+        had to hand: an ``event.*`` button writes a fresh timestamp per press, an
+        ``input_button`` the same, a ``sensor.*`` action sensor writes "single" and
+        resets.
+
+        Excluded: a transition *to* unknown/unavailable/``off``/empty (the release
+        half of a contact or motion sensor, or a device dropping off), a transition
+        *out of* ``unavailable`` (a flat battery coming back is not a press), and an
+        entity that has only just appeared (``old_state is None``, which is what a
+        restored last-press timestamp looks like on HA start).
+
+        **``unknown`` is the interesting one, and it is time-scoped rather than
+        excluded outright (register item 367).** A fresh ``event.*`` / ``button.*``
+        / ``input_button.*`` sits at ``unknown`` until it is first pressed, so a
+        blanket exclusion swallowed the FIRST EVER press - and that reads as "the
+        feature does not work", which is the #445 failure one layer down. Accepting
+        it outright is not safe either: a z2m action sensor publishes its action as
+        a RETAINED MQTT message, replayed by the broker on reconnect, arriving as
+        precisely this transition. The restart case is already covered above, so
+        the only gap left is the moment just after we subscribe - hence
+        ``UNLOAD_CONFIRM_REPLAY_GRACE_S`` from the subscription, after which an
+        ``unknown -> value`` change is taken at face value.
+        """
+        new_state = event.data.get("new_state")
+        old_state = event.data.get("old_state")
+
+        # No old state = the entity was just added or HA has just started. A button
+        # entity's restored last-press timestamp must not count as a press.
+        if new_state is None or old_state is None:
+            return
+
+        new_val = new_state.state
+        old_val = old_state.state
+        if new_val == old_val:
+            return
+        if new_val in ("unavailable", "unknown"):
+            # Going away RE-ARMS the window. The startup anchor alone only covers
+            # the reconnect that follows an HA restart; a broker restart hours
+            # later replays retained values just the same, and the entity passes
+            # through `unavailable`/`unknown` on its way out. Re-anchoring here
+            # means the value that comes back is judged as the replay it may well
+            # be. Costs nothing on the press path: a value arriving straight after
+            # `unavailable` is excluded outright either way.
+            self._rearm_unload_confirm_window()
+            return
+        if new_val in ("off", ""):
+            return
+        if old_val == "unavailable":
+            return
+        if old_val == "unknown" and self._in_unload_confirm_replay_window():
+            self._logger.debug(
+                "Ignoring %s -> %s within the unload-confirm replay window; a "
+                "retained value can arrive this soon after subscribing",
+                old_val,
+                new_val,
+            )
+            return
+
+        self.mark_unloaded(
+            f"{self._unload_confirm_entity} -> {new_val}", how="confirm_entity"
+        )
+
+    def _rearm_unload_confirm_window(self) -> None:
+        """Restart the replay window for the configured entity.
+
+        Called when it drops to ``unavailable``/``unknown``, because whatever it
+        reports on the way back may be a retained value rather than a press.
+        """
+        entity_id = self._unload_confirm_entity
+        if not entity_id:
+            return
+        anchors = self.hass.data.setdefault(_UNLOAD_CONFIRM_ANCHOR_KEY, {})
+        if isinstance(anchors, dict):
+            anchors[entity_id] = utc_now()
+
+    def _in_unload_confirm_replay_window(self) -> bool:
+        """Whether this entity came back too recently to trust ``unknown -> value``.
+
+        Measured from the entity's own anchor: set when this process first
+        subscribed to it, and restarted every time it drops out (see
+        `_rearm_unload_confirm_window`). Survives entry reloads, resets on an HA
+        restart, and does not carry over between different configured entities.
+
+        Fails CLOSED (True) if the anchor is missing or unusable: "we do not know
+        when this entity came back" carries the same risk as "it just did".
+        """
+        entity_id = self._unload_confirm_entity
+        anchors = self.hass.data.get(_UNLOAD_CONFIRM_ANCHOR_KEY)
+        anchor = anchors.get(entity_id) if isinstance(anchors, dict) else None
+        if not isinstance(anchor, datetime):
+            return True
+        try:
+            elapsed = (utc_now() - anchor).total_seconds()
+        except (TypeError, ValueError, OverflowError):
+            return True
+        return elapsed < UNLOAD_CONFIRM_REPLAY_GRACE_S
+
+    def mark_unloaded(self, source: str = "manual", how: str = "manual") -> bool:
+        """Clear the Clean state: the load has been taken out (#153, #451).
+
+        Single owner of the "laundry retrieved" transition, shared by the door-open
+        handler, the unload confirmation entity, the Mark Unloaded button and the
+        ``mark_unloaded`` service, so the four can never drift on what clearing it
+        entails. Idempotent: a confirmation arriving when nothing is waiting is a
+        no-op, which is what an automation that fires on every button press needs.
+
+        ``how`` names the path for the ``unloaded`` trigger (#478): ``door``,
+        ``confirm_entity``, ``button``, ``service`` or ``manual``.
+
+        Returns True when a Clean state was actually cleared.
+        """
+        if not self._is_clean_state:
+            return False
+
+        self._logger.debug("Unload confirmed (%s): clearing Clean state", source)
+        waiting_since = self._clean_state_start
+        self._is_clean_state = False
+        self._clean_state_start = None
+        self._notified_clean_laundry = False
+        self._reset_unload_nag_tracking()
+        # Dismiss a delivered clean reminder (and purge any queued ones) so it does
+        # not linger on the phone after the laundry is taken.
+        self._clear_clean_notification()
+        self._fire_device_trigger(
+            TRIGGER_UNLOADED,
+            self._trigger_ended_program,
+            how=how,
+            minutes_waiting=(
+                round((utc_now() - waiting_since).total_seconds() / 60.0, 1)
+                if isinstance(waiting_since, datetime)
+                else None
+            ),
+        )
+        self._notify_update()
+        return True
+
+    def _unload_confirmable_without_door(self) -> bool:
+        """Whether unload can be confirmed with no door sensor configured (#451).
+
+        Also the opt-in for entering the Clean state at all on such a device: with
+        neither option set there would be no way to clear it, so the reminder would
+        nag until the progress-reset window expired.
+        """
+        return bool(self._unload_confirm_entity) or self._unload_track_without_door
+
+    def _maybe_arm_door_end_dwell_if_open(self) -> None:
+        """Arm the end-dwell timer when in RUNNING or ENDING with the door already open.
+
+        Called from both ``_on_state_change`` (live transition) and the
+        snapshot-restoration path (where ``_on_state_change`` is not invoked).
+        Matches the state set accepted by ``_handle_door_sensor_change`` so that
+        restoring a RUNNING snapshot with the door already open re-arms the dwell.
+        """
+        if not (
+            self.detector.state in (STATE_RUNNING, STATE_ENDING)
+            and self._door_opens_at_end
+            and self._door_sensor_entity
+            and self._remove_door_end_dwell is None
+        ):
+            return
+        door_state = self.hass.states.get(self._door_sensor_entity)
+        if door_state and door_state.state == "on":
+            self._logger.debug(
+                "Door already open on ENDING: arming %ss end dwell",
+                self._door_end_dwell_seconds,
+            )
+            self._arm_door_end_dwell()
+
+    def _arm_door_end_dwell(self) -> None:
+        """(Re)arm the auto-open door-end dwell timer (#342)."""
+        self._cancel_door_end_dwell()
+        self._remove_door_end_dwell = async_call_later(
+            self.hass,
+            float(max(1, self._door_end_dwell_seconds)),
+            self._door_end_dwell_fired,
+        )
+
+    def _cancel_door_end_dwell(self) -> None:
+        """Cancel a pending auto-open door-end dwell timer, if any (#342)."""
+        if self._remove_door_end_dwell is not None:
+            self._remove_door_end_dwell()
+            self._remove_door_end_dwell = None
+
+    @callback
+    def _door_end_dwell_fired(self, _now: Any) -> None:
+        """The door stayed open past the dwell on an auto-open device: the cycle has
+        finished, so finalize it as completed (same path as the External End
+        Trigger). The dwell is normally cancelled on door-close, but re-validate the
+        live conditions here defensively — a close event could have been missed, or a
+        user pause could have landed mid-dwell — before finalizing (#342)."""
+        self._remove_door_end_dwell = None
+        door_state = (
+            self.hass.states.get(self._door_sensor_entity)
+            if self._door_sensor_entity
+            else None
+        )
+        if (
+            self.detector.state in (STATE_RUNNING, STATE_ENDING)
+            and self._door_opens_at_end
+            and not self._is_user_paused
+            and door_state is not None
+            and door_state.state == "on"
+        ):
+            # The end-of-cycle door pop follows the power drop, so an appliance still
+            # drawing above the stop threshold means the door was opened mid-cycle
+            # (loading a dish and walking off) rather than at the end - finalizing
+            # there would record a running cycle as completed.
+            #
+            # Re-arm rather than abandon: the dwell is one-shot, so dropping it here
+            # would permanently lose the door-based finalize for a machine that just
+            # happens to be mid-pulse when the timer lands (fan/zeolite drying can
+            # draw with the door already popped), leaving the cycle to the power
+            # timeout that #342 exists to short-circuit. Re-arming is asymmetric: it
+            # can only ever delay the finalize, never skip it.
+            stop_thr = 0.0
+            try:
+                stop_thr = float(getattr(self.detector.config, "stop_threshold_w", 0.0) or 0.0)
+            except (TypeError, ValueError, OverflowError):
+                stop_thr = 0.0
+            if stop_thr > 0.0 and self._current_power >= stop_thr:
+                self._logger.debug(
+                    "Door-end dwell fired but power %.1fW is still at/above the stop "
+                    "threshold %.1fW: treating as a mid-cycle door open, re-arming",
+                    self._current_power,
+                    stop_thr,
+                )
+                self._arm_door_end_dwell()
+                return
+            self._logger.info(
+                "Door held open %ss on auto-open device: finalizing cycle",
+                self._door_end_dwell_seconds,
+            )
+            self.detector.user_stop()
+            self._notify_update()
+        else:
+            self._logger.debug(
+                "Door-end dwell fired but conditions no longer hold "
+                "(state=%s, door=%s, user_paused=%s): not finalizing",
+                self.detector.state,
+                getattr(door_state, "state", None),
+                self._is_user_paused,
+            )
 
     async def _setup_notify_people_listener(self) -> None:
         """Set up listener for person presence changes used by notification gating."""
@@ -2425,20 +3500,7 @@ class WashDataManager:
                             "friendly_name", eid
                         )
                         break
-                pending = list(self._pending_notifications)
-                self._pending_notifications = []
-                for entry in pending:
-                    self._dispatch_notification(
-                        entry["message"],
-                        title=entry.get("title"),
-                        icon=entry.get("icon"),
-                        event_type=entry.get("event_type"),
-                        person_entity_id=person_entity_id,
-                        person_name=person_name,
-                        extra_vars=entry.get("extra_vars"),
-                        allow_deferral=False,
-                        allow_presence_deferral=False,
-                    )
+                self._flush_pending_notifications(person_entity_id, person_name)
         else:
             self._pending_notifications = []
 
@@ -2490,6 +3552,21 @@ class WashDataManager:
                 self.detector.user_stop()
                 self._logger.info("Cycle completed via external trigger")
 
+    def _external_end_trigger_available(self) -> bool:
+        """True when an authoritative external end trigger is wired and reporting.
+
+        Used by the unmatched zombie guard (#404): if the user has configured an
+        external end-of-cycle binary sensor and it currently has a usable state, an
+        authoritative end signal already exists, so the time-based failsafe would only
+        do harm (it would truncate a long programme that the trigger will end cleanly).
+        Returns False if unconfigured or the entity is missing/unavailable.
+        """
+        entity_id = self.config_entry.options.get(CONF_EXTERNAL_END_TRIGGER, "")
+        if not entity_id:
+            return False
+        state = self.hass.states.get(entity_id)
+        return state is not None and state.state not in ("unavailable", "unknown")
+
     async def _setup_maintenance_scheduler(self) -> None:
         """Set up daily maintenance task at midnight."""
         auto_maintenance = self.config_entry.options.get(
@@ -2536,9 +3613,8 @@ class WashDataManager:
         from .const import (
             ENABLE_ML_TRAINING,
             CONF_ML_TRAINING_ENABLED,
-            CONF_ML_TRAINING_HOUR,
             DEFAULT_ML_TRAINING_ENABLED,
-            DEFAULT_ML_TRAINING_HOUR,
+            ML_TRAINING_HOUR,
         )
 
         if self._remove_ml_training_scheduler:
@@ -2552,11 +3628,7 @@ class WashDataManager:
             self._logger.debug("On-device ML training disabled")
             return
 
-        try:
-            hour = int(opts.get(CONF_ML_TRAINING_HOUR, DEFAULT_ML_TRAINING_HOUR))
-        except (TypeError, ValueError):
-            hour = DEFAULT_ML_TRAINING_HOUR
-        hour = max(0, min(23, hour))
+        hour = ML_TRAINING_HOUR  # fixed since 0.5.9
 
         async def _scheduled(_now: datetime) -> None:
             await self.async_run_ml_training(force=False)
@@ -2574,18 +3646,19 @@ class WashDataManager:
         """
         from .const import (
             ENABLE_ML_TRAINING,
-            CONF_ML_TRAINING_MIN_CYCLES,
-            CONF_ML_TRAINING_INTERVAL_DAYS,
-            DEFAULT_ML_TRAINING_MIN_CYCLES,
-            DEFAULT_ML_TRAINING_INTERVAL_DAYS,
             EVENT_ML_TRAINING_COMPLETE,
+            ML_TRAINING_INTERVAL_DAYS,
+            ML_TRAINING_MIN_CYCLES,
         )
 
         if not ENABLE_ML_TRAINING:
             return {"ok": False, "reason": "ml_training_disabled"}
 
-        opts = {**self.config_entry.data, **self.config_entry.options}
-        cycles = self.profile_store.get_past_cycles()
+        # Snapshot on the event loop before any executor offload (training):
+        # get_past_cycles() returns the live mutable list, so a
+        # concurrent cycle add / retention trim could otherwise change the input
+        # mid-run.
+        cycles = list(self.profile_store.get_past_cycles())
 
         if not force:
             # Don't train mid-cycle; wait for a quiet moment.
@@ -2594,7 +3667,7 @@ class WashDataManager:
             }:
                 self._logger.debug("Skipping scheduled ML training: device active")
                 return {"ok": False, "reason": "device_active"}
-            min_cycles = int(opts.get(CONF_ML_TRAINING_MIN_CYCLES, DEFAULT_ML_TRAINING_MIN_CYCLES))
+            min_cycles = ML_TRAINING_MIN_CYCLES  # fixed since 0.5.9
             if len(cycles) < min_cycles:
                 self._logger.debug(
                     "Skipping scheduled ML training: need %d cycles, have %d",
@@ -2603,12 +3676,10 @@ class WashDataManager:
                 )
                 return {"ok": False, "reason": f"need {min_cycles} cycles, have {len(cycles)}"}
             # Respect the minimum retrain interval.
-            interval_days = int(
-                opts.get(CONF_ML_TRAINING_INTERVAL_DAYS, DEFAULT_ML_TRAINING_INTERVAL_DAYS)
-            )
+            interval_days = ML_TRAINING_INTERVAL_DAYS  # fixed since 0.5.9
             last = self._last_ml_training_at()
             if last is not None:
-                age_days = (dt_util.now() - last).total_seconds() / 86400.0
+                age_days = (utc_now() - last).total_seconds() / 86400.0
                 if age_days < interval_days:
                     self._logger.debug(
                         "Skipping scheduled ML training: retrained %.1fd ago (<%dd)",
@@ -2635,8 +3706,8 @@ class WashDataManager:
         promoted = list(summary.get("promoted", {}).keys())
         if promoted:
             self._ml_training_failures = 0
-            # Consumers (ML Lab, MLSuggestionEngine) read the trained specs live
-            # from the store via ml.engine.resolve_scorer, so no refresh is needed.
+            # Consumers read the trained specs live from the store via
+            # ml.engine.resolve_regressor, so no refresh is needed.
             self._logger.info("On-device ML training promoted models: %s", promoted)
         else:
             self._ml_training_failures += 1
@@ -2645,17 +3716,12 @@ class WashDataManager:
                 self._ml_training_failures,
             )
 
-        # Stage 4/5: tune the matcher's scoring weights from this device's own
-        # cycles (same held-out promotion discipline as the models). Independent
-        # of model promotion; runs on every training pass.
-        matching = await self._tune_matching_config(cycles)
-
         # Record that training *ran* now, regardless of whether anything was
         # promoted, so "Last trained" advances on every run (a run that doesn't
         # beat the baseline previously left the timestamp stuck at the last
         # promotion). Never let a persistence hiccup break the run.
         try:
-            _run_iso = dt_util.now().isoformat()
+            _run_iso = utc_now().isoformat()
             await self.profile_store.set_ml_last_training_run(_run_iso)
             # Track each capability's held-out score over time (drift/fit trend).
             await self.profile_store.append_ml_training_history(
@@ -2671,57 +3737,16 @@ class WashDataManager:
                 "device_name": self.config_entry.title,
                 "promoted": promoted,
                 "results": summary.get("results", []),
-                "matching": matching,
             },
         )
-        # A promoted model changes the health-model signature, so recompute the
-        # persisted per-cycle health now rather than lazily on the next view.
-        if promoted:
-            try:
-                await self.async_recompute_cycle_health()
-            except Exception as err:  # noqa: BLE001
-                self._logger.debug("Post-training health recompute failed: %s", err)
+        # (No health recompute: the per-cycle health reads the quality / end
+        # models, and since 0.5.8 training promotes only total_energy.)
 
         return {
             "ok": True,
             "promoted": promoted,
             "results": summary.get("results", []),
-            "matching": matching,
         }
-
-    async def _tune_matching_config(self, cycles: list[dict[str, Any]]) -> dict[str, Any]:
-        """Tune + (if it beats the shipped defaults on a held-out split) persist
-        the matcher's scoring weights for this device. Executor-offloaded and
-        never raises. Returns the tuner status dict for logging / the UI event.
-        """
-        try:
-            from .ml.matching_tuner import tune_matching_config
-
-            result = await self.hass.async_add_executor_job(tune_matching_config, cycles)
-        except Exception as err:  # noqa: BLE001 - tuning must never break training
-            self._logger.debug("Matching-config tuning failed: %s", err)
-            return {"promoted": False, "reason": "exception", "error": str(err)}
-
-        if result.get("promoted") and result.get("config"):
-            record = {
-                "config": result["config"],
-                "trained_at": dt_util.now().isoformat(),
-                "cycle_count": len(cycles),
-                "baseline_test_top1": result.get("baseline_test_top1"),
-                "tuned_test_top1": result.get("tuned_test_top1"),
-            }
-            await self.profile_store.set_matching_config(record)
-            self._logger.info(
-                "On-device matcher tuning promoted (top-1 %.3f -> %.3f): %s",
-                result.get("baseline_test_top1") or 0.0,
-                result.get("tuned_test_top1") or 0.0,
-                result["config"],
-            )
-        else:
-            self._logger.debug(
-                "On-device matcher tuning not promoted: %s", result.get("reason")
-            )
-        return result
 
     async def async_recompute_cycle_health(self) -> int:
         """Recompute + persist per-cycle ML health against the current model.
@@ -2737,12 +3762,10 @@ class WashDataManager:
             from .ws_api import _compute_ml_comparison  # pylint: disable=import-outside-toplevel
         except Exception:  # pylint: disable=broad-exception-caught
             return 0
-        opts = {**self.config_entry.data, **self.config_entry.options}
-        off_delay = int(opts.get(CONF_OFF_DELAY, DEFAULT_OFF_DELAY))
         try:
             result = await self.hass.async_add_executor_job(
                 functools.partial(
-                    _compute_ml_comparison, self.profile_store, off_delay, force_recompute=True
+                    _compute_ml_comparison, self.profile_store, force_recompute=True
                 )
             )
         except Exception as err:  # noqa: BLE001
@@ -2757,6 +3780,116 @@ class WashDataManager:
         if result.get("_health_dirty") or health_updates:
             await self.profile_store.async_save()
         return int(result.get("evaluated_count", 0))
+
+    async def async_recompute_cycle_costs(self) -> int:
+        """Recost stored cycles from the recorder's price history (#426).
+
+        Existing cycles were costed at the single price in force when they ended -
+        including everything imported from raw history (#344), which was costed at
+        whatever the tariff happened to be at import time. Where the recorder still
+        holds the price entity's history, those cycles can be recosted properly
+        after the fact. Returns the number of cycles rewritten.
+
+        Deliberately conservative, because it overwrites a figure the user has
+        already seen:
+
+        * only ``past_cycles`` and ``backfill_cycles`` - reference cycles are other
+          people's recordings and were never the user's energy to pay for;
+        * only cycles the recorder can actually answer for (a price row at or before
+          the cycle's start); anything older than the recorder's retention keeps the
+          cost it has;
+        * cycles already costed dynamically are left alone, so the pass is
+          idempotent and never re-derives a live-tracked timeline from a coarser
+          recorder view.
+        """
+        if not self._dynamic_pricing_enabled():
+            return 0
+        candidates: list[tuple[dict[str, Any], datetime, datetime]] = []
+        for cycle in list(self.profile_store.get_past_cycles()) + list(
+            self.profile_store.get_backfill_cycles()
+        ):
+            if cycle.get("energy_price_mode") == "dynamic" and cycle.get("price_timeline"):
+                continue
+            start_dt = dt_util.parse_datetime(str(cycle.get("start_time") or ""))
+            end_dt = dt_util.parse_datetime(str(cycle.get("end_time") or ""))
+            # An ISO string without an offset parses naive, which every record this
+            # device writes is not, but an import or a hand-edited file can be. Read
+            # as UTC, the same way the odometer scan does: one such cycle otherwise
+            # raises on the aware `horizon` comparison below, and the WS caller only
+            # debug-logs that, so the whole pass silently recosts nothing.
+            if start_dt is not None and start_dt.tzinfo is None:
+                start_dt = start_dt.replace(tzinfo=dt_util.UTC)
+            if end_dt is not None and end_dt.tzinfo is None:
+                end_dt = end_dt.replace(tzinfo=dt_util.UTC)
+            if start_dt is None or end_dt is None or end_dt <= start_dt:
+                continue
+            candidates.append((cycle, start_dt, end_dt))
+        if not candidates:
+            return 0
+
+        # Bound the query to what the recorder can still answer. Reading further
+        # back returns nothing but makes the executor walk the whole retained
+        # window of a frequently-updating price entity for it.
+        keep_days = 10.0
+        try:
+            from homeassistant.components.recorder import get_instance  # noqa: PLC0415
+
+            keep_days = float(getattr(get_instance(self.hass), "keep_days", 10) or 10)
+        except Exception:  # noqa: BLE001 - recorder optional; the default stands
+            pass
+        horizon = utc_now() - timedelta(days=min(max(keep_days, 1.0), 365.0))
+        candidates = [c for c in candidates if c[2] >= horizon]
+        if not candidates:
+            return 0
+
+        window_start = min(start for _, start, _ in candidates)
+        window_end = max(end for _, _, end in candidates)
+        rows = await self._async_price_history(max(window_start, horizon), window_end)
+        if not rows:
+            return 0
+
+        updated = 0
+        for cycle, start_dt, end_dt in candidates:
+            start_ts = start_dt.timestamp()
+            end_ts = end_dt.timestamp()
+            # Require an anchor at or before the cycle: without one the first known
+            # price would be back-applied to energy bought before it existed.
+            anchor: tuple[float, float] | None = None
+            window: list[tuple[float, float]] = []
+            for ts, price in rows:
+                if ts <= start_ts:
+                    # Keep only the newest pre-start row. Older ones all collapse
+                    # onto offset 0 and, once there are more of them than
+                    # PRICE_TIMELINE_MAX_POINTS, compaction can spend the whole
+                    # budget on prices this cycle never ran at and evict the real
+                    # anchor or an in-cycle transition.
+                    anchor = (ts, price)
+                elif ts <= end_ts:
+                    window.append((ts, price))
+            if anchor is None:
+                continue
+            window.insert(0, anchor)
+            points = compact_price_timeline(
+                [(max(0.0, ts - start_ts), price) for ts, price in window],
+                max_points=PRICE_TIMELINE_MAX_POINTS,
+                decimals=PRICE_TIMELINE_PRICE_DECIMALS,
+            )
+            if not points:
+                continue
+            result = self._cost_from_timeline(cycle, points)
+            if result is None:
+                continue
+            cost, effective_price = result
+            cycle["cost"] = round(cost, 4)
+            cycle["energy_price"] = round(effective_price, 6)
+            cycle["energy_price_mode"] = "dynamic"
+            cycle["price_timeline"] = [[round(offset, 1), price] for offset, price in points]
+            updated += 1
+
+        if updated:
+            await self.profile_store.async_save()
+            self._logger.info("Recosted %d cycle(s) from recorder price history", updated)
+        return updated
 
     def _last_ml_training_at(self) -> datetime | None:
         """When on-device training last *ran* (not just last promoted a model).
@@ -2778,39 +3911,79 @@ class WashDataManager:
                 continue
             try:
                 parsed = dt_util.parse_datetime(ts)
-            except (ValueError, TypeError):
+            except (ValueError, TypeError, OverflowError):
                 parsed = None
             if parsed is not None and (latest is None or parsed > latest):
                 latest = parsed
         return latest
 
     @callback
+    def _subscribe_power_sensor(self) -> None:
+        """(Re)subscribe to the power sensor's state changes AND unchanged reports.
+
+        HA fires EVENT_STATE_CHANGED only when the value (or attributes) change.
+        A plug that periodically re-reports the same value (Tasmota TelePeriod,
+        Zigbee max reporting interval) fires EVENT_STATE_REPORTED instead, which a
+        state_changed-only subscription never receives. Missing those reports means
+        a flat sub-threshold tail never advances the detector's end-of-cycle timer
+        (#363) and a finished cycle lags by the plug's reporting interval (#329).
+
+        Both events route into the same handler. Per HA, a single write fires either
+        state_changed (value/attrs differ) or state_reported (unchanged), never both,
+        so there is no double-counting. Report events carry ``new_state`` without an
+        ``old_state``; ``_async_power_changed`` already tolerates a missing old_state.
+        """
+        if self._remove_listener:
+            self._remove_listener()
+        if self._remove_report_listener:
+            self._remove_report_listener()
+        self._remove_listener = async_track_state_change_event(
+            self.hass, [self.power_sensor_entity_id], self._async_power_changed
+        )
+        self._remove_report_listener = async_track_state_report_event(
+            self.hass, [self.power_sensor_entity_id], self._async_power_changed
+        )
+
+    @callback
     def _async_power_changed(self, event: Any) -> None:
         """Handle power sensor state change."""
         event_data = cast(dict[str, Any], getattr(event, "data", {}))
         new_state = cast(State | None, event_data.get("new_state"))
+        # A state with no usable value is a dead sensor, not a silent one: record
+        # it, so the detector stops crediting quiet until the next real reading
+        # (register item 266, audit DETECT-13). Returning without a trace left
+        # the watchdog's keepalives to run out the end gates during a dropout.
         if new_state is None or new_state.state in (STATE_UNKNOWN, STATE_UNAVAILABLE):
+            self.detector.mark_sensor_unavailable(utc_now())
             return
 
-        try:
-            power = float(new_state.state)
-        except ValueError:
+        power = self._state_power(new_state)
+        if power is None:
+            self.detector.mark_sensor_unavailable(utc_now())
             return
 
         # Capture every raw sensor reading before any throttling or processing.
-        # Use the sensor's own last_updated timestamp so the trace reflects
-        # when the plug actually reported the value, not when we received it.
-        self.diag_buffer.record_power(power, new_state.last_updated)
+        # Use the sensor's own report timestamp so the trace reflects when the plug
+        # actually reported the value, not when we received it. last_reported
+        # advances on every write (incl. unchanged re-reports #363), whereas
+        # last_updated only advances on a value change, so an unchanged re-report
+        # would otherwise be stamped with a stale time.
+        report_ts = getattr(new_state, "last_reported", None) or new_state.last_updated
+        self.diag_buffer.record_power(power, report_ts)
 
         # RECORD MODE INTERCEPTION
         if self.recorder.is_recording:
             self.recorder.process_reading(power)
             self._current_power = power
-            self._last_reading_time = dt_util.now()
+            self._last_reading_time = utc_now()
             self._notify_update()
             return
 
-        now = dt_util.now()
+        now = utc_now()
+
+        # still_tumbling (#478) sees every reading, before the throttle: a short
+        # tumble may be a single report. Passive, detection never sees it.
+        self._track_tumble(power, now)
 
         # Throttle updates to avoid CPU overload on noisy sensors.
         # Low-power readings bypass throttling when:
@@ -2830,10 +4003,9 @@ class WashDataManager:
         if old_state is not None and old_state.state not in (
             STATE_UNKNOWN, STATE_UNAVAILABLE
         ):
-            try:
-                prev_raw_power = float(old_state.state)
-            except ValueError:
-                pass
+            _prev = self._state_power(old_state)
+            if _prev is not None:
+                prev_raw_power = _prev
         is_low_power = power < min_p and (
             self.detector.state in (STATE_RUNNING, STATE_PAUSED, STATE_ENDING)
             or prev_raw_power >= min_p  # genuine drop from active power
@@ -2846,29 +4018,109 @@ class WashDataManager:
         ):
             return
 
-        # Track observed power readings for learning
-        self.learning_manager.process_power_reading(power, now, self._last_reading_time)
-        self._last_reading_time = now
-        self._last_real_reading_time = now # Track real update
-        self._current_power = power
-        self.detector.process_reading(power, now)
-
-        if self._cycle_start_time is None and self.detector.current_cycle_start is not None:
-            self._cycle_start_time = self.detector.current_cycle_start
-
-        # If running (or paused/ending), try to match profile and update estimates
+        # Track observed power readings for learning - only while a cycle is
+        # active (#394). An appliance is idle ~98% of the time; running the 5-min
+        # auto-tune pass and training the sample-interval cadence model on the
+        # standby heartbeat is constant background work (a store rewrite every few
+        # minutes) that buys nothing AND skews every operational suggestion, since
+        # the idle publish-on-change heartbeat is not the in-cycle sampling
+        # cadence those suggestions are sized from. The detector below still
+        # receives EVERY reading, so the next cycle's start is never missed - only
+        # the learning call is gated.
         if self.detector.state in (
+            STATE_STARTING,
             STATE_RUNNING,
             STATE_PAUSED,
             STATE_ENDING,
-            STATE_STARTING,
         ):
-            self._update_estimates()
-            # Periodically save state every 60s to avoid flash wear
-            # We need a tracker.
-            self._check_state_save(now)
+            self.learning_manager.process_power_reading(
+                power, now, self._last_reading_time
+            )
+        self._last_reading_time = now
+        if self._restored_sensor_clock is not None:
+            # The entity appeared only after setup, so this is its startup write
+            # (register item 266): same rule as the setup read.
+            self._seed_real_reading_clock(
+                power, report_ts if isinstance(report_ts, datetime) else now
+            )
+        else:
+            self._last_real_reading_time = now # Track real update
+        self._current_power = power
+        # One entity refresh per reading, the one at the end (register item 456):
+        # _update_estimates and a match that completes inside process_reading (a
+        # trace still too short to score returns without awaiting) each sent their
+        # own first, all of ~20 entities rewritten 2-4 times for one reading.
+        self._in_power_event = True
+        try:
+            self.detector.process_reading(power, now)
+            self._check_stall_event()  # #452: only a real reading can start a stall
+
+            if self._cycle_start_time is None and self.detector.current_cycle_start is not None:
+                self._cycle_start_time = self.detector.current_cycle_start
+
+            # If running (or paused/ending), try to match profile and update estimates
+            if self.detector.state in (
+                STATE_RUNNING,
+                STATE_PAUSED,
+                STATE_ENDING,
+                STATE_STARTING,
+            ):
+                self._update_estimates()
+                # Periodically save state every 60s to avoid flash wear
+                # We need a tracker.
+                self._check_state_save(now)
+        finally:
+            self._in_power_event = False
 
         self._notify_update()
+
+    def _check_stall_event(self) -> None:
+        """Fire EVENT_CYCLE_STALLED once per stall (discussion #452).
+
+        Display and automation only, never a notification. The payload is the
+        detector's small ``stall_info`` (no trace), far under the 32 KB limit.
+        """
+        if getattr(self.detector, "stalled", False) is not True:
+            return
+        info = self.detector.stall_info()
+        if not isinstance(info, dict):
+            return
+        key = info.get("stalled_since")
+        if key == getattr(self, "_stall_event_key", None):
+            return
+        self._stall_event_key = key
+        self._fire_device_trigger(TRIGGER_CYCLE_STALLED, self._current_program)
+        self.hass.bus.async_fire(
+            EVENT_CYCLE_STALLED,
+            {
+                "entry_id": self.entry_id,
+                "device_name": self.config_entry.title,
+                "device_type": self.device_type,
+                "program": self._current_program,
+                **info,
+            },
+        )
+
+    async def _async_refresh_standby_level(self) -> None:
+        """Re-learn the standby level the idle display reads (#452). Never raises."""
+        try:
+            cfg = self.detector.config
+            cycles = [
+                dict(c) for c in list(self.profile_store.get_past_cycles() or [])[
+                    -STANDBY_LEVEL_RECENT_CYCLES:
+                ]
+                if isinstance(c, dict)
+            ]
+            level = await self.hass.async_add_executor_job(
+                learned_standby_level_w,
+                cycles,
+                float(cfg.stop_threshold_w),
+                float(cfg.start_threshold_w),
+            )
+            self.detector.set_standby_level(level)
+            self._logger.debug("Idle display standby level: %s W", level)
+        except Exception:  # noqa: BLE001 - a display statistic must never break setup
+            self._logger.debug("Could not learn the standby level", exc_info=True)
 
     def _check_state_save(self, now: datetime) -> None:
         """Periodically save active state."""
@@ -2878,56 +4130,52 @@ class WashDataManager:
             # Inject manual program flag into snapshot before saving
             snapshot = self._augment_active_snapshot(self.detector.get_state_snapshot())
 
-            self.hass.async_create_task(
-                self.profile_store.async_save_active_cycle(snapshot)
-            )
+            # Tracked (audit MANAGER-13): an unload cancels it and writes its own.
+            self._spawn_tracked(self.profile_store.async_save_active_cycle(snapshot))
             self._last_state_save = now
 
-    async def _run_final_match_from_cycle_data(self, cycle_data: dict[str, Any]) -> None:
-        """Run final profile match using the cycle's power data before it's saved.
+    def _save_snapshot_while_silent(self, now: datetime) -> None:
+        """Keep the active snapshot current through a silence (register item 266).
 
-        This is called from _on_cycle_end when _current_program is still 'detecting...'
-        to ensure we try matching with complete cycle data before persistence.
+        Saves were driven by real readings only, so a cycle waiting out a silent
+        tail kept the snapshot of its last report: a crash then restored that
+        moment's quiet tally, recorded the watched silence as a restart gap, and
+        aged the snapshot by time Home Assistant had in fact been watching - past
+        the restore window on a long drying tail. Same 60 s throttle. Never
+        raises: a lost save only costs a restore, the watchdog tick must finish.
+        """
+        if self.detector.state not in (
+            STATE_STARTING, STATE_RUNNING, STATE_PAUSED, STATE_ENDING
+        ):
+            return
+        try:
+            self._check_state_save(now)
+        except Exception:  # noqa: BLE001
+            self._logger.debug("Could not save the active cycle in a silence", exc_info=True)
+
+    async def _run_final_match_from_cycle_data(
+        self, cycle_data: dict[str, Any]
+    ) -> MatchResult | None:
+        """Match the COMPLETE cycle once, before it is saved; None if too short.
+
+        No side effects: the caller decides what to adopt, because a new cycle can
+        start during the await and the live fields would then belong to it (B1).
         """
         # Cycle data from detector stores power_data as [[offset_seconds, power], ...],
-        # where offsets are relative to cycle start.
-        power_data = cycle_data.get("power_data", [])
-        duration = cycle_data.get("duration", 0)
-
-        if not power_data or len(power_data) < 10:
+        # where offsets are relative to cycle start. Shared with the Playground's
+        # would_label (match_rules.final_match_input).
+        final_input = match_rules.final_match_input(cycle_data)
+        if final_input is None:
             self._logger.debug("Insufficient power data for final match (< 10 readings)")
-            return
+            return None
+        power_data, duration = final_input
 
-        # power_data is already in [[offset_seconds, power], ...] format for matching.
-        self._logger.info(
+        self._logger.debug(
             "Running final match from cycle data: %s samples, %.0fs duration",
             len(power_data),
             duration,
         )
-
-        result = await self.profile_store.async_match_profile(power_data, duration)
-        profile_name = result.best_profile
-        confidence = result.confidence
-
-        # Store result for debug data
-        self._last_match_result = result
-
-        # Accept match at lower threshold since cycle is complete
-        # Also ignore ambiguity for completed cycles - pick the best match
-        if profile_name and confidence >= 0.15:
-            self._logger.info(
-                "Final match from cycle data: '%s' with confidence %.3f",
-                profile_name,
-                confidence,
-            )
-            self._current_program = profile_name
-            self._last_match_confidence = confidence
-        else:
-            self._logger.info(
-                "No confident match from cycle data (best: %s, conf=%.3f)",
-                profile_name,
-                confidence,
-            )
+        return await self.profile_store.async_match_profile(power_data, duration)
 
     def _start_watchdog(self) -> None:
         """Start the watchdog timer when a cycle begins."""
@@ -2980,26 +4228,94 @@ class WashDataManager:
 
     async def _handle_state_expiry(self, now: datetime) -> None:
         """Check if state and progress should be reset (auto-expiration)."""
+        # Anti-wrinkle keepalive (#339): the mode's idle-timeout and 2 h safety cap
+        # only advance inside CycleDetector.process_reading, and the watchdog is
+        # stopped for the whole anti-wrinkle tail. A publish-on-change plug can send
+        # one final 0 W reading and then go fully silent, so with no further events
+        # the mode is pinned in ANTI_WRINKLE for hours. This timer keeps ticking, so
+        # when the real sensor has been silent longer than off_delay we inject a
+        # synthetic 0 W reading, letting the detector's own logic exit the mode.
+        # 0 W and NOT the sensor's last value - unlike the two watchdog sites;
+        # the block comment at the injection site below has the reason. Gate
+        # on _last_real_reading_time (a genuine tumble pulse still resets the idle
+        # timer via the normal handler) and never bump it here, so real silence stays
+        # detectable and a still-reporting plug drives itself.
+        if self.detector.state == STATE_ANTI_WRINKLE:
+            last_real = self._last_real_reading_time
+            if (
+                last_real is not None
+                and (now - last_real).total_seconds() > self._off_delay
+            ):
+                _ka_w, _ka_obs = self._keepalive_reading()
+                self._logger.debug(
+                    "Anti-wrinkle keepalive: sensor silent for %.0fs (> off_delay %ss), "
+                    "injecting 0 W (sensor last read %.2fW, observed=%s) so the "
+                    "idle/2h-cap timer can advance",
+                    (now - last_real).total_seconds(),
+                    self._off_delay,
+                    _ka_w,
+                    _ka_obs,
+                )
+                # 0 W here, NOT the sensor's last value - deliberately different
+                # from the two watchdog sites. This keepalive's whole contract is
+                # "silence means idle": the detector only advances
+                # `_anti_wrinkle_idle_time` while `power < effective_exit`
+                # (`cycle_detector.py:1499`), so injecting a stale tumble pulse
+                # freezes the timer this call exists to advance - and can start a
+                # new-cycle burst candidate on top. The round-11 argument for
+                # carrying the real value does not reach here either: appends to
+                # `_power_readings` happen in STARTING / RUNNING / PAUSED /
+                # ENDING only, so nothing from this site enters the stored trace
+                # and there is no fabricated sample to worry about.
+                self.detector.process_reading(
+                    0.0, now, synthetic=True, observed=_ka_obs
+                )
+                self._notify_update()
+            return
         if (
             not self._cycle_completed_time
             or self.detector.state == STATE_RUNNING
-            or self.detector.state == STATE_ANTI_WRINKLE
             or self.detector.state == STATE_DELAY_WAIT
+            # A probe out of a terminal state (item 515): the overlay waits for its
+            # outcome. Resetting the detector here would kill a real start (#267),
+            # and a nag must not fire into a new load; an abort resumes the timers.
+            or self.detector.state == STATE_STARTING
         ):
             # Cycle is running or not completed, don't reset
             return
 
+        # Keep the cached power honest in the terminal states too (#409). The
+        # watchdog is stopped here, so nothing else refreshes it: the panel/entity
+        # would keep reporting the last value seen before the cycle ended, and
+        # power-based Off detection (#284) - which compares that same cache against
+        # power_off_threshold_w - could never see the appliance being switched off.
+        # Display/decision cache only; the detector is not fed in a terminal state.
+        self._resync_power_from_state(now, feed_detector=False)
+
         time_since_complete = (now - self._cycle_completed_time).total_seconds()
 
-        # Clean laundry nag notification
+        # Clean laundry nag notification. In repeat mode (#374) the reminder re-fires
+        # every delay-minutes and carries a "stop reminding" action; otherwise it is a
+        # single one-shot (the default, unchanged).
         if (
             self._is_clean_state
-            and not self._notified_clean_laundry
             and self._clean_state_start is not None
             and self._notify_unload_delay_minutes > 0
+            and not self._unload_nag_dismissed
         ):
-            time_in_clean = (now - self._clean_state_start).total_seconds()
-            if time_in_clean >= self._notify_unload_delay_minutes * 60:
+            delay_s = self._notify_unload_delay_minutes * 60
+            first_due = (
+                not self._notified_clean_laundry
+                and (now - self._clean_state_start).total_seconds() >= delay_s
+            )
+            repeat_due = (
+                self._notify_unload_repeat
+                and self._notified_clean_laundry
+                and self._unload_nag_count < NOTIFY_UNLOAD_REPEAT_MAX_REMINDERS
+                and self._last_unload_nag_time is not None
+                and (now - self._last_unload_nag_time).total_seconds() >= delay_s
+            )
+            if first_due or repeat_due:
                 if self._notify_finish_services or self._notify_actions:
                     duration_min = int(time_since_complete / 60)
                     msg_template = self.config_entry.options.get(
@@ -3010,37 +4326,61 @@ class WashDataManager:
                         fallback_template=DEFAULT_NOTIFY_UNLOAD_MESSAGE,
                         device=self.config_entry.title,
                         duration=duration_min,
+                        duration_hm=self._format_duration_hm(duration_min),
                         delay=self._notify_unload_delay_minutes,
                     )
+                    extra_vars: dict[str, Any] = {"tag": self._clean_tag}
+                    if self._notify_unload_repeat:
+                        # Actionable "stop reminding" button + sticky so the user can
+                        # end the repeats from the notification (mobile_app targets;
+                        # ignored by other platforms). Door-open still ends it too.
+                        extra_vars["actions"] = [
+                            {
+                                "action": self._unload_dismiss_action_id,
+                                "title": self._timer_ui_strings.get(
+                                    "unload_dismiss_action_title", "Stop reminding"
+                                ),
+                            }
+                        ]
+                        extra_vars["sticky"] = "true"
                     sent = self._dispatch_notification(
                         msg,
                         event_type=NOTIFY_EVENT_CLEAN,
-                        extra_vars={"tag": self._clean_tag},
+                        extra_vars=extra_vars,
                     )
                     if sent:
                         self._notified_clean_laundry = True
+                        self._last_unload_nag_time = now
+                        self._unload_nag_count += 1
+                        if self._notify_unload_repeat:
+                            self._ensure_unload_dismiss_listener()
                         self._logger.info(
-                            "Sent clean laundry nag notification (%.0f min after cycle end)",
+                            "Sent clean laundry nag notification (%.0f min after "
+                            "cycle end)%s",
                             time_since_complete / 60,
+                            " [repeat]" if repeat_due else "",
                         )
                     elif self._last_dispatch_deferred:
                         # Held for quiet-hours / presence delivery; the queued copy
                         # fires later. Mark handled so the 60s expiry tick doesn't
                         # enqueue a duplicate nag every minute for the whole window.
                         self._notified_clean_laundry = True
+                        self._last_unload_nag_time = now
+                        self._unload_nag_count += 1
+                        if self._notify_unload_repeat:
+                            self._ensure_unload_dismiss_listener()
                 else:
                     self._notified_clean_laundry = True
+                    self._last_unload_nag_time = now
+                    self._unload_nag_count += 1
 
         # Defer leaving the terminal state while a clean-state unload notification is
         # still pending. Without this guard the 30-min progress reset (or an early
         # power-off) fires before the unload nag, clearing _is_clean_state before the
-        # notification can fire. Both expiry modes below honour it.
-        nag_pending = (
-            self._is_clean_state
-            and not self._notified_clean_laundry
-            and self._notify_unload_delay_minutes > 0
-            and time_since_complete < self._notify_unload_delay_minutes * 60
-        )
+        # notification can fire. In repeat mode the hold persists across every repeat
+        # until the user dismisses it or opens the door. Both expiry modes below honour
+        # it (as does the power-off one-shot timer).
+        nag_pending = self._unload_nag_active(now)
 
         # Power-based Off detection (issue #284): opt-in, and only valid when the
         # threshold sits below stop_threshold_w (so it cannot fire while a cycle could
@@ -3127,6 +4467,7 @@ class WashDataManager:
         self._is_clean_state = False
         self._clean_state_start = None
         self._notified_clean_laundry = False
+        self._reset_unload_nag_tracking()
         self._power_off_below_since = None
         self._cancel_power_off_timer()
         self.detector.reset(STATE_OFF)
@@ -3178,18 +4519,11 @@ class WashDataManager:
         if self._power_off_below_since is None or self._current_power >= pot:
             return
         if (
-            dt_util.now() - self._power_off_below_since
+            utc_now() - self._power_off_below_since
         ).total_seconds() < cfg.power_off_delay:
             return
         # Honour the clean-laundry unload nag hold (mirrors the poll path).
-        if (
-            self._is_clean_state
-            and not self._notified_clean_laundry
-            and self._notify_unload_delay_minutes > 0
-            and self._cycle_completed_time is not None
-            and (dt_util.now() - self._cycle_completed_time).total_seconds()
-            < self._notify_unload_delay_minutes * 60
-        ):
+        if self._unload_nag_active(utc_now()):
             return
         self._logger.debug(
             "Power-based Off (one-shot timer): %.2fW below %.2fW for >= %.0fs in %s. "
@@ -3201,6 +4535,251 @@ class WashDataManager:
         )
         self._reset_terminal_to_off()
 
+    def _keepalive_reading(self) -> tuple[float, bool]:
+        """The ``(power, observed)`` pair a watchdog keepalive should carry.
+
+        Two things the watchdog used to get wrong, in one place because they
+        come from the same read:
+
+        * **The value.** A synthetic reading is appended to ``_power_readings``
+          like any other (there is no guard at the append sites), so it lands in
+          the stored ``power_data``. Injecting a hard ``0.0`` therefore writes a
+          sample the appliance never produced. On a machine that idles ABOVE its
+          stop threshold - the #445 pathology - that fabricates a quiet tail and
+          silently defeats ``detect_standby_above_stop``, which reads exactly
+          that final sample. The sensor's own last reported value is the honest
+          one, and for a machine that really is at 0 W it IS 0.0, so this only
+          differs where the old value was a lie.
+        * **Whether it was observed.** ``_resync_power_from_state`` returns
+          early when the sensor is unavailable / unknown / non-finite, but the
+          watchdog injects on the silence interval alone. An unread sensor is an
+          outage, and the gap-free tally must not count quiet nobody saw.
+        """
+        live = self._live_power_state()
+        return (live[0], True) if live is not None else (0.0, False)
+
+    def _live_power_state(self) -> tuple[float, datetime] | None:
+        """Return ``(power, report_ts)`` from the power sensor's CURRENT state.
+
+        ``hass.states`` is the authoritative record of what the plug last said, and
+        unlike the manager's own cache it cannot go stale: it is written on every
+        report, including the ones this manager deliberately drops (the
+        sampling-interval throttle) or never receives (an event lost across a
+        reload). ``last_reported`` advances on every write - unchanged re-reports
+        included - so it is the honest "when did the sensor last speak" clock.
+
+        Returns None when the sensor is missing, unavailable or non-numeric.
+        """
+        state = self.hass.states.get(self.power_sensor_entity_id)
+        if state is None or state.state in (STATE_UNKNOWN, STATE_UNAVAILABLE):
+            return None
+        power = self._state_power(state)
+        if power is None:
+            return None
+        report_ts = getattr(state, "last_reported", None) or state.last_updated
+        if not isinstance(report_ts, datetime):
+            return None
+        return power, report_ts
+
+    def power_scale(self, unit: Any = None, *, from_state: bool = True) -> float:
+        """Factor from the power sensor's unit to watts (#481): 1000 for a kW sensor.
+
+        ``unit`` defaults to the sensor's current ``unit_of_measurement``. A device
+        whose Min Power was set in the sensor's own unit keeps raw readings (see
+        ``const.power_unit_scale``). The recorder readers in ws_api scale with it,
+        so the charts and the history import read what the detector reads.
+        """
+        if unit is None and from_state:
+            state = self.hass.states.get(self.power_sensor_entity_id)
+            unit = state.attributes.get("unit_of_measurement") if state else None
+        try:
+            min_power = self.detector.config.min_power
+        except AttributeError:
+            min_power = DEFAULT_MIN_POWER
+        return power_unit_scale(unit, min_power)
+
+    def _state_power(self, state: State) -> float | None:
+        """A power sensor state as watts: finite, scaled by its own unit (#481).
+
+        None for an energy counter, like any value that is not a power: a kWh
+        total read as watts never drops below the thresholds, so it held a
+        phantom cycle open until the 8 h cap. Setup refuses one now; an entry
+        configured on one before stays loaded so Settings can fix it.
+        """
+        if is_energy_counter(getattr(state, "attributes", None)):
+            return None
+        power = _finite_power(state.state)
+        if power is None:
+            return None
+        scale = self.power_scale(
+            getattr(state, "attributes", {}).get("unit_of_measurement"), from_state=False
+        )
+        if scale != 1.0 and not self._power_scale_logged:
+            self._power_scale_logged = True
+            self._logger.info(
+                "Power sensor %s reports %s; reading it as watts (x%g)",
+                self.power_sensor_entity_id,
+                state.attributes.get("unit_of_measurement"),
+                scale,
+            )
+        watts = power * scale
+        # 1e308 kW is finite, its watts are not: rejected like any non-finite value.
+        return watts if math.isfinite(watts) else None
+
+    def _read_power_state_at_setup(self) -> None:
+        """Feed the power entity's current state once at setup and seed the caches."""
+        state = self.hass.states.get(self.power_sensor_entity_id)
+        if state is not None and is_energy_counter(state.attributes):
+            # #481: set up before the flow refused one; the panel flags it too.
+            self._logger.warning(
+                "Power sensor %s is an energy counter (%s), not a power sensor: no "
+                "cycle can be detected. Pick the plug's power sensor in Settings.",
+                self.power_sensor_entity_id,
+                state.attributes.get("unit_of_measurement"),
+            )
+            if self.detector.state in _SENSOR_SWAP_BLOCKED_STATES:
+                # A cycle restored here is a phantom the kWh total held open. Its
+                # readings are ignored now, so nothing could end it, and while it
+                # ran a new power sensor would wait for its end: drop it.
+                self._logger.warning(
+                    "Dropped the restored %s cycle: it was read from an energy counter",
+                    self.detector.state,
+                )
+                self._end_dropped_cycle()
+                self.detector.reset(STATE_OFF)
+                # Its program, progress and projections too: no reading moves the
+                # detector again, so nothing else would clear them (OFF branch).
+                self._update_estimates()
+                self._spawn_tracked(self.profile_store.async_clear_active_cycle())
+        if state and state.state not in (STATE_UNKNOWN, STATE_UNAVAILABLE):
+            # A non-finite reading is skipped entirely, which leaves the cache
+            # unset, i.e. the pre-#409 behaviour. Seeding it with a nan instead
+            # would be PERMANENT: _resync_power_from_state returns early precisely
+            # when the sensor is non-finite, so the healing path could never
+            # overwrite it, and every later watchdog comparison would be False.
+            power = self._state_power(state)
+            if power is not None:
+                try:
+                    now = utc_now()
+                    self.detector.process_reading(power, now)
+                    # Seed the reading cache from the sensor itself (#409). The
+                    # reading was already fed to the detector; leaving the manager's
+                    # own cache unset meant every reload started with
+                    # _current_power = 0 and _last_reading_time = None, so (a) the
+                    # power tile/entity reported a value the sensor never had until
+                    # the next event and (b) the watchdog - which returns early while
+                    # _last_reading_time is None - could neither keepalive nor close a
+                    # restored cycle whose plug went silent across the reload.
+                    self._current_power = power
+                    self._last_reading_time = now
+                    self._seed_real_reading_clock(
+                        power,
+                        getattr(state, "last_reported", None) or state.last_updated,
+                    )
+                except (ValueError, TypeError, OverflowError):
+                    pass
+
+    def _seed_real_reading_clock(self, power: float, report_ts: datetime) -> None:
+        """Set the silence clock from the power entity's first state after a
+        restart (register item 266): the setup read, or the first event when the
+        entity only appears after setup.
+
+        After a restart every entity is written afresh, so the entity's timestamp
+        says "the sensor just spoke" even when the plug has been silent for an
+        hour. For a restored cycle whose sensor still holds the value it held
+        before the restart, that write carries nothing new: keep the restored
+        clock, so the watchdog's keepalive, ghost and staleness rules go on
+        measuring the real silence. A different value is a genuine report and
+        takes the entity's time, as does every setup with nothing restored. The
+        report is remembered so the watchdog's resync does not hand it back as
+        a missed one and reseed the clock a tick later.
+        """
+        restored, self._restored_sensor_clock = self._restored_sensor_clock, None
+        if (
+            restored is not None
+            and restored[1] is not None
+            and math.isclose(power, restored[1], rel_tol=0.0, abs_tol=1e-6)
+            and self.detector.state in (STATE_RUNNING, STATE_PAUSED, STATE_ENDING)
+        ):
+            self._last_real_reading_time = restored[0]
+            self._setup_report_ts = report_ts
+            self._logger.info(
+                "Power sensor still reads %.2fW, as before the restart: keeping its "
+                "last report at %s as the silence clock",
+                power,
+                restored[0],
+            )
+            return
+        self._last_real_reading_time = report_ts
+
+    def _resync_power_from_state(self, now: datetime, feed_detector: bool) -> None:
+        """Re-anchor the cached power on the sensor's live state (#409).
+
+        ``_current_power`` is otherwise a pure event cache: one dropped or missed
+        state event and it stays wrong indefinitely, because nothing ever compares
+        it against the sensor again. That single stale number then drives the
+        watchdog's high-power branch, the low-power keepalive gate and the #284
+        power-off detection, so the divergence does not merely show a wrong value
+        in the panel - it decides whether a cycle ends at all.
+
+        Called from the two periodic timers (the in-cycle watchdog and the terminal
+        state-expiry poll), so the cache can never be more than one tick out of
+        step with the sensor. When ``feed_detector`` is set and the sensor has
+        reported since our last real reading, that report is also handed to the
+        detector: it is a genuine observation we simply never processed. Timestamped
+        with ``now`` rather than the report time so the detector's dt can never run
+        backwards (a negative dt is discarded, taking the reading with it).
+        """
+        live = self._live_power_state()
+        if live is None:
+            return
+        power, report_ts = live
+        missed = (
+            self._last_real_reading_time is None
+            or report_ts > self._last_real_reading_time
+        ) and report_ts != self._setup_report_ts  # setup already took it (item 266)
+        if feed_detector and missed:
+            self._logger.debug(
+                "Resync: sensor reported %.2fW at %s but the last processed reading "
+                "was %s (cached %.2fW); processing it now",
+                power,
+                report_ts,
+                self._last_real_reading_time,
+                self._current_power,
+            )
+            self.detector.process_reading(power, now)
+            self._last_reading_time = now
+            self._last_real_reading_time = report_ts
+        self._current_power = power
+
+    def _low_power_silence_budget_s(
+        self, elapsed: float, expected: float, verified_pause: bool
+    ) -> float:
+        """How long a low-power wait may go without a real reading before the
+        watchdog force-ends it as stale. The restart path asks the same question
+        of a snapshot (register item 266), so the two cannot drift apart.
+        """
+        # Dishwashers can have very long silent drying phases (up to 2h)
+        # We use the device-specific timeout as the floor for this effective timeout.
+        # The floor is applied unconditionally - dishwashers have passive drying phases
+        # even when no profile has been matched yet.  The original restriction to matched
+        # cycles caused premature kills: with the default 3600s timeout, an unmatched
+        # dishwasher cycle was killed ~1h after the last sensor update, while the
+        # physical drying phase could still have 1-2h of silent runtime remaining.
+        budget = max(
+            float(DEFAULT_NO_UPDATE_ACTIVE_TIMEOUT_BY_DEVICE.get(self.device_type, 0)),
+            float(self._low_power_no_update_timeout),
+        )
+        # Profile-Aware Extension: with a matched profile, never kill during the
+        # expected duration - remaining + 1800 s (30 min buffer for drying/pause).
+        if expected > 0 and elapsed < expected:
+            budget = max(budget, expected - elapsed + 1800)
+        # Verified Pause Extension: a confirmed legitimate pause (e.g. drying) gets
+        # up to the global deferral limit + the same buffer.
+        if verified_pause:
+            budget = max(budget, DEFAULT_MAX_DEFERRAL_SECONDS + 1800)
+        return budget
+
     async def _watchdog_check_stuck_cycle(self, now: datetime) -> None:
         """Watchdog: check if cycle is stuck (no updates for too long)."""
         if self.detector.state not in (STATE_RUNNING, STATE_STARTING, STATE_PAUSED, STATE_ENDING):
@@ -3208,6 +4787,39 @@ class WashDataManager:
 
         if not self._last_reading_time:
             return
+
+        # Re-anchor the cached power on the sensor before any branch below reads it
+        # (#409): every decision from here on (keepalive vs force-end, low- vs
+        # high-power handling) is made against _current_power, and an event cache
+        # that has drifted from the sensor turns those decisions into fiction.
+        self._resync_power_from_state(now, feed_detector=True)
+        if self.detector.state not in (
+            STATE_RUNNING, STATE_STARTING, STATE_PAUSED, STATE_ENDING
+        ):
+            # A missed reading can legitimately end the cycle (that is the point of
+            # picking it up). Every other injection path in this method returns
+            # immediately for the same reason: none of the branches below are
+            # meaningful once the cycle is over.
+            self._notify_update()
+            return
+
+        # Refresh the remaining-time / progress estimate on the watchdog cadence
+        # (sampling-derived: max(30, 2*sampling+1)s), independently of incoming power
+        # events. A publish-on-change plug emits nothing during a flat low-power tail
+        # (e.g. a dishwasher's ~30 min drying phase at 0 W), so the event-driven
+        # _update_remaining_only never runs and the displayed countdown freezes at
+        # whatever value it last showed. The estimate is wall-clock based
+        # (net_elapsed_seconds), so this tick advances it correctly with zero new
+        # readings; it no-ops until a profile is matched. Kept ahead of the
+        # keepalive/force-end branches below so even a verified-pause drying tail
+        # (which skips those branches) still ticks down.
+        # The "almost done" reminder reads that same estimate, so it is checked here
+        # too: on the power path alone a silent tail delayed it to the next reading,
+        # typically the final pump-out, alongside the finish (audit PROGRESS-07).
+        if self.detector.state in (STATE_RUNNING, STATE_PAUSED, STATE_ENDING):
+            self._update_remaining_only()
+            self._check_pre_completion_notification()
+            self._notify_update()
 
         time_since_any_update = (now - self._last_reading_time).total_seconds()
 
@@ -3243,6 +4855,12 @@ class WashDataManager:
                         "threshold_seconds": self._pump_stuck_duration,
                     },
                 )
+                self._fire_device_trigger(
+                    TRIGGER_PUMP_STUCK,
+                    self._current_program,
+                    elapsed_seconds=round(adjusted_elapsed),
+                    threshold_seconds=self._pump_stuck_duration,
+                )
                 self._notify_update()
 
         # 0. ZOMBIE KILLER (Hard Limit)
@@ -3267,24 +4885,43 @@ class WashDataManager:
                 return
 
         # Secondary zombie guard for unmatched cycles (expected == 0 when no profile
-        # has been matched). The detector hard-caps RUNNING at 8h but a chatty sensor
-        # that never goes silent can keep the watchdog from reaching the end state.
-        # Kill here after 4h so a stuck false-start doesn't run indefinitely.
+        # has been matched, or a hand-created profile has no learned avg_duration yet).
+        # This is a failsafe against a stuck FALSE START, not a cap on real programmes.
+        # The detector already hard-caps any cycle at 8h (cycle_detector 28800s), so
+        # this only ever fires *earlier*, and only when the cycle looks like it is not
+        # really running any more. Its old form force-ended on elapsed time alone, which
+        # truncated genuine long runs (issue #404: a >4h washer-dryer wash+dry drawing
+        # hundreds of watts was cut off at exactly 4h; the empty profile it was learning
+        # against was then stored force_stopped/truncated and could never learn its true
+        # duration, so every subsequent run repeated the deadlock). Three gates keep it
+        # honest without losing the false-start failsafe:
+        #   - a device-scaled ceiling (wet/long appliances get a longer fuse), never
+        #     above the detector's 8h absolute cap;
+        #   - only when the appliance is effectively idle (current draw below the
+        #     running threshold) - a cycle still pulling real power is not a stuck false
+        #     start (reporter's evidence: the plug never dropped below 64 W);
+        #   - skipped when an authoritative external end trigger is wired and reporting,
+        #     since that signal will end the cycle cleanly.
+        # Gate on the active detector state, not _current_program: the latter is only set
+        # to "detecting..." on the RUNNING transition, so a cycle stuck in STARTING keeps
+        # a stale program and would never hit this guard.
         elif (
             expected == 0
             and not self._is_user_paused
             and not _verified_pause_zombie
-            and elapsed > 14400
-            # Gate on the active detector state, not _current_program: the latter is
-            # only set to "detecting..." on the RUNNING transition, so a cycle stuck
-            # in STARTING keeps a stale program and would never hit this 4h guard.
+            and elapsed > self._unmatched_watchdog_ceiling
+            and self._current_power < self.detector.config.start_threshold_w
+            and not self._external_end_trigger_available()
             and self.detector.state in (
                 STATE_STARTING, STATE_RUNNING, STATE_PAUSED, STATE_ENDING
             )
         ):
             self._logger.warning(
-                "Watchdog: Unmatched cycle exceeded 4h (%.0fs). Force-ending.",
+                "Watchdog: Unmatched idle cycle exceeded %.0fs (elapsed %.0fs, "
+                "power %.1fW). Force-ending.",
+                self._unmatched_watchdog_ceiling,
                 elapsed,
+                self._current_power,
             )
             self.detector.force_end(now)
             self._current_power = 0.0
@@ -3336,43 +4973,9 @@ class WashDataManager:
         # If we are in a low power state (waiting for off_delay or drying profile),
         # we treat silence leniently. We inject keepalives until the stricter
         # low_power_no_update_timeout is reached.
-
-        # Dishwashers can have very long silent drying phases (up to 2h)
-        # We use the device-specific timeout as the floor for this effective timeout.
-        # The floor is applied unconditionally - dishwashers have passive drying phases
-        # even when no profile has been matched yet.  The original restriction to matched
-        # cycles caused premature kills: with the default 3600s timeout, an unmatched
-        # dishwasher cycle was killed ~1h after the last sensor update, while the
-        # physical drying phase could still have 1-2h of silent runtime remaining.
-        low_power_floor = DEFAULT_NO_UPDATE_ACTIVE_TIMEOUT_BY_DEVICE.get(
-            self.device_type, 0
+        effective_low_power_timeout = self._low_power_silence_budget_s(
+            elapsed, expected, bool(getattr(self.detector, "_verified_pause", False))
         )
-        effective_low_power_timeout = max(
-            low_power_floor, self._low_power_no_update_timeout
-        )
-
-        # Profile-Aware Extension:
-        # If we have a matched profile, ensure we don't kill during the expected duration.
-        if expected > 0 and elapsed < expected:
-            # Extend timeout to cover the remaining expected duration + buffer
-            remaining = expected - elapsed
-            # Allow silence up to remaining + 1800s (30m buffer for drying/pause)
-            extended_timeout = remaining + 1800
-            if extended_timeout > effective_low_power_timeout:
-                effective_low_power_timeout = extended_timeout
-
-        # Verified Pause Extension:
-        # If the manager/store has confirmed this is a legitimate pause (e.g. Drying),
-        # allow even more leniency up to the global deferral limit.
-        if getattr(self.detector, "_verified_pause", False):
-            # Allow silence up to DEFAULT_MAX_DEFERRAL_SECONDS (default 2h) + buffer
-            pause_limit = DEFAULT_MAX_DEFERRAL_SECONDS + 1800
-            if pause_limit > effective_low_power_timeout:
-                effective_low_power_timeout = pause_limit
-                self._logger.debug(
-                    "Watchdog: Extending timeout to %.0fs due to verified pause",
-                    effective_low_power_timeout
-                )
 
         if self.detector.is_waiting_low_power():
 
@@ -3389,45 +4992,68 @@ class WashDataManager:
                 self._notify_update()
                 return
 
-            # 3. Injection Check (Keepalive)
-            # 3a. Honour the user-configured no_update_active_timeout for low-power silence.
-            # Publish-on-change sensors go completely silent once they stabilise at a low
-            # standby value (e.g. 1 W).  The existing off_delay-based injection fires
-            # every 2 watchdog ticks, which is fine with a short watchdog interval but can
-            # take many minutes with a larger one.  Respecting no_update_active_timeout
-            # here gives users a predictable upper bound on how long a cycle lingers after
-            # the appliance reaches standby, consistent with what the setting implies.
-            # Verified pauses (e.g. dishwasher drying confirmed by envelope) are excluded
-            # so that legitimate long silent phases are not prematurely terminated.
-            if (
-                not getattr(self.detector, "_verified_pause", False)
-                and time_since_real_update > self._no_update_active_timeout
-            ):
+            # 3. Injection Check (Keepalive) - on the WATCHDOG cadence (#427).
+            #
+            # This used to be two gates: real-update silence past
+            # `no_update_active_timeout`, else any-update silence past
+            # `off_delay`. Both are *stall-detection* timeouts, sized at roughly
+            # `p95_cadence * 20`; neither has anything to do with how fast the
+            # end accumulator should be advanced. A publish-on-change plug going
+            # quiet at standby is not a stall - it is the exact condition this
+            # keepalive exists for - and it was precisely then that nothing was
+            # injected for minutes at a time.
+            #
+            # Measured on the #427 reporter's v0.5.6 cycle (AEG L8FE74485,
+            # no_update_active_timeout 387 s, watchdog_interval 30 s): the
+            # accumulator froze twice, 383 s before PAUSED and ~390 s inside
+            # ENDING - about 13 of the reported ~20 minutes was nothing but "no
+            # reading arrived, so no gate was evaluated".
+            #
+            # This CANNOT end a cycle early. `_time_below_threshold` accumulates
+            # wall-clock `dt` between readings, so the total after N seconds of
+            # quiet is the same whether that arrived as one reading or twenty;
+            # injecting more often changes only how promptly a crossing is
+            # noticed, never the value compared against `effective_off_delay`.
+            # With the fix the reporter's cycle finishes 8.2 min after the last
+            # active reading, which is exactly their configured
+            # `max(off_delay 480, min_off_gap 480)`.
+            #
+            # A verified pause is no longer excluded, and that is not a loosening:
+            # the old 3b gate injected during verified pauses anyway (just on the
+            # slower off_delay cadence), and every guard that a verified pause is
+            # meant to hold off - the ENDING hard finalize, the terminal-drop
+            # finalize, the zombie killer - reads `_verified_pause` directly and
+            # is untouched by how often we sample.
+            if time_since_real_update > self._watchdog_interval:
+                _ka_w, _ka_obs = self._keepalive_reading()
+                # On time, this tick closes at most two intervals (the first one
+                # after a real reading) and then one. A longer one means the tick
+                # itself was late - host suspend, event-loop stall, a restart -
+                # and nobody watched the sensor in between, so the gap-free tally
+                # must not bank it (register item 391). Only the two shorten-only
+                # consumers of that tally read `observed`, so a false "late"
+                # costs end lag, never an early end.
+                if time_since_any_update > WATCHDOG_LATE_TICK_FACTOR * self._watchdog_interval:
+                    _ka_obs = False
                 self._logger.debug(
-                    "Watchdog: Low-power real-update silence (%.0fs) > no_update_active_timeout (%.0fs). "
-                    "Injecting 0W keepalive to advance accumulator.",
+                    "Watchdog: Low-power sensor silence (%.0fs > watchdog interval "
+                    "%ss). Injecting %.2fW keepalive (observed=%s) to advance "
+                    "accumulator.",
                     time_since_real_update,
-                    self._no_update_active_timeout,
+                    self._watchdog_interval,
+                    _ka_w,
+                    _ka_obs,
                 )
-                self.detector.process_reading(0.0, now)
+                # Do NOT update _last_real_reading_time here, and tell the
+                # detector this reading is ours: it must still advance the
+                # quiet timers (that is the whole point of injecting it) but
+                # must not count as the sensor having reported (items 238, 289).
+                self.detector.process_reading(
+                    _ka_w, now, synthetic=True, observed=_ka_obs
+                )
                 self._last_reading_time = now
-                self._current_power = 0.0
-                self._notify_update()
-                return
-
-            # 3b. Fallback: inject 0W when any-update silence exceeds off_delay.
-            # This keeps the accumulator moving even when no_update_active_timeout has
-            # not been exceeded (e.g. the user left it at the default 600 s).
-            if time_since_any_update > self._config.off_delay:
-                self._logger.debug(
-                    "Watchdog: Low power silence (%.0fs). Injecting 0W keepalive.",
-                    time_since_any_update
-                )
-                # Ensure we handle the injection cleanly
-                # Do NOT update _last_real_reading_time here
-                self.detector.process_reading(0.0, now)
-                self._last_reading_time = now # Resets 'any' timer so we don't spam
-                self._current_power = 0.0
+                self._current_power = _ka_w
+                self._save_snapshot_while_silent(now)
                 self._notify_update()
                 return
 
@@ -3441,10 +5067,18 @@ class WashDataManager:
             or time_since_real_update > self._no_update_active_timeout
         ):
             # Treating as start of low power wait
-            self._logger.debug("Watchdog: Silence at low power (%.0fs). Injecting 0W.", time_since_any_update)
-            self.detector.process_reading(0.0, now)
+            _ka_w, _ka_obs = self._keepalive_reading()
+            self._logger.debug(
+                "Watchdog: Silence at low power (%.0fs). Injecting %.2fW "
+                "(observed=%s).",
+                time_since_any_update, _ka_w, _ka_obs,
+            )
+            self.detector.process_reading(
+                _ka_w, now, synthetic=True, observed=_ka_obs
+            )
             self._last_reading_time = now
-            self._current_power = 0.0
+            self._current_power = _ka_w
+            self._save_snapshot_while_silent(now)
             self._notify_update()
             return
 
@@ -3461,12 +5095,37 @@ class WashDataManager:
                 limit = (expected + 14400) if expected > 0 else 14400 # 4h default
 
                 if elapsed < limit:
+                    # Silence at high power buys the cycle more time, but it must NOT
+                    # be turned into data (#409). This branch used to re-feed the
+                    # cached power to the detector on every tick, which
+                    #   - wrote a reading the sensor never reported into the cycle
+                    #     trace, producing a dead-flat non-zero tail that inflates
+                    #     the stored duration and energy and skews matching;
+                    #   - reset _time_below_threshold and _last_active_time, so the
+                    #     detector's own end-of-cycle timers could never accumulate
+                    #     and the fabricated tail was self-sustaining until this
+                    #     limit expired hours later (force_stopped);
+                    #   - fed that inflated duration back into the profile once the
+                    #     cycle was labelled, growing avg_duration and therefore
+                    #     `limit`, so each subsequent stuck cycle ran longer still.
+                    # The keepalive was never what kept the cycle alive - the
+                    # detector only ends a cycle on quiet time it has actually
+                    # observed - so deferring the force-end is enough. The trace
+                    # keeps an honest hole (integrate_wh drops outage-sized
+                    # segments), _update_remaining_only above keeps the ETA ticking
+                    # on wall-clock, and the resync at the top of this method picks
+                    # the real value up the moment the plug speaks again.
                     self._logger.info(
-                        "Watchdog: High power (%.1fW) stale (%.0fs). Injecting refresh.",
-                        self._current_power, time_since_any_update
+                        "Watchdog: High power (%.1fW) stale (%.0fs, sensor silent "
+                        "%.0fs). Deferring end (elapsed %.0fs < limit %.0fs).",
+                        self._current_power,
+                        time_since_any_update,
+                        time_since_real_update,
+                        elapsed,
+                        limit,
                     )
-                    self.detector.process_reading(self._current_power, now)
                     self._last_reading_time = now
+                    self._save_snapshot_while_silent(now)
                     self._notify_update()
                     return
 
@@ -3485,37 +5144,81 @@ class WashDataManager:
         """Handle state change from detector."""
         self._logger.debug("Washer state changed: %s -> %s", old_state, new_state)
         self.diag_buffer.record_state(
-            old_state, new_state, self._current_program, dt_util.now()
+            old_state, new_state, self._current_program, utc_now()
         )
-        # A new cycle starting while we are still showing the completed/Clean
-        # overlay (the progress-reset window) must clear that overlay and cancel
-        # the expiry timer right away, so the UI leaves "Finished" and the unload
-        # nag stops immediately instead of waiting for the reset window - and so
-        # the expiry timer cannot race the new cycle and reset us to OFF (#267).
-        if new_state == STATE_STARTING and self._cycle_completed_time is not None:
+        # A start from idle owns no update intervals yet: drop anything a false
+        # start (STARTING -> OFF, which ends no cycle) left pending, so it is not
+        # committed with this cycle (#458). DELAY_WAIT is idle too, and since item
+        # 504 its false starts return there, so hours of standby probes would
+        # otherwise reach the next completed cycle; since item 515 so do the
+        # terminal states' (the cycle end already closed the previous cycle's).
+        if new_state == STATE_STARTING and old_state in CADENCE_RESET_FROM_STATES:
+            self.learning_manager.discard_cycle_cadence()
+        # The completed/Clean overlay (the cycle end, Clean, the unload nag, the
+        # 100 % progress) is cleared when a new cycle COMMITS, in the RUNNING
+        # branch below, not when a probe begins (register item 515): most probes
+        # out of Finished abort, the detector returns to the terminal state, and
+        # clearing here lost Clean and the nag to a blip. The expiry timer keeps
+        # running through the probe and skips STARTING (#267, _handle_state_expiry).
+        if (
+            new_state == STATE_STARTING
+            and not TERMINAL_PROBE_RETURNS
+            and self._cycle_completed_time is not None
+        ):
             self._cycle_completed_time = None
             self._is_clean_state = False
             self._clean_state_start = None
             self._notified_clean_laundry = False
+            self._reset_unload_nag_tracking()
             self._cycle_progress = 0.0
             self._power_off_below_since = None
             self._cancel_power_off_timer()
             self._stop_state_expiry_timer()
+        if old_state == STATE_STARTING and new_state in (
+            STATE_FINISHED, STATE_INTERRUPTED, STATE_FORCE_STOPPED
+        ):
+            # Item 515: a false start back in its terminal state ended no cycle.
+            self._cycle_start_time = None
         if new_state == STATE_RUNNING:
             new_cycle_detected = old_state in (STATE_OFF, STATE_STARTING, STATE_UNKNOWN)
             # Only reset estimates if we are truly starting a NEW cycle (from off or starting)
             # If we transition from PAUSED or ENDING, it's a resume - keep estimates!
             if new_cycle_detected:
+                # The previous cycle's completed/Clean overlay ends here (item 515;
+                # Clean and the nag tracking are reset further down).
                 self._cycle_completed_time = None
                 self._stop_state_expiry_timer()
+                self._power_off_below_since = None
+                self._cancel_power_off_timer()
 
                 self._current_program = "detecting..."
                 self._manual_program_active = False
+                # Confidence belongs to the match that produced it, so it cannot
+                # carry into the next cycle. It was only ever assigned by a real
+                # match update, never cleared, and the cycle-end tail stamps it onto
+                # cycle_data["match_confidence"] - so a cycle that never matched
+                # (most obviously one running a hand-pinned program, where
+                # _update_estimates returns early and the matcher never runs)
+                # persisted the PREVIOUS cycle's confidence as its own. That number
+                # then feeds the learning feedback,
+                # i.e. fabricated match provenance on a cycle that has none - the
+                # #400 class of bug. Zero means "no opinion" and is not stored.
+                self._last_match_confidence = 0.0
+                self._last_member_confidence = None
                 self._notified_pre_completion = False
                 self._time_remaining = None
                 self._total_duration = None
                 self._cycle_progress = 0
+                # ...and the EMA behind it (item 388d): an armed program sets the
+                # duration before the "no profile" reset can run, so the new
+                # cycle started from the previous one's smoothed figure (89% two
+                # minutes into a two-hour wash).
+                self._smoothed_progress = 0.0
                 self._matched_profile_duration = None
+                # The ML expectation is the median of the profile's last 20 cycles;
+                # cached per profile only, it stayed frozen until another programme
+                # was matched or HA restarted (audit PROGRESS-16). Once per cycle.
+                self._ml_end_expectation_cache = None
                 self._last_estimate_time = None
                 self._score_history = {}  # Reset score history on new cycle
                 self._match_persistence_counter = {}  # Reset persistence counter
@@ -3524,12 +5227,15 @@ class WashDataManager:
                 self._notified_start = False # Reset start notification state
                 self._start_event_fired = False
                 self._last_cycle_post_anomaly = {}  # Clear previous cycle's anomaly cache
-                self._cycle_start_time = self.detector.current_cycle_start or dt_util.now()
+                self._cycle_start_time = self.detector.current_cycle_start or utc_now()
                 self._ranking_snapshot_cycle_id = str(uuid.uuid4())
                 self._reset_live_notification_state()
                 # Snapshot the external energy meter (issue #316) so cycle end can
                 # take an accurate start->end delta. No-op when none is configured.
                 self._snapshot_energy_meter_start()
+                # Open the dynamic price timeline (#426) with the price in force
+                # right now. No-op when no price entity is configured.
+                self._start_price_timeline()
 
                 # Reset pause tracking and clean state for new cycle
                 self._is_user_paused = False
@@ -3540,31 +5246,55 @@ class WashDataManager:
                 self._clear_timer_pause_notification()
                 self._clean_state_start = None
                 self._notified_clean_laundry = False
+                self._reset_unload_nag_tracking()
+
+                # A program the user armed while idle - or pinned during STARTING,
+                # which the reset above would otherwise have wiped - takes effect
+                # here (#411). Placed after the reset for two reasons: the duration
+                # it sets must not be nulled a line later, and it applies the pin,
+                # which refreshes the estimate - so it has to run once the pause
+                # totals belong to THIS cycle. Reading them a few lines earlier
+                # computed the new cycle's first ETA from the previous cycle's
+                # paused seconds, which the back-to-back case makes reachable: when
+                # the cycle-end tail returns early on the new-cycle token guard, it
+                # never clears them either, and the live progress notification is
+                # interval-throttled, so that wrong ETA sits on the phone until the
+                # next allowed tick. Still before the start event, so the event
+                # carries the real program name rather than "detecting...".
+                self._consume_armed_program()
 
                 self._start_watchdog()  # Start watchdog when cycle starts
 
                 # Fire the start event immediately on cycle detection so listeners always
-                # receive it, even when no profile match occurs yet.
-                if self._notify_fire_events:
-                    self.hass.bus.async_fire(
-                        EVENT_CYCLE_STARTED,
-                        {
-                            "entry_id": self.entry_id,
-                            "device_name": self.config_entry.title,
-                            "device_type": self.device_type,
-                            "program": self._current_program or "unknown",
-                            "start_time": self._cycle_start_time.isoformat(),
-                        },
-                    )
-                    self._start_event_fired = True
-                    # Mark the start fully handled ONLY when there is no push to send, so
-                    # the restart-recovery fallback does not re-enter for event-only
-                    # configs. When a push service/action IS configured, leave
-                    # _notified_start False so the push block below still fires: a config
-                    # with both events and push must get both (event delivery is tracked
-                    # separately by _start_event_fired).
-                    if not (self._notify_start_services or self._notify_actions):
-                        self._notified_start = True
+                # receive it, even when no profile match occurs yet. Always fired since
+                # #478 retired the "Fire HA events" option.
+                self.hass.bus.async_fire(
+                    EVENT_CYCLE_STARTED,
+                    {
+                        "entry_id": self.entry_id,
+                        "device_name": self.config_entry.title,
+                        "device_type": self.device_type,
+                        "program": self._current_program or "unknown",
+                        "start_time": self._cycle_start_time.isoformat(),
+                    },
+                )
+                self._start_event_fired = True
+                # Mark the start fully handled ONLY when there is no push to send, so
+                # the restart-recovery fallback does not re-enter for event-only
+                # configs. When a push service/action IS configured, leave
+                # _notified_start False so the push block below still fires: a config
+                # with both events and push must get both (event delivery is tracked
+                # separately by _start_event_fired).
+                if not (self._notify_start_services or self._notify_actions):
+                    self._notified_start = True
+                # The device trigger, at the same moment (#478).
+                self._cycle_ended_pending = True
+                self._on_trigger_cycle_started()
+                self._fire_device_trigger(
+                    TRIGGER_CYCLE_STARTED,
+                    self._current_program,
+                    start_time=self._cycle_start_time.isoformat(),
+                )
 
                 # Fire push notification immediately - do not wait for profile matching.
                 if not self._notified_start and (self._notify_start_services or self._notify_actions):
@@ -3602,10 +5332,21 @@ class WashDataManager:
                 # Ensure watchdog is running
                 self._start_watchdog()
 
+        # Auto-open dishwasher: arm the dwell if ENDING while the door is already
+        # open (door event missed, or door popped just as ENDING fired) (#342).
+        self._maybe_arm_door_end_dwell_if_open()
+
         # Stop watchdog when transitioning to OFF from any active state
         if new_state == STATE_OFF:
             self._stop_watchdog()  # Stop watchdog regardless of previous state
             self._cycle_start_time = None
+
+        # A power-sensor change saved mid-cycle lands now (audit MANAGER-11).
+        if (
+            getattr(self, "_pending_power_sensor", None) is not None
+            and new_state not in _SENSOR_SWAP_BLOCKED_STATES
+        ):
+            self._spawn_tracked(self._async_apply_pending_power_sensor())
 
         self._notify_update()
 
@@ -3623,7 +5364,7 @@ class WashDataManager:
         self._spawn_tracked(self.profile_store.async_clear_active_cycle())
         # Anchor the terminal state so _handle_state_expiry (and power-off) can act,
         # then arm the expiry timer that resets terminal -> Off after the reset delay.
-        self._cycle_completed_time = dt_util.now()
+        self._cycle_completed_time = utc_now()
         self._start_state_expiry_timer()
 
     def _on_cycle_end(self, cycle_data: dict[str, Any]) -> None:
@@ -3631,12 +5372,37 @@ class WashDataManager:
         duration = cycle_data["duration"]
         max_power = cycle_data.get("max_power", 0)
 
+        # Before the detector moves to its terminal state (anti-wrinkle included),
+        # so the state triggers see this end (#478).
+        self._trigger_end_seq += 1
+        self._trigger_ended_program = self._trigger_program(self._current_program)
+        fire_ended = bool(getattr(self, "_cycle_ended_pending", False))
+        self._cycle_ended_pending = False
+
+        # Coalesce this cycle end's store writes from its first one: the cadence
+        # commit below already spawns a suggestion pass that saves (item 456).
+        try:
+            self.profile_store.coalesce_saves()
+        except Exception:  # noqa: BLE001 - a save policy must never break cycle end
+            self._logger.debug("Could not coalesce cycle-end saves", exc_info=True)
+
+        # First, and synchronously: every end - ghost, pump-out, persisted or not
+        # - commits this cycle's update intervals to the cadence model or drops
+        # them, so they can never ride into the next cycle (#458). It used to run
+        # at the end of the async pipeline, which the ghost and pump-out branches
+        # below return before.
+        try:
+            self.learning_manager.close_cycle_cadence(cycle_data)
+        except Exception:  # pylint: disable=broad-exception-caught
+            self._logger.debug("Cadence commit failed", exc_info=True)
+
         # IMMEDIATELY stop all active timers when cycle determined to have ended
         self._stop_watchdog()  # Stop active cycle watchdog
         self._stop_state_expiry_timer()  # Cancel any pending progress reset
         self._clear_timer_pause_notification()
+        self._cancel_door_end_dwell()  # Discard stale auto-open dwell (#342)
         prev_cycle_end_time = self._last_cycle_end_time
-        self._last_cycle_end_time = dt_util.now()
+        self._last_cycle_end_time = utc_now()
         self._pump_stuck = False  # Reset for next pump cycle
 
         # Auto-Tune: Check for ghost cycles (short duration AND low energy)
@@ -3648,7 +5414,7 @@ class WashDataManager:
             for p in power_data:
                 try:
                     valid.append((float(p[0]), float(p[1])))
-                except (TypeError, ValueError, IndexError):
+                except (TypeError, ValueError, IndexError, OverflowError):
                     pass
             if len(valid) >= 2:
                 try:
@@ -3656,7 +5422,7 @@ class WashDataManager:
                     ts = np.array([v[0] for v in valid])
                     ps = np.array([v[1] for v in valid])
                     # Shared trapezoidal integrator with a data-driven outage gap
-                    # (single source with ProfileStore.add_cycle).
+                    # (single source with ProfileStore.async_add_cycle).
                     cycle_energy_wh = integrate_wh(
                         ts, ps, max_gap_s=energy_gap_threshold_s(ts)
                     )
@@ -3671,6 +5437,8 @@ class WashDataManager:
         if duration < 60 and cycle_energy_wh < 0.05:
             self._handle_noise_cycle(max_power)
             self._discard_cycle_cleanup()
+            if fire_ended:  # its start was announced, so its end is too (#478)
+                self._fire_cycle_ended(cycle_data, cycle_energy_wh)
             return  # Do not store this as a real cycle
         if self.device_type == "dishwasher" and prev_cycle_end_time is not None:
             # Pump-out suppression: dishwashers end cycles with a brief drain pump
@@ -3693,6 +5461,8 @@ class WashDataManager:
                     )
                     self._handle_noise_cycle(max_power)
                     self._discard_cycle_cleanup()
+                    if fire_ended:
+                        self._fire_cycle_ended(cycle_data, cycle_energy_wh)
                     return  # Do not store this as a real cycle
 
         # Store energy for notification and persistence (calculated above for ghost detection)
@@ -3714,9 +5484,24 @@ class WashDataManager:
         # detector into a fresh RUNNING before post-processing completes). See B1 in
         # _async_process_cycle_end.
         end_token = self._ranking_snapshot_cycle_id
+        # Freeze the price timeline alongside the token, for the same reason: the
+        # back-to-back start that changes the token also calls _start_price_timeline,
+        # which replaces this cycle's timeline with the NEW cycle's opening sample
+        # before the task reaches the costing step (#426).
+        end_price_timeline = list(self._price_timeline)
+        # still_tumbling (#478): armed here, before the pipeline below awaits the
+        # final match and the store, so a tumble in those seconds is counted. A
+        # cycle that starts during them holds its tumbles (_release_held_tumble).
+        if notif_rules.cycle_end_is_finish(cycle_data.get("status")):
+            self._arm_tumble_tracker(cycle_data)
         if not self._is_shutdown:
             self._cycle_end_task = self._spawn_tracked(
-                self._async_process_cycle_end(cycle_data, cycle_token=end_token)
+                self._async_process_cycle_end(
+                    cycle_data,
+                    cycle_token=end_token,
+                    price_timeline=end_price_timeline,
+                    fire_ended=fire_ended,
+                )
             )
 
     def _ml_end_confidence(
@@ -3730,6 +5515,8 @@ class WashDataManager:
         features are unavailable. ``None`` means the detector keeps its existing
         power/energy-based behavior, so this can only ever *defer* a completion.
         """
+        if not ENABLE_ML_END_GUARD:
+            return None
         try:
             from .ml.engine import ml_models_enabled, resolve_scorer
 
@@ -3742,7 +5529,7 @@ class WashDataManager:
                 or profile_name not in self.profile_store.get_profiles()
             ):
                 return None
-            end_fn, _ = resolve_scorer("end", self.profile_store)
+            end_fn, _ = resolve_scorer("end")
             if end_fn is None:
                 return None
             expectation = self._profile_end_expectation(profile_name, expected_duration)
@@ -3793,25 +5580,29 @@ class WashDataManager:
         ``is_terminal_drop``) - a cycle drawing power unlike anything in its
         history is treated as a possible new program and deferred.
 
-        Returns ``False`` (keep the proven slow path) when the ML/anomaly opt-in
-        is off, there is too little history to trust the baseline, the cycle
-        looks novel, or the drop is not anomalously early.  Never raises - the
+        Returns ``False`` (keep the proven slow path) when it is off for this
+        device (``detector_config.terminal_drop_enabled``: always on for
+        dishwashers, behind the "Apply smart models" toggle otherwise - audit
+        ML-08), a default-on dishwasher has no committed unambiguous match yet
+        (``terminal_drop_may_fire``), there is too little history to trust the
+        baseline, the cycle looks novel, or the drop is not anomalously early.
+        Never raises - the
         anomaly signal must never break detection.
         """
         try:
-            from .ml.engine import ml_models_enabled
-
-            if not ml_models_enabled(self.config_entry.options):
+            options = self.config_entry.options
+            if not terminal_drop_enabled(self.device_type, options):
                 return False
-            earliest, peak_range = self._terminal_drop_baseline()
-            return is_terminal_drop(
+            # Default-on dishwashers fire only on a committed, unambiguous match.
+            if not terminal_drop_may_fire(
+                self.device_type, options, self.detector,
+                pinned=bool(self._manual_program_active),
+            ):
+                return False
+            return terminal_drop_fires(
                 points,
-                earliest,
-                peak_range,
+                self._terminal_drop_baseline(),
                 float(self.detector.config.stop_threshold_w),
-                TERMINAL_DROP_EARLINESS_RATIO,
-                TERMINAL_DROP_MIN_PEAK_RATIO,
-                TERMINAL_DROP_PEAK_FAMILIAR_TOL,
             )
         except Exception as err:  # noqa: BLE001 - anomaly signal must never break detection
             self._logger.debug("Terminal-drop detection skipped: %s", err)
@@ -3857,11 +5648,7 @@ class WashDataManager:
             cycles = list(self.profile_store.get_past_cycles())
             stop_threshold = float(self.detector.config.stop_threshold_w)
             earliest, peak_range = await self.hass.async_add_executor_job(
-                terminal_drop_baseline,
-                cycles,
-                stop_threshold,
-                TERMINAL_DROP_MIN_QUIET_SPAN_S,
-                TERMINAL_DROP_MIN_CLEAN_CYCLES,
+                terminal_drop_baseline_for, cycles, stop_threshold
             )
             self._terminal_drop_cache = (len(cycles), earliest, peak_range)
         except Exception as err:  # noqa: BLE001 - anomaly signal must never break detection
@@ -3870,140 +5657,56 @@ class WashDataManager:
             if self._terminal_drop_refresh_n == n:
                 self._terminal_drop_refresh_n = None
 
-    def _ml_progress_percent(
-        self,
-        trace: list[tuple[datetime, float]],
-        profile_name: str,
-    ) -> float | None:
-        """ML completion-fraction estimate (0-100) for the running cycle, or None.
+    def _price_entity_reject_reason(self, entity_id: str) -> str | None:
+        """Why ``entity_id`` cannot be a price per kWh, or None (#439).
 
-        Uses the on-device ``remaining_time`` regressor (a ``standardized_linear``
-        head with no shipped baseline) to predict how far through the cycle we
-        are, learning this device's own progress curve rather than assuming the
-        matched profile's median duration. Gated on the ML opt-in and only active
-        once training has promoted a regressor; otherwise returns ``None`` so the
-        caller keeps the proven phase-aware estimate untouched. Never raises.
+        Only *positive* evidence rejects: an entity that has not loaded yet carries
+        no attributes, and refusing it would silence a perfectly good tariff sensor
+        that HA sets up after us.
         """
-        return progress_mod.ml_progress_percent(
-            self.profile_store,
-            self.config_entry.options,
-            float(self._matched_profile_duration or 0.0),
-            trace,
-            profile_name,
-            self._profile_end_expectation,
-            self._logger,
-        )
+        options = self.config_entry.options
+        if entity_id == self.power_sensor_entity_id:
+            return "it is this device's power sensor"
+        if entity_id == options.get(CONF_ENERGY_SENSOR):
+            return "it is this device's energy meter"
+        state = self.hass.states.get(entity_id)
+        if state is None:
+            return None
+        device_class = str(state.attributes.get("device_class") or "").strip().lower()
+        if device_class in _NON_PRICE_DEVICE_CLASSES:
+            return f"its device class is '{device_class}'"
+        unit = str(state.attributes.get("unit_of_measurement") or "").strip().lower()
+        if unit in _NON_PRICE_UNITS:
+            return f"its unit is '{unit}'"
+        return None
 
-    def _ml_energy_total(
-        self,
-        trace: list[tuple[datetime, float]],
-        profile_name: str,
-    ) -> float | None:
-        """Predicted total cycle energy (Wh) from the on-device ``total_energy``
-        regressor, or None.
+    def _price_entity_id(self) -> str | None:
+        """The configured price entity, or None when it is provably not a price.
 
-        The regressor predicts the *energy-completion fraction* (energy so far ÷
-        final energy); total = ``energy_so_far / fraction``. Because energy
-        accumulates non-linearly (heating front-loads it), this is more stable —
-        especially early — than dividing accumulated energy by *time* progress
-        (the fallback in :meth:`_update_projected_energy`). Same gating as the
-        remaining-time regressor: opt-in, inert until a model is promoted. Never
-        raises.
+        Guards the single trap the cost feature has (#439): the panel picker lists
+        every sensor, a price entity outranks the static price, and pointing it at
+        the plug's own kWh counter silently charges every cycle
+        ``energy * meter_reading`` instead of ``energy * tariff``. Rejecting it here
+        - rather than in the panel alone - also repairs entries that are already
+        misconfigured, which fall back to the static price.
         """
-        return progress_mod.ml_energy_total(
-            self.profile_store,
-            self.config_entry.options,
-            float(self._matched_profile_duration or 0.0),
-            trace,
-            profile_name,
-            self._profile_end_expectation,
-            self._logger,
-        )
-
-    def _compute_cycle_quality_score(
-        self,
-        cycle_data: dict[str, Any],
-        past_cycles_snapshot: list[dict[str, Any]] | None = None,
-    ) -> None:
-        """Score a just-finished cycle with the hybrid_curve_quality model (opt-in).
-
-        When ML models are enabled for this device, computes P(cycle is a problem)
-        and stores it under ``cycle_data["ml_quality_score"]``.  A high score means
-        the cycle may be mis-detected or corrupt; the learning manager uses it to
-        downgrade auto-labeling to a feedback request so the user can confirm.
-        Never raises — scoring failure is silently ignored to keep cycle storage safe.
-        """
-        try:
-            from .ml.engine import ml_models_enabled, resolve_scorer
-            from .ml.feature_extraction import quality_features
-
-            if not ml_models_enabled(self.config_entry.options):
-                return
-            quality_fn, _ = resolve_scorer("quality", self.profile_store)
-            if quality_fn is None:
-                return
-
-            profile_name = cycle_data.get("profile_name")
-            if not profile_name:
-                return
-
-            points = decompress_power_data(cycle_data)
-            if not points or len(points) < 4:
-                return
-
-            # Build profile median stats from stored labeled cycles.
-            durations: list[float] = []
-            energies: list[float] = []
-            peaks: list[float] = []
-            # This function runs in an executor thread and the event loop may
-            # append cycles concurrently; iterating (or even copying) the live list
-            # here is a data race. Prefer the snapshot taken on the event loop at
-            # the call site; only fall back to a local copy for direct callers.
-            cycles = (
-                past_cycles_snapshot
-                if past_cycles_snapshot is not None
-                else list(self.profile_store.get_past_cycles())
+        entity_id = self.config_entry.options.get(CONF_ENERGY_PRICE_ENTITY)
+        if not entity_id:
+            return None
+        reason = self._price_entity_reject_reason(entity_id)
+        if reason is None:
+            self._warned_price_entity = None
+            return entity_id
+        if self._warned_price_entity != entity_id:
+            self._warned_price_entity = entity_id
+            self._logger.warning(
+                "Energy price entity %s is not a price per kWh (%s); ignoring it and "
+                "using the static energy price instead. Set a tariff sensor there, or "
+                "clear the field to cost cycles at the static price",
+                entity_id,
+                reason,
             )
-            for c in cycles:
-                if c.get("profile_name") != profile_name:
-                    continue
-                if c.get("duration") is not None:
-                    durations.append(float(c["duration"]))
-                if c.get("energy_wh") is not None:
-                    energies.append(float(c["energy_wh"]))
-                if c.get("max_power") is not None:
-                    peaks.append(float(c["max_power"]))
-
-            if not durations:
-                return
-
-            med_dur = float(np.median(durations))
-            med_energy = float(np.median(energies)) if energies else 500.0
-            med_peak = float(np.median(peaks)) if peaks else 500.0
-
-            match_conf = float(cycle_data.get("match_confidence") or 0.0)
-            conf_known = match_conf > 0
-            proxy_dist = max(0.0, 1.0 - match_conf) if conf_known else 0.25
-            proxy_margin = match_conf if conf_known else 0.30
-            proxy_fit = match_conf if conf_known else 0.75
-
-            feat = quality_features(
-                points=points,
-                profile_median_duration_s=med_dur,
-                profile_median_energy_wh=med_energy,
-                profile_median_peak_w=med_peak,
-                profile_distance=proxy_dist,
-                label_margin=proxy_margin,
-                profile_fit_score=proxy_fit,
-                flag_count=len(cycle_data.get("artifacts", [])),
-            )
-            score = round(float(quality_fn(feat)), 3)
-            cycle_data["ml_quality_score"] = score
-            self._logger.debug(
-                "ML quality score (profile=%s): %.3f", profile_name, score
-            )
-        except Exception:  # noqa: BLE001 - never break cycle storage
-            pass
+        return None
 
     def _resolve_energy_price(self) -> float | None:
         """Current energy price per kWh, or None when none is configured.
@@ -4012,21 +5715,201 @@ class WashDataManager:
         value. Used to freeze each cycle's cost at completion time.
         """
         options = self.config_entry.options
-        price_entity = options.get(CONF_ENERGY_PRICE_ENTITY)
+        price_entity = self._price_entity_id()
         if price_entity:
             state = self.hass.states.get(price_entity)
             if state is not None:
                 try:
-                    return float(state.state)
-                except (ValueError, TypeError):
+                    value = float(state.state)
+                except (ValueError, TypeError, OverflowError):
                     pass
+                else:
+                    # A non-finite reading is treated as no reading, exactly like an
+                    # unparseable one: returning it would freeze an infinite cost
+                    # onto the cycle (register item 211).
+                    if math.isfinite(value):
+                        return value
         static = options.get(CONF_ENERGY_PRICE_STATIC)
         if static is not None:
             try:
-                return float(static)
-            except (ValueError, TypeError):
+                value = float(static)
+            except (ValueError, TypeError, OverflowError):
                 pass
+            else:
+                if math.isfinite(value):
+                    return value
         return None
+
+    async def _async_price_history(
+        self, start: datetime, end: datetime
+    ) -> list[tuple[float, float]]:
+        """``(unix_ts, price)`` rows for the price entity over a window, via the
+        recorder (#426).
+
+        Used to recover price changes the live listener could not see - the period
+        HA was down mid-cycle, a cycle that predates the feature, a device whose
+        history was imported from raw recorder data. Returns ``[]`` on any failure
+        (recorder disabled, entity excluded from recording, data purged) so the
+        caller falls back to whatever it already had.
+        """
+        entity_id = self._price_entity_id()
+        if not entity_id:
+            return []
+        try:
+            from homeassistant.components.recorder import (  # noqa: PLC0415
+                get_instance,
+                history,
+            )
+        except Exception:  # noqa: BLE001 - recorder is an optional component
+            return []
+
+        def _query() -> list[tuple[float, float]]:
+            res = history.state_changes_during_period(
+                self.hass, start, end, entity_id, include_start_time_state=True
+            )
+            start_ts = start.timestamp()
+            rows: list[tuple[float, float]] = []
+            for state in res.get(entity_id, []) or []:
+                try:
+                    price = float(state.state)
+                except (ValueError, TypeError, OverflowError):
+                    # unknown/unavailable: the previous price stays in force.
+                    continue
+                ts = state.last_changed.timestamp()
+                # include_start_time_state hands back the state in force at the
+                # window start, whose last_changed can predate it by hours. Clamp
+                # so it anchors the timeline instead of sorting before the cycle.
+                rows.append((max(ts, start_ts), price))
+            rows.sort(key=lambda item: item[0])
+            return rows
+
+        try:
+            return await get_instance(self.hass).async_add_executor_job(_query)
+        except Exception as exc:  # noqa: BLE001 - cost must never break cycle end
+            self._logger.debug("Price history lookup failed for %s: %s", entity_id, exc)
+            return []
+
+    async def _async_apply_cycle_cost(
+        self,
+        cycle_data: dict[str, Any],
+        price_timeline: list[tuple[float, float]] | None = None,
+    ) -> None:
+        """Freeze ``cost`` / ``energy_price`` onto a finished cycle (#426).
+
+        Dynamic mode integrates the stored power trace against the price timeline
+        recorded while the cycle ran; ``energy_price`` then carries the *effective*
+        price per kWh the cycle paid (cost / kWh), which is the only figure that
+        stays meaningful once the tariff moved. ``energy_price_mode`` says which of
+        the two produced the number so the panel can label it honestly.
+
+        Falls back to the single current price whenever dynamic costing cannot
+        produce an answer - no price entity, the toggle off, no timeline, or a
+        trace with no energy in it. Never raises: a cost figure is display-only and
+        must not be able to lose a finished cycle.
+        """
+        price = self._resolve_energy_price()
+        if self._dynamic_pricing_enabled():
+            try:
+                if await self._async_apply_dynamic_cost(
+                    cycle_data, price_timeline=price_timeline
+                ):
+                    return
+            except Exception as exc:  # noqa: BLE001 - never break cycle storage
+                self._logger.debug("Dynamic cost calculation failed: %s", exc)
+        if price is not None:
+            cycle_data["energy_price"] = price
+            cycle_data["energy_price_mode"] = "fixed"
+            cycle_data["cost"] = round(
+                self._cycle_report_energy_wh(cycle_data) / 1000.0 * price, 4
+            )
+
+    async def _async_apply_dynamic_cost(
+        self,
+        cycle_data: dict[str, Any],
+        price_timeline: list[tuple[float, float]] | None = None,
+    ) -> bool:
+        """Cost the cycle against its price timeline. True when it succeeded.
+
+        ``price_timeline`` is the finished cycle's own history, frozen at cycle end.
+        Falling back to the live ``_price_timeline`` is only correct while no new
+        cycle has started since.
+        """
+        start_dt = dt_util.parse_datetime(str(cycle_data.get("start_time") or ""))
+        end_dt = dt_util.parse_datetime(str(cycle_data.get("end_time") or ""))
+        if start_dt is None or end_dt is None or end_dt <= start_dt:
+            return False
+
+        timeline = list(
+            self._price_timeline if price_timeline is None else price_timeline
+        )
+        # The live listener is complete whenever HA stayed up for the whole cycle.
+        # Consult the recorder only when it cannot have been: nothing recorded at
+        # all (the feature was switched on mid-cycle), or a restart gap where price
+        # changes would have gone unseen.
+        if not timeline or cycle_data.get("restart_gaps"):
+            recorded = await self._async_price_history(start_dt, end_dt)
+            if recorded:
+                # The recorder saw the downtime too, so it supersedes rather than
+                # merges - interleaving the two would double-count a change that
+                # both captured at slightly different timestamps.
+                timeline = recorded
+
+        if not timeline:
+            return False
+
+        start_ts = start_dt.timestamp()
+        duration = (end_dt - start_dt).total_seconds()
+        points = compact_price_timeline(
+            [(ts - start_ts, price) for ts, price in timeline],
+            max_points=PRICE_TIMELINE_MAX_POINTS,
+            decimals=PRICE_TIMELINE_PRICE_DECIMALS,
+        )
+        # A price recorded before the trace's first sample still sets the opening
+        # price; clamp rather than drop it, and discard anything past the end.
+        points = [(max(0.0, offset), price) for offset, price in points if offset <= duration]
+        points = compact_price_timeline(
+            points, max_points=PRICE_TIMELINE_MAX_POINTS,
+            decimals=PRICE_TIMELINE_PRICE_DECIMALS,
+        )
+        if not points:
+            return False
+
+        result = self._cost_from_timeline(cycle_data, points)
+        if result is None:
+            return False
+        cost, effective_price = result
+        cycle_data["cost"] = round(cost, 4)
+        cycle_data["energy_price"] = round(effective_price, 6)
+        cycle_data["energy_price_mode"] = "dynamic"
+        cycle_data["price_timeline"] = [
+            [round(offset, 1), price] for offset, price in points
+        ]
+        return True
+
+    def _cost_from_timeline(
+        self, cycle_data: dict[str, Any], points: list[tuple[float, float]]
+    ) -> tuple[float, float] | None:
+        """``(cost, effective_price)`` for a cycle and its price timeline, or None.
+
+        Pure apart from reading the cycle; the meter-vs-integrated decision is the
+        same ``_cycle_report_energy_wh`` every other user-facing energy figure uses,
+        so the cost and the kWh shown beside it are computed from one number.
+        """
+        # decompress_power_data, not the raw list: a cycle stored before the
+        # offset migration still carries ISO timestamps, and recosting must work
+        # on exactly the cycles that are old enough to need it.
+        points_xy = decompress_power_data(cast(Any, cycle_data))
+        if len(points_xy) < 2:
+            return None
+        timestamps = np.asarray([t for t, _ in points_xy], dtype=float)
+        power = np.asarray([p for _, p in points_xy], dtype=float)
+        return cycle_cost(
+            timestamps,
+            power,
+            points,
+            max_gap_s=energy_gap_threshold_s(timestamps),
+            report_wh=self._cycle_report_energy_wh(cycle_data),
+        )
 
     def _read_energy_meter(self) -> tuple[float, str] | None:
         """Read the configured external energy meter, normalized to Wh.
@@ -4044,7 +5927,7 @@ class WashDataManager:
             return None
         try:
             value = float(state.state)
-        except (ValueError, TypeError):
+        except (ValueError, TypeError, OverflowError):
             return None
         unit = str(state.attributes.get("unit_of_measurement") or "").strip().lower()
         # Normalize to Wh. An unrecognised unit is treated as unusable so a
@@ -4052,7 +5935,12 @@ class WashDataManager:
         scale = {"wh": 1.0, "kwh": 1000.0, "mwh": 1_000_000.0}.get(unit)
         if scale is None:
             return None
-        return value * scale, entity_id
+        # "inf"/"nan" parse as floats, and a huge reading overflows when scaled:
+        # a non-finite figure would reach the lifetime energy total and stay there.
+        wh = value * scale
+        if not math.isfinite(wh):
+            return None
+        return wh, entity_id
 
     def _snapshot_energy_meter_start(self) -> None:
         """Capture the meter reading at cycle start (issue #316)."""
@@ -4082,7 +5970,7 @@ class WashDataManager:
         if cur_source != source:
             return None
         delta = cur_wh - start
-        if delta <= 0:
+        if not math.isfinite(delta) or delta <= 0:
             return None
         return delta
 
@@ -4094,16 +5982,20 @@ class WashDataManager:
         ML, anomaly, envelopes); only cost/lifetime/notifications/panel display
         prefer the more accurate meter figure when one was captured (issue #316).
         """
-        meter = cycle_data.get("energy_meter_wh")
-        if meter is not None:
-            try:
-                return float(meter)
-            except (ValueError, TypeError):
-                pass
-        try:
-            return float(cycle_data.get("energy_wh", 0.0))
-        except (ValueError, TypeError):
-            return 0.0
+        return cycle_report_energy_wh(cycle_data)
+
+    def _in_anticrease_tail(self) -> bool:
+        """The detector sits in a #296 anti-crease tail (register item 393a).
+
+        Saved at stop and unload like an active cycle: a restart that starts from
+        OFF reads the tail's next drum bursts as a new cycle (one ~20 min cycle on
+        the item-393 shape). The cycle end has already cleared the active slot, and
+        the restore consumes it again, so a stale tail cannot come back later.
+        """
+        return (
+            self.detector.state == STATE_ANTI_WRINKLE
+            and getattr(self.detector, "in_anticrease_tail", False) is True
+        )
 
     def _augment_active_snapshot(self, snapshot: dict[str, Any]) -> dict[str, Any]:
         """Add manager-owned fields to a detector snapshot before persisting.
@@ -4113,6 +6005,22 @@ class WashDataManager:
         so every save site (shutdown, periodic, pause, resume) stays consistent.
         """
         snapshot["manual_program"] = self._manual_program_active
+        # Persist the chosen program name too (#404 secondary bug): the detector
+        # snapshot's matched_profile is wiped on the first post-restart match tick
+        # because _matched_profile_duration is not restored, so the name must be
+        # carried explicitly to re-pin the override.
+        snapshot["manual_program_name"] = (
+            self._current_program if self._manual_program_active else None
+        )
+        # The auto-detected program on display and its expected duration, for the
+        # same reason: the detector holds only the last tick's raw winner.
+        committed = not self._manual_program_active and match_rules.program_is_committed(
+            self._current_program
+        )
+        snapshot["committed_program"] = self._current_program if committed else None
+        snapshot["committed_program_duration"] = (
+            self._matched_profile_duration if committed else None
+        )
         snapshot["notified_start"] = self._notified_start
         snapshot["start_event_fired"] = self._start_event_fired
         snapshot["is_user_paused"] = self._is_user_paused
@@ -4122,7 +6030,51 @@ class WashDataManager:
         snapshot["total_user_paused_seconds"] = self._total_user_paused_seconds
         snapshot["energy_meter_start"] = self._energy_meter_start
         snapshot["energy_meter_source"] = self._energy_meter_source
+        # Dynamic price timeline (#426): absolute (unix_ts, price) pairs, as lists
+        # so the JSON round-trip is lossless.
+        snapshot["price_timeline"] = [
+            [ts, price] for ts, price in self._price_timeline
+        ]
+        # One-shot per-cycle state (audit MANAGER-08): without it a restart re-fired
+        # every passed cycle timer ("Add softener" twice; an auto_pause timer paused
+        # again and, with pause_cuts_power, switched the appliance off), could send
+        # the pre-completion reminder twice, and a second restart lost the first gap.
+        snapshot["fired_cycle_timers"] = sorted(self._fired_cycle_timers)
+        snapshot["notified_pre_completion"] = bool(self._notified_pre_completion)
+        # Once per cycle, like the stuck-pump event and trigger it gates (#478).
+        snapshot["pump_stuck"] = bool(self._pump_stuck)
+        # What the live triggers announced, so a restart announces none again.
+        tracker = getattr(self, "_live_triggers", None)
+        if tracker is not None:
+            snapshot["trigger_marks"] = tracker.marks()
+        snapshot["restart_gaps"] = list(self._restart_gaps)
+        snapshot["live_activity_started"] = bool(self._live_activity_started)
+        # When the power sensor last really reported, and the value the manager
+        # held for it (register item 266). Without them a restart took the
+        # entity's own startup write for a report, so the watchdog's silence
+        # clock restarted at zero and a cycle in a long silent tail looked as if
+        # its plug had just spoken.
+        snapshot["last_real_reading_time"] = (
+            self._last_real_reading_time.isoformat()
+            if self._last_real_reading_time is not None
+            else None
+        )
+        snapshot["last_sensor_power"] = self._current_power
         return snapshot
+
+    @staticmethod
+    def _format_duration_hm(minutes: Any) -> str:
+        """The ``{duration_hm}`` template variable: ``"1 h 05 min"``, ``"45 min"``.
+
+        Unit symbols a voice assistant reads correctly (#93, #117: it read
+        ``{duration}m`` as metres). Whole minutes in; never raises.
+        """
+        try:
+            total = max(0, int(minutes))
+        except (TypeError, ValueError, OverflowError):
+            return ""
+        hours, mins = divmod(total, 60)
+        return f"{hours} h {mins:02d} min" if hours else f"{mins} min"
 
     @staticmethod
     def _format_vs_typical(
@@ -4144,14 +6096,14 @@ class WashDataManager:
             if not median or float(median) <= 0:
                 return ""
             pct = round((float(duration) - float(median)) / float(median) * 100)
-        except (ValueError, TypeError, ZeroDivisionError):
+        except (ValueError, TypeError, ZeroDivisionError, OverflowError):
             return ""
         try:
             if pct >= 1:
                 return longer_template.format(pct=pct)
             if pct <= -1:
                 return shorter_template.format(pct=abs(pct))
-        except (KeyError, IndexError, ValueError):
+        except (KeyError, IndexError, ValueError, OverflowError):
             # Malformed translation template; fall back to the English default.
             if pct >= 1:
                 return f"{pct}% longer than usual"
@@ -4180,51 +6132,204 @@ class WashDataManager:
                 device=self.config_entry.title,
                 price=f"{float(price):.3f}",
             )
-        except (ValueError, TypeError):
+        except (ValueError, TypeError, OverflowError):
             return ""
 
     async def _async_process_cycle_end(
-        self, cycle_data: dict[str, Any], cycle_token: str | None = None
+        self,
+        cycle_data: dict[str, Any],
+        cycle_token: str | None = None,
+        price_timeline: list[tuple[float, float]] | None = None,
+        fire_ended: bool = True,
+    ) -> None:
+        """Process cycle completion, then close it whatever failed (MANAGER-12).
+
+        An exception anywhere in the steps used to end the task before the flush
+        and the terminal reset: the UI stayed on the finished cycle with no expiry
+        timer. On shutdown the task is cancelled and ``async_shutdown`` flushes the
+        store itself; arming the expiry timer then would outlive the unload.
+        """
+        failed = False
+        # ``fire_ended``: this cycle's start fired cycle_started, so it owes one
+        # cycle_ended (#478). The steps fire it next to the bus event; a failure
+        # before that point fires it here, so a "while running" automation is
+        # never left on.
+        ended = {"pending": fire_ended}
+        # This cycle's program, before any await: a newer cycle's end can replace
+        # the manager-wide field while the steps run.
+        ended_program = self._trigger_ended_program
+        try:
+            await self._async_cycle_end_steps(
+                cycle_data, cycle_token, price_timeline, ended
+            )
+        except Exception:  # pylint: disable=broad-exception-caught
+            failed = True
+            self._logger.exception("Cycle-end processing failed; closing the cycle anyway")
+            if ended["pending"]:
+                ended["pending"] = False
+                self._fire_cycle_ended(
+                    cycle_data, cycle_token=cycle_token, bus=not ended.get("bus"),
+                    program=ended_program,
+                )
+        finally:
+            if not self._is_shutdown:
+                await self._async_close_cycle_end(
+                    cycle_token, failed, cycle_status=cycle_data.get("status")
+                )
+
+    async def _async_cycle_end_steps(
+        self,
+        cycle_data: dict[str, Any],
+        cycle_token: str | None = None,
+        price_timeline: list[tuple[float, float]] | None = None,
+        ended: dict[str, bool] | None = None,
     ) -> None:
         """Process cycle completion asynchronously (heavy tasks).
 
         ``cycle_token`` is the ``_ranking_snapshot_cycle_id`` captured when this cycle
         ended. The terminal-state reset at the tail is skipped if a new cycle has
         started since (token changed), so back-to-back cycles are not clobbered (B1).
+        ``price_timeline`` is that same cycle's tariff history, frozen at the same
+        moment and for the same reason; None means "read the live one".
         """
 
-        # FINAL PROFILE MATCH: If still detecting, try one last match with complete cycle data
-        if self._current_program in ("detecting...", "restored..."):
-            await self._run_final_match_from_cycle_data(cycle_data)
-
-        # B1: freeze THIS cycle's live context into immutable locals now, before the
-        # persistence / auto-label / lifetime-energy awaits below. A new cycle can
-        # start synchronously during any of those awaits (a back-to-back load drives
-        # the detector into a fresh RUNNING via _on_state_change, which rolls
-        # _current_program back to "detecting..." and resets the match fields). The
-        # tail (event payload, finish notification, learning inputs) must describe the
-        # cycle that just finished, not whatever the live fields hold by the time each
-        # await returns. The final match above is what determines these values for
-        # this cycle, so capture right after it.
+        # B1: freeze THIS cycle's live context into immutable locals BEFORE the first
+        # await. A new cycle can start synchronously during any await below (a
+        # back-to-back load drives the detector into a fresh RUNNING via
+        # _on_state_change, which rolls _current_program back to "detecting..." and
+        # resets the match fields). The tail (event payload, finish notification,
+        # learning inputs) must describe the cycle that just finished, not whatever
+        # the live fields hold by the time each await returns.
         program = self._current_program
-        match_result = self._last_match_result
+        live_result = self._last_match_result
         match_confidence = self._last_match_confidence
+        member_confidence = self._last_member_confidence
         matched_profile_duration = self._matched_profile_duration
+        manual_program = self._manual_program_active
         cycle_anomaly = self._cycle_anomaly
         overrun_ratio = self._overrun_ratio
 
-        # If we had a runtime match, attach the profile name for persistence
-        if (
-            program
-            and program not in ("off", "detecting...", "restored...")
-            and program in self.profile_store.get_profiles()
-        ):
-            cycle_data["profile_name"] = program
-            cycle_data["label_source"] = "auto_match"
-            if match_confidence:
-                cycle_data["match_confidence"] = float(match_confidence)
+        # ONE match over the complete trace; every label decision below reads it
+        # (audit MATCH-DECIDE-02). The last live tick is a PREFIX match (prefix
+        # shapes, the in-progress duration kernel, up to profile_match_interval
+        # stale, the ENDING quiet tail inside its duration), and its winner differed
+        # from the complete-cycle winner on 17.5% of corpus cycles, while
+        # MATCH_LABEL_MIN_MARGIN was calibrated on complete folds (item 310).
+        # It runs BEFORE the cycle is stored, so a raise here used to lose the
+        # cycle and strand the device on it (audit MATCH-CORE-06 / MANAGER-12). A
+        # failed match leaves an empty result: the cycle is stored unlabelled, not
+        # labelled from the live prefix match instead.
+        try:
+            final_result = await self._run_final_match_from_cycle_data(cycle_data)
+        except Exception:  # pylint: disable=broad-exception-caught
+            self._logger.exception(
+                "Final match failed; storing the cycle without a label"
+            )
+            final_result = MatchResult(None, 0.0, 0.0, None, [], False, 0.0)
+        same_cycle = cycle_token is None or self._ranking_snapshot_cycle_id == cycle_token
+        if program in ("detecting...", "restored...") and final_result is not None:
+            # Never committed live: the complete match names the program for DISPLAY
+            # at a low floor, since the trace is complete. Labelling is decided below.
+            if final_result.best_profile and final_result.confidence >= 0.15:
+                program = final_result.best_profile
+                match_confidence = final_result.confidence
+                member_confidence = final_result.member_confidence
+                if same_cycle:
+                    self._current_program = program
+                    self._last_match_result = final_result
+                    self._last_match_confidence = match_confidence
+                    self._last_member_confidence = member_confidence
+                self._logger.info(
+                    "Final match from cycle data: '%s' with confidence %.3f",
+                    program, match_confidence,
+                )
+            else:
+                self._logger.info(
+                    "No confident match from cycle data (best: %s, conf=%.3f)",
+                    final_result.best_profile, final_result.confidence,
+                )
+        match_result = final_result if final_result is not None else live_result
 
-        # Attach extensive debug data if available (and configured)
+        # The number every label / persistence decision gates on: the member-aware
+        # score (item 206), not a Stage-5 group's, which is its best SIBLING's.
+        try:
+            label_confidence = float(getattr(match_result, "label_confidence", 0.0) or 0.0)
+        except (TypeError, ValueError, OverflowError):
+            label_confidence = 0.0
+        if label_confidence > 0 and (
+            not manual_program or getattr(match_result, "best_profile", None) == program
+        ):
+            # Recorded whether or not we label, so the panel can show what WashData
+            # suspected without the cycle claiming it as its program. Not on a
+            # hand-picked cycle the matcher would have called something else: the
+            # number would read as confidence in the user's pick.
+            cycle_data["match_confidence"] = label_confidence
+
+        # A label is not a display value: it makes the cycle evidence for that
+        # profile, moving avg_duration / target_duration, which arm Smart
+        # Termination and the anti-crease finalize - so a weak guess recorded as fact
+        # seeds the next mis-detection (#400). The verdict is the learning floor (the
+        # panel's ladder: unmatch < match < learning < auto-label) plus the margin
+        # and Stage-5 checks, on the complete match; the label is that match's own
+        # winner. A hand-picked program bypasses it and is stamped "manual", since
+        # "auto_match" is what lets bulk auto-labelling overwrite a label later.
+        # The verdict also reaches learning.process_cycle_end, which must not
+        # auto-label a cycle refused here (audit MANAGER-02 / MATCH-DECIDE-01).
+        profiles = self.profile_store.get_profiles()
+        learning_floor = float(self._learning_confidence or 0.0)
+        label_gate_ok = False
+        if manual_program and program and program in profiles:
+            cycle_data["profile_name"] = program
+            cycle_data["label_source"] = "manual"
+            label_gate_ok = True
+        else:
+            # Shared with the Playground's would_label (match_rules).
+            verdict, reason = match_rules.cycle_end_label_verdict(
+                match_result, learning_floor, profiles
+            )
+            best = getattr(match_result, "best_profile", None)
+            if verdict:
+                cycle_data["profile_name"] = verdict
+                cycle_data["label_source"] = "auto_match"
+                label_gate_ok = True
+                if verdict != program:
+                    self._logger.info(
+                        "Labelled cycle as '%s' (the complete-cycle winner, %.2f) "
+                        "although '%s' was shown while it ran.",
+                        verdict, label_confidence, program,
+                    )
+            elif reason == "below_floor":
+                _group_conf = float(getattr(match_result, "confidence", 0.0) or 0.0)
+                self._logger.info(
+                    "Not labeling cycle as '%s': match confidence %.2f is below the "
+                    "learning threshold %.2f.%s",
+                    best, label_confidence, learning_floor,
+                    f" (its profile group scored {_group_conf:.2f}, but that was a "
+                    "different member of the group)"
+                    if _group_conf > label_confidence + 1e-9 else "",
+                )
+            elif reason == "ambiguous":
+                self._logger.info(
+                    "Not labeling cycle as '%s': the matcher flagged its own pick as "
+                    "uncertain (a profile-group member that fits poorly, or a run "
+                    "past that member's length).",
+                    best,
+                )
+            elif reason == "margin":
+                self._logger.info(
+                    "Not labeling cycle as '%s': confident enough (%.2f) but only "
+                    "%.3f clear of the next candidate, under the %.2f a label needs.",
+                    best, label_confidence,
+                    float(getattr(match_result, "ambiguity_margin", 0.0) or 0.0),
+                    MATCH_LABEL_MIN_MARGIN,
+                )
+            elif reason == "unknown_profile":
+                self._logger.info(
+                    "Not labeling cycle as '%s': that profile no longer exists.", best
+                )
+
+        # Attach extensive debug data if available (and configured). From the
+        # complete match, so the stored ranking describes the finished cycle.
         if match_result:
             ranking = getattr(match_result, "ranking", [])
             # Top-5 ranking stored unconditionally (small, high training value).
@@ -4237,63 +6342,38 @@ class WashDataManager:
                 "ambiguous": getattr(match_result, "is_ambiguous", False),
             }
 
-        # Post-Cycle Auto-Labeling (if not already matched)
-        # Offload this match too if needed
-        if not cycle_data.get("profile_name") and self._auto_label_confidence > 0:
-            res = await self.profile_store.async_match_profile(
-                cycle_data["power_data"], cycle_data["duration"]
-            )
-            if res.best_profile and res.confidence >= self._auto_label_confidence:
-                cycle_data["profile_name"] = res.best_profile
-                cycle_data["label_source"] = "auto_label_post"
-                cycle_data["match_confidence"] = float(res.confidence)
-                # Top-5 from post-cycle match (may differ from live match ranking).
-                # Sanitize: strip heavy current/sample arrays (these fields are NOT
-                # in the fired-event exclusion set, so they must stay small to keep
-                # EVENT_CYCLE_ENDED under HA's 32KB event-data limit).
-                cycle_data["match_ranking_top5"] = _sanitize_ranking(
-                    getattr(res, "ranking", [])
-                )
-                self._logger.info(
-                    "Post-cycle auto-labeled as '%s' (confidence: %.2f)",
-                    res.best_profile,
-                    res.confidence,
-                )
-
-        # Back-fill confirmed label on any ranking snapshots captured during this cycle
-        # so the live_match on-device trainer can use them as labelled examples.
-        _start_iso = cycle_data.get("start_time")
-        _confirmed_profile = cycle_data.get("profile_name")
-        if _start_iso and _confirmed_profile:
-            try:
-                self.profile_store.confirm_match_ranking_snapshots(
-                    _start_iso,
-                    _confirmed_profile,
-                    # Use the token captured when THIS cycle ended, not the live
-                    # field, which may already have rolled to a newly-started cycle
-                    # during the awaits above (else this cycle's snapshots go
-                    # unlabelled and a new cycle's snapshot gets mislabelled).
-                    cycle_id=cycle_token or None,
-                )
-            except Exception:  # noqa: BLE001
-                pass
-
         # Compute envelope conformance for the matched profile.
         # Stored as cycle_data["envelope_conformance"] so the panel and quality
         # gate can display/use it.  Only runs when we have a profile + power trace.
         _ep = cycle_data.get("profile_name")
         _pd = cycle_data.get("power_data")
+        _start_iso = cycle_data.get("start_time")
         if _ep and isinstance(_pd, list) and len(_pd) >= 4:
             try:
                 from .time_utils import power_data_to_offsets  # noqa: PLC0415
                 _pts = [(float(o), float(p)) for o, p in power_data_to_offsets(_pd, _start_iso)]
                 if len(_pts) >= 4:
-                    conformance_rec = self.profile_store.compute_envelope_conformance(_ep, _pts)
+                    # Offloaded: both reach `analysis.align_trace_to_envelope`,
+                    # which re-derives the envelope's DTW warp (item 324). The
+                    # cost matrix is vectorised and bounded, but a bounded NumPy
+                    # DTW is still CPU work and this runs on the event loop at
+                    # every cycle end. The WS twin `expected_curve_for_cycle`
+                    # already goes through the executor; these two did not.
+                    # One job, not two: they share `_pts` and must describe the
+                    # same alignment of the same cycle.
+                    def _conformance_and_artifacts() -> tuple[Any, Any]:
+                        return (
+                            self.profile_store.compute_envelope_conformance(_ep, _pts),
+                            self.profile_store.detect_cycle_artifacts(_ep, _pts),
+                        )
+
+                    conformance_rec, artifacts = await self.hass.async_add_executor_job(
+                        _conformance_and_artifacts
+                    )
                     if conformance_rec is not None:
                         cycle_data["envelope_conformance"] = conformance_rec.get("conformance")
                     # Transient artifacts (door-open pauses, out-of-band dips/spikes)
                     # for graph markers + a Cycles-list badge; [] when none.
-                    artifacts = self.profile_store.detect_cycle_artifacts(_ep, _pts)
                     if artifacts:
                         cycle_data["artifacts"] = artifacts
             except Exception:  # noqa: BLE001
@@ -4307,44 +6387,8 @@ class WashDataManager:
             if overrun_ratio > 0:
                 cycle_data["overrun_ratio"] = round(float(overrun_ratio), 3)
 
-        # A1: Underrun check — computed post-cycle only, not a live signal.
-        # Only applied when no runtime anomaly was detected (underrun and overrun are mutually exclusive).
-        try:
-            if not cycle_data.get("anomaly") or cycle_data["anomaly"] == "none":
-                _uc_profile = cycle_data.get("profile_name")
-                _uc_dur = float(cycle_data.get("duration", 0))
-                if _uc_profile and _uc_dur > 0:
-                    _uc_median = self.profile_store.get_profile_median_duration(_uc_profile)
-                    if (
-                        isinstance(_uc_median, (int, float))
-                        and not isinstance(_uc_median, bool)
-                        and _uc_median > 0
-                        and _uc_dur < _uc_median * CYCLE_UNDERRUN_ANOMALY_RATIO
-                    ):
-                        cycle_data["anomaly"] = "underrun"
-                        cycle_data["underrun_ratio"] = round(_uc_dur / _uc_median, 3)
-        except Exception:  # noqa: BLE001
-            pass
-
-        # A2: Energy spike/low anomaly — stored separately from duration anomaly.
-        try:
-            _ea_profile = cycle_data.get("profile_name")
-            _ea_energy = float(cycle_data.get("energy_wh", 0))
-            if _ea_profile and _ea_energy > 0:
-                _ea_stats = self.profile_store.get_profile_energy_stats(_ea_profile)
-                if (
-                    isinstance(_ea_stats, dict)
-                    and isinstance(_ea_stats.get("std_wh"), (int, float))
-                    and _ea_stats["std_wh"] > 0
-                ):
-                    _ea_z = (_ea_energy - _ea_stats["avg_wh"]) / _ea_stats["std_wh"]
-                    cycle_data["energy_z_score"] = round(_ea_z, 2)
-                    if _ea_z > ENERGY_ANOMALY_Z_THRESHOLD:
-                        cycle_data["energy_anomaly"] = "energy_spike"
-                    elif _ea_z < -ENERGY_ANOMALY_Z_THRESHOLD:
-                        cycle_data["energy_anomaly"] = "energy_low"
-        except Exception:  # noqa: BLE001
-            pass
+        # A1 underrun + A2 energy spike/low (post-cycle only, never raises).
+        _apply_post_cycle_anomalies(cycle_data, self.profile_store)
 
         # Cache post-cycle anomaly data so sensor attributes surface it while idle.
         self._last_cycle_post_anomaly = {
@@ -4364,36 +6408,11 @@ class WashDataManager:
             restart_gaps_snapshot = list(self._restart_gaps)
             cycle_data["restart_gaps"] = restart_gaps_snapshot
 
-        # Freeze the energy cost onto the cycle using the price in effect NOW, so
-        # later price changes never rewrite historical costs. Stored as a number
-        # (currency per the configured price's unit); absent when no price is set.
-        price = self._resolve_energy_price()
-        if price is not None:
-            cycle_data["energy_price"] = price
-            cycle_data["cost"] = round(
-                self._cycle_report_energy_wh(cycle_data) / 1000.0 * price, 4
-            )
-
-        # Score cycle quality with the ML model before persisting so the score is
-        # stored on the cycle record and available to the learning manager immediately.
-        # Must run BEFORE async_add_cycle so get_past_cycles() inside the scorer does
-        # not yet include the current cycle, keeping reference statistics uncontaminated.
-        # Only opted-in devices reach the scorer, and only then is it offloaded to the
-        # executor: on a long trace its NumPy feature extraction is O(N) and must not
-        # block the event loop (mirrors the profile matcher). Gating here avoids a
-        # pointless thread-hop for the default (ML-off) case where the scorer no-ops.
-        # The scorer mutates only cycle_data (nothing else touches it here) and never
-        # raises, so this is executor-safe.
-        from .ml.engine import ml_models_enabled  # noqa: PLC0415
-
-        if ml_models_enabled(self.config_entry.options):
-            # Snapshot past_cycles on the event loop before offloading: iterating
-            # (or copying) the live list inside the executor races the loop
-            # appending this just-finished cycle.
-            past_cycles_snapshot = list(self.profile_store.get_past_cycles())
-            await self.hass.async_add_executor_job(
-                self._compute_cycle_quality_score, cycle_data, past_cycles_snapshot
-            )
+        # Freeze the energy cost onto the cycle. With a dynamic tariff this is the
+        # power trace integrated against the price in force at each moment (#426);
+        # otherwise the single price in effect NOW. Either way it is frozen here, so
+        # later price changes never rewrite historical costs.
+        await self._async_apply_cycle_cost(cycle_data, price_timeline=price_timeline)
 
         # Add cycle to store immediately (still sync but offloadable parts optimized
         # internally if possible)
@@ -4402,8 +6421,26 @@ class WashDataManager:
         # We could offload signature calc to analysis logic if really needed, but let's
         # stick to match profile optimization first.
         cycle_persisted = False
+        # Read the odometer BEFORE the add: its getter floors at len(past_cycles), so
+        # read afterwards it already counted this cycle and `+ 1` double-stepped - a
+        # fresh install read 2/3/4 after 1/2/3 cycles and milestones fired one cycle
+        # early (audit MANAGER-05).
         try:
-            await self.profile_store.async_add_cycle(cycle_data)
+            odometer_before_add: int | None = self._lifetime_cycle_count()
+        except Exception:  # noqa: BLE001 - counter must never break cycle end
+            odometer_before_add = None
+        # Every save from here until the follow-up work has settled is debounced,
+        # and what has to be durable is written once by async_flush_saves below:
+        # this pipeline and the tasks it spawns used to rewrite the whole store six
+        # times (register item 456). Re-armed here (_on_cycle_end opened it) so
+        # the window runs from the add, however long the final match took.
+        self.profile_store.coalesce_saves()
+        # The envelopes this cycle end changed: the labelled profile's, and those of
+        # any profile retention trimmed. Nothing else needs rebuilding (the nightly
+        # maintenance still rebuilds them all).
+        touched_profiles: list[str] = []
+        try:
+            retained = await self.profile_store.async_add_cycle(cycle_data)
             cycle_persisted = True
             # The cycle (with its restart_gaps) is now durably stored, so it is safe
             # to drop the live buffer. Doing this only after a confirmed persist means
@@ -4412,7 +6449,20 @@ class WashDataManager:
                 self._restart_gaps.clear()
             profile_name = cycle_data.get("profile_name")
             if profile_name:
+                touched_profiles.append(profile_name)
                 await self.profile_store.async_rebuild_envelope(profile_name)
+            if isinstance(retained, (set, frozenset, list, tuple)):
+                for name in sorted(p for p in retained if isinstance(p, str)):
+                    if not name or name in touched_profiles:
+                        continue
+                    touched_profiles.append(name)
+                    try:
+                        await self.profile_store.async_rebuild_envelope(name)
+                    except Exception:  # pylint: disable=broad-exception-caught
+                        self._logger.debug(
+                            "Envelope rebuild after retention failed for %s",
+                            name, exc_info=True,
+                        )
         except Exception as e: # pylint: disable=broad-exception-caught
             self._logger.error("Failed to add cycle to store: %s", e)
 
@@ -4424,15 +6474,31 @@ class WashDataManager:
         # save immediately after (same store, one save).
         prev_lifetime_count: int | None = None
         cur_lifetime_count: int | None = None
-        if cycle_persisted:
+        if cycle_persisted and odometer_before_add is not None:
             try:
-                prev_lifetime_count = self._lifetime_cycle_count()
+                prev_lifetime_count = odometer_before_add
                 cur_lifetime_count = prev_lifetime_count + 1
                 # In-memory only; persisted by the batched lifetime-energy save below.
                 self.profile_store.set_lifetime_cycle_count(cur_lifetime_count)
             except Exception:  # noqa: BLE001 - counter must never break cycle end
                 prev_lifetime_count = None
                 cur_lifetime_count = None
+
+        # #480: a finished cycle of a program a maintenance task names ("Cotton 90"
+        # for the drum clean) logs that task as done. Only with a label the gate
+        # above wrote, after the odometer counts this cycle; persisted by the save
+        # below.
+        if (
+            cycle_persisted
+            and label_gate_ok
+            and cycle_data.get("profile_name")
+            and notif_rules.cycle_end_is_finish(cycle_data.get("status"))
+        ):
+            for task_id in self.profile_store.log_maintenance_done_by_program(cycle_data):
+                self._logger.info(
+                    "Maintenance '%s' logged as done by program '%s'",
+                    task_id, cycle_data.get("profile_name"),
+                )
 
         # B1: accumulate lifetime energy for the HA Energy dashboard sensor. Runs
         # exactly once per persisted cycle so the TOTAL_INCREASING meter never
@@ -4459,46 +6525,116 @@ class WashDataManager:
         if cycle_token is None or self._ranking_snapshot_cycle_id == cycle_token:
             self._spawn_tracked(self.profile_store.async_clear_active_cycle())
 
-        # Auto post-process: merge fragmented cycles from last 3 hours
-        self._spawn_tracked(self._run_post_cycle_processing())
+        # Refresh the artifacts that read the envelopes rebuilt above.
+        self._spawn_tracked(self._run_post_cycle_processing(touched_profiles))
 
         # Prepare cycle data for event (enrich if needed)
         # IMPORTANT: Exclude large fields to prevent exceeding HA's 32KB event data limit
-        excluded_fields = {"power_data", "debug_data", "power_trace"}
         event_cycle_data = {
-            k: v for k, v in cycle_data.items() if k not in excluded_fields
+            k: v for k, v in cycle_data.items() if k not in _EVENT_EXCLUDED_FIELDS
         }
         event_cycle_data["device_type"] = self.device_type
-        # Add program if missing or generic (use THIS cycle's captured program, not
-        # the live field which may already belong to a newly-started cycle).
-        if "profile_name" not in event_cycle_data and program:
-            event_cycle_data["profile_name"] = program
+        # The program to SHOW: the stored label, else THIS cycle's captured live
+        # program (not the live field, which may already belong to a newly-started
+        # cycle). `_add_cycle_data` always writes `profile_name` (None when the
+        # label gate refused), so the old "key missing" fill-in never ran and every
+        # unlabelled cycle announced "Washer finished None" (audit MANAGER-06).
+        # The stored cycle keeps profile_name None: this is display, not a label.
+        display_program = event_cycle_data.get("profile_name")
+        if not display_program and program and program not in (
+            "off", "detecting...", "restored...", "starting", "unknown"
+        ):
+            display_program = program
+        display_program = display_program or "unknown"
+        # MATCH-DECIDE-15: how sure the complete-cycle match was, and whether the
+        # stored cycle was labelled with `program` or it is only the best guess
+        # shown for display. The margin is None with no winner (1.0 when only one
+        # programme was a candidate); `label_applied` covers a hand-picked one.
+        match_margin: float | None = None
+        if getattr(match_result, "best_profile", None):
+            try:
+                match_margin = round(
+                    float(getattr(match_result, "ambiguity_margin", 0.0) or 0.0), 3
+                )
+            except (TypeError, ValueError, OverflowError):
+                match_margin = None
 
-        if self._notify_fire_events:
-            self.hass.bus.async_fire(
-                EVENT_CYCLE_ENDED,
-                {
-                    "entry_id": self.entry_id,
-                    "device_name": self.config_entry.title,
-                    "cycle_data": event_cycle_data,
-                    "program": event_cycle_data.get("profile_name", "unknown"),
-                    "duration": event_cycle_data.get("duration"),
-                    "start_time": event_cycle_data.get("start_time"),
-                    "end_time": event_cycle_data.get("end_time") or dt_util.now().isoformat(),
-                },
-            )
+        self.hass.bus.async_fire(
+            EVENT_CYCLE_ENDED,
+            {
+                "entry_id": self.entry_id,
+                "device_name": self.config_entry.title,
+                "cycle_data": event_cycle_data,
+                "program": display_program,
+                "match_margin": match_margin,
+                "label_applied": bool(label_gate_ok),
+                "duration": event_cycle_data.get("duration"),
+                "start_time": event_cycle_data.get("start_time"),
+                "end_time": event_cycle_data.get("end_time") or utc_now().isoformat(),
+            },
+        )
+        if ended is not None:
+            ended["bus"] = True  # a failure after this point owes the trigger only
 
-        # Purge pending live entries and reset counters, but don't send a service-level
-        # clear: the finished notification below reuses the lifecycle tag and replaces
-        # the live card in place (sending a clear first would cause a dismiss/recreate
-        # flicker). The action-based clear marker still fires for action templates.
-        self._clear_live_progress_notification(clear_services=False)
+        # The device trigger (#478): not for an interrupted false start, the same
+        # rule as the finished push.
+        trigger_program = self._trigger_program(display_program)
+        if cycle_token is None or self._ranking_snapshot_cycle_id == cycle_token:
+            self._trigger_ended_program = trigger_program
+        end_vars = self._cycle_end_trigger_vars(cycle_data, label_applied=label_gate_ok)
+        if notif_rules.cycle_end_is_finish(cycle_data.get("status")):
+            self._fire_device_trigger(TRIGGER_CYCLE_FINISHED, trigger_program, **end_vars)
+        if ended is None or ended["pending"]:
+            if ended is not None:
+                ended["pending"] = False
+            self._fire_device_trigger(TRIGGER_CYCLE_ENDED, trigger_program, **end_vars)
+            # A tumble held now belongs to a cycle that started during the awaits
+            # above: that cycle's own end releases it, not this one's.
+            if cycle_token is None or self._ranking_snapshot_cycle_id == cycle_token:
+                self._release_held_tumble(cycle_data.get("status"))
+
+        # Purge pending live entries and reset counters. No service-level clear
+        # here: the activity is ended below, AFTER the finished notification has
+        # been delivered, so the lock screen is never momentarily empty. The
+        # action-based clear marker still fires for action templates.
+        # _clear_live_progress_notification resets _live_activity_started, so the
+        # flag has to be read before it runs (#446).
+        #
+        # Gated on the cycle token, the same test the terminal-state reset below
+        # uses. Everything here runs AFTER the persistence / envelope / cost /
+        # lifetime-energy awaits, and a new cycle can start during them: its
+        # `_on_state_change` calls `_reset_live_notification_state()` and its
+        # first live tick sets `_live_activity_started` again. Ungated, this tail
+        # then reads the NEW cycle's flag, purges the NEW cycle's live counters
+        # and pending start entries, and - because `_live_notification_tag` is
+        # per DEVICE, not per cycle - ends the activity the new cycle is running.
+        # The user watches it vanish and its start card get cleared a second
+        # time, and the next tick restarts it. If a newer cycle owns the tag,
+        # leave the activity alone: it continues on the same tag.
+        _same_cycle = (
+            cycle_token is None or self._ranking_snapshot_cycle_id == cycle_token
+        )
+        live_activity_running = _same_cycle and self._live_activity_started
+        if _same_cycle:
+            self._clear_live_progress_notification(clear_services=False)
+
+        # No "finished" push for an interrupted cycle (audit MANAGER-10): a false
+        # start or a cancelled programme finished nothing. Nothing replaces the
+        # start card on the lifecycle tag then, so clear it the way the shutdown
+        # path does when no finished notification follows - unless a newer cycle
+        # already owns that tag.
+        cycle_status = cycle_data.get("status")
+        announce_finish = notif_rules.cycle_end_is_finish(cycle_status)
+        if not announce_finish and _same_cycle:
+            self._send_tag_clear(self._lifecycle_tag)
 
         # Send notification if enabled
-        if self._notify_finish_services or self._notify_actions:
+        if announce_finish and (self._notify_finish_services or self._notify_actions):
             msg_template = self.config_entry.options.get(CONF_NOTIFY_FINISH_MESSAGE, DEFAULT_NOTIFY_FINISH_MESSAGE)
             duration_min = int(cycle_data['duration'] / 60)
-            program_name = event_cycle_data.get("profile_name", "unknown")
+            program_name = display_program
+            # `completed` or `force_stopped` (interrupted cycles never get here).
+            status_str = str(cycle_status or "completed")
 
             energy_kwh = round(self._cycle_report_energy_wh(cycle_data) / 1000, 3)
 
@@ -4533,12 +6669,14 @@ class WashDataManager:
                 fallback_template=DEFAULT_NOTIFY_FINISH_MESSAGE,
                 device=self.config_entry.title,
                 duration=duration_min,
+                duration_hm=self._format_duration_hm(duration_min),
                 program=program_name,
                 energy_kwh=f"{energy_kwh:.3f}",
                 cost=cost_str,
                 time_finished=time_finished,
                 cycle_count=finished_cycle_count,
                 vs_typical=vs_typical,
+                status=status_str,
             )
             self._dispatch_notification(
                 msg,
@@ -4552,20 +6690,34 @@ class WashDataManager:
                     "time_finished": time_finished,
                     "cycle_count": finished_cycle_count,
                     "vs_typical": vs_typical,
+                    "status": status_str,
                     # Same lifecycle tag as start/live so the finished alert replaces
                     # the live notification in place. No live_update/alert_once here,
                     # so the companion app surfaces it with sound.
                     "tag": self._lifecycle_tag,
-                    # C3: end the iOS Live Activity (mobile_app_* only downstream).
+                    # C3: retained, but it is NOT what ends the activity - there is
+                    # no `activity` key in the companion notification API and this
+                    # was never acted on (#446). Kept because it is inert and this
+                    # code cannot be exercised against a real device here; the
+                    # documented clear below is the mechanism that works.
                     "activity": "end",
                 },
             )
+
+        # #446: end the iOS Live Activity now that the finished alert has gone out.
+        # Only when one was actually started, so a device that never ran an activity
+        # gets no stray service call.
+        if live_activity_running:
+            self._end_live_activity()
 
         # C2: milestone (cycle-count achievement) notification. Fires at most once per
         # cycle, only when the cycle actually persisted (so the lifetime count is real)
         # and a finish delivery channel is configured. Respects quiet hours via
         # _dispatch_notification's finish-type gate.
         if cycle_persisted:
+            self._fire_milestone_trigger(
+                prev_lifetime_count, cur_lifetime_count, program=trigger_program
+            )
             self._maybe_notify_milestone(prev_lifetime_count, cur_lifetime_count)
 
         # Request user feedback if we had a confident match.
@@ -4576,13 +6728,61 @@ class WashDataManager:
         # dangle forever. Use THIS cycle's captured match context (not the live
         # fields, which may already belong to a newly-started cycle after the awaits).
         if cycle_persisted:
+            # Ask about what the complete match picked, not the live tick's program.
+            feedback_profile = (
+                cycle_data.get("profile_name")
+                or getattr(match_result, "best_profile", None)
+                or program
+            )
+            feedback_duration = (
+                matched_profile_duration
+                if feedback_profile == program
+                else (profiles.get(feedback_profile) or {}).get("avg_duration")
+            )
             self.learning_manager.process_cycle_end(
                 cycle_data,
-                detected_profile=program,
-                confidence=match_confidence or 0.0,
-                predicted_duration=matched_profile_duration,
+                detected_profile=feedback_profile,
+                confidence=label_confidence,
+                predicted_duration=feedback_duration,
                 match_result=match_result,
+                label_allowed=label_gate_ok or bool(cycle_data.get("profile_name")),
             )
+
+    async def _async_close_cycle_end(
+        self,
+        cycle_token: str | None,
+        tail_failed: bool = False,
+        cycle_status: str | None = None,
+    ) -> None:
+        """The end of the cycle-end tail, run whatever failed before it (MANAGER-12).
+
+        Flushes the coalesced cycle-end write (item 456) and resets the terminal
+        state, unless a newer cycle has started (B1). ``tail_failed`` means the
+        follow-up stopped part-way, possibly before the live notification was
+        handed over, so the live tag is cleared here instead of being left to
+        count its chronometer into negative numbers. ``cycle_status`` is the
+        ended cycle's status: an interrupted one never enters the Clean state
+        (audit MANAGER-10, ``notification_rules.cycle_end_is_finish``).
+        """
+        # The one immediate write of this cycle end: the cycle, its counters, the
+        # rebuilt envelopes and the feedback request the learning pass just queued.
+        # No await since the lifetime-energy save that used to write first, so the
+        # cycle is durable at the same point as before. Only what the follow-ups
+        # derive (refreshed artifacts, suggestions) waits for the debounced write.
+        try:
+            await self.profile_store.async_flush_saves()
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            self._logger.error("Failed to save the finished cycle: %s", e)
+        # The idle display's standby level now includes this cycle (#452).
+        await self._async_refresh_standby_level()
+
+        if tail_failed and (
+            cycle_token is None or self._ranking_snapshot_cycle_id == cycle_token
+        ):
+            try:
+                self._clear_live_progress_notification()
+            except Exception:  # noqa: BLE001 - cleanup must not stop the reset
+                self._logger.debug("Clearing the live notification failed", exc_info=True)
 
         # B1: a new cycle may have started while the heavy post-processing above was
         # awaiting. If so, the manager's live-cycle fields (_current_program,
@@ -4605,13 +6805,15 @@ class WashDataManager:
         # Clear all state and timers - zero everything out
         self._current_program = "off"
         self._manual_program_active = False
+        # A pin is for the cycle it was made for, so it does not carry over (#411).
+        self.clear_armed_program()
         self._notified_pre_completion = False
         self._time_remaining = None
         self._matched_profile_duration = None
         self._last_estimate_time = None
         self._last_match_result = None  # Clear so phase sensor resets to "Off" (issue #192)
         self._cycle_progress = 100.0  # 100% = cycle complete
-        self._cycle_completed_time = dt_util.now()
+        self._cycle_completed_time = utc_now()
         self._cycle_start_time = None
         self._ranking_snapshot_cycle_id = ""
         self._reset_live_notification_state()
@@ -4625,14 +6827,28 @@ class WashDataManager:
         self._is_clean_state = False
         self._clean_state_start = None
         self._notified_clean_laundry = False
-        if self._door_sensor_entity:
+        self._reset_unload_nag_tracking()
+        if not notif_rules.cycle_end_is_finish(cycle_status):
+            # An interrupted cycle finished nothing, so there is nothing to unload
+            # and no reminder to nag with (audit MANAGER-10).
+            self._logger.debug("Cycle ended %s: not entering Clean state", cycle_status)
+        elif self._door_sensor_entity:
             door_state = self.hass.states.get(self._door_sensor_entity)
             if door_state and door_state.state == "off":  # binary_sensor: off = closed
                 self._is_clean_state = True
-                self._clean_state_start = dt_util.now()
+                self._clean_state_start = utc_now()
                 self._logger.debug(
                     "Cycle ended with door closed: entering Clean state"
                 )
+        elif self._unload_confirmable_without_door():
+            # No door sensor, but the user opted into confirming the unload some
+            # other way (#451): a button entity, or the Mark Unloaded button /
+            # service driven by their own automation.
+            self._is_clean_state = True
+            self._clean_state_start = utc_now()
+            self._logger.debug(
+                "Cycle ended, unload confirmation configured: entering Clean state"
+            )
 
         # Start progress reset timer to go back to 0% after user unload window
         self._start_state_expiry_timer()
@@ -4666,8 +6882,10 @@ class WashDataManager:
         22:00-06:59). The end hour is exclusive at the hour granularity, so a window
         of start=22, end=7 covers hours 22, 23, 0..6.
         """
+        # Quiet hours are local clock hours; interval stamps in this module are
+        # UTC (audit DETECT-01), so convert whatever the caller passes.
         return notif_rules.in_quiet_hours(
-            self._quiet_hours_bounds(), when or dt_util.now()
+            self._quiet_hours_bounds(), dt_util.as_local(when or utc_now())
         )
 
     def _seconds_until_quiet_end(self, when: datetime | None = None) -> float:
@@ -4675,8 +6893,10 @@ class WashDataManager:
 
         Returns 0.0 when the feature is off or when not currently in quiet hours.
         """
+        # Quiet hours are local clock hours; interval stamps in this module are
+        # UTC (audit DETECT-01), so convert whatever the caller passes.
         return notif_rules.seconds_until_quiet_end(
-            self._quiet_hours_bounds(), when or dt_util.now()
+            self._quiet_hours_bounds(), dt_util.as_local(when or utc_now())
         )
 
     def _queue_quiet_hours_notification(
@@ -4750,6 +6970,140 @@ class WashDataManager:
             self._remove_quiet_hours_timer = None
 
     # ------------------------------------------------------------------
+    # Held notifications across a restart (audit MANAGER-16)
+    # ------------------------------------------------------------------
+    def _get_notify_queue_store(self) -> Store[dict[str, Any]]:
+        if getattr(self, "_notify_queue_store", None) is None:
+            self._notify_queue_store = Store(
+                self.hass, 1, f"{STORAGE_KEY}.{self.entry_id}.{NOTIFY_QUEUE_STORE_SUFFIX}"
+            )
+        return self._notify_queue_store
+
+    @staticmethod
+    def _persistable_notifications(queue: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        """The queued entries worth keeping, as JSON-safe copies."""
+        out: list[dict[str, Any]] = []
+        for entry in queue:
+            if entry.get("event_type") in _NOTIFY_QUEUE_TRANSIENT_EVENTS:
+                continue
+            try:
+                json.dumps(entry)
+            except (TypeError, ValueError, OverflowError):
+                continue
+            out.append(dict(entry))
+        return out
+
+    async def _async_persist_notification_queues(self) -> None:
+        """Write the quiet-hours and presence queues to disk. Never raises.
+
+        Touches storage only when there is something to keep, or a file this
+        manager wrote earlier is now stale.
+        """
+        try:
+            quiet = self._persistable_notifications(
+                getattr(self, "_quiet_pending_notifications", None) or []
+            )
+            presence = self._persistable_notifications(
+                getattr(self, "_pending_notifications", None) or []
+            )
+            if quiet or presence:
+                await self._get_notify_queue_store().async_save(
+                    {
+                        "saved_at": utc_now().isoformat(),
+                        "quiet": quiet,
+                        "presence": presence,
+                    }
+                )
+                self._notify_queue_on_disk = True
+                self._logger.info(
+                    "Kept %d held notification(s) for after the restart",
+                    len(quiet) + len(presence),
+                )
+            elif getattr(self, "_notify_queue_on_disk", False):
+                await self._get_notify_queue_store().async_remove()
+                self._notify_queue_on_disk = False
+        except Exception:  # noqa: BLE001 - a stop or unload must not fail on this
+            self._logger.debug("Could not persist held notifications", exc_info=True)
+
+    async def _async_on_ha_stop(self, _event: Event) -> None:
+        """Persist what lives only in memory before Home Assistant stops.
+
+        HA does not unload config entries on a stop, so ``async_shutdown`` never runs
+        on a restart: the held notifications were lost and the active-cycle snapshot
+        was up to a minute old. Nothing is sent from here.
+        """
+        if self._is_shutdown:
+            return
+        try:
+            if self.detector.state in {
+                STATE_RUNNING, STATE_PAUSED, STATE_STARTING, STATE_ENDING
+            } or self._in_anticrease_tail():
+                snapshot = self._augment_active_snapshot(
+                    self.detector.get_state_snapshot()
+                )
+                await self.profile_store.async_save_active_cycle(snapshot)
+        except Exception:  # noqa: BLE001
+            self._logger.debug("Could not save the active cycle at stop", exc_info=True)
+        await self._async_persist_notification_queues()
+
+    @callback
+    def _schedule_notify_queue_restore(self, _hass: HomeAssistant) -> None:
+        """Restore the held notifications once HA has started (notify services exist)."""
+        self._remove_notify_queue_restore = None
+        if not self._is_shutdown:
+            self._spawn_tracked(self._async_restore_notification_queues())
+
+    async def _async_restore_notification_queues(self) -> None:
+        """Re-dispatch the notifications held when HA last stopped. Never raises.
+
+        Each one goes back through the normal gates, so it is held again if quiet
+        hours are still on or nobody is home, and delivered otherwise. The file is
+        deleted on read, so a later restart cannot deliver it twice.
+        """
+        try:
+            store = self._get_notify_queue_store()
+            data = await store.async_load()
+            if data is None:
+                return
+            await store.async_remove()
+        except Exception:  # noqa: BLE001
+            self._logger.debug("Could not restore held notifications", exc_info=True)
+            return
+        if self._is_shutdown or not isinstance(data, dict):
+            return
+        saved_at = dt_util.parse_datetime(str(data.get("saved_at") or ""))
+        if (
+            saved_at is None
+            or (utc_now() - dt_util.as_utc(saved_at)).total_seconds()
+            > _NOTIFY_QUEUE_MAX_AGE_S
+        ):
+            self._logger.info("Dropped held notifications saved at %s: too old", saved_at)
+            return
+        in_progress = self.detector.state in _CYCLE_IN_PROGRESS_STATES
+        restored = 0
+        for key in ("quiet", "presence"):
+            entries = data.get(key)
+            for entry in entries if isinstance(entries, list) else []:
+                if not isinstance(entry, dict) or not isinstance(entry.get("message"), str):
+                    continue
+                event_type = entry.get("event_type")
+                if event_type in _NOTIFY_QUEUE_TRANSIENT_EVENTS:
+                    continue
+                if event_type in _NOTIFY_QUEUE_CYCLE_EVENTS and not in_progress:
+                    continue
+                extra = entry.get("extra_vars")
+                self._dispatch_notification(
+                    entry["message"],
+                    title=entry.get("title"),
+                    icon=entry.get("icon"),
+                    event_type=event_type,
+                    extra_vars=extra if isinstance(extra, dict) else None,
+                )
+                restored += 1
+        if restored:
+            self._logger.info("Restored %d held notification(s) after restart", restored)
+
+    # ------------------------------------------------------------------
     # C2 - Milestone (cycle-count achievement) notifications
     # ------------------------------------------------------------------
     @staticmethod
@@ -4780,6 +7134,34 @@ class WashDataManager:
                 return int(self.cycle_count)
             except Exception:  # noqa: BLE001
                 return 0
+
+    def _fire_milestone_trigger(
+        self, prev_count: int | None, cur_count: int | None, *, program: Any = _UNSET
+    ) -> None:
+        """milestone_reached (#478) at the milestone notification's moment, whether
+        or not a notification target is set. ``program`` is the ended cycle's own,
+        captured by its cycle-end steps (None for an unmatched one): another cycle
+        can end while they await. Never raises."""
+        try:
+            if cur_count is None:
+                cur_count = self._lifetime_cycle_count()
+            if prev_count is None:
+                prev_count = cur_count - 1
+            crossed = self._milestone_crossed(
+                prev_count,
+                cur_count,
+                self.config_entry.options.get(
+                    CONF_NOTIFY_MILESTONES, DEFAULT_NOTIFY_MILESTONES
+                ),
+            )
+            if crossed is not None:
+                self._fire_device_trigger(
+                    TRIGGER_MILESTONE_REACHED,
+                    self._trigger_ended_program if program is _UNSET else program,
+                    cycle_count=crossed,
+                )
+        except Exception:  # pylint: disable=broad-exception-caught
+            self._logger.debug("Milestone trigger failed", exc_info=True)
 
     def _maybe_notify_milestone(
         self, prev_count: int | None = None, cur_count: int | None = None
@@ -4856,7 +7238,7 @@ class WashDataManager:
         """
         try:
             pct = int(round(float(progress_pct)))
-        except (TypeError, ValueError):
+        except (TypeError, ValueError, OverflowError):
             pct = 0
         pct = max(0, min(100, pct))
         extras: dict[str, Any] = {
@@ -4899,12 +7281,29 @@ class WashDataManager:
         try:
             return text_template.format(**kwargs)
         except Exception as err:  # pylint: disable=broad-exception-caught
-            self._logger.debug(
-                "Failed to format notification template %r with %s: %s",
-                text_template,
-                kwargs,
-                err,
-            )
+            # Once per template at warning level: a typo'd variable silently
+            # sent the default text instead, and looked like the setting was
+            # ignored (#479). Debug for the repeats, so live ticks don't spam.
+            warned = getattr(self, "_warned_notify_templates", None)
+            if warned is None:
+                warned = self._warned_notify_templates = set()
+            if text_template not in warned:
+                warned.add(text_template)
+                self._logger.warning(
+                    "Notification text %r could not be filled in (%s: %s); "
+                    "sending the default text. Available variables: %s",
+                    text_template,
+                    type(err).__name__,
+                    err,
+                    ", ".join("{" + k + "}" for k in sorted(kwargs)),
+                )
+            else:
+                self._logger.debug(
+                    "Failed to format notification template %r with %s: %s",
+                    text_template,
+                    kwargs,
+                    err,
+                )
 
         if fallback_template:
             try:
@@ -4955,6 +7354,60 @@ class WashDataManager:
         if event_type in (NOTIFY_EVENT_FINISH, NOTIFY_EVENT_CLEAN, "pre_complete"):
             return (finish_channel or status_channel) or None
         return status_channel or None
+
+    def _log_notification(
+        self,
+        event_type: str | None,
+        message: str,
+        *,
+        targets: str = "",
+        deferred_reason: str | None = None,
+        delivered: bool = True,
+    ) -> None:
+        """Emit log lines for a notification's send / defer / drop.
+
+        Every user-facing notification funnels through ``_dispatch_notification``,
+        so this is the single place that records what WashData notified about,
+        where it went, and whether it was delivered, deferred (quiet-hours /
+        presence hold), or dropped.
+
+        Log contract (regression-locked by ``test_manager_notification_logging``):
+        - **INFO** ``"Notification sent (<event>)"`` — one line per discrete
+          notification (start/finish/milestone/clean/pause/…). Target list and
+          message body are omitted to prevent entity-ID PII from leaking into
+          bug-report logs.
+        - **DEBUG** ``"Notification sent (<event>) via <targets>: <summary>"`` —
+          full target list and truncated message body for troubleshooting.
+        - **DEBUG** for live-progress ticks (high-frequency in-place updates).
+        - **DEBUG** for deferred (quiet-hours/presence hold) and not-delivered paths.
+
+        Deferred items are re-dispatched when the hold clears and log again as
+        "sent" on actual delivery.
+        """
+        label = event_type or "notification"
+        # Countdown / finish messages can span multiple lines - collapse to one.
+        summary = " ".join(str(message).split())
+        if len(summary) > 200:
+            summary = summary[:197] + "..."
+        is_live = event_type == NOTIFY_EVENT_LIVE
+        if deferred_reason:
+            self._logger.debug(
+                "Notification deferred (%s) - %s: %s", label, deferred_reason, summary
+            )
+        elif not delivered:
+            self._logger.debug(
+                "Notification not delivered (%s) - no matching target: %s",
+                label, summary,
+            )
+        elif is_live:
+            self._logger.debug(
+                "Notification sent (%s) via %s: %s", label, targets, summary
+            )
+        else:
+            self._logger.info("Notification sent (%s)", label)
+            self._logger.debug(
+                "Notification sent (%s) via %s: %s", label, targets, summary
+            )
 
     def _dispatch_notification(
         self,
@@ -5029,6 +7482,16 @@ class WashDataManager:
         if self._notify_timeout_seconds > 0:
             variables["timeout"] = self._notify_timeout_seconds
             extra_vars = {**(extra_vars or {}), "timeout": self._notify_timeout_seconds}
+        tap_target = self._notification_tap_target()
+        if tap_target and message != _CLEAR_NOTIFICATION_MARKER:
+            # A dismiss marker is a command, not a card - it has nothing to tap.
+            variables["clickAction"] = tap_target
+            variables["url"] = tap_target
+            extra_vars = {
+                **(extra_vars or {}),
+                "clickAction": tap_target,
+                "url": tap_target,
+            }
 
         # Quiet hours (do-not-disturb): hold finish-type notifications that would
         # wake someone and deliver them at the end of the window. Live-progress ticks
@@ -5047,6 +7510,7 @@ class WashDataManager:
                 extra_vars=extra_vars,
             )
             self._last_dispatch_deferred = True
+            self._log_notification(event_type, message, deferred_reason="quiet hours")
             return False
 
         if (
@@ -5071,6 +7535,9 @@ class WashDataManager:
                     }
                 )
                 self._last_dispatch_deferred = True
+                self._log_notification(
+                    event_type, message, deferred_reason="nobody home"
+                )
                 return False
 
         actions_sent = False
@@ -5081,6 +7548,7 @@ class WashDataManager:
         # service/persistent-notification path entirely.
         services = self._get_services_for_event(event_type)
         if actions_sent and not services:
+            self._log_notification(event_type, message, targets="actions")
             return True
 
         service_sent = self._send_notification_service(
@@ -5091,6 +7559,20 @@ class WashDataManager:
             event_type=event_type,
             extra_vars=extra_vars,
         )
+
+        if actions_sent or service_sent:
+            targets: list[str] = []
+            if actions_sent:
+                targets.append("actions")
+            if service_sent:
+                # _send_notification_service falls back to a persistent
+                # notification only for a cycle timer with no notify services.
+                targets.extend(services if services else ["persistent_notification"])
+            self._log_notification(
+                event_type, message, targets=", ".join(targets)
+            )
+        else:
+            self._log_notification(event_type, message, delivered=False)
         return actions_sent or service_sent
 
     def _send_notification_service(
@@ -5109,6 +7591,7 @@ class WashDataManager:
         data: dict[str, Any] = {}
         if icon:
             data["icon"] = icon
+        icon_color = self._notification_icon_color()
 
         # Live-progress-only payload keys (countdown, progress bar, throttle markers).
         # Live updates are already gated to mobile_app targets by the guard below,
@@ -5150,20 +7633,87 @@ class WashDataManager:
             svc_data = dict(data)
             svc_data.update(self._mobile_service_extras(ev, notify_service))
 
+            # #435: the companion app reads the notification icon from
+            # `notification_icon`, NOT from `icon` - so the configured mdi icon was
+            # being sent under a key no companion platform looks at. `icon` stays in
+            # the base payload for the platforms that do use it (notify.html5 and
+            # friends); the mobile-only alias is added here. The same key now covers
+            # both platforms: Android draws it in the status bar, and iOS renders it
+            # as a communication-notification avatar in place of the app icon from
+            # companion app 2026.8.0 (home-assistant/iOS#4672). Older iOS builds
+            # ignore the key rather than failing, so there is nothing to gate on.
+            if icon and self._is_mobile_notify_service(notify_service):
+                svc_data["notification_icon"] = icon
+
+            # #454: with a washer, a dryer and a dishwasher live at once, every
+            # card on the Lock Screen looks the same. One configured colour maps
+            # to the three keys the companion apps actually read: `color` is the
+            # Android notification accent, `notification_icon_color` tints the iOS
+            # icon glyph, and `progress_bar_color` recolours the iOS Live Activity
+            # bar (it falls back to notification_icon_color, but is set explicitly
+            # so the two stay in step). Mobile-only, same as the icon above; unset
+            # leaves the payload byte-identical to before.
+            #
+            # iOS is where this reliably shows. On Android the companion app does
+            # `builder.color = parseColor(notification_icon_color ?: color)` and
+            # never calls setColorized, so Android 12+ applies it per-OEM: a Pixel
+            # tints the icon, Samsung One UI shows nothing. Nothing we can send
+            # changes that, which is why the setting's help text says so (item 372).
+            # Note the app reads the iOS-named key FIRST - harmless only because
+            # both carry one value here, so do not let them diverge.
+            #
+            # #465: on an ordinary iOS notification the two keys mean different
+            # things: `color` is the avatar disc and `notification_icon_color` the
+            # glyph on it (white by default), so sending one value to both drew the
+            # icon in the disc's own colour and it vanished. Only a Live Activity
+            # reads `notification_icon_color` as the icon tint, so only the live
+            # update carries it; Android falls back to `color` either way.
+            if icon_color and self._is_mobile_notify_service(notify_service):
+                svc_data["color"] = icon_color
+                if event_type == NOTIFY_EVENT_LIVE:
+                    svc_data["notification_icon_color"] = icon_color
+                svc_data["progress_bar_color"] = icon_color
+
             state = (
                 self.hass.states.get(notify_service)
                 if notify_service.startswith("notify.")
                 else None
             )
+            # A notify *entity* (has a state, domain "notify") only registers the
+            # entity service notify.send_message — NOT a legacy notify.<object_id>
+            # domain service. So route entity targets through send_message
+            # regardless of svc_data; that schema accepts only entity_id/message/
+            # title, so drop any unsupported extras (icon, mobile/iOS keys) rather
+            # than fall through to a legacy service that would raise ServiceNotFound
+            # and silently drop the notification. Legacy notify.mobile_app_* targets
+            # have no entity state (state is None) and correctly take the else path.
             if state is not None and getattr(state, "domain", None) == "notify":
+                # A dismiss marker is carried *by* its tag, and send_message cannot
+                # carry one - delivering it anyway would show the user a card whose
+                # body literally reads "clear_notification". There is no way to
+                # dismiss an entity-target card, so skip the send entirely. (Before
+                # entity targets were routed here, these calls always had a tag and
+                # so took the legacy-service path, where the tag works.)
+                if message == _CLEAR_NOTIFICATION_MARKER and ev.get("tag"):
+                    self._logger.debug(
+                        "Notify entity %s: skipping dismiss marker (tag=%s) - "
+                        "notify.send_message cannot carry a tag, so it would be "
+                        "delivered as visible text",
+                        notify_service, ev.get("tag"),
+                    )
+                    continue
+                if svc_data:
+                    self._logger.debug(
+                        "Notify entity %s: dropping %d unsupported payload key(s) "
+                        "(%s) - notify.send_message accepts only message/title",
+                        notify_service, len(svc_data), ", ".join(sorted(svc_data)),
+                    )
                 service_data: dict[str, Any] = {
                     "entity_id": notify_service,
                     "message": message,
                 }
                 if title:
                     service_data["title"] = title
-                if svc_data:
-                    service_data["data"] = svc_data
                 self.hass.async_create_task(
                     self.hass.services.async_call(
                         "notify", "send_message", service_data
@@ -5175,7 +7725,17 @@ class WashDataManager:
                     if "." in notify_service
                     else ("notify", notify_service)
                 )
-                service_data = {"message": message, "title": title}
+                # `title` is OPTIONAL in notify's service schema but validated as a
+                # string, so passing it as None fails validation outright
+                # ("string value is None at 'title'") and the call never reaches the
+                # platform. _dispatch_notification always resolves a title, but the
+                # four dismiss-marker senders do not pass one - so every tag clear
+                # (live-activity end, lifecycle hand-over, clean reminder, timer
+                # pause) was rejected before delivery and nothing was ever
+                # dismissed on the phone (#446 follow-up).
+                service_data = {"message": message}
+                if title is not None:
+                    service_data["title"] = title
                 if svc_data:
                     service_data["data"] = svc_data
                 self.hass.async_create_task(
@@ -5186,16 +7746,29 @@ class WashDataManager:
         if not sent:
             if event_type == NOTIFY_EVENT_LIVE:
                 return False
+            # An empty list means that notification is not sent (the panel's
+            # "Leave empty for none", #472). Only a cycle timer, which has no list
+            # of its own, falls back to the sidebar when Start and Finish are both
+            # empty. A configured target that could not carry it still does.
+            if not services and event_type != NOTIFY_EVENT_TIMER:
+                return False
+            # A dismiss marker is not content: if no target could carry it, there is
+            # nothing to show. Falling through would post a persistent-notification
+            # card whose body reads "clear_notification" - the same leak the entity
+            # branch above guards against, just via the other exit. The callers that
+            # send this marker dismiss their own persistent notification separately
+            # (_pn_dismiss), so nothing is lost by returning early.
+            if message == _CLEAR_NOTIFICATION_MARKER:
+                return False
             # Reuse the notification's tag as a stable persistent-notification id so
             # the HA notifications tab collapses the lifecycle thread to one entry
             # instead of accumulating a new card per cycle (issue #248/#249 clutter).
-            _pn_create(
+            return _pn_create(
                 self.hass,
                 message,
                 title=title,
                 notification_id=ev.get("tag"),
             )
-            return True
 
         return sent
 
@@ -5207,14 +7780,31 @@ class WashDataManager:
 
         if self._notify_script is None:
             try:
+                # Validate through cv.SCRIPT_SCHEMA before handing the sequence to
+                # Script, because that is what turns a templated `data` value into
+                # a Template: `cv.template_complex` converts the strings that look
+                # like templates, and at run time `render_complex` renders only
+                # Template instances and passes plain strings through untouched.
+                # Built straight from the stored options - as this did - every
+                # `{{ device }}` in a user's action was delivered to their phone
+                # as the literal text `{{ device }}`, which makes the documented
+                # notification variables useless. Found by the test box's
+                # check_notify_actions.sh; register item 323.
                 self._notify_script = script_helper.Script(
                     self.hass,
-                    actions,
+                    cv.SCRIPT_SCHEMA(actions),
                     name=f"{self.config_entry.title} notification",
                     domain=DOMAIN,
                     logger=_LOGGER,
                 )
-            except (ValueError, TypeError, HomeAssistantError) as err:
+            except vol.Invalid as err:
+                self._logger.error(
+                    "Invalid notification action configuration for %s: %s",
+                    self.config_entry.title,
+                    err,
+                )
+                return False
+            except (ValueError, TypeError, HomeAssistantError, OverflowError) as err:
                 self._logger.error(
                     "Invalid notification action configuration for %s: %s",
                     self.config_entry.title,
@@ -5285,13 +7875,42 @@ class WashDataManager:
         if not self._pending_notifications:
             return
 
-        person_entity_id = new_state.entity_id
-        person_name = new_state.name or new_state.attributes.get(
-            "friendly_name", person_entity_id
+        self._flush_pending_notifications(
+            new_state.entity_id,
+            new_state.name
+            or new_state.attributes.get("friendly_name", new_state.entity_id),
         )
+
+    def _flush_pending_notifications(
+        self, person_entity_id: str | None, person_name: str | None
+    ) -> None:
+        """Deliver every notification presence gating queued, and record it.
+
+        Two callers reach this: a person arriving home, and the listener finding
+        somebody already home when it (re-)attaches after a reload. They were
+        two copies of the same loop and drifted - only one of them recorded that
+        a Live Activity had started, so a queued live card delivered by the other
+        left `_live_activity_started` False, the cycle-end tail skipped
+        `_end_live_activity()`, and the card stayed frozen on the phone (#446).
+        One body now, so they cannot disagree again.
+        """
         pending: list[dict[str, Any]] = list(self._pending_notifications)
         self._pending_notifications = []
-        for entry in pending:
+
+        # The #446 handover has to run BEFORE the queue is delivered, not after
+        # the live entry inside it. It `_send_tag_clear`s `_lifecycle_tag`, and on
+        # this path entries that RIDE that tag are delivered first: a deferred
+        # LIVE entry replaces any earlier live one and is appended last (see
+        # `_dispatch_notification`), so a `pre_complete` reminder queued earlier in
+        # the cycle sits ahead of it. Flushed in order, the reminder was delivered
+        # and then dismissed off the phone a moment later by the handover - and it
+        # is a `priority: high` "nearly done" card, i.e. the one worth having.
+        # The direct path cannot hit this: there the first live tick happens early,
+        # long before any reminder exists. Only presence deferral can put the two
+        # in this order.
+        handover_done = False
+
+        def _deliver(entry: dict[str, Any]) -> None:
             sent = self._dispatch_notification(
                 entry["message"],
                 title=entry.get("title"),
@@ -5310,12 +7929,74 @@ class WashDataManager:
                     self._live_waiting_notification_sent = True
                 else:
                     self._live_notification_sent_count += 1
-                    self._last_live_notification_time = dt_util.now()
+                    self._last_live_notification_time = utc_now()
+                # The queued entry carries the same `activity: "start"` the direct
+                # paths send, so the phone has a live activity either way and the
+                # cycle-end teardown has to know about it (#446). Recorded only
+                # once the dispatch actually SENT, which is why the flag is not set
+                # next to the hoisted handover: a failed delivery would otherwise
+                # claim an activity that is not on the phone.
+                if handover_done:
+                    self._live_activity_started = True
+                else:
+                    self._record_live_activity_started()
+
+        if not self._live_activity_started and any(
+            entry.get("event_type") == NOTIFY_EVENT_LIVE for entry in pending
+        ):
+            # START entries go out FIRST, *before* the clear, and are not dropped.
+            # "Superseded by the live activity" is true only of a mobile target
+            # that also receives the live card: `_send_tag_clear` returns early
+            # when `_notify_live_services` is empty and only ever addresses that
+            # list, while START has its own `_notify_start_services` and may be a
+            # telegram or e-mail target the clear can never reach - and a
+            # notification ACTION fires on delivery, so an automation branching on
+            # `event_type == "start"` needs the dispatch to happen at all.
+            # Delivering them ahead of the clear gets every case right at once: a
+            # mobile start card is delivered and then swept up by the handover
+            # exactly as it was before, and every other target simply keeps its
+            # notification.
+            # SPLIT the queue at the last START; do not pull STARTs forward.
+            # Round 32 hoisted them to the front, which silently reordered every
+            # lifecycle-tagged entry queued BEFORE one - and FINISH survives the
+            # `_clear_live_progress_notification` purge (which drops LIVE, START
+            # and `pre_complete`, not FINISH). So `[FINISH(A), START(B), LIVE(B)]`
+            # is reachable: nobody home, cycle A ends, cycle B starts. Hoisting
+            # sent START(B) first, cleared the tag, and then delivered FINISH(A)
+            # AFTER it, leaving "cycle A finished" pinned to the lifecycle tag for
+            # the whole of cycle B while B's own start card had already been
+            # cleared. Delivering in order gets it right for free: FINISH(A)
+            # lands, START(B) replaces it on the same tag, and the handover then
+            # clears the one card that is left.
+            _last_start = max(
+                (
+                    i
+                    for i, e in enumerate(pending)
+                    if e.get("event_type") == NOTIFY_EVENT_START
+                ),
+                default=-1,
+            )
+            _head = pending[: _last_start + 1]
+            for entry in [
+                e for e in _head if e.get("event_type") != NOTIFY_EVENT_LIVE
+            ]:
+                _deliver(entry)
+            # A LIVE entry sitting before that START (possible across cycles, since
+            # the dedup only re-appends within one queue) still belongs after the
+            # clear, with the rest of the tail.
+            pending = [
+                e for e in _head if e.get("event_type") == NOTIFY_EVENT_LIVE
+            ] + pending[_last_start + 1 :]
+            self._hand_over_lifecycle_to_live_activity()
+            handover_done = True
+
+        for entry in pending:
+            _deliver(entry)
 
     def _handle_noise_cycle(self, max_power: float) -> None:
         """Handle a detected noise cycle."""
         # Clean up old noise events > 24h
-        now = dt_util.now()
+        now = utc_now()
         self._noise_events = [
             t
             for t in getattr(self, "_noise_events", [])
@@ -5329,7 +8010,8 @@ class WashDataManager:
 
         # If noise events exceed threshold in 24h, trigger tune
         if len(self._noise_events) >= self._noise_events_threshold:
-            self.hass.async_create_task(self._tune_threshold())
+            # Tracked (audit MANAGER-13): it saves the store.
+            self._spawn_tracked(self._tune_threshold())
 
     async def _tune_threshold(self) -> None:
         """Increase the minimum power threshold."""
@@ -5383,16 +8065,23 @@ class WashDataManager:
             self._current_program = "off"
             self._time_remaining = None
             self._total_duration = None
-            self._cycle_progress = 0.0
+            # A probe out of a completed cycle keeps its 100 % (item 515): most
+            # abort back to Finished; RUNNING zeroes it when one commits.
+            if not (
+                self.detector.state == STATE_STARTING
+                and self._cycle_completed_time is not None
+            ):
+                self._cycle_progress = 0.0
             self._projected_energy_wh = None
             self._projected_cost = None
             self._cycle_anomaly = "none"
             self._overrun_ratio = 0.0
+            self._envelope_position = None
             self._last_match_result = None
-            self._notify_update()
+            self._notify_update_deferrable()
             return
 
-        now = dt_util.now()
+        now = utc_now()
 
         # Throttle heavy matching to configured interval (default: 5 minutes)
         effective_match_interval = self._profile_match_interval
@@ -5414,7 +8103,7 @@ class WashDataManager:
             # Also check notifications in loop
             self._check_pre_completion_notification()
             self._check_live_progress_notification()
-            self._notify_update()
+            self._notify_update_deferrable()
             return
 
         # No matching task trigger here anymore!
@@ -5423,39 +8112,42 @@ class WashDataManager:
         self._update_remaining_only()
         self._check_pre_completion_notification()
         self._check_live_progress_notification()
-        self._notify_update()
+        self._notify_update_deferrable()
 
-    # _async_run_matching removed in favor of _async_perform_combined_matching
+    def _reset_live_notification_state(
+        self, *, keep_activity_started: bool = False
+    ) -> None:
+        """Reset per-cycle live notification counters and timers.
 
-    def _analyze_trend(self, profile_name: str) -> bool:
-        """Analyze score history to detect positive trend.
+        ``keep_activity_started`` exists for the single caller that is NOT a cycle
+        boundary. Every other call sites here is one - cycle start, cycle end, and
+        the live-progress clear - so resetting the flag is exactly right for them.
+        `async_reload_config` is different: it re-arms live notifications MID-cycle
+        when the user saves any option, and clearing the flag there makes the next
+        live tick look like the first of a new cycle. Three things follow, all
+        wrong, and none of them visible from this function alone:
 
-        Returns True if score has increased in at least 7 of the last 10 intervals.
-        Requires at least 5 samples history to make a determination.
+        * `_record_live_activity_started` re-runs the #446 handover, which
+          `_send_tag_clear`s `_lifecycle_tag` - and the pre-completion reminder
+          rides that same tag at `priority: high`, so an already-delivered
+          reminder is dismissed off the user's phone.
+        * `_apply_live_notification_prefs` gates `silent` / `push` on this flag, so
+          the next live update alerts audibly even with `notify_live_silent` on:
+          #417 re-entering through the reload door.
+        * the handover is a once-per-cycle event by design, and a settings save
+          does not start a cycle.
+
+        Preserving is safe in both directions: the flag is only ever kept at the
+        value it already had, so a reload that ENABLES live notifications mid-cycle
+        still leaves it False and the handover still runs on the first real tick.
         """
-        history = self._score_history.get(profile_name, [])
-        if len(history) < 5:
-            return False
-
-        # Use last 11 points to get 10 intervals (or fewer if history short)
-        recent = history[-11:]
-        if len(recent) < 2:
-            return False
-
-        up_count = sum(1 for i in range(1, len(recent)) if recent[i] > recent[i - 1])
-        total_intervals = len(recent) - 1
-
-        # Proportional threshold (7/10 => 0.7)
-        return (up_count / total_intervals) >= 0.70
-
-    def _reset_live_notification_state(self) -> None:
-        """Reset per-cycle live notification counters and timers."""
         self._live_notification_sent_count = 0
         self._live_notification_cap = 0
         self._last_live_notification_time = None
         self._live_waiting_notification_sent = False
         self._live_chronometer_overrun_sent = False
-        self._live_activity_started = False
+        if not keep_activity_started:
+            self._live_activity_started = False
 
     @staticmethod
     def _is_mobile_notify_service(notify_service: str | None) -> bool:
@@ -5468,6 +8160,44 @@ class WashDataManager:
             else ("notify", notify_service)
         )
         return service.startswith("mobile_app")
+
+    def _notification_tap_target(self) -> str:
+        """Where a tap on this device's notifications should land (#438).
+
+        Blank (the shipped default) resolves to this appliance's own panel deep link
+        ``/ha-washdata?device=<entry_id>``, so a notification about the dryer opens
+        the dryer instead of whichever appliance the panel happened to show last.
+        The entry id is used rather than the title because it survives a rename, and
+        it needs no URL escaping. A user-supplied value wins, and the literal
+        ``none`` turns the tap target off entirely.
+
+        Emitted as both ``clickAction`` (Android) and ``url`` (iOS), which are the
+        two companion-app keys for the same thing; both are mobile-only and are
+        filtered to ``mobile_app_*`` targets by ``_mobile_service_extras``.
+        """
+        configured = (self._notify_live_click_action or "").strip()
+        if configured:
+            return "" if configured.lower() == "none" else configured
+        return f"/{PANEL_URL_PATH}?device={self.entry_id}"
+
+    def _notification_icon_color(self) -> str | None:
+        """Resolve the per-device notification accent colour (#454).
+
+        Returns ``None`` when unset, which is the shipped default and leaves the
+        payload exactly as it was. A bare hex value is accepted without the leading
+        ``#`` because that is how a user pastes one out of a colour picker; anything
+        else (a CSS colour name, which Android accepts and iOS ignores) is passed
+        through untouched rather than rejected - a colour the companion app does not
+        understand is ignored by the app, so there is nothing to fail on here.
+        """
+        configured = str(
+            self.config_entry.options.get(CONF_NOTIFY_ICON_COLOR) or ""
+        ).strip()
+        if not configured:
+            return None
+        if _HEX_COLOR_RE.fullmatch(configured):
+            return f"#{configured}"
+        return configured
 
     @property
     def _timer_pause_action_id(self) -> str:
@@ -5486,6 +8216,36 @@ class WashDataManager:
         overrun_ratio = max(0, float(self._notify_live_overrun_percent)) / 100.0
         return max(1, int(np.ceil(estimated_updates * (1.0 + overrun_ratio))))
 
+    def _apply_live_notification_prefs(self, extra_vars: dict[str, Any]) -> None:
+        """Inject the user's live-notification data keys (#347, #417).
+
+        ``sticky`` keeps the live notification on screen when tapped. It is a
+        mobile-only key forwarded only to ``mobile_app_*`` live targets, and its
+        default (off) adds nothing, so the payload is byte-identical to before
+        unless the user opts in. The tap target itself is no longer applied here:
+        it belongs to every event type, so ``_dispatch_notification`` injects
+        ``_notification_tap_target()`` centrally instead (#438).
+
+        ``silent`` (#417) marks a *refresh* of the running Live Activity as a
+        non-alerting, lower-priority push, which is what stops iOS playing a sound and
+        vibrating on every interval tick; ``push.interruption-level: passive`` is the
+        companion's generic quiet key and covers the case where the update is rendered
+        as an ordinary banner instead. Neither is applied to the update that STARTS the
+        activity: that one is the "cycle is now on your Lock Screen" cue and stays
+        audible (per the companion docs ``silent`` has no effect there in any case).
+        """
+        if self._notify_live_sticky:
+            extra_vars["sticky"] = "true"
+        # #479: Android delivers a normal-priority push late while the phone dozes,
+        # so a locked phone showed a stale bar. `priority: high` + `ttl: 0` is the
+        # companion app's documented immediate delivery; it does not make the
+        # notification audible (that is the channel's job) and iOS ignores both.
+        extra_vars["priority"] = "high"
+        extra_vars["ttl"] = 0
+        if self._notify_live_silent and self._live_activity_started:
+            extra_vars["silent"] = True
+            extra_vars["push"] = {"interruption-level": "passive"}
+
     def _check_live_progress_notification(self) -> None:
         """Send throttled live progress notifications for compatible mobile targets."""
         if not self._notify_live_services and not self._notify_actions:
@@ -5493,8 +8253,18 @@ class WashDataManager:
         if self.detector.state not in (STATE_RUNNING, STATE_PAUSED, STATE_ENDING):
             return
 
+        # #437: a match landing is not the same as an ETA existing.
+        # _update_remaining_only() is throttled to one estimate per 5 s, so the tick
+        # that accepts a match can find _matched_profile_duration set while
+        # _time_remaining is still None - and the progress branch below renders that
+        # `float(self._time_remaining or 0.0)` as remaining 0, i.e. elapsed == total
+        # (a full 100 % bar) and minutes_left == 1 ("less than 1 minute") at the very
+        # start of the cycle. Require a real estimate; the waiting latch keeps that
+        # tick silent rather than re-sending the waiting message.
         has_profile_match = bool(
-            self._matched_profile_duration and self._matched_profile_duration > 0
+            self._matched_profile_duration
+            and self._matched_profile_duration > 0
+            and self._time_remaining is not None
         )
         if has_profile_match:
             # A profile has been matched - reset the waiting latch so future
@@ -5529,6 +8299,7 @@ class WashDataManager:
             # Live Activity even before a profile is matched (mobile-only key).
             if not self._live_activity_started:
                 waiting_extra_vars["activity"] = "start"
+            self._apply_live_notification_prefs(waiting_extra_vars)
             sent = self._dispatch_notification(
                 msg,
                 event_type=NOTIFY_EVENT_LIVE,
@@ -5536,11 +8307,11 @@ class WashDataManager:
             )
             self._live_waiting_notification_sent = sent
             if sent:
-                self._live_activity_started = True
+                self._record_live_activity_started()
             return
 
         interval = max(30, int(self._notify_live_interval_seconds))
-        now = dt_util.now()
+        now = utc_now()
         if self._last_live_notification_time and (
             now - self._last_live_notification_time
         ).total_seconds() < interval:
@@ -5582,12 +8353,18 @@ class WashDataManager:
             CONF_NOTIFY_PRE_COMPLETE_MESSAGE,
             DEFAULT_NOTIFY_PRE_COMPLETE_MESSAGE,
         )
+        # {finish_time} (#479): the estimated finish as a clock time, so a message
+        # shown next to the Android chronometer need not repeat the minutes left.
+        finish_time = dt_util.as_local(
+            now + timedelta(seconds=remaining_seconds)
+        ).strftime("%H:%M")
         msg = self._safe_format_template(
             msg_template,
             fallback_template=DEFAULT_NOTIFY_PRE_COMPLETE_MESSAGE,
             device=self.config_entry.title,
             minutes=minutes_left,
             program=self._current_program,
+            finish_time=finish_time,
         )
 
         extra_vars: dict[str, Any] = {
@@ -5625,29 +8402,96 @@ class WashDataManager:
                 activity=activity_marker,
             )
         )
+        self._apply_live_notification_prefs(extra_vars)
         sent = self._dispatch_notification(
             msg,
             event_type=NOTIFY_EVENT_LIVE,
             extra_vars=extra_vars,
         )
         if sent:
-            self._live_activity_started = True
+            self._record_live_activity_started()
             if chronometer_overrun:
                 self._live_chronometer_overrun_sent = True
             else:
                 self._live_notification_sent_count += 1
             self._last_live_notification_time = now
 
+    def _send_tag_clear(self, tag: str) -> None:
+        """Send the companion app's documented ``clear_notification`` for ``tag``.
+
+        This is the ONLY way to end an iOS Live Activity (HA companion docs, "Live
+        Activities and Live Updates"): an activity is started with
+        ``live_update: true``, updated by re-sending the same tag, and ended by
+        this. There is no ``activity`` key in that API - the one this integration
+        sent on the finished notification was never acted on, which is #446.
+        """
+        if not self._notify_live_services:
+            return
+        self._send_notification_service(
+            _CLEAR_NOTIFICATION_MARKER,
+            services=self._notify_live_services,
+            event_type=NOTIFY_EVENT_LIVE,
+            extra_vars={"tag": tag},
+        )
+
+    def _record_live_activity_started(self) -> None:
+        """Mark that a live activity is running, handing over the lifecycle card.
+
+        Three paths deliver the first live notification of a cycle - the waiting
+        card, the progress card, and ``_handle_notify_person_change`` releasing
+        either of them after presence gating deferred it - and all three have to
+        record it identically. The deferred one did not, so a cycle whose only
+        live delivery came through presence left ``_live_activity_started`` False,
+        the cycle-end path skipped ``_end_live_activity``, and the activity stayed
+        frozen on the phone: #446's own bug, reached from the other side.
+        """
+        if not self._live_activity_started:
+            self._hand_over_lifecycle_to_live_activity()
+        self._live_activity_started = True
+
+    def _hand_over_lifecycle_to_live_activity(self) -> None:
+        """Drop the lifecycle-tagged card as the live activity takes over (#446).
+
+        Live updates used to share the lifecycle tag, so each one replaced the
+        start alert in place and the mobile app showed a single entry. With the
+        live activity on its own tag that replacement no longer happens, so clear
+        the lifecycle tag explicitly the first time an activity starts. Two things
+        fall out of it for free: an Android user still sees one entry rather than
+        a stale "cycle started" beside the live one, and a Live Activity left
+        running under the OLD shared tag by a pre-0.5.7 build is ended here, so
+        the upgrade heals a frozen card instead of stranding it.
+        """
+        self._send_tag_clear(self._lifecycle_tag)
+
+    def _end_live_activity(self) -> None:
+        """End the iOS Live Activity at cycle end (#446).
+
+        Called AFTER the finished notification has been dispatched, so the lock
+        screen is never momentarily empty: the finished alert lands on the
+        lifecycle tag, then the activity on its own tag goes away.
+        """
+        self._send_tag_clear(self._live_notification_tag)
+
     def _clear_live_progress_notification(self, clear_services: bool = True) -> None:
         """Clear active live/progress notifications and purge stale deferred alerts.
 
-        On cycle finish (``clear_services=False``) the finished notification carries
-        the same lifecycle tag and replaces the live notification in place, so we must
-        NOT also send a service-level ``clear_notification`` (it would briefly dismiss
-        then re-create the card). The pending-purge, the action-based clear marker
-        (kept for backward compatibility with custom action templates), and the state
-        reset still run. On shutdown (``clear_services=True``) no finished notification
-        follows, so the explicit service clear is required to dismiss the live card.
+        On cycle finish (``clear_services=False``) the caller ends the activity
+        itself, after the finished notification has been delivered - see
+        ``_end_live_activity`` (#446). Only the pending-purge, the action-based
+        clear marker (kept for backward compatibility with custom action templates)
+        and the state reset run here.
+
+        On shutdown (``clear_services=True``) the two tags are NOT treated alike,
+        and the difference is load-bearing (register item 350(c)). The live tag is
+        cleared unconditionally, because a Live Activity left behind counts its
+        chronometer into negative numbers once nothing updates it. The lifecycle
+        tag is cleared only while ``self.detector.state`` is in
+        ``_CYCLE_IN_PROGRESS_STATES``: it carries the FINISHED alert, so an unload
+        or a restart after a cycle ended used to dismiss the very card the user was
+        still reading. "No finished notification follows" is true of a cycle in
+        progress and false of one already over - while both tags shared a value
+        that could not be distinguished, and now it can. See the comment at the
+        clear itself before making this unconditional again.
         """
         # Purge queued live-progress entries and stale start/pre-complete entries
         # so a completed cycle cannot replay them later.
@@ -5665,6 +8509,13 @@ class WashDataManager:
                 or entry.get("event_type") in {NOTIFY_EVENT_START, "pre_complete"}
             )
         ]
+        # ...and a "minutes left" reminder parked by quiet hours (audit MANAGER-09):
+        # it was delivered at the window's end, hours after the cycle, right
+        # before "finished".
+        self._quiet_pending_notifications = [
+            entry for entry in self._quiet_pending_notifications
+            if entry.get("event_type") != "pre_complete"
+        ]
 
         # Always emit the clear when the user has any live channel configured.
         # The in-memory sent-count is unreliable after an HA restart (it resets
@@ -5680,7 +8531,7 @@ class WashDataManager:
             {
                 "device": self.config_entry.title,
                 "program": "",  # Cleared marker
-                "message": "clear_notification",  # Clear marker for action handlers
+                "message": _CLEAR_NOTIFICATION_MARKER,  # Clear marker for action handlers
                 "title": "",  # Clear title
                 "icon": None,
                 "event_type": NOTIFY_EVENT_LIVE,
@@ -5695,18 +8546,19 @@ class WashDataManager:
         )
 
         if clear_services:
-            self._send_notification_service(
-                "clear_notification",
-                services=self._notify_live_services,
-                event_type=NOTIFY_EVENT_LIVE,
-                extra_vars={
-                    "tag": self._live_notification_tag,
-                    "live_update": True,
-                    "alert_once": True,
-                    # C3: iOS Live Activity end marker (mobile_app_* only downstream).
-                    "activity": "end",
-                },
-            )
+            # The live tag unconditionally: it carries a Live Activity with a
+            # chronometer that goes negative once nothing updates it, so a stale
+            # one is worse than none (#446).
+            self._send_tag_clear(self._live_notification_tag)
+            # The lifecycle tag only while a cycle is actually running. The
+            # finished alert uses this SAME tag, so on the shutdown path - a HA
+            # restart or an entry unload after a cycle ended - clearing it
+            # unconditionally dismisses the finished card the user still wants.
+            # "No finished notification follows" is true of a cycle in progress
+            # and false of one already over; while the two tags were the same
+            # value this could not be distinguished, and now it can.
+            if self.detector.state in _CYCLE_IN_PROGRESS_STATES:
+                self._send_tag_clear(self._lifecycle_tag)
 
         # Reset live-update state flags and counters.
         self._reset_live_notification_state()
@@ -5720,6 +8572,9 @@ class WashDataManager:
         app instead of lingering. A clear for a non-existent tag is harmless, so
         this runs whenever the user has any clean/finish delivery configured.
         """
+        # Drop the repeat-reminder dismiss action listener too, so no stale mobile
+        # action stays wired once the reminder is gone (#374).
+        self._remove_unload_dismiss_listener()
         # Drop any still-queued clean entries so they cannot replay later — from
         # both the presence-hold queue and the quiet-hours queue (the nag can be
         # deferred into either).
@@ -5732,8 +8587,14 @@ class WashDataManager:
             if n.get("event_type") != NOTIFY_EVENT_CLEAN
         ]
 
-        services = self._get_services_for_event(NOTIFY_EVENT_CLEAN)
-        if not services and not self._notify_actions:
+        # Only mobile_app targets understand the "clear_notification" marker;
+        # non-mobile targets (email, Telegram, etc.) would receive it as a
+        # literal message. Mirror the pattern from _cancel_timer_mobile_notification.
+        mobile_services = [
+            s for s in self._get_services_for_event(NOTIFY_EVENT_CLEAN)
+            if self._is_mobile_notify_service(s)
+        ]
+        if not mobile_services and not self._notify_actions:
             return
 
         if self._notify_actions:
@@ -5741,7 +8602,7 @@ class WashDataManager:
                 {
                     "device": self.config_entry.title,
                     "program": "",
-                    "message": "clear_notification",
+                    "message": _CLEAR_NOTIFICATION_MARKER,
                     "title": "",
                     "icon": None,
                     "event_type": NOTIFY_EVENT_CLEAN,
@@ -5750,13 +8611,95 @@ class WashDataManager:
                     "tag": self._clean_tag,
                 }
             )
-        if services:
+        if mobile_services:
             self._send_notification_service(
-                "clear_notification",
-                services=services,
+                _CLEAR_NOTIFICATION_MARKER,
+                services=mobile_services,
                 event_type=NOTIFY_EVENT_CLEAN,
                 extra_vars={"tag": self._clean_tag},
             )
+
+    @property
+    def _unload_dismiss_action_id(self) -> str:
+        """Stable mobile action ID for the unload-reminder dismiss button, per device."""
+        return f"UNLOAD_STOP_WD_{self.entry_id[:8].upper()}"
+
+    def _unload_nag_active(self, now: datetime) -> bool:
+        """Whether the terminal state must be held alive for the unload reminder.
+
+        Default (one-shot) behaviour: hold only until the single reminder is due, so
+        the 30-min progress reset / power-based Off cannot clear the Clean state before
+        the reminder fires. Repeat mode (``CONF_NOTIFY_UNLOAD_REPEAT``, #374): hold
+        indefinitely so the reminder keeps re-firing, until the user dismisses it from
+        the notification or opens the door (both release the hold).
+        """
+        if (
+            not self._is_clean_state
+            or self._notify_unload_delay_minutes <= 0
+            or self._cycle_completed_time is None
+        ):
+            return False
+        if self._notify_unload_repeat:
+            # Only hold while a delivery channel exists — otherwise no reminder (and
+            # no dismiss button) is ever sent (dispatch is gated on the same
+            # condition), so the hold would strand the Clean state forever.
+            # Also bounded by NOTIFY_UNLOAD_REPEAT_MAX_REMINDERS: the "Stop
+            # reminding" button is mobile_app-only, so a non-mobile target leaves
+            # the door sensor as the only escape, and a sensor that never reports
+            # open would pin Clean state (and suppress power-based Off) forever.
+            return (
+                bool(self._notify_finish_services or self._notify_actions)
+                and not self._unload_nag_dismissed
+                and self._unload_nag_count < NOTIFY_UNLOAD_REPEAT_MAX_REMINDERS
+            )
+        return (
+            not self._notified_clean_laundry
+            and (now - self._cycle_completed_time).total_seconds()
+            < self._notify_unload_delay_minutes * 60
+        )
+
+    def _ensure_unload_dismiss_listener(self) -> None:
+        """Register the mobile action listener for the reminder's dismiss button (once).
+
+        Mirrors the timer-pause interactive notification wiring: a single
+        ``mobile_app_notification_action`` listener that matches this device's action
+        ID, marks the reminder dismissed, and clears the delivered card.
+        """
+        if self._remove_unload_action_listener is not None:
+            return
+        action_id = self._unload_dismiss_action_id
+
+        @callback
+        def _on_unload_action(event: Any) -> None:
+            if event.data.get("action") == action_id:
+                self._logger.debug(
+                    "Unload reminder dismissed via notification action"
+                )
+                self._unload_nag_dismissed = True
+                self._clear_clean_notification()
+                self._notify_update()
+
+        self._remove_unload_action_listener = self.hass.bus.async_listen(
+            "mobile_app_notification_action",
+            _on_unload_action,
+        )
+
+    def _remove_unload_dismiss_listener(self) -> None:
+        """Drop the unload-reminder dismiss action listener, if registered."""
+        if self._remove_unload_action_listener is not None:
+            self._remove_unload_action_listener()
+            self._remove_unload_action_listener = None
+
+    def _reset_unload_nag_tracking(self) -> None:
+        """Reset repeat-reminder tracking and drop the dismiss listener.
+
+        Called wherever the Clean state is cleared so the next cycle's reminder starts
+        fresh and no stale mobile action listener leaks.
+        """
+        self._remove_unload_dismiss_listener()
+        self._unload_nag_dismissed = False
+        self._last_unload_nag_time = None
+        self._unload_nag_count = 0
 
     def _check_pre_completion_notification(self) -> None:
         """Check and send pre-completion notification."""
@@ -5823,6 +8766,7 @@ class WashDataManager:
             self._projected_energy_wh = None
             self._projected_cost = None
             return
+        live_cost = self._live_cost_so_far(trace)
         wh, cost = progress_mod.projected_energy(
             self.profile_store,
             self.config_entry.options,
@@ -5834,9 +8778,47 @@ class WashDataManager:
             price,
             self._profile_end_expectation,
             self._logger,
+            cost_so_far=live_cost[0] if live_cost else None,
+            cost_so_far_wh=live_cost[1] if live_cost else None,
         )
         self._projected_energy_wh = wh
         self._projected_cost = cost
+
+    def _live_cost_so_far(
+        self, trace: list[tuple[datetime, float]]
+    ) -> tuple[float, float] | None:
+        """``(cost, charged_wh)`` incurred so far at the prices the cycle ran through.
+
+        Returns ``None`` when dynamic pricing is off or nothing has been recorded
+        yet, which puts :func:`progress.projected_energy` back on the flat-price
+        formula. The second element is the energy that cost was charged for, which
+        the projection must subtract instead of ``energy_so_far``: this integrates
+        the trace, while ``energy_so_far`` is the detector's per-reading
+        accumulator, and the two treat outages and sub-threshold intervals
+        differently. Never raises.
+        """
+        if not self._dynamic_pricing_enabled() or not self._price_timeline:
+            return None
+        try:
+            if len(trace) < 2 or self._cycle_start_time is None:
+                return None
+            start_ts = self._cycle_start_time.timestamp()
+            timestamps = np.asarray([t.timestamp() - start_ts for t, _ in trace], dtype=float)
+            power = np.asarray([p for _, p in trace], dtype=float)
+            points = compact_price_timeline(
+                [(ts - start_ts, price) for ts, price in self._price_timeline],
+                max_points=PRICE_TIMELINE_MAX_POINTS,
+                decimals=PRICE_TIMELINE_PRICE_DECIMALS,
+            )
+            max_gap_s = energy_gap_threshold_s(timestamps)
+            result = cycle_cost(timestamps, power, points, max_gap_s=max_gap_s)
+            if result is None:
+                return None
+            # integrate_wh is the same total the price segments sum to, by the
+            # documented contract of integrate_wh_by_price.
+            return result[0], float(integrate_wh(timestamps, power, max_gap_s=max_gap_s))
+        except Exception:  # noqa: BLE001 - projection must never break estimates
+            return None
 
     def _update_cycle_anomaly(self, duration_so_far: float) -> None:
         """Flag a *soft* runtime overrun anomaly for the running cycle.
@@ -5863,12 +8845,26 @@ class WashDataManager:
             self._projected_cost = None
             self._cycle_anomaly = "none"
             self._overrun_ratio = 0.0
+            self._envelope_position = None
             return
 
-        now = dt_util.now()
+        now = utc_now()
+        # The 5 s throttle guards the heavy phase estimate, but the FIRST estimate
+        # after a match must not wait it out (#437): the match callback calls this
+        # and then _check_live_progress_notification(), which now stays in the
+        # waiting branch while _time_remaining is None. Bypassing once per match
+        # means the live notification switches to a real countdown immediately
+        # instead of holding the waiting message for another interval.
+        first_estimate_after_match = (
+            self._time_remaining is None
+            and bool(self._matched_profile_duration)
+            and self._matched_profile_duration > 0
+        )
+        prev_estimate_at = self._last_phase_estimate_time
         if (
-            self._last_phase_estimate_time
-            and (now - self._last_phase_estimate_time).total_seconds() < 5.0
+            prev_estimate_at
+            and (now - prev_estimate_at).total_seconds() < 5.0
+            and not first_estimate_after_match
         ):
             return
         self._last_phase_estimate_time = now
@@ -5877,6 +8873,26 @@ class WashDataManager:
         # so that paused time is excluded from progress / remaining / total duration.
         duration_so_far = float(self.net_elapsed_seconds)
         self._check_cycle_timers(duration_so_far)
+
+        # An async match result can land AFTER the detector has closed the cycle:
+        # the cycle start is cleared by then, so elapsed reads 0 while the matched
+        # duration and the smoothed progress are still set. The back-calculation
+        # below would then publish a full fresh "remaining" (raw progress 0 damped
+        # against a ~90% EMA) over the finished cycle's terminal values - measured
+        # live: remaining jumped from 15 min to 28 min and total duration from
+        # 164 min to 28 min, 7 s before the finish notification. There is nothing to
+        # estimate without an open cycle, and the terminal values must stand.
+        if duration_so_far <= 0.0:
+            return
+
+        # Item 514: a halt is not progress either. The detector's programme view
+        # leaves its stalls out of the elapsed time and the trace, like the
+        # Playground replay (`progress_elapsed_s` / `progress_trace`); the cycle
+        # timers above and the projected energy below keep the real figures.
+        prog_elapsed = getattr(self.detector, "progress_elapsed_s", None)
+        prog_elapsed = prog_elapsed(duration_so_far, now) if callable(prog_elapsed) else None
+        if isinstance(prog_elapsed, (int, float)):
+            duration_so_far = float(prog_elapsed)
 
         if not (self._matched_profile_duration and self._matched_profile_duration > 0):
             # No profile matched - don't provide misleading time estimates.
@@ -5888,56 +8904,49 @@ class WashDataManager:
             self._projected_cost = None
             self._cycle_anomaly = "none"
             self._overrun_ratio = 0.0
+            self._envelope_position = None
             self._logger.debug(
                 "No profile matched yet, elapsed=%smin", int(duration_so_far / 60)
             )
             return
 
-        # Compute the phase-aware and ML progress inputs via the manager's own
-        # wrappers (so per-call caching + test mocks apply), then hand them to the
-        # shared pure smoothing/back-calc in :mod:`progress` - the identical math
-        # the Playground simulation runs.
+        # Compute the phase-aware progress input via the manager's own wrapper
+        # (so per-call caching + test mocks apply), then hand it to the shared
+        # pure smoothing/back-calc in :mod:`progress` - the identical math the
+        # Playground simulation runs.
         trace = self.detector.get_power_trace()
+        prog_trace = getattr(self.detector, "progress_trace", None)
+        prog_trace = prog_trace(now) if callable(prog_trace) else None
+        if isinstance(prog_trace, list):
+            trace = prog_trace  # item 514, see above
         phase_result = None
         if len(trace) >= 10 and self._current_program != "detecting...":
             phase_result = self._estimate_phase_progress(
                 trace, duration_so_far, self._current_program
             )
-        ml_pct = self._ml_progress_percent(trace, self._current_program)
-
-        # Opt-in phase-resolved ETA (washing machine / washer-dryer only). Segment
-        # the observed-so-far trace, match against cached per-profile phase profiles,
-        # and blend the per-role budget remaining into the estimate (progress.py
-        # owns the blend). Gated + guarded: any failure leaves the proven estimate
-        # untouched (phase_remaining_s stays None -> byte-identical behaviour).
-        phase_remaining_s: float | None = None
-        if (
-            len(trace) >= 10
-            and self._current_program not in ("detecting...", "off", None)
-            and phase_matching_enabled(self.config_entry.options, self.device_type)
-        ):
-            pr = self.profile_store.phase_remaining(
-                trace, self.device_type, self._current_program
-            )
-            if pr is not None:
-                phase_remaining_s = pr.get("remaining_s")
 
         result = progress_mod.compute_progress(
             self.device_type,
             float(self._matched_profile_duration),
             duration_so_far,
-            self._smoothed_progress,
+            progress_mod.ema_seed(
+                self._smoothed_progress, self._smoothed_for_program, self._current_program
+            ),
             phase_result,
-            ml_pct,
             self._logger,
-            phase_remaining_s=phase_remaining_s,
+            # Real gap since the previous estimate, so the progress EMA keeps its
+            # time constant instead of its step count - a plug that reports every
+            # 30 s must not lag 6x further behind than one reporting every 5 s.
+            dt_seconds=(
+                (now - prev_estimate_at).total_seconds() if prev_estimate_at else None
+            ),
         )
 
         self._cycle_progress = result.progress
         self._smoothed_progress = result.smoothed
+        self._smoothed_for_program = self._current_program
         self._time_remaining = result.remaining
         self._total_duration = result.total
-        self._last_total_duration_update = now
         self._update_projected_energy()
         self._update_cycle_anomaly(duration_so_far)
 
@@ -6074,7 +9083,7 @@ class WashDataManager:
             mobile_services = [s for s in services if self._is_mobile_notify_service(s)]
             if mobile_services:
                 self._send_notification_service(
-                    "clear_notification",
+                    _CLEAR_NOTIFICATION_MARKER,
                     services=mobile_services,
                     event_type=NOTIFY_EVENT_TIMER,
                     extra_vars={"tag": self._timer_pause_mobile_tag},
@@ -6094,11 +9103,399 @@ class WashDataManager:
             current_duration,
             profile_name,
             self._logger,
+            quiet_threshold_w=float(
+                getattr(self.detector.config, "stop_threshold_w", 0.0) or 0.0
+            ),
         )
 
     def _notify_update(self) -> None:
         """Notify entities of update."""
+        self._check_state_triggers()
         async_dispatcher_send(self.hass, SIGNAL_WASHER_UPDATE.format(self.entry_id))
+
+    # ------------------------------------------------------------------
+    # Device triggers (#478)
+    # ------------------------------------------------------------------
+    @staticmethod
+    def _trigger_program(program: Any) -> str | None:
+        """A real program name for the trigger variables, None for a placeholder."""
+        if isinstance(program, str) and program and match_rules.program_is_committed(
+            program
+        ):
+            return program
+        return None
+
+    def _trigger_switch_entity(self) -> str | None:
+        """The relay an automation may switch: the configured switch entity, else
+        the one ``switch.`` entity on the power sensor's device, else None."""
+        configured = self.config_entry.options.get(
+            CONF_SWITCH_ENTITY
+        ) or self.config_entry.data.get(CONF_SWITCH_ENTITY)
+        if isinstance(configured, str) and configured.startswith("switch."):
+            return configured
+        ent_reg = er.async_get(self.hass)
+        source = ent_reg.async_get(self.power_sensor_entity_id)
+        device_id = getattr(source, "device_id", None)
+        if not isinstance(device_id, str):
+            return None
+        switches = [
+            e.entity_id
+            for e in er.async_entries_for_device(ent_reg, device_id)
+            if e.domain == "switch"
+        ]
+        return switches[0] if len(switches) == 1 else None
+
+    def _fire_device_trigger(
+        self, trigger_type: str, program: Any, /, **extra: Any
+    ) -> None:
+        """Send one trigger occurrence with its variables. Never raises.
+
+        The one firing path for the device triggers and the integration triggers
+        (#478). A type the device type is not offered is never sent.
+        """
+        try:
+            if not trigger_rules.trigger_offered(trigger_type, self.device_type):
+                return
+            switch_entity: str | None = None
+            try:
+                switch_entity = self._trigger_switch_entity()
+            except Exception:  # pylint: disable=broad-exception-caught
+                self._logger.debug("Could not resolve the plug's switch", exc_info=True)
+            # An occurrence's own variables win (program_recognised's program).
+            variables: dict[str, Any] = {
+                "entry_id": self.entry_id,
+                "device_name": self.config_entry.title,
+                "device_type": self.device_type,
+                "program": self._trigger_program(program),
+                "power_entity": self.power_sensor_entity_id,
+                "switch_entity": switch_entity,
+                **extra,
+            }
+            async_dispatcher_send(
+                self.hass,
+                SIGNAL_DEVICE_TRIGGER.format(self.entry_id),
+                trigger_type,
+                variables,
+            )
+        except Exception:  # pylint: disable=broad-exception-caught
+            self._logger.warning("Device trigger %s failed", trigger_type, exc_info=True)
+
+    def _cycle_end_trigger_vars(
+        self,
+        cycle_data: dict[str, Any],
+        *,
+        label_applied: bool = False,
+        energy_wh: float | None = None,
+    ) -> dict[str, Any]:
+        """The cycle_finished / cycle_ended variables. Small and JSON-safe."""
+        wh = self._cycle_report_energy_wh(cycle_data) if energy_wh is None else energy_wh
+        anomaly = cycle_data.get("anomaly")
+        return {
+            "status": cycle_data.get("status"),
+            "duration": cycle_data.get("duration"),
+            "energy_kwh": round(wh / 1000, 3) if math.isfinite(wh) else None,
+            "start_time": cycle_data.get("start_time"),
+            "end_time": cycle_data.get("end_time") or utc_now().isoformat(),
+            "label_applied": bool(label_applied),
+            # The cycle's frozen runtime/post-cycle anomaly (overrun, underrun,
+            # stalled), "none" without one.
+            "anomaly": anomaly if isinstance(anomaly, str) and anomaly else "none",
+        }
+
+    def _end_dropped_cycle(self) -> None:
+        """Before a cycle is dropped by a detector reset (which fires no cycle end):
+        if its start was announced, send the end owed to it (#478), as an
+        interrupted cycle; then forget its session state (a user pause, a
+        hand-picked program, its start, its restart gaps), as a normal end's
+        terminal reset and persist do.
+        Never raises."""
+        if self._cycle_ended_pending:
+            self._cycle_ended_pending = False
+            try:
+                self._trigger_ended_program = self._trigger_program(self._current_program)
+                # A restore puts the start on the detector; the manager's own copy
+                # is only set by the next state change.
+                start = self._cycle_start_time or self.detector.current_cycle_start
+                now = utc_now()
+                self._fire_cycle_ended({
+                    "status": "interrupted",
+                    "start_time": start.isoformat() if start is not None else None,
+                    "end_time": now.isoformat(),
+                    "duration": (
+                        (now - dt_util.as_utc(start)).total_seconds()
+                        if start is not None else 0.0
+                    ),
+                })
+            except Exception:  # pylint: disable=broad-exception-caught
+                self._logger.debug("Could not end the dropped cycle", exc_info=True)
+        self._manual_program_active = False
+        self._is_user_paused = False
+        self._user_pause_start = None
+        self._total_user_paused_seconds = 0.0
+        self._cycle_start_time = None
+        # Its restart gaps too, or the next real cycle is stored with them.
+        self._restart_gaps.clear()
+
+    def _fire_cycle_ended(
+        self,
+        cycle_data: dict[str, Any],
+        energy_wh: float | None = None,
+        *,
+        cycle_token: str | None = None,
+        bus: bool = True,
+        program: Any = _UNSET,
+    ) -> None:
+        """The end owed to a start that was announced, for an end the cycle-end
+        steps never announce (a discarded ghost or pump-out, a dropped restored
+        cycle, or steps that failed first): the ``ha_washdata_cycle_ended`` event
+        (``bus``; False when the failed steps had sent it) and the cycle_ended
+        trigger. ``cycle_token`` is the failed steps' cycle: a tumble held for a
+        newer one is left to that cycle; ``program`` its own, captured before the
+        steps awaited (else the manager's field). Never raises."""
+        if program is _UNSET:
+            program = self._trigger_ended_program
+        if bus:
+            try:
+                event_cycle_data = {
+                    k: v for k, v in cycle_data.items() if k not in _EVENT_EXCLUDED_FIELDS
+                }
+                self.hass.bus.async_fire(
+                    EVENT_CYCLE_ENDED,
+                    {
+                        "entry_id": self.entry_id,
+                        "device_name": self.config_entry.title,
+                        "cycle_data": event_cycle_data,
+                        "program": program or "unknown",
+                        "match_margin": None,
+                        "label_applied": False,
+                        "duration": cycle_data.get("duration"),
+                        "start_time": cycle_data.get("start_time"),
+                        "end_time": cycle_data.get("end_time") or utc_now().isoformat(),
+                    },
+                )
+            except Exception:  # pylint: disable=broad-exception-caught
+                self._logger.debug("Could not fire the cycle-ended event", exc_info=True)
+        try:
+            variables = self._cycle_end_trigger_vars(cycle_data, energy_wh=energy_wh)
+        except Exception:  # pylint: disable=broad-exception-caught
+            variables = {"status": cycle_data.get("status"), "label_applied": False}
+        self._fire_device_trigger(TRIGGER_CYCLE_ENDED, program, **variables)
+        if cycle_token is None or self._ranking_snapshot_cycle_id == cycle_token:
+            self._release_held_tumble(cycle_data.get("status"))
+
+    def _check_state_triggers(self) -> None:
+        """The triggers that follow what the entities show, on every refresh (#478):
+        anti_wrinkle_started / unload_pending as the state entity enters those
+        states, once per cycle end (see ``_state_trigger_fired``), then the live
+        edges and maintenance_due."""
+        fired = getattr(self, "_state_trigger_fired", None)
+        if fired is None:  # a stand-in manager built without __init__
+            return
+        state = self.check_state()
+        if (
+            isinstance(state, str)
+            and state in _STATE_TRIGGERS
+            and fired[state] != self._trigger_end_seq
+        ):
+            fired[state] = self._trigger_end_seq
+            self._fire_device_trigger(_STATE_TRIGGERS[state], self._trigger_ended_program)
+        self._check_live_triggers(state)
+        self._check_maintenance_triggers()
+
+    def _live_trigger_inputs(self, state: Any) -> trigger_rules.LiveInputs:
+        """What the entities show now, for the live trigger edges (#478)."""
+        # A cycle whose cycle_started went out and whose end has not been seen.
+        active = bool(getattr(self, "_cycle_ended_pending", False))
+        program = self._trigger_program(self._current_program) if active else None
+        reason: str | None = None
+        if active and state == STATE_USER_PAUSED:
+            reason = trigger_rules.PAUSE_USER
+        elif active and state == STATE_PAUSED:
+            reason = (
+                trigger_rules.PAUSE_STALLED
+                if getattr(self.detector, "stalled", False) is True
+                else trigger_rules.PAUSE_DETECTED
+            )
+        remaining = self._time_remaining if active else None
+        if not isinstance(remaining, (int, float)) or not math.isfinite(remaining):
+            remaining = None
+        # The pre-completion reminder's own gate: a trusted, unfinished estimate.
+        trusted = (
+            remaining
+            if remaining is not None
+            and float(self._cycle_progress or 0.0) < 100
+            and not self._last_match_ambiguous
+            else None
+        )
+        expected = self._matched_profile_duration if active else None
+        ratio = self._overrun_ratio if expected else None
+        phase = (
+            progress_mod.current_phase_range(
+                self.profile_store,
+                self.detector.state,
+                self._current_program,
+                self._cycle_progress,
+                self._matched_profile_duration,
+            )
+            if program
+            else None
+        )
+        phase_name = str(phase.get("name") or "").strip() if phase else ""
+        return trigger_rules.LiveInputs(
+            state=state if isinstance(state, str) else None,
+            cycle_active=active,
+            program=program,
+            phase=phase_name or None,
+            phase_start_s=float(phase.get("start") or 0.0) if phase_name else None,
+            pause_reason=reason,
+            user_pause_since=self._user_pause_start,
+            time_remaining_s=remaining,
+            remaining_s=trusted,
+            overrun_ratio=ratio if isinstance(ratio, (int, float)) and ratio > 0 else None,
+            expected_duration_s=float(expected) if expected else None,
+        )
+
+    def _check_live_triggers(self, state: Any) -> None:
+        """Send the live edges since the last refresh (#478). Never raises."""
+        tracker = getattr(self, "_live_triggers", None)
+        if tracker is None:
+            return
+        try:
+            occurrences = tracker.tick(self._live_trigger_inputs(state), utc_now())
+        except Exception:  # pylint: disable=broad-exception-caught
+            self._logger.debug("Live trigger check failed", exc_info=True)
+            return
+        for trigger_type, variables in occurrences:
+            self._fire_device_trigger(trigger_type, self._current_program, **variables)
+        # A restart must not announce these again: the snapshot carries the marks,
+        # written now rather than at the next 60 s save when something listens.
+        if any(t in _MARKED_TRIGGERS for t, _ in occurrences) and self._has_trigger_listeners():
+            try:
+                snapshot = self._augment_active_snapshot(self.detector.get_state_snapshot())
+                self._spawn_tracked(self.profile_store.async_save_active_cycle(snapshot))
+            except Exception:  # pylint: disable=broad-exception-caught
+                self._logger.debug("Could not save the trigger marks", exc_info=True)
+
+    def _has_trigger_listeners(self) -> bool:
+        """Whether a device or integration trigger listens to this entry (#478)."""
+        listeners = self.hass.data.get(DATA_TRIGGER_LISTENERS)
+        return isinstance(listeners, dict) and listeners.get(self.entry_id, 0) > 0
+
+    def _trigger_baseline(self) -> None:
+        """Take what the entities show as already announced (#478): after the
+        restore, so a restart replays no live trigger, no due maintenance task and
+        no stall that was already reported. Never raises."""
+        try:
+            restored, self._restored_trigger_marks = (
+                getattr(self, "_restored_trigger_marks", None), None
+            )
+            self._live_triggers.baseline(
+                self._live_trigger_inputs(self.check_state()), utc_now(), restored
+            )
+            self._maintenance_triggers.update(self.maintenance_status)
+            self._maintenance_checked = (utc_now(), self._lifetime_cycle_count())
+            info = self.detector.stall_info() if self.detector.stalled is True else None
+            if isinstance(info, dict) and info.get("stalled_since"):
+                self._stall_event_key = info["stalled_since"]
+        except Exception:  # pylint: disable=broad-exception-caught
+            self._logger.debug("Trigger baseline failed", exc_info=True)
+
+    def _check_maintenance_triggers(self) -> None:
+        """maintenance_due for each task that fell due (#478). The list is re-read
+        when the odometer moved or TRIGGER_MAINTENANCE_RECHECK_S passed, so it
+        follows the Maintenance due sensor without a store pass per reading."""
+        checked = getattr(self, "_maintenance_checked", None)
+        if checked is None:  # not set up yet: the baseline takes the first look
+            return
+        try:
+            now = utc_now()
+            count = self._lifetime_cycle_count()
+            if count == checked[1] and (
+                (now - checked[0]).total_seconds() < TRIGGER_MAINTENANCE_RECHECK_S
+            ):
+                return
+            self._maintenance_checked = (now, count)
+            for variables in self._maintenance_triggers.update(self.maintenance_status):
+                self._fire_device_trigger(
+                    TRIGGER_MAINTENANCE_DUE, self._current_program, **variables
+                )
+        except Exception:  # pylint: disable=broad-exception-caught
+            self._logger.debug("Maintenance trigger check failed", exc_info=True)
+
+    @callback
+    def _maintenance_tick(self, _now: datetime) -> None:
+        """The idle re-check of maintenance_due, only while a trigger listens."""
+        if self._has_trigger_listeners():
+            self._check_maintenance_triggers()
+
+    def _arm_tumble_tracker(self, cycle_data: dict[str, Any]) -> None:
+        """Watch for tumbles after this finished cycle (still_tumbling, #478)."""
+        if not trigger_rules.trigger_offered(TRIGGER_STILL_TUMBLING, self.device_type):
+            return
+        try:
+            end = dt_util.parse_datetime(str(cycle_data.get("end_time") or ""))
+            finished_at = dt_util.as_utc(end) if end is not None else utc_now()
+            self._tumble_tracker.arm(
+                finished_at,
+                float(self._current_power),
+                float(self.detector.config.start_threshold_w),
+            )
+        except Exception:  # pylint: disable=broad-exception-caught
+            self._logger.debug("Could not arm the tumble tracker", exc_info=True)
+
+    def _track_tumble(self, power: float, now: datetime) -> None:
+        """Feed a raw reading to the tumble tracker; send still_tumbling at the end
+        of a tumble. Passive: detection never sees it. Never raises."""
+        tracker = getattr(self, "_tumble_tracker", None)
+        if tracker is None or not tracker.armed:
+            return
+        try:
+            cfg = self.detector.config
+            variables = tracker.reading(
+                power, now, float(cfg.start_threshold_w), float(cfg.stop_threshold_w)
+            )
+        except Exception:  # pylint: disable=broad-exception-caught
+            self._logger.debug("Tumble tracking failed", exc_info=True)
+            return
+        if variables is None:
+            return
+        if getattr(self, "_cycle_ended_pending", False):
+            # A cycle started since the finish. Without anti-wrinkle a tumble is
+            # detected as a false start, so the tumble is held until that cycle
+            # ends: sent if it ends interrupted, dropped if it finishes (which
+            # re-arms the tracker for its own finish), see _release_held_tumble.
+            # Of several, the last is held, crossing from the last one sent.
+            held = getattr(self, "_tumble_held", None)
+            if held is not None:
+                variables["_prev_minutes"] = held.get("_prev_minutes")
+            self._tumble_held = variables
+            return
+        self._fire_device_trigger(
+            TRIGGER_STILL_TUMBLING, self._trigger_ended_program, **variables
+        )
+
+    def _release_held_tumble(self, status: Any) -> None:
+        """After a cycle_ended: a false start (interrupted) was a tumble, so a
+        tumble held during it is sent now; any other end drops it (#478)."""
+        held, self._tumble_held = getattr(self, "_tumble_held", None), None
+        if held is None or notif_rules.cycle_end_is_finish(status):
+            return
+        if self._tumble_tracker.armed:
+            self._fire_device_trigger(
+                TRIGGER_STILL_TUMBLING, self._trigger_ended_program, **held
+            )
+
+    def _on_trigger_cycle_started(self) -> None:
+        """cycle_started went out: a new cycle owes its own live edges (#478)."""
+        tracker = getattr(self, "_live_triggers", None)
+        if tracker is not None:
+            tracker.new_cycle()
+
+    def _notify_update_deferrable(self) -> None:
+        """Notify, unless a power reading is being handled: its handler notifies
+        once when it returns, after everything this caller changed."""
+        if not getattr(self, "_in_power_event", False):
+            self._notify_update()
 
     def notify_update(self) -> None:
         """Public method to notify entities of update."""
@@ -6108,6 +9505,21 @@ class WashDataManager:
     def is_user_paused(self) -> bool:
         """Return True if cycle is currently user-paused."""
         return self._is_user_paused
+
+    @property
+    def _is_user_paused(self) -> bool:
+        return self._user_paused_flag
+
+    @_is_user_paused.setter
+    def _is_user_paused(self, value: bool) -> None:
+        # Mirrored into the detector so Smart Termination honours a user pause too:
+        # it was the one finisher that did not, and the pause itself carried the
+        # elapsed time past the ratio (audit DETECT-05).
+        self._user_paused_flag = bool(value)
+        detector = getattr(self, "detector", None)
+        setter = getattr(detector, "set_user_paused", None)
+        if callable(setter):
+            setter(self._user_paused_flag)
 
     @property
     def is_clean_state(self) -> bool:
@@ -6120,23 +9532,32 @@ class WashDataManager:
         raw = float(self.detector.get_elapsed_seconds())
         paused = self._total_user_paused_seconds
         if self._user_pause_start is not None:
-            paused += (dt_util.now() - self._user_pause_start).total_seconds()
+            paused += (utc_now() - self._user_pause_start).total_seconds()
         return max(0.0, raw - paused)
 
     def check_state(self):
-        """Return current detector state."""
+        """Return the state entities show (the detector's exposed state)."""
         if self.recorder.is_recording:
             return STATE_RUNNING
+        state = self.detector.state
+        # The detector's display layer: a standby re-probe reads as off until it
+        # has evidence (item 501), a stalled cycle as paused and a two-level
+        # appliance at its standby level as idle (#452). A stand-in detector
+        # without one shows its raw state.
+        exposed = getattr(self.detector, "exposed_state", None)
+        if isinstance(exposed, str):
+            state = exposed
         # A completed cycle ends in STATE_FINISHED, not STATE_OFF; accept both
         # or the door-sensor Clean state (#153) is never surfaced (#282).
-        if self._is_clean_state and self.detector.state in (
+        if self._is_clean_state and state in (
             STATE_OFF,
+            STATE_IDLE,
             STATE_FINISHED,
         ):
             return STATE_CLEAN
         if self._is_user_paused:
             return STATE_USER_PAUSED
-        return self.detector.state
+        return state
 
     def list_phase_catalog(self, device_type: str) -> list[dict[str, Any]]:
         """Return the merged phase catalog for a device type."""
@@ -6158,6 +9579,10 @@ class WashDataManager:
         """Return more granular state info (e.g. current phase)."""
         if self.recorder.is_recording:
             return "Recording"
+        # Item 501 / #452, as in check_state.
+        exposed = getattr(self.detector, "exposed_sub_state", NotImplemented)
+        if exposed is None or isinstance(exposed, str):
+            return exposed
         return self.detector.sub_state
 
     @property
@@ -6176,11 +9601,6 @@ class WashDataManager:
         return self._total_duration
 
     @property
-    def last_total_duration_update(self) -> datetime | None:
-        """Return when total duration was last refined."""
-        return self._last_total_duration_update
-
-    @property
     def cycle_progress(self):
         """Return cycle progress as a percentage."""
         return self._cycle_progress
@@ -6197,13 +9617,31 @@ class WashDataManager:
 
     @property
     def cycle_anomaly(self) -> str:
-        """Runtime anomaly state for the current cycle ("none" | "overrun")."""
+        """Runtime anomaly state for the current cycle ("none" | "overrun" | "stalled").
+
+        ``stalled`` (#452) wins while the detector shows the cycle stalled; like
+        ``overrun`` it is visible only and never a notification.
+        """
+        if getattr(self.detector, "stalled", False) is True:
+            return CYCLE_ANOMALY_STALLED
         return self._cycle_anomaly
 
     @property
     def overrun_ratio(self) -> float:
         """Elapsed / expected duration for the running cycle (0.0 when unknown)."""
         return self._overrun_ratio
+
+    @property
+    def envelope_position(self) -> float | None:
+        """How far this run has mapped onto its profile's envelope, 0-1, or None.
+
+        Produced by the DTW alignment that runs for the verified-pause decision,
+        so it is only refreshed while power is below the stop threshold and a
+        profile is matched - which is exactly the phase where elapsed time says
+        least (a dishwasher sitting in its drying phase). Visible only; no
+        detection path reads it.
+        """
+        return self._envelope_position
 
     @property
     def last_cycle_post_anomaly(self) -> dict:
@@ -6222,23 +9660,67 @@ class WashDataManager:
 
     @property
     def maintenance_due(self) -> list[str]:
-        """Maintenance event types whose reminder threshold has been reached (E2).
+        """Ids of the maintenance tasks that are due (E2, #461): built-in types, then
+        custom tasks.
 
-        Surfaced as a state-sensor attribute + read by the panel banner. Never a
-        notification. Returns an empty list on any error.
+        Surfaced as a state-sensor attribute, the Maintenance-due binary sensor and
+        the panel banner. Never a notification. Returns an empty list on any error.
         """
         try:
-            cfg = self.config_entry.options.get(CONF_MAINTENANCE_REMINDER_CYCLES)
-            if not isinstance(cfg, dict) or not cfg:
-                cfg = DEFAULT_MAINTENANCE_REMINDER_CYCLES
-            return self.profile_store.get_maintenance_due(cfg)
+            return self.profile_store.get_maintenance_due(
+                effective_reminders(
+                    self.device_type,
+                    self.config_entry.options.get(CONF_MAINTENANCE_REMINDER_CYCLES),
+                )
+            )
         except Exception:  # noqa: BLE001
             return []
 
     @property
+    def maintenance_status(self) -> list[dict[str, Any]]:
+        """Every active maintenance reminder with its progress (#461). Never raises.
+
+        Rows from ``ProfileStore.get_maintenance_status`` against the device-type
+        aware reminder config (``maintenance.effective_reminders``).
+        """
+        try:
+            return self.profile_store.get_maintenance_status(
+                effective_reminders(
+                    self.device_type,
+                    self.config_entry.options.get(CONF_MAINTENANCE_REMINDER_CYCLES),
+                )
+            )
+        except Exception:  # noqa: BLE001
+            return []
+
+    def _sync_maintenance_baselines(self) -> None:
+        """Stamp/clear the preset reminder types' counting origin (#461). Never raises.
+
+        Run on every setup and config reload, after the store is loaded, so a
+        preset reminder that starts applying (an upgrade, or the user switching it
+        on) counts from now rather than opening as due.
+        """
+        try:
+            self.profile_store.sync_maintenance_baselines(
+                effective_reminders(
+                    self.device_type,
+                    self.config_entry.options.get(CONF_MAINTENANCE_REMINDER_CYCLES),
+                )
+            )
+        except Exception:  # noqa: BLE001
+            self._logger.debug("Maintenance baseline sync failed", exc_info=True)
+
+    @property
     def current_power(self):
-        """Return current power reading in watts."""
-        return self._current_power
+        """Return current power reading in watts.
+
+        Prefers the sensor's live state over the event cache (#409): the cache is
+        only refreshed while a cycle is active or expiring, so an idle appliance
+        whose plug reports rarely would otherwise show whatever value was last seen
+        - which is what users compared against their HA sensor and found wrong.
+        """
+        live = self._live_power_state()
+        return live[0] if live is not None else self._current_power
 
     @property
     def cycle_start_time(self) -> datetime | None:
@@ -6267,8 +9749,16 @@ class WashDataManager:
 
     @property
     def sample_interval_stats(self):
-        """Return statistics about sampling intervals."""
-        return self._sample_interval_stats
+        """The detector's own cadence window (audit MANAGER-14: this dict was never
+        filled, so the debug sensor's `sampling_p95` and diagnostics were empty)."""
+        dts = list(getattr(self.detector, "_recent_dts", None) or [])
+        if not dts:
+            return {}
+        return {
+            "p95": round(percentile_linear(dts, 95), 2),
+            "median": round(median_fast(dts), 2),
+            "count": len(dts),
+        }
 
     @property
     def pump_stuck(self) -> bool:
@@ -6284,7 +9774,7 @@ class WashDataManager:
         """
         if self.device_type != DEVICE_TYPE_PUMP:
             return 0
-        cutoff = dt_util.now().timestamp() - 86400.0
+        cutoff = utc_now().timestamp() - 86400.0
         count = 0
         for cycle in self.profile_store.get_past_cycles():
             start_raw = cycle.get("start_time")
@@ -6300,7 +9790,7 @@ class WashDataManager:
                     ts = float(start_raw)
                 if ts >= cutoff:
                     count += 1
-            except (TypeError, ValueError):
+            except (TypeError, ValueError, OverflowError):
                 continue
         return count
 
@@ -6315,14 +9805,33 @@ class WashDataManager:
         return round(self.profile_store.get_lifetime_energy_wh() / 1000.0, 3)
 
     @property
+    def lifetime_cycle_count(self) -> int:
+        """Cycles this appliance has run, ever - the odometer behind the count sensor.
+
+        Distinct from :attr:`cycle_count`, which is ``len(retained history)`` and is
+        the right basis for "do I have enough data yet" gates. This one only ever
+        rises: it survives retention trimming, record deletion and a data wipe, so an
+        "every N cycles" maintenance schedule (ours or an external integration's) can
+        be built on it (#414).
+        """
+        return self._lifetime_cycle_count()
+
+    @property
     def manual_program_active(self) -> bool:
         """Return True if a manual program override is active."""
         return getattr(self, "_manual_program_active", False)
 
-    def set_manual_program(self, profile_name: str) -> None:
-        """Manually set the current program."""
-        if self.detector.state != "running":
-            return
+    @property
+    def armed_program(self) -> str | None:
+        """The program pinned for the next cycle, when one is not under way (#411)."""
+        return getattr(self, "_armed_program", None)
+
+    def _resolve_profiles(self) -> dict[str, Any]:
+        """Return the stored profiles mapping, falling back to the raw store dict.
+
+        Shared by the manual-program set and re-arm paths so both agree on what
+        counts as an existing program. Never raises.
+        """
         profiles_raw: Any = None
         try:
             profiles_raw = self.profile_store.get_profiles()
@@ -6330,37 +9839,190 @@ class WashDataManager:
             profiles_raw = None
 
         if isinstance(profiles_raw, dict):
-            profiles: dict[str, Any] = cast(dict[str, Any], profiles_raw)
-        else:
-            profiles_fallback = getattr(self.profile_store, "_data", {}).get(
-                "profiles", {}
-            )
-            profiles = (
-                cast(dict[str, Any], profiles_fallback)
-                if isinstance(profiles_fallback, dict)
-                else {}
-            )
+            return cast(dict[str, Any], profiles_raw)
+        profiles_fallback = getattr(self.profile_store, "_data", {}).get("profiles", {})
+        return (
+            cast(dict[str, Any], profiles_fallback)
+            if isinstance(profiles_fallback, dict)
+            else {}
+        )
+
+    def set_manual_program(self, profile_name: str) -> bool:
+        """Pin a program to the current cycle, or arm it for the next one (#411).
+
+        Returns True when the choice was accepted. It used to return silently
+        unless the detector was exactly in ``running``, which meant selecting a
+        program on an idle appliance (the overwhelmingly common case: the panel
+        offers the dropdown at all times) did nothing at all, reported success to
+        the caller because there was no return value to test, and logged nothing.
+        The selection then snapped back to auto-detect on the next refresh.
+
+        Now every state is accepted. While a cycle is under way the program is
+        applied to it immediately; otherwise it is armed and applied the moment
+        the next cycle starts, which is what someone picking a program on an idle
+        machine means by it. The only rejection left is a program that does not
+        exist, and that one is reported rather than swallowed.
+        """
+        profiles = self._resolve_profiles()
 
         if profile_name not in profiles:
             self._logger.warning("Cannot set manual program: '%s' not found", profile_name)
-            return
+            return False
 
+        in_progress = self.detector.state in _CYCLE_IN_PROGRESS_STATES
+        # The arm survives only where the next cycle still needs it. Applied to a
+        # cycle already under way the pin belongs to THAT cycle, and leaving it armed
+        # let a back-to-back load inherit it: the cycle-end tail does try to clear it
+        # ("a pin is for the cycle it was made for") but sits behind the new-cycle
+        # token guard and returns early in exactly that case, so _consume_armed_program
+        # would stamp an unrelated cycle `label_source = "manual"` and let it reshape
+        # that program's envelope.
+        #
+        # STARTING is the one in-progress state that must KEEP the arm: the
+        # STARTING -> RUNNING transition resets the live pin as it starts the new
+        # cycle, and _consume_armed_program is what puts it back.
+        keep_arm = (not in_progress) or self.detector.state == STATE_STARTING
+        armed = profile_name if keep_arm else None
+        # Resolved before persisting, so this is ONE store write. Setting and then
+        # clearing scheduled two async_set_armed_program tasks and two saves for
+        # every mid-cycle pin.
+        self._armed_program = armed
+        self._persist_armed_program(armed)
+
+        if in_progress:
+            self._apply_manual_program(profile_name, profiles.get(profile_name))
+        else:
+            self._logger.info(
+                "Program %r armed; it will be applied when the next cycle starts",
+                profile_name,
+            )
+        return True
+
+    @staticmethod
+    def _profile_duration(value: Any) -> float | None:
+        """A profile's expected duration in seconds, or None when unusable.
+
+        None is the field's declared "unknown" and every reader of
+        ``_matched_profile_duration`` already guards for it. Non-finite is rejected
+        for the same reason ``_finite_power`` rejects it: ``inf`` survives a plain
+        ``> 0`` test, and ``sensor.py``'s ``int(time_remaining / 60)`` then raises
+        OverflowError on every update. A profile written by this device is always
+        finite; an imported or hand-edited one need not be (register items 211/229).
+
+        OverflowError is caught alongside the rest because ``json`` keeps an
+        oversized integer literal as an unbounded ``int``: ``float(10**400)``
+        raises instead of returning ``inf``, so the non-finite filter below is
+        never reached and the raise escapes a ``@callback`` WS handler. ``1e400``
+        parses to ``inf`` and is the case the filter covers; the two are different
+        inputs (register items 279/280). The rule is ``match_rules.profile_duration``,
+        shared with the switching rules and the Playground replay.
+        """
+        return match_rules.profile_duration(value)
+
+    def _apply_manual_program(
+        self, profile_name: str, profile: dict[str, Any] | None
+    ) -> None:
+        """Pin *profile_name* to the cycle in progress. Shared by set and re-arm."""
         self._current_program = profile_name
         self._manual_program_active = True
 
-        # Update expected duration immediately
-        profile = profiles.get(profile_name)
-        if profile:
-            avg = float(profile.get("avg_duration", 0.0))
-            if avg > 0:
-                self._matched_profile_duration = avg
-                self._logger.info(
-                    "Manual program set to %s, duration=%.0fs", profile_name, avg
-                )
+        # Update expected duration immediately. A profile with nothing learned yet
+        # (hand-created, or imported before its first cycle) must CLEAR the duration
+        # rather than leave the previously matched program's behind: the pin is
+        # applied mid-cycle, so the ETA and progress would go on describing the
+        # program the user just replaced. None is this field's established "unknown"
+        # value and every reader guards for it. Same shape as the restart path that
+        # re-pins a manual program (see the #404 secondary-bug block above), which
+        # already got this right.
+        avg = self._profile_duration(profile.get("avg_duration")) if profile else None
+        self._matched_profile_duration = avg
+        if avg:
+            self._logger.info(
+                "Manual program set to %s, duration=%.0fs", profile_name, avg
+            )
+        else:
+            self._logger.info(
+                "Manual program set to %s; it has no learned duration yet, so the "
+                "time estimate stays unknown until it does",
+                profile_name,
+            )
 
-                # Update estimates if running
-                if self.detector.state == "running":
-                    self._update_estimates()
+        # Refresh whatever estimate the current state exposes, then publish. Runs for
+        # the cleared case too, so a stale remaining time is not left on display until
+        # the next tick.
+        #
+        # Every live state, not just RUNNING: set_manual_program applies the pin in
+        # PAUSED and ENDING as well (_CYCLE_IN_PROGRESS_STATES), and neither
+        # select.py nor _update_remaining_only publishes on its own, so on the
+        # select-entity path nothing reached the sensors at all. The phase
+        # estimator's 5 s throttle is bypassed because this is a user action, not a
+        # tick, and the value it invalidates is on screen right now.
+        #
+        # STARTING is deliberately excluded from the refresh: it exposes no estimate,
+        # and _update_estimates() treats it as a dead state - it would reset
+        # _current_program to "off" and undo the pin we just applied.
+        state = self.detector.state
+        if state in (STATE_RUNNING, STATE_PAUSED, STATE_ENDING):
+            self._last_phase_estimate_time = None
+            if state == STATE_RUNNING:
+                self._update_estimates()
+            else:
+                self._update_remaining_only()
+        self._notify_update()
+
+    def _persist_armed_program(self, profile_name: str | None) -> None:
+        """Persist the armed program without blocking the caller. Never raises."""
+        try:
+            # Tracked, not bare async_create_task: this writes to the ProfileStore
+            # and saves, so a reload/unload that swaps the store out mid-flight must
+            # be able to cancel it rather than let it write to the stale one. That is
+            # the documented rule for every store-touching fire-and-forget in this
+            # class; this call site was the one that did not follow it.
+            self._spawn_tracked(
+                self.profile_store.async_set_armed_program(profile_name)
+            )
+        except Exception:  # pylint: disable=broad-exception-caught
+            self._logger.debug("Could not persist the armed program", exc_info=True)
+
+    def clear_armed_program(self) -> bool:
+        """Drop any program armed for the next cycle. True if one was armed.
+
+        `_armed_program` is the authoritative copy; the store key is only there so
+        an arm survives a restart. So every site that retires an arm has to clear
+        BOTH, and there were three inline copies of this pair plus one place that
+        cleared only the store - the wipe (`clear_all_data` pops `armed_program`,
+        `ws_wipe_history` never touched the field), which left a pre-wipe pin ready
+        to be re-applied as soon as a profile of the same name existed again.
+        """
+        if self._armed_program is None:
+            return False
+        self._armed_program = None
+        self._persist_armed_program(None)
+        return True
+
+    def _consume_armed_program(self) -> bool:
+        """Apply an armed program to the cycle that just started, if there is one.
+
+        Called from the new-cycle reset, which is also what would otherwise wipe a
+        program pinned during STARTING. Returns True when one was applied, so the
+        caller knows not to fall back to "detecting...".
+        """
+        name = self._armed_program
+        if not name:
+            return False
+        profiles = self._resolve_profiles()
+        if name not in profiles:
+            # Deleted between arming and starting: drop it rather than pinning a
+            # program that no longer exists.
+            self._logger.info(
+                "Armed program %r no longer exists; reverting to auto-detect", name
+            )
+            self.clear_armed_program()
+            return False
+        self._apply_manual_program(name, profiles.get(name))
+        self.clear_armed_program()
+        self._logger.info("Applied armed program %r to the cycle just started", name)
+        return True
 
     async def async_pause_cycle(self) -> bool:
         """Pause the current cycle (user-triggered).
@@ -6383,7 +10045,7 @@ class WashDataManager:
         self._logger.info("Cycle paused by user")
         prev_verified = self.detector._verified_pause
         self._is_user_paused = True
-        self._user_pause_start = dt_util.now()
+        self._user_pause_start = utc_now()
         self.detector.set_verified_pause(True)
 
         if self._pause_cuts_power:
@@ -6408,8 +10070,12 @@ class WashDataManager:
                     self.detector.set_verified_pause(prev_verified)
                     return False
 
+        # A user pause overrides an auto-open dwell: cancel it so the pending timer
+        # can't finalize the cycle out from under the pause (#342).
+        self._cancel_door_end_dwell()
+
         snapshot = self._augment_active_snapshot(self.detector.get_state_snapshot())
-        self.hass.async_create_task(self.profile_store.async_save_active_cycle(snapshot))
+        self._spawn_tracked(self.profile_store.async_save_active_cycle(snapshot))
         self._notify_update()
         return True
 
@@ -6425,7 +10091,7 @@ class WashDataManager:
             self._logger.debug("async_resume_cycle: not user-paused, ignoring")
             return False
 
-        now = dt_util.now()
+        now = utc_now()
         prev_pause_start = self._user_pause_start
         accumulated = (
             (now - prev_pause_start).total_seconds()
@@ -6469,13 +10135,21 @@ class WashDataManager:
         self._clear_timer_pause_notification()
 
         snapshot = self._augment_active_snapshot(self.detector.get_state_snapshot())
-        self.hass.async_create_task(self.profile_store.async_save_active_cycle(snapshot))
+        self._spawn_tracked(self.profile_store.async_save_active_cycle(snapshot))
         self._notify_update()
         return True
 
     async def async_terminate_cycle(self) -> None:
         """Force terminate the current cycle via user request."""
         self._logger.warning("Force terminating cycle by user request")
+
+        # A manual recording pins the shown state at running (check_state) while the
+        # detector is fed nothing, so user_stop() alone was a no-op and a forgotten
+        # recording kept the device "running" through restarts (#376, #383). Stop it
+        # as the Stop Recording button does: the run is kept for processing.
+        if self.recorder.is_recording:
+            self._logger.info("Force terminate: stopping the active manual recording")
+            await self.recorder.stop_recording()
 
         # Trigger natural cycle end via detector
         # This will call _on_cycle_end callback, which handles:
@@ -6507,7 +10181,13 @@ class WashDataManager:
         # But should we clear current program?
         if self.detector.state != "off":
             self._logger.info("Forcing detector reset before recording")
+            self._end_dropped_cycle()
             self.detector.reset()
+            # The dropped cycle's snapshot too, or a restart would bring it back.
+            try:
+                await self.profile_store.async_clear_active_cycle()
+            except Exception:  # pylint: disable=broad-exception-caught
+                self._logger.debug("Clearing the dropped cycle's snapshot raised", exc_info=True)
 
         await self.recorder.start_recording()
         self._notify_update()
@@ -6521,38 +10201,56 @@ class WashDataManager:
         self._notify_update()
 
     def clear_manual_program(self) -> None:
-        """Clear manual program override."""
+        """Clear the manual program override, live or merely armed (#411).
+
+        Previously bailed out unless a pin was active on a running cycle, which
+        left an armed program stuck: picking "Auto-detect" on an idle appliance
+        could not undo a choice made a moment earlier.
+        """
+        had_arm = self._armed_program is not None
+        if had_arm:
+            self._armed_program = None
+            self._persist_armed_program(None)
+
         if not self._manual_program_active:
+            if had_arm:
+                self._notify_update()
+                self._logger.info("Armed program cleared, reverting to auto-detection")
             return
 
         self._manual_program_active = False
-        # If running, revert to detecting so auto-detection can resume?
-        if self.detector.state == "running":
+        # A live cycle goes back to auto-detection. PAUSED and ENDING are live too
+        # (audit MANAGER-15): comparing against "running" alone showed "off" for a
+        # cycle still under way. The refresh mirrors set_manual_program's.
+        state = self.detector.state
+        self._matched_profile_duration = None
+        if state in (STATE_RUNNING, STATE_PAUSED, STATE_ENDING):
             self._current_program = "detecting..."
-            self._matched_profile_duration = None
-            self._update_estimates()  # Trigger immediate re-detection attempt
+            self._last_phase_estimate_time = None
+            if state == STATE_RUNNING:
+                self._update_estimates()  # Trigger immediate re-detection attempt
+            else:
+                self._update_remaining_only()
         else:
-            # If not running, clear the forced program
+            # No cycle under way: clear the forced program
             self._current_program = "off"
-            self._matched_profile_duration = None
 
         self._notify_update()
         self._logger.info("Manual program cleared, reverting to auto-detection")
 
-    async def _run_post_cycle_processing(self) -> None:
-        """Run post-cycle processing (merge fragments, split anomalies)."""
+    async def _run_post_cycle_processing(self, profiles: Any = ()) -> None:
+        """Refresh what the cycle that just ended invalidated (``profiles``' artifacts).
+
+        Not the full maintenance any more (register item 456): that rebuilt every
+        envelope, recomputed every cycle's artifacts and re-matched every unlabelled
+        cycle at each cycle end. Those global passes run nightly.
+        """
         try:
-            # User Feedback: Use 5 hour lookback and configured gap settings
-            stats = await self.profile_store.async_run_maintenance()
-
-            # Log significant actions
-            merged = stats.get("merged_cycles", 0)
-            split = stats.get("split_cycles", 0)
-            if merged > 0 or split > 0:
+            stats = await self.profile_store.async_post_cycle_refresh(profiles)
+            if stats.get("orphaned_profiles"):
                 self._logger.info(
-                    "Post-cycle processing: Merged %s, Split %s cycle(s)", merged, split
+                    "Post-cycle processing: removed %s orphaned profile(s)",
+                    stats["orphaned_profiles"],
                 )
-
-            # Note: async_run_maintenance saves automatically if changes occur
         except Exception as e:  # pylint: disable=broad-exception-caught
             self._logger.error("Post-cycle processing failed: %s", e)

@@ -4,22 +4,173 @@
  */
 
 import {
-    state, escapeHtml, showConfirmModal,
+    state, escapeHtml, showConfirmModal, joinRejectionMessage,
     AnimationQueue, triggerConfetti, stopConfetti, showView
 } from './player-utils.js';
+// #1663 item 1: non-blocking toast replaces the blocking alert() (rematch failed).
+import { showToast } from './notify.js';
+// #2648: the end screen's playlist picker (variant B of the design gate).
+import {
+    bindSearchInput, loadNextPlaylists, markGoButtonBusy, resetGoButton, selectedPlaylists
+} from './player-next-playlist.js';
+// #2645: the paused screen's announcement.
+import { hostPauseAnnouncement } from './host-pause.js';
 
 var utils = window.BeatifyUtils || {};
+
+// #2582: die Punkte-Einheit fuer die Vinyl-Grafik, die Gaeste teilen. Sie stand
+// dort hartkodiert englisch, waehrend der Rest des Endbildschirms uebersetzt
+// ist. `reveal.pointsShort` gibt es in allen sechs Sprachen (de „Pkt.").
+//
+// Faellt auf 'PTS' zurueck, wenn i18n noch nicht geladen ist oder `t()` den
+// Schluessel selbst zurueckgibt: eine englische Einheit ist besser als eine
+// Grafik mit „reveal.pointsShort" darauf.
+function _ptsLabel() {
+    var s = typeof utils.t === 'function' ? utils.t('reveal.pointsShort') : '';
+    if (!s || String(s).indexOf('reveal.') === 0) return 'PTS';
+    return String(s).toUpperCase();
+}
 
 // ============================================
 // End View (Story 5.6)
 // ============================================
 
 /**
+ * #2618: fill the "the game is over, you are a guest" block on the end view.
+ *
+ * `handleGameEnded` in player-core.js used to write two English literals here
+ * ("Thanks for playing!" / "Scan the QR code again to join the next game."),
+ * so every game ended with untranslated text inside an otherwise translated
+ * page. The first sentence has an i18n key the static markup in player.html
+ * already uses (`leaderboard.thanksEmoji`); the second one got its own key in
+ * all six locales.
+ *
+ * Lives here rather than in the core entry point because the end view is this
+ * module's job, and because it makes the block testable on its own.
+ *
+ * The nodes are built with createElement instead of an innerHTML string: a
+ * translation is data, and data must not be parsed as markup.
+ *
+ * @param {HTMLElement|null} container - #end-player-message
+ */
+export function renderEndPlayerMessage(container) {
+    if (!container) return;
+
+    var thanksEl = document.createElement('p');
+    thanksEl.textContent = _endText('leaderboard.thanksEmoji', 'Thanks for playing!');
+
+    var hintEl = document.createElement('p');
+    hintEl.className = 'rejoin-hint';
+    hintEl.textContent = _endText(
+        'leaderboard.rejoinHint',
+        'Scan the QR code again to join the next game.'
+    );
+
+    container.innerHTML = '';
+    container.appendChild(thanksEl);
+    container.appendChild(hintEl);
+    container.classList.remove('hidden');
+}
+
+/**
+ * #2648: the name of whoever is picking the next playlist.
+ *
+ * The host is a leaderboard entry like everyone else — unless they are running
+ * the game from the admin page as a spectator, in which case no entry carries
+ * `is_admin` and there is no name to use. Returns '' there rather than
+ * inventing one; `renderGuestWaiting` has a sentence for both cases.
+ *
+ * @param {Array} leaderboard
+ * @returns {string}
+ */
+export function hostNameOf(leaderboard) {
+    var entries = Array.isArray(leaderboard) ? leaderboard : [];
+    for (var i = 0; i < entries.length; i++) {
+        if (entries[i] && entries[i].is_admin && entries[i].name) {
+            return String(entries[i].name);
+        }
+    }
+    return '';
+}
+
+/**
+ * #2648: what a guest sees while the host picks the next playlist.
+ *
+ * This is the sentence the whole issue is about. Before variant B the end
+ * screen told every guest to scan the QR code again and type their name — at
+ * the moment the room was at its best, and for a disconnection that never
+ * actually happened. They were connected the whole time. So: say who is
+ * choosing, and say the thing they are afraid of losing is not going anywhere.
+ *
+ * Nodes over an innerHTML string, for the same reason as
+ * `renderEndPlayerMessage`: a player name is data.
+ *
+ * @param {HTMLElement|null} container - #end-player-message
+ * @param {string} hostName - '' when the host runs the game from the admin page
+ */
+export function renderGuestWaiting(container, hostName) {
+    if (!container) return;
+
+    var line = document.createElement('p');
+    line.className = 'end-waiting-line';
+    line.textContent = hostName
+        ? _endText(
+            'leaderboard.hostPicking',
+            { name: hostName },
+            hostName + ' is picking the next playlist — stay put'
+        )
+        : _endText(
+            'leaderboard.hostPickingNoName',
+            'The host is picking the next playlist — stay put'
+        );
+
+    var keep = document.createElement('p');
+    keep.className = 'end-waiting-keep';
+    keep.textContent = _endText(
+        'leaderboard.staysConnected',
+        'Your name stays · no rescanning'
+    );
+
+    container.innerHTML = '';
+    container.appendChild(line);
+    container.appendChild(keep);
+    container.classList.remove('hidden');
+}
+
+/**
+ * i18n lookup with a real fallback. `t()` returns the KEY on a miss (#1402-B8),
+ * so `t(k) || fallback` can never fire — the key is truthy. Same guard shape as
+ * `_ptsLabel` above.
+ */
+function _endText(key, paramsOrFallback, fallback) {
+    var s = typeof utils.t === 'function' ? utils.t(key, paramsOrFallback) : '';
+    if (!s || String(s) === key) {
+        // #2648: the second argument doubles as the interpolation params, so
+        // an interpolated key needs a third slot for the English fallback.
+        return typeof paramsOrFallback === 'string' ? paramsOrFallback : (fallback || key);
+    }
+    return String(s);
+}
+
+/** #3117: the game whose end screen already played its one-time effects. */
+var endEffectsPlayedFor = null;
+
+function endGameKey(data) {
+    return data && data.game_id ? String(data.game_id) : 'unknown';
+}
+
+/**
  * Update end view with final standings and stats
  * @param {Object} data - State data with leaderboard and game_stats
  */
 export function updateEndView(data) {
-    window.scrollTo(0, 0);
+    // #3117: this runs on EVERY END frame (a guest's phone locking is enough to
+    // cause one). The scroll and the confetti are one-time effects of reaching
+    // the podium, so they key on the game, like the TV's closingMomentPlayedFor.
+    // A rematch is a new game_id and gets them again.
+    var firstFrameOfThisEnd = endEffectsPlayedFor !== endGameKey(data);
+    endEffectsPlayedFor = endGameKey(data);
+    if (firstFrameOfThisEnd) window.scrollTo(0, 0);
     var leaderboard = data.leaderboard || [];
 
     leaderboard.forEach(function(entry) {
@@ -28,13 +179,25 @@ export function updateEndView(data) {
 
     // Update podium (positions 1, 2, 3). Hide slots that have no player so
     // single- and two-player games don't show empty "---" placeholders.
+    // #2835: filled by position, not by rank value, so a tie for first puts
+    // both winners up; label and medal follow the rank of whoever stands there.
+    var podium = utils.podiumStands(leaderboard);
     [1, 2, 3].forEach(function(place) {
-        var player = leaderboard.find(function(p) { return p.rank === place; });
+        var player = podium.stands[place - 1];
         var slotEl = document.querySelector('.podium-place.podium-' + place);
         if (slotEl) slotEl.classList.toggle('hidden', !player);
+        var standEl = slotEl && slotEl.querySelector ? slotEl.querySelector('.podium-stand') : null;
+        if (standEl) standEl.textContent = player ? player.rank : place;
+        var medalEl = slotEl && slotEl.querySelector ? slotEl.querySelector('.podium-medal') : null;
+        if (medalEl) medalEl.textContent = utils.podiumMedal(player ? player.rank : place);
         var nameEl = document.getElementById('podium-' + place + '-name');
         var scoreEl = document.getElementById('podium-' + place + '-score');
-        if (nameEl) nameEl.textContent = player ? escapeHtml(player.name) : '---';
+        // #2555: textContent already neutralizes markup, so feeding it
+        // escapeHtml() output double-escapes — "Tom & Jerry" rendered as
+        // "Tom &amp; Jerry" in the podium moment, when everyone is looking at
+        // their name. The TV was fixed for exactly this in #1402-B8; the phone
+        // kept the old line. Assign the raw name directly.
+        if (nameEl) nameEl.textContent = player ? player.name : '---';
         if (scoreEl) scoreEl.textContent = player ? player.score : '0';
     });
 
@@ -60,7 +223,9 @@ export function updateEndView(data) {
         listEl.innerHTML = leaderboard.map(function(entry) {
             var currentClass = entry.is_current ? 'is-current' : '';
             var disconnectedClass = entry.connected === false ? 'final-entry--disconnected' : '';
-            var awayBadge = entry.connected === false ? '<span class="away-badge">(away)</span>' : '';
+            var awayBadge = entry.connected === false
+                ? '<span class="away-badge">(' + escapeHtml(utils.t('lobby.away', 'away')) + ')</span>'
+                : '';
             return '<div class="final-entry ' + currentClass + ' ' + disconnectedClass + '">' +
                 '<span class="final-rank">#' + entry.rank + '</span>' +
                 '<span class="final-name">' + escapeHtml(entry.name) + awayBadge + '</span>' +
@@ -73,7 +238,7 @@ export function updateEndView(data) {
 
     renderHighlights(data.highlights);
 
-    renderShareTab(data.share_data);
+    renderShareTab(data.share_data, currentPlayer);
 
     // Show admin or player controls
     var adminControls = document.getElementById('end-admin-controls');
@@ -86,26 +251,42 @@ export function updateEndView(data) {
         if (newGameBtn) {
             newGameBtn.onclick = handleNewGame;
         }
+        // #2648: fill the grid before the host looks at it. The picker owns
+        // the button's label from here on — it names the playlist it starts.
+        bindSearchInput();
+        loadNextPlaylists();
         // Wire up rematch button (Issue #254)
         var rematchBtn = document.getElementById('player-rematch-btn');
         if (rematchBtn) {
             rematchBtn.onclick = function() {
                 rematchBtn.disabled = true;
-                var origText = rematchBtn.textContent;
                 rematchBtn.textContent = '⏳';
+                markGoButtonBusy();  // #3117: survive the next END frame's refreshPicker
+
+                // #2648: null means "the playlist that just played", which is
+                // exactly the request the server has always understood. Only a
+                // real change puts a `playlists` field on the wire.
+                var playlists = selectedPlaylists();
 
                 // Issue #535: Prefer WebSocket for rematch (avoids admin token issue)
                 if (state.ws && state.ws.readyState === WebSocket.OPEN) {
-                    state.ws.send(JSON.stringify({ type: 'admin', action: 'rematch_game' }));
+                    var msg = { type: 'admin', action: 'rematch_game' };
+                    if (playlists) msg.playlists = playlists;
+                    state.ws.send(JSON.stringify(msg));
                     return;
                 }
 
                 BeatifyAuth.fetch('/beatify/api/rematch-game', {
                     method: 'POST',
-                    credentials: 'same-origin'
+                    credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(playlists ? { playlists: playlists } : {})
                 })
                     .then(function(resp) {
-                        if (!resp.ok) return resp.json().then(function(e) { throw new Error(e.message || 'Rematch failed'); });
+                        if (!resp.ok) return resp.json().then(function(e) {
+                            // #3057: errors.<CODE> first; the server's English is the fallback.
+                            throw new Error(joinRejectionMessage(e.code, e.message || 'Rematch failed', utils.t, e));
+                        });
                         // Server will broadcast rematch_started to all clients (including admin).
                         // The rematch_started handler in player-core.js reconnects everyone via
                         // the existing WS — calling connectWithSession() here would race and
@@ -115,15 +296,17 @@ export function updateEndView(data) {
                     })
                     .catch(function(err) {
                         console.error('[Player] Rematch failed:', err);
-                        alert(err.message || 'Failed to start rematch');
-                        rematchBtn.disabled = false;
-                        rematchBtn.textContent = origText;
+                        showToast(err.message || 'Failed to start rematch');
+                        resetGoButton();
                     });
             };
         }
     } else {
         if (adminControls) adminControls.classList.add('hidden');
         if (playerMessage) playerMessage.classList.remove('hidden');
+        // #2648: nobody is being thrown out any more, so the guest must not be
+        // told to scan a QR code. Say what is actually happening instead.
+        renderGuestWaiting(playerMessage, hostNameOf(leaderboard));
     }
 
     // Story 14.5: Trigger end-game celebrations (AC3, AC4)
@@ -132,7 +315,9 @@ export function updateEndView(data) {
         var bestStreak = currentPlayer.best_streak || 0;
         var isPerfectGame = bestStreak === totalRounds && totalRounds > 0;
 
-        if (isPerfectGame) {
+        if (!firstFrameOfThisEnd) {
+            // #3117: later frames only refresh the data above.
+        } else if (isPerfectGame) {
             triggerConfetti('perfect');
         } else if (currentPlayer.rank === 1) {
             triggerConfetti('winner');
@@ -159,38 +344,8 @@ function renderSuperlatives(superlatives) {
 
     var html = '';
     superlatives.forEach(function(award, index) {
-        var valueText = '';
-        switch (award.value_label) {
-            case 'avg_time':
-                valueText = award.value + 's ' + utils.t('superlatives.avgTime');
-                break;
-            case 'streak':
-                valueText = award.value + ' ' + utils.t('superlatives.streak');
-                break;
-            case 'bets':
-                valueText = award.value + ' ' + utils.t('superlatives.bets');
-                break;
-            case 'points':
-                valueText = award.value + ' ' + utils.t('superlatives.points');
-                break;
-            case 'close_guesses':
-                valueText = award.value + ' ' + utils.t('superlatives.closeGuesses');
-                break;
-            case 'perfect_rounds':
-                valueText = award.value + ' ' + utils.t('superlatives.perfectRounds');
-                break;
-            case 'exact_titles':
-                valueText = award.value + ' ' + utils.t('superlatives.exactTitles');
-                break;
-            case 'artists':
-                valueText = award.value + ' ' + utils.t('superlatives.artists');
-                break;
-            case 'near_misses':
-                valueText = award.value + ' ' + utils.t('superlatives.nearMisses');
-                break;
-            default:
-                valueText = award.value;
-        }
+        // #3158: one table in utils.js for TV and phone.
+        var valueText = utils.awardValueText(award);
 
         html += '<div class="superlative-card superlative-card--' + award.id + '" style="animation-delay: ' + (index * 0.2) + 's">' +
             '<div class="superlative-emoji">' + award.emoji + '</div>' +
@@ -226,11 +381,23 @@ function renderHighlights(highlights) {
 
     var html = '';
     highlights.forEach(function(h, index) {
-        var text = utils.t('highlights.' + h.description, h.description_params) || h.description;
-        if (text === h.description && h.description_params) {
-            text = utils.t('highlights.' + h.description) || h.description;
+        // #1661: interpolated values (player names, song titles) are
+        // attacker-controllable and end up in innerHTML below. i18n.t()
+        // interpolates params RAW, so escape them first — once, and reuse in
+        // both the resolved and the missing-key fallback path (the fallback
+        // already escaped; the primary path did not).
+        var safeParams = null;
+        if (h.description_params) {
+            safeParams = {};
             Object.keys(h.description_params).forEach(function(key) {
-                text = text.replace('{' + key + '}', escapeHtml(h.description_params[key]));
+                safeParams[key] = escapeHtml(h.description_params[key]);
+            });
+        }
+        var text = utils.t('highlights.' + h.description, safeParams) || h.description;
+        if (text === h.description && safeParams) {
+            text = utils.t('highlights.' + h.description) || h.description;
+            Object.keys(safeParams).forEach(function(key) {
+                text = text.replace('{' + key + '}', safeParams[key]);
             });
         }
 
@@ -252,11 +419,61 @@ function renderHighlights(highlights) {
 // ============================================
 
 /**
+ * #1664 item 3: structured parse of the server-built emoji share grid.
+ *
+ * The share card used to inline-regex the grid text in the middle of the canvas
+ * draw, mixing parsing with rendering. This pulls the parse into one pure,
+ * unit-tested function. It mirrors the fixed line layout of build_emoji_grid()
+ * in game/share.py; where a line is missing/reordered it simply leaves that
+ * field blank (the card already tolerates empty stats) rather than throwing.
+ *
+ * @param {string} emojiGrid - a per-player grid string from share_data.emoji_grids
+ * @returns {{playerName: string, score: string, isWinner: boolean, correct: string, exact: string, streak: string}}
+ */
+export function parseShareStats(emojiGrid) {
+    var stats = { playerName: '', score: '', isWinner: false, correct: '', exact: '', streak: '' };
+    if (!emojiGrid || typeof emojiGrid !== 'string') return stats;
+
+    var lines = emojiGrid.split('\n');
+    for (var i = 0; i < lines.length; i++) {
+        var line = lines[i].trim();
+        if (line === '') continue;
+
+        // "👑 name: 10pts" — the crown prefixes the player's own line.
+        if (line.indexOf('👑') !== -1) {
+            stats.isWinner = true;
+            var pm = line.match(/(?:👑\s*)?([^:]+?):\s*(\d+)\s*pts?/i);
+            if (pm) {
+                stats.playerName = pm[1].trim();
+                stats.score = pm[2];
+            }
+            continue;
+        }
+        // "  3/10 correct | 🔥 Best Streak: 4"
+        if (/correct/i.test(line)) {
+            var cm = line.match(/(\d+\/\d+)\s*correct/i);
+            if (cm) stats.correct = cm[1];
+            var sm = line.match(/Streak:\s*(\d+)/i);
+            if (sm) stats.streak = sm[1];
+            continue;
+        }
+        // "🎯 2 Exact | 💰 1/3 Bets"
+        if (/exact/i.test(line)) {
+            var em = line.match(/(\d+)\s*Exact/i);
+            if (em) stats.exact = em[1];
+        }
+    }
+    return stats;
+}
+
+/**
  * Render shareable result card (Issue #120, #216)
  * Shows the vinyl card inline as a PNG preview and wires the Share button.
  * @param {Object|null} shareData - Share data from state with emoji_grids, playlist_name, total_rounds
+ * @param {Object|null} currentPlayer - The current player's final-leaderboard entry
+ *   (authoritative name/score/best_streak). Optional — falls back to the grid parse.
  */
-function renderShareTab(shareData) {
+function renderShareTab(shareData, currentPlayer) {
     var container = document.getElementById('share-container');
     if (!container) return;
 
@@ -279,8 +496,23 @@ function renderShareTab(shareData) {
 
     container.classList.remove('hidden');
 
+    // #1664 item 3: build the card from structured stats instead of re-parsing
+    // text at draw time. The end-view leaderboard entry (currentPlayer) is the
+    // authoritative source for name/score/best_streak (same server values the
+    // emoji grid was built from); the grid only backfills the scored/exact
+    // counts the leaderboard payload doesn't carry.
+    var gridStats = parseShareStats(myGrid);
+    var stats = {
+        playerName: (currentPlayer && currentPlayer.name) || gridStats.playerName || 'Beatify Player',
+        score: currentPlayer ? String(currentPlayer.score) : (gridStats.score || '0'),
+        isWinner: gridStats.isWinner,
+        correct: gridStats.correct,
+        exact: gridStats.exact,
+        streak: currentPlayer ? String(currentPlayer.best_streak || 0) : gridStats.streak
+    };
+
     // Render the vinyl card into the inline <img> preview.
-    renderVisualCard(myGrid, shareData.playlist_name).then(function(canvas) {
+    renderVisualCard(stats, shareData.playlist_name).then(function(canvas) {
         var img = document.getElementById('share-card-image');
         if (img && canvas) {
             img.src = canvas.toDataURL('image/png');
@@ -302,51 +534,28 @@ function renderShareTab(shareData) {
  * Returns a Promise<HTMLCanvasElement> so callers can either preview it inline
  * (via toDataURL) or export it (via toBlob + exportCanvas).
  *
- * @param {string} emojiGrid - The emoji grid text (source of truth for stats)
+ * #1664 item 3: takes an already-structured `stats` object (built by
+ * renderShareTab from the leaderboard entry + parseShareStats) instead of a raw
+ * grid string, so this function no longer parses text mid-draw.
+ *
+ * @param {{playerName: string, score: string, isWinner: boolean, correct: string, exact: string, streak: string}} stats
  * @param {string} playlistName - Name of the playlist
  * @returns {Promise<HTMLCanvasElement>}
  */
-function renderVisualCard(emojiGrid, playlistName) {
+function renderVisualCard(stats, playlistName) {
     var W = 800, H = 800;
     var canvas = document.createElement('canvas');
     canvas.width = W;
     canvas.height = H;
     var ctx = canvas.getContext('2d');
 
-    // ── Parse emojiGrid to extract stats, player name, and score ──
-    var lines = emojiGrid.split('\n').filter(function(l) { return l.trim() !== ''; });
-    var playerLine = '';
-    var statsCorrect = '', statsStreak = '', statsExact = '', statsBets = '';
-    for (var i = 0; i < lines.length; i++) {
-        var line = lines[i].trim();
-        if (line.match(/👑/)) {
-            playerLine = line;
-        } else if (line.match(/correct/i)) {
-            var correctMatch = line.match(/(\d+\/\d+)\s*correct/i);
-            var streakMatch = line.match(/Streak:\s*(\d+)/i);
-            if (correctMatch) statsCorrect = correctMatch[1];
-            if (streakMatch) statsStreak = streakMatch[1];
-        } else if (line.match(/exact/i)) {
-            var exactMatch = line.match(/(\d+)\s*Exact/i);
-            var betsMatch = line.match(/(\d+\/\d+)\s*Bets/i);
-            if (exactMatch) statsExact = exactMatch[1];
-            if (betsMatch) statsBets = betsMatch[1];
-        }
-    }
-
-    // playerLine is "👑 jkjk: 10pts" (or without crown for non-winners)
-    var playerName = '';
-    var score = '0';
-    var isWinner = false;
-    if (playerLine) {
-        isWinner = playerLine.indexOf('👑') !== -1;
-        var m = playerLine.match(/(?:👑\s*)?([^:]+?):\s*(\d+)\s*pts?/i);
-        if (m) {
-            playerName = m[1].trim();
-            score = m[2];
-        }
-    }
-    if (!playerName) playerName = 'Beatify Player';
+    // Structured stats — no text parsing here anymore (see renderShareTab).
+    var playerName = stats.playerName || 'Beatify Player';
+    var score = stats.score || '0';
+    var isWinner = stats.isWinner;
+    var statsCorrect = stats.correct;
+    var statsExact = stats.exact;
+    var statsStreak = stats.streak;
 
     // Wait for web fonts (Outfit + Inter) so the drawn text matches DESIGN.md
     var ready = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
@@ -487,7 +696,7 @@ function renderVisualCard(emojiGrid, playlistName) {
         ctx.font = '900 48px Outfit, system-ui, sans-serif';
         ctx.fillText(score, vinylCX, vinylCY - 10);
         ctx.font = '800 14px Inter, system-ui, sans-serif';
-        ctx.fillText('PTS', vinylCX, vinylCY + 26);
+        ctx.fillText(_ptsLabel(), vinylCX, vinylCY + 26);
 
         // Spindle hole (tiny center dot)
         ctx.fillStyle = '#0a0a12';
@@ -612,14 +821,63 @@ function downloadBlob(blob) {
  * @param {Object} data - State data with pause_reason
  */
 export function updatePausedView(data) {
+    var speakerDown = data.pause_reason === 'media_player_error';
     var messageEl = document.getElementById('pause-message');
+
+    // #2645: a pause the host set is an announcement, and the announcement is
+    // the headline. The guest's screen answers the question the guest is
+    // actually asking — "what is going on?" — instead of only stating that
+    // something stopped.
+    var announce = hostPauseAnnouncement(data.pause_reason, function(key) {
+        return utils.t(key);
+    });
+
+    var iconEl = document.getElementById('pause-icon');
+    if (iconEl) iconEl.textContent = announce ? announce.emoji : '⏸️';
+
+    var titleEl = document.getElementById('paused-title');
+    if (titleEl) {
+        titleEl.textContent = announce ? announce.headline : utils.t('game.paused');
+        titleEl.classList.toggle('paused-title--announce', !!(announce && announce.named));
+    }
+
+    // The state under the headline. Only worth its line when the headline is
+    // about pizza — when the headline already says "Game Paused", repeating
+    // "Pause" underneath it says nothing.
+    var stateEl = document.getElementById('pause-state-label');
+    if (stateEl) {
+        var named = !!(announce && announce.named);
+        stateEl.classList.toggle('hidden', !named);
+        stateEl.textContent = named ? utils.t('game.pausedLabel') : '';
+    }
+
     if (messageEl) {
-        if (data.pause_reason === 'admin_disconnected') {
+        if (announce) {
+            // Nobody is missing points while this stands — that is the one
+            // thing a guest needs to hear, and the one thing Stop could never
+            // promise.
+            messageEl.textContent = utils.t('game.pausedClockStopped');
+        } else if (data.pause_reason === 'admin_disconnected') {
             messageEl.textContent = utils.t('player.waitingForHostReconnect');
-        } else if (data.pause_reason === 'media_player_error') {
+        } else if (speakerDown) {
             messageEl.textContent = utils.t('player.speakerUnavailable');
         } else {
             messageEl.textContent = utils.t('player.gamePaused');
+        }
+    }
+    // #2552: the hint under the spinner was hard-coded to "the game will resume
+    // when the host returns". On a speaker failure the host never left, so the
+    // guest was told to wait for something that was not happening.
+    var hintEl = document.getElementById('pause-hint');
+    if (hintEl) {
+        if (announce) {
+            // #2645: "the game will resume when the host returns" is wrong for
+            // a pause the host set on purpose — the host never left.
+            hintEl.textContent = utils.t('game.pausedHintHost');
+        } else {
+            hintEl.textContent = speakerDown
+                ? utils.t('game.pausedHintSpeaker')
+                : utils.t('game.pausedHint');
         }
     }
 }

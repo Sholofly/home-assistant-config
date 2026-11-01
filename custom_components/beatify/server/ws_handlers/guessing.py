@@ -1,0 +1,1005 @@
+"""Gameplay guessing WebSocket handlers (#1588 split).
+
+Year submission, steal targeting/execution, and the artist / movie /
+title-artist guess + vote + override flows. Extracted verbatim from the former
+monolithic ``ws_handlers`` module — behavior is unchanged.
+"""
+
+from __future__ import annotations
+
+import logging
+from typing import TYPE_CHECKING
+
+from aiohttp import web
+
+from custom_components.beatify.const import (
+    CHALLENGE_BONUS_POINTS,
+    ERR_ALREADY_SUBMITTED,
+    ERR_CANNOT_SABOTAGE_SELF,
+    ERR_ELIMINATED,
+    ERR_FROZEN,
+    ERR_INVALID_ACTION,
+    ERR_NO_ARTIST_CHALLENGE,
+    ERR_NO_MOVIE_CHALLENGE,
+    ERR_NO_SABOTAGE_AVAILABLE,
+    ERR_NO_TITLE_ARTIST_CHALLENGE,
+    ERR_NOT_ADMIN,
+    ERR_NOT_IN_GAME,
+    ERR_ROUND_EXPIRED,
+    ERR_TARGET_ALREADY_SABOTAGED,
+    ERR_TARGET_ALREADY_SUBMITTED,
+)
+from custom_components.beatify.game.serializers import year_range
+from custom_components.beatify.game.state import GamePhase, GameState
+
+if TYPE_CHECKING:
+    from custom_components.beatify.server.websocket import BeatifyWebSocketHandler
+
+_LOGGER = logging.getLogger(__name__)
+
+
+async def _reject_out_of_play(
+    ws: web.WebSocketResponse, player, *, ghosts_may_play: bool = False
+) -> bool:
+    """Reject actions from eliminated players and playoff spectators (#2612).
+
+    ``ghosts_may_play`` opens exactly one door, and only on the submit path
+    (#2559): in the Ghost League an eliminated player keeps guessing. Their
+    points land in ``ghost_score`` via ``score_ghost_round`` and reach no
+    ``player.score`` site, so the promise the #1748 gate makes — a stale client
+    cannot keep scoring — still holds for the living game.
+
+    A finale-playoff spectator stays out either way. They are back next round
+    and have no league of their own; letting them submit would put a guess on a
+    round they are explicitly sitting out.
+    """
+    if not player.out_of_play:
+        return False
+    if ghosts_may_play and player.eliminated and not player.playoff_spectator:
+        return False
+
+    message = (
+        "You are sitting out this playoff"
+        if player.playoff_spectator and not player.eliminated
+        else "You have been eliminated"
+    )
+    await ws.send_json(
+        {
+            "type": "error",
+            # Keep the established client-side error path for all players who
+            # are not allowed to act during the current round.
+            "code": ERR_ELIMINATED,
+            "message": message,
+        }
+    )
+    return True
+
+
+async def handle_submit(
+    handler: BeatifyWebSocketHandler,
+    ws: web.WebSocketResponse,
+    data: dict,
+    game_state: GameState,
+) -> None:
+    """Handle guess submission from player."""
+    player = None
+    for p in list(game_state.players.values()):
+        if p.ws == ws:
+            player = p
+            break
+
+    if not player:
+        await ws.send_json(
+            {
+                "type": "error",
+                "code": ERR_NOT_IN_GAME,
+                "message": "Not in game",
+            }
+        )
+        return
+
+    # #1748 / #2612: neither an eliminated player nor a finale-playoff
+    # spectator may bank a server-side guess — with one exception since #2559:
+    # a ghost guesses into their own bucket while Sudden Death is running.
+    if await _reject_out_of_play(
+        ws, player, ghosts_may_play=bool(game_state.sudden_death_mode)
+    ):
+        return
+
+    if game_state.phase != GamePhase.PLAYING:
+        await ws.send_json(
+            {
+                "type": "error",
+                "code": ERR_INVALID_ACTION,
+                "message": "Not in playing phase",
+            }
+        )
+        return
+
+    if player.submitted:
+        await ws.send_json(
+            {
+                "type": "error",
+                "code": ERR_ALREADY_SUBMITTED,
+                "message": "Already submitted",
+            }
+        )
+        return
+
+    if game_state.is_deadline_passed():
+        await ws.send_json(
+            {
+                "type": "error",
+                "code": ERR_ROUND_EXPIRED,
+                "message": "Time's up!",
+            }
+        )
+        return
+
+    # Issue #1665: sabotage effects are enforced HERE, on the victim's submit
+    # path — never on the client. The state broadcast is one frame for everyone
+    # (build_state_message → broadcast), so a per-player deadline cannot be
+    # expressed through it; the client is merely *told* about the effect and
+    # renders it, while the server is what actually holds the line.
+    if player.sabotage_freeze_until is not None and (
+        game_state.current_time() < player.sabotage_freeze_until
+    ):
+        await ws.send_json(
+            {
+                "type": "error",
+                "code": ERR_FROZEN,
+                "message": "Frozen — hold on",
+            }
+        )
+        return
+
+    # Timer-cut: this player's personal deadline is the round deadline minus the
+    # cut. The round itself still ends at the shared deadline for everyone else.
+    if player.sabotage_deadline_cut_ms and game_state.deadline is not None:
+        personal_deadline = game_state.deadline - player.sabotage_deadline_cut_ms
+        if game_state.current_time() * 1000 >= personal_deadline:
+            await ws.send_json(
+                {
+                    "type": "error",
+                    "code": ERR_ROUND_EXPIRED,
+                    "message": "Time's up!",
+                }
+            )
+            return
+
+    year = data.get("year")
+    # #2623: validate against the range the player was actually offered, not
+    # against two constants. The slider widens to cover the playlist, so a
+    # fixed floor of 1950 rejected correct answers for the 27 catalogue songs
+    # dated 1937-1949 — and a fixed ceiling of 2026 would start rejecting the
+    # current year every January.
+    allowed = year_range(game_state)
+    if not isinstance(year, int) or year < allowed["min"] or year > allowed["max"]:
+        await ws.send_json(
+            {
+                "type": "error",
+                "code": ERR_INVALID_ACTION,
+                "message": "Invalid year",
+            }
+        )
+        return
+
+    bet = data.get("bet", False)
+    # Issue #1665: a forced bet is not a suggestion — the victim rides the
+    # double-or-nothing whether or not their client sent the flag.
+    player.bet = bool(bet) or player.sabotage_forced_bet
+
+    submission_time = game_state.current_time()
+    player.submit_guess(year, submission_time)
+
+    await ws.send_json(
+        {
+            "type": "submit_ack",
+            "year": year,
+        }
+    )
+
+    # Issue #581: Only broadcast here when NOT all guesses are complete.
+    # If all guesses are in, trigger_early_reveal_if_complete() will
+    # transition to REVEAL and broadcast via the round_end callback,
+    # avoiding a redundant double broadcast.
+    if not game_state.check_all_guesses_complete():
+        # #1763: in-round submit progress → debounce (coalesces the per-player
+        # burst); the completing submit skips this and phase-transitions below.
+        await handler.debounced_broadcast_state()
+
+    _LOGGER.debug(
+        "Early reveal check: phase=%s, artist_challenge=%s",
+        game_state.phase.value,
+        game_state.artist_challenge_enabled,
+    )
+    await game_state.trigger_early_reveal_if_complete()
+
+    _LOGGER.info(
+        "Player %s submitted guess: %d at %.2f", player.name, year, submission_time
+    )
+
+
+async def handle_get_steal_targets(
+    handler: BeatifyWebSocketHandler,
+    ws: web.WebSocketResponse,
+    data: dict,
+    game_state: GameState,
+) -> None:
+    """Handle request for available steal targets (Story 15.3 AC2, AC5)."""
+    player = None
+    for p in list(game_state.players.values()):
+        if p.ws == ws:
+            player = p
+            break
+
+    if not player:
+        await ws.send_json(
+            {
+                "type": "error",
+                "code": ERR_NOT_IN_GAME,
+                "message": "Not in game",
+            }
+        )
+        return
+
+    # #1748 / #2612: an out-of-play player may not use a banked steal.
+    if await _reject_out_of_play(ws, player):
+        return
+
+    if not player.steal_available:
+        await ws.send_json(
+            {
+                "type": "error",
+                "code": ERR_INVALID_ACTION,
+                "message": "No steal available",
+            }
+        )
+        return
+
+    targets = game_state.get_steal_targets(player.name)
+    await ws.send_json(
+        {
+            "type": "steal_targets",
+            "targets": targets,
+        }
+    )
+
+
+async def handle_steal(
+    handler: BeatifyWebSocketHandler,
+    ws: web.WebSocketResponse,
+    data: dict,
+    game_state: GameState,
+) -> None:
+    """Handle steal execution (Story 15.3 AC2, AC3)."""
+    player = None
+    for p in list(game_state.players.values()):
+        if p.ws == ws:
+            player = p
+            break
+
+    if not player:
+        await ws.send_json(
+            {
+                "type": "error",
+                "code": ERR_NOT_IN_GAME,
+                "message": "Not in game",
+            }
+        )
+        return
+
+    # #1748 / #2612: an out-of-play player may not execute a banked steal.
+    if await _reject_out_of_play(ws, player):
+        return
+
+    # #2335: the same guard the four guessing handlers have carried since
+    # #1662. `use_steal` only checks phase == PLAYING, and there is a window
+    # where the deadline has passed but end_round has not flipped the phase
+    # yet — the "Time's up" announcement, the overdue grace, a timer task
+    # firing late. In that window every honest submission is refused while a
+    # banked steal still goes through, and a steal IS a submission: it writes
+    # current_guess, sets submitted = True and stamps submission_time.
+    #
+    # A power-up that quietly hands one player extra time is a different
+    # thing from one that copies an answer.
+    if game_state.is_deadline_passed():
+        await ws.send_json(
+            {
+                "type": "error",
+                "code": ERR_ROUND_EXPIRED,
+                "message": "Time's up!",
+            }
+        )
+        return
+
+    target_name = data.get("target")
+    if not target_name:
+        await ws.send_json(
+            {
+                "type": "error",
+                "code": ERR_INVALID_ACTION,
+                "message": "Target name required",
+            }
+        )
+        return
+
+    result = game_state.use_steal(player.name, target_name)
+
+    if result["success"]:
+        await ws.send_json(
+            {
+                "type": "steal_ack",
+                "success": True,
+                "target": result["target"],
+                "year": result["year"],
+            }
+        )
+        # Issue #842 Phase 4: announce the steal (use case 23).
+        await game_state.announce_steal_used(player.name, result["target"])
+        if not game_state.check_all_guesses_complete():
+            # #1763: in-round progress → debounce.
+            await handler.debounced_broadcast_state()
+        await game_state.trigger_early_reveal_if_complete()
+    else:
+        await ws.send_json(
+            {
+                "type": "error",
+                "code": result["error"],
+                "message": _get_steal_error_message(result["error"]),
+            }
+        )
+
+
+def _get_steal_error_message(error_code: str) -> str:
+    """Get human-readable message for steal error codes."""
+    messages = {
+        ERR_NOT_IN_GAME: "Not in game",
+        ERR_INVALID_ACTION: "Cannot steal now",
+        "NO_STEAL_AVAILABLE": "No steal available",
+        "TARGET_NOT_SUBMITTED": "Target has not submitted yet",
+        "CANNOT_STEAL_SELF": "Cannot steal from yourself",
+    }
+    return messages.get(error_code, "Steal failed")
+
+
+async def handle_get_sabotage_targets(
+    handler: BeatifyWebSocketHandler,
+    ws: web.WebSocketResponse,
+    data: dict,
+    game_state: GameState,
+) -> None:
+    """Handle request for available sabotage targets (#1665)."""
+    player = game_state.get_player_by_ws(ws)
+
+    if not player:
+        await ws.send_json(
+            {"type": "error", "code": ERR_NOT_IN_GAME, "message": "Not in game"}
+        )
+        return
+
+    if await _reject_out_of_play(ws, player):
+        return
+
+    if not player.sabotage_available:
+        await ws.send_json(
+            {
+                "type": "error",
+                "code": ERR_NO_SABOTAGE_AVAILABLE,
+                "message": "No sabotage available",
+            }
+        )
+        return
+
+    await ws.send_json(
+        {
+            "type": "sabotage_targets",
+            "targets": game_state.get_sabotage_targets(player.name),
+        }
+    )
+
+
+async def handle_sabotage(
+    handler: BeatifyWebSocketHandler,
+    ws: web.WebSocketResponse,
+    data: dict,
+    game_state: GameState,
+) -> None:
+    """Handle sabotage execution (#1665).
+
+    The client sends only a target — the effect is rolled server-side, so a
+    tampered client cannot pick the mildest one.
+    """
+    player = game_state.get_player_by_ws(ws)
+
+    if not player:
+        await ws.send_json(
+            {"type": "error", "code": ERR_NOT_IN_GAME, "message": "Not in game"}
+        )
+        return
+
+    if await _reject_out_of_play(ws, player):
+        return
+
+    # #2335: same guard, opposite harm. All three sabotage effects act on the
+    # victim's submit path (timer cut, freeze, forced bet), and after the
+    # deadline that path is closed anyway — so a late sabotage cannot hurt the
+    # target. What it does do is run consume_sabotage() and burn the
+    # saboteur's own token for nothing.
+    #
+    # Worth guarding for the attacker's sake rather than the victim's, which
+    # is why it is stated here instead of left to look like a copy-paste.
+    if game_state.is_deadline_passed():
+        await ws.send_json(
+            {
+                "type": "error",
+                "code": ERR_ROUND_EXPIRED,
+                "message": "Time's up!",
+            }
+        )
+        return
+
+    target_name = data.get("target")
+    if not target_name:
+        await ws.send_json(
+            {
+                "type": "error",
+                "code": ERR_INVALID_ACTION,
+                "message": "Target name required",
+            }
+        )
+        return
+
+    result = game_state.use_sabotage(player.name, target_name)
+
+    if not result["success"]:
+        await ws.send_json(
+            {
+                "type": "error",
+                "code": result["error"],
+                "message": _get_sabotage_error_message(result["error"]),
+            }
+        )
+        return
+
+    await ws.send_json(
+        {
+            "type": "sabotage_ack",
+            "success": True,
+            "target": result["target"],
+            "effect": result["effect"],
+        }
+    )
+
+    # The victim gets an immediate, addressed hit — a freeze that only shows up
+    # on the next debounced state frame has already eaten part of its own
+    # duration. The broadcast below still carries the same fields for everyone.
+    target = game_state.get_player(result["target"])
+    if target is not None and target.ws is not None:
+        await target.ws.send_json(
+            {
+                "type": "sabotaged",
+                "by": player.name,
+                "effect": result["effect"],
+                # #2700: the freeze duration ships WITH the hit, computed by the
+                # same helper the state broadcast uses. The phone locks its
+                # submit button for exactly this many seconds and keeps no copy
+                # of SABOTAGE_FREEZE_SECONDS, so tuning the constant in const.py
+                # moves the button and the server's ERR_FROZEN window together.
+                # 0 for the other two effects — they lock nothing locally.
+                "freeze_remaining": game_state.sabotage_freeze_remaining(target),
+            }
+        )
+
+    await handler.broadcast_state()
+
+
+def _get_sabotage_error_message(error_code: str) -> str:
+    """Get human-readable message for sabotage error codes (#1665)."""
+    messages = {
+        ERR_NOT_IN_GAME: "Not in game",
+        ERR_INVALID_ACTION: "Cannot sabotage now",
+        ERR_NO_SABOTAGE_AVAILABLE: "No sabotage available",
+        ERR_CANNOT_SABOTAGE_SELF: "Cannot sabotage yourself",
+        ERR_TARGET_ALREADY_SUBMITTED: "Target has already locked in their guess",
+        ERR_TARGET_ALREADY_SABOTAGED: "Target has already been sabotaged this round",
+        ERR_ELIMINATED: "Target has been eliminated",
+    }
+    return messages.get(error_code, "Sabotage failed")
+
+
+async def handle_artist_guess(
+    handler: BeatifyWebSocketHandler,
+    ws: web.WebSocketResponse,
+    data: dict,
+    game_state: GameState,
+) -> None:
+    """Handle artist guess submission (Story 20.3)."""
+    if game_state.phase != GamePhase.PLAYING:
+        await ws.send_json(
+            {
+                "type": "error",
+                "code": ERR_INVALID_ACTION,
+                "message": "Can only guess during PLAYING phase",
+            }
+        )
+        return
+
+    # #1662: reject late guesses in the window between deadline expiry and the
+    # end_round phase flip — mirrors the year handler's guard so Artist/Movie/
+    # Title&Artist challenges can't bank points/bonus after time is up.
+    if game_state.is_deadline_passed():
+        await ws.send_json(
+            {
+                "type": "error",
+                "code": ERR_ROUND_EXPIRED,
+                "message": "Time's up!",
+            }
+        )
+        return
+
+    player = game_state.get_player_by_ws(ws)
+    if not player:
+        await ws.send_json(
+            {
+                "type": "error",
+                "code": ERR_NOT_IN_GAME,
+                "message": "Not in game",
+            }
+        )
+        return
+
+    # #1748 / #2612: reject guesses from any player out of this round.
+    if await _reject_out_of_play(ws, player):
+        return
+
+    if not game_state.artist_challenge:
+        await ws.send_json(
+            {
+                "type": "error",
+                "code": ERR_NO_ARTIST_CHALLENGE,
+                "message": "No artist challenge this round",
+            }
+        )
+        return
+
+    # One artist attempt per player per round. The artist challenge is
+    # multiple-choice and the options are broadcast, so without this guard a
+    # player could submit each option in turn and is guaranteed to hit the
+    # correct one (brute-force the bonus). Unlike the movie flow,
+    # ``submit_artist_guess`` only dedupes the *global* winner, not per-player
+    # attempts — so the lock has to live here. (#1660)
+    if player.has_artist_guess:
+        await ws.send_json(
+            {
+                "type": "error",
+                "code": ERR_INVALID_ACTION,
+                "message": "Artist already guessed this round",
+            }
+        )
+        return
+
+    artist = data.get("artist", "").strip()
+    if not artist:
+        await ws.send_json(
+            {
+                "type": "error",
+                "code": ERR_INVALID_ACTION,
+                "message": "Artist cannot be empty",
+            }
+        )
+        return
+
+    guess_time = game_state.current_time()
+    result = game_state.submit_artist_guess(player.name, artist, guess_time)
+    player.has_artist_guess = True
+
+    response: dict = {
+        "type": "artist_guess_ack",
+        "correct": result["correct"],
+    }
+
+    if result["correct"]:
+        response["first"] = result["first"]
+        if result["first"]:
+            response["bonus_points"] = CHALLENGE_BONUS_POINTS
+        else:
+            response["winner"] = result["winner"]
+
+    await ws.send_json(response)
+
+    if result.get("first"):
+        # #1763: in-round progress (first-correct flag) → debounce.
+        await handler.debounced_broadcast_state()
+
+    await game_state.trigger_early_reveal_if_complete()
+
+    _LOGGER.debug(
+        "Artist guess from %s: '%s' -> correct=%s, first=%s",
+        player.name,
+        artist,
+        result["correct"],
+        result.get("first", False),
+    )
+
+
+async def handle_movie_guess(
+    handler: BeatifyWebSocketHandler,
+    ws: web.WebSocketResponse,
+    data: dict,
+    game_state: GameState,
+) -> None:
+    """Handle movie quiz guess submission (Issue #28)."""
+    if game_state.phase != GamePhase.PLAYING:
+        await ws.send_json(
+            {
+                "type": "error",
+                "code": ERR_INVALID_ACTION,
+                "message": "Can only guess during PLAYING phase",
+            }
+        )
+        return
+
+    # #1662: reject late guesses in the window between deadline expiry and the
+    # end_round phase flip — mirrors the year handler's guard so Artist/Movie/
+    # Title&Artist challenges can't bank points/bonus after time is up.
+    if game_state.is_deadline_passed():
+        await ws.send_json(
+            {
+                "type": "error",
+                "code": ERR_ROUND_EXPIRED,
+                "message": "Time's up!",
+            }
+        )
+        return
+
+    player = game_state.get_player_by_ws(ws)
+    if not player:
+        await ws.send_json(
+            {
+                "type": "error",
+                "code": ERR_NOT_IN_GAME,
+                "message": "Not in game",
+            }
+        )
+        return
+
+    # #1748 / #2612: reject guesses from any player out of this round.
+    if await _reject_out_of_play(ws, player):
+        return
+
+    if not game_state.movie_challenge:
+        await ws.send_json(
+            {
+                "type": "error",
+                "code": ERR_NO_MOVIE_CHALLENGE,
+                "message": "No movie quiz this round",
+            }
+        )
+        return
+
+    movie = data.get("movie", "").strip()
+    if not movie:
+        await ws.send_json(
+            {
+                "type": "error",
+                "code": ERR_INVALID_ACTION,
+                "message": "Movie cannot be empty",
+            }
+        )
+        return
+
+    guess_time = game_state.current_time()
+    result = game_state.submit_movie_guess(player.name, movie, guess_time)
+    player.has_movie_guess = True
+
+    response: dict = {
+        "type": "movie_guess_ack",
+        "correct": result["correct"],
+        "already_guessed": result["already_guessed"],
+    }
+
+    if result["correct"] and not result["already_guessed"]:
+        response["rank"] = result["rank"]
+        response["bonus"] = result["bonus"]
+
+    await ws.send_json(response)
+    await game_state.trigger_early_reveal_if_complete()
+
+    _LOGGER.debug(
+        "Movie guess from %s: '%s' -> correct=%s, rank=%s",
+        player.name,
+        movie,
+        result["correct"],
+        result.get("rank"),
+    )
+
+
+async def handle_title_artist_guess(
+    handler: BeatifyWebSocketHandler,
+    ws: web.WebSocketResponse,
+    data: dict,
+    game_state: GameState,
+) -> None:
+    """Handle a title & artist guess submission (#1180).
+
+    Mirrors handle_artist_guess: phase-gated to PLAYING, classifies the
+    submitted title and artist independently via the challenge, acks the
+    per-field status, marks the player done, and triggers early reveal once
+    everyone has guessed. Empty fields are allowed — they classify as
+    "skipped" (0 points for that field), so they are NOT rejected here.
+    """
+    if game_state.phase != GamePhase.PLAYING:
+        await ws.send_json(
+            {
+                "type": "error",
+                "code": ERR_INVALID_ACTION,
+                "message": "Can only guess during PLAYING phase",
+            }
+        )
+        return
+
+    # #1662: reject late guesses in the window between deadline expiry and the
+    # end_round phase flip — mirrors the year handler's guard so Artist/Movie/
+    # Title&Artist challenges can't bank points/bonus after time is up.
+    if game_state.is_deadline_passed():
+        await ws.send_json(
+            {
+                "type": "error",
+                "code": ERR_ROUND_EXPIRED,
+                "message": "Time's up!",
+            }
+        )
+        return
+
+    player = game_state.get_player_by_ws(ws)
+    if not player:
+        await ws.send_json(
+            {
+                "type": "error",
+                "code": ERR_NOT_IN_GAME,
+                "message": "Not in game",
+            }
+        )
+        return
+
+    # #1748 / #2612: reject guesses from any player out of this round.
+    if await _reject_out_of_play(ws, player):
+        return
+
+    # One title/artist attempt per player per round (#2498). Without this the
+    # handler overwrites the stored guess and answers every attempt with its
+    # classification (``exact`` / ``fuzzy`` / ``near_miss`` / ``skipped``), so a
+    # player can probe the answer and have the converged guess scored as a
+    # first try — the resubmission also pushes ``submission_time`` later, which
+    # feeds the speed bonus. This mirrors the artist-challenge guard added for
+    # the same reason in #1660; the flag was already being set here, only never
+    # read.
+    if player.has_title_artist_guess:
+        await ws.send_json(
+            {
+                "type": "error",
+                "code": ERR_INVALID_ACTION,
+                "message": "Title & artist already guessed this round",
+            }
+        )
+        return
+
+    if not game_state.title_artist_challenge:
+        await ws.send_json(
+            {
+                "type": "error",
+                "code": ERR_NO_TITLE_ARTIST_CHALLENGE,
+                "message": "No title & artist challenge this round",
+            }
+        )
+        return
+
+    title = data.get("title", "")
+    artist = data.get("artist", "")
+    if not isinstance(title, str):
+        title = ""
+    if not isinstance(artist, str):
+        artist = ""
+    # Guess length is capped at the WS ingest boundary (#1581) before dispatch,
+    # so title/artist already fit MAX_GUESS_LEN here. classify_field truncates
+    # again defensively.
+
+    guess_time = game_state.current_time()
+    result = game_state.submit_title_artist_guess(
+        player.name, title, artist, guess_time
+    )
+    player.has_title_artist_guess = True
+    # Mark the player as submitted so the round behaves like a normal
+    # submission (#1180): ScoringService.score_player_round gates the
+    # title/artist points path on ``player.submitted``, and all_submitted() /
+    # check_all_guesses_complete() rely on it for early reveal. There is no
+    # year in this mode, so we set the submission state directly rather than
+    # going through player.submit_guess (which expects a year).
+    player.submitted = True
+    player.submission_time = guess_time
+
+    await ws.send_json(
+        {
+            "type": "title_artist_guess_ack",
+            "title_status": result["title_status"],
+            "artist_status": result["artist_status"],
+        }
+    )
+
+    # Mirror handle_artist_guess / handle_submit: avoid a redundant broadcast
+    # when the early-reveal path is about to broadcast via the round_end
+    # callback. Only broadcast here when the round is NOT yet complete.
+    if not game_state.check_all_guesses_complete():
+        # #1763: in-round progress → debounce.
+        await handler.debounced_broadcast_state()
+
+    await game_state.trigger_early_reveal_if_complete()
+
+    _LOGGER.debug(
+        "Title/artist guess from %s: title=%r (%s), artist=%r (%s)",
+        player.name,
+        title,
+        result["title_status"],
+        artist,
+        result["artist_status"],
+    )
+
+
+async def handle_title_artist_vote(
+    handler: BeatifyWebSocketHandler,
+    ws: web.WebSocketResponse,
+    data: dict,
+    game_state: GameState,
+) -> None:
+    """Handle a community vote on a title/artist near-miss (#1180 Phase 4).
+
+    REVEAL-only. A player may not vote on their own near-miss (the near-miss
+    player is encoded as the prefix of nearmiss_id, "player:field").
+    """
+    if game_state.phase != GamePhase.REVEAL:
+        await ws.send_json(
+            {
+                "type": "error",
+                "code": ERR_INVALID_ACTION,
+                "message": "Can only vote during REVEAL phase",
+            }
+        )
+        return
+
+    player = game_state.get_player_by_ws(ws)
+    if not player:
+        await ws.send_json(
+            {
+                "type": "error",
+                "code": ERR_NOT_IN_GAME,
+                "message": "Not in game",
+            }
+        )
+        return
+
+    nearmiss_id = data.get("nearmiss_id")
+    accept = data.get("accept")
+    if not isinstance(nearmiss_id, str) or ":" not in nearmiss_id:
+        await ws.send_json(
+            {
+                "type": "error",
+                "code": ERR_INVALID_ACTION,
+                "message": "Invalid nearmiss_id",
+            }
+        )
+        return
+    if not isinstance(accept, bool):
+        await ws.send_json(
+            {
+                "type": "error",
+                "code": ERR_INVALID_ACTION,
+                "message": "Invalid vote value",
+            }
+        )
+        return
+
+    # #1180: only accept votes for a real, vote-eligible near-miss. Without this
+    # the votes dict would store an entry for ANY string, letting a player flood
+    # it with fabricated ids during REVEAL and exhaust server memory.
+    if nearmiss_id not in {nm["id"] for nm in game_state.get_near_misses()}:
+        await ws.send_json(
+            {
+                "type": "error",
+                "code": ERR_INVALID_ACTION,
+                "message": "Unknown nearmiss_id",
+            }
+        )
+        return
+
+    # Reject self-vote: the near-miss player is the part before the last ":".
+    nearmiss_player = nearmiss_id.rsplit(":", 1)[0]
+    if nearmiss_player == player.name:
+        await ws.send_json(
+            {
+                "type": "error",
+                "code": ERR_INVALID_ACTION,
+                "message": "Cannot vote on your own guess",
+            }
+        )
+        return
+
+    game_state.register_title_artist_vote(player.name, nearmiss_id, accept)
+    _LOGGER.debug(
+        "Title/artist vote by %s on %s -> %s", player.name, nearmiss_id, accept
+    )
+    # #1763: REVEAL-phase vote tallies are the same per-player burst as guesses
+    # — coalesce them through the debounce rather than a full frame per vote.
+    await handler.debounced_broadcast_state()
+
+
+async def handle_title_artist_override(
+    handler: BeatifyWebSocketHandler,
+    ws: web.WebSocketResponse,
+    data: dict,
+    game_state: GameState,
+) -> None:
+    """Handle a host override on a title/artist near-miss (#1180 Phase 4).
+
+    REVEAL-only, admin-only. Override precedence is applied at resolve time
+    (window expiry or host-advance) by resolve_title_artist.
+    """
+    if game_state.phase != GamePhase.REVEAL:
+        await ws.send_json(
+            {
+                "type": "error",
+                "code": ERR_INVALID_ACTION,
+                "message": "Can only override during REVEAL phase",
+            }
+        )
+        return
+
+    is_admin_ws = handler.is_admin_socket(ws)
+    sender = game_state.get_player_by_ws(ws)
+    if not (is_admin_ws or (sender and sender.is_admin)):
+        await ws.send_json(
+            {
+                "type": "error",
+                "code": ERR_NOT_ADMIN,
+                "message": "Only admin can override",
+            }
+        )
+        return
+
+    nearmiss_id = data.get("nearmiss_id")
+    accept = data.get("accept")
+    if not isinstance(nearmiss_id, str) or ":" not in nearmiss_id:
+        await ws.send_json(
+            {
+                "type": "error",
+                "code": ERR_INVALID_ACTION,
+                "message": "Invalid nearmiss_id",
+            }
+        )
+        return
+    if not isinstance(accept, bool):
+        await ws.send_json(
+            {
+                "type": "error",
+                "code": ERR_INVALID_ACTION,
+                "message": "Invalid override value",
+            }
+        )
+        return
+
+    # #1180: only accept overrides for a real, vote-eligible near-miss (mirrors
+    # the vote handler) so the overrides dict can't be grown with fake ids.
+    if nearmiss_id not in {nm["id"] for nm in game_state.get_near_misses()}:
+        await ws.send_json(
+            {
+                "type": "error",
+                "code": ERR_INVALID_ACTION,
+                "message": "Unknown nearmiss_id",
+            }
+        )
+        return
+
+    game_state.set_title_artist_override(nearmiss_id, accept)
+    _LOGGER.info("Title/artist override on %s -> %s", nearmiss_id, accept)
+    # #1763: an override is a non-phase-changing in-round tally update — debounce.
+    await handler.debounced_broadcast_state()

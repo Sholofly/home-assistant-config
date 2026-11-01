@@ -7,8 +7,10 @@ to play music guessing games.
 
 from __future__ import annotations
 
+import functools
 import json
 import logging
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -16,18 +18,20 @@ from homeassistant.components.frontend import (
     async_register_built_in_panel,
     async_remove_panel,
 )
+from homeassistant.helpers.event import async_track_time_interval
+from homeassistant.helpers.storage import Store
 
 from .analytics import AnalyticsStorage
 from .const import (
     CONF_ENABLE_COMPANION_AUTH_BYPASS,
     DEFAULT_ENABLE_COMPANION_AUTH_BYPASS,
     DOMAIN,
+    ROUND_SUPERVISOR_INTERVAL_SECONDS,
 )
 from .game.playlist import (
     async_discover_playlists,
     async_ensure_playlist_directory,
 )
-from .game.service import GameService
 from .game.state import GameState
 from .server import async_register_static_paths
 from .server.views import (
@@ -47,20 +51,47 @@ from .server.views import (
     PreviewLightsView,
     TtsEntitiesView,
     TtsTestView,
+    NextPlaylistsView,
     PlayerView,
     PlaylistRequestsView,
+    MixPlaylistView,
     SavePlaylistView,
     SwJsView,
     RematchGameView,
+    SetSuddenDeathView,
     SongStatsView,
     StartGameplayView,
+    UpdateLobbyView,
     StartGameView,
     StatsView,
     StatusView,
+    SetupView,
     UsageView,
 )
+from .server.library_views import (
+    LIBRARY_GAME_OUTPUT_STORE_KEY,
+    LIBRARY_SETTINGS_STORE_KEY,
+    LIBRARY_STORE_VERSION,
+    LibraryPoolStatusView,
+    LibraryPoolBuildView,
+    LibraryPoolExportView,
+    LibraryPoolRefreshView,
+    LibraryPoolBackupView,
+    LibraryRecentSongsView,
+    LibrarySongCorrectView,
+    LibrarySongLookupView,
+    LibraryPoolRestoreView,
+    LibrarySettingsView,
+    LibraryPoolPreviewView,
+    LibraryPlaylistResolveView,
+    LibraryPlaylistGenerateView,
+    LibraryMaPlaylistsView,
+    LibraryMaPlaylistCheckView,
+)
+from .server.setup_state import clear_setup
 from .server.websocket import BeatifyWebSocketHandler
-from .services.media_player import async_get_media_players
+from .server.ws_handlers._helpers import finalize_and_end
+from .services.factories import ha_service_factories
 from .services.stats import StatsService
 
 if TYPE_CHECKING:
@@ -115,18 +146,21 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Ensure playlist directory exists
     playlist_dir = await async_ensure_playlist_directory(hass)
 
-    # Discover media players and playlists
-    media_players = await async_get_media_players(hass)
+    # Warm the playlist discovery memo (#2716). The result is deliberately not
+    # stored in hass.data: every consumer rediscovers from scratch — the status
+    # view calls async_discover_playlists itself on each request — so a stored
+    # copy would only go stale. The memo this call fills is the real effect.
+    # The companion async_get_media_players call that used to sit here fed
+    # nothing but the log line and was dropped with it.
     playlists = await async_discover_playlists(hass)
 
-    _LOGGER.info(
-        "Found %d media players, %d playlists",
-        len(media_players),
-        len(playlists),
-    )
+    _LOGGER.info("Found %d playlists", len(playlists))
 
-    # Initialize game state
-    game_state = GameState()
+    # Initialize game state. #2638: this is the composition root — the only
+    # place that decides the game's outputs are Home-Assistant-backed. The
+    # domain package itself never names a concrete service class, which is what
+    # makes GameState constructible (and testable) without hass.
+    game_state = GameState(service_factories=ha_service_factories(hass))
     game_state.set_hass(hass)
 
     # Initialize stats service (Story 14.4)
@@ -153,14 +187,23 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Set up round end callback for timer expiry (Story 4.5)
     game_state.set_round_end_callback(ws_handler.broadcast_state)
 
+    # #1753: wire the terminal game-end one-shot so the unattended REVEAL
+    # auto-advance final round records stats + runs the podium ceremony through
+    # the same claim as the admin sockets (no double record / double podium TTS).
+    game_state.set_game_end_callback(
+        functools.partial(finalize_and_end, ws_handler, game_state)
+    )
+
     # Set up metadata update callback for fast transitions (Issue #42)
     game_state.set_metadata_update_callback(ws_handler.broadcast_metadata_update)
 
     # Connect analytics to websocket handler for error recording (Story 19.1)
     ws_handler.set_analytics(analytics)
 
-    # Issue #603/#609: Create GameService facade
-    game_service = GameService(hass, game_state)
+    # #2638: the admin spectator socket belongs to the WebSocket handler now.
+    # A game teardown/rebuild used to null it inside _reset_game_internals; the
+    # reset callback fires at that same point so the timing is unchanged.
+    game_state.register_reset_callback(ws_handler.clear_admin_socket)
 
     # #1357: Companion auth-bypass opt-in. Read once at setup; the auth helper
     # in server/companion_auth.py reads this live from hass.data per request,
@@ -169,15 +212,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         CONF_ENABLE_COMPANION_AUTH_BYPASS, DEFAULT_ENABLE_COMPANION_AUTH_BYPASS
     )
 
-    # Store discovery results and game infrastructure
+    # Store game infrastructure. #2716 dropped "entry_id", "media_players" and
+    # "playlists" from this dict: nothing ever read them. build_status_response
+    # is the only consumer of such lists and takes them as parameters from a
+    # fresh discovery in the status view, not from here.
     hass.data[DOMAIN] = {
-        "entry_id": entry.entry_id,
         "version": version,  # #784 — single source of truth from manifest.json
-        "media_players": media_players,
-        "playlists": playlists,
         "playlist_dir": str(playlist_dir),
         "game": game_state,
-        "game_service": game_service,
         "ws_handler": ws_handler,
         "stats": stats_service,
         "analytics": analytics,
@@ -187,6 +229,25 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # #1357: refresh the bypass flag in place when the options change. No full
     # reload is needed — companion_auth.py reads hass.data live per request.
     entry.async_on_unload(entry.add_update_listener(_async_update_options))
+
+    # #1865: server-side round backstop. The round timer is a single asyncio
+    # task owned by the round; if it is cancelled, raises, or blocks in the
+    # time-up announcement, nothing on the server notices and the game sits on
+    # PLAYING. The only rescue was a countdown running in a player's browser,
+    # which a TV-only setup or a locked phone does not provide.
+    #
+    # This tick is deliberately owned by the config entry rather than by the
+    # game: it must outlive whatever went wrong inside the round. It runs for
+    # the life of the entry and costs a phase comparison when no round is in
+    # flight, which is cheaper than starting and stopping it around games —
+    # and the start/stop wiring would itself be something that can fail to run.
+    entry.async_on_unload(
+        async_track_time_interval(
+            hass,
+            functools.partial(_async_supervise_round, hass),
+            timedelta(seconds=ROUND_SUPERVISOR_INTERVAL_SECONDS),
+        )
+    )
 
     # Issue #441: Forward sensor and binary_sensor platforms
     await hass.config_entries.async_forward_entry_setups(
@@ -210,6 +271,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.http.register_view(BeatifyAuthRefreshView(hass))
         hass.http.register_view(StatusView(hass))
         hass.http.register_view(CapabilitiesView(hass))
+        hass.http.register_view(SetupView(hass))  # #1663 — server-side setup flag
         hass.http.register_view(LightsView(hass))  # Issue #331
         hass.http.register_view(AlbumArtView(hass))  # Issue #933 — remote album art
         hass.http.register_view(PreviewLightsView(hass))  # Issue #408
@@ -217,6 +279,24 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.http.register_view(TtsTestView(hass))
         hass.http.register_view(StartGameView(hass))
         hass.http.register_view(StartGameplayView(hass))
+        hass.http.register_view(UpdateLobbyView(hass))
+        # Crate Digger endpoints
+        hass.http.register_view(LibraryPoolStatusView(hass))
+        hass.http.register_view(LibraryPoolBuildView(hass))
+        hass.http.register_view(LibraryPoolExportView(hass))
+        hass.http.register_view(LibraryPoolRefreshView(hass))
+        hass.http.register_view(LibraryPoolBackupView(hass))
+        hass.http.register_view(LibraryRecentSongsView(hass))
+        hass.http.register_view(LibrarySongLookupView(hass))
+        hass.http.register_view(LibrarySongCorrectView(hass))
+        hass.http.register_view(LibraryPoolRestoreView(hass))
+        hass.http.register_view(LibrarySettingsView(hass))
+        hass.http.register_view(LibraryPoolPreviewView(hass))
+        hass.http.register_view(LibraryPlaylistResolveView(hass))
+        hass.http.register_view(LibraryPlaylistGenerateView(hass))
+        hass.http.register_view(LibraryMaPlaylistsView(hass))  # #2939
+        hass.http.register_view(LibraryMaPlaylistCheckView(hass))  # #2939
+        hass.http.register_view(SetSuddenDeathView(hass))  # Issue #827
         hass.http.register_view(EndGameView(hass))
         hass.http.register_view(
             ForceResetView(hass)
@@ -234,6 +314,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.http.register_view(SongStatsView(hass))  # Story 19.7
         hass.http.register_view(PlaylistRequestsView(hass))  # Story 44
         hass.http.register_view(SavePlaylistView(hass))  # #1057
+        hass.http.register_view(NextPlaylistsView(hass))  # #2648
+        hass.http.register_view(MixPlaylistView(hass))  # #1538 — Smart Playlist Mixer
         hass.http.register_view(UsageView(hass))  # v3.3 Playlist Hub local stats
 
         # Register WebSocket endpoint via a stable dispatch closure that
@@ -278,6 +360,31 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     _LOGGER.info("Beatify integration setup complete")
     return True
+
+
+async def _async_supervise_round(
+    hass: HomeAssistant, _now: datetime | None = None
+) -> None:
+    """Periodic tick: end a round whose own timer failed to end it (#1865).
+
+    Resolves the game from ``hass.data`` on every tick rather than closing over
+    it, so a config-entry reload that swaps in a fresh ``GameState`` cannot
+    leave this driving the old one.
+
+    Errors are swallowed with a log. ``async_track_time_interval`` keeps firing
+    after a raising callback, but a round that is already stuck should not also
+    be producing an unhandled-exception traceback every two seconds.
+    """
+    domain_data = hass.data.get(DOMAIN)
+    if not isinstance(domain_data, dict):
+        return
+    game_state = domain_data.get("game")
+    if game_state is None:
+        return
+    try:
+        await game_state.force_end_round_if_overdue()
+    except Exception:  # noqa: BLE001
+        _LOGGER.warning("Round backstop failed to end an overdue round", exc_info=True)
 
 
 async def _async_update_options(hass: HomeAssistant, entry: ConfigEntry) -> None:
@@ -350,6 +457,10 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             analytics = domain_data.get("analytics")
             if analytics is not None:
                 await analytics.async_shutdown()
+            # Flush any pending debounced per-round stats save before teardown (#1708)
+            stats = domain_data.get("stats")
+            if stats is not None:
+                await stats.async_shutdown()
 
         _LOGGER.info("Beatify integration unloaded")
     else:
@@ -358,3 +469,57 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         )
 
     return unload_ok
+
+
+def _remove_persisted_files(hass: HomeAssistant) -> list[str]:
+    """Delete Beatify's files under ``config/beatify`` (blocking I/O).
+
+    Returns the names that existed and were removed, for the log line.
+    """
+    removed: list[str] = []
+    if clear_setup(hass):
+        removed.append("setup.json")
+    reports = Path(hass.config.path("beatify")) / "data_quality_reports.json"
+    try:
+        if reports.exists():
+            reports.unlink()
+            removed.append("data_quality_reports.json")
+    except OSError:
+        _LOGGER.warning("Could not delete %s during removal", reports, exc_info=True)
+    return removed
+
+
+async def async_remove_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Drop everything Beatify persisted outside the config entry (#2263).
+
+    Home Assistant deletes the config entry itself, but anything an integration
+    wrote elsewhere is its own responsibility. Beatify persists in three places:
+
+    * ``config/beatify/setup.json`` — the host's speaker and game-mode picks
+      (#1663), so a second device can re-hydrate a finished setup.
+    * ``config/beatify/data_quality_reports.json`` — player-reported wrong years.
+    * two HA ``Store`` keys holding the Crate Digger library settings.
+
+    None of it was cleaned up before, so removing and re-adding the integration
+    handed the fresh install the old speaker entity ids. @proffalken hit exactly
+    that: speakers he had since deleted were still assigned, the game refused to
+    start, and the in-app reset that clears the blob is unreachable when no game
+    can start. Reported in #2263.
+
+    Deliberately best-effort: a failure here must not leave the entry
+    half-removed, so every step logs and continues.
+    """
+    _LOGGER.info("Removing Beatify integration, clearing persisted state")
+
+    try:
+        removed = await hass.async_add_executor_job(_remove_persisted_files, hass)
+        if removed:
+            _LOGGER.info("Removed persisted files: %s", ", ".join(removed))
+    except Exception:  # noqa: BLE001
+        _LOGGER.warning("Could not clear persisted files on removal", exc_info=True)
+
+    for key in (LIBRARY_SETTINGS_STORE_KEY, LIBRARY_GAME_OUTPUT_STORE_KEY):
+        try:
+            await Store(hass, LIBRARY_STORE_VERSION, key).async_remove()
+        except Exception:  # noqa: BLE001
+            _LOGGER.warning("Could not remove Store %s on removal", key, exc_info=True)

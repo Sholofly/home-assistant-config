@@ -15,6 +15,14 @@
  * that still reads the old globals.
  */
 
+// #2620/#2626/#2627: the values the server also knows about live in ONE place.
+import {
+    DIFFICULTY_LABELS,
+    DIFFICULTY_DEFAULT,
+    MAX_NAME_LENGTH,
+    normalizeRevealAutoAdvance,
+} from '../game-constants.js';
+
 // --- currentGame injection -------------------------------------------------
 // admin.js owns the mutable `currentGame`; we read it through a resolver so the
 // token helpers see live updates without util.js importing admin state.
@@ -66,7 +74,42 @@ export function groupPlayersByPlatform(players) {
     return groups;
 }
 
+// --- i18n helper -----------------------------------------------------------
+/**
+ * Resolve a translation key via the global BeatifyI18n module, falling back to
+ * the supplied English string when i18n is unavailable (e.g. in unit tests /
+ * before the module loads) or the key is missing. BeatifyI18n.t() returns the
+ * key itself for a missing translation, so we treat that as "not found".
+ *
+ * `params` (#2620) fills `{placeholder}` slots. BeatifyI18n.t interpolates them
+ * itself; the fallback path has to do it here, otherwise a host who hits the
+ * fallback reads a literal "{count} playlists".
+ *
+ * @param {string} key
+ * @param {string} fallback
+ * @param {Object} [params] - `{placeholder}` values
+ * @returns {string}
+ */
+export function tr(key, fallback, params) {
+    const m = (typeof window !== 'undefined') && window.BeatifyI18n;
+    if (m && typeof m.t === 'function') {
+        const v = m.t(key, params);
+        if (typeof v === 'string' && v && v !== key) return v;
+    }
+    return _interpolate(fallback, params);
+}
+
+function _interpolate(text, params) {
+    if (!params || typeof text !== 'string') return text;
+    return Object.keys(params).reduce(
+        (out, name) => out.replace(new RegExp('\\{' + name + '\\}', 'g'), params[name]),
+        text,
+    );
+}
+
 // --- request-row rendering -------------------------------------------------
+// English fallbacks (with status emoji). The live label is resolved through
+// i18n at render time so German-first hosts don't see hard English (#1577).
 export const REQUEST_STATUS_LABELS = {
     pending: '⏳ Pending',
     ready: '✅ Ready',
@@ -74,11 +117,21 @@ export const REQUEST_STATUS_LABELS = {
     declined: '❌ Declined',
 };
 
+const REQUEST_STATUS_I18N_KEYS = {
+    pending: 'admin.requestStatusPending',
+    ready: 'admin.requestStatusReady',
+    installed: 'admin.requestStatusInstalled',
+    declined: 'admin.requestStatusDeclined',
+};
+
 /**
  * Build the HTML for one request row (legacy #my-requests-list card).
  */
 export function buildRequestRowHtml(request) {
-    const statusLabel = REQUEST_STATUS_LABELS[request.status] || request.status;
+    const i18nKey = REQUEST_STATUS_I18N_KEYS[request.status];
+    const statusLabel = i18nKey
+        ? tr(i18nKey, REQUEST_STATUS_LABELS[request.status])
+        : (REQUEST_STATUS_LABELS[request.status] || request.status);
     const playlistName = escapeHtml(request.playlist_name || request.name || 'Untitled request');
     const relativeTime = request.relative_time || '';
     const updateBtn = (request.status === 'ready' && request.update_available)
@@ -104,6 +157,134 @@ export function buildRequestRowHtml(request) {
 /**
  * Escape HTML to prevent XSS
  */
+// --- error text (#2294) ----------------------------------------------------
+/**
+ * #3076: the translation of ONE specific server message.
+ *
+ * ``errors.<CODE>`` is generic by design — INVALID_ACTION alone covers twenty
+ * unrelated refusals, and GAME_NOT_STARTED turned "Need at least 2 players to
+ * start" into "Game has not started". The server therefore tags each message
+ * with a stable ``message_key`` (and puts its parameters next to it in the same
+ * frame); this looks that key up under ``errors.host.<message_key>``.
+ *
+ * Returns null when there is nothing specific to say — no key, no i18n, a key
+ * the locale lacks, or a text whose ``{placeholder}`` the frame did not fill —
+ * so the caller falls through to ``errors.<CODE>`` and then the server text.
+ *
+ * @param {Object} data - the error frame / REST body
+ * @param {function} t - translation helper (BeatifyI18n.t / utils.t)
+ * @returns {string|null}
+ */
+export function specificErrorText(data, t) {
+    if (!data || !data.message_key || typeof t !== 'function') return null;
+    var key = 'errors.host.' + data.message_key;
+    var text;
+    try {
+        text = t(key, data);
+    } catch (err) {
+        return null;
+    }
+    if (typeof text !== 'string' || !text || text === key) return null;
+    if (/\{[a-z_]+\}/i.test(text)) return null;
+    return text;
+}
+
+/**
+ * Split a server error body into a translated headline and a detail line.
+ *
+ * The REST layer answers with `{code, message}` and the client prefers the
+ * `errors.<CODE>` translation over the backend's English — right for the
+ * headline, wrong as the whole message: the create-game path alone returns
+ * twelve different rejections under the single code `INVALID_REQUEST`
+ * ("No playlists selected", "Media player is unavailable", "No valid songs
+ * found in selected playlists", ...). Rendering only the translation tells the
+ * host "this request was invalid, check your setup" and hides which of the
+ * twelve actually fired — with no log line to fall back on, since _json_error
+ * does not log.
+ *
+ * So: translation as the headline, the server's own sentence underneath, and
+ * nothing underneath when it would merely repeat the headline.
+ *
+ * A translation containing an unfilled `{placeholder}` is rejected — it means
+ * the backend is older than the string and did not send the details it wants
+ * (the #1663 PROVIDER_NOT_SUPPORTED case) — and the backend message stands
+ * alone as the headline.
+ *
+ * @param {Object} data - Parsed error body; `code` and `message` are read.
+ * @param {function(string, Object): string} [translate] - i18n lookup, normally
+ *   `BeatifyI18n.t`. It returns the key itself when a string is missing.
+ * @param {string} [fallback='Failed to start game'] - Used when the body
+ *   carries no message and no usable translation.
+ * @returns {{message: string, detail: string}} headline + optional detail.
+ */
+export function errorHeadlineAndDetail(data, translate, fallback) {
+    var body = data || {};
+    var serverMsg = typeof body.message === 'string' ? body.message : '';
+    var result = { message: serverMsg || fallback || 'Failed to start game', detail: '' };
+    if (typeof translate !== 'function') return result;
+
+    // #3076: the specific message first. `errors.<CODE>` is generic on purpose
+    // (INVALID_ACTION covers twenty refusals; GAME_NOT_STARTED turned "Need at
+    // least 2 players to start" into "Game has not started"), so the server
+    // tags every message with a stable `message_key`. The frame's own fields
+    // fill the {placeholders}. Same meaning as the server text, so no detail.
+    if (body.message_key) {
+        var specific = specificErrorText(body, translate);
+        if (specific) return { message: specific, detail: '' };
+    }
+    if (!body.code) return result;
+
+    var key = 'errors.' + String(body.code).toUpperCase();
+    var translated;
+    try {
+        translated = translate(key, body);
+    } catch (err) {
+        return result;  // a throwing i18n must not swallow the server's message
+    }
+    if (!translated || translated === key) return result;
+    if (/\{[a-z_]+\}/i.test(translated)) return result;
+
+    result.message = translated;
+    if (serverMsg && serverMsg !== translated) result.detail = serverMsg;
+    return result;
+}
+
+/**
+ * Title and text of the banner for a refused lobby speaker switch (#3223).
+ *
+ * The reason comes from the existing error texts (`errors.PROVIDER_NOT_SUPPORTED`,
+ * `errors.UNSUPPORTED_PLAYER`, `errors.host.MEDIA_PLAYER_NOT_FOUND`), followed
+ * by the speaker the game stays on. `media_player` in the body is that
+ * speaker's entity id; its name comes from the admin's player list, else from
+ * the server's `current_speaker`.
+ *
+ * @param {object} data - the update-lobby rejection body.
+ * @param {Array<{entity_id: string, friendly_name?: string}>} mediaPlayers
+ * @param {(key: string, params?: object) => string} [translate]
+ * @returns {{title: string, message: string}}
+ */
+export function speakerRejectedText(data, mediaPlayers, translate) {
+    const body = data || {};
+    const t = (key, fallback, params) => {
+        let v;
+        try { v = typeof translate === 'function' ? translate(key, params) : null; } catch (e) { v = null; }
+        return (typeof v === 'string' && v && v !== key) ? v : _interpolate(fallback, params);
+    };
+    let reason = errorHeadlineAndDetail(body, translate, '').message;
+    // "Media player not found" has no full stop; the kept sentence follows it.
+    if (reason && !/[.!?…]$/.test(reason)) reason += '.';
+    const keptId = body.media_player;
+    const match = (mediaPlayers || []).find((p) => p && p.entity_id === keptId);
+    const keptName = (match && match.friendly_name) || body.current_speaker || keptId;
+    const kept = keptName
+        ? t('admin.speakerChangeRejected.kept', 'The game stays on {speaker}.', { speaker: keptName })
+        : '';
+    return {
+        title: t('admin.speakerChangeRejected.title', 'Speaker not changed'),
+        message: [reason, kept].filter(Boolean).join(' '),
+    };
+}
+
 export function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
@@ -134,6 +315,108 @@ export function acquireWakeLockFirst(requestWakeLock, action) {
 }
 
 /**
+ * Round-duration bounds. Mirror of `ROUND_DURATION_MIN` / `ROUND_DURATION_MAX`
+ * / `DEFAULT_ROUND_DURATION` in `const.py` — the server rejects anything
+ * outside the range with a 400, so the client must not invent values it will
+ * refuse (#1867).
+ *
+ * The mirror is hand-maintained, so `round-duration-mirror.test.js` parses
+ * `const.py` and fails if these three drift from it. `MIN` shipped as 10 while
+ * Python has 15, which let 10–14 pass normalisation and then 400 at the server
+ * — exactly the class of value this comment promises not to invent.
+ */
+export const ROUND_DURATION_MIN = 15;
+export const ROUND_DURATION_MAX = 60;
+export const DEFAULT_ROUND_DURATION = 45;
+
+/**
+ * Coerce a stored/user round duration to a valid integer, or `null` (#1867).
+ *
+ * Returns `null` — deliberately not a substitute value — when the input is not
+ * a finite number in range. The bug this comes from is a silent substitution:
+ * the (dead) flat-admin `setTimerDuration` clamped anything non-numeric to
+ * exactly 30, so a bad value became a *different valid* value and the game ran
+ * a duration nobody chose. A caller that gets `null` must leave the previous
+ * value alone rather than guess.
+ *
+ * @param {unknown} value - candidate duration in seconds
+ * @returns {number|null} integer seconds within range, or null
+ */
+export function normalizeRoundDuration(value) {
+    const n = typeof value === 'string' && value.trim() !== '' ? Number(value) : value;
+    if (typeof n !== 'number' || !Number.isFinite(n)) return null;
+    const seconds = Math.round(n);
+    if (seconds < ROUND_DURATION_MIN || seconds > ROUND_DURATION_MAX) return null;
+    return seconds;
+}
+
+/**
+ * Label for the round timer in the lobby meta line (#1867).
+ *
+ * Server truth wins whenever a game exists. `round_duration` is set only by
+ * `create_game` and no endpoint changes it for a live game, so anything the
+ * host edits after the lobby was minted does not reach the server — but the
+ * chip used to render that edit as if it had. Showing the server's number
+ * makes the gap visible instead of silent; appending the pending value keeps
+ * the host from reading it as the setting being ignored outright.
+ *
+ * Falls back to local intent when no game exists (nothing to disagree with)
+ * or when the payload predates the server-side echo.
+ *
+ * @param {Object} adminState - shared admin state (`currentGame`, `selectedDuration`)
+ * @returns {string} e.g. `"45s"` or `"45s → 60s next"`
+ */
+export function roundDurationLabel(adminState) {
+    const local = adminState && adminState.selectedDuration;
+    const game = adminState && adminState.currentGame;
+    const raw = game && typeof game === 'object' ? game.round_duration : undefined;
+    if (typeof raw !== 'number' || !Number.isFinite(raw)) return `${local}s`;
+    // The server types round_duration as a float, so 45 can arrive as 45.0.
+    const server = Math.round(raw);
+    if (typeof local !== 'number' || server === local) return `${server}s`;
+    return `${server}s → ${local}s next`;
+}
+
+/**
+ * True when the admin is showing *something* the user can act on (#1868).
+ *
+ * The admin has two roots and neither is visible by default: `#home-view` is
+ * `display:none` until `body.home-mode` is set, and `#wizard-root` only shows
+ * under `body.wizard-active`. Every boot path is supposed to end in one of
+ * them, but a status call that fails — or one that reports a game the server
+ * has since forgotten — could end in neither, leaving a page with only the
+ * logo, two header buttons and the version footer, and no way back except
+ * clearing localStorage.
+ *
+ * Deliberately reads *state* (body classes, the `hidden` class) rather than
+ * computed layout: the hiding is done by stylesheet rules, which unit tests do
+ * not load, so `getComputedStyle`/`offsetParent` cannot see them there. These
+ * classes are what the boot path actually toggles.
+ *
+ * @param {Document} doc - document to inspect
+ * @returns {boolean} true when a wizard, home view, or game phase is showing
+ */
+export function adminHasVisibleView(doc) {
+    const body = doc && doc.body;
+    if (!body) return false;
+    const shown = (id) => {
+        const el = doc.getElementById(id);
+        return !!el && !el.classList.contains('hidden');
+    };
+    // A body class alone is NOT evidence that anything renders. `admin.html`
+    // ships `<body class="theme-dark home-mode">` (line 61) while `#home-view`
+    // ships `hidden` (line 206) — so the original `contains('home-mode')` test
+    // was satisfied by static markup on every single page load, and this guard
+    // could never fire on the page it exists to rescue. A LOBBY game rendered
+    // into the still-hidden home view produced exactly the #1868 symptom on a
+    // build that already carried the #1868 fix. Both halves must hold: the mode
+    // is on AND its container is actually not hidden.
+    if (body.classList.contains('wizard-active') && shown('wizard-root')) return true;
+    if (body.classList.contains('home-mode') && shown('home-view')) return true;
+    return ['admin-playing-section', 'admin-reveal-section', 'admin-end-section'].some(shown);
+}
+
+/**
  * Hydrate the scalar game-settings flags from a parsed `beatify_game_settings`
  * object into `adminState`, in place. Single source of truth for the
  * localStorage(camelCase) → adminState mapping so a new mode flag can't be
@@ -148,7 +431,11 @@ export function acquireWakeLockFirst(requestWakeLock, action) {
 export function applyStoredGameSettings(adminState, s) {
     if (!adminState || !s || typeof s !== 'object') return;
     if (s.language) adminState.selectedLanguage = s.language;
-    if (s.duration) adminState.selectedDuration = s.duration;
+    // #1867: coerce + range-check instead of trusting the stored value. A
+    // string "45" from an older build used to land in adminState verbatim and
+    // travel on to the start-game payload as a string.
+    const duration = normalizeRoundDuration(s.duration);
+    if (duration !== null) adminState.selectedDuration = duration;
     if (typeof s.revealAutoAdvance === 'number') adminState.revealAutoAdvance = s.revealAutoAdvance;
     if (s.difficulty) adminState.selectedDifficulty = s.difficulty;
     if (s.provider) adminState.selectedProvider = s.provider;
@@ -157,4 +444,321 @@ export function applyStoredGameSettings(adminState, s) {
     if (typeof s.introMode === 'boolean') adminState.introModeEnabled = s.introMode;
     if (typeof s.closestWinsMode === 'boolean') adminState.closestWinsModeEnabled = s.closestWinsMode;
     if (typeof s.titleArtistMode === 'boolean') adminState.titleArtistModeEnabled = s.titleArtistMode;
+    if (typeof s.rampupOrder === 'boolean') adminState.rampupOrderEnabled = s.rampupOrder;
+    if (typeof s.finaleDouble === 'boolean') adminState.finaleDoubleEnabled = s.finaleDouble;
+    if (typeof s.finaleTiebreaker === 'boolean') adminState.finaleTiebreakerEnabled = s.finaleTiebreaker;
+    if (typeof s.comebackToken === 'boolean') adminState.comebackTokenEnabled = s.comebackToken;
+    // #2692: these two were missing. admin.js posts
+    // `difficulty_bet_scaling_enabled` and `sabotage_enabled` from adminState
+    // (admin.js:1412-1413), but nothing here ever read them back out of the
+    // saved settings — so even a host who found the hidden flat panel and
+    // ticked them lost both on the next page load. Four of the six modes were
+    // half-wired; these two were not wired at all.
+    if (typeof s.difficultyBetScaling === 'boolean') adminState.difficultyBetScalingEnabled = s.difficultyBetScaling;
+    if (typeof s.sabotage === 'boolean') adminState.sabotageEnabled = s.sabotage;
+}
+
+// --- admin-state dirty-check (#1584 / #1659) -------------------------------
+/**
+ * Keys the server re-stamps with wall-clock timestamps rather than logical
+ * state. Both are in the server's `_now()` units:
+ *   - `deadline`          — PLAYING round timer end (serializers.py L96)
+ *   - `reveal_started_at` — REVEAL entry epoch-ms (serializers.py L203, #1048)
+ *
+ * They can differ between two otherwise-identical broadcasts (e.g. a resume
+ * re-stamp) and are consumed only by CLIENT-side 1-Hz countdown timers that
+ * re-read the value on their own tick — NOT by the per-broadcast DOM render.
+ * So a payload that differs ONLY in these must still dirty-skip the repaint.
+ * Excluding them is safe: a real state change (new round / phase) always also
+ * changes non-volatile fields (`round`, `phase`, `song`, `players`, …), so the
+ * projection can never mask a genuine change into a false "equal".
+ * @type {string[]}
+ */
+export const ADMIN_STATE_VOLATILE_KEYS = ['deadline', 'reveal_started_at'];
+
+/**
+ * Shallow projection of an admin-state payload with the known-volatile keys
+ * removed. Returns the input untouched when none are present (the common case:
+ * LOBBY/END frames carry no timestamp, and same-phase bursts share the same
+ * key set), so no allocation happens on the hot path.
+ * @param {any} state
+ * @returns {any}
+ */
+function _projectAdminState(state) {
+    if (!state || typeof state !== 'object') return state;
+    let hasVolatile = false;
+    for (let i = 0; i < ADMIN_STATE_VOLATILE_KEYS.length; i++) {
+        if (ADMIN_STATE_VOLATILE_KEYS[i] in state) { hasVolatile = true; break; }
+    }
+    if (!hasVolatile) return state;
+    const projected = Object.assign({}, state);
+    for (let i = 0; i < ADMIN_STATE_VOLATILE_KEYS.length; i++) {
+        delete projected[ADMIN_STATE_VOLATILE_KEYS[i]];
+    }
+    return projected;
+}
+
+/**
+ * Cheap "unchanged?" check for the render coalescer's dirty-skip (#1584).
+ *
+ * Both payloads are the server's own stable-key-order JSON serialization of the
+ * game state, so a string compare is a sound (and far cheaper than the DOM
+ * rebuild) equality test. #1659: the volatile timestamp keys
+ * (`ADMIN_STATE_VOLATILE_KEYS`) are stripped from BOTH sides first, so two
+ * logically-equal states that differ only by a re-stamped timestamp still
+ * dirty-skip instead of forcing a wasted repaint. Any failure (e.g. a cyclic
+ * payload) falls back to "changed" → render.
+ * @param {any} a
+ * @param {any} b
+ * @returns {boolean}
+ */
+export function adminStateEqual(a, b) {
+    try {
+        return JSON.stringify(_projectAdminState(a)) === JSON.stringify(_projectAdminState(b));
+    } catch (e) {
+        return false;
+    }
+}
+
+// --- WS-broadcast render coalescing (#1584) --------------------------------
+/**
+ * Default frame scheduler: coalesce onto the next animation frame so a burst of
+ * WS `state` broadcasts collapses into a single paint. Falls back to a ~16ms
+ * timeout where `requestAnimationFrame` is unavailable (background tab, unit
+ * tests, no DOM).
+ */
+function _defaultSchedule(cb) {
+    if (typeof requestAnimationFrame === 'function') return requestAnimationFrame(cb);
+    return setTimeout(cb, 16);
+}
+
+/**
+ * Wrap a (potentially expensive) `render(data)` so that rapid calls coalesce
+ * into ONE render per animation frame, and only the LATEST payload of a burst
+ * is rendered — the final state of a burst is never dropped (#1584:
+ * `handleAdminStateUpdate` rebuilt leaderboard + result cards + reveal on every
+ * single `state` broadcast, janking weak hosts under fast updates).
+ *
+ * Returns a `push(data)` function (the drop-in replacement for the bare
+ * `render`). Two coalescing mechanisms, both behaviour-preserving:
+ *   1. Throttle: while a flush is already scheduled, extra pushes just swap in
+ *      the newer payload instead of scheduling another render.
+ *   2. Dirty-check (optional `isEqual`): if the incoming payload equals the one
+ *      already on screen (and nothing is pending), skip the repaint entirely.
+ *
+ * `push.flush()` renders any pending payload synchronously (e.g. before
+ * navigating away); `push.cancel()` drops a pending render without rendering.
+ *
+ * @param {(data:any)=>void} render          the heavy render to coalesce
+ * @param {Object} [options]
+ * @param {(cb:Function)=>any} [options.schedule] frame scheduler (default rAF)
+ * @param {(a:any,b:any)=>boolean} [options.isEqual] cheap "unchanged?" check
+ * @returns {((data:any)=>void) & {flush:Function, cancel:Function}}
+ */
+export function createRenderCoalescer(render, options) {
+    const opts = options || {};
+    const schedule = typeof opts.schedule === 'function' ? opts.schedule : _defaultSchedule;
+    const isEqual = typeof opts.isEqual === 'function' ? opts.isEqual : null;
+
+    let pending = false;     // a flush is scheduled
+    let hasLatest = false;   // we hold an un-rendered payload
+    let latest;              // newest payload of the burst (last wins)
+    let lastRendered;        // payload currently on screen (dirty-check ref)
+    let hasRendered = false;
+
+    function flush() {
+        pending = false;
+        if (!hasLatest) return;
+        const data = latest;
+        hasLatest = false;
+        latest = undefined;
+        lastRendered = data;
+        hasRendered = true;
+        render(data);
+    }
+
+    function push(data) {
+        // Dirty-check: identical to what's already painted and nothing queued →
+        // skip the repaint (and the render's idempotent side-effects).
+        if (isEqual && hasRendered && !hasLatest && isEqual(data, lastRendered)) {
+            return;
+        }
+        latest = data;       // coalesce: newest payload wins
+        hasLatest = true;
+        if (!pending) {
+            pending = true;
+            schedule(flush);
+        }
+    }
+
+    push.flush = flush;
+    push.cancel = function cancel() {
+        pending = false;
+        hasLatest = false;
+        latest = undefined;
+    };
+    return push;
+}
+
+// --- banner anchoring ------------------------------------------------------
+
+/**
+ * Pick the node a start-failure banner should dock above (#2365).
+ *
+ * `showBanner` inserts its node *before the anchor, inside the anchor's
+ * parent*. Handing it the Start button therefore does not put the banner above
+ * the button — it puts it **into** the button's row. `.home-cta-bar` is a flex
+ * container and `.home-cta-start` claims the free space with `flex: 1`, so the
+ * banner was left at its min-content width and its text wrapped one character
+ * per line. On a phone that is unreadable.
+ *
+ * The intent in the `showBanner` docstring — "docks directly above the primary
+ * action" — is met by anchoring on the *row*, not on the button inside it.
+ *
+ * @param {HTMLElement|null} startButton - the Start button that failed.
+ * @returns {HTMLElement|null} the footer row when there is one, else the button
+ *   itself (a banner in the wrong box still beats no banner), else null.
+ */
+export function bannerAnchorFor(startButton) {
+    if (!startButton) return null;
+    const bar = typeof startButton.closest === 'function'
+        ? startButton.closest('.home-cta-bar')
+        : null;
+    return bar || startButton;
+}
+
+// --- home status line (#2620) ----------------------------------------------
+/**
+ * Readable name for one entry of `beatify_game_settings.selectedPlaylists`.
+ *
+ * The stored entry is either the playlist object or its bare path, so both
+ * shapes have to work: `party/80s-classics.json` → `80s classics`. A file name
+ * is not translatable, which is why this one fragment stays as it is.
+ *
+ * @param {{path?: string}|string} entry
+ * @returns {string}
+ */
+export function playlistDisplayName(entry, playlistData) {
+    const path = (entry && entry.path) || entry || '';
+    // #3267: prefer the playlist's real name (what the wizard shows) over the
+    // filename slug, which turns "80s Hits" into "80er hits".
+    const meta = Array.isArray(playlistData)
+        ? playlistData.find((d) => d && d.path === path)
+        : null;
+    if (meta && meta.name) return meta.name;
+    return String(path).split('/').pop().replace('.json', '').replace(/-/g, ' ');
+}
+
+/**
+ * The playlist paths an update-lobby push carries (#2888).
+ *
+ * Takes the parsed `beatify_game_settings` blob, whose `selectedPlaylists`
+ * entries are either `{ path, songCount }` objects or bare paths. Returns null
+ * when there is nothing to send — Crate Digger without saved playlists, or no
+ * blob at all — which the server treats as "leave the lobby's songs alone"
+ * rather than "empty the pool".
+ *
+ * @param {Object|null} settings
+ * @returns {string[]|null}
+ */
+export function lobbyPlaylistPaths(settings) {
+    const list = settings && Array.isArray(settings.selectedPlaylists) ? settings.selectedPlaylists : [];
+    const paths = list
+        .map((entry) => (typeof entry === 'string' ? entry : entry && entry.path))
+        .filter((p) => typeof p === 'string' && p.length > 0);
+    return paths.length ? paths : null;
+}
+
+/**
+ * The one-line setup summary under the home Start button (#2620).
+ *
+ * Pure, and every fragment goes through `t` — this is the line a host reads
+ * every single time they set up a game, and it used to arrive half-translated:
+ * "🔊 Wohnzimmer · 3 playlists · normal · 45s · DE · ⏭️ Off", with the speaker
+ * name and the duration localized and the rest in English literals.
+ *
+ * @param {Object} setup
+ * @param {string} setup.speakerLabel - already-resolved "🔊 <room>" (see setup-sync.js)
+ * @param {Array} setup.playlists - `selectedPlaylists` from the stored settings blob
+ * @param {Array} [setup.playlistData] - `adminState.playlistData`, for the real playlist name (#3267)
+ * @param {boolean} setup.isLibrary - Crate Digger generates its own playlist
+ * @param {string} setup.difficulty - 'easy' | 'normal' | 'hard'
+ * @param {string} setup.roundDurationLabel - from `roundDurationLabel(adminState)`
+ * @param {string} setup.language - game language code
+ * @param {number} setup.revealAutoAdvance - seconds, 0 = off
+ * @param {(key: string, fallback: string, params?: Object) => string} t
+ * @returns {string}
+ */
+export function buildHomeMeta(setup, t) {
+    const playlists = Array.isArray(setup.playlists) ? setup.playlists : [];
+    let playlistLabel;
+    if (setup.isLibrary) {
+        // Crate Digger generates its playlist from the host's own library at
+        // game start, so it never selects one — "no playlist" would misreport a
+        // fully configured setup.
+        playlistLabel = t('admin.home.libraryPlaylistLabel', 'your library');
+    } else if (playlists.length === 0) {
+        playlistLabel = t('admin.home.noPlaylist', 'no playlist');
+    } else if (playlists.length === 1) {
+        playlistLabel = playlistDisplayName(playlists[0], setup.playlistData);
+    } else {
+        playlistLabel = t('admin.home.playlistCount', '{count} playlists', {
+            count: playlists.length,
+        });
+    }
+
+    const advance = normalizeRevealAutoAdvance(setup.revealAutoAdvance);
+    const autoLabel = advance > 0
+        ? `${advance}s`
+        : t('admin.revealAdvanceOff', 'Off');
+
+    const level = DIFFICULTY_LABELS[setup.difficulty] ? setup.difficulty : DIFFICULTY_DEFAULT;
+    const difficultyLabel = t(
+        DIFFICULTY_LABELS[level].key,
+        DIFFICULTY_LABELS[level].fallback,
+    );
+
+    const language = String(setup.language || 'en').toUpperCase();
+    const mode = `${difficultyLabel} · ${setup.roundDurationLabel} · ${language} · ⏭️ ${autoLabel}`;
+    return `${setup.speakerLabel} · ${playlistLabel} · ${mode}`;
+}
+
+/**
+ * Whether the admin join modal's button may be enabled for `name` (#2627).
+ *
+ * The cap is the shared mirror of `const.py`, not the literal 20 this used to
+ * be written as in two places — a server-side raise left the button disabled
+ * for names the server would have accepted.
+ *
+ * @param {string} name - the trimmed contents of the name field
+ * @returns {boolean}
+ */
+export function adminJoinNameValid(name) {
+    const trimmed = String(name || '').trim();
+    return trimmed.length > 0 && trimmed.length <= MAX_NAME_LENGTH;
+}
+
+/**
+ * #3058: is this the host's own My Music (library) song? Only those have a
+ * pool entry the "Wrong year? Fix it" dialog can look up. `uri_ma_library`
+ * rides in the PLAYING `admin_song`; the REVEAL payload carries `is_library`.
+ * The presence of a title says nothing — every provider sends one.
+ */
+export function isLibrarySong(song) {
+    return !!(song && (song.uri_ma_library || song.is_library));
+}
+
+/**
+ * Leave the home view and open wizard step 1, where the speaker is picked
+ * (#3160). "Edit setup" and the start-failed banner's "Select Speaker" button
+ * share it. `win` is injected so a test can pass fakes.
+ * @param {{BeatifyHome?: {exit?: Function}, BeatifyWizard?: {show?: Function}}} win
+ */
+export function openSetupStepOne(win) {
+    if (win.BeatifyHome && typeof win.BeatifyHome.exit === 'function') {
+        win.BeatifyHome.exit();
+    }
+    if (win.BeatifyWizard && typeof win.BeatifyWizard.show === 'function') {
+        win.BeatifyWizard.show(1);
+    }
 }

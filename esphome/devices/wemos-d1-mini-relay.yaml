@@ -4,7 +4,7 @@ packages:
 
 switch:
   - platform: gpio
-    name: "${name} Relay"
+    name: Relay
     id: "${id}_relay"
     pin:
       number: 5

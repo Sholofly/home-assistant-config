@@ -10,12 +10,13 @@ from homeassistant.config_entries import (
 from .const import (
     DOMAIN,
     DEFAULT_NAME,
+    DEFAULT_SCAN_INTERVAL,
+    MIN_SCAN_INTERVAL,
+    scan_interval_form_default,
     CONF_MIN_ALTITUDE,
     CONF_MAX_ALTITUDE,
-    CONF_MOST_TRACKED,
     CONF_ENABLE_TRACKER,
     CONF_AUTO_CLEANUP,
-    CONF_MOST_TRACKED_DEFAULT,
     CONF_ENABLE_TRACKER_DEFAULT,
     CONF_AUTO_CLEANUP_DEFAULT,
     MIN_ALTITUDE,
@@ -25,8 +26,9 @@ from .const import (
     TRACKER_NAME_CALLSIGN,
     TRACKER_NAME_CALLSIGN_ROUTE,
     TRACKER_NAME_REG_ROUTE,
+    HTTP_TOO_MANY_REQUESTS,
 )
-from FlightRadar24 import FlightRadar24API
+from FlightRadarAPI import FlightRadar24API
 import homeassistant.helpers.config_validation as cv
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.core import callback
@@ -38,8 +40,15 @@ from homeassistant.const import (
     CONF_PASSWORD,
     CONF_USERNAME,
 )
+from .api.helper import http_status, is_login_auth_error
 
 _LOGGER = getLogger(__name__)
+
+
+def _is_login_rate_limited(error: Exception) -> bool:
+    if http_status(error) == HTTP_TOO_MANY_REQUESTS:
+        return True
+    return "429" in str(error)
 
 
 class FlightRadarConfigFlow(ConfigFlow, domain=DOMAIN):
@@ -54,7 +63,9 @@ class FlightRadarConfigFlow(ConfigFlow, domain=DOMAIN):
                     vol.Required(CONF_RADIUS, default=1000): vol.Coerce(float),
                     vol.Required(CONF_LATITUDE): cv.latitude,
                     vol.Required(CONF_LONGITUDE): cv.longitude,
-                    vol.Required(CONF_SCAN_INTERVAL, default=10): int,
+                    vol.Required(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): vol.All(
+                        int, vol.Range(min=MIN_SCAN_INTERVAL)
+                    ),
                 }
             ),
             {
@@ -83,11 +94,21 @@ class FlightRadarOptionsFlow(OptionsFlowWithConfigEntry):
                 if username and password:
                     client = FlightRadar24API()
                     await self.hass.async_add_executor_job(client.login, username, password)
-                elif password and not username or username and not password:
-                    errors['base'] = 'You need to pass username and password'
+                elif (password and not username) or (username and not password):
+                    errors["base"] = "credentials_incomplete"
             except Exception as error:
-                _LOGGER.error('FlightRadar24 Integration Exception - {}'.format(error))
-                errors['base'] = str(error)
+                if _is_login_rate_limited(error):
+                    _LOGGER.warning(
+                        "FlightRadar24: login rate-limited while saving options (%s); "
+                        "credentials stored, integration will retry login on reload",
+                        error,
+                    )
+                elif is_login_auth_error(error):
+                    _LOGGER.error("FlightRadar24: login rejected - %s", error)
+                    errors["base"] = "invalid_auth"
+                else:
+                    _LOGGER.error("FlightRadar24: login failed - %s", error)
+                    errors["base"] = "login_failed"
 
             if not errors:
                 self.hass.config_entries.async_update_entry(self.config_entry, data=user_input)
@@ -97,14 +118,14 @@ class FlightRadarOptionsFlow(OptionsFlowWithConfigEntry):
             vol.Required(CONF_RADIUS, default=data.get(CONF_RADIUS)): vol.Coerce(float),
             vol.Required(CONF_LATITUDE, default=data.get(CONF_LATITUDE)): cv.latitude,
             vol.Required(CONF_LONGITUDE, default=data.get(CONF_LONGITUDE)): cv.longitude,
-            vol.Required(CONF_SCAN_INTERVAL, default=data.get(CONF_SCAN_INTERVAL)): int,
+            vol.Required(
+                CONF_SCAN_INTERVAL,
+                default=scan_interval_form_default(data.get(CONF_SCAN_INTERVAL)),
+            ): vol.All(int, vol.Range(min=MIN_SCAN_INTERVAL)),
             vol.Optional(CONF_MIN_ALTITUDE,
                          description={"suggested_value": data.get(CONF_MIN_ALTITUDE, MIN_ALTITUDE)}): int,
             vol.Optional(CONF_MAX_ALTITUDE,
                          description={"suggested_value": data.get(CONF_MAX_ALTITUDE, MAX_ALTITUDE)}): int,
-            vol.Optional(CONF_MOST_TRACKED,
-                         description={
-                             "suggested_value": data.get(CONF_MOST_TRACKED, CONF_MOST_TRACKED_DEFAULT)}): cv.boolean,
             vol.Optional(CONF_ENABLE_TRACKER,
                          description={
                              "suggested_value": data.get(CONF_ENABLE_TRACKER,

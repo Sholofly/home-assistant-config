@@ -46,9 +46,168 @@
     var MAX_RECONNECT_DELAY_MS = 30000;
 
     // State tracking
-    var previousPlayers = [];
     var countdownInterval = null;
-    var lastQRCodeUrl = null;
+    var lastQRCodeUrl = {};
+    // Issue #827: dedup key for the full-bleed "OUT" takeover so it only fires
+    // once per elimination (re-renders / re-broadcasts of the same REVEAL must
+    // not re-trigger it). Format: "<round>:<joined names>".
+    var sdLastOutKey = null;
+    // #2721: same dedup shape as sdLastOutKey — a REVEAL re-broadcast must not
+    // replay the halftime takeover.
+    var comebackLastKey = null;
+    var comebackTimer = null;
+    var sdOutTimer = null;
+
+    // #1705: track the countdown's active deadline so the 1Hz timer is torn
+    // down + recreated ONLY when the round's deadline actually changes — not on
+    // every state broadcast (a submission/score update re-renders the view but
+    // the clock is unchanged, so the running timer must be left ticking).
+    var lastCountdownDeadline = null;
+
+    // #2554: `song_stopped` is an event, not part of the state payload, so the
+    // chip is pinned to the round it arrived in and clears itself once the next
+    // round renders.
+    var songStoppedRound = null;
+    var lastRenderedRound = null;
+
+    // --- #1705: WS-broadcast render coalescing ------------------------------
+    // Mirrors admin's createRenderCoalescer (#1584): the dashboard used to push
+    // EVERY `state` broadcast straight into a full re-render (leaderboard
+    // innerHTML rebuild + countdown restart). A 20-player round fires ~20
+    // broadcasts → O(N^2) DOM re-parses + timer churn on the weakest TV hardware
+    // (Chromecast / Fire TV). Coalesce a burst into one paint per animation
+    // frame (latest payload wins, final state never dropped) and skip the paint
+    // entirely when nothing visible changed. Inlined here because dashboard.js
+    // ships as a standalone IIFE (not the admin ES-module bundle) so it can't
+    // import admin/util.js.
+    function _defaultRenderSchedule(cb) {
+        if (typeof requestAnimationFrame === 'function') return requestAnimationFrame(cb);
+        return setTimeout(cb, 16);
+    }
+    function createRenderCoalescer(render, options) {
+        var opts = options || {};
+        var schedule = typeof opts.schedule === 'function' ? opts.schedule : _defaultRenderSchedule;
+        var isEqual = typeof opts.isEqual === 'function' ? opts.isEqual : null;
+        var pending = false, hasLatest = false, latest, lastRendered, hasRendered = false;
+        function flush() {
+            pending = false;
+            if (!hasLatest) return;
+            var data = latest;
+            hasLatest = false; latest = undefined;
+            lastRendered = data; hasRendered = true;
+            render(data);
+        }
+        function push(data) {
+            // Dirty-check: identical to what's on screen and nothing queued → skip.
+            if (isEqual && hasRendered && !hasLatest && isEqual(data, lastRendered)) return;
+            latest = data; hasLatest = true;   // coalesce: newest payload wins
+            if (!pending) { pending = true; schedule(flush); }
+        }
+        push.flush = flush;
+        push.cancel = function() { pending = false; hasLatest = false; latest = undefined; };
+        // #3026: drop the queued payload AND forget what was painted. Used when
+        // the screen is switched outside the coalescer ("No active game"), so the
+        // next state — even one equal to the last painted frame — is rendered.
+        push.reset = function() { push.cancel(); lastRendered = undefined; hasRendered = false; };
+        return push;
+    }
+
+    // #1705: dirty-check that strips the volatile countdown-only fields. A
+    // broadcast that differs ONLY by a re-stamped `deadline` / `seconds_remaining`
+    // / `reveal_started_at` (the values the local 1Hz tickers already animate
+    // from the client clock) must NOT force a repaint. Mirrors admin's
+    // adminStateEqual (#1659).
+    function _stateRenderKey(data) {
+        if (!data) return '';
+        var clone = {};
+        for (var k in data) {
+            if (!Object.prototype.hasOwnProperty.call(data, k)) continue;
+            if (k === 'deadline' || k === 'seconds_remaining' || k === 'reveal_started_at') continue;
+            clone[k] = data[k];
+        }
+        // Also drop the live-vote re-anchor field nested in the TA challenge.
+        if (clone.title_artist_challenge && typeof clone.title_artist_challenge === 'object') {
+            var ta = {};
+            for (var tk in clone.title_artist_challenge) {
+                if (!Object.prototype.hasOwnProperty.call(clone.title_artist_challenge, tk)) continue;
+                if (tk === 'vote_seconds_remaining') continue;
+                ta[tk] = clone.title_artist_challenge[tk];
+            }
+            clone.title_artist_challenge = ta;
+        }
+        try { return JSON.stringify(clone); } catch (e) { return null; }
+    }
+    function _stateRenderEqual(a, b) {
+        var ka = _stateRenderKey(a);
+        return ka !== null && ka === _stateRenderKey(b);
+    }
+
+    // #1705: keyed row reconciler — replaces the full `container.innerHTML = …`
+    // leaderboard rebuild on every broadcast. Each desired row carries a stable
+    // `key` (player name) and its full outer-HTML string as the signature; rows
+    // whose signature is unchanged keep their existing DOM node (no re-parse, no
+    // re-triggered CSS animation), changed rows are swapped in place, stale rows
+    // are removed, and the child order is synced to `rows`.
+    function _reconcileRows(container, rows) {
+        var existing = {};
+        var child = container.firstElementChild;
+        while (child) {
+            var ek = child.getAttribute('data-row-key');
+            if (ek != null) existing[ek] = child;
+            child = child.nextElementSibling;
+        }
+        var prevSig = container._beatifyRowSigs || {};
+        var newSig = {};
+        var desired = [];
+        rows.forEach(function(row) {
+            var el = existing[row.key];
+            if (!el || prevSig[row.key] !== row.html) {
+                var tmp = document.createElement('div');
+                tmp.innerHTML = row.html;
+                var fresh = tmp.firstElementChild;
+                if (fresh) fresh.setAttribute('data-row-key', row.key);
+                // #2820: swap the stale node out. Leaving it in place kept two
+                // children with the same key — the cleanup pass below only drops
+                // keys that are no longer desired — so every changed row showed
+                // up twice on the TV.
+                if (el) {
+                    if (fresh) container.replaceChild(fresh, el);
+                    else container.removeChild(el);
+                }
+                el = fresh;
+            }
+            if (el) { newSig[row.key] = row.html; desired.push(el); }
+        });
+        // Remove nodes that are no longer desired.
+        var desiredKeys = {};
+        desired.forEach(function(n) { desiredKeys[n.getAttribute('data-row-key')] = true; });
+        child = container.firstElementChild;
+        while (child) {
+            var next = child.nextElementSibling;
+            var ck = child.getAttribute('data-row-key');
+            if (ck == null || !desiredKeys[ck]) container.removeChild(child);
+            child = next;
+        }
+        // Sync order / insert new nodes.
+        for (var i = 0; i < desired.length; i++) {
+            if (container.children[i] !== desired[i]) {
+                container.insertBefore(desired[i], container.children[i] || null);
+            }
+        }
+        container._beatifyRowSigs = newSig;
+    }
+
+    // #1712: dim/undim the frozen last frame while the socket is down so the
+    // room can tell the connection dropped without the game being wiped.
+    function _setDisconnectedDim(on) {
+        var root = document.querySelector('.dashboard-container');
+        if (root) root.classList.toggle('dashboard-disconnected', !!on);
+    }
+
+    // #1705: coalesced entry point — the heavy DOM render runs at most once per
+    // frame and only when the visible state changed. Assigned here (both the
+    // renderer and the coalescer factory are hoisted function declarations).
+    var _scheduleRender = createRenderCoalescer(_applyStateRender, { isEqual: _stateRenderEqual });
 
     // Utility functions from BeatifyUtils
     // waitForI18n, t, getLocalizedSongField, escapeHtml moved to BeatifyUtils
@@ -59,6 +218,29 @@
      */
     function showView(viewId) {
         utils.showView(allViews, viewId);
+        // #2504: one place decides that the join corner is gone, instead of a
+        // hide call in every view that does not want it. The two views that DO
+        // want it call renderJoinCorner afterwards and switch it back on — the
+        // lobby is deliberately not one of them, it carries its own large code.
+        if (viewId !== 'dashboard-playing' && viewId !== 'dashboard-reveal') {
+            hideJoinCorner();
+        }
+        // #3095: the intro wait card belongs to the playing view alone. Its
+        // parent is hidden with the view anyway; clearing the class here keeps
+        // it from flashing when the next round brings the view back.
+        if (viewId !== 'dashboard-playing') {
+            hideIntroWaitCard();
+        }
+    }
+
+    /**
+     * #3095: take the "intro round — waiting for host" card off the TV.
+     */
+    function hideIntroWaitCard() {
+        var el = document.getElementById('dashboard-intro-wait');
+        if (!el) return;
+        el.classList.remove('is-visible');
+        el.setAttribute('aria-hidden', 'true');
     }
 
     /**
@@ -75,6 +257,22 @@
         }
         // Fallback if utils failed to load: same capped backoff, 1-based attempt.
         return Math.min(1000 * Math.pow(2, reconnectAttempts - 1), MAX_RECONNECT_DELAY_MS);
+    }
+
+    // Reconnect indicator (#1578): a passive always-on TV display can lose its
+    // WebSocket overnight and the old code reconnected silently — nothing on the
+    // screen showed the connection had dropped. Surface a small, unobtrusive
+    // "Reconnecting…" badge while the socket is down so a glance at the display
+    // reveals the connection is being re-established; hide it once reconnected.
+    // The badge is a fixed corner overlay, so it never blocks the TV content.
+    function _showReconnectIndicator() {
+        var el = document.getElementById('dashboard-reconnect-indicator');
+        if (el) el.classList.remove('hidden');
+    }
+
+    function _hideReconnectIndicator() {
+        var el = document.getElementById('dashboard-reconnect-indicator');
+        if (el) el.classList.add('hidden');
     }
 
     /**
@@ -100,6 +298,12 @@
         ws.onopen = function() {
             debug('[Dashboard] WebSocket connected');
             reconnectAttempts = 0;
+            // #1578: connection is back — drop the "Reconnecting…" badge.
+            _hideReconnectIndicator();
+            // #1712: un-dim the frozen last frame; the server's next `state`
+            // broadcast is what decides whether we stay on the live view or
+            // switch to the confirmed "No active game" screen.
+            _setDisconnectedDim(false);
             // Request current state as read-only observer
             ws.send(JSON.stringify({ type: 'get_state' }));
         };
@@ -117,10 +321,17 @@
             debug('[Dashboard] WebSocket closed');
             // #1398 + #1397: retry FOREVER with capped backoff, scheduled through
             // the dedup guard so a visibilitychange reconnect can cancel the
-            // pending timer instead of racing it into a second socket. The
-            // "no game" view is an interim status, never a terminal give-up.
+            // pending timer instead of racing it into a second socket.
             reconnectAttempts++;
-            showView('dashboard-no-game');
+            // #1712: a transient mid-game WS drop must NOT wipe the live game.
+            // Keep whatever view is currently rendered (leaderboard / round /
+            // art / scores) frozen and dimmed, and surface ONLY the reconnect
+            // badge. The "No active game" screen is reserved for a
+            // server-CONFIRMED no-game state (handleStateUpdate), never a
+            // dropped socket — that used to read as a crash to the whole room.
+            _setDisconnectedDim(true);
+            // #1578: surface the reconnect attempt visibly on the TV display.
+            _showReconnectIndicator();
             var delay = getReconnectDelay();
             debug('[Dashboard] Reconnecting in ' + delay + 'ms (attempt ' + reconnectAttempts + ')');
             reconnectGuard.schedule(connectWebSocket, delay);
@@ -325,6 +536,16 @@
     });
 
     /**
+     * Switch to the server-confirmed "No active game" screen (#3026).
+     * A later `state` broadcast (new game's LOBBY) switches the TV back.
+     */
+    function showNoGameView() {
+        _scheduleRender.reset();
+        stopCountdown();
+        showView('dashboard-no-game');
+    }
+
+    /**
      * Handle messages from server
      * @param {Object} data - Parsed message data
      */
@@ -335,9 +556,19 @@
                 debug('[Dashboard] game_performance:', data.game_performance);
             }
             handleStateUpdate(data);
+        } else if (data.type === 'game_ended') {
+            // #3026: the host dismissed the game ("Start New Game") or it was
+            // ended over REST. No `state` follows once the game is torn down,
+            // so without this the TV stayed on the old game's podium.
+            showNoGameView();
         } else if (data.type === 'error') {
             debug('[Dashboard] Server error:', data.message);
-            // Dashboard ignores most errors since it's read-only
+            // #3026: the answer to our `get_state` when no game is running.
+            // Ignoring it left a freshly opened TV on the loading spinner.
+            if (data.code === 'GAME_NOT_STARTED') {
+                showNoGameView();
+            }
+            // Dashboard ignores other errors since it's read-only
         } else if (data.type === 'player_reaction') {
             // Live reactions from players (Story 18.9)
             showFloatingReaction(data.player_name, data.emoji);
@@ -351,8 +582,14 @@
             // broadcast replaces it.
             stopCountdown();
             showView('dashboard-starting');
+        } else if (data.type === 'song_stopped') {
+            // #2554: the dashboard used to ignore this. To the room the music
+            // just stopped while the timer kept running, which is
+            // indistinguishable from the speaker dying.
+            songStoppedRound = lastRenderedRound;
+            setSongStoppedChip(true);
         }
-        // Dashboard ignores submit_ack, song_stopped, volume_changed since it doesn't interact
+        // Dashboard ignores submit_ack and volume_changed since it doesn't interact
     }
 
     /**
@@ -395,8 +632,6 @@
      * @param {Object} data - State data
      */
     function handleStateUpdate(data) {
-        var phase = data.phase;
-
         // Apply language from game state (Story 12.5, 16.3)
         // Must re-render after language loads to update dynamic content
         // Guard: skip if i18n unavailable
@@ -426,11 +661,48 @@
             return;
         }
 
+        // #1705: hand the payload to the coalescer instead of rendering inline.
+        // A burst of broadcasts now collapses to one render per frame and an
+        // unchanged state skips the render entirely.
+        _scheduleRender(data);
+    }
+
+    /**
+     * Apply a state payload to the DOM (the heavy render). Invoked by the
+     * #1705 coalescer at most once per animation frame with the latest payload
+     * of a burst — never call this directly from the WS handler.
+     * @param {Object} data - State data
+     */
+    function _applyStateRender(data) {
+        var phase = data.phase;
+
+        // #1765: re-attach the per-player fields the server no longer duplicates
+        // into every slim in-round leaderboard entry (score/connected/eliminated/
+        // …) from data.players by name, so the TV rows/podium render unchanged.
+        // Hydrate into a shallow COPY so the coalescer's retained payload keeps
+        // its on-the-wire (slim) shape for equality checks (#1705).
+        if (data.leaderboard) {
+            data = Object.assign({}, data, {
+                leaderboard: utils.hydrateLeaderboard(data.leaderboard, data.players)
+            });
+        }
+
         if (!phase || phase === 'END' && !data.game_id) {
-            // No active game
+            // No active game (server-CONFIRMED — see #1712: a dropped socket
+            // does NOT reach here, so it never shows this screen).
             showView('dashboard-no-game');
             stopCountdown();
             return;
+        }
+
+        // #2702: the beats belong to one reveal. Anything that is not REVEAL
+        // ends them, which is what lets a fast next round cut the staging.
+        if (phase !== 'REVEAL') stopRevealStaging();
+
+        // #2958: "Round 7", not "Round 7 of 266", when the game has no cap.
+        // Both round chips (PLAYING and REVEAL) follow the same rule.
+        if (utils.applyRoundTotal) {
+            utils.applyRoundTotal(document.querySelectorAll('.chip-round'), data);
         }
 
         switch (phase) {
@@ -455,11 +727,117 @@
                 break;
             case 'PAUSED':
                 stopCountdown();
+                renderPausedView(data);
                 showView('dashboard-paused');
                 break;
             default:
                 debug('[Dashboard] Unknown phase:', phase);
         }
+    }
+
+    /**
+     * #2552: the paused screen names the actual reason.
+     *
+     * `pause_reason` has been in the state payload all along
+     * (game/serializers.py) and the dashboard ignored it, so a speaker failure
+     * told the room the host had disconnected — in front of a host standing
+     * next to the TV. The guests' phones meanwhile read "check your media
+     * player", which is not theirs to check.
+     */
+    function renderPausedView(state) {
+        var el = document.getElementById('dashboard-pause-message');
+        if (!el) return;
+        var reason = state && state.pause_reason;
+
+        // #2645: a pause the host set is an announcement, and the TV is where
+        // it is read. The reason takes the headline and "Pause" drops to the
+        // small line, so the room learns *why* the music stopped instead of
+        // being told, in the largest type on the wall, only that it did.
+        var announce = hostPauseAnnouncement(reason);
+        var iconEl = document.getElementById('dashboard-pause-icon');
+        if (iconEl) iconEl.textContent = announce ? announce.emoji : '⏸';
+        var titleEl = document.getElementById('dashboard-pause-title');
+        if (titleEl) {
+            titleEl.textContent = announce
+                ? announce.headline
+                : utils.t('game.paused', 'Game Paused');
+            titleEl.classList.toggle('is-announcement', !!(announce && announce.named));
+        }
+        // Kept in the accent colour rather than grey: the whole cost of this
+        // layout is that a glance reads the reason and not the state, and a
+        // grey line at this size would not be read at all.
+        var stateEl = document.getElementById('dashboard-pause-state');
+        if (stateEl) {
+            var named = !!(announce && announce.named);
+            stateEl.classList.toggle('hidden', !named);
+            stateEl.textContent = named ? utils.t('game.pausedLabel', 'Pause') : '';
+        }
+
+        if (announce) {
+            // The one thing the room needs to know, and the one thing Stop
+            // could never promise: the clock is not running.
+            el.setAttribute('data-i18n', 'game.pausedGuessesSaved');
+            el.textContent = utils.t('game.pausedGuessesSaved', 'Your guesses are saved');
+            return;
+        }
+
+        var key = 'game.waitingForHost';
+        var fallback = 'Waiting for host to reconnect...';
+        if (reason === 'media_player_error') {
+            key = 'game.pausedSpeaker';
+            fallback = 'Speaker is not responding — the host is on it';
+        } else if (reason === 'no_songs_available') {
+            key = 'game.pausedNoSongs';
+            fallback = 'No more songs available';
+        }
+        el.setAttribute('data-i18n', key);
+        el.textContent = utils.t(key, fallback);
+    }
+
+    /**
+     * #2645: the host-pause announcement, for the TV.
+     *
+     * dashboard.js is a standalone IIFE bundle and cannot import
+     * `js/host-pause.js`, which is where the canonical list lives for the two
+     * ESM bundles. This is the second copy, and
+     * `__tests__/host-pause-2645.test.js` fails the moment the two disagree —
+     * a reason added in only one of them would render on the TV as its raw
+     * code, in poster size, in front of the whole room.
+     */
+    var HOST_PAUSE_GENERIC = 'host_pause';
+    var HOST_PAUSE_TILES = [
+        { code: 'host_pause_food', emoji: '🍕', titleKey: 'game.pauseReasonFood' },
+        { code: 'host_pause_door', emoji: '🚪', titleKey: 'game.pauseReasonDoor' },
+        { code: 'host_pause_away', emoji: '⏸', titleKey: 'game.pauseReasonAway' },
+    ];
+
+    function hostPauseAnnouncement(reason) {
+        for (var i = 0; i < HOST_PAUSE_TILES.length; i++) {
+            if (HOST_PAUSE_TILES[i].code === reason) {
+                return {
+                    emoji: HOST_PAUSE_TILES[i].emoji,
+                    headline: utils.t(HOST_PAUSE_TILES[i].titleKey),
+                    named: true,
+                };
+            }
+        }
+        if (reason === HOST_PAUSE_GENERIC) {
+            // Paused without picking a tile — the room is told that much.
+            return { emoji: '⏸', headline: utils.t('game.paused', 'Game Paused'), named: false };
+        }
+        return null;
+    }
+
+    /**
+     * #2554: show or clear the "song stopped" chip in the PLAYING strip.
+     *
+     * `song_stopped` is an event, not part of the state payload, so the chip is
+     * pinned to the round it arrived in and clears itself when the next round
+     * renders.
+     */
+    function setSongStoppedChip(visible) {
+        var chip = document.getElementById('dashboard-song-stopped');
+        if (chip) chip.classList.toggle('hidden', !visible);
     }
 
     // ============================================
@@ -478,23 +856,40 @@
             renderQRCode(data.join_url);
         }
 
+        // #1713: always surface the join URL as large, readable text beneath the
+        // QR so a guest whose camera can't lock the code (or who prefers to type
+        // it) has a fallback — and so there's a real address on screen if the QR
+        // library itself fails to load. Single most important join affordance,
+        // so it must never be a single point of failure.
+        var joinUrlEl = document.getElementById('dashboard-join-url');
+        if (joinUrlEl) {
+            // #1756: localize the aria-label (was a hardcoded English "Join address").
+            joinUrlEl.setAttribute('aria-label', utils.t('dashboard.joinAddressLabel', 'Join address'));
+            if (data.join_url) {
+                renderJoinUrl(joinUrlEl, data.join_url);
+                joinUrlEl.classList.remove('hidden');
+            } else {
+                joinUrlEl.textContent = '';
+                joinUrlEl.classList.add('hidden');
+            }
+        }
+
         // Render game settings indicator (top-right corner)
         renderGameSettings(data);
 
-        // Update player count
-        // #1402-B8: was hardcoded English ("N players joined") on an otherwise
-        // localized TV dashboard. Use an i18n key with {n} interpolation plus a
-        // singular variant; utils.t() falls back to the English literal if the
-        // key is missing from a locale.
-        var countEl = document.getElementById('dashboard-player-count');
-        if (countEl) {
-            var count = players.length;
-            var joinedKey = count === 1 ? 'dashboard.playersJoinedOne' : 'dashboard.playersJoined';
-            var joinedFallback = count + ' player' + (count !== 1 ? 's' : '') + ' joined';
-            countEl.textContent = utils.t(joinedKey, joinedFallback).replace(/\{n\}/g, count);
-        }
+        // #2647: the sentence across the empty middle of the lobby. The room
+        // used to find out in round 2, at the first skull, that Sudden Death
+        // was on — the server has sent every flag all along, no screen said so.
+        // Shared with the guest's phone (player-lobby.js) so both read the same
+        // words; utils owns the wording so they cannot drift.
+        utils.renderLobbyBrief(document.getElementById('dashboard-lobby-brief'), data);
 
-        // Render player list with slide-in animation
+        // #2959: the count heads the name wall ("4 players in"). It replaces
+        // both the "Players" heading and the "N players joined" line under the
+        // QR (#1402-B8), so the number is said once, next to the names.
+        renderPlayersIn(document.getElementById('dashboard-players-in'), players.length);
+
+        // Render the name wall
         renderPlayerList(players);
     }
 
@@ -512,20 +907,82 @@
         // Translate difficulty label
         var difficultyLabel = t('admin.difficulty' + difficulty.charAt(0).toUpperCase() + difficulty.slice(1), difficulty);
 
-        el.textContent = rounds + ' ' + utils.t('dashboard.rounds', 'rounds') + ' • ' + difficultyLabel;
+        // #2958: an uncapped game has no round count worth printing — the
+        // number would only be the size of the song pool.
+        var roundsLabel = utils.isOpenEnded && utils.isOpenEnded(data)
+            ? utils.t('dashboard.allSongs', 'All songs')
+            : rounds + ' ' + utils.t('dashboard.rounds', 'rounds');
+        el.textContent = roundsLabel + ' • ' + difficultyLabel;
+    }
+
+    /**
+     * #2504: keep the way in on screen while the game runs.
+     *
+     * The corner is shown during PLAYING and REVEAL and hidden on a rule the
+     * host cannot argue with, because a judgement call here would be a setting
+     * nobody wants to make mid-party:
+     *
+     *   - Sudden Death is armed — whoever joins now is out in the next round.
+     *   - fewer than three songs remain — the average score a latecomer
+     *     inherits cannot carry a game across two rounds.
+     *
+     * Both values ride along in every state broadcast, so this needs no new
+     * server field.
+     *
+     * @param {Object} data - State data
+     */
+    function renderJoinCorner(data) {
+        var el = document.getElementById('dashboard-join-corner');
+        if (!el) return;
+
+        var remaining = data.songs_remaining;
+        var tooLate = (typeof remaining === 'number') && remaining < 3;
+        var show = !!data.join_url && !data.sudden_death_mode && !tooLate;
+
+        el.classList.toggle('hidden', !show);
+        el.setAttribute('aria-hidden', show ? 'false' : 'true');
+        // #2833/#2834: the corner is fixed and paints over what lies beneath;
+        // the stylesheet keeps its footprint free while this class is on.
+        if (document.body) document.body.classList.toggle('join-corner-open', show);
+        if (!show) return;
+
+        renderQRCode(data.join_url, 'join-corner-qr', 96);
+
+        var urlEl = document.getElementById('join-corner-url');
+        if (urlEl) {
+            // The full address does not fit next to a 96 px code on a TV seen
+            // from the sofa. The path is what a guest types; the host is on the
+            // same network and knows the host part.
+            urlEl.textContent = String(data.join_url).replace(/^https?:\/\/[^/]*/, '\u2026');
+        }
+    }
+
+    /**
+     * #2504: hide the corner outside the two phases that show it.
+     */
+    function hideJoinCorner() {
+        if (document.body) document.body.classList.remove('join-corner-open');
+        var el = document.getElementById('dashboard-join-corner');
+        if (!el) return;
+        el.classList.add('hidden');
+        el.setAttribute('aria-hidden', 'true');
     }
 
     /**
      * Render QR code for joining game
      * @param {string} joinUrl - URL to encode
      */
-    function renderQRCode(joinUrl) {
-        var container = document.getElementById('dashboard-qr-code');
+    function renderQRCode(joinUrl, containerId, size) {
+        var id = containerId || 'dashboard-qr-code';
+        var container = document.getElementById(id);
         if (!container) return;
 
-        // Skip re-render if URL hasn't changed (prevents flicker)
-        if (joinUrl === lastQRCodeUrl) return;
-        lastQRCodeUrl = joinUrl;
+        // Skip re-render if URL hasn't changed (prevents flicker). #2504 added a
+        // second, smaller code in the corner during play, so the guard is kept
+        // per container — one shared variable made the corner render once and
+        // then never again after the lobby had drawn the same URL.
+        if (lastQRCodeUrl[id] === joinUrl) return;
+        lastQRCodeUrl[id] = joinUrl;
 
         // Clear previous
         container.innerHTML = '';
@@ -533,20 +990,162 @@
         if (typeof QRCode !== 'undefined') {
             new QRCode(container, {
                 text: joinUrl,
-                width: 200,
-                height: 200,
+                width: size || 200,
+                height: size || 200,
                 colorDark: '#000000',
                 colorLight: '#ffffff',
                 correctLevel: QRCode.CorrectLevel.M
             });
         } else {
-            container.innerHTML = '<p>QR code unavailable</p>';
+            // #1713: QR library failed to load — don't dead-end on "unavailable".
+            // The readable join URL rendered beneath the QR (renderLobbyView) is
+            // the fallback, so point the guest at it.
+            container.innerHTML = '<p class="dashboard-qr-fallback">' +
+                utils.escapeHtml(utils.t('dashboard.qrUnavailable', 'Scan unavailable — enter the web address below')) +
+                '</p>';
         }
     }
 
     /**
-     * Render player list in lobby
-     * @param {Array} players - Array of player objects
+     * #2959: how many columns the name wall gets for a player count.
+     *
+     * A fixed rule instead of a fit-to-width calculation, so the wall looks the
+     * same on every TV: three columns hold up to six names in two rows, four
+     * columns from seven, five from thirteen. The tiles shrink with each step
+     * so the right half stays filled without scrolling for a normal party.
+     *
+     * @param {number} count - players in the lobby
+     * @returns {number} 3, 4 or 5
+     */
+    function lobbyWallColumns(count) {
+        if (count >= 13) return 5;
+        if (count >= 7) return 4;
+        return 3;
+    }
+
+    /**
+     * #2959: split a join URL into the two lines the TV shows.
+     *
+     * The protocol goes (nobody types "http://" off a TV), and the break sits
+     * in front of `game=` — never inside the game ID, which used to wrap
+     * wherever the box ran out ("…pjdG4N36 / 2V0") and could not be typed.
+     * A URL without `game=` stays one line.
+     *
+     * @param {string} url - the join URL from the state payload
+     * @returns {{head: string, id: string}} `id` is '' when there is no `game=`
+     */
+    function splitJoinUrl(url) {
+        var text = String(url == null ? '' : url).replace(/^[a-z][a-z0-9+.-]*:\/\//i, '');
+        var at = text.indexOf('game=');
+        if (at <= 0) return { head: text, id: '' };
+        return { head: text.slice(0, at), id: text.slice(at) };
+    }
+
+    /**
+     * Write the two-line join address (#2959). Built from text nodes, never
+     * innerHTML: the URL comes off the wire.
+     */
+    function renderJoinUrl(el, url) {
+        var parts = splitJoinUrl(url);
+        while (el.firstChild) el.removeChild(el.firstChild);
+        var head = document.createElement('span');
+        head.className = 'join-url-head';
+        head.textContent = parts.head;
+        el.appendChild(head);
+        if (parts.id) {
+            var id = document.createElement('span');
+            id.className = 'join-url-id';
+            id.textContent = parts.id;
+            el.appendChild(id);
+        }
+    }
+
+    /**
+     * The name wall's heading: "{n} players in", with the number in the
+     * accent colour (#2959).
+     */
+    function renderPlayersIn(el, count) {
+        if (!el) return;
+        var key = count === 1 ? 'lobby.playersInOne' : 'lobby.playersIn';
+        var fallback = count === 1 ? '{n} player in' : '{n} players in';
+        var template = utils.t(key, fallback);
+        var at = template.indexOf('{n}');
+        while (el.firstChild) el.removeChild(el.firstChild);
+        if (at === -1) {
+            el.textContent = template;
+            return;
+        }
+        el.appendChild(document.createTextNode(template.slice(0, at)));
+        var num = document.createElement('span');
+        num.className = 'players-in-count';
+        num.textContent = String(count);
+        el.appendChild(num);
+        el.appendChild(document.createTextNode(template.slice(at + 3)));
+    }
+
+    /**
+     * One name tile: avatar initial + name (#2959).
+     */
+    function buildPlayerTile(player, isNew) {
+        var name = String(player.name == null ? '' : player.name);
+        var tile = document.createElement('div');
+        tile.className = 'dashboard-player-card';
+        if (isNew) tile.classList.add('is-new');
+        if (player.connected === false) tile.classList.add('dashboard-player-card--disconnected');
+
+        var avatar = document.createElement('span');
+        avatar.className = 'dashboard-player-avatar';
+        avatar.setAttribute('aria-hidden', 'true');
+        avatar.textContent = name.trim().charAt(0).toUpperCase();
+        avatar.style.background = endAvatarGradient(name);
+        tile.appendChild(avatar);
+
+        var label = document.createElement('span');
+        label.className = 'dashboard-player-name';
+        label.textContent = name;
+        tile.appendChild(label);
+
+        if (player.connected === false) {
+            var away = document.createElement('span');
+            away.className = 'away-badge';
+            away.textContent = '(' + utils.t('lobby.away', 'away') + ')';
+            tile.appendChild(away);
+        }
+        return tile;
+    }
+
+    /**
+     * Bring an existing tile in line with the player's current state (#2964).
+     * Only the away state can change on a tile; the name is its key.
+     */
+    function syncPlayerTile(tile, player) {
+        var away = player.connected === false;
+        tile.classList.toggle('dashboard-player-card--disconnected', away);
+        var badge = tile.querySelector('.away-badge');
+        if (away && !badge) {
+            badge = document.createElement('span');
+            badge.className = 'away-badge';
+            badge.textContent = '(' + utils.t('lobby.away', 'away') + ')';
+            tile.appendChild(badge);
+        } else if (!away && badge) {
+            tile.removeChild(badge);
+        }
+    }
+
+    /**
+     * Render the lobby name wall (#2959): a grid of large name tiles, the
+     * newest joiner glowing cyan for a moment, and a dashed "waiting for
+     * more…" tile at the end.
+     *
+     * #2964: the wall is updated in place, keyed by name. It used to be
+     * cleared and rebuilt on every render, and a join renders twice (the join
+     * broadcast, then the guest's phone finishing or skipping the onboarding
+     * tour flips `onboarded`), so every name on the TV vanished and slid back
+     * in twice per guest. Now a tile is created once, when its player first
+     * appears — only that tile animates — and a render that changes nothing
+     * the wall shows (same names, same order, same away state) touches no DOM.
+     *
+     * @param {Array} players
      */
     function renderPlayerList(players) {
         var listEl = document.getElementById('dashboard-player-list');
@@ -560,36 +1159,72 @@
             return 0;
         });
 
-        // Find new players
-        var previousNames = previousPlayers.map(function(p) { return p.name; });
-        var newNames = sortedPlayers
-            .filter(function(p) { return previousNames.indexOf(p.name) === -1; })
-            .map(function(p) { return p.name; });
+        // The waiting tile's words follow the TV language, which can change
+        // without the players changing.
+        var waitingText = utils.t('lobby.waitingForMore', 'waiting for more…');
+        var waitingTile = listEl.querySelector('.dashboard-player-card--waiting');
+        if (waitingTile && waitingTile.textContent !== waitingText) waitingTile.textContent = waitingText;
 
-        // Render player cards
-        listEl.innerHTML = sortedPlayers.map(function(player) {
-            var isNew = newNames.indexOf(player.name) !== -1;
-            var isDisconnected = player.connected === false;
-            var classes = ['dashboard-player-card'];
-            if (isNew) classes.push('is-new');
-            if (isDisconnected) classes.push('dashboard-player-card--disconnected');
+        // #2964: one join, one update. Everything else in the payload (scores,
+        // onboarding …) is invisible here.
+        var signature = sortedPlayers.map(function(p) {
+            return String(p.name) + (p.connected === false ? '\u0000away' : '');
+        }).join('\u0001');
+        if (listEl.getAttribute('data-wall') === signature) return;
+        listEl.setAttribute('data-wall', signature);
+        listEl.setAttribute('data-cols', String(lobbyWallColumns(sortedPlayers.length)));
 
-            var awayBadge = isDisconnected ? '<span class="away-badge">(away)</span>' : '';
+        // Index the tiles already on screen by player name.
+        var existing = {};
+        var waiting = null;
+        var child = listEl.firstElementChild;
+        while (child) {
+            var key = child.getAttribute('data-player');
+            if (key !== null) existing[key] = child;
+            else if (child.classList.contains('dashboard-player-card--waiting')) waiting = child;
+            child = child.nextElementSibling;
+        }
 
-            return '<div class="' + classes.join(' ') + '">' +
-                utils.escapeHtml(player.name) + awayBadge +
-            '</div>';
-        }).join('');
-
-        // Remove is-new class after animation
-        setTimeout(function() {
-            var newCards = listEl.querySelectorAll('.is-new');
-            for (var i = 0; i < newCards.length; i++) {
-                newCards[i].classList.remove('is-new');
+        var desired = sortedPlayers.map(function(player) {
+            var name = String(player.name == null ? '' : player.name);
+            var tile = existing[name];
+            if (tile) {
+                delete existing[name];
+                syncPlayerTile(tile, player);
+            } else {
+                // First appearance: the only tile that animates.
+                tile = buildPlayerTile(player, true);
+                tile.setAttribute('data-player', name);
+                scheduleNewTileFade(tile);
             }
-        }, 2000);
+            return tile;
+        });
 
-        previousPlayers = players.slice();
+        // Players who left.
+        Object.keys(existing).forEach(function(name) {
+            listEl.removeChild(existing[name]);
+        });
+
+        if (!waiting) {
+            waiting = document.createElement('div');
+            waiting.className = 'dashboard-player-card dashboard-player-card--waiting';
+            waiting.textContent = waitingText;
+        }
+        desired.push(waiting);
+
+        // Sync the order; nodes already in place are not moved.
+        for (var i = 0; i < desired.length; i++) {
+            if (listEl.children[i] !== desired[i]) {
+                listEl.insertBefore(desired[i], listEl.children[i] || null);
+            }
+        }
+    }
+
+    /** Drop the cyan "just joined" glow after two seconds (#2959). */
+    function scheduleNewTileFade(tile) {
+        setTimeout(function() {
+            tile.classList.remove('is-new');
+        }, 2000);
     }
 
     // ============================================
@@ -604,6 +1239,15 @@
         var song = data.song || {};
         var players = data.players || [];
 
+        renderJoinCorner(data);
+
+        // #2554: a stop belongs to the round it happened in.
+        lastRenderedRound = data.round;
+        if (songStoppedRound !== data.round) {
+            songStoppedRound = null;
+            setSongStoppedChip(false);
+        }
+
         // Update round indicator
         var currentRound = document.getElementById('dashboard-current-round');
         var totalRounds = document.getElementById('dashboard-total-rounds');
@@ -615,6 +1259,7 @@
         if (introBadge) {
             if (data.is_intro_round) {
                 introBadge.classList.remove('hidden');
+                introBadge.classList.remove('chip-badge--sample-stopped');
                 var badgeText = introBadge.querySelector('[data-i18n]');
                 if (data.intro_stopped) {
                     introBadge.classList.add('intro-badge--stopped');
@@ -629,9 +1274,22 @@
                         badgeText.textContent = utils.t('game.introRound') || 'INTRO ROUND';
                     }
                 }
+            } else if (data.sample_stopped) {
+                // #3152: the host set a song length shorter than the answer
+                // time and it has run out. The speaker is silent on purpose;
+                // the same chip, in its stopped state, says so.
+                introBadge.classList.remove('hidden');
+                introBadge.classList.add('intro-badge--stopped');
+                introBadge.classList.add('chip-badge--sample-stopped');
+                var sampleText = introBadge.querySelector('[data-i18n]');
+                if (sampleText) {
+                    sampleText.setAttribute('data-i18n', 'game.sampleStopped');
+                    sampleText.textContent = utils.t('game.sampleStopped') || 'Song over · keep guessing';
+                }
             } else {
                 introBadge.classList.add('hidden');
                 introBadge.classList.remove('intro-badge--stopped');
+                introBadge.classList.remove('chip-badge--sample-stopped');
             }
         }
 
@@ -646,24 +1304,70 @@
         }
 
         // Update album art (blurred - AC 10.4.3)
+        // #1767: unchanged-src short-circuit (mirrors handleMetadataUpdate +
+        // player-game.js/player-reveal.js). renderPlayingView runs on EVERY changed
+        // PLAYING broadcast (each vote/submission tick passes the #1705 coalescer);
+        // reassigning albumArt.src — even to the same URL — re-runs the image load
+        // algorithm (re-decode + paint) on weak TV hardware. Track the last
+        // requested URL on the element (album_art can be relative, so the resolved
+        // .src is unreliable) and skip when unchanged.
         var albumArt = document.getElementById('dashboard-album-art');
         if (albumArt) {
-            albumArt.src = song.album_art || '/beatify/static/img/no-artwork.svg';
-            albumArt.onerror = function() {
-                this.src = '/beatify/static/img/no-artwork.svg';
-            };
+            var newArtSrc = song.album_art || '/beatify/static/img/no-artwork.svg';
+            if (albumArt._beatifyRequestedSrc !== newArtSrc) {
+                albumArt._beatifyRequestedSrc = newArtSrc;
+                albumArt.onerror = function() {
+                    // Reset so a later retry with the same URL re-attempts the load.
+                    this._beatifyRequestedSrc = null;
+                    this.src = '/beatify/static/img/no-artwork.svg';
+                };
+                albumArt.src = newArtSrc;
+            }
         }
 
-        // Start countdown
-        if (data.deadline) {
-            startCountdown(data.deadline);
+        // #3095: say on the TV what the phones say — the intro round is
+        // waiting for the host. Follows the flag on every playing frame, so
+        // the frame that clears it takes the card away again.
+        var introWait = document.getElementById('dashboard-intro-wait');
+        if (introWait) {
+            var introWaiting = !!data.intro_splash_pending;
+            introWait.classList.toggle('is-visible', introWaiting);
+            introWait.setAttribute('aria-hidden', introWaiting ? 'false' : 'true');
+        }
+
+        // #3027: while the intro splash waits for the host, the deadline in
+        // the frame is only a placeholder (round_manager re-stamps it on
+        // confirm). Hold the timer full instead of counting it down to a
+        // critical-red 0 while no music plays. stopCountdown() also forgets
+        // the tracked deadline, so the frame that clears the flag restarts it.
+        if (data.intro_splash_pending) {
+            stopCountdown();
+            showRestingTimer(data.round_duration);
+        } else if (data.deadline && data.deadline !== lastCountdownDeadline) {
+            // Start countdown — #1705: (re)start ONLY when the round's deadline
+            // actually changes. On a plain re-render (a submission/score update
+            // that reuses the same deadline) the running 1Hz timer must keep
+            // ticking instead of being torn down + recreated on every broadcast.
+            lastCountdownDeadline = data.deadline;
+            // #1662: pass the server's relative seconds_remaining so the
+            // countdown anchors to the client's own clock (skew-immune).
+            startCountdown(data.deadline, data.seconds_remaining);
         }
 
         // Render leaderboard with submission indicators and bet badges
         renderLeaderboard(data.leaderboard || [], players, 'dashboard-leaderboard', true, true);
+        renderGhostLeague(data.ghost_league, 'ghost-league-playing');
 
         // Update round statistics (Story 16.4)
         renderRoundStats(data, players);
+
+        // Issue #827: Sudden-Death FINAL banner (2 players left).
+        renderSuddenDeathFinalBanner(data, 'sd-final-banner-playing');
+
+        // #2719 / #2722: say why the deciding round is different — doubled
+        // points, or an extra song because the top of the table is tied.
+        renderFinaleDoubleBanner(data, 'dashboard-finale-banner-playing');
+        renderFinalePlayoffBanner(data, 'dashboard-playoff-banner-playing');
     }
 
     /**
@@ -676,9 +1380,16 @@
         debug('[Dashboard] data.players:', data.players);
 
         // Calculate submission count
+        // #3055: count only players still in the round — the same predicate as
+        // the phone (player-game.js) and the server (player_registry.py).
+        // Eliminated players, playoff spectators and guests the host sat out
+        // never submit, so counting them left the TV at e.g. "5/8" forever.
         var submitted = 0;
-        var total = players.length;
-        players.forEach(function(p) {
+        var activePlayers = players.filter(function(p) {
+            return !p.eliminated && !p.playoff_spectator && !p.sat_out_by_host;
+        });
+        var total = activePlayers.length;
+        activePlayers.forEach(function(p) {
             if (p.submitted) submitted++;
         });
 
@@ -694,8 +1405,14 @@
 
         // Time remaining is already shown in the main timer, but we update the stat too
         var timeEl = document.getElementById('dashboard-time-remaining');
-        if (timeEl && data.deadline) {
-            var remaining = Math.max(0, Math.ceil((data.deadline - Date.now()) / 1000));
+        // #3027: a pending intro splash holds the timer (renderPlayingView).
+        if (timeEl && data.deadline && !data.intro_splash_pending) {
+            // #1662: prefer the server's relative seconds_remaining (skew-immune)
+            // over subtracting the server wall-clock deadline from a possibly
+            // wrong client clock. Fall back to the absolute deadline if absent.
+            var remaining = (typeof data.seconds_remaining === 'number')
+                ? Math.max(0, data.seconds_remaining)
+                : Math.max(0, Math.ceil((data.deadline - Date.now()) / 1000));
             timeEl.textContent = remaining + 's';
         }
     }
@@ -703,8 +1420,13 @@
     /**
      * Start countdown timer (AC 10.4.3)
      * @param {number} deadline - Server deadline timestamp in milliseconds
+     * @param {number} [secondsRemaining] - Server-computed *relative* seconds
+     *   left. #1662: when present, the countdown re-anchors to the CLIENT's own
+     *   clock (skew-immune) instead of subtracting the server wall-clock
+     *   `deadline` from a possibly-wrong client `Date.now()`. Mirrors the
+     *   TA-vote timer (player-reveal.js). Absent → fall back to raw `deadline`.
      */
-    function startCountdown(deadline) {
+    function startCountdown(deadline, secondsRemaining) {
         stopCountdown();
 
         var timerElement = document.getElementById('dashboard-timer');
@@ -713,9 +1435,16 @@
 
         timerElement.classList.remove('timer--warning', 'timer--critical');
 
+        // #1662: derive a CLIENT-LOCAL deadline from the server's relative
+        // remaining seconds so a wrong client clock can't skew the countdown.
+        var effectiveDeadline =
+            (typeof secondsRemaining === 'number' && isFinite(secondsRemaining))
+                ? Date.now() + secondsRemaining * 1000
+                : deadline;
+
         function updateCountdown() {
             var now = Date.now();
-            var remaining = Math.max(0, Math.ceil((deadline - now) / 1000));
+            var remaining = Math.max(0, Math.ceil((effectiveDeadline - now) / 1000));
 
             timerElement.textContent = remaining;
 
@@ -745,6 +1474,22 @@
     }
 
     /**
+     * #3027: show the timer at rest — full round length, no warning colour —
+     * without a running countdown.
+     * @param {number} [roundDuration] - Round length in seconds
+     */
+    function showRestingTimer(roundDuration) {
+        var timerElement = document.getElementById('dashboard-timer');
+        if (!timerElement) return;
+        timerElement.classList.remove('timer--warning', 'timer--critical');
+        if (typeof roundDuration === 'number' && roundDuration > 0) {
+            timerElement.textContent = roundDuration;
+            var timeStatEl = document.getElementById('dashboard-time-remaining');
+            if (timeStatEl) timeStatEl.textContent = roundDuration + 's';
+        }
+    }
+
+    /**
      * Stop countdown timer
      */
     function stopCountdown() {
@@ -752,6 +1497,9 @@
             clearInterval(countdownInterval);
             countdownInterval = null;
         }
+        // #1705: forget the tracked deadline so the next PLAYING round always
+        // (re)starts its countdown, even if it happens to reuse the same value.
+        lastCountdownDeadline = null;
     }
 
     /**
@@ -762,6 +1510,158 @@
      * @param {boolean} showSubmitted - Whether to show submission indicators
      * @param {boolean} showBet - Whether to show bet badges next to names
      */
+    /**
+     * #2559 Ghost League — die zweite Tabelle unter den Lebenden.
+     *
+     * Bewusst NICHT in `renderLeaderboard` eingemischt: ein Geist zwischen
+     * Lebenden liest sich als Wertung, und genau das soll er nicht sein. Die
+     * gewaehlte Variante nimmt die zwei Tabellen auf einem Fernseher in Kauf
+     * und bezahlt sie mit der Zeile „eigene Punkte, kein Einfluss auf das
+     * Spiel" — deshalb steht die im Kopf und nicht als Fussnote.
+     *
+     * Blendet sich aus, solange niemand als Geist geraten hat. Ein Spiel ohne
+     * Sudden Death sieht damit aus wie vorher.
+     */
+    function renderGhostLeague(league, containerId) {
+        var box = document.getElementById(containerId);
+        if (!box) return;
+        var rows = league || [];
+        box.classList.toggle('hidden', rows.length === 0);
+        if (!rows.length) return;
+        var list = box.querySelector('.ghost-league-rows');
+        if (!list) return;
+        list.innerHTML = rows.map(function(g) {
+            // „raus in R2 · 5 Runden" — beides, weil die eine Zahl ohne die
+            // andere nichts sagt: fruehes Aus heisst viele Runden, und der
+            // Award rechnet genau dagegen.
+            var meta = [
+                utils.t('superlatives.ghostOut', { round: g.eliminated_round || '?' }),
+                g.ghost_rounds === 1
+                    ? utils.t('superlatives.ghostRound')
+                    : utils.t('superlatives.ghostRounds', { n: g.ghost_rounds })
+            ].join(' · ');
+            return '<div class="ghost-row">'
+                + '<span class="ghost-rank">' + g.rank + '</span>'
+                + '<span class="ghost-name">' + utils.escapeHtml(g.name) + '</span>'
+                + '<span class="ghost-meta">' + utils.escapeHtml(meta) + '</span>'
+                + '<span class="ghost-score">' + g.ghost_score + ' gp</span>'
+                + '</div>';
+        }).join('');
+    }
+
+    /**
+     * #3019: one TV leaderboard row, shared by the round leaderboard
+     * (renderLeaderboard) and the reveal leaderboard (renderRevealLeaderboard).
+     *
+     * The two used to be hand-copied row builders that drifted: every row
+     * feature (#827, #2578, #2584, #2746, #2994) had to be added twice, and the
+     * reveal copy never got the finalist and sabotage badges — so both vanished
+     * the moment the round flipped to the reveal, when the whole room is
+     * looking at the TV.
+     *
+     * @param {Object} entry - hydrated leaderboard entry
+     * @param {Array} leaderboard - the whole board (the finalist badge needs
+     *   to know whether a playoff is running at all)
+     * @param {Object} [opts]
+     * @param {boolean} [opts.revealArrows] - reveal's .entry-change arrows
+     * @param {string} [opts.betBadge] - HTML appended after the away badge
+     * @param {string} [opts.submittedIndicator] - HTML appended after the score
+     * @returns {string} the row's HTML
+     */
+    function buildLeaderboardRowHtml(entry, leaderboard, opts) {
+        opts = opts || {};
+        var rankClass = entry.rank <= 3 ? 'is-top-' + entry.rank : '';
+
+        // Rank change animation class
+        var animationClass = '';
+        if (entry.rank_change > 0) {
+            animationClass = 'leaderboard-entry--climbing';
+        } else if (entry.rank_change < 0) {
+            animationClass = 'leaderboard-entry--falling';
+        }
+
+        // Story 11.4: Disconnected player styling
+        var disconnectedClass = entry.connected === false ? 'leaderboard-entry--disconnected' : '';
+        var awayBadge = entry.connected === false ? '<span class="away-badge">(' + utils.escapeHtml(utils.t('lobby.away', 'away')) + ')</span>' : '';
+
+        // Issue #827: Sudden-Death — eliminated players render dimmed with a
+        // 💀 prefix. Reuses .leaderboard-entry--disconnected for the dim.
+        var eliminatedClass = entry.eliminated ? 'leaderboard-entry--disconnected' : '';
+        var skullPrefix = entry.eliminated ? '💀 ' : '';
+
+        // Rank change indicator (AC 10.4.4 - with arrows)
+        // The reveal has always used its own arrow markup (.entry-change);
+        // kept as is so neither screen changes its look.
+        var changeIndicator = '';
+        if (entry.rank_change > 0) {
+            changeIndicator = opts.revealArrows
+                ? '<span class="entry-change is-positive">▲' + entry.rank_change + '</span>'
+                : '<span class="rank-up">▲' + entry.rank_change + '</span>';
+        } else if (entry.rank_change < 0) {
+            changeIndicator = opts.revealArrows
+                ? '<span class="entry-change is-negative">▼' + Math.abs(entry.rank_change) + '</span>'
+                : '<span class="rank-down">▼' + Math.abs(entry.rank_change) + '</span>';
+        }
+
+        // Streak indicator (AC 10.4.3 - with fire emoji)
+        var streakIndicator = '';
+        if (entry.streak >= 2) {
+            var hotClass = entry.streak >= 5 ? 'streak-indicator--hot' : '';
+            streakIndicator = '<span class="streak-indicator ' + hotClass + '">🔥' + entry.streak + '</span>';
+        }
+
+        // #2578: Variante B aus dem Design-Entwurf — im Finale-Stechen
+        // bekommen die ZWEI Finalisten ein Abzeichen, alle anderen bleiben
+        // normal. Vorher trugen die Nicht-Fuehrenden `eliminated` und der
+        // Fernseher zeigte bei acht Spielern sechs Totenkoepfe, obwohl
+        // niemand rausgeflogen war.
+        //
+        // Der Bildschirm sagt jetzt, was wahr ist („zwei sind im Stechen"),
+        // statt etwas Falsches zu behaupten — und das sind zwei Abzeichen
+        // statt sechs Entwertungen.
+        var playoffLaeuft = leaderboard.some(function (x) { return x.playoff_spectator; });
+        var finalistBadge = (playoffLaeuft && !entry.playoff_spectator)
+            ? '<span class="finalist-badge">⚔️ ' + utils.escapeHtml(
+                utils.t('reveal.finalePlayoff') || 'Finale') + '</span>'
+            : '';
+
+        // #2584: Sabotage sichtbar machen — Variante B aus dem Design-Entwurf
+        // vom 05.09.2026. Bis dahin sahen den Treffer nur Taeter und Opfer
+        // auf ihren Handys; der halbe Raum schaut aber auf den Fernseher,
+        // und genau dort passierte das lauteste soziale Element des Spiels
+        // unsichtbar.
+        //
+        // Das Abzeichen steht in der Zeile des GETROFFENEN, nicht als
+        // Einblendung ueber dem Jahr: es beantwortet die Frage, die im Raum
+        // gestellt wird („wen hat's erwischt?"), es bleibt den ganzen Reveal
+        // lesbar, und zwei Treffer in einer Runde stapeln sich nicht.
+        // Der Taeter wird genannt — Sabotage ist ein soziales Element, ohne
+        // Namen fehlt ihr die Pointe.
+        var sabotageBadge = '';
+        if (entry.sabotaged_by) {
+            var effektName = utils.t('sabotage.effect.' + (entry.sabotage_effect || ''), '');
+            var effektKurz = effektName && effektName.indexOf('sabotage.effect.') !== 0
+                ? effektName
+                : '';
+            sabotageBadge = '<span class="sabotage-badge" title="'
+                + utils.escapeHtml(entry.sabotaged_by) + (effektKurz ? ' · ' + utils.escapeHtml(effektKurz) : '')
+                + '">❄️ ' + utils.escapeHtml(entry.sabotaged_by)
+                + (effektKurz ? ' <small>' + utils.escapeHtml(effektKurz) + '</small>' : '')
+                + '</span>';
+        }
+
+        return '<div class="leaderboard-entry ' + rankClass + ' ' + animationClass + ' ' + disconnectedClass + ' ' + eliminatedClass + '">' +
+            '<span class="entry-rank">#' + entry.rank + '</span>' +
+            '<span class="entry-name">' + skullPrefix + utils.escapeHtml(entry.name) + awayBadge + (opts.betBadge || '') + finalistBadge + sabotageBadge + '</span>' +
+            '<span class="entry-meta">' +
+                streakIndicator +
+                changeIndicator +
+            '</span>' +
+            '<span class="entry-score">' + entry.score + '</span>' +
+            (opts.submittedIndicator || '') +
+        '</div>';
+    }
+
     function renderLeaderboard(leaderboard, players, containerId, showSubmitted, showBet) {
         var container = document.getElementById(containerId);
         if (!container) return;
@@ -776,37 +1676,9 @@
             });
         }
 
-        var html = '';
-        leaderboard.forEach(function(entry) {
-            var rankClass = entry.rank <= 3 ? 'is-top-' + entry.rank : '';
-
-            // Rank change animation class
-            var animationClass = '';
-            if (entry.rank_change > 0) {
-                animationClass = 'leaderboard-entry--climbing';
-            } else if (entry.rank_change < 0) {
-                animationClass = 'leaderboard-entry--falling';
-            }
-
-            // Story 11.4: Disconnected player styling
-            var disconnectedClass = entry.connected === false ? 'leaderboard-entry--disconnected' : '';
-            var awayBadge = entry.connected === false ? '<span class="away-badge">(away)</span>' : '';
-
-            // Rank change indicator (AC 10.4.4 - with arrows)
-            var changeIndicator = '';
-            if (entry.rank_change > 0) {
-                changeIndicator = '<span class="rank-up">▲' + entry.rank_change + '</span>';
-            } else if (entry.rank_change < 0) {
-                changeIndicator = '<span class="rank-down">▼' + Math.abs(entry.rank_change) + '</span>';
-            }
-
-            // Streak indicator (AC 10.4.3 - with fire emoji)
-            var streakIndicator = '';
-            if (entry.streak >= 2) {
-                var hotClass = entry.streak >= 5 ? 'streak-indicator--hot' : '';
-                streakIndicator = '<span class="streak-indicator ' + hotClass + '">🔥' + entry.streak + '</span>';
-            }
-
+        // #1705: build keyed rows and diff them into the DOM instead of blowing
+        // away the whole N-row list with innerHTML on every broadcast.
+        var rows = leaderboard.map(function(entry) {
             // Bet badge next to name during playing phase
             var betBadge = '';
             if (showBet && betMap[entry.name]) {
@@ -820,19 +1692,16 @@
                 submittedIndicator = '<div class="entry-submitted ' + (isSubmitted ? 'is-submitted' : '') + '"></div>';
             }
 
-            html += '<div class="leaderboard-entry ' + rankClass + ' ' + animationClass + ' ' + disconnectedClass + '">' +
-                '<span class="entry-rank">#' + entry.rank + '</span>' +
-                '<span class="entry-name">' + utils.escapeHtml(entry.name) + awayBadge + betBadge + '</span>' +
-                '<span class="entry-meta">' +
-                    streakIndicator +
-                    changeIndicator +
-                '</span>' +
-                '<span class="entry-score">' + entry.score + '</span>' +
-                submittedIndicator +
-            '</div>';
+            return {
+                key: String(entry.name),
+                html: buildLeaderboardRowHtml(entry, leaderboard, {
+                    betBadge: betBadge,
+                    submittedIndicator: submittedIndicator
+                })
+            };
         });
 
-        container.innerHTML = html;
+        _reconcileRows(container, rows);
     }
 
     // ============================================
@@ -843,17 +1712,50 @@
      * Render reveal view with song info and leaderboard
      * @param {Object} data - State data
      */
+    /**
+     * Fill the reveal view's round chip from the state being rendered (#3002).
+     *
+     * The chip used to be copied from the PLAYING chip by an observer in
+     * dashboard.html, so a TV that reached REVEAL without living through the
+     * PLAYING phase (reload, reconnect, switched on mid-game) kept the HTML
+     * placeholder "Round 1 of 10". Same values and defaults as the PLAYING
+     * chip in renderPlayingView; hiding the total for an uncapped game (#2958)
+     * stays with applyRoundTotal in the dispatcher.
+     */
+    function renderRevealRoundChip(data) {
+        var round = data.round || 1;
+        var total = data.total_rounds || 10;
+        document.querySelectorAll('.reveal-round-num').forEach(function(el) {
+            el.textContent = round;
+        });
+        document.querySelectorAll('.reveal-total-num').forEach(function(el) {
+            el.textContent = total;
+        });
+    }
+
     function renderRevealView(data) {
         var song = data.song || {};
         var players = data.players || [];
 
+        renderJoinCorner(data);
+        renderRevealRoundChip(data);
+
         // Update album art (clear - no blur)
+        // #1767: unchanged-src short-circuit (see renderPlayingView). renderRevealView
+        // reruns on every changed REVEAL broadcast during vote-heavy phases; skip the
+        // src reassignment (re-decode + paint) when the requested URL is unchanged.
         var albumArt = document.getElementById('reveal-album-art');
         if (albumArt) {
-            albumArt.src = song.album_art || '/beatify/static/img/no-artwork.svg';
-            albumArt.onerror = function() {
-                this.src = '/beatify/static/img/no-artwork.svg';
-            };
+            var newRevealArtSrc = song.album_art || '/beatify/static/img/no-artwork.svg';
+            if (albumArt._beatifyRequestedSrc !== newRevealArtSrc) {
+                albumArt._beatifyRequestedSrc = newRevealArtSrc;
+                albumArt.onerror = function() {
+                    // Reset so a later retry with the same URL re-attempts the load.
+                    this._beatifyRequestedSrc = null;
+                    this.src = '/beatify/static/img/no-artwork.svg';
+                };
+                albumArt.src = newRevealArtSrc;
+            }
         }
 
         // Update song info
@@ -869,7 +1771,10 @@
         // Artist mode the year row hides and the TA banner carries the answer.
         var taMode = !!data.title_artist_mode;
         var yearRow = document.getElementById('reveal-year-row');
-        if (yearRow) yearRow.classList.toggle('hidden', taMode);
+        // #2646: a voided round hides the year too. "Wrong year" is one of the
+        // reasons a host drops a round, so putting the number on the wall as
+        // the answer is the last thing this screen should do.
+        if (yearRow) yearRow.classList.toggle('hidden', taMode || !!data.round_voided);
 
         // Title & Artist mode (#1180): show truth banner + voting status on TV.
         renderDashboardTitleArtist(data);
@@ -877,21 +1782,69 @@
         // Year mode: the guess-the-artist mini-game result (🎤 who got it).
         renderDashboardArtistChallenge(taMode ? null : data.artist_challenge);
 
+        // #2720: the movie-quiz result (🎬 who named the film). Not gated on
+        // Title & Artist mode the way the artist challenge is — the movie quiz
+        // runs independently of it (game/challenges.py), and its answer is
+        // never the thing being voted on.
+        renderDashboardMovieChallenge(data.movie_challenge);
+
         // Render fun fact (Story 16.4)
         renderFunFact(song);
 
-        // Render top 3 guesses this round (AC 10.4.4)
+        // #2502: in year mode the lower band becomes the guess axis and the
+        // top-three strip goes. Title & Artist mode and a voided round keep the
+        // layout they had — neither has a year to put guesses against.
+        var axisMode = !taMode && !data.round_voided && parseInt(song.year, 10) > 0;
+        var revealRoot = document.getElementById('dashboard-reveal');
+        if (revealRoot) revealRoot.classList.toggle('reveal-axis-mode', axisMode);
+        placeRevealFunFact(axisMode);
+
+        // Render top 3 guesses this round (AC 10.4.4) — hidden by CSS in axis mode
         renderTopGuesses(players);
 
         // Render leaderboard with position changes
         renderRevealLeaderboard(data.leaderboard || []);
+        renderStandingsMore((data.leaderboard || []).length, axisMode);
+        renderGhostLeague(data.ghost_league, 'ghost-league-reveal');
+
+        // Issue #827: Sudden-Death — full-bleed "OUT" takeover for this round's
+        // eliminations + FINAL banner (2 players left).
+        renderSuddenDeathOut(data);
+        renderSuddenDeathFinalBanner(data, 'sd-final-banner-reveal');
+
+        // #2721: halftime takeover for the Comeback Token.
+        renderComebackHalftime(data);
+
+        // #2703: the round stalled and the game is waiting for the host — the
+        // countdown ring below hides itself in that case, so without this the
+        // TV shows a reveal and no reason for the pause.
+        renderIdleHaltBanner(data);
+
+        // #2646: the host dropped this round instead of scoring it. The TV is
+        // the one screen the whole room is watching, so it is where "this does
+        // not count" has to be said — otherwise the year is up, the leaderboard
+        // has not moved, and it looks like the game ate everyone's guess.
+        renderRoundVoidedBanner(data);
+
+        // #2719 / #2722: keep the finale explained while the scores are read.
+        renderFinaleDoubleBanner(data, 'dashboard-finale-banner-reveal');
+        renderFinalePlayoffBanner(data, 'dashboard-playoff-banner-reveal');
 
         // Render motivational message (Story 14.4)
         renderMotivationalMessage(data.game_performance);
 
+        // #2502 / #2833: the axis sizes its rows from the band's height, so it
+        // is drawn after every banner that can push the band down. Still before
+        // the staging below, which picks up its dots as beat two.
+        renderGuessAxis(data, axisMode);
+
         // #1185: Auto-advance countdown ring (Phone reveal already shows one;
         // TV dashboard didn't until @Dtrieb asked for it).
         updateRevealCountdown(data);
+
+        // #2702: run the three beats. Keyed on the round inside, so calling it
+        // on every re-broadcast is cheap and does not restart anything.
+        startRevealStaging(data);
 
         // Render song difficulty rating (Story 15.1)
         renderSongDifficulty(data.song_difficulty);
@@ -1018,6 +1971,161 @@
     }
 
     /**
+     * #2720: movie-quiz result on the TV — the mirror of
+     * renderDashboardArtistChallenge above.
+     *
+     * The quiz ships ON by default (wizard.js) and the server has sent the
+     * decided winner since #1723, but "movie" appeared nowhere in dashboard.js
+     * or dashboard.html: one guest earned +5 for naming the film and the room
+     * saw only a number move. Winner-takes-all, so `results.winners` holds at
+     * most one entry (game/challenges.py `_build_results`); index 0 is the
+     * fastest correct guesser and later-correct guessers scored 0 and are not
+     * shown — the same shape the phone renders.
+     *
+     * @param {Object|null} mc - data.movie_challenge
+     *   { correct_movie, results: { winners: [{name, time, bonus}] } }
+     */
+    function renderDashboardMovieChallenge(mc) {
+        var el = document.getElementById('reveal-movie-challenge');
+        if (!el) return;
+        if (!mc || !mc.correct_movie) {
+            el.classList.add('hidden');
+            el.innerHTML = '';
+            return;
+        }
+        var label = utils.t('movieChallenge.theMovieWas', 'The movie was');
+        var winners = (mc.results && mc.results.winners) || [];
+        var resultHtml;
+        if (winners.length && winners[0].name) {
+            var pts = winners[0].bonus || 5;
+            resultHtml = '<span class="reveal-ac-result reveal-ac-result--won">' +
+                utils.escapeHtml(winners[0].name) + ' +' + pts + '</span>';
+        } else {
+            resultHtml = '<span class="reveal-ac-result reveal-ac-result--none">' +
+                utils.escapeHtml(utils.t('movieChallenge.noWinner', 'No one guessed the movie')) +
+                '</span>';
+        }
+        el.innerHTML =
+            '<span class="reveal-ac-ic" aria-hidden="true">🎬</span>' +
+            '<span class="reveal-ac-label">' + utils.escapeHtml(label) + '</span>' +
+            '<span class="reveal-ac-name">' + utils.escapeHtml(mc.correct_movie) + '</span>' +
+            resultHtml;
+        el.classList.remove('hidden');
+    }
+
+    /**
+     * #2703: the idle-halt notice on the TV.
+     *
+     * A round where nobody guessed stops playback and holds the game on REVEAL
+     * until the host taps "Next round". The phones have explained that since
+     * #1012, and since #2622 they say it in the words that fit the reader.
+     * The TV said nothing at all: `updateRevealCountdown` hides the
+     * auto-advance ring on `idle_halt`, so the one element that would have
+     * hinted at a wait disappeared and the screen just sat there.
+     *
+     * The TV is a read-only observer — it can never tap "Next round" — so it
+     * gets the GUEST sentence, the same one the guests' phones show. The
+     * `data-i18n` attribute stays on the element so a mid-game language switch
+     * re-renders it (`initPageTranslations`).
+     *
+     * @param {Object} data - REVEAL state data (reads `idle_halt`)
+     */
+    function renderIdleHaltBanner(data) {
+        var banner = document.getElementById('dashboard-idle-halt');
+        if (!banner) return;
+        var halted = !!(data && data.idle_halt);
+        banner.classList.toggle('hidden', !halted);
+        if (!halted) return;
+        var textEl = document.getElementById('dashboard-idle-halt-text');
+        if (!textEl) return;
+        var text = utils.t('reveal.idleHaltBannerGuest');
+        if (text && text !== 'reveal.idleHaltBannerGuest') textEl.textContent = text;
+    }
+
+    /**
+     * #2646: "this round does not count" on the TV.
+     *
+     * Twin of renderIdleHaltBanner above. dashboard.js is a classic script
+     * outside the module graph, so it carries its own copy of the two lines
+     * `round-end-choice.js` exports for the phone and the admin browser.
+     *
+     * @param {Object} data - REVEAL state data (reads `round_voided`)
+     */
+    function renderRoundVoidedBanner(data) {
+        var banner = document.getElementById('dashboard-round-voided');
+        if (!banner) return;
+        banner.classList.toggle('hidden', !(data && data.round_voided));
+    }
+
+    /**
+     * #2719: the Finale ×2 banner on the TV.
+     *
+     * On the last round with the opt-in finale bonus armed, every score earned
+     * is doubled (game/state.py). The player's phone has advertised that since
+     * #1725 and the TTS mentions it once if TTS is on; the TV showed a round
+     * counter reading "10/10" and then scores jumping by twice the usual step.
+     * To a room watching one screen that reads as a scoring bug, in the single
+     * round where the result is decided.
+     *
+     * `finale_double_active` is already `finale_double_enabled and last_round`
+     * server-side (game/serializers.py), so this is a straight toggle — the
+     * client must not re-derive it from `last_round`.
+     *
+     * @param {Object} data - State data (reads `finale_double_active`)
+     * @param {string} bannerId - id of the banner element for this phase
+     */
+    function renderFinaleDoubleBanner(data, bannerId) {
+        var banner = document.getElementById(bannerId);
+        if (!banner) return;
+        if (data && data.finale_double_active) {
+            banner.textContent = utils.t('game.finaleDouble', 'Finale ×2 — Double Points!');
+            banner.classList.remove('hidden');
+        } else {
+            banner.classList.add('hidden');
+        }
+    }
+
+    /**
+     * #2722: the finale playoff banner on the TV.
+     *
+     * When the last round ends in a tie for first, the game quietly arms a
+     * playoff (game/state.py `_maybe_start_finale_playoff`) and starts another
+     * song. Until now the only sign of it was the ⚔️ badge #2578 put next to
+     * the tied names in the leaderboard — a badge answers "who?", not "why is
+     * this still going?". The scoreboard said the game should have ended, a
+     * song started anyway, and nobody in the room had been told.
+     *
+     * The finalists are the players NOT sitting the round out: the backend
+     * marks everyone else `playoff_spectator` (never `eliminated` — that was
+     * the #2578 bug), so the same predicate the badge uses picks them here.
+     * Falls back to a nameless sentence if the roster hasn't arrived yet,
+     * because the banner explaining the extra song matters more than the names
+     * in it.
+     *
+     * @param {Object} data - State data (reads `finale_playoff_active` + leaderboard)
+     * @param {string} bannerId - id of the banner element for this phase
+     */
+    function renderFinalePlayoffBanner(data, bannerId) {
+        var banner = document.getElementById(bannerId);
+        if (!banner) return;
+        if (!data || !data.finale_playoff_active) {
+            banner.classList.add('hidden');
+            banner.textContent = '';
+            return;
+        }
+        var roster = data.leaderboard || data.players || [];
+        var finalists = roster.filter(function(p) {
+            return p && !p.playoff_spectator && !p.eliminated && p.name;
+        }).map(function(p) { return p.name; });
+        var names = finalists.join(' · ');
+        var text = names
+            ? utils.t('dashboard.finalePlayoffBanner', { players: names })
+            : utils.t('dashboard.finalePlayoffBannerAnon');
+        banner.textContent = '⚔️ ' + text;
+        banner.classList.remove('hidden');
+    }
+
+    /**
      * Year-mode artist-challenge result on the TV (the guess-the-artist
      * mini-game). Shows "🎤 The artist: <name>" + who got it (winner +bonus,
      * or a muted "nobody guessed"). Hidden when the challenge isn't active.
@@ -1110,6 +2218,51 @@
      * submissions, game holds on REVEAL until manual advance).
      */
     var _countdownTick = null;
+
+    // #2702: the TV ring had the same defect as the phone's — it stopped at
+    // zero and sat there for the 5-25 s `start_round()` blocks (longer since
+    // #2682 raised MA_PLAYBACK_TIMEOUT), which is what made the room ask the
+    // host whether the game had crashed. A stopped clock claims a timer is
+    // running; only movement withdraws that claim, so the ring turns instead.
+    // Derived here from what the client already knows (the countdown ended, no
+    // PLAYING state arrived) rather than from a new server frame.
+    var REVEAL_WAIT_GLYPH = '\u2026';
+
+    /**
+     * Toggle the TV countdown chip between counting and waiting.
+     * @param {Element} chip - #reveal-countdown
+     * @param {Element} numEl - the digit inside the ring
+     * @param {Element} fgCircle - the drawn arc
+     * @param {boolean} waiting - true once the countdown has run out
+     * @param {number} circumference - the arc's full length in user units
+     */
+    function setRevealWaiting(chip, numEl, fgCircle, waiting, circumference) {
+        if (!chip || !numEl || !fgCircle) return;
+        var labelEl = chip.querySelector ? chip.querySelector('.chip-countdown-label') : null;
+        if (waiting) {
+            chip.classList.add('is-waiting');
+            // A quarter arc at a fixed offset: with the gauge meaning gone the
+            // stroke must not read as "three quarters of the time is left".
+            fgCircle.style.transition = 'none';
+            fgCircle.style.strokeDasharray = (circumference * 0.25) + ' ' + (circumference * 0.75);
+            fgCircle.style.strokeDashoffset = '0';
+            numEl.textContent = REVEAL_WAIT_GLYPH;
+            if (labelEl) {
+                // Keep data-i18n in step so a mid-game language switch
+                // re-renders the label that is actually on screen (#2619).
+                labelEl.setAttribute('data-i18n', 'game.starting');
+                labelEl.textContent = utils.t('game.starting') || 'Starting...';
+            }
+        } else {
+            chip.classList.remove('is-waiting');
+            fgCircle.style.transition = '';
+            if (labelEl) {
+                labelEl.setAttribute('data-i18n', 'dashboard.autoAdvance');
+                labelEl.textContent = utils.t('dashboard.autoAdvance') || 'Auto-advance';
+            }
+        }
+    }
+
     function updateRevealCountdown(data) {
         var chip = document.getElementById('reveal-countdown');
         var numEl = document.getElementById('reveal-countdown-num');
@@ -1128,28 +2281,116 @@
 
         if (duration <= 0 || !startedAt || idleHalt) {
             chip.classList.add('hidden');
+            chip.classList.remove('is-waiting');
             return;
         }
 
         chip.classList.remove('hidden');
         // SVG circle r=25 → circumference 2πr ≈ 157.08
         var circumference = 157.08;
+        // #2702: clear a waiting state left by the previous round BEFORE the
+        // gauge geometry is re-applied — the waiting arc is written inline.
+        setRevealWaiting(chip, numEl, fgCircle, false, circumference);
         fgCircle.style.strokeDasharray = circumference;
+
+        var waiting = false;
 
         function paint() {
             var remainingMs = Math.max(0, startedAt + duration * 1000 - Date.now());
+            if (remainingMs <= 0) {
+                waiting = true;
+                if (_countdownTick !== null) {
+                    clearInterval(_countdownTick);
+                    _countdownTick = null;
+                }
+                setRevealWaiting(chip, numEl, fgCircle, true, circumference);
+                return;
+            }
             var remaining = Math.ceil(remainingMs / 1000);
             numEl.textContent = remaining;
             // Drained progress: ring is full at start, empties as time elapses.
             var pctRemaining = remainingMs / (duration * 1000);
             fgCircle.style.strokeDashoffset = String(circumference * (1 - pctRemaining));
-            if (remainingMs <= 0 && _countdownTick !== null) {
-                clearInterval(_countdownTick);
-                _countdownTick = null;
-            }
         }
         paint();
-        _countdownTick = setInterval(paint, 500);
+        // A TV that renders straight into the gap needs no ticking interval.
+        if (!waiting) _countdownTick = setInterval(paint, 500);
+    }
+
+    // #2702: the reveal in three beats — the answer, then who got it right,
+    // then the standings. Own clock, deliberately NOT the loading signal: gating
+    // the beats on "the next round is late" would make a fast round flash all
+    // three at once. If the next round starts first, the phase change cuts it.
+    var REVEAL_BEAT_2_MS = 1500;
+    var REVEAL_BEAT_3_MS = 3000;
+    var _revealStageTimers = [];
+    var _revealStageKey = null;
+
+    function _setRevealStage(root, stage) {
+        if (root && root.setAttribute) root.setAttribute('data-reveal-stage', String(stage));
+    }
+
+    /** Clear the beats and drop the attribute (absent = show everything). */
+    function stopRevealStaging() {
+        for (var i = 0; i < _revealStageTimers.length; i++) clearTimeout(_revealStageTimers[i]);
+        _revealStageTimers = [];
+        _revealStageKey = null;
+        var root = document.getElementById('dashboard-reveal');
+        if (root && root.removeAttribute) root.removeAttribute('data-reveal-stage');
+    }
+
+    /**
+     * Start the beats for THIS reveal. REVEAL re-broadcasts are constant (live
+     * title/artist voting, reactions, host overrides), so the run is keyed on
+     * the round + start stamp — a re-render must not rewind beats the room has
+     * already watched.
+     * @param {Object} data - REVEAL state payload (round + reveal_started_at)
+     */
+    function startRevealStaging(data) {
+        var root = document.getElementById('dashboard-reveal');
+        if (!root || !root.setAttribute) return;
+        var key = String((data && data.round) || 0) + ':' + String((data && data.reveal_started_at) || 0);
+        if (_revealStageKey === key) return;
+        for (var i = 0; i < _revealStageTimers.length; i++) clearTimeout(_revealStageTimers[i]);
+        _revealStageTimers = [];
+        _revealStageKey = key;
+        _setRevealStage(root, 1);
+        _revealStageTimers.push(setTimeout(function() { _setRevealStage(root, 2); }, REVEAL_BEAT_2_MS));
+        _revealStageTimers.push(setTimeout(function() { _setRevealStage(root, 3); }, REVEAL_BEAT_3_MS));
+    }
+
+    /**
+     * Message types StatsService emits (services/stats.py) mapped onto the
+     * translated strings that already exist in every locale. The server sends
+     * the type plus the raw numbers; it does not know which language the TV is
+     * showing, so the wording is picked here, where the locale is known.
+     * @type {Object.<string, string>}
+     */
+    var MOTIVATIONAL_KEYS = {
+        'first': 'stats.firstGame',
+        'record': 'stats.newRecord',
+        'strong': 'stats.strongGame',
+        'above': 'stats.aboveAverage',
+        'close': 'stats.closeToAverage'
+    };
+
+    /**
+     * Translate a motivational message, falling back to the server's English
+     * text for an unknown type or a missing key. utils.t() returns the key on
+     * a miss and a key is truthy (#1402-B8), so the miss is checked explicitly.
+     * @param {Object} message - {type, message} from get_motivational_message
+     * @param {number} difference - pts/round vs the all-time average
+     * @returns {string} - Text for the chip
+     */
+    function motivationalText(message, difference) {
+        var key = MOTIVATIONAL_KEYS[message.type];
+        if (!key) return message.message || '';
+        // Every template that interpolates states the direction in words, so
+        // the number itself is always unsigned.
+        var diff = Math.abs(typeof difference === 'number' ? difference : 0).toFixed(1);
+        var translated = utils.t(key, { diff: diff });
+        if (!translated || translated === key) return message.message || '';
+        return translated;
     }
 
     /**
@@ -1182,7 +2423,7 @@
             'close': '💪'
         };
         if (iconEl) iconEl.textContent = icons[message.type] || '';
-        if (textEl) textEl.textContent = message.message || '';
+        if (textEl) textEl.textContent = motivationalText(message, performance.difference);
     }
 
     /**
@@ -1254,6 +2495,417 @@
         container.innerHTML = html;
     }
 
+    // ============================================
+    // #2502: the room's guess spread on the TV
+    // ============================================
+    //
+    // Design Variant A ("the axis as the stage"): in year mode the lower band
+    // becomes a full-width year axis, the big year sits above its own position,
+    // and every guest is a dot labelled with two-letter initials. It replaces
+    // the top-three strip, which showed three guests and hid the one who was
+    // twenty years out — the moment the room actually wants to see.
+    //
+    // The geometry is split into two pure functions (no DOM, no globals) so the
+    // decisions — initials, stacking, "+N", range clamping, the farthest span —
+    // are unit-tested on the bytes that ship (__tests__/dashboard-guess-axis-2502).
+
+    /**
+     * Two-letter initials for every name, unique within the list.
+     *
+     * First + last word initial for multi-word names ("Anna Berg" → AB), the
+     * first two letters otherwise ("Lena" → LE). A collision is resolved in
+     * name order, so the result does not depend on payload order: the first
+     * name keeps its initials, the next tries its first letter with each later
+     * letter ("Michael" after "Mia" → MC), and only then a digit ("MI2").
+     * @param {Array<string>} names
+     * @returns {Object<string, string>} name → initials
+     */
+    function guessAxisInitials(names) {
+        var LETTER = /[\p{L}\p{N}]/u;
+        var taken = {};
+        var result = {};
+        var order = (names || []).map(function(n) { return String(n == null ? '' : n); })
+            .sort(function(a, b) { return a < b ? -1 : (a > b ? 1 : 0); });
+        order.forEach(function(name) {
+            if (Object.prototype.hasOwnProperty.call(result, name)) return;
+            var letters = function(s) {
+                return Array.from(s).filter(function(ch) { return LETTER.test(ch); });
+            };
+            var chars = letters(name);
+            if (chars.length === 0) chars = ['?'];
+            var words = name.trim().split(/\s+/).map(letters)
+                .filter(function(w) { return w.length > 0; });
+            var primary = words.length >= 2
+                ? words[0][0] + words[words.length - 1][0]
+                : chars[0] + (chars[1] || '');
+            var candidates = [primary];
+            for (var k = 1; k < chars.length; k++) candidates.push(chars[0] + chars[k]);
+            var pick = null;
+            for (var c = 0; c < candidates.length && pick === null; c++) {
+                var up = candidates[c].toUpperCase();
+                if (!taken[up]) pick = up;
+            }
+            for (var d = 2; pick === null; d++) {
+                var withDigit = primary.toUpperCase() + d;
+                if (!taken[withDigit]) pick = withDigit;
+            }
+            taken[pick] = true;
+            result[name] = pick;
+        });
+        return result;
+    }
+
+    /**
+     * Lay out the guess axis in pixels.
+     *
+     * - Range: the correct year and every guess within ±30 years, padded by a
+     *   year and snapped outwards to five-year steps, never narrower than 20
+     *   years. A guess further out than 30 years does not stretch the scale —
+     *   it sits at a broken edge of the axis instead.
+     * - Dots: 64 px up to ten guesses, 52 px above. Each dot sits at its exact
+     *   year; where it would touch a neighbour it drops a row (identical years
+     *   therefore stack). At most five rows; whatever would need a sixth folds
+     *   into the fifth-row dot below it, which becomes "+N".
+     * - Span: a dashed line from the correct year to the farthest guess, shown
+     *   when it is long enough to carry its label; the full name joins it when
+     *   the guess is ten or more years off.
+     *
+     * @param {Array<{name:string, guess:number, years_off:number, round_score:number}>} guesses
+     * @param {number} correctYear
+     * @param {number} width - plot width in px
+     * @param {{missed?: Array<string>, spanLabelChars?: number}} [opts]
+     * @returns {Object} layout
+     */
+    function layoutGuessAxis(guesses, correctYear, width, opts) {
+        opts = opts || {};
+        var W = width > 0 ? width : 1620;
+        var OUTLIER_YEARS = 30;
+        var MIN_SPAN = 20;
+        var MAX_ROWS = 5;
+        var BREAK_GAP = 90;      // room at a broken edge for the break mark
+        var YEAR_HALF = 190;     // half the width of the 150 px year
+        var LABEL_CLEAR = 210;   // tick labels this close to the year would sit under it
+        var NAME_ROW_LIMIT = MAX_ROWS;
+        var ROW0 = 284;          // --guess-axis-row0 in dashboard.css: centre of the first row
+        var BOTTOM_CLEAR = 8;    // the last row keeps this much band below it
+        var MIN_SIZE = 40;
+
+        var list = (guesses || []).filter(function(g) {
+            return g && typeof g.guess === 'number' && isFinite(g.guess);
+        });
+        var size = opts.size > 0 ? opts.size : (list.length <= 10 ? 64 : 52);
+        var minDx = size + 4;
+        var missed = opts.missed || [];
+        var initials = guessAxisInitials(list.map(function(g) { return g.name; }).concat(missed));
+
+        var lo = correctYear;
+        var hi = correctYear;
+        var brokenLow = false;
+        var brokenHigh = false;
+        list.forEach(function(g) {
+            var delta = g.guess - correctYear;
+            if (delta < -OUTLIER_YEARS) brokenLow = true;
+            else if (delta > OUTLIER_YEARS) brokenHigh = true;
+            else {
+                lo = Math.min(lo, g.guess);
+                hi = Math.max(hi, g.guess);
+            }
+        });
+        var min = Math.floor((lo - 1) / 5) * 5;
+        var max = Math.ceil((hi + 1) / 5) * 5;
+        while (max - min < MIN_SPAN) {
+            if (correctYear - min <= max - correctYear) min -= 5;
+            else max += 5;
+        }
+        var x0 = brokenLow ? BREAK_GAP : 0;
+        var x1 = brokenHigh ? W - BREAK_GAP : W;
+        var xOf = function(year) {
+            if (year - correctYear < -OUTLIER_YEARS) return 0;
+            if (year - correctYear > OUTLIER_YEARS) return W;
+            return x0 + (year - min) / (max - min) * (x1 - x0);
+        };
+
+        var correctX = xOf(correctYear);
+        var yearX = Math.min(Math.max(correctX, YEAR_HALF - 70), W + 70 - YEAR_HALF);
+
+        var step = (max - min) > 40 ? 10 : 5;
+        var ticks = [];
+        for (var ty = Math.ceil(min / step) * step; ty <= max; ty += step) {
+            var tx = xOf(ty);
+            ticks.push({ year: ty, x: tx, label: Math.abs(tx - yearX) >= LABEL_CLEAR });
+        }
+
+        var byName = function(a, b) { return a.name < b.name ? -1 : (a.name > b.name ? 1 : 0); };
+        var items = list.map(function(g) {
+            var off = typeof g.years_off === 'number' ? g.years_off : Math.abs(g.guess - correctYear);
+            return {
+                name: g.name,
+                initials: initials[String(g.name == null ? '' : g.name)],
+                guess: g.guess,
+                yearsOff: off,
+                x: xOf(g.guess),
+                kind: off === 0 ? 'exact' : ((g.round_score || 0) > 0 ? 'near' : 'off'),
+                row: 0,
+                folded: 0
+            };
+        }).sort(function(a, b) { return (a.x - b.x) || byName(a, b); });
+
+        var rows = [];
+        items.forEach(function(it) {
+            for (var r = 0; ; r++) {
+                if (!rows[r]) rows[r] = [];
+                var clear = rows[r].every(function(o) { return Math.abs(o.x - it.x) >= minDx; });
+                if (clear) {
+                    rows[r].push(it);
+                    it.row = r;
+                    return;
+                }
+            }
+        });
+        // #2833: the rows were sized from the width alone. A 1080 p band is
+        // shorter than five 64 px rows once a banner sits above it, and the
+        // fifth row is where "+N" counts the hidden guesses. Shrink the dots
+        // until the last row fits the band. Smaller dots only ever stack into
+        // fewer rows, so one pass is enough.
+        var usedRows = Math.min(rows.length, MAX_ROWS);
+        if (!(opts.size > 0) && opts.height > 0 && usedRows > 1) {
+            var fit = Math.floor((opts.height - ROW0 - BOTTOM_CLEAR - 4 * (usedRows - 1)) / (usedRows - 0.5));
+            if (fit < size) {
+                var smaller = {};
+                Object.keys(opts).forEach(function(k) { smaller[k] = opts[k]; });
+                smaller.size = Math.max(MIN_SIZE, fit);
+                return layoutGuessAxis(guesses, correctYear, width, smaller);
+            }
+        }
+        items.forEach(function(it) {
+            if (it.row < MAX_ROWS) return;
+            var host = null;
+            rows[MAX_ROWS - 1].forEach(function(o) {
+                if (!host || Math.abs(o.x - it.x) < Math.abs(host.x - it.x)) host = o;
+            });
+            host.folded += 1;
+        });
+        var visible = items.filter(function(it) { return it.row < MAX_ROWS; });
+        var dots = visible.map(function(it) {
+            return {
+                name: it.name,
+                initials: it.initials,
+                guess: it.guess,
+                yearsOff: it.yearsOff,
+                kind: it.kind,
+                x: it.x,
+                row: it.row,
+                plus: it.folded > 0 ? it.folded + 1 : 0
+            };
+        });
+
+        var span = null;
+        var far = null;
+        items.forEach(function(it) { if (!far || it.yearsOff > far.yearsOff) far = it; });
+        if (far && far.yearsOff > 0) {
+            var dir = far.guess > correctYear ? 1 : -1;
+            var nearest = null;
+            visible.forEach(function(it) {
+                if (it === far || it.row !== 0) return;
+                if ((far.x - it.x) * dir < minDx) return;          // at or past the far dot
+                if ((it.x - correctX) * dir < -size / 2) return;   // on the other side of the answer
+                if (!nearest || (it.x - nearest.x) * dir > 0) nearest = it;
+            });
+            var start = nearest ? nearest.x + dir * (size / 2 + 24) : correctX + dir * 16;
+            var end = far.x - dir * (size / 2 + 16);
+            var chars = opts.spanLabelChars > 0 ? opts.spanLabelChars : 16;
+            if ((end - start) * dir >= chars * 17 + 40) {
+                span = {
+                    from: Math.min(start, end),
+                    to: Math.max(start, end),
+                    labelX: (start + end) / 2,
+                    years: far.yearsOff,
+                    name: null,
+                    nameX: null,
+                    nameRow: null
+                };
+                if (far.yearsOff >= 10 && far.row < MAX_ROWS) {
+                    var column = 0;
+                    visible.forEach(function(it) {
+                        if (Math.abs(it.x - far.x) < minDx) column = Math.max(column, it.row);
+                    });
+                    if (column + 1 < NAME_ROW_LIMIT) {
+                        var half = String(far.name).length * 7 + 10;
+                        span.name = far.name;
+                        span.nameRow = column + 1;
+                        span.nameX = Math.min(Math.max(far.x, half - 90), W + 90 - half);
+                    }
+                }
+            }
+        }
+
+        return {
+            width: W,
+            min: min,
+            max: max,
+            step: step,
+            brokenLow: brokenLow,
+            brokenHigh: brokenHigh,
+            breakGap: BREAK_GAP,
+            size: size,
+            pitch: size + 4,
+            rows: usedRows,
+            correctX: correctX,
+            yearX: yearX,
+            ticks: ticks,
+            dots: dots,
+            span: span,
+            missed: missed.map(function(name) {
+                return { name: name, initials: initials[String(name == null ? '' : name)] };
+            })
+        };
+    }
+
+    /**
+     * Draw the guess axis into the lower band, or hide it.
+     * @param {Object} data - REVEAL state
+     * @param {boolean} axisMode - year mode with a year to show
+     */
+    function renderGuessAxis(data, axisMode) {
+        var root = document.getElementById('reveal-guess-axis');
+        if (!root) return;
+        if (!axisMode) {
+            root.classList.add('hidden');
+            return;
+        }
+        var plot = document.getElementById('guess-axis-plot');
+        var missedEl = document.getElementById('guess-axis-missed');
+        var band = root.parentNode;
+        if (!plot) return;
+
+        var guesses = ((data.round_analytics || {}).all_guesses || []).filter(function(g) {
+            return g && typeof g.guess === 'number';
+        });
+        var guessed = {};
+        guesses.forEach(function(g) { guessed[g.name] = true; });
+        var missed = (data.players || []).filter(function(p) {
+            return p && p.missed_round && !p.eliminated && !guessed[p.name];
+        }).map(function(p) { return p.name; });
+
+        var farthest = 0;
+        guesses.forEach(function(g) { farthest = Math.max(farthest, g.years_off || 0); });
+        var spanLabel = farthest === 1
+            ? utils.t('dashboard.guessAxisYearsOffOne')
+            : utils.t('dashboard.guessAxisYearsOff', { count: farthest });
+
+        root.classList.remove('hidden');
+        var correct = parseInt((data.song || {}).year, 10);
+        var L = layoutGuessAxis(guesses, correct, plot.clientWidth, {
+            missed: missed,
+            spanLabelChars: spanLabel.length,
+            height: root.clientHeight
+        });
+        var pct = function(x) { return (x / L.width * 100).toFixed(3) + '%'; };
+
+        root.classList.toggle('guess-axis--compact', L.size < 64);
+        if (root.style && root.style.setProperty) {
+            root.style.setProperty('--guess-axis-dot', L.size + 'px');
+            root.style.setProperty('--guess-axis-pitch', L.pitch + 'px');
+        }
+        if (band && band.style && band.style.setProperty) {
+            band.style.setProperty('--guess-axis-year', (L.yearX / L.width).toFixed(4));
+        }
+
+        var html = '<div class="guess-axis-line"></div>';
+        L.ticks.forEach(function(tk) {
+            html += '<div class="guess-axis-tick" style="left:' + pct(tk.x) + '">' +
+                (tk.label
+                    ? '<span class="guess-axis-tick-label">’' + String(((tk.year % 100) + 100) % 100).padStart(2, '0') + '</span>'
+                    : '') +
+                '</div>';
+        });
+        if (L.brokenLow) html += '<div class="guess-axis-break" style="left:' + pct(L.breakGap / 2) + '"></div>';
+        if (L.brokenHigh) html += '<div class="guess-axis-break" style="left:' + pct(L.width - L.breakGap / 2) + '"></div>';
+        html += '<div class="guess-axis-marker" style="left:' + pct(L.correctX) + '"></div>';
+
+        // #2702 beat two: the dots land together with the rest of the round result.
+        html += '<div class="guess-axis-dots" data-stage="2">';
+        if (L.span) {
+            html += '<div class="guess-axis-span" style="left:' + pct(L.span.from) + ';width:' + pct(L.span.to - L.span.from) + '"></div>' +
+                '<div class="guess-axis-span-label" style="left:' + pct(L.span.labelX) + '">' + utils.escapeHtml(spanLabel) + '</div>';
+            if (L.span.name !== null) {
+                html += '<div class="guess-axis-span-name" style="left:' + pct(L.span.nameX) + ';--row:' + L.span.nameRow + '">' +
+                    utils.escapeHtml(L.span.name) + '</div>';
+            }
+        }
+        L.dots.forEach(function(dot) {
+            var label = utils.escapeHtml(dot.name) + ' — ' + dot.guess;
+            html += '<div class="guess-axis-dot guess-axis-dot--' + (dot.plus ? 'more' : dot.kind) + '" ' +
+                'style="left:' + pct(dot.x) + ';--row:' + dot.row + '" title="' + label + '" aria-label="' + label + '">' +
+                (dot.plus ? '+' + dot.plus : utils.escapeHtml(dot.initials)) +
+                '</div>';
+        });
+        html += '</div>';
+        if (plot._beatifyAxisHtml !== html) {
+            plot._beatifyAxisHtml = html;
+            plot.innerHTML = html;
+        }
+
+        if (missedEl) {
+            var MAX_MISSED = 4;
+            var missedHtml = '';
+            if (L.missed.length > 0) {
+                missedHtml = '<span class="guess-axis-missed-label">' + utils.escapeHtml(utils.t('dashboard.guessAxisNoGuess')) + '</span>';
+                L.missed.slice(0, MAX_MISSED).forEach(function(m) {
+                    missedHtml += '<span class="guess-axis-missed-item">' +
+                        '<span class="guess-axis-missed-dot">' + utils.escapeHtml(m.initials) + '</span>' +
+                        '<span class="guess-axis-missed-name">' + utils.escapeHtml(m.name) + '</span>' +
+                        '</span>';
+                });
+                if (L.missed.length > MAX_MISSED) {
+                    missedHtml += '<span class="guess-axis-missed-name">+' + (L.missed.length - MAX_MISSED) + '</span>';
+                }
+            }
+            missedEl.innerHTML = missedHtml;
+        }
+    }
+
+    /**
+     * #2502: the fun fact lived in the results strip, which the axis replaces.
+     * In axis mode it moves under the song in the now-revealing card, and back
+     * when the round is Title & Artist or voided.
+     * @param {boolean} axisMode
+     */
+    function placeRevealFunFact(axisMode) {
+        var fact = document.getElementById('dashboard-fun-fact');
+        if (!fact || !document.querySelector) return;
+        var home = document.querySelector(axisMode
+            ? '#dashboard-reveal .reveal-song-info'
+            : '#dashboard-reveal .reveal-results');
+        if (home && fact.parentNode !== home) home.appendChild(fact);
+    }
+
+    /**
+     * #2502: the standings card is shorter in axis mode. Past eight rows it
+     * shows seven and says how many more there are, instead of shrinking every
+     * row below what a room can read.
+     * #2821: Title & Artist mode and a voided round get the same treatment
+     * with their taller card — past ten rows, nine and "+ N more". The CSS
+     * hides rows from the same index (`nth-child(n+8)` / `nth-child(n+10)`).
+     * @param {number} count - leaderboard length
+     * @param {boolean} axisMode
+     */
+    function renderStandingsMore(count, axisMode) {
+        var root = document.getElementById('dashboard-reveal');
+        var more = document.getElementById('reveal-leaderboard-more');
+        var cap = axisMode ? 8 : 10;
+        var capped = count > cap;
+        if (root) root.classList.toggle('reveal-standings-capped', capped);
+        if (!more) return;
+        if (capped) {
+            more.textContent = utils.t('dashboard.standingsMore', { count: count - (cap - 1) });
+            more.classList.remove('hidden');
+        } else {
+            more.textContent = '';
+            more.classList.add('hidden');
+        }
+    }
+
     /**
      * Render reveal leaderboard with position change indicators (AC 10.4.4)
      * @param {Array} leaderboard - Leaderboard entries
@@ -1262,49 +2914,17 @@
         var container = document.getElementById('reveal-leaderboard');
         if (!container) return;
 
-        var html = '';
-        leaderboard.forEach(function(entry) {
-            var rankClass = entry.rank <= 3 ? 'is-top-' + entry.rank : '';
-
-            // Rank change animation
-            var animationClass = '';
-            if (entry.rank_change > 0) {
-                animationClass = 'leaderboard-entry--climbing';
-            } else if (entry.rank_change < 0) {
-                animationClass = 'leaderboard-entry--falling';
-            }
-
-            // Story 11.4: Disconnected player styling
-            var disconnectedClass = entry.connected === false ? 'leaderboard-entry--disconnected' : '';
-            var awayBadge = entry.connected === false ? '<span class="away-badge">(away)</span>' : '';
-
-            // Position change indicator (AC 10.4.4 - with arrows)
-            var changeHtml = '';
-            if (entry.rank_change > 0) {
-                changeHtml = '<span class="entry-change is-positive">▲' + entry.rank_change + '</span>';
-            } else if (entry.rank_change < 0) {
-                changeHtml = '<span class="entry-change is-negative">▼' + Math.abs(entry.rank_change) + '</span>';
-            }
-
-            // Streak indicator (AC 10.4.3 - with fire emoji)
-            var streakIndicator = '';
-            if (entry.streak >= 2) {
-                var hotClass = entry.streak >= 5 ? 'streak-indicator--hot' : '';
-                streakIndicator = '<span class="streak-indicator ' + hotClass + '">🔥' + entry.streak + '</span>';
-            }
-
-            html += '<div class="leaderboard-entry ' + rankClass + ' ' + animationClass + ' ' + disconnectedClass + '">' +
-                '<span class="entry-rank">#' + entry.rank + '</span>' +
-                '<span class="entry-name">' + utils.escapeHtml(entry.name) + awayBadge + '</span>' +
-                '<span class="entry-meta">' +
-                    streakIndicator +
-                    changeHtml +
-                '</span>' +
-                '<span class="entry-score">' + entry.score + '</span>' +
-            '</div>';
+        // #1705: keyed row diff (reveal can re-broadcast during live TA voting).
+        // #3019: same row builder as the round leaderboard, so the finalist and
+        // sabotage badges stay on screen through the reveal.
+        var rows = leaderboard.map(function(entry) {
+            return {
+                key: String(entry.name),
+                html: buildLeaderboardRowHtml(entry, leaderboard, { revealArrows: true })
+            };
         });
 
-        container.innerHTML = html;
+        _reconcileRows(container, rows);
     }
 
     // ============================================
@@ -1315,12 +2935,256 @@
      * Render end view with podium and final leaderboard
      * @param {Object} data - State data
      */
+    /* ----------------------------------------------------------------
+       #2563 — the closing moment
+
+       The end screen has always shown the result and never the route to it.
+       round_scores has existed on the player since the beginning (it is what
+       clutch_player and comeback_king are computed from) but was never
+       serialized; it now arrives on each final leaderboard entry as per-round
+       deltas. Three seconds of the TV are spent on the single round where the
+       lead last changed hands, and then the podium stage resolves as before.
+       ---------------------------------------------------------------- */
+
+    // The game_id the moment has already played for. State updates repeat on
+    // every reconnect, and a closing shot that replays on a dropped socket is
+    // worse than no closing shot.
+    var closingMomentPlayedFor = null;
+    // #3117: renderEndView runs on every END frame; the winner confetti is a
+    // one-time effect of reaching the podium, so it keys on the game too.
+    var endConfettiPlayedFor = null;
+
+    /**
+     * Find the round in which the eventual winner took the lead for the last
+     * time.
+     *
+     * Deliberately mechanical: no "biggest swing" scoring, no drama heuristic.
+     * The moment is the last round at which the top of the board changed hands
+     * AND the new leader is the player who finished first. A winner who led
+     * from the first round has no such round, and then there is nothing
+     * honest to show — the caller skips the prologue rather than inventing
+     * one.
+     *
+     * @param {Array} leaderboard - final leaderboard entries; each may carry
+     *   round_scores, a list of per-round deltas (NOT a running total).
+     * @returns {Object|null} { round, winner, loser } where winner/loser each
+     *   hold { name, cum } with cum[0] = 0 and cum[i] = total after round i.
+     */
+    function findClosingMoment(leaderboard) {
+        if (!leaderboard || leaderboard.length < 2) return null;
+
+        var rows = leaderboard.filter(function(entry) {
+            return entry && Array.isArray(entry.round_scores) && entry.round_scores.length > 0;
+        });
+        if (rows.length < 2) return null;
+
+        var rounds = 0;
+        rows.forEach(function(entry) {
+            if (entry.round_scores.length > rounds) rounds = entry.round_scores.length;
+        });
+        if (rounds < 2) return null;
+
+        // Cumulative totals, index 0 = before the first round.
+        var series = rows.map(function(entry) {
+            var cum = [0];
+            var sum = 0;
+            for (var i = 0; i < rounds; i++) {
+                var delta = Number(entry.round_scores[i]);
+                sum += isFinite(delta) ? delta : 0;
+                cum.push(sum);
+            }
+            return { name: entry.name, rank: entry.rank, cum: cum };
+        });
+
+        var winner = null;
+        series.forEach(function(s) { if (s.rank === 1 && !winner) winner = s; });
+        if (!winner) return null;
+
+        // Leader at a point in time. Ties break by name so the same game
+        // always yields the same moment.
+        function leaderAt(i) {
+            var best = null;
+            series.forEach(function(s) {
+                if (!best) { best = s; return; }
+                if (s.cum[i] > best.cum[i]) { best = s; return; }
+                if (s.cum[i] === best.cum[i] && s.name < best.name) best = s;
+            });
+            return best;
+        }
+
+        var found = null;
+        for (var r = 1; r <= rounds; r++) {
+            var before = leaderAt(r - 1);
+            var after = leaderAt(r);
+            // Nobody had scored yet, so nobody was overtaken.
+            if (!before || before.cum[r - 1] <= 0) continue;
+            if (!after || after.name === before.name) continue;
+            if (after.name !== winner.name) continue;
+            found = { round: r, winner: after, loser: before };
+        }
+        return found;
+    }
+
+    /**
+     * Draw the two cumulative lines plus the marker on the round in question.
+     * Hand-built SVG: the dashboard carries no chart library and this needs
+     * two polylines, not a dependency.
+     *
+     * @param {Object} moment - as returned by findClosingMoment
+     */
+    function renderClosingMomentChart(moment) {
+        var host = document.getElementById('end-moment-chart');
+        if (!host) return;
+
+        var NS = 'http://www.w3.org/2000/svg';
+        var W = 1000, H = 380;
+        var LEFT = 70, RIGHT = 900, TOP = 40, BOTTOM = 300;
+        var rounds = moment.winner.cum.length - 1;
+
+        var peak = 0;
+        [moment.winner, moment.loser].forEach(function(s) {
+            s.cum.forEach(function(v) { if (v > peak) peak = v; });
+        });
+        if (peak <= 0) peak = 1;
+
+        function px(i) { return LEFT + (RIGHT - LEFT) * (i / rounds); }
+        function py(v) { return BOTTOM - (BOTTOM - TOP) * (v / peak); }
+
+        function el(tag, attrs) {
+            var node = document.createElementNS(NS, tag);
+            Object.keys(attrs).forEach(function(k) { node.setAttribute(k, attrs[k]); });
+            return node;
+        }
+
+        var svg = el('svg', { viewBox: '0 0 ' + W + ' ' + H, role: 'img' });
+
+        svg.appendChild(el('line', {
+            x1: LEFT, x2: RIGHT, y1: py(0), y2: py(0),
+            stroke: 'rgba(255,255,255,0.22)', 'stroke-width': 2
+        }));
+
+        // Round ticks: the decisive one always, plus the first and the last
+        // where they do not crowd it. In a game decided in the second-to-last
+        // round, "14" and "15" would otherwise be printed on top of each other.
+        var gap = Math.max(2, Math.round(rounds * 0.08));
+        var ticks = [moment.round];
+        [1, rounds].forEach(function(r) {
+            if (ticks.indexOf(r) === -1 && Math.abs(r - moment.round) >= gap) ticks.push(r);
+        });
+        ticks.forEach(function(r) {
+            var label = el('text', {
+                x: px(r), y: BOTTOM + 40, fill: 'rgba(255,255,255,0.55)',
+                'font-size': '26', 'text-anchor': 'middle',
+                'font-family': "var(--font-display, 'Outfit'), sans-serif"
+            });
+            label.textContent = String(r);
+            svg.appendChild(label);
+        });
+
+        var lines = [
+            { s: moment.loser, color: '#ff6600' },
+            { s: moment.winner, color: '#39ff14' }
+        ];
+        lines.forEach(function(item) {
+            var d = '';
+            for (var i = 0; i <= rounds; i++) {
+                d += (i ? ' L ' : 'M ') + px(i).toFixed(1) + ' ' + py(item.s.cum[i]).toFixed(1);
+            }
+            var path = el('path', { d: d, stroke: item.color, class: 'end-moment__path' });
+            svg.appendChild(path);
+            // getTotalLength only answers once the node is in a document.
+            item.path = path;
+        });
+
+        var mark = el('g', { class: 'end-moment__mark' });
+        mark.appendChild(el('line', {
+            x1: px(moment.round), x2: px(moment.round), y1: TOP, y2: BOTTOM,
+            stroke: 'rgba(255,255,255,0.55)', 'stroke-width': 2, 'stroke-dasharray': '8 8'
+        }));
+        lines.forEach(function(item) {
+            mark.appendChild(el('circle', {
+                cx: px(moment.round), cy: py(item.s.cum[moment.round]),
+                r: 13, fill: item.color
+            }));
+        });
+        lines.forEach(function(item) {
+            var name = el('text', {
+                x: RIGHT + 18, y: py(item.s.cum[rounds]) + 10, fill: item.color,
+                'font-size': '30', 'font-weight': '700', 'text-anchor': 'start',
+                stroke: 'var(--color-bg, #0a0a0f)', 'stroke-width': '6',
+                'paint-order': 'stroke',
+                'font-family': "var(--font-display, 'Outfit'), sans-serif"
+            });
+            name.textContent = item.s.name;
+            mark.appendChild(name);
+        });
+        svg.appendChild(mark);
+
+        host.innerHTML = '';
+        host.appendChild(svg);
+
+        lines.forEach(function(item) {
+            item.path.style.setProperty('--len', item.path.getTotalLength().toFixed(1));
+        });
+    }
+
+    /**
+     * Play the prologue, if this game has one. Returns true when the end
+     * screen is covered and the caller should hold back anything loud.
+     *
+     * @param {Object} data - END state data
+     * @returns {boolean} whether the moment is on screen
+     */
+    function playClosingMoment(data) {
+        var overlay = document.getElementById('end-moment');
+        if (!overlay) return false;
+
+        var gameId = data && data.game_id ? String(data.game_id) : 'unknown';
+        if (closingMomentPlayedFor === gameId) return false;
+        closingMomentPlayedFor = gameId;
+
+        var moment = findClosingMoment(data && data.leaderboard);
+        if (!moment) return false;
+
+        var kicker = document.getElementById('end-moment-kicker');
+        var line = document.getElementById('end-moment-line');
+        if (kicker) {
+            kicker.textContent = utils.t('leaderboard.momentKicker', { round: moment.round })
+                || ('Round ' + moment.round);
+        }
+        if (line) {
+            line.innerHTML = '<span class="is-winner">' + utils.escapeHtml(moment.winner.name) +
+                '</span> ' + utils.escapeHtml(utils.t('leaderboard.momentVerb') || 'goes past') +
+                ' <span class="is-loser">' + utils.escapeHtml(moment.loser.name) + '</span>';
+        }
+
+        renderClosingMomentChart(moment);
+
+        overlay.classList.remove('hidden', 'is-leaving');
+        setTimeout(function() { overlay.classList.add('is-leaving'); }, 3000);
+        setTimeout(function() {
+            overlay.classList.add('hidden');
+            overlay.classList.remove('is-leaving');
+        }, 3600);
+        return true;
+    }
+
     function renderEndView(data) {
         var leaderboard = data.leaderboard || [];
 
+        // #2563: the prologue covers the stage while the rest of this function
+        // builds it underneath. Nothing below waits for it except the confetti.
+        var momentOnScreen = playClosingMoment(data);
+
+        // Issue #827: Sudden-Death "Last One Standing" hero above the podium.
+        renderSuddenDeathLastStanding(data);
+
         // Update podium (AC 10.4.5) — name, score, and a colour-keyed avatar.
+        // #2835: stands are filled by position, not by rank value — a tie for
+        // first used to leave stand 2 empty and drop the second winner.
+        var podium = utils.podiumStands(leaderboard);
         [1, 2, 3].forEach(function(place) {
-            var player = leaderboard.find(function(p) { return p.rank === place; });
+            var player = podium.stands[place - 1];
             var nameEl = document.getElementById('end-podium-' + place + '-name');
             var scoreEl = document.getElementById('end-podium-' + place + '-score');
             var avatarEl = document.getElementById('end-podium-' + place + '-avatar');
@@ -1330,6 +3194,22 @@
             // as "A&amp;B" on the podium. Assign the raw name directly.
             if (nameEl) nameEl.textContent = player ? player.name : '---';
             if (scoreEl) scoreEl.textContent = player ? player.score : '0';
+
+            // #2130 (second round): a two-player game showed a third, empty
+            // stand with "---" and 0 PTS — reported from the field with a
+            // screenshot. Hide the stand when nobody holds the rank. Found via
+            // closest() so the markup stays untouched, and toggled with a class
+            // rather than `hidden`, which .podium-place's display:flex would
+            // override.
+            var placeEl = (nameEl || scoreEl || avatarEl);
+            placeEl = placeEl && placeEl.closest ? placeEl.closest('.podium-place') : null;
+            if (placeEl) placeEl.classList.toggle('podium-place--empty', !player);
+            // #2835: a co-winner on stand 2 is still first — the stand's label
+            // and medal follow the rank of whoever stands on it.
+            var lblEl = placeEl && placeEl.querySelector ? placeEl.querySelector('.podium-place-lbl') : null;
+            if (lblEl) lblEl.textContent = player ? player.rank : place;
+            var medalEl = placeEl && placeEl.querySelector ? placeEl.querySelector('.podium-medal') : null;
+            if (medalEl) medalEl.textContent = utils.podiumMedal(player ? player.rank : place);
             if (avatarEl) {
                 var nm = player ? player.name : '';
                 avatarEl.textContent = nm ? nm.trim().charAt(0).toUpperCase() : '';
@@ -1356,32 +3236,48 @@
         // Story 14.5 (AC3, AC7): Trigger winner confetti on dashboard
         // H2 fix: Only trigger if there's a valid winner with score > 0
         var winner = leaderboard.find(function(p) { return p.rank === 1; });
-        if (winner && winner.score > 0) {
-            triggerConfetti('winner');
+        var endGameId = data.game_id ? String(data.game_id) : 'unknown';
+        if (winner && winner.score > 0 && endConfettiPlayedFor !== endGameId) {
+            endConfettiPlayedFor = endGameId;
+            // #2563: fired behind the prologue it would be over before anyone
+            // saw it, so it waits for the stage to be uncovered.
+            if (momentOnScreen) {
+                setTimeout(function() { triggerConfetti('winner'); }, 3600);
+            } else {
+                triggerConfetti('winner');
+            }
         }
 
-        // Full standings panel — the players BELOW the podium (rank 4+). The
-        // podium already celebrates the top 3; this completes the ranking.
-        // Fallback to the whole board for small games (<=3 players) so the
-        // panel is never empty.
+        // #2960: places 4+ as small chips right under the podium. The "Full
+        // Rankings" box they used to sit in is gone: with four players it
+        // spent a third of the screen on one line. The podium already names
+        // the top three, so a game of three or fewer shows no chips at all
+        // (the old box fell back to repeating the whole board).
+        // #2835: `rest` is everyone not on a stand, ties inside the top three
+        // included — `rank > 3` used to lose them.
         var container = document.getElementById('end-leaderboard');
         if (container) {
-            var rest = leaderboard.filter(function(e) { return e.rank > 3; });
-            var rows = rest.length ? rest : leaderboard;
+            var rest = podium.rest;
             var html = '';
-            rows.forEach(function(entry) {
-                var rankClass = entry.rank <= 3 ? 'is-top-' + entry.rank : '';
-                var disconnectedClass = entry.connected === false ? 'leaderboard-entry--disconnected' : '';
-                var awayBadge = entry.connected === false ? '<span class="away-badge">(away)</span>' : '';
+            rest.forEach(function(entry) {
+                var classes = ['end-rest-chip'];
+                if (entry.connected === false || entry.eliminated) classes.push('end-rest-chip--dim');
+                var awayBadge = entry.connected === false ? '<span class="away-badge">(' + utils.escapeHtml(utils.t('lobby.away', 'away')) + ')</span>' : '';
 
-                html += '<div class="leaderboard-entry ' + rankClass + ' ' + disconnectedClass + '">' +
-                    '<span class="entry-rank">#' + entry.rank + '</span>' +
-                    '<span class="entry-name">' + utils.escapeHtml(entry.name) + awayBadge + '</span>' +
-                    '<span class="entry-score">' + entry.score + '</span>' +
+                // Issue #827: Sudden-Death — eliminated players render dimmed
+                // with a 💀 prefix.
+                var skullPrefix = entry.eliminated ? '💀 ' : '';
+
+                html += '<div class="' + classes.join(' ') + '">' +
+                    '<span class="end-rest-rank">#' + entry.rank + '</span>' +
+                    '<span class="end-rest-name">' + skullPrefix + utils.escapeHtml(entry.name) + '</span>' + awayBadge +
+                    '<span class="end-rest-score">' + entry.score + '</span>' +
                 '</div>';
             });
 
             container.innerHTML = html;
+            container.classList.toggle('hidden', rest.length === 0);
+            container.classList.toggle('end-rest--dense', rest.length > 10);
         }
     }
 
@@ -1460,25 +3356,40 @@
         var textEl = container.querySelector('.stats-comparison-text');
 
         // Build comparison text based on performance
-        var icon = '';
-        var text = '';
+        // `cssClass` behaelt seinen Anfangswert — die Zweige haengen nur an.
+        // `icon` und `text` werden in jedem Zweig gesetzt, die Kette endet auf
+        // `else`; ein Anfangswert waere tot (eslint 10, no-useless-assignment).
+        var icon, text;
         var cssClass = 'stats-comparison';
+
+        var avg = performance.current_avg.toFixed(1);
 
         if (performance.is_first_game) {
             icon = '🌟';
-            text = 'First game recorded! Avg: ' + performance.current_avg.toFixed(1) + ' pts/round';
+            text = utils.t('stats.firstGameRecorded', { avg: avg });
             cssClass += ' stats-comparison--first';
         } else if (performance.is_new_record) {
             icon = '🏆';
-            text = 'NEW RECORD! ' + performance.current_avg.toFixed(1) + ' pts/round (prev: ' + performance.all_time_avg.toFixed(1) + ')';
+            text = utils.t('stats.newRecordEnd', {
+                avg: avg,
+                prev: performance.all_time_avg.toFixed(1)
+            });
             cssClass += ' stats-comparison--record';
         } else if (performance.is_above_average) {
+            // The '+' sign lives in the template, so pass the bare number.
             icon = '📈';
-            text = performance.current_avg.toFixed(1) + ' pts/round (+' + performance.difference.toFixed(1) + ' vs all-time avg)';
+            text = utils.t('stats.aboveAverageEnd', {
+                avg: avg,
+                diff: performance.difference.toFixed(1)
+            });
             cssClass += ' stats-comparison--above';
         } else {
+            // difference is <= 0 here, so toFixed already carries the minus.
             icon = '📊';
-            text = performance.current_avg.toFixed(1) + ' pts/round (' + performance.difference.toFixed(1) + ' vs all-time avg)';
+            text = utils.t('stats.belowAverageEnd', {
+                avg: avg,
+                diff: performance.difference.toFixed(1)
+            });
             cssClass += ' stats-comparison--below';
         }
 
@@ -1503,26 +3414,8 @@
 
         var html = '';
         superlatives.forEach(function(award, index) {
-            var valueText = '';
-            switch (award.value_label) {
-                case 'avg_time':
-                    valueText = award.value + 's ' + utils.t('superlatives.avgTime');
-                    break;
-                case 'streak':
-                    valueText = award.value + ' ' + utils.t('superlatives.streak');
-                    break;
-                case 'bets':
-                    valueText = award.value + ' ' + utils.t('superlatives.bets');
-                    break;
-                case 'points':
-                    valueText = award.value + ' ' + utils.t('superlatives.points');
-                    break;
-                case 'close_guesses':
-                    valueText = award.value + ' ' + utils.t('superlatives.closeGuesses');
-                    break;
-                default:
-                    valueText = award.value;
-            }
+            // #3158: one table in utils.js for TV and phone.
+            var valueText = utils.awardValueText(award);
 
             html += '<div class="superlative-card superlative-card--' + award.id + '" style="animation-delay: ' + (index * 0.2) + 's">' +
                 '<div class="superlative-emoji">' + award.emoji + '</div>' +
@@ -1534,6 +3427,255 @@
 
         container.innerHTML = html;
         container.classList.remove('hidden');
+    }
+
+    // ============================================
+    // Sudden Death (Issue #827)
+    // ============================================
+
+    /**
+     * Issue #827: full-bleed "OUT" takeover (design S4-C). Called on REVEAL.
+     * When sudden_death_mode is on and the state carries a non-empty
+     * eliminated_this_round, flash the overlay with the eliminated name(s) for
+     * ~2.5s. Deduped per (round, names) so re-renders/re-broadcasts of the same
+     * REVEAL don't re-trigger it. This is a TV display — the overlay auto-hides
+     * so it never permanently blocks the underlying reveal.
+     * @param {Object} data - REVEAL state data
+     */
+    function renderSuddenDeathOut(data) {
+        var overlay = document.getElementById('sd-out-overlay');
+        if (!overlay) return;
+
+        var names = data.sudden_death_mode ? (data.eliminated_this_round || []) : [];
+        if (!names.length) {
+            // No elimination this round — make sure the key resets so a future
+            // elimination with the same names (different round) still fires.
+            return;
+        }
+
+        var key = (data.round || 0) + ':' + names.join(',');
+        if (key === sdLastOutKey) return;  // already shown for this elimination
+        sdLastOutKey = key;
+
+        // Big word uses the localized game.out (uppercased).
+        var wordEl = overlay.querySelector('.sd-out__word');
+        if (wordEl) wordEl.textContent = (utils.t('game.out', 'OUT') || 'OUT').toUpperCase();
+
+        var nameEl = document.getElementById('sd-out-name');
+        if (nameEl) nameEl.textContent = names.join(', ');
+
+        overlay.classList.add('show');
+        if (sdOutTimer) clearTimeout(sdOutTimer);
+        sdOutTimer = setTimeout(function() {
+            overlay.classList.remove('show');
+            sdOutTimer = null;
+        }, 2500);
+    }
+
+    /**
+     * #2721: the halftime takeover for the Comeback Token.
+     *
+     * The token is granted once per game, at the midpoint, to the trailing
+     * third — all in the same second. That is the shape of a game beat, so it
+     * gets one: five seconds of full screen, the reason spelled out, and the
+     * names as a group.
+     *
+     * Why a group and not a per-player line: two names together read as a team,
+     * one name alone reads as a verdict. The phrasing carries that, and the
+     * caller cannot make it say anything else.
+     *
+     * Deduped per (round, names) exactly like the Sudden Death overlay, and it
+     * auto-hides, because this is a TV — nothing here may ever stay on screen
+     * waiting for an input that has no keyboard.
+     *
+     * @param {Object} data - REVEAL state data
+     */
+    function renderComebackHalftime(data) {
+        var overlay = document.getElementById('comeback-overlay');
+        if (!overlay) return;
+
+        var names = data.comeback_granted_this_round || [];
+        if (!names.length) return;
+
+        var key = (data.round || 0) + ':' + names.join(',');
+        if (key === comebackLastKey) return;
+        comebackLastKey = key;
+
+        var wordEl = document.getElementById('comeback-word');
+        if (wordEl) {
+            wordEl.textContent =
+                (utils.t('game.halftime', 'HALFTIME') || 'HALFTIME').toUpperCase();
+        }
+
+        var roundEl = document.getElementById('comeback-round');
+        if (roundEl) {
+            // Reuse the existing round line rather than inventing a second
+            // one — six locales already carry it.
+            roundEl.textContent = utils.t('game.round', {
+                current: data.round || 0,
+                total: data.total_rounds || 0
+            });
+        }
+
+        var lineEl = document.getElementById('comeback-line');
+        if (lineEl) {
+            lineEl.textContent = utils.t(
+                'game.comebackFieldClosing',
+                'The field is closing up'
+            );
+        }
+
+        var namesEl = document.getElementById('comeback-names');
+        if (namesEl) {
+            namesEl.innerHTML = names.map(function(n) {
+                return '<span class="comeback__plate">' +
+                    '<span class="comeback__plate-icon" aria-hidden="true">🥷</span>' +
+                    utils.escapeHtml(n) +
+                '</span>';
+            }).join('');
+        }
+
+        overlay.classList.add('show');
+        if (comebackTimer) clearTimeout(comebackTimer);
+        comebackTimer = setTimeout(function() {
+            overlay.classList.remove('show');
+            comebackTimer = null;
+        }, 5000);
+    }
+
+    /**
+     * Issue #827: Sudden-Death FINAL banner (design S5-C). Shown in the
+     * PLAYING and REVEAL chip strips when exactly 2 players are still in the
+     * game (non-eliminated) AND sudden_death_mode is on. Hidden otherwise.
+     * @param {Object} data - State data
+     * @param {string} bannerId - id of the banner element for this phase
+     */
+    function renderSuddenDeathFinalBanner(data, bannerId) {
+        var banner = document.getElementById(bannerId);
+        if (!banner) return;
+
+        var players = data.players || [];
+        var alive = players.filter(function(p) { return !p.eliminated; });
+
+        if (data.sudden_death_mode && alive.length === 2) {
+            banner.textContent = '💀 ' + utils.t('game.finalShowdown', 'FINAL — SUDDEN DEATH');
+            banner.classList.remove('hidden');
+        } else {
+            banner.classList.add('hidden');
+        }
+    }
+
+    /**
+     * How a Sudden Death game ended, and who it ended in favour of.
+     *
+     * Two endings exist, and until #2105 the screen only had words for one:
+     *
+     * - `sole` — the game ran to its 1v1 conclusion. Exactly one survivor and
+     *   at least one eliminated player, the same rule the backend award
+     *   `_superlative_last_one_standing` (game/scoring.py) enforces.
+     * - `points` — the rounds ran out with two or more players still alive.
+     *   `compute_winners` (game/state_serialization.py) then crowns the
+     *   top-scoring *survivor*, and the final leaderboard renders survivors
+     *   first, so `survivors[0]` is that player.
+     *
+     * Returns null when neither applies and the hero must stay hidden: Sudden
+     * Death off, nobody ever eliminated (including a solo game, where one
+     * survivor is not an achievement), or no identifiable name.
+     *
+     * Both endings are reachable in practice since the selectable round count
+     * (#1475). Elimination starts in round 2 and takes one player per round, so
+     * N players need N rounds — a cap of 10 leaves 11 players with two
+     * survivors. Before #1475 the `points` ending required the playlist to run
+     * out.
+     *
+     * @param {Object} data - END state data
+     * @returns {?{kind: string, name: string, survivors: number, rounds: number}}
+     */
+    function suddenDeathEnding(data) {
+        if (!data || !data.sudden_death_mode) return null;
+
+        var stats = data.game_stats || {};
+        var rounds = stats.total_rounds != null ? stats.total_rounds : (data.round || 0);
+        var leaderboard = data.leaderboard || [];
+
+        if (leaderboard.length) {
+            var survivors = leaderboard.filter(function(e) { return !e.eliminated; });
+            var eliminated = leaderboard.filter(function(e) { return e.eliminated; });
+            // Sudden Death armed but never cut anyone — an ordinary game.
+            if (!eliminated.length || !survivors.length) return null;
+            var name = survivors[0].name;
+            if (!name) return null;
+            return {
+                kind: survivors.length === 1 ? 'sole' : 'points',
+                name: name,
+                survivors: survivors.length,
+                rounds: rounds
+            };
+        }
+
+        // No usable leaderboard — fall back to the award. The backend emits it
+        // only for a genuine sole survivor, so it needs no re-check here, but
+        // it also cannot describe the `points` ending.
+        var awards = data.superlatives || [];
+        var award = awards.find(function(a) { return a.id === 'last_one_standing'; });
+        if (!award || !award.player_name) return null;
+        return { kind: 'sole', name: award.player_name, survivors: 1, rounds: rounds };
+    }
+
+    /**
+     * Issue #827 + #2105: END hero above the podium, in Sudden Death only.
+     *
+     * A sole survivor gets "Last One Standing". A game whose rounds ran out
+     * with several players alive gets its own closing line instead — the win
+     * was on points among the survivors, and saying "Last One Standing" there
+     * would contradict the leaderboard right below. The sub-line carries the
+     * number that explains it: how many were still standing, after how many
+     * rounds.
+     *
+     * @param {Object} data - END state data
+     */
+    function renderSuddenDeathLastStanding(data) {
+        var hero = document.getElementById('sd-last-standing');
+        if (!hero) return;
+
+        var ending = suddenDeathEnding(data);
+        if (!ending) {
+            hero.classList.add('hidden');
+            return;
+        }
+
+        var sole = ending.kind === 'sole';
+
+        var headlineEl = hero.querySelector('.sd-last-standing__headline');
+        if (headlineEl) {
+            headlineEl.textContent = sole
+                ? utils.t('game.lastOneStanding', 'Last One Standing')
+                : utils.t('game.bestOfSurvivors', 'Best of the Survivors');
+        }
+
+        var winnerEl = document.getElementById('sd-last-standing-winner');
+        if (winnerEl) winnerEl.textContent = ending.name;
+
+        var subEl = document.getElementById('sd-last-standing-sub');
+        if (subEl) {
+            if (sole) {
+                subEl.textContent = '';
+                subEl.classList.add('hidden');
+            } else {
+                subEl.textContent = utils.t('game.survivorsAfterRounds', {
+                    count: ending.survivors,
+                    rounds: ending.rounds
+                });
+                subEl.classList.remove('hidden');
+            }
+        }
+
+        // The trophy belongs to the 1v1 finish; a points win gets the medal, so
+        // the two endings are distinguishable before anyone reads the words.
+        var trophyEl = hero.querySelector('.sd-last-standing__trophy');
+        if (trophyEl) trophyEl.textContent = sole ? '🏆' : '🥇';
+
+        hero.classList.remove('hidden');
     }
 
     // ============================================

@@ -23,8 +23,11 @@ from copy import deepcopy
 from typing import Any
 
 from .const import (
+    DEVICE_TYPE_AIR_FRYER,
+    DEVICE_TYPE_BREAD_MAKER,
     DEVICE_TYPE_DISHWASHER,
     DEVICE_TYPE_DRYER,
+    DEVICE_TYPE_PUMP,
     DEVICE_TYPE_WASHER_DRYER,
     DEVICE_TYPE_WASHING_MACHINE,
 )
@@ -202,6 +205,31 @@ DEFAULT_PHASES_BY_DEVICE: dict[str, list[PhaseItem]] = {
             "is_default": True,
         },
     ],
+    # A pump run is one phase; without an entry it fell back to the union of every
+    # list above (washing phases included).
+    DEVICE_TYPE_PUMP: [],
+}
+
+# The built-in phases of the device types removed in 0.5.9, as (name, description).
+# Profiles assign phases BY NAME, so a migrated Bread Maker's "Kneading" range would
+# name a phase no catalog lists any more (the panel's phase editor shows it blank).
+# ``ProfileStore.async_adopt_retired_builtin_phases`` turns each one a profile still
+# uses into a custom phase. Nothing else reads this table.
+RETIRED_BUILTIN_PHASES: dict[str, list[tuple[str, str]]] = {
+    DEVICE_TYPE_BREAD_MAKER: [
+        ("Kneading", "Motor-driven dough mixing and development. High power draw."),
+        ("Resting", "Short low-power pause between kneading stages for gluten relaxation."),
+        ("Proving", "Low-heat rising period to allow yeast fermentation and dough expansion."),
+        ("Baking", "High-temperature heating element active for crust and crumb formation."),
+        ("Keep Warm", "Low-heat holding stage to keep the loaf warm after baking."),
+    ],
+    DEVICE_TYPE_AIR_FRYER: [
+        ("Pre-Heat", "Initial chamber heating before full cooking."),
+        ("Cooking", "Main cooking phase with active heater and fan."),
+        ("Pause", "Short pause for shaking or inspection."),
+        ("Cool Down", "Fan-only cool-down stage after heating."),
+        ("Keep Warm", "Low-heat holding stage to keep food warm."),
+    ],
 }
 
 
@@ -326,6 +354,9 @@ def merge_phase_catalog(device_type: str, custom_phases: list[PhaseItem] | None)
                 "name": normalized_name,
                 "description": str(item.get("description", "")).strip(),
                 "is_default": False,
+                # An edited built-in: deleting it restores the built-in, so the
+                # panel offers "Reset" rather than "Delete" on it.
+                "is_override": True,
             }
             continue
 
@@ -342,6 +373,9 @@ def merge_phase_catalog(device_type: str, custom_phases: list[PhaseItem] | None)
         # New phase: guard against universal overrides leaking into unrelated catalogs.
         # For legacy items with no device_type, first try matching against the active
         # catalog device_type before discarding, so legacy overrides are preserved.
+        # Only an override is guarded (no id, or a built-in's id): a phase the user
+        # created has its own id and stays, even when a built-in list added later
+        # shares its name.
         if not item_device_type and normalized_name.casefold() in all_builtin_names:
             active_dt_key = (str(device_type or "").strip().casefold(), normalized_name.casefold())
             if active_dt_key in builtin_by_name:
@@ -350,7 +384,9 @@ def merge_phase_catalog(device_type: str, custom_phases: list[PhaseItem] | None)
                 if new_desc:
                     merged[idx]["description"] = new_desc
                 merged[idx]["is_default"] = False
-            continue
+                continue
+            if not phase_id or get_builtin_phase_by_id(phase_id) is not None:
+                continue
 
         # Deduplicate before appending.
         if phase_id and phase_id in seen_ids:

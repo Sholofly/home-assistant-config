@@ -1,6 +1,6 @@
 {
   "name": "60s Classics 🎸",
-  "version": "1.7",
+  "version": "1.22",
   "source": "https://open.spotify.com/playlist/6rtsNFUv2UK3j78PRVMpSd",
   "tags": [
     "1960s",
@@ -46,7 +46,8 @@
         "es": "applemusic://track/1443134674",
         "nl": "applemusic://track/1443134674",
         "it": "applemusic://track/1443134674"
-      }
+      },
+      "uri_deezer": "deezer://track/3102931"
     },
     {
       "year": 1966,
@@ -85,7 +86,8 @@
         "es": "applemusic://track/1442865074",
         "nl": "applemusic://track/1442865074",
         "it": "applemusic://track/1442865074"
-      }
+      },
+      "uri_deezer": "deezer://track/3091992"
     },
     {
       "year": 1966,
@@ -124,7 +126,8 @@
         "es": "applemusic://track/1373179773",
         "nl": "applemusic://track/1373179773",
         "it": "applemusic://track/1373179773"
-      }
+      },
+      "uri_deezer": "deezer://track/13549172"
     },
     {
       "year": 1961,
@@ -163,7 +166,8 @@
         "es": "applemusic://track/1815497962",
         "nl": "applemusic://track/1815497962",
         "it": "applemusic://track/1815497962"
-      }
+      },
+      "uri_deezer": "deezer://track/73267973"
     },
     {
       "year": 1967,
@@ -202,7 +206,8 @@
         "es": "applemusic://track/1625648637",
         "nl": "applemusic://track/1625648637",
         "it": "applemusic://track/1625648637"
-      }
+      },
+      "uri_deezer": "deezer://track/5093933"
     },
     {
       "year": 1967,
@@ -241,7 +246,8 @@
         "es": "applemusic://track/1192962303",
         "nl": "applemusic://track/1192962303",
         "it": "applemusic://track/1192962303"
-      }
+      },
+      "uri_deezer": "deezer://track/3614129"
     },
     {
       "year": 1967,
@@ -253,11 +259,6 @@
         "King Crimson"
       ],
       "title": "The End",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "This 12-minute epic was famously used in Francis Ford Coppola's Apocalypse Now. The Oedipal section was improvised by Jim Morrison during a live performance.",
@@ -278,7 +279,8 @@
         "es": "applemusic://track/640047587",
         "nl": "applemusic://track/640047587",
         "it": "applemusic://track/640047587"
-      }
+      },
+      "uri_deezer": "deezer://track/709951042"
     },
     {
       "year": 1963,
@@ -315,7 +317,8 @@
         "es": "applemusic://track/1308624096",
         "nl": "applemusic://track/1308624096",
         "it": "applemusic://track/1308624096"
-      }
+      },
+      "uri_deezer": "deezer://track/71581474"
     },
     {
       "year": 1964,
@@ -346,13 +349,14 @@
       "isrc": "USA176460010",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1440781975",
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
-      }
+        "de": "applemusic://track/697238871",
+        "gb": "applemusic://track/726189776",
+        "fr": "applemusic://track/697238871",
+        "es": "applemusic://track/727825262",
+        "nl": "applemusic://track/1542617044",
+        "it": "applemusic://track/697238871"
+      },
+      "uri_deezer": "deezer://track/3155135"
     },
     {
       "year": 1966,
@@ -391,7 +395,8 @@
         "es": "applemusic://track/1576574977",
         "nl": "applemusic://track/1576574977",
         "it": "applemusic://track/1576574977"
-      }
+      },
+      "uri_deezer": "deezer://track/1434159652"
     },
     {
       "year": 1967,
@@ -416,7 +421,7 @@
       "fun_fact_fr": "La mélodie iconique à l'orgue est inspirée de l'« Air sur la corde de sol » de Bach. Elle est restée six semaines en tête au Royaume-Uni et c'est l'un des morceaux les plus joués dans les lieux publics de l'histoire britannique.",
       "uri_apple_music": "applemusic://track/1469579797",
       "uri_youtube_music": "https://music.youtube.com/watch?v=z0vCwGUZe1I",
-      "uri_tidal": "tidal://track/201461600",
+      "uri_tidal": "tidal://track/288798243",
       "fun_fact_nl": "De iconische orgelmelodie is gebaseerd op Bachs 'Air on a G String'. Het stond zes weken op #1 in de UK en is een van de meest gespeelde nummers op openbare plaatsen in de geschiedenis van de UK.",
       "awards_nl": [],
       "isrc": "USUG10914316",
@@ -428,7 +433,8 @@
         "es": "applemusic://track/1469579797",
         "nl": "applemusic://track/1469579797",
         "it": "applemusic://track/1469579797"
-      }
+      },
+      "uri_deezer": "deezer://track/1524486232"
     },
     {
       "year": 1971,
@@ -462,6 +468,18 @@
       "awards_nl": [
         "Grammy Award voor Beste R&B-nummer (1972)"
       ],
+      "awards_it": [
+        "Grammy per la migliore canzone R&B (1972)"
+      ],
+      "awards_de": [
+        "Grammy - Bester R&B-Song (1972)"
+      ],
+      "awards_es": [
+        "Grammy - Mejor Canción R&B (1972)"
+      ],
+      "awards_fr": [
+        "Grammy Award - Meilleure chanson R&B (1972)"
+      ],
       "isrc": "USSM17100268",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/391725482",
@@ -471,7 +489,8 @@
         "es": "applemusic://track/1308611756",
         "nl": "applemusic://track/1308611756",
         "it": "applemusic://track/1308611756"
-      }
+      },
+      "uri_deezer": "deezer://track/2312047"
     },
     {
       "year": 1964,
@@ -500,10 +519,22 @@
       "fun_fact_fr": "La chanson a été écrite par Tony Hatch en 30 minutes après une visite à Times Square à New York. C'était le premier succès solo féminin britannique à atteindre le n°1 aux États-Unis.",
       "uri_apple_music": "applemusic://track/1676474357",
       "uri_youtube_music": "https://music.youtube.com/watch?v=cieS-GgnV7Q",
-      "uri_tidal": "tidal://track/283456891",
+      "uri_tidal": "tidal://track/491221591",
       "fun_fact_nl": "Het nummer werd geschreven door Tony Hatch in 30 minuten na een bezoek aan Times Square in New York. Het was de eerste Britse vrouwelijke solohit die #1 bereikte in de VS.",
       "awards_nl": [
         "Grammy Award voor Beste Rock-'n-Roll-opname (1965)"
+      ],
+      "awards_it": [
+        "Grammy per la migliore registrazione rock and roll (1965)"
+      ],
+      "awards_de": [
+        "Grammy Award für beste Rock-and-Roll-Aufnahme (1965)"
+      ],
+      "awards_es": [
+        "Premio Grammy a la Mejor Grabación de Rock and Roll (1965)"
+      ],
+      "awards_fr": [
+        "Grammy Award - Meilleur enregistrement rock and roll (1965)"
       ],
       "isrc": "FRZ196400510",
       "uri_apple_music_by_region": {
@@ -514,7 +545,8 @@
         "es": "applemusic://track/1676474357",
         "nl": "applemusic://track/1676474357",
         "it": "applemusic://track/1676474357"
-      }
+      },
+      "uri_deezer": "deezer://track/431577362"
     },
     {
       "year": 1968,
@@ -553,7 +585,8 @@
         "es": "applemusic://track/6763242221",
         "nl": "applemusic://track/6763242221",
         "it": "applemusic://track/6763242221"
-      }
+      },
+      "uri_deezer": "deezer://track/540202122"
     },
     {
       "year": 1965,
@@ -590,7 +623,8 @@
         "es": "applemusic://track/1443341633",
         "nl": "applemusic://track/1443341633",
         "it": "applemusic://track/1443341633"
-      }
+      },
+      "uri_deezer": "deezer://track/1137255"
     },
     {
       "year": 1969,
@@ -622,6 +656,18 @@
       "awards_nl": [
         "Ivor Novello Award voor Originaliteit (1970)"
       ],
+      "awards_it": [
+        "Ivor Novello Award per l'originalita (1970)"
+      ],
+      "awards_de": [
+        "Ivor Novello Award - Originalität (1970)"
+      ],
+      "awards_es": [
+        "Premio Ivor Novello - Originalidad (1970)"
+      ],
+      "awards_fr": [
+        "Ivor Novello Award - Originalité (1970)"
+      ],
       "isrc": "USJT10900021",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1486377720",
@@ -631,7 +677,8 @@
         "es": "applemusic://track/1486377720",
         "nl": "applemusic://track/1486377720",
         "it": "applemusic://track/1486377720"
-      }
+      },
+      "uri_deezer": "deezer://track/802719212"
     },
     {
       "year": 1964,
@@ -670,7 +717,8 @@
         "es": "applemusic://track/1463665119",
         "nl": "applemusic://track/1463665119",
         "it": "applemusic://track/1463665119"
-      }
+      },
+      "uri_deezer": "deezer://track/2468570"
     },
     {
       "year": 1969,
@@ -682,11 +730,6 @@
         "The Who"
       ],
       "title": "Here Comes The Sun",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "George Harrison wrote this song in Eric Clapton's garden while skipping a Beatles business meeting. It's now the most-streamed Beatles song on Spotify.",
@@ -707,7 +750,8 @@
         "es": "applemusic://track/1713156666",
         "nl": "applemusic://track/1713156666",
         "it": "applemusic://track/1713156666"
-      }
+      },
+      "uri_deezer": "deezer://track/116348464"
     },
     {
       "year": 1967,
@@ -744,7 +788,8 @@
         "es": "applemusic://track/79087150",
         "nl": "applemusic://track/79087150",
         "it": "applemusic://track/79087150"
-      }
+      },
+      "uri_deezer": "deezer://track/2043943"
     },
     {
       "year": 1970,
@@ -781,7 +826,8 @@
         "es": "applemusic://track/1463658941",
         "nl": "applemusic://track/1463658941",
         "it": "applemusic://track/1463658941"
-      }
+      },
+      "uri_deezer": "deezer://track/13174766"
     },
     {
       "year": 1968,
@@ -815,6 +861,18 @@
       "awards_nl": [
         "Grammy Award voor Opname van het Jaar (1969)"
       ],
+      "awards_it": [
+        "Grammy per il disco dell'anno (1969)"
+      ],
+      "awards_de": [
+        "Grammy - Aufnahme des Jahres (1969)"
+      ],
+      "awards_es": [
+        "Grammy - Grabación del Año (1969)"
+      ],
+      "awards_fr": [
+        "Grammy Award - Enregistrement de l'année (1969)"
+      ],
       "isrc": "USSM16800379",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1463665385",
@@ -824,7 +882,8 @@
         "es": "applemusic://track/1463665385",
         "nl": "applemusic://track/1463665385",
         "it": "applemusic://track/1463665385"
-      }
+      },
+      "uri_deezer": "deezer://track/618610"
     },
     {
       "year": 1965,
@@ -863,7 +922,8 @@
         "es": "applemusic://track/1706561182",
         "nl": "applemusic://track/1706561182",
         "it": "applemusic://track/1706561182"
-      }
+      },
+      "uri_deezer": "deezer://track/7677778"
     },
     {
       "year": 1965,
@@ -902,7 +962,8 @@
         "es": "applemusic://track/1821337433",
         "nl": "applemusic://track/1821337433",
         "it": "applemusic://track/1821337433"
-      }
+      },
+      "uri_deezer": "deezer://track/2321278"
     },
     {
       "year": 1967,
@@ -941,7 +1002,8 @@
         "es": "applemusic://track/348894696",
         "nl": "applemusic://track/348894696",
         "it": "applemusic://track/348894696"
-      }
+      },
+      "uri_deezer": "deezer://track/625869"
     },
     {
       "year": 1971,
@@ -980,7 +1042,8 @@
         "es": "applemusic://track/1886242473",
         "nl": "applemusic://track/1886242473",
         "it": "applemusic://track/1886242473"
-      }
+      },
+      "uri_deezer": "deezer://track/3166505"
     },
     {
       "year": 1964,
@@ -1019,7 +1082,8 @@
         "es": "applemusic://track/1441164417",
         "nl": "applemusic://track/1441164417",
         "it": "applemusic://track/1441164417"
-      }
+      },
+      "uri_deezer": "deezer://track/116348154"
     },
     {
       "year": 1965,
@@ -1058,7 +1122,8 @@
         "es": "applemusic://track/1441164536",
         "nl": "applemusic://track/1441164536",
         "it": "applemusic://track/1441164536"
-      }
+      },
+      "uri_deezer": "deezer://track/116348166"
     },
     {
       "year": 1965,
@@ -1095,7 +1160,8 @@
         "es": "applemusic://track/1441133496",
         "nl": "applemusic://track/1441133496",
         "it": "applemusic://track/1441133496"
-      }
+      },
+      "uri_deezer": "deezer://track/116348164"
     },
     {
       "year": 1967,
@@ -1132,7 +1198,8 @@
         "es": "applemusic://track/1441163777",
         "nl": "applemusic://track/1441163777",
         "it": "applemusic://track/1441163777"
-      }
+      },
+      "uri_deezer": "deezer://track/116348086"
     },
     {
       "year": 1967,
@@ -1171,7 +1238,8 @@
         "es": "applemusic://track/1441133271",
         "nl": "applemusic://track/1441133271",
         "it": "applemusic://track/1441133271"
-      }
+      },
+      "uri_deezer": "deezer://track/116348096"
     },
     {
       "year": 1968,
@@ -1208,7 +1276,8 @@
         "es": "applemusic://track/1441133276",
         "nl": "applemusic://track/1441133276",
         "it": "applemusic://track/1441133276"
-      }
+      },
+      "uri_deezer": "deezer://track/116348106"
     },
     {
       "year": 1968,
@@ -1247,7 +1316,8 @@
         "es": "applemusic://track/1856287169",
         "nl": "applemusic://track/1856287169",
         "it": "applemusic://track/1856287169"
-      }
+      },
+      "uri_deezer": "deezer://track/116348632"
     },
     {
       "year": 1966,
@@ -1284,7 +1354,8 @@
         "es": "applemusic://track/1463652959",
         "nl": "applemusic://track/1463652959",
         "it": "applemusic://track/1463652959"
-      }
+      },
+      "uri_deezer": "deezer://track/71958646"
     },
     {
       "year": 1969,
@@ -1296,11 +1367,6 @@
         "Joan Baez"
       ],
       "title": "Both Sides Now",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Written when Mitchell was only 23, inspired by reading a passage about clouds in Saul Bellow's novel Henderson the Rain King. Judy Collins had a hit with it before Joni recorded her own version.",
@@ -1321,7 +1387,8 @@
         "es": "applemusic://track/1568036799",
         "nl": "applemusic://track/1839414248",
         "it": "applemusic://track/1839414248"
-      }
+      },
+      "uri_deezer": "deezer://track/2813004"
     },
     {
       "year": 1969,
@@ -1358,7 +1425,8 @@
         "es": "applemusic://track/1806381586",
         "nl": "applemusic://track/1806381586",
         "it": "applemusic://track/1806381586"
-      }
+      },
+      "uri_deezer": "deezer://track/5250666"
     },
     {
       "year": 1965,
@@ -1384,7 +1452,9 @@
       "uri_youtube_music": "https://music.youtube.com/watch?v=MgJ9K7cPRKk",
       "uri_tidal": "tidal://track/77557764",
       "fun_fact_nl": "Roger Daltrey's stotterende zangstijl was Pete Townshend's poging om een pillen slikkende mod na te bootsen. De BBC verbood het aanvankelijk, omdat ze dachten dat het de spot dreef met mensen met een spraakgebrek.",
-      "awards_nl": []
+      "awards_nl": [],
+      "uri_deezer": "deezer://track/136341550",
+      "uri_apple_music": "applemusic://track/1443238754"
     },
     {
       "year": 1967,
@@ -1423,7 +1493,8 @@
         "es": "applemusic://track/1688024397",
         "nl": "applemusic://track/1688024397",
         "it": "applemusic://track/1688024397"
-      }
+      },
+      "uri_deezer": "deezer://track/427230152"
     },
     {
       "year": 1967,
@@ -1460,7 +1531,8 @@
         "es": "applemusic://track/1535485171",
         "nl": "applemusic://track/1535485171",
         "it": "applemusic://track/1535485171"
-      }
+      },
+      "uri_deezer": "deezer://track/3586842"
     },
     {
       "year": 1966,
@@ -1472,11 +1544,6 @@
         "The Mamas & The Papas"
       ],
       "title": "April Come She Will",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "This short, beautiful track from the 'Sounds of Silence' album uses the changing months as a metaphor for a relationship's progression from spring romance to autumn's end.",
@@ -1497,7 +1564,8 @@
         "es": "applemusic://track/192480540",
         "nl": "applemusic://track/192480540",
         "it": "applemusic://track/192480540"
-      }
+      },
+      "uri_deezer": "deezer://track/2468578"
     },
     {
       "year": 1965,
@@ -1509,11 +1577,6 @@
         "Simon & Garfunkel"
       ],
       "title": "You've Got To Hide Your Love Away",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "John Lennon's most Dylan-influenced song, featuring the first outside musicians on a Beatles recording—session flautists. Some believe it's about Brian Epstein's closeted homosexuality.",
@@ -1534,7 +1597,8 @@
         "es": "applemusic://track/1441164546",
         "nl": "applemusic://track/1441164546",
         "it": "applemusic://track/1441164546"
-      }
+      },
+      "uri_deezer": "deezer://track/116348168"
     },
     {
       "year": 1966,
@@ -1559,7 +1623,7 @@
       "fun_fact_fr": "Écrite par Harry Vanda et George Young (dont les frères cadets allaient former AC/DC). Rolling Stone l'a classée parmi les plus grandes chansons de tous les temps.",
       "uri_apple_music": "applemusic://track/1438550837",
       "uri_youtube_music": "https://music.youtube.com/watch?v=rOtnpb2EtQ8",
-      "uri_tidal": "tidal://track/71574224",
+      "uri_tidal": "tidal://track/491217880",
       "fun_fact_nl": "Geschreven door Harry Vanda en George Young (wiens jongere broers later AC/DC zouden vormen). Rolling Stone noemde het een van de beste nummers aller tijden.",
       "awards_nl": [],
       "isrc": "AUAP06600062",
@@ -1571,7 +1635,8 @@
         "es": "applemusic://track/1440508809",
         "nl": "applemusic://track/1440508809",
         "it": "applemusic://track/1440508809"
-      }
+      },
+      "uri_deezer": "deezer://track/3803445662"
     },
     {
       "year": 1968,
@@ -1596,19 +1661,20 @@
       "fun_fact_fr": "Une chanson satirique sur la vie de banlieue anglaise que le groupe ne voulait pas sortir en single. Steve Marriott était tellement gêné par son succès que cela a contribué à son départ du groupe.",
       "uri_apple_music": "applemusic://track/1439066304",
       "uri_youtube_music": "https://music.youtube.com/watch?v=zXeRB-3nDR8",
-      "uri_tidal": "tidal://track/96729950",
+      "uri_tidal": "tidal://track/27084623",
       "fun_fact_nl": "Een satirisch nummer over het Engelse leven in de voorsteden dat de band niet als single wilde uitbrengen. Steve Marriott schaamde zich zo voor het succes dat hij mede hierdoor de band verliet.",
       "awards_nl": [],
       "isrc": "GBA7H1143360",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1439066304",
         "de": "applemusic://track/1439066304",
-        "gb": null,
+        "gb": "applemusic://track/1757584414",
         "fr": "applemusic://track/1439066304",
         "es": "applemusic://track/1439066304",
         "nl": "applemusic://track/1439066304",
         "it": "applemusic://track/1439066304"
-      }
+      },
+      "uri_deezer": "deezer://track/62811114"
     },
     {
       "year": 1966,
@@ -1647,7 +1713,8 @@
         "es": "applemusic://track/1440745782",
         "nl": "applemusic://track/1440745782",
         "it": "applemusic://track/1440745782"
-      }
+      },
+      "uri_deezer": "deezer://track/7818900"
     },
     {
       "year": 1968,
@@ -1684,7 +1751,8 @@
         "es": "applemusic://track/1833249921",
         "nl": "applemusic://track/1833249921",
         "it": "applemusic://track/1833249921"
-      }
+      },
+      "uri_deezer": "deezer://track/3977776"
     },
     {
       "artist": "Small Faces",
@@ -1703,13 +1771,14 @@
         "it": "applemusic://track/1475647117"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=nO9DqvznjrQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/14740985",
       "uri_deezer": "deezer://track/719296102",
       "fun_fact": "A chart hit by Small Faces (1967).",
       "fun_fact_de": "Ein Chart-Hit von Small Faces (1967).",
       "fun_fact_es": "Un éxito de Small Faces (1967).",
       "fun_fact_fr": "Un tube de Small Faces (1967).",
-      "fun_fact_nl": "Een chart-hit van Small Faces (1967)."
+      "fun_fact_nl": "Een chart-hit van Small Faces (1967).",
+      "fun_fact_it": "Un successo in classifica di Small Faces (1967)."
     },
     {
       "artist": "Sly & The Family Stone",
@@ -1728,13 +1797,14 @@
         "it": "applemusic://track/1737583574"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=TU02G4wnWh0",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/1276639",
       "uri_deezer": "deezer://track/534508",
       "fun_fact": "A chart hit by Sly & The Family Stone (1969).",
       "fun_fact_de": "Ein Chart-Hit von Sly & The Family Stone (1969).",
       "fun_fact_es": "Un éxito de Sly & The Family Stone (1969).",
       "fun_fact_fr": "Un tube de Sly & The Family Stone (1969).",
-      "fun_fact_nl": "Een chart-hit van Sly & The Family Stone (1969)."
+      "fun_fact_nl": "Een chart-hit van Sly & The Family Stone (1969).",
+      "fun_fact_it": "Un successo in classifica di Sly & The Family Stone (1969)."
     },
     {
       "artist": "The 5th Dimension",
@@ -1753,13 +1823,14 @@
         "it": "applemusic://track/1739857095"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=MQOQqn1qH4o",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/2944333",
       "uri_deezer": "deezer://track/13186207",
       "fun_fact": "A chart hit by The 5th Dimension (1969).",
       "fun_fact_de": "Ein Chart-Hit von The 5th Dimension (1969).",
       "fun_fact_es": "Un éxito de The 5th Dimension (1969).",
       "fun_fact_fr": "Un tube de The 5th Dimension (1969).",
-      "fun_fact_nl": "Een chart-hit van The 5th Dimension (1969)."
+      "fun_fact_nl": "Een chart-hit van The 5th Dimension (1969).",
+      "fun_fact_it": "Un successo in classifica di The 5th Dimension (1969)."
     },
     {
       "artist": "The Spencer Davis Group",
@@ -1778,13 +1849,14 @@
         "it": "applemusic://track/1648940328"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=YrxHcSZBU38",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/4102341",
       "uri_deezer": "deezer://track/6435675",
-      "fun_fact": "A chart hit by The Spencer Davis Group (2010).",
-      "fun_fact_de": "Ein Chart-Hit von The Spencer Davis Group (2010).",
-      "fun_fact_es": "Un éxito de The Spencer Davis Group (2010).",
-      "fun_fact_fr": "Un tube de The Spencer Davis Group (2010).",
-      "fun_fact_nl": "Een chart-hit van The Spencer Davis Group (2010)."
+      "fun_fact": "A chart hit by The Spencer Davis Group (1965).",
+      "fun_fact_de": "Ein Chart-Hit von The Spencer Davis Group (1965).",
+      "fun_fact_es": "Un éxito de The Spencer Davis Group (1965).",
+      "fun_fact_fr": "Un tube de The Spencer Davis Group (1965).",
+      "fun_fact_nl": "Een chart-hit van The Spencer Davis Group (1965).",
+      "fun_fact_it": "Un successo in classifica di The Spencer Davis Group (1965)."
     },
     {
       "artist": "Little Eva",
@@ -1803,13 +1875,14 @@
         "it": "applemusic://track/1671222971"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=1Lej7aQDrGM",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/57827512",
       "uri_deezer": "deezer://track/120080938",
-      "fun_fact": "A chart hit by Little Eva (2013).",
-      "fun_fact_de": "Ein Chart-Hit von Little Eva (2013).",
-      "fun_fact_es": "Un éxito de Little Eva (2013).",
-      "fun_fact_fr": "Un tube de Little Eva (2013).",
-      "fun_fact_nl": "Een chart-hit van Little Eva (2013)."
+      "fun_fact": "A chart hit by Little Eva (1962).",
+      "fun_fact_de": "Ein Chart-Hit von Little Eva (1962).",
+      "fun_fact_es": "Un éxito de Little Eva (1962).",
+      "fun_fact_fr": "Un tube de Little Eva (1962).",
+      "fun_fact_nl": "Een chart-hit van Little Eva (1962).",
+      "fun_fact_it": "Un successo in classifica di Little Eva (1962)."
     },
     {
       "artist": "The Surfaris",
@@ -1828,13 +1901,14 @@
         "it": "applemusic://track/1748016223"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=dBURLdhmmZ8",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/28938746",
       "uri_deezer": "deezer://track/474644972",
-      "fun_fact": "A chart hit by The Surfaris (2018).",
-      "fun_fact_de": "Ein Chart-Hit von The Surfaris (2018).",
-      "fun_fact_es": "Un éxito de The Surfaris (2018).",
-      "fun_fact_fr": "Un tube de The Surfaris (2018).",
-      "fun_fact_nl": "Een chart-hit van The Surfaris (2018)."
+      "fun_fact": "A chart hit by The Surfaris (1963).",
+      "fun_fact_de": "Ein Chart-Hit von The Surfaris (1963).",
+      "fun_fact_es": "Un éxito de The Surfaris (1963).",
+      "fun_fact_fr": "Un tube de The Surfaris (1963).",
+      "fun_fact_nl": "Een chart-hit van The Surfaris (1963).",
+      "fun_fact_it": "Un successo in classifica di The Surfaris (1963)."
     },
     {
       "artist": "The Crystals",
@@ -1853,13 +1927,14 @@
         "it": "applemusic://track/420136963"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=q3_KgmgrUm8",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/7320816",
       "uri_deezer": "deezer://track/12809345",
-      "fun_fact": "A chart hit by The Crystals (2011).",
-      "fun_fact_de": "Ein Chart-Hit von The Crystals (2011).",
-      "fun_fact_es": "Un éxito de The Crystals (2011).",
-      "fun_fact_fr": "Un tube de The Crystals (2011).",
-      "fun_fact_nl": "Een chart-hit van The Crystals (2011)."
+      "fun_fact": "A chart hit by The Crystals (1963).",
+      "fun_fact_de": "Ein Chart-Hit von The Crystals (1963).",
+      "fun_fact_es": "Un éxito de The Crystals (1963).",
+      "fun_fact_fr": "Un tube de The Crystals (1963).",
+      "fun_fact_nl": "Een chart-hit van The Crystals (1963).",
+      "fun_fact_it": "Un successo in classifica di The Crystals (1963)."
     },
     {
       "artist": "France Gall",
@@ -1867,49 +1942,51 @@
       "year": 1965,
       "isrc": "DEXO11960577",
       "uri": "spotify:track:5kLCC1MMxOACV632KrSAS3",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1721242740",
       "uri_apple_music_by_region": {
-        "us": null,
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
+        "us": "applemusic://track/1721242740",
+        "de": "applemusic://track/1593439249",
+        "gb": "applemusic://track/1593439249",
+        "fr": "applemusic://track/332601711",
+        "es": "applemusic://track/1593439249",
+        "nl": "applemusic://track/1721242740",
+        "it": "applemusic://track/1593439249"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=iCrmoGujhdU",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/41386583",
       "uri_deezer": "deezer://track/639971642",
-      "fun_fact": "A chart hit by France Gall (2019).",
-      "fun_fact_de": "Ein Chart-Hit von France Gall (2019).",
-      "fun_fact_es": "Un éxito de France Gall (2019).",
-      "fun_fact_fr": "Un tube de France Gall (2019).",
-      "fun_fact_nl": "Een chart-hit van France Gall (2019)."
+      "fun_fact": "A chart hit by France Gall (1965).",
+      "fun_fact_de": "Ein Chart-Hit von France Gall (1965).",
+      "fun_fact_es": "Un éxito de France Gall (1965).",
+      "fun_fact_fr": "Un tube de France Gall (1965).",
+      "fun_fact_nl": "Een chart-hit van France Gall (1965).",
+      "fun_fact_it": "Un successo in classifica di France Gall (1965)."
     },
     {
       "artist": "Aretha Franklin",
       "title": "Think",
       "year": 1968,
-      "isrc": "USAT29200097",
+      "isrc": "USAT20801206",
       "uri": "spotify:track:4yQw7FR9lcvL6RHtegbJBh",
-      "uri_apple_music": "applemusic://track/1533478781",
+      "uri_apple_music": "applemusic://track/933583587",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/1533478781",
-        "de": "applemusic://track/1533478781",
-        "gb": "applemusic://track/1533478781",
-        "fr": "applemusic://track/1533478781",
-        "es": "applemusic://track/1533478781",
-        "nl": "applemusic://track/1533478781",
-        "it": "applemusic://track/1533478781"
+        "us": "applemusic://track/933583587",
+        "de": "applemusic://track/933583587",
+        "gb": "applemusic://track/933583587",
+        "fr": "applemusic://track/933583587",
+        "es": "applemusic://track/933583587",
+        "nl": "applemusic://track/933583587",
+        "it": "applemusic://track/933583587"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=FNagYP9LIp4",
-      "uri_tidal": null,
-      "uri_deezer": "deezer://track/13100388",
-      "fun_fact": "A chart hit by Aretha Franklin (2011).",
-      "fun_fact_de": "Ein Chart-Hit von Aretha Franklin (2011).",
-      "fun_fact_es": "Un éxito de Aretha Franklin (2011).",
-      "fun_fact_fr": "Un tube de Aretha Franklin (2011).",
-      "fun_fact_nl": "Een chart-hit van Aretha Franklin (2011)."
+      "uri_tidal": "tidal://track/1845346",
+      "uri_deezer": "deezer://track/904784",
+      "fun_fact": "A chart hit by Aretha Franklin (1968).",
+      "fun_fact_de": "Ein Chart-Hit von Aretha Franklin (1968).",
+      "fun_fact_es": "Un éxito de Aretha Franklin (1968).",
+      "fun_fact_fr": "Un tube de Aretha Franklin (1968).",
+      "fun_fact_nl": "Een chart-hit van Aretha Franklin (1968).",
+      "fun_fact_it": "Un successo in classifica di Aretha Franklin (1968)."
     },
     {
       "artist": "Martha Reeves & The Vandellas",
@@ -1917,24 +1994,25 @@
       "year": 1963,
       "isrc": "UKU6H1936000",
       "uri": "spotify:track:3Cbh1EJ6OYAPkkNRuTIz6T",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1447557732",
       "uri_apple_music_by_region": {
-        "us": null,
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
+        "us": "applemusic://track/410510208",
+        "de": "applemusic://track/410510208",
+        "gb": "applemusic://track/410510208",
+        "fr": "applemusic://track/410510208",
+        "es": "applemusic://track/410510208",
+        "nl": "applemusic://track/410510208",
+        "it": "applemusic://track/410510208"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=bBgYbw_u230",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/19812732",
       "uri_deezer": "deezer://track/821757832",
-      "fun_fact": "A chart hit by Martha Reeves & The Vandellas (2010).",
-      "fun_fact_de": "Ein Chart-Hit von Martha Reeves & The Vandellas (2010).",
-      "fun_fact_es": "Un éxito de Martha Reeves & The Vandellas (2010).",
-      "fun_fact_fr": "Un tube de Martha Reeves & The Vandellas (2010).",
-      "fun_fact_nl": "Een chart-hit van Martha Reeves & The Vandellas (2010)."
+      "fun_fact": "A chart hit by Martha Reeves & The Vandellas (1963).",
+      "fun_fact_de": "Ein Chart-Hit von Martha Reeves & The Vandellas (1963).",
+      "fun_fact_es": "Un éxito de Martha Reeves & The Vandellas (1963).",
+      "fun_fact_fr": "Un tube de Martha Reeves & The Vandellas (1963).",
+      "fun_fact_nl": "Een chart-hit van Martha Reeves & The Vandellas (1963).",
+      "fun_fact_it": "Un successo in classifica di Martha Reeves & The Vandellas (1963)."
     },
     {
       "artist": "Arthur Conley",
@@ -1953,13 +2031,14 @@
         "it": "applemusic://track/1794575720"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=SaphQafq3NQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/1205194",
       "uri_deezer": "deezer://track/137439762",
-      "fun_fact": "A chart hit by Arthur Conley (2016).",
-      "fun_fact_de": "Ein Chart-Hit von Arthur Conley (2016).",
-      "fun_fact_es": "Un éxito de Arthur Conley (2016).",
-      "fun_fact_fr": "Un tube de Arthur Conley (2016).",
-      "fun_fact_nl": "Een chart-hit van Arthur Conley (2016)."
+      "fun_fact": "A chart hit by Arthur Conley (1967).",
+      "fun_fact_de": "Ein Chart-Hit von Arthur Conley (1967).",
+      "fun_fact_es": "Un éxito de Arthur Conley (1967).",
+      "fun_fact_fr": "Un tube de Arthur Conley (1967).",
+      "fun_fact_nl": "Een chart-hit van Arthur Conley (1967).",
+      "fun_fact_it": "Un successo in classifica di Arthur Conley (1967)."
     },
     {
       "artist": "Helen Shapiro",
@@ -1967,24 +2046,25 @@
       "year": 1961,
       "isrc": "GBA7H1265495",
       "uri": "spotify:track:19SxvsX3cFBDExvGaRkyQr",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/696083117",
       "uri_apple_music_by_region": {
-        "us": null,
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
+        "us": "applemusic://track/696083117",
+        "de": "applemusic://track/1690283365",
+        "gb": "applemusic://track/1337689457",
+        "fr": "applemusic://track/1401146932",
+        "es": "applemusic://track/1370291147",
+        "nl": "applemusic://track/691821449",
+        "it": "applemusic://track/922010572"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=QCbHubvwFs0",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/1501131",
       "uri_deezer": "deezer://track/65049652",
-      "fun_fact": "A chart hit by Helen Shapiro (2013).",
-      "fun_fact_de": "Ein Chart-Hit von Helen Shapiro (2013).",
-      "fun_fact_es": "Un éxito de Helen Shapiro (2013).",
-      "fun_fact_fr": "Un tube de Helen Shapiro (2013).",
-      "fun_fact_nl": "Een chart-hit van Helen Shapiro (2013)."
+      "fun_fact": "A chart hit by Helen Shapiro (1961).",
+      "fun_fact_de": "Ein Chart-Hit von Helen Shapiro (1961).",
+      "fun_fact_es": "Un éxito de Helen Shapiro (1961).",
+      "fun_fact_fr": "Un tube de Helen Shapiro (1961).",
+      "fun_fact_nl": "Een chart-hit van Helen Shapiro (1961).",
+      "fun_fact_it": "Un successo in classifica di Helen Shapiro (1961)."
     },
     {
       "artist": "Roy Orbison",
@@ -2003,13 +2083,14 @@
         "it": "applemusic://track/1566940247"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=3KFvoDDs0XM",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/64851653",
       "uri_deezer": "deezer://track/78033230",
-      "fun_fact": "A chart hit by Roy Orbison (2014).",
-      "fun_fact_de": "Ein Chart-Hit von Roy Orbison (2014).",
-      "fun_fact_es": "Un éxito de Roy Orbison (2014).",
-      "fun_fact_fr": "Un tube de Roy Orbison (2014).",
-      "fun_fact_nl": "Een chart-hit van Roy Orbison (2014)."
+      "fun_fact": "A chart hit by Roy Orbison (1964).",
+      "fun_fact_de": "Ein Chart-Hit von Roy Orbison (1964).",
+      "fun_fact_es": "Un éxito de Roy Orbison (1964).",
+      "fun_fact_fr": "Un tube de Roy Orbison (1964).",
+      "fun_fact_nl": "Een chart-hit van Roy Orbison (1964).",
+      "fun_fact_it": "Un successo in classifica di Roy Orbison (1964)."
     },
     {
       "artist": "The Ronettes",
@@ -2028,13 +2109,14 @@
         "it": "applemusic://track/1341392587"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=QBDem6bffyo",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/7320788",
       "uri_deezer": "deezer://track/12809317",
-      "fun_fact": "A chart hit by The Ronettes (2011).",
-      "fun_fact_de": "Ein Chart-Hit von The Ronettes (2011).",
-      "fun_fact_es": "Un éxito de The Ronettes (2011).",
-      "fun_fact_fr": "Un tube de The Ronettes (2011).",
-      "fun_fact_nl": "Een chart-hit van The Ronettes (2011)."
+      "fun_fact": "A chart hit by The Ronettes (1963).",
+      "fun_fact_de": "Ein Chart-Hit von The Ronettes (1963).",
+      "fun_fact_es": "Un éxito de The Ronettes (1963).",
+      "fun_fact_fr": "Un tube de The Ronettes (1963).",
+      "fun_fact_nl": "Een chart-hit van The Ronettes (1963).",
+      "fun_fact_it": "Un successo in classifica di The Ronettes (1963)."
     },
     {
       "artist": "The Supremes",
@@ -2053,13 +2135,14 @@
         "it": "applemusic://track/1447235033"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=kk8tFtdHqtw",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/77642587",
       "uri_deezer": "deezer://track/1182495",
-      "fun_fact": "A chart hit by The Supremes (2007).",
-      "fun_fact_de": "Ein Chart-Hit von The Supremes (2007).",
-      "fun_fact_es": "Un éxito de The Supremes (2007).",
-      "fun_fact_fr": "Un tube de The Supremes (2007).",
-      "fun_fact_nl": "Een chart-hit van The Supremes (2007)."
+      "fun_fact": "A chart hit by The Supremes (1964).",
+      "fun_fact_de": "Ein Chart-Hit von The Supremes (1964).",
+      "fun_fact_es": "Un éxito de The Supremes (1964).",
+      "fun_fact_fr": "Un tube de The Supremes (1964).",
+      "fun_fact_nl": "Een chart-hit van The Supremes (1964).",
+      "fun_fact_it": "Un successo in classifica di The Supremes (1964)."
     },
     {
       "artist": "Bobby Lewis",
@@ -2070,7 +2153,7 @@
       "uri_apple_music": "applemusic://track/354114080",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/354114080",
-        "de": null,
+        "de": "applemusic://track/351516350",
         "gb": "applemusic://track/354114080",
         "fr": "applemusic://track/354114080",
         "es": "applemusic://track/354114080",
@@ -2078,13 +2161,14 @@
         "it": "applemusic://track/354114080"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=4zkPBwlyd4M",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/346596036",
       "uri_deezer": "deezer://track/5479527",
-      "fun_fact": "A chart hit by Bobby Lewis (2009).",
-      "fun_fact_de": "Ein Chart-Hit von Bobby Lewis (2009).",
-      "fun_fact_es": "Un éxito de Bobby Lewis (2009).",
-      "fun_fact_fr": "Un tube de Bobby Lewis (2009).",
-      "fun_fact_nl": "Een chart-hit van Bobby Lewis (2009)."
+      "fun_fact": "A chart hit by Bobby Lewis (1961).",
+      "fun_fact_de": "Ein Chart-Hit von Bobby Lewis (1961).",
+      "fun_fact_es": "Un éxito de Bobby Lewis (1961).",
+      "fun_fact_fr": "Un tube de Bobby Lewis (1961).",
+      "fun_fact_nl": "Een chart-hit van Bobby Lewis (1961).",
+      "fun_fact_it": "Un successo in classifica di Bobby Lewis (1961)."
     },
     {
       "artist": "The Rolling Stones",
@@ -2103,13 +2187,14 @@
         "it": "applemusic://track/1440760503"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=61jfm219ArA",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/123249707",
       "uri_deezer": "deezer://track/16702525",
-      "fun_fact": "A chart hit by The Rolling Stones (2005).",
-      "fun_fact_de": "Ein Chart-Hit von The Rolling Stones (2005).",
-      "fun_fact_es": "Un éxito de The Rolling Stones (2005).",
-      "fun_fact_fr": "Un tube de The Rolling Stones (2005).",
-      "fun_fact_nl": "Een chart-hit van The Rolling Stones (2005)."
+      "fun_fact": "A chart hit by The Rolling Stones (1969).",
+      "fun_fact_de": "Ein Chart-Hit von The Rolling Stones (1969).",
+      "fun_fact_es": "Un éxito de The Rolling Stones (1969).",
+      "fun_fact_fr": "Un tube de The Rolling Stones (1969).",
+      "fun_fact_nl": "Een chart-hit van The Rolling Stones (1969).",
+      "fun_fact_it": "Un successo in classifica di The Rolling Stones (1969)."
     },
     {
       "artist": "Lesley Gore",
@@ -2128,13 +2213,14 @@
         "it": "applemusic://track/1607178793"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=_NpsUiKBEes",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/64495473",
       "uri_deezer": "deezer://track/24161411",
-      "fun_fact": "A chart hit by Lesley Gore (2000).",
-      "fun_fact_de": "Ein Chart-Hit von Lesley Gore (2000).",
-      "fun_fact_es": "Un éxito de Lesley Gore (2000).",
-      "fun_fact_fr": "Un tube de Lesley Gore (2000).",
-      "fun_fact_nl": "Een chart-hit van Lesley Gore (2000)."
+      "fun_fact": "A chart hit by Lesley Gore (1963).",
+      "fun_fact_de": "Ein Chart-Hit von Lesley Gore (1963).",
+      "fun_fact_es": "Un éxito de Lesley Gore (1963).",
+      "fun_fact_fr": "Un tube de Lesley Gore (1963).",
+      "fun_fact_nl": "Een chart-hit van Lesley Gore (1963).",
+      "fun_fact_it": "Un successo in classifica di Lesley Gore (1963)."
     },
     {
       "artist": "The Edwin Hawkins Singers",
@@ -2153,13 +2239,14 @@
         "it": "applemusic://track/1647424928"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=rUXa1-oI_ug",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/2848125",
       "uri_deezer": "deezer://track/13176492",
-      "fun_fact": "A chart hit by The Edwin Hawkins Singers (2001).",
-      "fun_fact_de": "Ein Chart-Hit von The Edwin Hawkins Singers (2001).",
-      "fun_fact_es": "Un éxito de The Edwin Hawkins Singers (2001).",
-      "fun_fact_fr": "Un tube de The Edwin Hawkins Singers (2001).",
-      "fun_fact_nl": "Een chart-hit van The Edwin Hawkins Singers (2001)."
+      "fun_fact": "A chart hit by The Edwin Hawkins Singers (1968).",
+      "fun_fact_de": "Ein Chart-Hit von The Edwin Hawkins Singers (1968).",
+      "fun_fact_es": "Un éxito de The Edwin Hawkins Singers (1968).",
+      "fun_fact_fr": "Un tube de The Edwin Hawkins Singers (1968).",
+      "fun_fact_nl": "Een chart-hit van The Edwin Hawkins Singers (1968).",
+      "fun_fact_it": "Un successo in classifica di The Edwin Hawkins Singers (1968)."
     },
     {
       "artist": "Elvis Presley",
@@ -2178,16 +2265,17 @@
         "it": "applemusic://track/1280531429"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=v8Psvxk9tjA",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/5120008",
       "uri_deezer": "deezer://track/404045132",
       "alt_artists": [
         "Junkie XL"
       ],
-      "fun_fact": "A chart hit by Elvis Presley (2002).",
-      "fun_fact_de": "Ein Chart-Hit von Elvis Presley (2002).",
-      "fun_fact_es": "Un éxito de Elvis Presley (2002).",
-      "fun_fact_fr": "Un tube de Elvis Presley (2002).",
-      "fun_fact_nl": "Een chart-hit van Elvis Presley (2002)."
+      "fun_fact": "A chart hit by Elvis Presley (1968).",
+      "fun_fact_de": "Ein Chart-Hit von Elvis Presley (1968).",
+      "fun_fact_es": "Un éxito de Elvis Presley (1968).",
+      "fun_fact_fr": "Un tube de Elvis Presley (1968).",
+      "fun_fact_nl": "Een chart-hit van Elvis Presley (1968).",
+      "fun_fact_it": "Un successo in classifica di Elvis Presley (1968)."
     },
     {
       "artist": "The Jackson 5",
@@ -2206,7 +2294,7 @@
         "it": "applemusic://track/1577639056"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=UvynvnxZJ3Q",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/77637657",
       "uri_deezer": "deezer://track/4188287",
       "fun_fact": "A 70s classic (1969).",
       "fun_fact_de": "Ein 70er-Klassiker (1969).",
@@ -2231,13 +2319,347 @@
         "it": "applemusic://track/318312890"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=C1VUWDcp5Sg",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/12748794",
       "uri_deezer": "deezer://track/13174769",
       "fun_fact": "A 70s classic (1969).",
       "fun_fact_de": "Ein 70er-Klassiker (1969).",
       "fun_fact_es": "Un clásico de los 70 (1969).",
       "fun_fact_fr": "Un classique des années 70 (1969).",
       "fun_fact_nl": "Een 70's-klassieker (1969)."
+    },
+    {
+      "year": 1960,
+      "uri": "spotify:track:391TUcoPonqYykPkSZ5Z9U",
+      "artist": "The Drifters",
+      "title": "Save the Last Dance for Me",
+      "alt_artists": [
+        "Ben E. King",
+        "The Platters",
+        "The Coasters"
+      ],
+      "isrc": null,
+      "uri_apple_music": "applemusic://track/159362636",
+      "uri_deezer": null,
+      "fun_fact": "Lyricist Doc Pomus was left unable to walk by childhood polio and wrote the words at his own wedding, watching from his chair while his bride danced with the guests.",
+      "fun_fact_de": "Textdichter Doc Pomus konnte nach einer Polio-Erkrankung in der Kindheit nicht gehen und schrieb die Zeilen auf seiner eigenen Hochzeit, während er vom Stuhl aus zusah, wie seine Braut mit den Gästen tanzte.",
+      "fun_fact_es": "El letrista Doc Pomus no podía caminar tras sufrir polio de niño y escribió la letra en su propia boda, mirando desde su silla cómo su novia bailaba con los invitados.",
+      "fun_fact_fr": "Le parolier Doc Pomus ne pouvait plus marcher après une poliomyélite dans l'enfance et a écrit ces mots lors de son propre mariage, regardant depuis sa chaise sa femme danser avec les invités.",
+      "fun_fact_nl": "Tekstschrijver Doc Pomus kon na polio in zijn jeugd niet lopen en schreef de tekst op zijn eigen bruiloft, terwijl hij vanaf zijn stoel toekeek hoe zijn bruid met de gasten danste.",
+      "fun_fact_it": "Il paroliere Doc Pomus non poteva camminare dopo la poliomielite avuta da bambino e scrisse il testo al proprio matrimonio, guardando dalla sedia la sposa ballare con gli invitati.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=n-XQ26KePUQ"
+    },
+    {
+      "year": 1962,
+      "uri": "spotify:track:7FS541dJh3iQAEXEZoDhE6",
+      "artist": "Sam Cooke",
+      "title": "Twistin' the Night Away",
+      "alt_artists": [
+        "Chubby Checker",
+        "Otis Redding",
+        "Rod Stewart"
+      ],
+      "isrc": "USRC16107214",
+      "uri_apple_music": "applemusic://track/497770006",
+      "uri_deezer": "deezer://track/71190932",
+      "fun_fact": "Cooke wrote it after watching the Twist craze sweep New York nightclubs, and he sings it as a reporter would, describing dancer after dancer from the edge of the floor.",
+      "fun_fact_de": "Cooke schrieb den Song, nachdem er den Twist-Rausch durch die New Yorker Clubs hatte fegen sehen, und singt ihn wie ein Reporter — Tänzer für Tänzer vom Rand der Tanzfläche beschrieben.",
+      "fun_fact_es": "Cooke lo escribió tras ver la fiebre del twist arrasar los clubes de Nueva York, y lo canta como un reportero, describiendo bailarín tras bailarín desde el borde de la pista.",
+      "fun_fact_fr": "Cooke l'a écrite après avoir vu la folie du twist s'emparer des clubs new-yorkais, et il la chante comme un reporter, décrivant danseur après danseur depuis le bord de la piste.",
+      "fun_fact_nl": "Cooke schreef het nadat hij de twistrage door de New Yorkse clubs had zien razen, en hij zingt het als een verslaggever die vanaf de rand van de dansvloer danser na danser beschrijft.",
+      "fun_fact_it": "Cooke la scrisse dopo aver visto la febbre del twist travolgere i locali di New York, e la canta come un cronista, descrivendo un ballerino dopo l'altro dal bordo della pista.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=zTArYTvpLZA"
+    },
+    {
+      "year": 1962,
+      "uri": "spotify:track:5ATFGyF7RbheJ76neYI55u",
+      "artist": "Bruce Channel",
+      "title": "Hey! Baby",
+      "alt_artists": [
+        "Delbert McClinton",
+        "Bobby Vinton"
+      ],
+      "isrc": "PL90Y2463586",
+      "uri_apple_music": "applemusic://track/254939266",
+      "uri_deezer": "deezer://track/2822054572",
+      "fun_fact": "The harmonica riff is played by Delbert McClinton, who showed John Lennon how to get that sound on a British tour — months later it opened the Beatles' 'Love Me Do'.",
+      "fun_fact_de": "Das Mundharmonika-Riff spielt Delbert McClinton, der John Lennon auf einer England-Tournee zeigte, wie man diesen Ton hinbekommt — Monate später eröffnete er 'Love Me Do' der Beatles.",
+      "fun_fact_es": "El riff de armónica lo toca Delbert McClinton, que enseñó a John Lennon a lograr ese sonido durante una gira británica; meses después abría 'Love Me Do' de los Beatles.",
+      "fun_fact_fr": "Le riff d'harmonica est joué par Delbert McClinton, qui a montré à John Lennon comment obtenir ce son lors d'une tournée britannique — quelques mois plus tard, il ouvrait 'Love Me Do' des Beatles.",
+      "fun_fact_nl": "Het mondharmonicariff wordt gespeeld door Delbert McClinton, die John Lennon tijdens een Britse tournee liet zien hoe je die klank krijgt — maanden later opende hij 'Love Me Do' van de Beatles.",
+      "fun_fact_it": "Il riff di armonica è di Delbert McClinton, che durante una tournée britannica mostrò a John Lennon come ottenere quel suono: mesi dopo apriva 'Love Me Do' dei Beatles.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=ik9dxkKriV0"
+    },
+    {
+      "year": 1963,
+      "uri": "spotify:track:5J3Mf6dyqeGy67yuQ7ql9B",
+      "artist": "The Beatles",
+      "title": "I Want To Hold Your Hand",
+      "alt_artists": [
+        "The Rolling Stones",
+        "The Hollies",
+        "The Searchers"
+      ],
+      "isrc": "GBAYE0601549",
+      "uri_apple_music": "applemusic://track/1468023761",
+      "uri_deezer": "deezer://track/126848577",
+      "fun_fact": "This was the record that broke the Beatles in America — number one for seven weeks and the reason 73 million people switched on the Ed Sullivan Show in February 1964.",
+      "fun_fact_de": "Mit dieser Platte schafften die Beatles den Durchbruch in Amerika — sieben Wochen auf Platz eins und der Grund, warum im Februar 1964 73 Millionen Menschen die Ed Sullivan Show einschalteten.",
+      "fun_fact_es": "Fue el disco con el que los Beatles conquistaron América: siete semanas en el número uno y la razón por la que 73 millones de personas vieron el Ed Sullivan Show en febrero de 1964.",
+      "fun_fact_fr": "C'est le disque qui a lancé les Beatles en Amérique — sept semaines à la première place et la raison pour laquelle 73 millions de personnes ont regardé le Ed Sullivan Show en février 1964.",
+      "fun_fact_nl": "Dit was de plaat waarmee de Beatles Amerika veroverden — zeven weken op nummer één en de reden dat in februari 1964 73 miljoen mensen naar de Ed Sullivan Show keken.",
+      "fun_fact_it": "Fu il disco che sfondò per i Beatles in America: sette settimane al primo posto e il motivo per cui nel febbraio 1964 73 milioni di persone accesero l'Ed Sullivan Show.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=jenWdylTtzs"
+    },
+    {
+      "year": 1965,
+      "uri": "spotify:track:36NX19wOQQEYyULfnuLnWc",
+      "artist": "The McCoys",
+      "title": "Hang on Sloopy",
+      "alt_artists": [
+        "The Vibrations",
+        "Rick Derringer",
+        "The Yardbirds"
+      ],
+      "isrc": "USSM11501608",
+      "uri_apple_music": "applemusic://track/1045178501",
+      "uri_deezer": "deezer://track/109700280",
+      "fun_fact": "Ohio made it the official state rock song in 1985, and the Ohio State marching band still plays it in the fourth quarter of every home game.",
+      "fun_fact_de": "Ohio erklärte den Song 1985 zum offiziellen Rocksong des Bundesstaates, und die Marching Band der Ohio State spielt ihn bis heute im letzten Viertel jedes Heimspiels.",
+      "fun_fact_es": "Ohio la declaró canción de rock oficial del estado en 1985, y la banda de la Ohio State la sigue tocando en el último cuarto de cada partido en casa.",
+      "fun_fact_fr": "L'Ohio en a fait sa chanson rock officielle en 1985, et la fanfare d'Ohio State la joue encore au dernier quart-temps de chaque match à domicile.",
+      "fun_fact_nl": "Ohio maakte het in 1985 tot officiële rocksong van de staat, en de marching band van Ohio State speelt het nog steeds in het laatste kwart van elke thuiswedstrijd.",
+      "fun_fact_it": "L'Ohio la dichiarò canzone rock ufficiale dello stato nel 1985, e la banda della Ohio State la suona ancora nell'ultimo quarto di ogni partita in casa.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=TlTKhPkZSJo"
+    },
+    {
+      "year": 1966,
+      "uri": "spotify:track:26rqwzpocGyyW0Zn0Tb704",
+      "artist": "Herman's Hermits",
+      "title": "No Milk Today",
+      "alt_artists": [
+        "The Hollies",
+        "Gerry and the Pacemakers"
+      ],
+      "isrc": "GBAYE6600196",
+      "uri_apple_music": "applemusic://track/1033580686",
+      "uri_deezer": "deezer://track/3242640",
+      "fun_fact": "Graham Gouldman, later of 10cc, built the lyric around the note left out for the milkman — a small domestic ritual standing in for someone who has gone.",
+      "fun_fact_de": "Graham Gouldman, später bei 10cc, baute den Text um das Zettelchen für den Milchmann herum — ein kleines Alltagsritual, das für jemanden steht, der gegangen ist.",
+      "fun_fact_es": "Graham Gouldman, más tarde en 10cc, construyó la letra alrededor de la nota dejada al lechero: un pequeño ritual doméstico que representa a alguien que se ha ido.",
+      "fun_fact_fr": "Graham Gouldman, plus tard chez 10cc, a bâti le texte autour du mot laissé au laitier — un petit rituel domestique qui tient lieu de quelqu'un qui est parti.",
+      "fun_fact_nl": "Graham Gouldman, later van 10cc, bouwde de tekst rond het briefje voor de melkboer — een klein huiselijk ritueel dat staat voor iemand die weg is.",
+      "fun_fact_it": "Graham Gouldman, poi nei 10cc, costruì il testo attorno al biglietto lasciato al lattaio: un piccolo rito domestico che sta per qualcuno che se n'è andato.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=wdCHlJoAP8I"
+    },
+    {
+      "year": 1967,
+      "uri": "spotify:track:6RJK553YhstRzyKA4mug09",
+      "artist": "The Box Tops",
+      "title": "The Letter",
+      "alt_artists": [
+        "Joe Cocker",
+        "Alex Chilton",
+        "The Arbors"
+      ],
+      "isrc": "USAR17200009",
+      "uri_apple_music": "applemusic://track/284043488",
+      "uri_deezer": "deezer://track/1093255",
+      "fun_fact": "Alex Chilton was sixteen when he growled the vocal, and at one minute fifty-eight the song was a number one hit shorter than most B-sides.",
+      "fun_fact_de": "Alex Chilton war sechzehn, als er den Gesang hinknurrte, und mit einer Minute achtundfünfzig war der Nummer-eins-Hit kürzer als die meisten B-Seiten.",
+      "fun_fact_es": "Alex Chilton tenía dieciséis años cuando gruñó esa voz, y con un minuto cincuenta y ocho el número uno duraba menos que la mayoría de las caras B.",
+      "fun_fact_fr": "Alex Chilton avait seize ans quand il a grogné ce chant, et avec une minute cinquante-huit, ce numéro un était plus court que la plupart des faces B.",
+      "fun_fact_nl": "Alex Chilton was zestien toen hij die zang eruit gromde, en met één minuut achtenvijftig was de nummer-één-hit korter dan de meeste B-kanten.",
+      "fun_fact_it": "Alex Chilton aveva sedici anni quando ringhiò quella voce, e con un minuto e cinquantotto quel numero uno durava meno della maggior parte dei lati B.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=HIWY8UyW9bw"
+    },
+    {
+      "year": 1968,
+      "uri": "spotify:track:6ek9SiEj5a65WIs2EV7qiM",
+      "artist": "Dusty Springfield",
+      "title": "Son Of A Preacher Man",
+      "alt_artists": [
+        "Aretha Franklin",
+        "Janis Joplin",
+        "Bobbie Gentry"
+      ],
+      "isrc": "GBF086800754",
+      "uri_apple_music": "applemusic://track/1443719085",
+      "uri_deezer": "deezer://track/1104538",
+      "fun_fact": "It was written for Aretha Franklin, who turned it down; she recorded it only after Springfield's version had already become the definitive one.",
+      "fun_fact_de": "Der Song war für Aretha Franklin geschrieben, die ihn ablehnte; sie nahm ihn erst auf, als Springfields Fassung längst die maßgebliche war.",
+      "fun_fact_es": "Fue escrita para Aretha Franklin, que la rechazó; solo la grabó cuando la versión de Springfield ya se había convertido en la definitiva.",
+      "fun_fact_fr": "Elle a été écrite pour Aretha Franklin, qui l'a refusée ; elle ne l'a enregistrée qu'une fois la version de Springfield devenue la référence.",
+      "fun_fact_nl": "Het was geschreven voor Aretha Franklin, die het afwees; ze nam het pas op toen Springfields versie allang de definitieve was.",
+      "fun_fact_it": "Fu scritta per Aretha Franklin, che la rifiutò; la incise solo quando la versione di Springfield era ormai diventata quella definitiva.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=b4pYANUAJAI"
+    },
+    {
+      "year": 1960,
+      "uri": "spotify:track:1XunTmhOcj3xwh4b8P3isX",
+      "artist": "Elvis Presley",
+      "alt_artists": [
+        "Dean Martin",
+        "Roy Orbison",
+        "Cliff Richard"
+      ],
+      "title": "It's Now or Never",
+      "isrc": "USRC16001349",
+      "uri_apple_music": "applemusic://track/217634574",
+      "uri_deezer": "deezer://track/1055390",
+      "fun_fact": "The melody is the Neapolitan song 'O sole mio' from 1898; Presley heard it in the army in Germany and asked for English words.",
+      "fun_fact_de": "Die Melodie ist das neapolitanische Lied 'O sole mio' von 1898; Presley hörte es als Soldat in Deutschland und bat um einen englischen Text.",
+      "fun_fact_es": "La melodía es la canción napolitana 'O sole mio' de 1898; Presley la oyó siendo soldado en Alemania y pidió una letra en inglés.",
+      "fun_fact_fr": "La mélodie est la chanson napolitaine « O sole mio » de 1898 ; Presley l'a entendue soldat en Allemagne et a demandé des paroles en anglais.",
+      "fun_fact_nl": "De melodie is het Napolitaanse lied 'O sole mio' uit 1898; Presley hoorde het als soldaat in Duitsland en vroeg om een Engelse tekst.",
+      "fun_fact_it": "La melodia è la canzone napoletana 'O sole mio' del 1898; Presley la sentì da soldato in Germania e chiese un testo in inglese.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=HtipfCdkdVE"
+    },
+    {
+      "year": 1961,
+      "uri": "spotify:track:2HoqbEOXgbDSLZ5XCePEXt",
+      "artist": "Ray Charles",
+      "alt_artists": [
+        "Sam Cooke",
+        "Nat King Cole",
+        "Fats Domino"
+      ],
+      "title": "Hit the Road Jack",
+      "isrc": "DEG320700128",
+      "uri_apple_music": "applemusic://track/903334778",
+      "uri_deezer": "deezer://track/62882810",
+      "fun_fact": "Percy Mayfield sent the song to Ray Charles as an a cappella demo recorded on a home tape machine, and Charles cut it almost unchanged.",
+      "fun_fact_de": "Percy Mayfield schickte Ray Charles den Song als A-cappella-Demo von einem Heimtonband, und Charles nahm ihn fast unverändert auf.",
+      "fun_fact_es": "Percy Mayfield envió la canción a Ray Charles como una maqueta a capela grabada en casa, y Charles la registró casi sin cambios.",
+      "fun_fact_fr": "Percy Mayfield a envoyé la chanson à Ray Charles sous forme de démo a cappella enregistrée chez lui, et Charles l'a gravée presque telle quelle.",
+      "fun_fact_nl": "Percy Mayfield stuurde het nummer als a-capella-demo van een thuisbandrecorder naar Ray Charles, die het vrijwel ongewijzigd opnam.",
+      "fun_fact_it": "Percy Mayfield mandò il brano a Ray Charles come demo a cappella registrata in casa, e Charles la incise quasi immutata.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=CyVuYAHiZb8"
+    },
+    {
+      "year": 1964,
+      "uri": "spotify:track:3v9xlH6BpmRbqL7hgNJhfT",
+      "artist": "The Beach Boys",
+      "alt_artists": [
+        "Jan and Dean",
+        "The Four Seasons",
+        "The Ventures"
+      ],
+      "title": "I Get Around",
+      "isrc": "USCA20001635",
+      "uri_apple_music": "applemusic://track/1443227679",
+      "uri_deezer": "deezer://track/3091964",
+      "fun_fact": "This was the band's first American number one, and Brian Wilson had a panic attack on a plane months later that ended his touring for good.",
+      "fun_fact_de": "Es war der erste amerikanische Nummer-eins-Hit der Band; Monate später hatte Brian Wilson im Flugzeug eine Panikattacke, die sein Tourleben endgültig beendete.",
+      "fun_fact_es": "Fue el primer número uno estadounidense del grupo; meses después Brian Wilson sufrió un ataque de pánico en un avión que acabó para siempre con sus giras.",
+      "fun_fact_fr": "Ce fut le premier numéro un américain du groupe ; quelques mois plus tard, Brian Wilson a fait une crise de panique en avion qui a mis fin à ses tournées.",
+      "fun_fact_nl": "Dit was de eerste Amerikaanse nummer één van de band; maanden later kreeg Brian Wilson in een vliegtuig een paniekaanval die zijn tourleven definitief beëindigde.",
+      "fun_fact_it": "Fu il primo numero uno americano della band; mesi dopo Brian Wilson ebbe un attacco di panico in aereo che pose fine per sempre alle sue tournée.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=xzDNsg8VbIU"
+    },
+    {
+      "year": 1966,
+      "uri": "spotify:track:3EFb1qDgIqf9MegIryKtDj",
+      "artist": "The Mamas & The Papas",
+      "alt_artists": [
+        "The Byrds",
+        "The Turtles",
+        "The Lovin' Spoonful"
+      ],
+      "title": "Monday, Monday",
+      "isrc": "QM6MZ1436390",
+      "uri_apple_music": "applemusic://track/1452298699",
+      "uri_deezer": "deezer://track/92272808",
+      "fun_fact": "John Phillips wrote it in twenty minutes and the group disliked it; it went to number one and won them their only Grammy.",
+      "fun_fact_de": "John Phillips schrieb den Song in zwanzig Minuten, und die Gruppe mochte ihn nicht; er wurde Nummer eins und brachte ihr den einzigen Grammy.",
+      "fun_fact_es": "John Phillips la escribió en veinte minutos y al grupo no le gustaba; llegó al número uno y les dio su único Grammy.",
+      "fun_fact_fr": "John Phillips l'a écrite en vingt minutes et le groupe ne l'aimait pas ; elle a atteint la première place et leur a valu leur seul Grammy.",
+      "fun_fact_nl": "John Phillips schreef het in twintig minuten en de groep vond het niets; het werd nummer één en leverde hun enige Grammy op.",
+      "fun_fact_it": "John Phillips la scrisse in venti minuti e al gruppo non piaceva; arrivò al primo posto e valse loro l'unico Grammy.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=h81Ojd3d2rY"
+    },
+    {
+      "year": 1966,
+      "uri": "spotify:track:74VR3AkGPhbYXnxcOYa16x",
+      "artist": "Frank Sinatra",
+      "alt_artists": [
+        "Dean Martin",
+        "Tony Bennett",
+        "Andy Williams"
+      ],
+      "title": "Strangers In The Night",
+      "isrc": "USRH10800935",
+      "uri_apple_music": "applemusic://track/1440858701",
+      "uri_deezer": "deezer://track/70835195",
+      "fun_fact": "Sinatra called it the worst song he ever recorded and sang it at nearly every concert for the next thirty years.",
+      "fun_fact_de": "Sinatra nannte es das schlechteste Lied, das er je aufgenommen habe — und sang es die nächsten dreißig Jahre in fast jedem Konzert.",
+      "fun_fact_es": "Sinatra la llamó la peor canción que había grabado y la cantó en casi todos sus conciertos durante los treinta años siguientes.",
+      "fun_fact_fr": "Sinatra la qualifiait de pire chanson qu'il ait enregistrée et l'a chantée dans presque chaque concert pendant les trente années suivantes.",
+      "fun_fact_nl": "Sinatra noemde het het slechtste lied dat hij ooit opnam en zong het de volgende dertig jaar op bijna elk concert.",
+      "fun_fact_it": "Sinatra la definì la peggior canzone mai incisa e la cantò in quasi ogni concerto per i trent'anni successivi.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=Sek1vLw3s20"
+    },
+    {
+      "year": 1967,
+      "uri": "spotify:track:0bfvHnWWOeU1U5XeKyVLbW",
+      "artist": "Frankie Valli",
+      "alt_artists": [
+        "The Four Seasons",
+        "Andy Williams",
+        "Engelbert Humperdinck"
+      ],
+      "title": "Can't Take My Eyes off You",
+      "isrc": "USRH10175215",
+      "uri_apple_music": "applemusic://track/40454283",
+      "uri_deezer": "deezer://track/725689",
+      "fun_fact": "The horn fanfare in the middle was added because the producer thought the song had no hook; it became the most recognisable part.",
+      "fun_fact_de": "Die Bläserfanfare in der Mitte kam dazu, weil der Produzent den Song für hooklos hielt — sie wurde die bekannteste Stelle.",
+      "fun_fact_es": "La fanfarria de metales del centro se añadió porque el productor creía que la canción no tenía gancho; acabó siendo lo más reconocible.",
+      "fun_fact_fr": "La fanfare de cuivres au milieu a été ajoutée parce que le producteur trouvait la chanson sans accroche ; c'est devenu le passage le plus reconnaissable.",
+      "fun_fact_nl": "De blazersfanfare in het midden werd toegevoegd omdat de producer vond dat het nummer geen hook had; het werd het herkenbaarste deel.",
+      "fun_fact_it": "La fanfara di ottoni al centro fu aggiunta perché il produttore riteneva che il brano non avesse un gancio; divenne la parte più riconoscibile.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=J36z7AnhvOM"
+    },
+    {
+      "year": 1968,
+      "uri": "spotify:track:0iOZM63lendWRTTeKhZBSC",
+      "artist": "Simon & Garfunkel",
+      "alt_artists": [
+        "The Byrds",
+        "Simon and Garfunkel",
+        "The Bangles"
+      ],
+      "title": "Mrs. Robinson",
+      "isrc": "USSM16800379",
+      "uri_apple_music": "applemusic://track/1463652892",
+      "uri_deezer": "deezer://track/624783",
+      "fun_fact": "Mike Nichols asked for songs for The Graduate and got this one half-finished, with 'Mrs Roosevelt' as a placeholder in the chorus.",
+      "fun_fact_de": "Mike Nichols bat um Musik für Die Reifeprüfung und bekam diesen Song halbfertig — im Refrain stand als Platzhalter noch 'Mrs Roosevelt'.",
+      "fun_fact_es": "Mike Nichols pidió canciones para El graduado y recibió esta a medio terminar, con 'Mrs Roosevelt' como relleno en el estribillo.",
+      "fun_fact_fr": "Mike Nichols a demandé des chansons pour Le Lauréat et a reçu celle-ci à moitié finie, avec « Mrs Roosevelt » en remplissage dans le refrain.",
+      "fun_fact_nl": "Mike Nichols vroeg om liedjes voor The Graduate en kreeg dit half af, met 'Mrs Roosevelt' als tijdelijke tekst in het refrein.",
+      "fun_fact_it": "Mike Nichols chiese canzoni per Il laureato e ricevette questa a metà, con 'Mrs Roosevelt' come segnaposto nel ritornello.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=9C1BCAgu2I8"
+    },
+    {
+      "year": 1969,
+      "uri": "spotify:track:5xMLcSEstX1jN4arpNXqtX",
+      "artist": "Steam",
+      "alt_artists": [
+        "Bananarama",
+        "The Archies",
+        "Tommy James and the Shondells"
+      ],
+      "title": "Na Na Hey Hey Kiss Him Goodbye",
+      "isrc": "USPR37080068",
+      "uri_apple_music": "applemusic://track/1442302699",
+      "uri_deezer": "deezer://track/936550902",
+      "fun_fact": "Steam was not a band but session players filling a B-side, and the nonsense chorus was meant as filler until real words arrived.",
+      "fun_fact_de": "Steam war keine Band, sondern Studiomusiker, die eine B-Seite füllten; der Nonsens-Refrain war als Platzhalter gedacht, bis ein echter Text käme.",
+      "fun_fact_es": "Steam no era un grupo sino músicos de sesión rellenando una cara B, y el estribillo sin sentido era un relleno hasta que llegara una letra de verdad.",
+      "fun_fact_fr": "Steam n'était pas un groupe mais des musiciens de studio bouchant une face B, et le refrain absurde devait tenir lieu de remplissage en attendant de vraies paroles.",
+      "fun_fact_nl": "Steam was geen band maar sessiemuzikanten die een B-kant vulden, en het onzinrefrein was bedoeld als opvulling tot er echte tekst kwam.",
+      "fun_fact_it": "Gli Steam non erano un gruppo ma turnisti che riempivano un lato B, e il ritornello senza senso doveva essere un riempitivo in attesa di un testo vero.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=_PxanXM48gI"
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
   "name": "Harder Styles",
-  "version": "1.7",
+  "version": "1.27",
   "tags": [
     "hardstyle",
     "hardcore",
@@ -84,7 +84,7 @@
         "it": "applemusic://track/415408811"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=ohsyd6rO_1o",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/84983260",
       "uri_deezer": "deezer://track/86472303",
       "alt_artists": [
         "Wildstylez",
@@ -104,16 +104,16 @@
       "uri": "spotify:track:67w6wQYa9CGDEygitg4IEK",
       "uri_apple_music": "applemusic://track/922008008",
       "uri_apple_music_by_region": {
-        "us": null,
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
+        "us": "applemusic://track/339320490",
+        "de": "applemusic://track/922008008",
+        "gb": "applemusic://track/339320490",
+        "fr": "applemusic://track/922008008",
+        "es": "applemusic://track/922008008",
+        "nl": "applemusic://track/922008008",
+        "it": "applemusic://track/922008008"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=x9V3fWmOXkk",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/94393365",
       "uri_deezer": "deezer://track/86472299",
       "alt_artists": [
         "Wildstylez",
@@ -142,7 +142,7 @@
         "it": "applemusic://track/1805216148"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=9VbCZ65uzBM",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/84983741",
       "uri_deezer": "deezer://track/3287430221",
       "fun_fact": "D-Block & S-te-Fan are a Dutch hardstyle duo known for melodic, euphoric productions and their Scantraxx releases.",
       "fun_fact_de": "D-Block & S-te-Fan sind ein niederländisches Hardstyle-Duo, bekannt für melodische, euphorische Produktionen.",
@@ -167,7 +167,7 @@
         "it": "applemusic://track/415386902"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=6rngScnbaZA",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/84929668",
       "uri_deezer": "deezer://track/62208376",
       "fun_fact": "D-Block & S-te-Fan are a Dutch hardstyle duo known for melodic, euphoric productions and their Scantraxx releases.",
       "fun_fact_de": "D-Block & S-te-Fan sind ein niederländisches Hardstyle-Duo, bekannt für melodische, euphorische Produktionen.",
@@ -192,7 +192,7 @@
         "it": "applemusic://track/415388791"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=LS1XPB8VAVs",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/84983583",
       "uri_deezer": "deezer://track/63046978",
       "fun_fact": "A hardstyle / hardcore track (2009).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2009).",
@@ -217,7 +217,7 @@
         "it": "applemusic://track/415271521"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=XV1qQVhFx_g",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/463274189",
       "uri_deezer": "deezer://track/63046892",
       "fun_fact": "A hardstyle / hardcore track (2009).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2009).",
@@ -242,7 +242,7 @@
         "it": "applemusic://track/420275831"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=_V-zIp9_EQs",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/16296135",
       "uri_deezer": "deezer://track/9958420",
       "fun_fact": "A hardstyle / hardcore track (2010).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2010).",
@@ -267,7 +267,7 @@
         "it": "applemusic://track/489794486"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=U5XmoYxY8ro",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/84932197",
       "uri_deezer": "deezer://track/63046498",
       "alt_artists": [
         "Deepack"
@@ -286,16 +286,16 @@
       "uri": "spotify:track:4h5QfEwYWdaLtMeNjIWBER",
       "uri_apple_music": "applemusic://track/643877934",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/633395753",
-        "de": "applemusic://track/633395753",
-        "gb": "applemusic://track/633395753",
-        "fr": "applemusic://track/633395753",
-        "es": "applemusic://track/633395753",
-        "nl": "applemusic://track/633395753",
-        "it": "applemusic://track/633395753"
+        "us": "applemusic://track/643877934",
+        "de": "applemusic://track/643877934",
+        "gb": "applemusic://track/643877934",
+        "fr": "applemusic://track/643877934",
+        "es": "applemusic://track/643877934",
+        "nl": "applemusic://track/643877934",
+        "it": "applemusic://track/643877934"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=yqWJb0mW0B8",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/79634272",
       "uri_deezer": "deezer://track/67040237",
       "alt_artists": [
         "Lene Kokai"
@@ -323,7 +323,7 @@
         "it": "applemusic://track/635816578"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=_eZUnt4ff38",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/374546506",
       "uri_deezer": "deezer://track/66554143",
       "fun_fact": "A hardstyle / hardcore track (2013).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2013).",
@@ -348,7 +348,7 @@
         "it": "applemusic://track/1679587711"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=y0UK8Or_ABs",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/285799800",
       "uri_deezer": "deezer://track/2212640817",
       "alt_artists": [
         "F8trix"
@@ -367,16 +367,16 @@
       "uri": "spotify:track:4T1lTz3KZUsKJPzhef0vVb",
       "uri_apple_music": "applemusic://track/1842432772",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/6762605997",
-        "de": "applemusic://track/6762605997",
-        "gb": "applemusic://track/6762605997",
-        "fr": "applemusic://track/6762605997",
-        "es": "applemusic://track/6762605997",
-        "nl": "applemusic://track/6762605997",
-        "it": "applemusic://track/6762605997"
+        "us": "applemusic://track/1842432772",
+        "de": "applemusic://track/1842432772",
+        "gb": "applemusic://track/1842432772",
+        "fr": "applemusic://track/1842432772",
+        "es": "applemusic://track/1842432772",
+        "nl": "applemusic://track/1842432772",
+        "it": "applemusic://track/1842432772"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=2UXFA6zfFi8",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/463243419",
       "uri_deezer": "deezer://track/76761244",
       "fun_fact": "The Prophet is a Dutch DJ and a pioneering figure of hardstyle and its early hardcore roots.",
       "fun_fact_de": "The Prophet ist ein niederländischer DJ und eine Pionierfigur des Hardstyle und seiner frühen Hardcore-Wurzeln.",
@@ -417,16 +417,16 @@
       "uri": "spotify:track:3VChr8qpIsCvdsHnIph7Qb",
       "uri_apple_music": "applemusic://track/923426095",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/1842608184",
-        "de": "applemusic://track/1842608184",
-        "gb": "applemusic://track/1842608184",
-        "fr": "applemusic://track/1842608184",
-        "es": "applemusic://track/1842608184",
-        "nl": "applemusic://track/1842608184",
-        "it": "applemusic://track/1842608184"
+        "us": "applemusic://track/923426095",
+        "de": "applemusic://track/923426095",
+        "gb": "applemusic://track/923426095",
+        "fr": "applemusic://track/923426095",
+        "es": "applemusic://track/923426095",
+        "nl": "applemusic://track/923426095",
+        "it": "applemusic://track/923426095"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=3M6hB2zo134",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/40505880",
       "uri_deezer": "deezer://track/86869601",
       "alt_artists": [
         "DV8 Rocks!"
@@ -454,7 +454,7 @@
         "it": "applemusic://track/1556106100"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=_nuF-1kcOdg",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/175466766",
       "uri_deezer": "deezer://track/1260681482",
       "alt_artists": [
         "Ruthless"
@@ -482,7 +482,7 @@
         "it": "applemusic://track/978709565"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=0e_IVwZRF7g",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/55355790",
       "uri_deezer": "deezer://track/98063004",
       "fun_fact": "A hardstyle / hardcore track (2015).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2015).",
@@ -507,7 +507,7 @@
         "it": "applemusic://track/981901908"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=cg_yarNOFCE",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/84984290",
       "uri_deezer": "deezer://track/98098272",
       "fun_fact": "A hardstyle / hardcore track (2015).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2015).",
@@ -532,7 +532,7 @@
         "it": "applemusic://track/992883574"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=TTnZIB8hkzY",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/46291693",
       "uri_deezer": "deezer://track/100519446",
       "fun_fact": "A hardstyle / hardcore track (2015).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2015).",
@@ -585,7 +585,7 @@
         "it": "applemusic://track/922010485"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=7mKlr6QgMtY",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/462396644",
       "uri_deezer": "deezer://track/100908106",
       "alt_artists": [
         "Abject"
@@ -614,7 +614,7 @@
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=wxwCjA9feZI",
       "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_deezer": "deezer://track/104966962",
       "alt_artists": [
         "TNT",
         "Technoboy"
@@ -642,7 +642,7 @@
         "it": "applemusic://track/1011730059"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=qBSVeb1kvEc",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/51131047",
       "uri_deezer": "deezer://track/102957868",
       "fun_fact": "A hardstyle / hardcore track (2014).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2014).",
@@ -667,7 +667,7 @@
         "it": "applemusic://track/1077741547"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=XwboqMO_eKU",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/434957096",
       "uri_deezer": "deezer://track/118029228",
       "alt_artists": [
         "John Harris"
@@ -686,16 +686,16 @@
       "uri": "spotify:track:5gU2J8kPfcec9YOowfjwpf",
       "uri_apple_music": "applemusic://track/1044305430",
       "uri_apple_music_by_region": {
-        "us": null,
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
+        "us": "applemusic://track/1044305430",
+        "de": "applemusic://track/1044305430",
+        "gb": "applemusic://track/1445987933",
+        "fr": "applemusic://track/1044305431",
+        "es": "applemusic://track/1044305430",
+        "nl": "applemusic://track/1044305431",
+        "it": "applemusic://track/1044305430"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=rkgGAa_TdaA",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/60362142",
       "uri_deezer": "deezer://track/2328621965",
       "fun_fact": "A hardstyle / hardcore track (2015).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2015).",
@@ -720,7 +720,7 @@
         "it": "applemusic://track/1873488365"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=WMCxlaCh--8",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/498760313",
       "uri_deezer": "deezer://track/3842816301",
       "fun_fact": "Ran-D is a Dutch hardstyle artist, also one half of the duo Gunz For Hire.",
       "fun_fact_de": "Ran-D ist ein niederländischer Hardstyle-Künstler und zugleich eine Hälfte des Duos Gunz For Hire.",
@@ -745,7 +745,7 @@
         "it": "applemusic://track/986427654"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=Q-ycbdf4tho",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/79633641",
       "uri_deezer": "deezer://track/356862911",
       "alt_artists": [
         "Oscar"
@@ -773,7 +773,7 @@
         "it": "applemusic://track/1770708119"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=1iUh3HQToRc",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/389494568",
       "uri_deezer": "deezer://track/3015841471",
       "fun_fact": "Radical Redemption is a Dutch artist at the harder, raw end of the hardstyle spectrum.",
       "fun_fact_de": "Radical Redemption ist ein niederländischer Künstler am härteren, rohen Ende des Hardstyle-Spektrums.",
@@ -798,7 +798,7 @@
         "it": "applemusic://track/1149009130"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=j5KTSicTf-w",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/64487256",
       "uri_deezer": "deezer://track/3015841371",
       "fun_fact": "Radical Redemption is a Dutch artist at the harder, raw end of the hardstyle spectrum.",
       "fun_fact_de": "Radical Redemption ist ein niederländischer Künstler am härteren, rohen Ende des Hardstyle-Spektrums.",
@@ -823,7 +823,7 @@
         "it": "applemusic://track/1740385583"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=kqlRcIf6w0c",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/352185684",
       "uri_deezer": "deezer://track/116994412",
       "fun_fact": "A hardstyle / hardcore track (2015).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2015).",
@@ -848,7 +848,7 @@
         "it": "applemusic://track/1102452364"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=AqgAMftI_bc",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/94393364",
       "uri_deezer": "deezer://track/118605368",
       "alt_artists": [
         "The Prophet"
@@ -876,7 +876,7 @@
         "it": "applemusic://track/1450543977"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=dehsumm05eE",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/56601900",
       "uri_deezer": "deezer://track/3842818841",
       "fun_fact": "Gunz For Hire is the hardstyle duo of Ran-D and Adaro, known for dark, raw-edged anthems.",
       "fun_fact_de": "Gunz For Hire ist das Hardstyle-Duo aus Ran-D und Adaro, bekannt für düstere, raue Hymnen.",
@@ -892,16 +892,16 @@
       "uri": "spotify:track:2NRiha4d4XvLJuK0OvQkIR",
       "uri_apple_music": "applemusic://track/1254065079",
       "uri_apple_music_by_region": {
-        "us": null,
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
+        "us": "applemusic://track/1142226553",
+        "de": "applemusic://track/1142226553",
+        "gb": "applemusic://track/1142226553",
+        "fr": "applemusic://track/1142226553",
+        "es": "applemusic://track/1142226553",
+        "nl": "applemusic://track/1119632091",
+        "it": "applemusic://track/1581507605"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=wJHROyBwzyQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/352178028",
       "uri_deezer": "deezer://track/126209957",
       "alt_artists": [
         "MC Creature"
@@ -929,7 +929,7 @@
         "it": "applemusic://track/1444297787"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=WuUe99_2fzY",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/64372935",
       "uri_deezer": "deezer://track/131344236",
       "alt_artists": [
         "The Darkraver",
@@ -958,7 +958,7 @@
         "it": "applemusic://track/1197352992"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=zsxtLnAnXQM",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/84929822",
       "uri_deezer": "deezer://track/132282586",
       "alt_artists": [
         "The Prophet"
@@ -986,7 +986,7 @@
         "it": "applemusic://track/1681737060"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=jpGJwjVzBeA",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/237059571",
       "uri_deezer": "deezer://track/1818044977",
       "alt_artists": [
         "Dbstf",
@@ -1017,7 +1017,7 @@
         "it": "applemusic://track/1155514601"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=AKKVLba_BmE",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/67707874",
       "uri_deezer": "deezer://track/133521488",
       "alt_artists": [
         "ANDY SVGE"
@@ -1045,7 +1045,7 @@
         "it": null
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=-L7jMbQAvuo",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/352177586",
       "uri_deezer": "deezer://track/965506542",
       "fun_fact": "Frontliner is a Dutch hardstyle producer active since the genre's mid-2000s rise.",
       "fun_fact_de": "Frontliner ist ein niederländischer Hardstyle-Produzent, aktiv seit dem Aufstieg des Genres Mitte der 2000er.",
@@ -1070,7 +1070,7 @@
         "it": "applemusic://track/1201172760"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=EwDcYyb-Tzw",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/69956791",
       "uri_deezer": "deezer://track/125350452",
       "alt_artists": [
         "Toneshifterz"
@@ -1098,7 +1098,7 @@
         "it": "applemusic://track/1162788615"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=MQIO99CwZYs",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/84930087",
       "uri_deezer": "deezer://track/135668952",
       "alt_artists": [
         "Digital Punk"
@@ -1126,7 +1126,7 @@
         "it": null
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=dXmfIgSNJBM",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/352183607",
       "uri_deezer": "deezer://track/1085659382",
       "fun_fact": "A hardstyle / hardcore track (2020).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2020).",
@@ -1151,7 +1151,7 @@
         "it": "applemusic://track/1842589388"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=LW-S9nUQC3I",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/463374189",
       "uri_deezer": "deezer://track/2830500312",
       "alt_artists": [
         "Paul Elstak",
@@ -1180,7 +1180,7 @@
         "it": "applemusic://track/1470477535"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=OewW2SU7oL4",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/112326330",
       "uri_deezer": "deezer://track/392762832",
       "fun_fact": "Noisecontrollers is a Dutch hardstyle act renowned for big-room anthems and festival-defining tracks.",
       "fun_fact_de": "Noisecontrollers ist ein niederländischer Hardstyle-Act, bekannt für Big-Room-Hymnen und festivalprägende Tracks.",
@@ -1233,7 +1233,7 @@
         "it": "applemusic://track/1269551797"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=TOVKhAImrbk",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/79691608",
       "uri_deezer": "deezer://track/391182622",
       "fun_fact": "A hardstyle / hardcore track (2017).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2017).",
@@ -1258,7 +1258,7 @@
         "it": "applemusic://track/1265179606"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=UJu9jTWxRoQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/112326288",
       "uri_deezer": "deezer://track/392762752",
       "alt_artists": [
         "Villain"
@@ -1286,7 +1286,7 @@
         "it": "applemusic://track/1302765967"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=T-ay7UR9juo",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/89859265",
       "uri_deezer": "deezer://track/508292342",
       "fun_fact": "Ran-D is a Dutch hardstyle artist, also one half of the duo Gunz For Hire.",
       "fun_fact_de": "Ran-D ist ein niederländischer Hardstyle-Künstler und zugleich eine Hälfte des Duos Gunz For Hire.",
@@ -1311,7 +1311,7 @@
         "it": "applemusic://track/1846366581"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=uWsSsz2s-tI",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/112326334",
       "uri_deezer": "deezer://track/392762822",
       "alt_artists": [
         "Bass Modulators"
@@ -1330,16 +1330,16 @@
       "uri": "spotify:track:4sXeFq0gdQtK0Ze2bIAnU6",
       "uri_apple_music": null,
       "uri_apple_music_by_region": {
-        "us": null,
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
+        "us": "applemusic://track/1275514904",
+        "de": "applemusic://track/1275514905",
+        "gb": "applemusic://track/1275514904",
+        "fr": "applemusic://track/1275514904",
+        "es": "applemusic://track/1275514904",
+        "nl": "applemusic://track/1275514905",
+        "it": "applemusic://track/1275514904"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=lVI6j9YhIZ0",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/352177821",
       "uri_deezer": "deezer://track/404416022",
       "fun_fact": "Noisecontrollers is a Dutch hardstyle act renowned for big-room anthems and festival-defining tracks.",
       "fun_fact_de": "Noisecontrollers ist ein niederländischer Hardstyle-Act, bekannt für Big-Room-Hymnen und festivalprägende Tracks.",
@@ -1364,7 +1364,7 @@
         "it": "applemusic://track/1274941605"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=yJOIvuyjIDo",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/84929476",
       "uri_deezer": "deezer://track/398226892",
       "alt_artists": [
         "Deepack"
@@ -1381,7 +1381,7 @@
       "year": 2018,
       "isrc": "NLH2L1700151",
       "uri": "spotify:track:05yYceDA8edH0L98bYCQOs",
-      "uri_apple_music": "applemusic://track/1348764977",
+      "uri_apple_music": "applemusic://track/1842561727",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1842561727",
         "de": "applemusic://track/1842561727",
@@ -1392,7 +1392,7 @@
         "it": "applemusic://track/1842561727"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=smy6M2wGzBM",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/352185043",
       "uri_deezer": "deezer://track/965505842",
       "fun_fact": "Headhunterz is one of the most influential hardstyle artists of all time, a defining name of the genre's golden era.",
       "fun_fact_de": "Headhunterz zählt zu den einflussreichsten Hardstyle-Künstlern überhaupt — ein prägender Name der goldenen Ära des Genres.",
@@ -1417,7 +1417,7 @@
         "it": "applemusic://track/1873527101"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=BJ6LCEMQzAU",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/498762457",
       "uri_deezer": "deezer://track/2112785847",
       "fun_fact": "A hardstyle / hardcore track (2017).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2017).",
@@ -1442,7 +1442,7 @@
         "it": null
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=HPaZkZq-Gg0",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/94393376",
       "uri_deezer": "deezer://track/548245872",
       "alt_artists": [
         "Meccah Dawn"
@@ -1462,8 +1462,8 @@
       "uri_apple_music": null,
       "uri_apple_music_by_region": {},
       "uri_youtube_music": "https://music.youtube.com/watch?v=Fp-3jRcqelM",
-      "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_tidal": "tidal://track/352177824",
+      "uri_deezer": "deezer://track/965494682",
       "alt_artists": [
         "D-Fence"
       ],
@@ -1490,7 +1490,7 @@
         "it": "applemusic://track/6762605994"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=r4l_9UzY59w",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/79633764",
       "uri_deezer": "deezer://track/3971942931",
       "fun_fact": "A hardstyle / hardcore track (2026).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2026).",
@@ -1504,11 +1504,11 @@
       "year": 2017,
       "isrc": null,
       "uri": "spotify:track:151vYUFvruNimvMU10yxUt",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1334073319",
       "uri_apple_music_by_region": {},
       "uri_youtube_music": "https://music.youtube.com/watch?v=Y2uKwACXVk4",
-      "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_tidal": "tidal://track/81147474",
+      "uri_deezer": "deezer://track/413349522",
       "alt_artists": [
         "GLDY LX"
       ],
@@ -1535,7 +1535,7 @@
         "it": "applemusic://track/1302765944"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=q2t7i61iQW8",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/81009321",
       "uri_deezer": "deezer://track/426340832",
       "fun_fact": "A hardstyle / hardcore track (2017).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2017).",
@@ -1560,7 +1560,7 @@
         "it": null
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=JnAcJ4035hY",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/83296083",
       "uri_deezer": "deezer://track/3287350311",
       "fun_fact": "A hardstyle / hardcore track (2018).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2018).",
@@ -1585,7 +1585,7 @@
         "it": null
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=zP4970VJRnY",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/97768162",
       "uri_deezer": "deezer://track/577912362",
       "alt_artists": [
         "High Voltage"
@@ -1638,7 +1638,7 @@
         "it": "applemusic://track/1360517113"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=Kzqb3cFoozs",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/86050845",
       "uri_deezer": "deezer://track/3842843981",
       "fun_fact": "A hardstyle / hardcore track (2018).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2018).",
@@ -1654,16 +1654,16 @@
       "uri": "spotify:track:4yLcebXiaPUklPkhK0Nbt5",
       "uri_apple_music": "applemusic://track/1360517880",
       "uri_apple_music_by_region": {
-        "us": null,
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
+        "us": "applemusic://track/1360517880",
+        "de": "applemusic://track/1360517880",
+        "gb": "applemusic://track/1360517880",
+        "fr": "applemusic://track/1360517880",
+        "es": "applemusic://track/1360517880",
+        "nl": "applemusic://track/1360517880",
+        "it": "applemusic://track/1360517880"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=FkIEWMt0qJQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/86050858",
       "uri_deezer": "deezer://track/965499642",
       "alt_artists": [
         "MYST",
@@ -1692,7 +1692,7 @@
         "it": "applemusic://track/1370353261"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=7i-UXuGYw7E",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/85241627",
       "uri_deezer": "deezer://track/467291612",
       "alt_artists": [
         "Sound Rush",
@@ -1721,7 +1721,7 @@
         "it": "applemusic://track/1740381845"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=1WrRYyBFMJY",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/352183455",
       "uri_deezer": "deezer://track/1018335882",
       "fun_fact": "A hardstyle / hardcore track (2020).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2020).",
@@ -1746,7 +1746,7 @@
         "it": "applemusic://track/1843189474"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=7Oiw1h1f9hQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/86050840",
       "uri_deezer": "deezer://track/965526342",
       "fun_fact": "Phuture Noize is a Dutch hardstyle artist known for concept albums and cinematic productions.",
       "fun_fact_de": "Phuture Noize ist ein niederländischer Hardstyle-Künstler, bekannt für Konzeptalben und cineastische Produktionen.",
@@ -1771,7 +1771,7 @@
         "it": "applemusic://track/1805172589"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=I4BM4tMIM4c",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/85414489",
       "uri_deezer": "deezer://track/3287350271",
       "fun_fact": "A hardstyle / hardcore track (2018).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2018).",
@@ -1796,7 +1796,7 @@
         "it": "applemusic://track/1805173485"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=L_7dfd8QmXs",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/85804430",
       "uri_deezer": "deezer://track/3287429761",
       "fun_fact": "A hardstyle / hardcore track (2021).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2021).",
@@ -1821,7 +1821,7 @@
         "it": "applemusic://track/1360516053"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=1ij6T0NWEtE",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/86050832",
       "uri_deezer": "deezer://track/510139862",
       "fun_fact": "Phuture Noize is a Dutch hardstyle artist known for concept albums and cinematic productions.",
       "fun_fact_de": "Phuture Noize ist ein niederländischer Hardstyle-Künstler, bekannt für Konzeptalben und cineastische Produktionen.",
@@ -1846,7 +1846,7 @@
         "it": "applemusic://track/1675500114"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=rPNNnCnEmQs",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/86140361",
       "uri_deezer": "deezer://track/1580471272",
       "alt_artists": [
         "Alee"
@@ -1874,7 +1874,7 @@
         "it": "applemusic://track/1484772835"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=_M0BZoZW6l8",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/86897373",
       "uri_deezer": "deezer://track/772210842",
       "fun_fact": "A hardstyle / hardcore track (2019).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2019).",
@@ -1899,7 +1899,7 @@
         "it": "applemusic://track/1842561906"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=0fQPvUkqQyg",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/463238031",
       "uri_deezer": "deezer://track/3575272921",
       "alt_artists": [
         "Billy The Kit",
@@ -1929,7 +1929,7 @@
         "it": "applemusic://track/1506161694"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=vt6QJlIOAyI",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/86377118",
       "uri_deezer": "deezer://track/477350302",
       "fun_fact": "A hardstyle / hardcore track (2018).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2018).",
@@ -1943,11 +1943,11 @@
       "year": 2019,
       "isrc": null,
       "uri": "spotify:track:1fPzre55ptr7VihNCFzsZ7",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1441695467",
       "uri_apple_music_by_region": {},
       "uri_youtube_music": "https://music.youtube.com/watch?v=q7ErRTG3ON4",
-      "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_tidal": "tidal://track/86962828",
+      "uri_deezer": "deezer://track/482707772",
       "alt_artists": [
         "Outbreak"
       ],
@@ -1974,7 +1974,7 @@
         "it": "applemusic://track/1805189025"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=_fENI8gceHw",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/87503729",
       "uri_deezer": "deezer://track/515078452",
       "fun_fact": "A hardstyle / hardcore track (2018).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2018).",
@@ -1999,7 +1999,7 @@
         "it": "applemusic://track/1451233225"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=UDqf5DKUdNk",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/88393785",
       "uri_deezer": "deezer://track/495578832",
       "fun_fact": "A hardstyle / hardcore track (2018).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2018).",
@@ -2024,7 +2024,7 @@
         "it": "applemusic://track/1842462057"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=v6KoaP3j5qM",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/442149441",
       "uri_deezer": "deezer://track/3842891621",
       "fun_fact": "Gunz For Hire is the hardstyle duo of Ran-D and Adaro, known for dark, raw-edged anthems.",
       "fun_fact_de": "Gunz For Hire ist das Hardstyle-Duo aus Ran-D und Adaro, bekannt für düstere, raue Hymnen.",
@@ -2038,11 +2038,11 @@
       "year": 2018,
       "isrc": null,
       "uri": "spotify:track:5cqVRyojyziljBj4Tnc0Pf",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1360516102",
       "uri_apple_music_by_region": {},
       "uri_youtube_music": "https://music.youtube.com/watch?v=5u6Hk7sempo",
-      "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_tidal": "tidal://track/86050836",
+      "uri_deezer": "deezer://track/474295182",
       "fun_fact": "Phuture Noize is a Dutch hardstyle artist known for concept albums and cinematic productions.",
       "fun_fact_de": "Phuture Noize ist ein niederländischer Hardstyle-Künstler, bekannt für Konzeptalben und cineastische Produktionen.",
       "fun_fact_es": "Phuture Noize es un artista neerlandés de hardstyle conocido por álbumes conceptuales y producciones cinematográficas.",
@@ -2066,7 +2066,7 @@
         "it": "applemusic://track/1843188534"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=gpJVOK-et5E",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/89360280",
       "uri_deezer": "deezer://track/3287352111",
       "fun_fact": "A hardstyle / hardcore track (2018).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2018).",
@@ -2091,7 +2091,7 @@
         "it": "applemusic://track/1393053919"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=rbeNoL5Qguw",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/89818755",
       "uri_deezer": "deezer://track/507827102",
       "fun_fact": "A hardstyle / hardcore track (2018).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2018).",
@@ -2116,7 +2116,7 @@
         "it": "applemusic://track/1873550267"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=8BZmiE2ew3k",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/498768870",
       "uri_deezer": "deezer://track/3842892361",
       "alt_artists": [
         "Nikki Milou"
@@ -2144,7 +2144,7 @@
         "it": "applemusic://track/1398271027"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=20-wAM-hmV0",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/95067969",
       "uri_deezer": "deezer://track/512244252",
       "alt_artists": [
         "Rebourne"
@@ -2172,7 +2172,7 @@
         "it": "applemusic://track/1842474143"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=AUf6L7fA8XY",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/95069749",
       "uri_deezer": "deezer://track/500633042",
       "alt_artists": [
         "D-Fence"
@@ -2200,7 +2200,7 @@
         "it": "applemusic://track/1842561912"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=i8Z3wW9kX7E",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/90495509",
       "uri_deezer": "deezer://track/3575422761",
       "fun_fact": "A hardstyle / hardcore track (2018).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2018).",
@@ -2250,7 +2250,7 @@
         "it": "applemusic://track/1740381841"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=94USFFLhIzs",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/352183452",
       "uri_deezer": "deezer://track/515079222",
       "fun_fact": "A hardstyle / hardcore track (2018).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2018).",
@@ -2275,7 +2275,7 @@
         "it": "applemusic://track/1444297939"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=QjeSni4LoNg",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/352179325",
       "uri_deezer": "deezer://track/510139902",
       "fun_fact": "Phuture Noize is a Dutch hardstyle artist known for concept albums and cinematic productions.",
       "fun_fact_de": "Phuture Noize ist ein niederländischer Hardstyle-Künstler, bekannt für Konzeptalben und cineastische Produktionen.",
@@ -2300,7 +2300,7 @@
         "it": "applemusic://track/1393009439"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=NFlMQzZzk-k",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/89733336",
       "uri_deezer": "deezer://track/507295042",
       "fun_fact": "A hardstyle / hardcore track (2018).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2018).",
@@ -2325,7 +2325,7 @@
         "it": "applemusic://track/1805246599"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=XCyORIp_ShA",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/95069756",
       "uri_deezer": "deezer://track/515078752",
       "alt_artists": [
         "Max Enforcer"
@@ -2344,16 +2344,16 @@
       "uri": "spotify:track:5nrKdtb59SEkIVwlt3MrbP",
       "uri_apple_music": "applemusic://track/1440992960",
       "uri_apple_music_by_region": {
-        "us": null,
+        "us": "applemusic://track/1455265562",
         "de": "applemusic://track/1440992960",
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
+        "gb": "applemusic://track/1455265562",
+        "fr": "applemusic://track/1455265562",
+        "es": "applemusic://track/1455265562",
+        "nl": "applemusic://track/1593278025",
+        "it": "applemusic://track/1593278025"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=Y-4TErG4QlM",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/93148768",
       "uri_deezer": "deezer://track/965498982",
       "fun_fact": "Brennan Heart is a veteran Dutch hardstyle artist and founder of the WE R label.",
       "fun_fact_de": "Brennan Heart ist ein erfahrener niederländischer Hardstyle-Künstler und Gründer des Labels WE R.",
@@ -2378,7 +2378,7 @@
         "it": "applemusic://track/1408559109"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=x1Haxx2y2co",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/91587156",
       "uri_deezer": "deezer://track/539027722",
       "fun_fact": "Headhunterz is one of the most influential hardstyle artists of all time, a defining name of the genre's golden era.",
       "fun_fact_de": "Headhunterz zählt zu den einflussreichsten Hardstyle-Künstlern überhaupt — ein prägender Name der goldenen Ära des Genres.",
@@ -2403,7 +2403,7 @@
         "it": "applemusic://track/1408556409"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=KFP5rS81vSI",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/94393351",
       "uri_deezer": "deezer://track/500633002",
       "alt_artists": [
         "Endymion"
@@ -2431,7 +2431,7 @@
         "it": "applemusic://track/1441784682"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=mhJ-HHLHi0Y",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/118282243",
       "uri_deezer": "deezer://track/583568822",
       "alt_artists": [
         "DJ Isaac",
@@ -2447,22 +2447,22 @@
     {
       "artist": "Sound Rush",
       "title": "One",
-      "year": 2020,
-      "isrc": "NLE802000156",
+      "year": 2018,
+      "isrc": "NLH2L1800122",
       "uri": "spotify:track:2moLWGaq0bT4RZWJwvCYjh",
-      "uri_apple_music": "applemusic://track/1505331972",
+      "uri_apple_music": "applemusic://track/1421765615",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/1505331972",
-        "de": "applemusic://track/1505331972",
-        "gb": "applemusic://track/1505331972",
-        "fr": "applemusic://track/1505331972",
-        "es": "applemusic://track/1505331972",
-        "nl": "applemusic://track/1505331972",
-        "it": "applemusic://track/1505331972"
+        "us": "applemusic://track/1421765615",
+        "de": "applemusic://track/1421765615",
+        "gb": "applemusic://track/1421765615",
+        "fr": "applemusic://track/1421765615",
+        "es": "applemusic://track/1421765615",
+        "nl": "applemusic://track/1421765615",
+        "it": "applemusic://track/1421765615"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=S_qnGdCc-ig",
-      "uri_tidal": null,
-      "uri_deezer": "deezer://track/917060922",
+      "uri_tidal": "tidal://track/94393299",
+      "uri_deezer": "deezer://track/965487612",
       "alt_artists": [
         "Villain"
       ],
@@ -2478,18 +2478,18 @@
       "year": 2018,
       "isrc": "NLH2L1800135",
       "uri": "spotify:track:1rLd3cCQBWkXw0prrzBQvB",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1470619481",
       "uri_apple_music_by_region": {
-        "us": null,
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
+        "us": "applemusic://track/1470619481",
+        "de": "applemusic://track/1470619483",
+        "gb": "applemusic://track/1470619483",
+        "fr": "applemusic://track/1470619481",
+        "es": "applemusic://track/1470619481",
+        "nl": "applemusic://track/1470619481",
+        "it": "applemusic://track/1470619483"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=Jezs0cmWuqg",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/94393300",
       "uri_deezer": "deezer://track/704235902",
       "fun_fact": "Noisecontrollers is a Dutch hardstyle act renowned for big-room anthems and festival-defining tracks.",
       "fun_fact_de": "Noisecontrollers ist ein niederländischer Hardstyle-Act, bekannt für Big-Room-Hymnen und festivalprägende Tracks.",
@@ -2514,7 +2514,7 @@
         "it": "applemusic://track/1773268601"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=x_1QLhFWw-8",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/92988576",
       "uri_deezer": "deezer://track/3039390731",
       "fun_fact": "A hardstyle / hardcore track (2024).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2024).",
@@ -2539,7 +2539,7 @@
         "it": "applemusic://track/1843189485"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=kWutRKO4K6M",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/98581975",
       "uri_deezer": "deezer://track/617578112",
       "fun_fact": "Ran-D is a Dutch hardstyle artist, also one half of the duo Gunz For Hire.",
       "fun_fact_de": "Ran-D ist ein niederländischer Hardstyle-Künstler und zugleich eine Hälfte des Duos Gunz For Hire.",
@@ -2564,7 +2564,7 @@
         "it": "applemusic://track/1441784259"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=hNI9RqVF4gs",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/352184049",
       "uri_deezer": "deezer://track/583568812",
       "fun_fact": "A hardstyle / hardcore track (2018).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2018).",
@@ -2589,7 +2589,7 @@
         "it": "applemusic://track/1246268938"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=ouxoYtOkNcY",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/94393355",
       "uri_deezer": "deezer://track/583569452",
       "fun_fact": "A hardstyle / hardcore track (2018).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2018).",
@@ -2614,7 +2614,7 @@
         "it": "applemusic://track/1429745273"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=ZKhHSMywOok",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/93705093",
       "uri_deezer": "deezer://track/542288862",
       "fun_fact": "A hardstyle / hardcore track (2018).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2018).",
@@ -2639,7 +2639,7 @@
         "it": "applemusic://track/1594624227"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=AHBoYKEFQfU",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/93148827",
       "uri_deezer": "deezer://track/1548816292",
       "alt_artists": [
         "Technoboy",
@@ -2668,7 +2668,7 @@
         "it": "applemusic://track/1843188539"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=N2RGlesRFKo",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/94393313",
       "uri_deezer": "deezer://track/965474012",
       "fun_fact": "A hardstyle / hardcore track (2018).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2018).",
@@ -2685,8 +2685,8 @@
       "uri_apple_music": null,
       "uri_apple_music_by_region": {},
       "uri_youtube_music": "https://music.youtube.com/watch?v=dP_KhSmjFzI",
-      "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_tidal": "tidal://track/94393347",
+      "uri_deezer": "deezer://track/965474842",
       "fun_fact": "A hardstyle / hardcore track (2018).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2018).",
       "fun_fact_es": "Un tema de hardstyle / hardcore (2018).",
@@ -2710,7 +2710,7 @@
         "it": "applemusic://track/1438848217"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=1VrGSoNXDQg",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/96606751",
       "uri_deezer": "deezer://track/567314602",
       "fun_fact": "Coone is a Belgian hardstyle DJ and founder of the Dirty Workz label.",
       "fun_fact_de": "Coone ist ein belgischer Hardstyle-DJ und Gründer des Labels Dirty Workz.",
@@ -2735,7 +2735,7 @@
         "it": "applemusic://track/1435525054"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=YbHzgepOPZ4",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/94702701",
       "uri_deezer": "deezer://track/536846792",
       "fun_fact": "A hardstyle / hardcore track (2018).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2018).",
@@ -2760,7 +2760,7 @@
         "it": "applemusic://track/1444297681"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=FNDwfrQFeEA",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/95069750",
       "uri_deezer": "deezer://track/554943742",
       "fun_fact": "A hardstyle / hardcore track (2018).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2018).",
@@ -2785,7 +2785,7 @@
         "it": "applemusic://track/1439047089"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=JBPngYAC39c",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/352177118",
       "uri_deezer": "deezer://track/965512562",
       "alt_artists": [
         "Villain"
@@ -2813,7 +2813,7 @@
         "it": "applemusic://track/1441296798"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=JcC_aDCRVOI",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/97406877",
       "uri_deezer": "deezer://track/579174902",
       "alt_artists": [
         "D-Sturb"
@@ -2841,7 +2841,7 @@
         "it": "applemusic://track/1483063022"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=315d_c2k-oY",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/104143736",
       "uri_deezer": "deezer://track/579200632",
       "fun_fact": "A hardstyle / hardcore track (2018).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2018).",
@@ -2866,7 +2866,7 @@
         "it": "applemusic://track/1440051917"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=BYnZbjS4pYA",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/97282790",
       "uri_deezer": "deezer://track/573782042",
       "fun_fact": "A hardstyle / hardcore track (2018).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2018).",
@@ -2891,7 +2891,7 @@
         "it": "applemusic://track/1469274982"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=DJ4tu2_4xic",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/111607032",
       "uri_deezer": "deezer://track/578359072",
       "alt_artists": [
         "Mental Theo"
@@ -2919,7 +2919,7 @@
         "it": "applemusic://track/1443910520"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=6gYA9tcAUbk",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/98656301",
       "uri_deezer": "deezer://track/585350602",
       "alt_artists": [
         "Sefa"
@@ -2947,7 +2947,7 @@
         "it": "applemusic://track/1450545182"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=bCKgg9_8VzE",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/98581977",
       "uri_deezer": "deezer://track/583568962",
       "alt_artists": [
         "B-Front"
@@ -2975,7 +2975,7 @@
         "it": "applemusic://track/1444047407"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=wLIa4lhNvrk",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/99366538",
       "uri_deezer": "deezer://track/589758592",
       "alt_artists": [
         "Tha Watcher"
@@ -3003,7 +3003,7 @@
         "it": "applemusic://track/1444075735"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=DPwtKh1vItA",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/99366827",
       "uri_deezer": "deezer://track/589819712",
       "alt_artists": [
         "Max Enforcer"
@@ -3022,16 +3022,16 @@
       "uri": "spotify:track:02zAW3DWnWjpiN1PAVD6yz",
       "uri_apple_music": "applemusic://track/1805252710",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/937886274",
-        "de": "applemusic://track/937886274",
-        "gb": "applemusic://track/937886274",
-        "fr": "applemusic://track/937886274",
-        "es": "applemusic://track/937886274",
-        "nl": "applemusic://track/937886274",
-        "it": "applemusic://track/937886274"
+        "us": "applemusic://track/1805252710",
+        "de": "applemusic://track/1805252710",
+        "gb": "applemusic://track/1805252710",
+        "fr": "applemusic://track/1805252710",
+        "es": "applemusic://track/1805252710",
+        "nl": "applemusic://track/1805252710",
+        "it": "applemusic://track/1805252710"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=Lk2SaW4TeuQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/99460748",
       "uri_deezer": "deezer://track/591971012",
       "alt_artists": [
         "Alpha²",
@@ -3060,7 +3060,7 @@
         "it": "applemusic://track/1443775100"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=eiIRDAdJvOk",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/99121501",
       "uri_deezer": "deezer://track/589853792",
       "fun_fact": "Headhunterz is one of the most influential hardstyle artists of all time, a defining name of the genre's golden era.",
       "fun_fact_de": "Headhunterz zählt zu den einflussreichsten Hardstyle-Künstlern überhaupt — ein prägender Name der goldenen Ära des Genres.",
@@ -3085,7 +3085,7 @@
         "it": "applemusic://track/1740406836"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=qigPzqghPkw",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/111978960",
       "uri_deezer": "deezer://track/587581642",
       "fun_fact": "Phuture Noize is a Dutch hardstyle artist known for concept albums and cinematic productions.",
       "fun_fact_de": "Phuture Noize ist ein niederländischer Hardstyle-Künstler, bekannt für Konzeptalben und cineastische Produktionen.",
@@ -3110,7 +3110,7 @@
         "it": "applemusic://track/1450544847"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=sgCRAAZbGo0",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/103346541",
       "uri_deezer": "deezer://track/626142922",
       "fun_fact": "Ran-D is a Dutch hardstyle artist, also one half of the duo Gunz For Hire.",
       "fun_fact_de": "Ran-D ist ein niederländischer Hardstyle-Künstler und zugleich eine Hälfte des Duos Gunz For Hire.",
@@ -3135,7 +3135,7 @@
         "it": "applemusic://track/1450545611"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=j_eSMZhvg0M",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/101440916",
       "uri_deezer": "deezer://track/608199902",
       "fun_fact": "A hardstyle / hardcore track (2018).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2018).",
@@ -3160,7 +3160,7 @@
         "it": "applemusic://track/1448259676"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=juHvq4HMbTg",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/101796233",
       "uri_deezer": "deezer://track/611404802",
       "fun_fact": "A hardstyle / hardcore track (2019).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2019).",
@@ -3177,8 +3177,8 @@
       "uri_apple_music": null,
       "uri_apple_music_by_region": {},
       "uri_youtube_music": "https://music.youtube.com/watch?v=-8KoFD2iRK8",
-      "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_tidal": "tidal://track/101907235",
+      "uri_deezer": "deezer://track/612412272",
       "fun_fact": "A hardstyle / hardcore track (2019).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2019).",
       "fun_fact_es": "Un tema de hardstyle / hardcore (2019).",
@@ -3202,7 +3202,7 @@
         "it": "applemusic://track/1450544247"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=4dIW8ZOb0IQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/103346532",
       "uri_deezer": "deezer://track/626142832",
       "fun_fact": "Noisecontrollers is a Dutch hardstyle act renowned for big-room anthems and festival-defining tracks.",
       "fun_fact_de": "Noisecontrollers ist ein niederländischer Hardstyle-Act, bekannt für Big-Room-Hymnen und festivalprägende Tracks.",
@@ -3227,7 +3227,7 @@
         "it": "applemusic://track/1592711473"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=77oS96lJ7ls",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/101479357",
       "uri_deezer": "deezer://track/1536856072",
       "fun_fact": "A hardstyle / hardcore track (2021).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2021).",
@@ -3252,7 +3252,7 @@
         "it": "applemusic://track/1805219391"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=WtNgN21AJIE",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/101583766",
       "uri_deezer": "deezer://track/3287362501",
       "fun_fact": "A hardstyle / hardcore track (2019).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2019).",
@@ -3277,7 +3277,7 @@
         "it": "applemusic://track/1842585335"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=NL2TdDpLtS8",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/463388241",
       "uri_deezer": "deezer://track/3576255771",
       "fun_fact": "A hardstyle / hardcore track (2019).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2019).",
@@ -3302,7 +3302,7 @@
         "it": "applemusic://track/1452621099"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=EoCh7pvYhOc",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/104143744",
       "uri_deezer": "deezer://track/616337072",
       "fun_fact": "A hardstyle / hardcore track (2019).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2019).",
@@ -3327,7 +3327,7 @@
         "it": "applemusic://track/1485563438"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=EgYhOsZRUIo",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/97606874",
       "uri_deezer": "deezer://track/717106182",
       "alt_artists": [
         "Tha Playah"
@@ -3355,7 +3355,7 @@
         "it": "applemusic://track/1451903272"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=HceLeeBTJts",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/103711694",
       "uri_deezer": "deezer://track/629258722",
       "fun_fact": "A hardstyle / hardcore track (2019).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2019).",
@@ -3369,18 +3369,18 @@
       "year": 2019,
       "isrc": "NLH2L1800270",
       "uri": "spotify:track:40jCA9glV0N2KlDAfHCR2I",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1467342418",
       "uri_apple_music_by_region": {
-        "us": null,
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
+        "us": "applemusic://track/1467342418",
+        "de": "applemusic://track/1467342418",
+        "gb": "applemusic://track/1467342418",
+        "fr": "applemusic://track/1467342418",
+        "es": "applemusic://track/1467342418",
+        "nl": "applemusic://track/1467342418",
+        "it": "applemusic://track/1467342418"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=Tzl8J-bmXVE",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/111034121",
       "uri_deezer": "deezer://track/626878102",
       "fun_fact": "A hardstyle / hardcore track (2019).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2019).",
@@ -3405,7 +3405,7 @@
         "it": "applemusic://track/1451220279"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=v2Cxb1wZcaw",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/103369654",
       "uri_deezer": "deezer://track/626326812",
       "alt_artists": [
         "Alee"
@@ -3420,21 +3420,21 @@
       "artist": "Zatox",
       "title": "Hard Bass - Ran-D Remix",
       "year": 2014,
-      "isrc": "NLS241401025",
+      "isrc": "NLH2L1800276",
       "uri": "spotify:track:2QFR0InGwGPZY1wPCrpb6a",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1459524332",
       "uri_apple_music_by_region": {
-        "us": null,
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
+        "us": "applemusic://track/1842571770",
+        "de": "applemusic://track/1459524332",
+        "gb": "applemusic://track/1842571770",
+        "fr": "applemusic://track/1842571770",
+        "es": "applemusic://track/1450541135",
+        "nl": "applemusic://track/1450541135",
+        "it": "applemusic://track/1450541135"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=aoTKVVtCO9w",
-      "uri_tidal": null,
-      "uri_deezer": "deezer://track/3576017641",
+      "uri_tidal": "tidal://track/352180916",
+      "uri_deezer": "deezer://track/632014452",
       "alt_artists": [
         "Tatanka",
         "Ran-D"
@@ -3451,11 +3451,11 @@
       "year": 2019,
       "isrc": null,
       "uri": "spotify:track:15eIT8TXf1bvnYr7i2SNaL",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1452633054",
       "uri_apple_music_by_region": {},
       "uri_youtube_music": "https://music.youtube.com/watch?v=YhYOey9TGcM",
-      "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_tidal": "tidal://track/104063920",
+      "uri_deezer": "deezer://track/631923112",
       "fun_fact": "A hardstyle / hardcore track (2019).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2019).",
       "fun_fact_es": "Un tema de hardstyle / hardcore (2019).",
@@ -3479,7 +3479,7 @@
         "it": "applemusic://track/1842589085"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=9ib0-a0TuqQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/463389729",
       "uri_deezer": "deezer://track/3576271741",
       "alt_artists": [
         "The Partysquad",
@@ -3508,7 +3508,7 @@
         "it": "applemusic://track/1463186247"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=tEz3sQkKxek",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/104589579",
       "uri_deezer": "deezer://track/3287362801",
       "alt_artists": [
         "Dutch Movement"
@@ -3536,7 +3536,7 @@
         "it": "applemusic://track/1455218599"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=qLmJuPkJ24g",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/104143764",
       "uri_deezer": "deezer://track/643748112",
       "alt_artists": [
         "Dani Omega"
@@ -3564,7 +3564,7 @@
         "it": null
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=DKdj0n6z1eE",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/352180934",
       "uri_deezer": "deezer://track/643299742",
       "alt_artists": [
         "Crystal Mad"
@@ -3592,7 +3592,7 @@
         "it": "applemusic://track/1455264709"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=nNT_R6tPf8c",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/105666828",
       "uri_deezer": "deezer://track/644088082",
       "alt_artists": [
         "Coone",
@@ -3621,7 +3621,7 @@
         "it": "applemusic://track/1465331702"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=wkMMzXK4niQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/106778777",
       "uri_deezer": "deezer://track/657044912",
       "alt_artists": [
         "KELTEK"
@@ -3649,7 +3649,7 @@
         "it": "applemusic://track/1458627743"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=OskcMyBTtCw",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/105080939",
       "uri_deezer": "deezer://track/641871642",
       "fun_fact": "A hardstyle / hardcore track (2019).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2019).",
@@ -3674,7 +3674,7 @@
         "it": "applemusic://track/1805299251"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=QU8hfzGokhU",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/106908816",
       "uri_deezer": "deezer://track/3287362731",
       "fun_fact": "A hardstyle / hardcore track (2019).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2019).",
@@ -3699,7 +3699,7 @@
         "it": "applemusic://track/1495970707"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=me1tizuRNEo",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/111978949",
       "uri_deezer": "deezer://track/700920502",
       "alt_artists": [
         "Adrenalize"
@@ -3727,7 +3727,7 @@
         "it": "applemusic://track/1805281034"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=JuLIWDHxot4",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/84932191",
       "uri_deezer": "deezer://track/3287362721",
       "fun_fact": "Frontliner is a Dutch hardstyle producer active since the genre's mid-2000s rise.",
       "fun_fact_de": "Frontliner ist ein niederländischer Hardstyle-Produzent, aktiv seit dem Aufstieg des Genres Mitte der 2000er.",
@@ -3752,7 +3752,7 @@
         "it": "applemusic://track/1805280945"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=gFzsodJSxgc",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/106907734",
       "uri_deezer": "deezer://track/3287363311",
       "alt_artists": [
         "Mona Rose"
@@ -3780,7 +3780,7 @@
         "it": "applemusic://track/1461685390"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=HPN9est-v70",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/111978924",
       "uri_deezer": "deezer://track/672196542",
       "alt_artists": [
         "DJ Isaac"
@@ -3808,7 +3808,7 @@
         "it": "applemusic://track/1805299186"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=OsUtuOzKYrg",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/108151339",
       "uri_deezer": "deezer://track/700920292",
       "alt_artists": [
         "MC DL"
@@ -3836,7 +3836,7 @@
         "it": "applemusic://track/1462321956"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=7Zh46FlTtS4",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/107778571",
       "uri_deezer": "deezer://track/666325562",
       "alt_artists": [
         "Last Word"
@@ -3864,7 +3864,7 @@
         "it": "applemusic://track/1750902048"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=CB6oTaLwEKM",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/109162696",
       "uri_deezer": "deezer://track/2836929972",
       "fun_fact": "A hardstyle / hardcore track (2024).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2024).",
@@ -3889,7 +3889,7 @@
         "it": "applemusic://track/1805282362"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=qMKx79R2VsU",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/107386346",
       "uri_deezer": "deezer://track/3287363261",
       "fun_fact": "A hardstyle / hardcore track (2019).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2019).",
@@ -3914,7 +3914,7 @@
         "it": "applemusic://track/1740379941"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=yGi1MePEN-k",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/106950486",
       "uri_deezer": "deezer://track/683655052",
       "alt_artists": [
         "Deetox"
@@ -3942,7 +3942,7 @@
         "it": "applemusic://track/1498802353"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=OrSfVB3pMf0",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/131170250",
       "uri_deezer": "deezer://track/875974252",
       "fun_fact": "Da Tweekaz are a Norwegian hardstyle duo famous for their high-energy, often playful tracks.",
       "fun_fact_de": "Da Tweekaz sind ein norwegisches Hardstyle-Duo, berühmt für energiegeladene, oft verspielte Tracks.",
@@ -3967,7 +3967,7 @@
         "it": "applemusic://track/1794271543"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=Dl8ejYZXmLw",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/415573332",
       "uri_deezer": "deezer://track/3216181141",
       "fun_fact": "A hardstyle / hardcore track (2017).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2017).",
@@ -3992,7 +3992,7 @@
         "it": "applemusic://track/1494161792"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=gIf0Sch5OJk",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/127622472",
       "uri_deezer": "deezer://track/862412192",
       "fun_fact": "Da Tweekaz are a Norwegian hardstyle duo famous for their high-energy, often playful tracks.",
       "fun_fact_de": "Da Tweekaz sind ein norwegisches Hardstyle-Duo, berühmt für energiegeladene, oft verspielte Tracks.",
@@ -4017,7 +4017,7 @@
         "it": "applemusic://track/1469191498"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=NKMfIXG9X6E",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/111595922",
       "uri_deezer": "deezer://track/698823322",
       "fun_fact": "Da Tweekaz are a Norwegian hardstyle duo famous for their high-energy, often playful tracks.",
       "fun_fact_de": "Da Tweekaz sind ein norwegisches Hardstyle-Duo, berühmt für energiegeladene, oft verspielte Tracks.",
@@ -4067,7 +4067,7 @@
         "it": "applemusic://track/1502459479"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=y4cGW0YulmQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/134068604",
       "uri_deezer": "deezer://track/901330192",
       "fun_fact": "Da Tweekaz are a Norwegian hardstyle duo famous for their high-energy, often playful tracks.",
       "fun_fact_de": "Da Tweekaz sind ein norwegisches Hardstyle-Duo, berühmt für energiegeladene, oft verspielte Tracks.",
@@ -4092,7 +4092,7 @@
         "it": "applemusic://track/1447117753"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=xPXDIOXUQZ8",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/101241839",
       "uri_deezer": "deezer://track/617578102",
       "fun_fact": "Da Tweekaz are a Norwegian hardstyle duo famous for their high-energy, often playful tracks.",
       "fun_fact_de": "Da Tweekaz sind ein norwegisches Hardstyle-Duo, berühmt für energiegeladene, oft verspielte Tracks.",
@@ -4117,7 +4117,7 @@
         "it": "applemusic://track/1112717349"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=cw6wL9_P6FI",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/60271304",
       "uri_deezer": "deezer://track/124990244",
       "fun_fact": "A hardstyle / hardcore track (2016).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2016).",
@@ -4142,7 +4142,7 @@
         "it": "applemusic://track/1759935260"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=0ztuzPUbm_o",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/378177816",
       "uri_deezer": "deezer://track/2923786481",
       "fun_fact": "A hardstyle / hardcore track (2024).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2024).",
@@ -4167,7 +4167,7 @@
         "it": "applemusic://track/1506791082"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=pBmnEZ1brCY",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/136369677",
       "uri_deezer": "deezer://track/920218642",
       "fun_fact": "Harris & Ford are an Austrian DJ duo bridging hardstyle, techno and party anthems.",
       "fun_fact_de": "Harris & Ford sind ein österreichisches DJ-Duo zwischen Hardstyle, Techno und Party-Hymnen.",
@@ -4192,7 +4192,7 @@
         "it": "applemusic://track/1749783604"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=t_-G6lJbTew",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/366814891",
       "uri_deezer": "deezer://track/2828734612",
       "fun_fact": "Gunz For Hire is the hardstyle duo of Ran-D and Adaro, known for dark, raw-edged anthems.",
       "fun_fact_de": "Gunz For Hire ist das Hardstyle-Duo aus Ran-D und Adaro, bekannt für düstere, raue Hymnen.",
@@ -4217,7 +4217,7 @@
         "it": "applemusic://track/1804139334"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=Ke1vaxgf-i4",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/13467719",
       "uri_deezer": "deezer://track/3289616621",
       "fun_fact": "Ran-D is a Dutch hardstyle artist, also one half of the duo Gunz For Hire.",
       "fun_fact_de": "Ran-D ist ein niederländischer Hardstyle-Künstler und zugleich eine Hälfte des Duos Gunz For Hire.",
@@ -4242,7 +4242,7 @@
         "it": "applemusic://track/1747485184"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=G2R0AEKJhZA",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/364533123",
       "uri_deezer": "deezer://track/2812228322",
       "fun_fact": "Ran-D is a Dutch hardstyle artist, also one half of the duo Gunz For Hire.",
       "fun_fact_de": "Ran-D ist ein niederländischer Hardstyle-Künstler und zugleich eine Hälfte des Duos Gunz For Hire.",
@@ -4256,7 +4256,7 @@
       "year": 2024,
       "isrc": "USA2P2400485",
       "uri": "spotify:track:6WQ6qMoJLgScf6kpj1Uudc",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1724222807",
       "uri_apple_music_by_region": {
         "us": null,
         "de": "applemusic://track/1724222807",
@@ -4267,7 +4267,7 @@
         "it": "applemusic://track/1724222807"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=FMNvE4wI8os",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/338361966",
       "uri_deezer": "deezer://track/2608552372",
       "fun_fact": "Harris & Ford are an Austrian DJ duo bridging hardstyle, techno and party anthems.",
       "fun_fact_de": "Harris & Ford sind ein österreichisches DJ-Duo zwischen Hardstyle, Techno und Party-Hymnen.",
@@ -4292,7 +4292,7 @@
         "it": "applemusic://track/1705706586"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=6hKrqkp0B70",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/314523345",
       "uri_deezer": "deezer://track/2440721905",
       "fun_fact": "Harris & Ford are an Austrian DJ duo bridging hardstyle, techno and party anthems.",
       "fun_fact_de": "Harris & Ford sind ein österreichisches DJ-Duo zwischen Hardstyle, Techno und Party-Hymnen.",
@@ -4317,7 +4317,7 @@
         "it": "applemusic://track/1688359515"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=Ltpr95L4U0I",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/271096564",
       "uri_deezer": "deezer://track/2106063717",
       "fun_fact": "Coone is a Belgian hardstyle DJ and founder of the Dirty Workz label.",
       "fun_fact_de": "Coone ist ein belgischer Hardstyle-DJ und Gründer des Labels Dirty Workz.",
@@ -4342,8 +4342,8 @@
         "it": "applemusic://track/1646936817"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=8Jw41oS_scU",
-      "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_tidal": "tidal://track/250412451",
+      "uri_deezer": "deezer://track/1951186317",
       "fun_fact": "A hardstyle / hardcore track (2022).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2022).",
       "fun_fact_es": "Un tema de hardstyle / hardcore (2022).",
@@ -4367,7 +4367,7 @@
         "it": "applemusic://track/1609628247"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=McLt8JUQ-rc",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/216365790",
       "uri_deezer": "deezer://track/1652997052",
       "fun_fact": "A hardstyle / hardcore track (2022).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2022).",
@@ -4417,7 +4417,7 @@
         "it": "applemusic://track/1455239880"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=zZW69hkFQvE",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/105261214",
       "uri_deezer": "deezer://track/643926522",
       "fun_fact": "Harris & Ford are an Austrian DJ duo bridging hardstyle, techno and party anthems.",
       "fun_fact_de": "Harris & Ford sind ein österreichisches DJ-Duo zwischen Hardstyle, Techno und Party-Hymnen.",
@@ -4442,7 +4442,7 @@
         "it": "applemusic://track/1664197790"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=D94p7WxpmLo",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/154155044",
       "uri_deezer": "deezer://track/1069790362",
       "fun_fact": "Da Tweekaz are a Norwegian hardstyle duo famous for their high-energy, often playful tracks.",
       "fun_fact_de": "Da Tweekaz sind ein norwegisches Hardstyle-Duo, berühmt für energiegeladene, oft verspielte Tracks.",
@@ -4467,7 +4467,7 @@
         "it": "applemusic://track/1607300766"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=U9fsjv5KrkQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/196978045",
       "uri_deezer": "deezer://track/3287428361",
       "fun_fact": "A hardstyle / hardcore track (2021).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2021).",
@@ -4492,7 +4492,7 @@
         "it": "applemusic://track/1805171154"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=M9n0ETlFlLk",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/98530891",
       "uri_deezer": "deezer://track/3287361441",
       "fun_fact": "The Prophet is a Dutch DJ and a pioneering figure of hardstyle and its early hardcore roots.",
       "fun_fact_de": "The Prophet ist ein niederländischer DJ und eine Pionierfigur des Hardstyle.",
@@ -4517,7 +4517,7 @@
         "it": "applemusic://track/1530852613"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=f_CVpr-Xx5o",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/154693526",
       "uri_deezer": "deezer://track/1074414432",
       "fun_fact": "A hardstyle / hardcore track (2020).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2020).",
@@ -4541,8 +4541,8 @@
         "nl": "applemusic://track/1740386319",
         "it": "applemusic://track/1740386319"
       },
-      "uri_youtube_music": "https://music.youtube.com/watch?v=rHzREJhrX9s",
-      "uri_tidal": null,
+      "uri_youtube_music": "https://music.youtube.com/watch?v=qatArIFBIOQ",
+      "uri_tidal": "tidal://track/352187428",
       "uri_deezer": "deezer://track/2714092902",
       "fun_fact": "Headhunterz is one of the most influential hardstyle artists of all time.",
       "fun_fact_de": "Headhunterz zählt zu den einflussreichsten Hardstyle-Künstlern überhaupt.",
@@ -4566,8 +4566,8 @@
         "nl": "applemusic://track/1740387192",
         "it": "applemusic://track/1740387192"
       },
-      "uri_youtube_music": "https://music.youtube.com/watch?v=qkz8vv4nprg",
-      "uri_tidal": null,
+      "uri_youtube_music": "https://music.youtube.com/watch?v=mrrE0-bMhO8",
+      "uri_tidal": "tidal://track/352186940",
       "uri_deezer": "deezer://track/2714091742",
       "fun_fact": "Sub Zero Project is a Dutch hardstyle duo known for their raw-edged festival anthems.",
       "fun_fact_de": "Sub Zero Project ist ein niederländisches Hardstyle-Duo, bekannt für rohe Festival-Hymnen.",
@@ -4592,7 +4592,7 @@
         "it": "applemusic://track/1704855471"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=_jnqpGHi68A",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/313459832",
       "uri_deezer": "deezer://track/2431155005",
       "fun_fact": "Rebelion is a Dutch act at the raw, hard end of the hardstyle spectrum.",
       "fun_fact_de": "Rebelion ist ein niederländischer Act am rohen, harten Ende des Hardstyle-Spektrums.",
@@ -4617,7 +4617,7 @@
         "it": "applemusic://track/1622831439"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=g6fCJotUAXg",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/227811651",
       "uri_deezer": "deezer://track/1743182497",
       "fun_fact": "Da Tweekaz are a Norwegian hardstyle duo famous for their high-energy, often playful tracks.",
       "fun_fact_de": "Da Tweekaz sind ein norwegisches Hardstyle-Duo, berühmt für energiegeladene, oft verspielte Tracks.",
@@ -4642,7 +4642,7 @@
         "it": "applemusic://track/1531960577"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=8kq2No15Mt0",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/128789999",
       "uri_deezer": "deezer://track/1131497132",
       "fun_fact": "Brennan Heart is a veteran Dutch hardstyle artist and founder of the WE R label.",
       "fun_fact_de": "Brennan Heart ist ein erfahrener niederländischer Hardstyle-Künstler und Gründer des Labels WE R.",
@@ -4666,8 +4666,8 @@
         "nl": "applemusic://track/1728077902",
         "it": "applemusic://track/1728077902"
       },
-      "uri_youtube_music": "https://music.youtube.com/watch?v=sKzLfRKZfy4",
-      "uri_tidal": null,
+      "uri_youtube_music": "https://music.youtube.com/watch?v=w_Sb-QFJa1k",
+      "uri_tidal": "tidal://track/339703176",
       "uri_deezer": "deezer://track/2618543312",
       "fun_fact": "Phuture Noize is a Dutch hardstyle artist known for concept albums and cinematic productions.",
       "fun_fact_de": "Phuture Noize ist ein niederländischer Hardstyle-Künstler, bekannt für Konzeptalben und cineastische Produktionen.",
@@ -4692,7 +4692,7 @@
         "it": "applemusic://track/1740406698"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=IxaKgYmGjDQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/352186374",
       "uri_deezer": "deezer://track/2714087542",
       "fun_fact": "A hardstyle / hardcore track (2022).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2022).",
@@ -4717,7 +4717,7 @@
         "it": "applemusic://track/1764374646"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=UFanQiA57RQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/382763788",
       "uri_deezer": "deezer://track/2958936031",
       "fun_fact": "Sub Zero Project is a Dutch hardstyle duo known for their raw-edged festival anthems.",
       "fun_fact_de": "Sub Zero Project ist ein niederländisches Hardstyle-Duo, bekannt für rohe Festival-Hymnen.",
@@ -4742,7 +4742,7 @@
         "it": "applemusic://track/1784504277"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=055VRTYrwOo",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/382830231",
       "uri_deezer": "deezer://track/2959339881",
       "fun_fact": "Brennan Heart is a veteran Dutch hardstyle artist and founder of the WE R label.",
       "fun_fact_de": "Brennan Heart ist ein erfahrener niederländischer Hardstyle-Künstler und Gründer des Labels WE R.",
@@ -4767,7 +4767,7 @@
         "it": "applemusic://track/1678969827"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=gY1XIvLQKX0",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/283625589",
       "uri_deezer": "deezer://track/2200054497",
       "fun_fact": "Sub Zero Project is a Dutch hardstyle duo known for their raw-edged festival anthems.",
       "fun_fact_de": "Sub Zero Project ist ein niederländisches Hardstyle-Duo, bekannt für rohe Festival-Hymnen.",
@@ -4792,7 +4792,7 @@
         "it": "applemusic://track/1520407295"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=8rSixk9quSU",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/146548193",
       "uri_deezer": "deezer://track/1003518122",
       "fun_fact": "Sub Zero Project is a Dutch hardstyle duo known for their raw-edged festival anthems.",
       "fun_fact_de": "Sub Zero Project ist ein niederländisches Hardstyle-Duo, bekannt für rohe Festival-Hymnen.",
@@ -4817,7 +4817,7 @@
         "it": "applemusic://track/1609632256"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=rgCngYHUlIQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/216338547",
       "uri_deezer": "deezer://track/1652805712",
       "fun_fact": "A hardstyle / hardcore track (2022).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2022).",
@@ -4842,7 +4842,7 @@
         "it": "applemusic://track/1596785371"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=hoLDVyIkLEE",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/206198460",
       "uri_deezer": "deezer://track/1562849872",
       "fun_fact": "A hardstyle / hardcore track (2021).",
       "fun_fact_de": "Ein Hardstyle-/Hardcore-Track (2021).",
@@ -4867,7 +4867,7 @@
         "it": "applemusic://track/1495975252"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=nrxuDaIkC3s",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/121267210",
       "uri_deezer": "deezer://track/701889672",
       "fun_fact": "Headhunterz is one of the most influential hardstyle artists of all time.",
       "fun_fact_de": "Headhunterz zählt zu den einflussreichsten Hardstyle-Künstlern überhaupt.",
@@ -4892,7 +4892,7 @@
         "it": "applemusic://track/1718520200"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=ZQxsr5QvZgE",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/310378675",
       "uri_deezer": "deezer://track/2407232155",
       "fun_fact": "Sub Zero Project is a Dutch hardstyle duo known for their raw-edged festival anthems.",
       "fun_fact_de": "Sub Zero Project ist ein niederländisches Hardstyle-Duo, bekannt für rohe Festival-Hymnen.",
@@ -4917,7 +4917,7 @@
         "it": "applemusic://track/1511162031"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=COAvbbHIv04",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/132755602",
       "uri_deezer": "deezer://track/889440482",
       "fun_fact": "Da Tweekaz are a Norwegian hardstyle duo famous for their high-energy, often playful tracks.",
       "fun_fact_de": "Da Tweekaz sind ein norwegisches Hardstyle-Duo, berühmt für energiegeladene, oft verspielte Tracks.",

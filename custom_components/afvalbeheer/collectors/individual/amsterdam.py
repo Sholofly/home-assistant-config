@@ -10,7 +10,7 @@ from ...models import WasteCollection
 from ...const import (
     WASTE_TYPE_BULKLITTER, WASTE_TYPE_GREEN, WASTE_TYPE_GREY, 
     WASTE_TYPE_PAPER, WASTE_TYPE_TEXTILE, WASTE_TYPE_GLASS, 
-    WASTE_TYPE_PMD_GREY
+    WASTE_TYPE_PMD_GREY, DEFAULT_REQUEST_TIMEOUT
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -70,9 +70,9 @@ class AmsterdamCollector(WasteCollector):
         filtered_params = {k: v for k, v in params.items() if v}
         query_string = '&'.join(f'{k}={v}' for k, v in filtered_params.items())
         get_url = f'{self.waste_collector_url}/?{query_string}'
-        test_response = requests.get(get_url)
+        test_response = requests.get(get_url, timeout=DEFAULT_REQUEST_TIMEOUT)
         is_valid = len(test_response.text) > 220
-        return is_valid, get_url
+        return is_valid, test_response
 
     def __init__(self, hass, waste_collector, postcode, street_number, suffix, custom_mapping):
         super().__init__(hass, waste_collector, postcode, street_number, suffix, custom_mapping)
@@ -99,15 +99,15 @@ class AmsterdamCollector(WasteCollector):
         # Try each suffix combination
         for suffix_param in suffix_params:
             params = {**base_params, **suffix_param}
-            test_result, get_url = self.check_response_for_suffix(params)
+            test_result, test_response = self.check_response_for_suffix(params)
             if test_result:
-                return requests.get(get_url)
+                return test_response
         
         # No suffix or all suffix attempts failed - use base parameters
         filtered_params = {k: v for k, v in base_params.items() if v}
         query_string = '&'.join(f'{k}={v}' for k, v in filtered_params.items())
         get_url = f'{self.waste_collector_url}/?{query_string}'
-        return requests.get(get_url)
+        return requests.get(get_url, timeout=DEFAULT_REQUEST_TIMEOUT)
 
     def _parse_date(self, date_str, today):
         """Parse date string with multiple format attempts."""

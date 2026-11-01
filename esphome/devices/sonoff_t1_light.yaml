@@ -9,7 +9,7 @@ binary_sensor:
       number: GPIO0
       mode: INPUT_PULLUP
       inverted: true
-    name: "${name} button"
+    name: button
     on_press:
       then:
         - light.toggle: ${id}_light
@@ -30,12 +30,12 @@ output:
 light:
   # ... and then make a light out of it.
   - platform: monochromatic
-    name: "${name} button"
+    name: LED
     output: blue_led
     id: ${id}_button
     #device_id: "${id}_device"
   - platform: binary
     id: ${id}_light
-    name: "${name}"
+    name: None
     output: relay
     #device_id: "${id}_device"

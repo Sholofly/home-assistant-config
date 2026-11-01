@@ -12,6 +12,7 @@ from homeassistant.components.sensor.const import SensorStateClass
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EntityCategory
 from homeassistant.const import UnitOfDataRate
+from homeassistant.const import UnitOfTime
 from homeassistant.core import HomeAssistant
 from homeassistant.core import callback
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
@@ -35,6 +36,14 @@ class TplinkDecoDiagnosticSensorDescription(SensorEntityDescription):
     """Description of a TP-Link Deco diagnostic sensor."""
 
     value_fn: Callable[[TpLinkDeco], Any]
+
+
+@dataclass(frozen=True, kw_only=True)
+class TplinkCoordinatorHealthSensorDescription(SensorEntityDescription):
+    """Description of a coordinator health sensor."""
+
+    coordinator_key: str
+    value_fn: Callable[[Any], Any]
 
 
 DIAGNOSTIC_SENSOR_DESCRIPTIONS: tuple[TplinkDecoDiagnosticSensorDescription, ...] = (
@@ -125,6 +134,84 @@ DIAGNOSTIC_SENSOR_DESCRIPTIONS: tuple[TplinkDecoDiagnosticSensorDescription, ...
 )
 
 
+COORDINATOR_HEALTH_SENSOR_DESCRIPTIONS: tuple[
+    TplinkCoordinatorHealthSensorDescription, ...
+] = (
+    TplinkCoordinatorHealthSensorDescription(
+        key="deco_last_successful_update",
+        name="Deco last successful update",
+        coordinator_key=COORDINATOR_DECOS_KEY,
+        device_class=SensorDeviceClass.TIMESTAMP,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_registry_enabled_default=False,
+        value_fn=lambda coordinator: coordinator.health.last_successful_update,
+    ),
+    TplinkCoordinatorHealthSensorDescription(
+        key="deco_response_time",
+        name="Deco API response time",
+        coordinator_key=COORDINATOR_DECOS_KEY,
+        device_class=SensorDeviceClass.DURATION,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_registry_enabled_default=False,
+        native_unit_of_measurement=UnitOfTime.MILLISECONDS,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda coordinator: coordinator.health.response_time_ms,
+    ),
+    TplinkCoordinatorHealthSensorDescription(
+        key="deco_last_error",
+        name="Deco last error",
+        coordinator_key=COORDINATOR_DECOS_KEY,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_registry_enabled_default=False,
+        value_fn=lambda coordinator: coordinator.health.last_error,
+    ),
+    TplinkCoordinatorHealthSensorDescription(
+        key="client_last_successful_update",
+        name="Client last successful update",
+        coordinator_key=COORDINATOR_CLIENTS_KEY,
+        device_class=SensorDeviceClass.TIMESTAMP,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_registry_enabled_default=False,
+        value_fn=lambda coordinator: coordinator.health.last_successful_update,
+    ),
+    TplinkCoordinatorHealthSensorDescription(
+        key="client_response_time",
+        name="Client API response time",
+        coordinator_key=COORDINATOR_CLIENTS_KEY,
+        device_class=SensorDeviceClass.DURATION,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_registry_enabled_default=False,
+        native_unit_of_measurement=UnitOfTime.MILLISECONDS,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda coordinator: coordinator.health.response_time_ms,
+    ),
+    TplinkCoordinatorHealthSensorDescription(
+        key="client_timeout_count",
+        name="Client timeouts",
+        coordinator_key=COORDINATOR_CLIENTS_KEY,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_registry_enabled_default=False,
+        value_fn=lambda coordinator: coordinator.health.timeout_count,
+    ),
+    TplinkCoordinatorHealthSensorDescription(
+        key="client_query_mode",
+        name="Client query mode",
+        coordinator_key=COORDINATOR_CLIENTS_KEY,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_registry_enabled_default=False,
+        value_fn=lambda coordinator: coordinator.client_query_mode,
+    ),
+    TplinkCoordinatorHealthSensorDescription(
+        key="client_last_error",
+        name="Client last error",
+        coordinator_key=COORDINATOR_CLIENTS_KEY,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_registry_enabled_default=False,
+        value_fn=lambda coordinator: coordinator.health.last_error,
+    ),
+)
+
+
 async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities
 ):
@@ -163,14 +250,6 @@ async def async_setup_entry(
         ]
 
         if deco is not None:
-            entities.append(
-                TplinkDecoClientCountSensor(
-                    coordinator_decos,
-                    coordinator_clients,
-                    deco.mac,
-                )
-            )
-
             for description in DIAGNOSTIC_SENSOR_DESCRIPTIONS:
                 value = description.value_fn(deco)
 
@@ -188,6 +267,7 @@ async def async_setup_entry(
         async_add_entities(entities)
 
     tracked_decos = set()
+    client_count_tracked_decos = set()
     total_added = False
 
     @callback
@@ -200,6 +280,16 @@ async def async_setup_entry(
         # so (re)try adding them whenever decos are discovered.
         if not total_added and coordinator_decos.data.master_deco is not None:
             add_sensors_for_deco(None)  # Total sensors
+            master_deco = coordinator_decos.data.master_deco
+            async_add_entities(
+                TplinkCoordinatorHealthSensor(
+                    coordinator_decos,
+                    data[description.coordinator_key],
+                    master_deco.mac,
+                    description,
+                )
+                for description in COORDINATOR_HEALTH_SENSOR_DESCRIPTIONS
+            )
             total_added = True
 
         for mac, deco in coordinator_decos.data.decos.items():
@@ -213,6 +303,34 @@ async def async_setup_entry(
             tracked_decos.add(mac)
 
     add_untracked_deco_sensors()
+
+    @callback
+    def add_untracked_client_count_sensors():
+        """Add client count sensors after the first successful client refresh."""
+        if not coordinator_clients.has_successful_refresh:
+            return
+
+        entities = []
+        for mac in coordinator_decos.data.decos:
+            if mac in client_count_tracked_decos:
+                continue
+
+            entities.append(
+                TplinkDecoClientCountSensor(
+                    coordinator_decos,
+                    coordinator_clients,
+                    mac,
+                )
+            )
+            client_count_tracked_decos.add(mac)
+
+        if entities:
+            async_add_entities(entities)
+
+    coordinator_clients.on_close(
+        coordinator_clients.async_add_listener(add_untracked_client_count_sensors)
+    )
+    add_untracked_client_count_sensors()
 
     coordinator_decos.on_close(
         async_dispatcher_connect(hass, SIGNAL_DECO_ADDED, add_untracked_deco_sensors)
@@ -247,7 +365,9 @@ class TplinkTotalClientDataRateSensor(CoordinatorEntity, SensorEntity):
     def device_info(self) -> DeviceInfo:
         """Return device info."""
         master_deco = self._coordinator_decos.data.master_deco
-        return create_device_info(self._deco or master_deco, master_deco)
+        return create_device_info(
+            self._deco or master_deco, master_deco, self._coordinator_decos
+        )
 
     @callback
     async def async_on_demand_update(self):
@@ -275,6 +395,7 @@ class TplinkDecoClientCountSensor(CoordinatorEntity, SensorEntity):
     _attr_has_entity_name = True
     _attr_name = "Connected clients"
     _attr_entity_category = EntityCategory.DIAGNOSTIC
+    _attr_state_class = SensorStateClass.MEASUREMENT
 
     def __init__(
         self,
@@ -288,6 +409,11 @@ class TplinkDecoClientCountSensor(CoordinatorEntity, SensorEntity):
         super().__init__(coordinator_clients)
         self._update_state()
 
+    async def async_added_to_hass(self) -> None:
+        """Update state after the coordinator listener is registered."""
+        await super().async_added_to_hass()
+        self._update_state()
+
     @property
     def _deco(self) -> TpLinkDeco:
         """Return current deco object."""
@@ -296,7 +422,11 @@ class TplinkDecoClientCountSensor(CoordinatorEntity, SensorEntity):
     @property
     def device_info(self) -> DeviceInfo:
         """Return device info."""
-        return create_device_info(self._deco, self._coordinator_decos.data.master_deco)
+        return create_device_info(
+            self._deco,
+            self._coordinator_decos.data.master_deco,
+            self._coordinator_decos,
+        )
 
     @callback
     def _handle_coordinator_update(self) -> None:
@@ -308,7 +438,7 @@ class TplinkDecoClientCountSensor(CoordinatorEntity, SensorEntity):
         """Update sensor state."""
         count = 0
         for client in self.coordinator.data.values():
-            if client.deco_mac == self._deco_mac:
+            if client.deco_mac == self._deco_mac and client.online:
                 count += 1
         self._attr_native_value = count
 
@@ -339,7 +469,9 @@ class TplinkDecoDiagnosticSensor(CoordinatorEntity, SensorEntity):
     @property
     def device_info(self) -> DeviceInfo:
         """Return device info."""
-        return create_device_info(self._deco, self.coordinator.data.master_deco)
+        return create_device_info(
+            self._deco, self.coordinator.data.master_deco, self.coordinator
+        )
 
     @property
     def native_value(self):
@@ -347,3 +479,39 @@ class TplinkDecoDiagnosticSensor(CoordinatorEntity, SensorEntity):
         if value is None or value == "" or value == []:
             return None
         return value
+
+
+class TplinkCoordinatorHealthSensor(CoordinatorEntity, SensorEntity):
+    """TP-Link Deco coordinator health sensor entity."""
+
+    entity_description: TplinkCoordinatorHealthSensorDescription
+    _attr_has_entity_name = True
+
+    def __init__(
+        self,
+        coordinator_decos: TplinkDecoUpdateCoordinator,
+        coordinator,
+        master_deco_mac: str,
+        description: TplinkCoordinatorHealthSensorDescription,
+    ) -> None:
+        super().__init__(coordinator)
+        self._coordinator_decos = coordinator_decos
+        self._master_deco_mac = master_deco_mac
+        self.entity_description = description
+        self._attr_unique_id = f"{master_deco_mac}_{description.key}"
+
+    @property
+    def available(self) -> bool:
+        """Keep health diagnostics available when an update fails."""
+        return True
+
+    @property
+    def device_info(self) -> DeviceInfo:
+        """Return device info for the master Deco."""
+        master_deco = self._coordinator_decos.data.decos[self._master_deco_mac]
+        return create_device_info(master_deco, master_deco, self._coordinator_decos)
+
+    @property
+    def native_value(self):
+        """Return the current coordinator health value."""
+        return self.entity_description.value_fn(self.coordinator)

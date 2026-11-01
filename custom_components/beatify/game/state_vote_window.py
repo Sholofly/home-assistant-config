@@ -70,10 +70,12 @@ from custom_components.beatify.const import (
     TITLE_ARTIST_VOTE_WINDOW_SECONDS,
 )
 
+from .state_contract import GameStateBase
+
 _LOGGER = logging.getLogger(__name__)
 
 
-class VoteWindowMixin:
+class VoteWindowMixin(GameStateBase):
     """Title & Artist REVEAL vote-window behavior for :class:`GameState`.
 
     See module docstring for the host-class attributes this mixin reads/writes.
@@ -106,7 +108,59 @@ class VoteWindowMixin:
             self._title_artist_voting_open = False
             self._title_artist_vote_deadline = None
 
-    async def _title_artist_vote_window(self, window_seconds: int) -> None:
+    def all_crowd_court_votes_in(self) -> bool:
+        """True when every eligible voter has voted on every near-miss (#1667).
+
+        The vote window's job is to give the room time to weigh in; once the
+        room has, waiting out the rest of the 30 s is dead air. This is the
+        same idea as ``all_submitted`` for guesses, applied to the REVEAL vote.
+
+        Eligibility mirrors the two rules the WS handler already enforces:
+
+        * **Active players only.** Uses ``is_active`` rather than the raw
+          ``connected`` flag, so a stale ghost (closed socket not yet reaped,
+          #928) cannot hold the whole room hostage — and eliminated players
+          (#827) are out, exactly as in ``PlayerRegistry.all_submitted``.
+        * **No self-votes.** ``guessing.py`` rejects a vote on one's own
+          near-miss, so the owner is not counted as an eligible voter for it.
+          Counting them would make early resolve unreachable for any near-miss.
+
+        Returns False when there is nothing to decide (no near-misses, or a
+        near-miss whose only possible voter is its own owner) — the caller then
+        simply lets the timer run, which is the pre-#1667 behaviour and never
+        resolves *earlier* than the host expects.
+        """
+        near_misses = self.get_near_misses()
+        if not near_misses:
+            return False
+        active = [
+            p.name
+            for p in self.players.values()
+            if getattr(p, "is_active", False) and not p.eliminated
+        ]
+        if not active:
+            return False
+        # get_near_misses() already returns [] without an active challenge, so
+        # this cannot be None here — read defensively anyway, because a future
+        # caller reaching this method by another path should not crash REVEAL.
+        challenge = self._challenge_manager.title_artist_challenge
+        if challenge is None:
+            return False
+        votes = challenge.votes
+        for near_miss in near_misses:
+            owner = near_miss["id"].rsplit(":", 1)[0]
+            eligible = [name for name in active if name != owner]
+            if not eligible:
+                # Solo game, or the only other players left. Nobody may vote on
+                # this one, so "everyone has voted" can never become true —
+                # fall back to the timer instead of resolving instantly.
+                return False
+            cast = votes.get(near_miss["id"], {})
+            if any(name not in cast for name in eligible):
+                return False
+        return True
+
+    async def _title_artist_vote_window(self, window_seconds: float) -> None:
         """Hold REVEAL open for community voting, then resolve (#1180 P4).
 
         Sleeps in short polls so a manual host-advance / pause / end can
@@ -125,8 +179,22 @@ class VoteWindowMixin:
                 elapsed += poll
                 if self.phase != GamePhase.REVEAL:
                     return  # advanced / paused / ended elsewhere
-            # Window expired naturally — clear the handle first so a manual
-            # start_round's _cancel_auto_advance() can't cancel this task.
+                # #1667: everyone eligible has voted — resolve now instead of
+                # staring at a countdown nobody is going to change. Checked in
+                # the existing poll rather than pushed from the vote handler on
+                # purpose: no second task, no new cancellation path, and the
+                # worst case is resolving up to one poll (0.5 s) late.
+                if self.all_crowd_court_votes_in():
+                    _LOGGER.debug(
+                        "Crowd-Court: all votes in after %.1fs of %ss — "
+                        "resolving early (#1667)",
+                        elapsed,
+                        window_seconds,
+                    )
+                    break
+            # Window over — either expired naturally or every vote is in.
+            # Clear the handle first so a manual start_round's
+            # _cancel_auto_advance() can't cancel this task.
             self._auto_advance_task = None
             if self.phase != GamePhase.REVEAL:
                 return
@@ -136,6 +204,15 @@ class VoteWindowMixin:
                     await self._on_round_end()
                 except (ConnectionError, OSError, TypeError) as err:
                     _LOGGER.error("Vote-window broadcast failed: %s", err)
+            # #1755: opening the vote window took over the _auto_advance_task
+            # slot, so REVEAL is now parked with no song-end advance armed. Re-arm
+            # it so an unattended title/artist near-miss round still advances at
+            # song-end (never-stall invariant #1012) — and a final unattended
+            # round still reaches END — instead of holding on REVEAL until the
+            # host taps Next. Only re-arm while still in REVEAL (a manual advance
+            # or end during the broadcast would have moved the phase on).
+            if self.phase == GamePhase.REVEAL:
+                self._schedule_song_end_auto_advance()
         except asyncio.CancelledError:
             # #1359: defense in depth — when end_game/next_round/pause cancels
             # this task mid-window, clear the vote-window flags so they can't
@@ -164,6 +241,16 @@ class VoteWindowMixin:
         self._challenge_manager.resolve_title_artist()
         async with self._score_lock:
             await self._score_title_artist_round()
+            # #1747: the deferred title/artist scores are now final, so run the
+            # Sudden Death cut that _end_round_unlocked deferred for this path.
+            # Guarded by voting_open above so it runs exactly once per round (the
+            # host-advance and window-expiry races both resolve through here).
+            # Caller-held _score_lock is required by _apply_sudden_death_elimination.
+            self._apply_sudden_death_elimination()
+            # #1724: the deferred scores are now final too, so run the halfway
+            # comeback-token grant that _end_round_unlocked deferred for this
+            # path. Idempotent per game via the per-player granted flag.
+            self._maybe_grant_comeback_tokens()
 
     async def _score_title_artist_round(self) -> None:
         """Run the deferred title/artist scoring pass. Caller holds the lock.

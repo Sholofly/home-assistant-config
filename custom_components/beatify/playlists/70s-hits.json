@@ -1,6 +1,6 @@
 {
   "name": "70s Hits",
-  "version": "1.0",
+  "version": "1.26",
   "tags": [
     "1970s",
     "classic-rock",
@@ -30,7 +30,7 @@
         "it": "applemusic://track/1688481173"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=pa2j0Bh83ms",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/1771758",
       "uri_deezer": "deezer://track/884041",
       "fun_fact": "ABBA were a Swedish quartet — one of the best-selling pop acts in history.",
       "fun_fact_de": "ABBA waren ein schwedisches Quartett — einer der meistverkauften Pop-Acts der Geschichte.",
@@ -55,7 +55,7 @@
         "it": "applemusic://track/159293419"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=OvzJZTkWYoY",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/19994076",
       "uri_deezer": "deezer://track/15586286",
       "fun_fact": "A 70s classic (1979).",
       "fun_fact_de": "Ein 70er-Klassiker (1979).",
@@ -80,7 +80,7 @@
         "it": "applemusic://track/594061856"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=5oWyMakvQew",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/215115417",
       "uri_deezer": "deezer://track/63480987",
       "fun_fact": "Fleetwood Mac's 'Rumours'-era line-up made them one of the 70s' defining bands.",
       "fun_fact_de": "Fleetwood Mac wurden in der 'Rumours'-Ära zu einer der prägenden Bands der 70er.",
@@ -105,7 +105,7 @@
         "it": "applemusic://track/1685073147"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=B2mmDEv0OEk",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/106028079",
       "uri_deezer": "deezer://track/487484142",
       "fun_fact": "Earth, Wind & Fire fused funk, soul and disco into era-defining anthems.",
       "fun_fact_de": "Earth, Wind & Fire verschmolzen Funk, Soul und Disco zu epochalen Hymnen.",
@@ -130,7 +130,7 @@
         "it": "applemusic://track/1692224581"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=0X2mn7Sk9lQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/1771757",
       "uri_deezer": "deezer://track/884040",
       "fun_fact": "ABBA were a Swedish quartet — one of the best-selling pop acts in history.",
       "fun_fact_de": "ABBA waren ein schwedisches Quartett — einer der meistverkauften Pop-Acts der Geschichte.",
@@ -155,7 +155,7 @@
         "it": "applemusic://track/6762960807"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=Xwy-3aI435o",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/77701512",
       "uri_deezer": "deezer://track/883644",
       "fun_fact": "Creedence Clearwater Revival defined American roots-rock.",
       "fun_fact_de": "Creedence Clearwater Revival prägten den amerikanischen Roots-Rock.",
@@ -180,7 +180,7 @@
         "it": "applemusic://track/574044008"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=ikFFVfObwss",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/35986116",
       "uri_deezer": "deezer://track/92719900",
       "fun_fact": "AC/DC are an Australian hard-rock band, loud and unmistakable since the 70s.",
       "fun_fact_de": "AC/DC sind eine australische Hard-Rock-Band — laut und unverwechselbar seit den 70ern.",
@@ -205,7 +205,7 @@
         "it": "applemusic://track/1831762909"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=iLC-tHvkNvI",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/20501436",
       "uri_deezer": "deezer://track/63480992",
       "fun_fact": "Fleetwood Mac's 'Rumours'-era line-up made them one of the 70s' defining bands.",
       "fun_fact_de": "Fleetwood Mac wurden in der 'Rumours'-Ära zu einer der prägenden Bands der 70er.",
@@ -230,7 +230,7 @@
         "it": "applemusic://track/159293312"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=n3qQtSRmHxo",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/19994075",
       "uri_deezer": "deezer://track/15586296",
       "fun_fact": "A 70s classic (1979).",
       "fun_fact_de": "Ein 70er-Klassiker (1979).",
@@ -255,7 +255,7 @@
         "it": "applemusic://track/1690867826"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=YkLLcIKhJ64",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/1771745",
       "uri_deezer": "deezer://track/884025",
       "fun_fact": "ABBA were a Swedish quartet — one of the best-selling pop acts in history.",
       "fun_fact_de": "ABBA waren ein schwedisches Quartett — einer der meistverkauften Pop-Acts der Geschichte.",
@@ -280,7 +280,7 @@
         "it": "applemusic://track/1689087125"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=0mCb41XUcTg",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/277901",
       "uri_deezer": "deezer://track/720737",
       "fun_fact": "A 70s classic (1976).",
       "fun_fact_de": "Ein 70er-Klassiker (1976).",
@@ -305,7 +305,7 @@
         "it": "applemusic://track/6762706418"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=LB5uhCKrzVI",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/631304",
       "uri_deezer": "deezer://track/908011",
       "fun_fact": "A 70s classic (1979).",
       "fun_fact_de": "Ein 70er-Klassiker (1979).",
@@ -321,7 +321,7 @@
       "uri": "spotify:track:5ihS6UUlyQAfmp48eSkxuQ",
       "uri_apple_music": "applemusic://track/1308648844",
       "uri_apple_music_by_region": {
-        "us": null,
+        "us": "applemusic://track/1308648844",
         "de": "applemusic://track/309646673",
         "gb": "applemusic://track/309646673",
         "fr": "applemusic://track/309646673",
@@ -330,7 +330,7 @@
         "it": "applemusic://track/309646673"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=RAkOm7XLoQQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/2767843",
       "uri_deezer": "deezer://track/3599559",
       "fun_fact": "Fleetwood Mac's 'Rumours'-era line-up made them one of the 70s' defining bands.",
       "fun_fact_de": "Fleetwood Mac wurden in der 'Rumours'-Ära zu einer der prägenden Bands der 70er.",
@@ -346,7 +346,7 @@
       "uri": "spotify:track:37Tmv4NnfQeb0ZgUC4fOJj",
       "uri_apple_music": "applemusic://track/307029144",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/1768053411",
+        "us": "applemusic://track/307029144",
         "de": "applemusic://track/1440912581",
         "gb": "applemusic://track/1440912581",
         "fr": "applemusic://track/1440912581",
@@ -355,7 +355,7 @@
         "it": "applemusic://track/1440912581"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=cF3OWCYLLVQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/622359",
       "uri_deezer": "deezer://track/2263033",
       "fun_fact": "A 70s classic (1978).",
       "fun_fact_de": "Ein 70er-Klassiker (1978).",
@@ -380,7 +380,7 @@
         "it": "applemusic://track/1626468524"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=LLbew85exp0",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/8631995",
       "uri_deezer": "deezer://track/14333215",
       "fun_fact": "A 70s classic (1973).",
       "fun_fact_de": "Ein 70er-Klassiker (1973).",
@@ -405,7 +405,7 @@
         "it": "applemusic://track/1801925575"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=mSZXWdKSQNM",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/212211808",
       "uri_deezer": "deezer://track/727720",
       "fun_fact": "A 70s classic (1971).",
       "fun_fact_de": "Ein 70er-Klassiker (1971).",
@@ -422,15 +422,14 @@
       "uri_apple_music": "applemusic://track/1702759635",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1802959266",
-        "de": "applemusic://track/1802959266",
-        "gb": "applemusic://track/1802959266",
-        "fr": "applemusic://track/1802959266",
-        "es": "applemusic://track/1802959266",
-        "nl": "applemusic://track/1802959266",
-        "it": "applemusic://track/1802959266"
+        "de": "applemusic://track/6781079522",
+        "gb": "applemusic://track/6781080941",
+        "fr": "applemusic://track/6781080941",
+        "es": "applemusic://track/6781079522",
+        "nl": "applemusic://track/6781079522",
+        "it": "applemusic://track/6781079518"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=CczcMarUoVk",
-      "uri_tidal": null,
       "uri_deezer": "deezer://track/12209331",
       "fun_fact": "Queen were a British rock band fronted by the inimitable Freddie Mercury.",
       "fun_fact_de": "Queen waren eine britische Rockband mit dem unnachahmlichen Freddie Mercury am Mikrofon.",
@@ -455,7 +454,7 @@
         "it": "applemusic://track/1443233007"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=MEqjpgwPjVM",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/529738",
       "uri_deezer": "deezer://track/1143625",
       "fun_fact": "A 70s classic (1979).",
       "fun_fact_de": "Ein 70er-Klassiker (1979).",
@@ -480,7 +479,7 @@
         "it": "applemusic://track/1626469917"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=8jjbhrR15Y8",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/2098894",
       "uri_deezer": "deezer://track/2312047",
       "fun_fact": "A 70s classic (1971).",
       "fun_fact_de": "Ein 70er-Klassiker (1971).",
@@ -505,7 +504,7 @@
         "it": "applemusic://track/1625989511"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=irl89Gmcv8c",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/1809083",
       "uri_deezer": "deezer://track/968746",
       "fun_fact": "A 70s classic (1977).",
       "fun_fact_de": "Ein 70er-Klassiker (1977).",
@@ -530,7 +529,7 @@
         "it": "applemusic://track/1440910931"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=BdEe5SpdIuo",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/334634",
       "uri_deezer": "deezer://track/1144863",
       "fun_fact": "Elton John is a British singer-songwriter and one of pop's biggest careers.",
       "fun_fact_de": "Elton John ist ein britischer Singer-Songwriter mit einer der größten Pop-Karrieren.",
@@ -555,7 +554,7 @@
         "it": "applemusic://track/405601026"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=ufQUxoidxkM",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/33924910",
       "uri_deezer": "deezer://track/1037414",
       "fun_fact": "A 70s classic (1976).",
       "fun_fact_de": "Ein 70er-Klassiker (1976).",
@@ -580,7 +579,7 @@
         "it": "applemusic://track/1069036964"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=Ey8gm1W-e1Y",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/55391452",
       "uri_deezer": "deezer://track/116914094",
       "fun_fact": "Pink Floyd were a British band famed for their conceptual, immersive albums.",
       "fun_fact_de": "Pink Floyd waren eine britische Band, berühmt für ihre konzeptuellen, immersiven Alben.",
@@ -605,7 +604,7 @@
         "it": "applemusic://track/594061859"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=MTIkFwMuiTw",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/215115420",
       "uri_deezer": "deezer://track/63480990",
       "fun_fact": "Fleetwood Mac's 'Rumours'-era line-up made them one of the 70s' defining bands.",
       "fun_fact_de": "Fleetwood Mac wurden in der 'Rumours'-Ära zu einer der prägenden Bands der 70er.",
@@ -630,7 +629,7 @@
         "it": "applemusic://track/1578934918"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=iL-jC7XyLeo",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/77820570",
       "uri_deezer": "deezer://track/24949681",
       "fun_fact": "A 70s classic (1974).",
       "fun_fact_de": "Ein 70er-Klassiker (1974).",
@@ -655,7 +654,7 @@
         "it": "applemusic://track/1030801346"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=wuJIqmha2Hk",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/53230853",
       "uri_deezer": "deezer://track/112662184",
       "fun_fact": "Electric Light Orchestra blended rock with lush orchestral pop.",
       "fun_fact_de": "Electric Light Orchestra verband Rock mit üppigem Orchester-Pop.",
@@ -680,7 +679,7 @@
         "it": "applemusic://track/1737859453"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=z4R5crZylQ0",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/40482043",
       "uri_deezer": "deezer://track/75768727",
       "fun_fact": "A 70s classic (1973).",
       "fun_fact_de": "Ein 70er-Klassiker (1973).",
@@ -705,7 +704,7 @@
         "it": "applemusic://track/1891813116"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=iX_TFkut1PM",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/1325625",
       "uri_deezer": "deezer://track/3166505",
       "fun_fact": "A 70s classic (1971).",
       "fun_fact_de": "Ein 70er-Klassiker (1971).",
@@ -730,7 +729,7 @@
         "it": "applemusic://track/1685077864"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=DzXEos0xIQM",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/77139773",
       "uri_deezer": "deezer://track/392284592",
       "fun_fact": "A 70s classic (1973).",
       "fun_fact_de": "Ein 70er-Klassiker (1973).",
@@ -755,7 +754,7 @@
         "it": "applemusic://track/1626467846"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=PbpIyn70t8c",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/26703889",
       "uri_deezer": "deezer://track/27533081",
       "fun_fact": "Earth, Wind & Fire fused funk, soul and disco into era-defining anthems.",
       "fun_fact_de": "Earth, Wind & Fire verschmolzen Funk, Soul und Disco zu epochalen Hymnen.",
@@ -780,7 +779,7 @@
         "it": "applemusic://track/1688434083"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=jwikdkqYw6o",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/68493648",
       "uri_deezer": "deezer://track/350027751",
       "fun_fact": "The Bee Gees were the falsetto-driven heart of the disco era.",
       "fun_fact_de": "Die Bee Gees waren mit ihrem Falsett das Herz der Disco-Ära.",
@@ -805,7 +804,7 @@
         "it": "applemusic://track/779290473"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=f7jkXqzsYzU",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/20750059",
       "uri_deezer": "deezer://track/68116147",
       "fun_fact": "The Eagles are one of the best-selling American rock bands of all time.",
       "fun_fact_de": "Die Eagles zählen zu den meistverkauften amerikanischen Rockbands aller Zeiten.",
@@ -830,7 +829,7 @@
         "it": "applemusic://track/1350497718"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=aBKEt3MhNMM",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/51161410",
       "uri_deezer": "deezer://track/107471926",
       "fun_fact": "David Bowie was a British artist who reinvented rock again and again.",
       "fun_fact_de": "David Bowie war ein britischer Künstler, der Rock immer wieder neu erfand.",
@@ -855,7 +854,7 @@
         "it": "applemusic://track/1685072813"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=QCgeitX5xg0",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/45105672",
       "uri_deezer": "deezer://track/70016835",
       "fun_fact": "A 70s classic (1977).",
       "fun_fact_de": "Ein 70er-Klassiker (1977).",
@@ -880,7 +879,7 @@
         "it": "applemusic://track/575998664"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=NhsK5WExrnE",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/35986171",
       "uri_deezer": "deezer://track/92720006",
       "fun_fact": "AC/DC are an Australian hard-rock band, loud and unmistakable since the 70s.",
       "fun_fact_de": "AC/DC sind eine australische Hard-Rock-Band — laut und unverwechselbar seit den 70ern.",
@@ -905,7 +904,7 @@
         "it": "applemusic://track/1005702295"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=Bid6LmRU1d8",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/11335946",
       "uri_deezer": "deezer://track/72208034",
       "fun_fact": "A 70s classic (1978).",
       "fun_fact_de": "Ein 70er-Klassiker (1978).",
@@ -930,7 +929,7 @@
         "it": "applemusic://track/1440913387"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=VHK5k2ieudc",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/295903",
       "uri_deezer": "deezer://track/1162676",
       "fun_fact": "Elton John is a British singer-songwriter and one of pop's biggest careers.",
       "fun_fact_de": "Elton John ist ein britischer Singer-Songwriter mit einer der größten Pop-Karrieren.",
@@ -955,7 +954,7 @@
         "it": "applemusic://track/1862239887"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=44FId4BpMx0",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/482738028",
       "uri_deezer": "deezer://track/461043312",
       "fun_fact": "David Bowie was a British artist who reinvented rock again and again.",
       "fun_fact_de": "David Bowie war ein britischer Künstler, der Rock immer wieder neu erfand.",
@@ -971,7 +970,7 @@
       "uri": "spotify:track:7Ar4G7Ci11gpt6sfH9Cgz5",
       "uri_apple_music": "applemusic://track/1111354162",
       "uri_apple_music_by_region": {
-        "us": null,
+        "us": "applemusic://track/1111354162",
         "de": "applemusic://track/1412175625",
         "gb": "applemusic://track/1412175625",
         "fr": "applemusic://track/1412175625",
@@ -980,7 +979,7 @@
         "it": "applemusic://track/1412175625"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=S3ta4T9tIUM",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/4077471",
       "uri_deezer": "deezer://track/775032",
       "fun_fact": "A 70s classic (1972).",
       "fun_fact_de": "Ein 70er-Klassiker (1972).",
@@ -1005,7 +1004,7 @@
         "it": "applemusic://track/952586871"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=9fNrJMkTWEE",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/1273648",
       "uri_deezer": "deezer://track/855863",
       "fun_fact": "A 70s classic (1977).",
       "fun_fact_de": "Ein 70er-Klassiker (1977).",
@@ -1030,7 +1029,7 @@
         "it": "applemusic://track/1496696599"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=co2FK0WbXX0",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/574545",
       "uri_deezer": "deezer://track/2293791",
       "fun_fact": "A 70s classic (1978).",
       "fun_fact_de": "Ein 70er-Klassiker (1978).",
@@ -1055,7 +1054,7 @@
         "it": "applemusic://track/1757708487"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=tnV7dTXlXxs",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/186824867",
       "uri_deezer": "deezer://track/727733",
       "fun_fact": "A 70s classic (1972).",
       "fun_fact_de": "Ein 70er-Klassiker (1972).",
@@ -1080,7 +1079,7 @@
         "it": "applemusic://track/1441164738"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=atLK2RIZzWk",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/55130739",
       "uri_deezer": "deezer://track/116348656",
       "fun_fact": "A 70s classic (1970).",
       "fun_fact_de": "Ein 70er-Klassiker (1970).",
@@ -1094,7 +1093,7 @@
       "year": 1970,
       "isrc": "GBAMB9500072",
       "uri": "spotify:track:38zsOOcu31XbbYj9BIPUF1",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1440810937",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1567623707",
         "de": "applemusic://track/1443196007",
@@ -1105,7 +1104,7 @@
         "it": "applemusic://track/1567623707"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=FT3D1Cu6g10",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/470072",
       "uri_deezer": "deezer://track/880181",
       "fun_fact": "Elton John is a British singer-songwriter and one of pop's biggest careers.",
       "fun_fact_de": "Elton John ist ein britischer Singer-Songwriter mit einer der größten Pop-Karrieren.",
@@ -1130,7 +1129,7 @@
         "it": "applemusic://track/1892485401"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=WMl1xKJeuuQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/3958004",
       "uri_deezer": "deezer://track/2525861",
       "fun_fact": "A 70s classic (1979).",
       "fun_fact_de": "Ein 70er-Klassiker (1979).",
@@ -1155,7 +1154,7 @@
         "it": "applemusic://track/1718589636"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=KMViJKmAV4M",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/1771748",
       "uri_deezer": "deezer://track/884030",
       "fun_fact": "ABBA were a Swedish quartet — one of the best-selling pop acts in history.",
       "fun_fact_de": "ABBA waren ein schwedisches Quartett — einer der meistverkauften Pop-Acts der Geschichte.",
@@ -1180,7 +1179,7 @@
         "it": "applemusic://track/1760523407"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=lnc2ljZA3bk",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/2871015",
       "uri_deezer": "deezer://track/3169190",
       "fun_fact": "A 70s classic (1978).",
       "fun_fact_de": "Ein 70er-Klassiker (1978).",
@@ -1194,7 +1193,7 @@
       "year": 1970,
       "isrc": "USAT21300934",
       "uri": "spotify:track:78lgmZwycJ3nzsdgmPPGNx",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/580708280",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1714802067",
         "de": "applemusic://track/1600098678",
@@ -1205,7 +1204,7 @@
         "it": "applemusic://track/1600098678"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=y8OtzJtp-EM",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/30349437",
       "uri_deezer": "deezer://track/78652582",
       "fun_fact": "Led Zeppelin were a British band that shaped the sound of hard rock.",
       "fun_fact_de": "Led Zeppelin waren eine britische Band, die den Sound des Hard Rock prägte.",
@@ -1230,7 +1229,7 @@
         "it": "applemusic://track/1452666614"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=aqlGlaNlcWE",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/77652434",
       "uri_deezer": "deezer://track/1151503",
       "fun_fact": "Elton John is a British singer-songwriter and one of pop's biggest careers.",
       "fun_fact_de": "Elton John ist ein britischer Singer-Songwriter mit einer der größten Pop-Karrieren.",
@@ -1255,7 +1254,7 @@
         "it": "applemusic://track/1680763015"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=PC2HkP5gR2g",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/636411",
       "uri_deezer": "deezer://track/1581601",
       "fun_fact": "A 70s classic (1975).",
       "fun_fact_de": "Ein 70er-Klassiker (1975).",
@@ -1280,7 +1279,7 @@
         "it": "applemusic://track/1562846160"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=xrR8LT2LX_w",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/207292",
       "uri_deezer": "deezer://track/3616306",
       "fun_fact": "A 70s classic (1976).",
       "fun_fact_de": "Ein 70er-Klassiker (1976).",
@@ -1294,18 +1293,17 @@
       "year": 1977,
       "isrc": "GBUM71029618",
       "uri": "spotify:track:4pbJqGIASGPr0ZpGpnWkDn",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/6781074741",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/1889970941",
-        "de": "applemusic://track/1889970941",
-        "gb": "applemusic://track/1440752502",
-        "fr": "applemusic://track/1889970941",
-        "es": "applemusic://track/1889970941",
-        "nl": "applemusic://track/1889970941",
-        "it": "applemusic://track/1889970941"
+        "us": "applemusic://track/6781074741",
+        "de": "applemusic://track/6781081101",
+        "gb": "applemusic://track/6781081101",
+        "fr": "applemusic://track/6781081101",
+        "es": "applemusic://track/6781027660",
+        "nl": "applemusic://track/6781081101",
+        "it": "applemusic://track/6781080737"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=tsTH9TpxU_Y",
-      "uri_tidal": null,
       "uri_deezer": "deezer://track/12206933",
       "fun_fact": "Queen were a British rock band fronted by the inimitable Freddie Mercury.",
       "fun_fact_de": "Queen waren eine britische Rockband mit dem unnachahmlichen Freddie Mercury am Mikrofon.",
@@ -1319,7 +1317,7 @@
       "year": 1978,
       "isrc": "GBCJN7800009",
       "uri": "spotify:track:77oU2rjC5XbjQfNe3bD6so",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1440817036",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/6767663130",
         "de": "applemusic://track/6767663130",
@@ -1330,7 +1328,7 @@
         "it": "applemusic://track/6767663130"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=RlV-ZFyVH3c",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/10212763",
       "uri_deezer": "deezer://track/14458095",
       "fun_fact": "The Rolling Stones are the archetypal British rock'n'roll band.",
       "fun_fact_de": "The Rolling Stones sind die archetypische britische Rock'n'Roll-Band.",
@@ -1355,7 +1353,7 @@
         "it": "applemusic://track/1652668818"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=ZBUW433Porw",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/77611091",
       "uri_deezer": "deezer://track/75859735",
       "fun_fact": "Elton John is a British singer-songwriter and one of pop's biggest careers.",
       "fun_fact_de": "Elton John ist ein britischer Singer-Songwriter mit einer der größten Pop-Karrieren.",
@@ -1380,7 +1378,7 @@
         "it": "applemusic://track/1567623701"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=rAn-AWXtHv0",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/4505189",
       "uri_deezer": "deezer://track/7193834",
       "fun_fact": "A 70s classic (1971).",
       "fun_fact_de": "Ein 70er-Klassiker (1971).",
@@ -1394,7 +1392,7 @@
       "year": 1972,
       "isrc": "GBAAM7200002",
       "uri": "spotify:track:3Vby4nGmtbDo7HDJamOWkT",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1440847524",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1631229312",
         "de": "applemusic://track/1631229312",
@@ -1405,7 +1403,7 @@
         "it": "applemusic://track/1631229312"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=ln7Vn_WKkWU",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/89377441",
       "uri_deezer": "deezer://track/1577612",
       "fun_fact": "A 70s classic (1972).",
       "fun_fact_de": "Ein 70er-Klassiker (1972).",
@@ -1419,7 +1417,7 @@
       "year": 1972,
       "isrc": "USEE19900883",
       "uri": "spotify:track:2DnJjbjNTV9Nd5NOa1KGba",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1057307827",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1547806856",
         "de": "applemusic://track/1786556144",
@@ -1430,7 +1428,7 @@
         "it": "applemusic://track/1786556144"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=cleCtBP0o5Y",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/1554383",
       "uri_deezer": "deezer://track/766109",
       "fun_fact": "A 70s classic (1972).",
       "fun_fact_de": "Ein 70er-Klassiker (1972).",
@@ -1444,18 +1442,17 @@
       "year": 1979,
       "isrc": "GBUM71029612",
       "uri": "spotify:track:6xdLJrVj4vIXwhuG8TMopk",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/6781075005",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/6762962944",
-        "de": "applemusic://track/6762962944",
-        "gb": "applemusic://track/6762962944",
-        "fr": "applemusic://track/6762962944",
-        "es": "applemusic://track/6762962944",
-        "nl": "applemusic://track/6762962944",
-        "it": "applemusic://track/6762962944"
+        "us": "applemusic://track/6781075005",
+        "de": "applemusic://track/6781076401",
+        "gb": "applemusic://track/6781080943",
+        "fr": "applemusic://track/6781076401",
+        "es": "applemusic://track/6781080943",
+        "nl": "applemusic://track/6781076401",
+        "it": "applemusic://track/6781076401"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=BOCe62_vdzY",
-      "uri_tidal": null,
       "uri_deezer": "deezer://track/67503800",
       "fun_fact": "Queen were a British rock band fronted by the inimitable Freddie Mercury.",
       "fun_fact_de": "Queen waren eine britische Rockband mit dem unnachahmlichen Freddie Mercury am Mikrofon.",
@@ -1469,7 +1466,7 @@
       "year": 1977,
       "isrc": "SEAYD7702020",
       "uri": "spotify:track:5BckPAYcKEJuYs1eV1BHHe",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1440821177",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/6762676050",
         "de": "applemusic://track/6762676050",
@@ -1480,7 +1477,7 @@
         "it": "applemusic://track/6762676050"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=DkkQ8dCPiwA",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/1771747",
       "uri_deezer": "deezer://track/884028",
       "fun_fact": "ABBA were a Swedish quartet — one of the best-selling pop acts in history.",
       "fun_fact_de": "ABBA waren ein schwedisches Quartett — einer der meistverkauften Pop-Acts der Geschichte.",
@@ -1494,7 +1491,7 @@
       "year": 1978,
       "isrc": "USWB19903690",
       "uri": "spotify:track:2yBVeksU2EtrPJbTu4ZslK",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1110557400",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1820875426",
         "de": "applemusic://track/1847684954",
@@ -1505,7 +1502,7 @@
         "it": "applemusic://track/1847684954"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=o1BqHjNafRk",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/3029661",
       "uri_deezer": "deezer://track/4688887",
       "fun_fact": "A 70s classic (1978).",
       "fun_fact_de": "Ein 70er-Klassiker (1978).",
@@ -1530,7 +1527,7 @@
         "it": "applemusic://track/1870541550"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=6F9N-6ITFnA",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/2043322",
       "uri_deezer": "deezer://track/2550736",
       "fun_fact": "A 70s classic (1978).",
       "fun_fact_de": "Ein 70er-Klassiker (1978).",
@@ -1555,7 +1552,7 @@
         "it": "applemusic://track/1695901687"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=CFhFyvk0yS8",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/4350147",
       "uri_deezer": "deezer://track/6917710",
       "fun_fact": "A 70s classic (1972).",
       "fun_fact_de": "Ein 70er-Klassiker (1972).",
@@ -1569,7 +1566,7 @@
       "year": 1975,
       "isrc": "USEE11300344",
       "uri": "spotify:track:608xszaAxVh4m7NcKJiAbF",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/635830022",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/779290504",
         "de": "applemusic://track/779290504",
@@ -1580,7 +1577,7 @@
         "it": "applemusic://track/779290504"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=zhhET_JZ3z4",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/20664054",
       "uri_deezer": "deezer://track/68094422",
       "fun_fact": "The Eagles are one of the best-selling American rock bands of all time.",
       "fun_fact_de": "Die Eagles zählen zu den meistverkauften amerikanischen Rockbands aller Zeiten.",
@@ -1594,18 +1591,17 @@
       "year": 1975,
       "isrc": "GBUM71029604",
       "uri": "spotify:track:7tFiyTwD0nx5a1eklYtX2J",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/6781023657",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/1774784848",
-        "de": "applemusic://track/1774784848",
-        "gb": "applemusic://track/1774784848",
-        "fr": "applemusic://track/1774784848",
-        "es": "applemusic://track/1774784848",
-        "nl": "applemusic://track/1774784848",
-        "it": "applemusic://track/1774784848"
+        "us": "applemusic://track/6781023657",
+        "de": "applemusic://track/6781080302",
+        "gb": "applemusic://track/6781027645",
+        "fr": "applemusic://track/6781027645",
+        "es": "applemusic://track/6781027645",
+        "nl": "applemusic://track/6781027645",
+        "it": "applemusic://track/6781080302"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=bSnlKl_PoQU",
-      "uri_tidal": null,
       "uri_deezer": "deezer://track/9997018",
       "fun_fact": "Queen were a British rock band fronted by the inimitable Freddie Mercury.",
       "fun_fact_de": "Queen waren eine britische Rockband mit dem unnachahmlichen Freddie Mercury am Mikrofon.",
@@ -1619,7 +1615,7 @@
       "year": 1972,
       "isrc": "USRC18705934",
       "uri": "spotify:track:7zMUCLm1TN9o9JlLISztxO",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/217636919",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1527283047",
         "de": "applemusic://track/1527283047",
@@ -1630,7 +1626,7 @@
         "it": "applemusic://track/1527283047"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=1w4VEc92Y_4",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/63372063",
       "uri_deezer": "deezer://track/129231818",
       "fun_fact": "A 70s classic (1972).",
       "fun_fact_de": "Ein 70er-Klassiker (1972).",
@@ -1644,7 +1640,7 @@
       "year": 1973,
       "isrc": "USCA29100532",
       "uri": "spotify:track:1bp2IO61zbQrbWNmKKxg3f",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1440843361",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/6767663161",
         "de": "applemusic://track/6767663161",
@@ -1655,7 +1651,7 @@
         "it": "applemusic://track/6767663161"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=tYTgtsCm0DA",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/32589534",
       "uri_deezer": "deezer://track/82159934",
       "fun_fact": "A 70s classic (1973).",
       "fun_fact_de": "Ein 70er-Klassiker (1973).",
@@ -1669,7 +1665,7 @@
       "year": 1976,
       "isrc": "USSM17600477",
       "uri": "spotify:track:5QTxFnGygVM4jFQiBovmRo",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/170587451",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1737859507",
         "de": "applemusic://track/1737859507",
@@ -1680,7 +1676,7 @@
         "it": "applemusic://track/1737859507"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=FS8p_F0Stog",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/35191628",
       "uri_deezer": "deezer://track/82692320",
       "fun_fact": "A 70s classic (1976).",
       "fun_fact_de": "Ein 70er-Klassiker (1976).",
@@ -1694,7 +1690,7 @@
       "year": 1979,
       "isrc": "USSM10015734",
       "uri": "spotify:track:72ahyckBJfTigJCFCviVN7",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/196427027",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1737859386",
         "de": "applemusic://track/1737859386",
@@ -1705,7 +1701,7 @@
         "it": "applemusic://track/1737859386"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=kW0HZy8J0v0",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/7900624",
       "uri_deezer": "deezer://track/13816433",
       "fun_fact": "Electric Light Orchestra blended rock with lush orchestral pop.",
       "fun_fact_de": "Electric Light Orchestra verband Rock mit üppigem Orchester-Pop.",
@@ -1719,7 +1715,7 @@
       "year": 1978,
       "isrc": "USCA28600270",
       "uri": "spotify:track:5EOoMWIB9iK4ZpcSex9Ec7",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1440879576",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1706888471",
         "de": "applemusic://track/1706888471",
@@ -1730,7 +1726,7 @@
         "it": "applemusic://track/1706888471"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=W1LsRShUPtY",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/81126290",
       "uri_deezer": "deezer://track/2548061582",
       "fun_fact": "A 70s classic (1978).",
       "fun_fact_de": "Ein 70er-Klassiker (1978).",
@@ -1744,7 +1740,7 @@
       "year": 1970,
       "isrc": "NLF057090038",
       "uri": "spotify:track:2kkvB3RNRzwjFdGhaUA0tz",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1440663520",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/6763249217",
         "de": "applemusic://track/6763249217",
@@ -1755,7 +1751,7 @@
         "it": "applemusic://track/6763249217"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=TngViNw2pOo",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/5816049",
       "uri_deezer": "deezer://track/1175612",
       "fun_fact": "A 70s classic (1970).",
       "fun_fact_de": "Ein 70er-Klassiker (1970).",
@@ -1780,7 +1776,7 @@
         "it": "applemusic://track/976362823"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=EKOcfZtKvYQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/43697107",
       "uri_deezer": "deezer://track/97095572",
       "fun_fact": "A 70s classic (1971).",
       "fun_fact_de": "Ein 70er-Klassiker (1971).",
@@ -1794,7 +1790,7 @@
       "year": 1973,
       "isrc": "USWB19900751",
       "uri": "spotify:track:4nXkbcTj3nyww1cHkw5RAP",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1110988134",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1789338374",
         "de": "applemusic://track/1847898800",
@@ -1805,7 +1801,7 @@
         "it": "applemusic://track/1847898800"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=CVsLEI-hCXw",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/273900",
       "uri_deezer": "deezer://track/3616544",
       "fun_fact": "A 70s classic (1973).",
       "fun_fact_de": "Ein 70er-Klassiker (1973).",
@@ -1830,7 +1826,7 @@
         "it": "applemusic://track/1819127168"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=tkGSubR4B6Q",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/2286109",
       "uri_deezer": "deezer://track/2801132",
       "fun_fact": "A 70s classic (1979).",
       "fun_fact_de": "Ein 70er-Klassiker (1979).",
@@ -1855,7 +1851,7 @@
         "it": "applemusic://track/158816065"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=kdxSmoxfl7A",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/1809085",
       "uri_deezer": "deezer://track/988632",
       "fun_fact": "A 70s classic (1977).",
       "fun_fact_de": "Ein 70er-Klassiker (1977).",
@@ -1869,7 +1865,7 @@
       "year": 1970,
       "isrc": "USMO17082635",
       "uri": "spotify:track:5RdhBLmB4DyFHLglRrfx63",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1440912116",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1434900942",
         "de": "applemusic://track/1434900942",
@@ -1880,7 +1876,7 @@
         "it": "applemusic://track/1434900942"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=kBhSh7y_IkM",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/33490093",
       "uri_deezer": "deezer://track/4188290",
       "fun_fact": "A 70s classic (1970).",
       "fun_fact_de": "Ein 70er-Klassiker (1970).",
@@ -1894,7 +1890,7 @@
       "year": 1978,
       "isrc": "GBCJN7800001",
       "uri": "spotify:track:3hJLKtTpgct9Y9wKww0BiR",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1454659973",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1682123474",
         "de": "applemusic://track/1682123474",
@@ -1905,7 +1901,7 @@
         "it": "applemusic://track/1682123474"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=PKVXSo9ROpg",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/514060949",
       "uri_deezer": "deezer://track/14458087",
       "fun_fact": "The Rolling Stones are the archetypal British rock'n'roll band.",
       "fun_fact_de": "The Rolling Stones sind die archetypische britische Rock'n'Roll-Band.",
@@ -1919,18 +1915,17 @@
       "year": 1976,
       "isrc": "GBUM71029613",
       "uri": "spotify:track:4rDbp1vnvEhieiccprPMdI",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/6781024333",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/1746161615",
-        "de": "applemusic://track/1746161615",
-        "gb": "applemusic://track/1746161615",
-        "fr": "applemusic://track/1746161615",
-        "es": "applemusic://track/1746161615",
-        "nl": "applemusic://track/1746161615",
-        "it": "applemusic://track/1746161615"
+        "us": "applemusic://track/6781024333",
+        "de": "applemusic://track/6781080944",
+        "gb": "applemusic://track/6781027364",
+        "fr": "applemusic://track/6781027364",
+        "es": "applemusic://track/6781027364",
+        "nl": "applemusic://track/6781080944",
+        "it": "applemusic://track/6781027364"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=x8hUwP_5Qc4",
-      "uri_tidal": null,
       "uri_deezer": "deezer://track/67503801",
       "fun_fact": "Queen were a British rock band fronted by the inimitable Freddie Mercury.",
       "fun_fact_de": "Queen waren eine britische Rockband mit dem unnachahmlichen Freddie Mercury am Mikrofon.",
@@ -1944,7 +1939,7 @@
       "year": 1973,
       "isrc": "SEAMA7343050",
       "uri": "spotify:track:6Ac4NVYYl2U73QiTt11ZKd",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/726197782",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1854749657",
         "de": "applemusic://track/1854749657",
@@ -1955,7 +1950,7 @@
         "it": "applemusic://track/1854749657"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=7Z3uhIRkBNw",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/2909027",
       "uri_deezer": "deezer://track/3402413",
       "fun_fact": "A 70s classic (1973).",
       "fun_fact_de": "Ein 70er-Klassiker (1973).",
@@ -1969,7 +1964,7 @@
       "year": 1978,
       "isrc": "USSM17800448",
       "uri": "spotify:track:4ZoBC5MhSEzuknIgAkBaoT",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/158816084",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1737859494",
         "de": "applemusic://track/1737859494",
@@ -1980,7 +1975,7 @@
         "it": "applemusic://track/1737859494"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=NlvU-EHk4Nc",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/1268483",
       "uri_deezer": "deezer://track/1025636",
       "fun_fact": "A 70s classic (1978).",
       "fun_fact_de": "Ein 70er-Klassiker (1978).",
@@ -1994,7 +1989,7 @@
       "year": 1970,
       "isrc": "USMO17082628",
       "uri": "spotify:track:6D8kc7RO0rqBLSo2YPflJ5",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1440912109",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1884638197",
         "de": "applemusic://track/1884638197",
@@ -2005,7 +2000,7 @@
         "it": "applemusic://track/1884638197"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=ISqzbbZVIiU",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/3043932",
       "uri_deezer": "deezer://track/920082",
       "fun_fact": "A 70s classic (1970).",
       "fun_fact_de": "Ein 70er-Klassiker (1970).",
@@ -2019,7 +2014,7 @@
       "year": 1978,
       "isrc": "FRX957900007",
       "uri": "spotify:track:3XIEWK1V9n25PS9Vb6axj5",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/556530844",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/325803688",
         "de": "applemusic://track/325803688",
@@ -2030,7 +2025,7 @@
         "it": "applemusic://track/325803688"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=vb5a-GYty-o",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/14511863",
       "uri_deezer": "deezer://track/4077573",
       "fun_fact": "A 70s classic (1978).",
       "fun_fact_de": "Ein 70er-Klassiker (1978).",
@@ -2055,7 +2050,7 @@
         "it": "applemusic://track/594061858"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=0hGhl7ki3HM",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/271197",
       "uri_deezer": "deezer://track/63480989",
       "fun_fact": "Fleetwood Mac's 'Rumours'-era line-up made them one of the 70s' defining bands.",
       "fun_fact_de": "Fleetwood Mac wurden in der 'Rumours'-Ära zu einer der prägenden Bands der 70er.",
@@ -2069,7 +2064,7 @@
       "year": 1975,
       "isrc": "GBAYE0900554",
       "uri": "spotify:track:714hERk9U1W8FMYkoC83CO",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/693504632",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1588220716",
         "de": "applemusic://track/1588220716",
@@ -2080,7 +2075,7 @@
         "it": "applemusic://track/1588220716"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=98rKktwzzC8",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/3025463",
       "uri_deezer": "deezer://track/3851861",
       "fun_fact": "A 70s classic (1975).",
       "fun_fact_de": "Ein 70er-Klassiker (1975).",
@@ -2094,7 +2089,7 @@
       "year": 1976,
       "isrc": "USSM19912699",
       "uri": "spotify:track:5uuJruktM9fMdN9Va0DUMl",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/198226129",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1695886340",
         "de": "applemusic://track/1695886340",
@@ -2105,7 +2100,7 @@
         "it": "applemusic://track/1695886340"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=yILr8KdTPsU",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/545672",
       "uri_deezer": "deezer://track/1067076",
       "fun_fact": "A 70s classic (1976).",
       "fun_fact_de": "Ein 70er-Klassiker (1976).",
@@ -2119,7 +2114,7 @@
       "year": 1978,
       "isrc": "GBAYE7700223",
       "uri": "spotify:track:5YSI1311X8t31PBjkBG4CZ",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1675380129",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1675380129",
         "de": "applemusic://track/1846776298",
@@ -2130,7 +2125,7 @@
         "it": "applemusic://track/1846776298"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=fs3Do1KkeXY",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/128447",
       "uri_deezer": "deezer://track/3128004",
       "fun_fact": "A 70s classic (1978).",
       "fun_fact_de": "Ein 70er-Klassiker (1978).",
@@ -2155,7 +2150,7 @@
         "it": "applemusic://track/1541207673"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=6tynWSAesAo",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/2871014",
       "uri_deezer": "deezer://track/3169189",
       "fun_fact": "A 70s classic (1978).",
       "fun_fact_de": "Ein 70er-Klassiker (1978).",
@@ -2169,7 +2164,7 @@
       "year": 1972,
       "isrc": "USSM17200461",
       "uri": "spotify:track:3M8FzayQWtkvOhqMn2V4T2",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/391725484",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1566958152",
         "de": "applemusic://track/408958184",
@@ -2180,7 +2175,7 @@
         "it": "applemusic://track/408958184"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=fOZ-MySzAac",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/4917633",
       "uri_deezer": "deezer://track/863911",
       "fun_fact": "A 70s classic (1972).",
       "fun_fact_de": "Ein 70er-Klassiker (1972).",
@@ -2205,7 +2200,7 @@
         "it": "applemusic://track/6764142742"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=vd-s7kmfVh8",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/3043984",
       "uri_deezer": "deezer://track/100914862",
       "fun_fact": "The Rolling Stones are the archetypal British rock'n'roll band.",
       "fun_fact_de": "The Rolling Stones sind die archetypische britische Rock'n'Roll-Band.",
@@ -2230,7 +2225,7 @@
         "it": "applemusic://track/1722535272"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=_21cZe2eO_I",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/282407",
       "uri_deezer": "deezer://track/675098",
       "fun_fact": "A 70s classic (1972).",
       "fun_fact_de": "Ein 70er-Klassiker (1972).",
@@ -2244,7 +2239,7 @@
       "year": 1973,
       "isrc": "USAT29901394",
       "uri": "spotify:track:3gsCAGsWr6pUm1Vy7CPPob",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/355038523",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1855539958",
         "de": "applemusic://track/1855539958",
@@ -2255,7 +2250,7 @@
         "it": "applemusic://track/1855539958"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=l2n167F0eBc",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/345468105",
       "uri_deezer": "deezer://track/14615242",
       "fun_fact": "A 70s classic (1973).",
       "fun_fact_de": "Ein 70er-Klassiker (1973).",
@@ -2280,7 +2275,7 @@
         "it": "applemusic://track/1606273844"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=n9DmdAwUbxc",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/213218874",
       "uri_deezer": "deezer://track/1627634952",
       "fun_fact": "A 70s classic (1978).",
       "fun_fact_de": "Ein 70er-Klassiker (1978).",
@@ -2294,7 +2289,7 @@
       "year": 1970,
       "isrc": "GBBPJ9800675",
       "uri": "spotify:track:5Ts1DYOuouQLgzTaisxWYh",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1489644002",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1489644002",
         "de": "applemusic://track/1492218059",
@@ -2305,7 +2300,7 @@
         "it": "applemusic://track/1492218059"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=HFwsONQdthI",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/123891998",
       "uri_deezer": "deezer://track/821449172",
       "fun_fact": "A 70s classic (1970).",
       "fun_fact_de": "Ein 70er-Klassiker (1970).",
@@ -2330,7 +2325,7 @@
         "it": "applemusic://track/471655057"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=p6v6wWmEYvY",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/1274617",
       "uri_deezer": "deezer://track/1080638",
       "fun_fact": "A 70s classic (1977).",
       "fun_fact_de": "Ein 70er-Klassiker (1977).",
@@ -2355,7 +2350,7 @@
         "it": "applemusic://track/1388908357"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=1r08Ca8fk5Y",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/77646605",
       "uri_deezer": "deezer://track/3121463",
       "fun_fact": "A 70s classic (1977).",
       "fun_fact_de": "Ein 70er-Klassiker (1977).",
@@ -2380,7 +2375,7 @@
         "it": "applemusic://track/6767680037"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=r-3NvDp28U4",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/77625024",
       "uri_deezer": "deezer://track/781563052",
       "fun_fact": "A 70s classic (1978).",
       "fun_fact_de": "Ein 70er-Klassiker (1978).",
@@ -2394,7 +2389,7 @@
       "year": 1971,
       "isrc": "USEE19900773",
       "uri": "spotify:track:14XWXWv5FoCbFzLksawpEe",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/640047752",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1712860074",
         "de": "applemusic://track/1712860074",
@@ -2405,7 +2400,7 @@
         "it": "applemusic://track/1712860074"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=lJZTgynPGT8",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/19373769",
       "uri_deezer": "deezer://track/65445466",
       "fun_fact": "A 70s classic (1971).",
       "fun_fact_de": "Ein 70er-Klassiker (1971).",
@@ -2419,7 +2414,7 @@
       "year": 1976,
       "isrc": "USMO17600526",
       "uri": "spotify:track:4pNiE4LCVV74vfIBaUHm1b",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1440788542",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/6767399173",
         "de": "applemusic://track/6767399173",
@@ -2430,7 +2425,7 @@
         "it": "applemusic://track/6767399173"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=ETFvmkIA6S4",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/79419398",
       "uri_deezer": "deezer://track/538709322",
       "fun_fact": "A 70s classic (1976).",
       "fun_fact_de": "Ein 70er-Klassiker (1976).",
@@ -2444,7 +2439,7 @@
       "year": 1977,
       "isrc": "USSM10105935",
       "uri": "spotify:track:6kooDsorCpWVMGc994XjWN",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/216088341",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/216088341",
         "de": "applemusic://track/882856462",
@@ -2455,7 +2450,7 @@
         "it": "applemusic://track/1308659903"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=wWk-uDrGxL0",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/30265305",
       "uri_deezer": "deezer://track/550518",
       "fun_fact": "A 70s classic (1977).",
       "fun_fact_de": "Ein 70er-Klassiker (1977).",
@@ -2469,7 +2464,7 @@
       "year": 1977,
       "isrc": "USAT20802325",
       "uri": "spotify:track:7vidktgNZFQylTgH1GEnMs",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/284531755",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1676895183",
         "de": "applemusic://track/1676895183",
@@ -2480,7 +2475,7 @@
         "it": "applemusic://track/1676895183"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=a0T4nyB9k88",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/4077812",
       "uri_deezer": "deezer://track/977934",
       "fun_fact": "A 70s classic (1977).",
       "fun_fact_de": "Ein 70er-Klassiker (1977).",
@@ -2494,7 +2489,7 @@
       "year": 1978,
       "isrc": "NLF057890004",
       "uri": "spotify:track:0B9x2BRHqj3Qer7biM3pU3",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1440844700",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1705280424",
         "de": "applemusic://track/1705280424",
@@ -2505,7 +2500,7 @@
         "it": "applemusic://track/1705280424"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=e__Pp4FxsjU",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/77625025",
       "uri_deezer": "deezer://track/781563062",
       "fun_fact": "A 70s classic (1978).",
       "fun_fact_de": "Ein 70er-Klassiker (1978).",
@@ -2530,7 +2525,7 @@
         "it": "applemusic://track/1650358104"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=qMkwuz0iXQg",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/70046409",
       "uri_deezer": "deezer://track/143042822",
       "fun_fact": "A 70s classic (1975).",
       "fun_fact_de": "Ein 70er-Klassiker (1975).",
@@ -2544,7 +2539,7 @@
       "year": 1979,
       "isrc": "USSZ10503009",
       "uri": "spotify:track:7GK2KVYH8FrTC9zehmjVMd",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/147664822",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/147664822",
         "de": "applemusic://track/147664822",
@@ -2555,7 +2550,7 @@
         "it": "applemusic://track/147664822"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=r1UkZLT20TI",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/82358708",
       "uri_deezer": "deezer://track/404691712",
       "fun_fact": "A 70s classic (1979).",
       "fun_fact_de": "Ein 70er-Klassiker (1979).",
@@ -2580,7 +2575,7 @@
         "it": "applemusic://track/1872499019"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=rbaoKL1Ei0c",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/1326412",
       "uri_deezer": "deezer://track/3325466",
       "fun_fact": "A 70s classic (1975).",
       "fun_fact_de": "Ein 70er-Klassiker (1975).",
@@ -2605,7 +2600,7 @@
         "it": "applemusic://track/1711847823"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=aVLBF-UKevY",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/3043602",
       "uri_deezer": "deezer://track/4124759",
       "fun_fact": "The Rolling Stones are the archetypal British rock'n'roll band.",
       "fun_fact_de": "The Rolling Stones sind die archetypische britische Rock'n'Roll-Band.",
@@ -2630,7 +2625,7 @@
         "it": "applemusic://track/1445669633"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=z2qoihbzc3E",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/78700076",
       "uri_deezer": "deezer://track/139138743",
       "fun_fact": "The Bee Gees were the falsetto-driven heart of the disco era.",
       "fun_fact_de": "Die Bee Gees waren mit ihrem Falsett das Herz der Disco-Ära.",
@@ -2644,7 +2639,7 @@
       "year": 1976,
       "isrc": "USEE11300355",
       "uri": "spotify:track:6gXrEUzibufX9xYPk3HD5p",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/635770204",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1729271215",
         "de": "applemusic://track/1729271215",
@@ -2655,7 +2650,7 @@
         "it": "applemusic://track/1729271215"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=po6QU0z1rSs",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/20767341",
       "uri_deezer": "deezer://track/426703702",
       "fun_fact": "The Eagles are one of the best-selling American rock bands of all time.",
       "fun_fact_de": "Die Eagles zählen zu den meistverkauften amerikanischen Rockbands aller Zeiten.",
@@ -2680,7 +2675,7 @@
         "it": "applemusic://track/380590584"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=B1V1varByWI",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/4157864",
       "uri_deezer": "deezer://track/6581143",
       "fun_fact": "A 70s classic (1975).",
       "fun_fact_de": "Ein 70er-Klassiker (1975).",
@@ -2694,7 +2689,7 @@
       "year": 1979,
       "isrc": "GBAAN7900013",
       "uri": "spotify:track:7o7E1nrHWncYY7PY94gCiX",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1444090128",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1647072740",
         "de": "applemusic://track/1647072740",
@@ -2705,7 +2700,7 @@
         "it": "applemusic://track/1647072740"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=qGBohd0V2Mo",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/2531405",
       "uri_deezer": "deezer://track/2509817",
       "fun_fact": "A 70s classic (1979).",
       "fun_fact_de": "Ein 70er-Klassiker (1979).",
@@ -2719,7 +2714,7 @@
       "year": 1975,
       "isrc": "USSM17500423",
       "uri": "spotify:track:6hTcuIQa0sxrrByu9wTD7s",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1045058681",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1737859376",
         "de": "applemusic://track/1737859376",
@@ -2730,7 +2725,7 @@
         "it": "applemusic://track/1737859376"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=Wu4_zVxmufY",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/22761223",
       "uri_deezer": "deezer://track/132635408",
       "fun_fact": "A 70s classic (1975).",
       "fun_fact_de": "Ein 70er-Klassiker (1975).",
@@ -2744,7 +2739,7 @@
       "year": 1977,
       "isrc": "USSM17700371",
       "uri": "spotify:track:49MHCPzvMLXhRjDantBMVH",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/158816077",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/158816077",
         "de": "applemusic://track/158816077",
@@ -2755,7 +2750,7 @@
         "it": "applemusic://track/158816077"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=dBqyX0UUzVQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/1809081",
       "uri_deezer": "deezer://track/988630",
       "fun_fact": "A 70s classic (1977).",
       "fun_fact_de": "Ein 70er-Klassiker (1977).",
@@ -2769,7 +2764,7 @@
       "year": 1973,
       "isrc": "USRN19600096",
       "uri": "spotify:track:2SpEHTbUuebeLkgs9QB7Ue",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1062400330",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1467440335",
         "de": "applemusic://track/1467440335",
@@ -2780,7 +2775,7 @@
         "it": "applemusic://track/1467440335"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=ZCwWAD6ZuPk",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/54518833",
       "uri_deezer": "deezer://track/114422238",
       "fun_fact": "A 70s classic (1973).",
       "fun_fact_de": "Ein 70er-Klassiker (1973).",
@@ -2805,7 +2800,7 @@
         "it": "applemusic://track/1507830357"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=qznqW8KzMpE",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/4623873",
       "uri_deezer": "deezer://track/7340163",
       "fun_fact": "A 70s classic (1973).",
       "fun_fact_de": "Ein 70er-Klassiker (1973).",
@@ -2819,7 +2814,7 @@
       "year": 1973,
       "isrc": "USBR17300001",
       "uri": "spotify:track:7MF7QAodbGzNYav5ZfIhAY",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/943204000",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1685075664",
         "de": "applemusic://track/1685075664",
@@ -2830,7 +2825,7 @@
         "it": "applemusic://track/1685075664"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=uw_t_o-LluM",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/42753194",
       "uri_deezer": "deezer://track/563850",
       "fun_fact": "A 70s classic (1973).",
       "fun_fact_de": "Ein 70er-Klassiker (1973).",
@@ -2844,7 +2839,7 @@
       "year": 1979,
       "isrc": "USCA28900153",
       "uri": "spotify:track:1HOMkjp0nHMaTnfAkslCQj",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/716268684",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1660680959",
         "de": "applemusic://track/1660680959",
@@ -2855,7 +2850,7 @@
         "it": "applemusic://track/1660680959"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=ZR-3r5Z9kqw",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/1747034",
       "uri_deezer": "deezer://track/3248376",
       "fun_fact": "A 70s classic (1979).",
       "fun_fact_de": "Ein 70er-Klassiker (1979).",
@@ -2869,7 +2864,7 @@
       "year": 1977,
       "isrc": "NLF057790025",
       "uri": "spotify:track:6zC0mpGYwbNTpk9SKwh08f",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1440783103",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1445662813",
         "de": "applemusic://track/1445662813",
@@ -2880,7 +2875,7 @@
         "it": "applemusic://track/1445662813"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=Pu5c4aEg3NM",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/18152390",
       "uri_deezer": "deezer://track/1175626",
       "fun_fact": "A 70s classic (1977).",
       "fun_fact_de": "Ein 70er-Klassiker (1977).",
@@ -2905,7 +2900,7 @@
         "it": "applemusic://track/1842466754"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=A_J2bcNx3Gw",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/77625023",
       "uri_deezer": "deezer://track/781563042",
       "fun_fact": "A 70s classic (1978).",
       "fun_fact_de": "Ein 70er-Klassiker (1978).",
@@ -2930,7 +2925,7 @@
         "it": "applemusic://track/1657881589"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=nYMeJSehCe4",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/93427542",
       "uri_deezer": "deezer://track/538706952",
       "fun_fact": "A 70s classic (1979).",
       "fun_fact_de": "Ein 70er-Klassiker (1979).",
@@ -2944,7 +2939,7 @@
       "year": 1972,
       "isrc": "USRC10202061",
       "uri": "spotify:track:1B5Tp2Ml9nLlmTSJx8xVfI",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1138098780",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1609685498",
         "de": "applemusic://track/1609685498",
@@ -2955,7 +2950,7 @@
         "it": "applemusic://track/1609685498"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=0eJ7C7-NQJ0",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/63372064",
       "uri_deezer": "deezer://track/129231820",
       "fun_fact": "A 70s classic (1972).",
       "fun_fact_de": "Ein 70er-Klassiker (1972).",
@@ -2969,7 +2964,7 @@
       "year": 1972,
       "isrc": "USAT20108558",
       "uri": "spotify:track:71CXzHYYOyNqgtVFpNdeCS",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/297961213",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1790610702",
         "de": "applemusic://track/1618775942",
@@ -2980,7 +2975,7 @@
         "it": "applemusic://track/1618775942"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=_zoLVyQZn0Y",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/278460",
       "uri_deezer": "deezer://track/726391",
       "fun_fact": "A 70s classic (1972).",
       "fun_fact_de": "Ein 70er-Klassiker (1972).",
@@ -2994,7 +2989,7 @@
       "year": 1976,
       "isrc": "GBAHK9700121",
       "uri": "spotify:track:4GhtDORJiSRYxj6M1bv0vX",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1509728802",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1685073516",
         "de": "applemusic://track/1685073516",
@@ -3005,7 +3000,7 @@
         "it": "applemusic://track/1685073516"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=bs75cGRgVEQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/3728808",
       "uri_deezer": "deezer://track/6071038",
       "fun_fact": "A 70s classic (1976).",
       "fun_fact_de": "Ein 70er-Klassiker (1976).",
@@ -3030,7 +3025,7 @@
         "it": "applemusic://track/1737859327"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=Qu6F-mMAQhk",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/43719965",
       "uri_deezer": "deezer://track/97081744",
       "fun_fact": "A 70s classic (1972).",
       "fun_fact_de": "Ein 70er-Klassiker (1972).",
@@ -3044,7 +3039,7 @@
       "year": 1976,
       "isrc": "DED168000002",
       "uri": "spotify:track:3pf96IFggfQuT6Gafqx2rt",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/220385946",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1626933880",
         "de": "applemusic://track/1626933880",
@@ -3055,7 +3050,7 @@
         "it": "applemusic://track/1626933880"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=aNKGUaWb0kE",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/1277161",
       "uri_deezer": "deezer://track/364953",
       "fun_fact": "A 70s classic (1976).",
       "fun_fact_de": "Ein 70er-Klassiker (1976).",
@@ -3069,7 +3064,7 @@
       "year": 1978,
       "isrc": "USAM17800365",
       "uri": "spotify:track:1CQqupcyMg7176PPmIVmSj",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1440911577",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/6767662926",
         "de": "applemusic://track/6767662926",
@@ -3080,7 +3075,7 @@
         "it": "applemusic://track/6767662926"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=E9eLz4DrwF8",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/16154848",
       "uri_deezer": "deezer://track/2289262",
       "fun_fact": "A 70s classic (1978).",
       "fun_fact_de": "Ein 70er-Klassiker (1978).",
@@ -3105,7 +3100,7 @@
         "it": "applemusic://track/1608961067"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=ftdZ363R9kQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/77683246",
       "uri_deezer": "deezer://track/596034702",
       "fun_fact": "A 70s classic (1972).",
       "fun_fact_de": "Ein 70er-Klassiker (1972).",
@@ -3130,7 +3125,7 @@
         "it": "applemusic://track/206434940"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=f_-_9GGl0_I",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/1287452",
       "uri_deezer": "deezer://track/565312",
       "fun_fact": "A 70s classic (1978).",
       "fun_fact_de": "Ein 70er-Klassiker (1978).",
@@ -3144,7 +3139,7 @@
       "year": 1971,
       "isrc": "US2HK1341204",
       "uri": "spotify:track:10vkYRKw6Jjr7try1ir50G",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1203896571",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1196519945",
         "de": "applemusic://track/1196519945",
@@ -3155,7 +3150,7 @@
         "it": "applemusic://track/1196519945"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=BEBHIV9L3uc",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/67328812",
       "uri_deezer": "deezer://track/140302333",
       "fun_fact": "A 70s classic (1971).",
       "fun_fact_de": "Ein 70er-Klassiker (1971).",
@@ -3169,7 +3164,7 @@
       "year": 1976,
       "isrc": "USSM17800853",
       "uri": "spotify:track:2hdNya0b6Cc2YJ8IyaQIWp",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1054523242",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/894170618",
         "de": "applemusic://track/318312874",
@@ -3180,7 +3175,7 @@
         "it": "applemusic://track/318312874"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=Zl9o1QWHXko",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/53230836",
       "uri_deezer": "deezer://track/112660460",
       "fun_fact": "Electric Light Orchestra blended rock with lush orchestral pop.",
       "fun_fact_de": "Electric Light Orchestra verband Rock mit üppigem Orchester-Pop.",
@@ -3205,7 +3200,7 @@
         "it": "applemusic://track/1452666599"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=rIbMbXjbW98",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/3710217",
       "uri_deezer": "deezer://track/2121805",
       "fun_fact": "A 70s classic (1971).",
       "fun_fact_de": "Ein 70er-Klassiker (1971).",
@@ -3219,7 +3214,7 @@
       "year": 1971,
       "isrc": "USIR20000701",
       "uri": "spotify:track:6rovOdp3HgK1DeAMYDzoA7",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1423302726",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1426968402",
         "de": "applemusic://track/1426968402",
@@ -3230,7 +3225,7 @@
         "it": "applemusic://track/1426968402"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=EOl7dh7a-6g",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/93614147",
       "uri_deezer": "deezer://track/538641872",
       "fun_fact": "A 70s classic (1971).",
       "fun_fact_de": "Ein 70er-Klassiker (1971).",
@@ -3255,7 +3250,7 @@
         "it": "applemusic://track/321974262"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=mMP3xaBslAY",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/3029677",
       "uri_deezer": "deezer://track/3821908",
       "fun_fact": "A 70s classic (1970).",
       "fun_fact_de": "Ein 70er-Klassiker (1970).",
@@ -3269,7 +3264,7 @@
       "year": 1979,
       "isrc": "GBARL1200680",
       "uri": "spotify:track:5jzma6gCzYtKB1DbEwFZKH",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/684811768",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/688795488",
         "de": "applemusic://track/688795488",
@@ -3280,7 +3275,7 @@
         "it": "applemusic://track/688795488"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=XN7iEFVLf5c",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/21785494",
       "uri_deezer": "deezer://track/69924599",
       "fun_fact": "A 70s classic (1979).",
       "fun_fact_de": "Ein 70er-Klassiker (1979).",
@@ -3294,7 +3289,7 @@
       "year": 1971,
       "isrc": "USJT11500131",
       "uri": "spotify:track:3ZE3wv8V3w2T2f7nOCjV0N",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1039798013",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1593686602",
         "de": "applemusic://track/1593686602",
@@ -3305,7 +3300,7 @@
         "it": "applemusic://track/1593686602"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=Enzxdvo8NOk",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/51161422",
       "uri_deezer": "deezer://track/107474522",
       "fun_fact": "David Bowie was a British artist who reinvented rock again and again.",
       "fun_fact_de": "David Bowie war ein britischer Künstler, der Rock immer wieder neu erfand.",
@@ -3319,7 +3314,7 @@
       "year": 1976,
       "isrc": "GBF087600063",
       "uri": "spotify:track:43DeSV93pJPT4lCZaWZ6b1",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1443910472",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/6766355695",
         "de": "applemusic://track/6766355695",
@@ -3330,7 +3325,7 @@
         "it": "applemusic://track/6766355695"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=56b4TTT609c",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/5244675",
       "uri_deezer": "deezer://track/1101200",
       "fun_fact": "A 70s classic (1976).",
       "fun_fact_de": "Ein 70er-Klassiker (1976).",
@@ -3344,7 +3339,7 @@
       "year": 1979,
       "isrc": "USUM71021480",
       "uri": "spotify:track:6mHOcVtsHLMuesJkswc0GZ",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1440521625",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1892521978",
         "de": "applemusic://track/1892521978",
@@ -3355,7 +3350,7 @@
         "it": "applemusic://track/1892521978"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=low6Coqrw9Y",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/1111197",
       "uri_deezer": "deezer://track/7087537",
       "fun_fact": "A 70s classic (1979).",
       "fun_fact_de": "Ein 70er-Klassiker (1979).",
@@ -3380,7 +3375,7 @@
         "it": "applemusic://track/890507498"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=HX_oR3qwwro",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/31007049",
       "uri_deezer": "deezer://track/1081145",
       "fun_fact": "A 70s classic (1978).",
       "fun_fact_de": "Ein 70er-Klassiker (1978).",
@@ -3394,7 +3389,7 @@
       "year": 1979,
       "isrc": "NLF057990026",
       "uri": "spotify:track:6UXXeFqMBGiqjkzQzkMT3E",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1445664308",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1716610378",
         "de": "applemusic://track/1716610378",
@@ -3405,7 +3400,7 @@
         "it": "applemusic://track/1716610378"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=WFd-Yk73U_o",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/68493632",
       "uri_deezer": "deezer://track/350027801",
       "fun_fact": "The Bee Gees were the falsetto-driven heart of the disco era.",
       "fun_fact_de": "Die Bee Gees waren mit ihrem Falsett das Herz der Disco-Ära.",
@@ -3430,7 +3425,7 @@
         "it": "applemusic://track/1825151125"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=oI9bmlbuekM",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/1785215",
       "uri_deezer": "deezer://track/846327",
       "fun_fact": "A 70s classic (1979).",
       "fun_fact_de": "Ein 70er-Klassiker (1979).",
@@ -3444,7 +3439,7 @@
       "year": 1973,
       "isrc": "USAM17300051",
       "uri": "spotify:track:3wM6RTAnF7IQpMFd7b9ZcL",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1434886946",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1814188181",
         "de": "applemusic://track/1814188181",
@@ -3455,7 +3450,7 @@
         "it": "applemusic://track/1814188181"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=Aa9YmR8SdeA",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/92240779",
       "uri_deezer": "deezer://track/529915671",
       "fun_fact": "A 70s classic (1973).",
       "fun_fact_de": "Ein 70er-Klassiker (1973).",
@@ -3469,7 +3464,7 @@
       "year": 1970,
       "isrc": "USSM16900181",
       "uri": "spotify:track:6QhXQOpyYvbpdbyjgAqKdY",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/324127936",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1463652199",
         "de": "applemusic://track/1463652199",
@@ -3480,7 +3475,7 @@
         "it": "applemusic://track/1463652199"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=voGvFWXPYx8",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/650233",
       "uri_deezer": "deezer://track/13174766",
       "fun_fact": "A 70s classic (1970).",
       "fun_fact_de": "Ein 70er-Klassiker (1970).",
@@ -3494,7 +3489,7 @@
       "year": 1977,
       "isrc": "NLF057790024",
       "uri": "spotify:track:2udGjDmpK1dH9VGyw7nrei",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1440782710",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1388006144",
         "de": "applemusic://track/1388006144",
@@ -3505,7 +3500,7 @@
         "it": "applemusic://track/1388006144"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=O6yeLNNVa4A",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/18152389",
       "uri_deezer": "deezer://track/1175620",
       "fun_fact": "A 70s classic (1977).",
       "fun_fact_de": "Ein 70er-Klassiker (1977).",
@@ -3519,7 +3514,7 @@
       "year": 1971,
       "isrc": "USEM38600091",
       "uri": "spotify:track:0VNzEY1G4GLqcNx5qaaTl6",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1440834638",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/6768427700",
         "de": "applemusic://track/6768427700",
@@ -3530,7 +3525,7 @@
         "it": "applemusic://track/6768427700"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=ciLNMesqPh0",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/77637906",
       "uri_deezer": "deezer://track/3166507",
       "fun_fact": "A 70s classic (1971).",
       "fun_fact_de": "Ein 70er-Klassiker (1971).",
@@ -3544,7 +3539,7 @@
       "year": 1978,
       "isrc": "DED167800006",
       "uri": "spotify:track:78His8pbKjbDQF7aX5asgv",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/250727833",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/570745447",
         "de": "applemusic://track/570745447",
@@ -3555,7 +3550,7 @@
         "it": "applemusic://track/570745447"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=rA6wmf-MUP8",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/1277189",
       "uri_deezer": "deezer://track/364966",
       "fun_fact": "A 70s classic (1978).",
       "fun_fact_de": "Ein 70er-Klassiker (1978).",
@@ -3569,7 +3564,7 @@
       "year": 1978,
       "isrc": "USSM17800983",
       "uri": "spotify:track:58r4JuwHhXLAkttkaUZfLw",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/410731495",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/410731495",
         "de": "applemusic://track/467627589",
@@ -3580,7 +3575,7 @@
         "it": "applemusic://track/410731495"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=QBTJf1txjC4",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/5217110",
       "uri_deezer": "deezer://track/8014760",
       "fun_fact": "A 70s classic (1978).",
       "fun_fact_de": "Ein 70er-Klassiker (1978).",
@@ -3594,18 +3589,18 @@
       "year": 1974,
       "isrc": "USJT11600006",
       "uri": "spotify:track:2EC9IJj7g0mN1Q5VrZkiYY",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1195108771",
       "uri_apple_music_by_region": {
-        "us": null,
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
+        "us": "applemusic://track/1195108771",
+        "de": "applemusic://track/1195108771",
+        "gb": "applemusic://track/1195108771",
+        "fr": "applemusic://track/1195108771",
+        "es": "applemusic://track/1195108771",
+        "nl": "applemusic://track/1195108771",
+        "it": "applemusic://track/1195108771"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=DJxCsVcZL2I",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/69761304",
       "uri_deezer": "deezer://track/141819823",
       "fun_fact": "David Bowie was a British artist who reinvented rock again and again.",
       "fun_fact_de": "David Bowie war ein britischer Künstler, der Rock immer wieder neu erfand.",
@@ -3619,7 +3614,7 @@
       "year": 1976,
       "isrc": "USCRB0101211",
       "uri": "spotify:track:064SVQsmWl5EF0zahmzkQk",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/73988389",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1632384111",
         "de": "applemusic://track/1632384111",
@@ -3630,7 +3625,7 @@
         "it": "applemusic://track/1632384111"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=LzXz6-RXXgc",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/45163294",
       "uri_deezer": "deezer://track/75765949",
       "fun_fact": "A 70s classic (1976).",
       "fun_fact_de": "Ein 70er-Klassiker (1976).",
@@ -3644,7 +3639,7 @@
       "year": 1977,
       "isrc": "USSM17700026",
       "uri": "spotify:track:2M2WJ7gBlcKNxdhyfPp9zY",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/882955357",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/338756305",
         "de": "applemusic://track/338756305",
@@ -3655,7 +3650,7 @@
         "it": "applemusic://track/338756305"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=Pbg66_KdJ5Q",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/30234400",
       "uri_deezer": "deezer://track/1026366",
       "fun_fact": "A 70s classic (1977).",
       "fun_fact_de": "Ein 70er-Klassiker (1977).",
@@ -3669,7 +3664,7 @@
       "year": 1970,
       "isrc": "USSM16900808",
       "uri": "spotify:track:6l8EbYRtQMgKOyc1gcDHF9",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/324127934",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1286118699",
         "de": "applemusic://track/1286118699",
@@ -3680,7 +3675,7 @@
         "it": "applemusic://track/1286118699"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=nvF5imxSaLI",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/650231",
       "uri_deezer": "deezer://track/13174764",
       "fun_fact": "A 70s classic (1970).",
       "fun_fact_de": "Ein 70er-Klassiker (1970).",
@@ -3694,18 +3689,18 @@
       "year": 1979,
       "isrc": "USAT21500124",
       "uri": "spotify:track:5hhVpGIBlqAU5yJEOmrk5o",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/999609930",
       "uri_apple_music_by_region": {
-        "us": null,
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
+        "us": "applemusic://track/999609930",
+        "de": "applemusic://track/674273385",
+        "gb": "applemusic://track/580707628",
+        "fr": "applemusic://track/580707628",
+        "es": "applemusic://track/580707628",
+        "nl": "applemusic://track/580707628",
+        "it": "applemusic://track/580707628"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=vwFz3EThGMU",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/52973783",
       "uri_deezer": "deezer://track/104348252",
       "fun_fact": "Led Zeppelin were a British band that shaped the sound of hard rock.",
       "fun_fact_de": "Led Zeppelin waren eine britische Band, die den Sound des Hard Rock prägte.",
@@ -3719,18 +3714,18 @@
       "year": 1975,
       "isrc": "ES64E2413022",
       "uri": "spotify:track:7bjtTJ4M10kpl2pGJxsg1Q",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1444131440",
       "uri_apple_music_by_region": {
-        "us": null,
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
+        "us": "applemusic://track/1855489134",
+        "de": "applemusic://track/1855489134",
+        "gb": "applemusic://track/1855489134",
+        "fr": "applemusic://track/1855489134",
+        "es": "applemusic://track/1855489134",
+        "nl": "applemusic://track/1855489134",
+        "it": "applemusic://track/1855489134"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=_k4slku58u0",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/473739614",
       "uri_deezer": "deezer://track/3093902351",
       "fun_fact": "A 70s classic (1975).",
       "fun_fact_de": "Ein 70er-Klassiker (1975).",
@@ -3744,9 +3739,9 @@
       "year": 1979,
       "isrc": "FR22F7900020",
       "uri": "spotify:track:0SdfUMRHhcjxrMv5d9V1UP",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1440825665",
       "uri_apple_music_by_region": {
-        "us": null,
+        "us": "applemusic://track/1440825665",
         "de": "applemusic://track/1872718907",
         "gb": "applemusic://track/1872718907",
         "fr": "applemusic://track/1872718907",
@@ -3755,7 +3750,6 @@
         "it": "applemusic://track/1872718907"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=kij7VFkE1eI",
-      "uri_tidal": null,
       "uri_deezer": "deezer://track/3809085962",
       "fun_fact": "A 70s classic (1979).",
       "fun_fact_de": "Ein 70er-Klassiker (1979).",
@@ -3769,7 +3763,7 @@
       "year": 1978,
       "isrc": "USRC10201815",
       "uri": "spotify:track:65lHwG8JFJs67PnOUhCYPq",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/367515038",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/367515038",
         "de": "applemusic://track/367515038",
@@ -3780,7 +3774,7 @@
         "it": "applemusic://track/367515038"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=1xGGoTgdads",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/3728783",
       "uri_deezer": "deezer://track/6070993",
       "fun_fact": "A 70s classic (1978).",
       "fun_fact_de": "Ein 70er-Klassiker (1978).",
@@ -3805,7 +3799,7 @@
         "it": "applemusic://track/532853139"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=SSCH66cUAMs",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/1884305",
       "uri_deezer": "deezer://track/107736834",
       "fun_fact": "A 70s classic (1971).",
       "fun_fact_de": "Ein 70er-Klassiker (1971).",
@@ -3819,7 +3813,7 @@
       "year": 1973,
       "isrc": "USSM11503412",
       "uri": "spotify:track:7whfo8cT6vgHJh1jngqNvt",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/198019840",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1030452490",
         "de": "applemusic://track/1030452490",
@@ -3830,7 +3824,7 @@
         "it": "applemusic://track/1030452490"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=w3o6ECdCZ7Q",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/5141119",
       "uri_deezer": "deezer://track/106026674",
       "fun_fact": "A 70s classic (1973).",
       "fun_fact_de": "Ein 70er-Klassiker (1973).",
@@ -3855,7 +3849,7 @@
         "it": "applemusic://track/530816764"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=36V5oTEcoJ0",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/16280142",
       "uri_deezer": "deezer://track/35116831",
       "fun_fact": "A 70s classic (1975).",
       "fun_fact_de": "Ein 70er-Klassiker (1975).",
@@ -3869,7 +3863,7 @@
       "year": 1974,
       "isrc": "GBBLY2201571",
       "uri": "spotify:track:5J74pF4Nn86qyLQihpkXq4",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/357256973",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1612479580",
         "de": "applemusic://track/1612479580",
@@ -3880,7 +3874,7 @@
         "it": "applemusic://track/1612479580"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=hXh55vg_rME",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/241852487",
       "uri_deezer": "deezer://track/2122738207",
       "fun_fact": "A 70s classic (1974).",
       "fun_fact_de": "Ein 70er-Klassiker (1974).",
@@ -3896,7 +3890,7 @@
       "uri": "spotify:track:0LoQuiekvzqx7n8flgEKzF",
       "uri_apple_music": "applemusic://track/1750466375",
       "uri_apple_music_by_region": {
-        "us": null,
+        "us": "applemusic://track/1750466375",
         "de": "applemusic://track/1688231671",
         "gb": "applemusic://track/1688231671",
         "fr": "applemusic://track/1688231671",
@@ -3905,7 +3899,7 @@
         "it": "applemusic://track/1688231671"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=cp1m4B3HRhg",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/15027962",
       "uri_deezer": "deezer://track/25003811",
       "fun_fact": "A 70s classic (1971).",
       "fun_fact_de": "Ein 70er-Klassiker (1971).",
@@ -3930,7 +3924,7 @@
         "it": "applemusic://track/869161615"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=edDQFmK7HHg",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/29280682",
       "uri_deezer": "deezer://track/15437788",
       "fun_fact": "A 70s classic (1970).",
       "fun_fact_de": "Ein 70er-Klassiker (1970).",
@@ -3944,7 +3938,7 @@
       "year": 1973,
       "isrc": "USAR17500148",
       "uri": "spotify:track:78zYiMv9yNTHgmm6kaUPCm",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/271457297",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/262234782",
         "de": "applemusic://track/621292133",
@@ -3955,7 +3949,7 @@
         "it": "applemusic://track/621292133"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=JPEaS8PIqiA",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/562801",
       "uri_deezer": "deezer://track/559346",
       "fun_fact": "A 70s classic (1973).",
       "fun_fact_de": "Ein 70er-Klassiker (1973).",
@@ -3980,7 +3974,7 @@
         "it": "applemusic://track/1553780415"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=fOzIX43fdJY",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/3145307",
       "uri_deezer": "deezer://track/381081471",
       "fun_fact": "A 70s classic (1970).",
       "fun_fact_de": "Ein 70er-Klassiker (1970).",
@@ -3994,7 +3988,7 @@
       "year": 1972,
       "isrc": "DEA619351670",
       "uri": "spotify:track:0lLQ5Bgf2hAg8TU33xoiGX",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1555141495",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/322028877",
         "de": "applemusic://track/322028877",
@@ -4005,7 +3999,7 @@
         "it": "applemusic://track/322028877"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=QAjmVPhdY6w",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/247587",
       "uri_deezer": "deezer://track/662540",
       "fun_fact": "A 70s classic (1972).",
       "fun_fact_de": "Ein 70er-Klassiker (1972).",
@@ -4044,7 +4038,7 @@
       "year": 1978,
       "isrc": "GBAYE7800138",
       "uri": "spotify:track:1as0uTeW3VLa9ifg8Gi9Fe",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/695612290",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1676045342",
         "de": "applemusic://track/1577375522",
@@ -4055,7 +4049,7 @@
         "it": "applemusic://track/1794723628"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=CnwPgQ_tw0U",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/1499711",
       "uri_deezer": "deezer://track/3301433",
       "fun_fact": "A 70s classic (1978).",
       "fun_fact_de": "Ein 70er-Klassiker (1978).",
@@ -4069,7 +4063,7 @@
       "year": 1973,
       "isrc": "DEA017300010",
       "uri": "spotify:track:6JgrTw5Ai42k2NHjrsfxow",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1442787974",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1438182713",
         "de": "applemusic://track/1438182713",
@@ -4080,13 +4074,1064 @@
         "it": "applemusic://track/1438182713"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=UAH-OlHWT6Q",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/13361122",
       "uri_deezer": "deezer://track/2437951",
       "fun_fact": "A 70s classic (1973).",
       "fun_fact_de": "Ein 70er-Klassiker (1973).",
       "fun_fact_es": "Un clásico de los 70 (1973).",
       "fun_fact_fr": "Un classique des années 70 (1973).",
       "fun_fact_nl": "Een 70's-klassieker (1973)."
+    },
+    {
+      "artist": "Bachman-Turner Overdrive",
+      "title": "You Ain't Seen Nothing Yet",
+      "year": 1974,
+      "isrc": "USPR39401742",
+      "uri": "spotify:track:0HOrDVS349XFcpCYsO2hAP",
+      "uri_apple_music": "applemusic://track/1891837843",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1891837843",
+        "de": "applemusic://track/1891837843",
+        "gb": "applemusic://track/1891837843",
+        "fr": "applemusic://track/1891837843",
+        "es": "applemusic://track/1891837843",
+        "nl": "applemusic://track/1891837843",
+        "it": "applemusic://track/1891837843"
+      },
+      "uri_youtube_music": "https://music.youtube.com/watch?v=w3fRBzRngdc",
+      "uri_tidal": "tidal://track/1111508",
+      "uri_deezer": "deezer://track/2447245",
+      "fun_fact": "A chart hit by Bachman-Turner Overdrive (1974).",
+      "fun_fact_de": "Ein Chart-Hit von Bachman-Turner Overdrive (1974).",
+      "fun_fact_es": "Un éxito de Bachman-Turner Overdrive (1974).",
+      "fun_fact_fr": "Un tube de Bachman-Turner Overdrive (1974).",
+      "fun_fact_nl": "Een chart-hit van Bachman-Turner Overdrive (1974).",
+      "fun_fact_it": "Un successo in classifica di Bachman-Turner Overdrive (1974)."
+    },
+    {
+      "artist": "KC",
+      "title": "Shake Your Booty",
+      "year": 1976,
+      "isrc": "GBAYE7600024",
+      "uri": "spotify:track:4gcxYHlffrCstGw7EPWB88",
+      "uri_apple_music": "applemusic://track/1580630968",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1580630968",
+        "de": "applemusic://track/697243024",
+        "gb": "applemusic://track/697243024",
+        "fr": "applemusic://track/697243024",
+        "es": "applemusic://track/697243024",
+        "nl": "applemusic://track/697243024",
+        "it": "applemusic://track/697243024"
+      },
+      "uri_youtube_music": "https://music.youtube.com/watch?v=X6klWgHxTns",
+      "uri_tidal": "tidal://track/67327039",
+      "uri_deezer": "deezer://track/3151319",
+      "alt_artists": [
+        "The Sunshine Band"
+      ],
+      "fun_fact": "A chart hit by KC (1976).",
+      "fun_fact_de": "Ein Chart-Hit von KC (1976).",
+      "fun_fact_es": "Un éxito de KC (1976).",
+      "fun_fact_fr": "Un tube de KC (1976).",
+      "fun_fact_nl": "Een chart-hit van KC (1976).",
+      "fun_fact_it": "Un successo in classifica di KC (1976)."
+    },
+    {
+      "artist": "The Osmonds",
+      "title": "Goin' Home",
+      "year": 1973,
+      "isrc": "USPR37307332",
+      "uri": "spotify:track:0p84j3ol6LPVQwW7cPB3y4",
+      "uri_apple_music": "applemusic://track/1825391722",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1825391722",
+        "de": "applemusic://track/1825391722",
+        "gb": "applemusic://track/1825391722",
+        "fr": "applemusic://track/1825391722",
+        "es": "applemusic://track/1825391722",
+        "nl": "applemusic://track/1825391722",
+        "it": "applemusic://track/1825391722"
+      },
+      "uri_youtube_music": "https://music.youtube.com/watch?v=5Oxu6G34qus",
+      "uri_tidal": "tidal://track/636496",
+      "uri_deezer": "deezer://track/1182485",
+      "fun_fact": "A chart hit by The Osmonds (1973).",
+      "fun_fact_de": "Ein Chart-Hit von The Osmonds (1973).",
+      "fun_fact_es": "Un éxito de The Osmonds (1973).",
+      "fun_fact_fr": "Un tube de The Osmonds (1973).",
+      "fun_fact_nl": "Een chart-hit van The Osmonds (1973).",
+      "fun_fact_it": "Un successo in classifica di The Osmonds (1973)."
+    },
+    {
+      "artist": "Middle Of The Road",
+      "title": "Sacramento (A Wonderful Town)",
+      "year": 1971,
+      "isrc": "ITB007100338",
+      "uri": "spotify:track:6hAUzkpIfh81JFJFq72iVN",
+      "uri_apple_music": "applemusic://track/255672947",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/255672947",
+        "de": "applemusic://track/255672947",
+        "gb": "applemusic://track/255672947",
+        "fr": "applemusic://track/255672947",
+        "es": "applemusic://track/255672947",
+        "nl": "applemusic://track/829669438",
+        "it": "applemusic://track/255672947"
+      },
+      "uri_youtube_music": "https://music.youtube.com/watch?v=8INT8crRqhk",
+      "uri_tidal": "tidal://track/19614",
+      "uri_deezer": "deezer://track/991963",
+      "fun_fact": "A chart hit by Middle Of The Road (1971).",
+      "fun_fact_de": "Ein Chart-Hit von Middle Of The Road (1971).",
+      "fun_fact_es": "Un éxito de Middle Of The Road (1971).",
+      "fun_fact_fr": "Un tube de Middle Of The Road (1971).",
+      "fun_fact_nl": "Een chart-hit van Middle Of The Road (1971).",
+      "fun_fact_it": "Un successo in classifica di Middle Of The Road (1971)."
+    },
+    {
+      "year": 1975,
+      "uri": "spotify:track:6COzABVCHQzyvc3rTMtrXn",
+      "artist": "Marianne Rosenberg",
+      "alt_artists": [
+        "Nicole",
+        "Mary Roos"
+      ],
+      "title": "Er gehört zu mir",
+      "certifications": [
+        "Gold (DE)"
+      ],
+      "awards": [],
+      "fun_fact": "Marianne Rosenberg's 1975 Schlager hit experienced a major revival in the 80s and has remained a German classic. Her powerful voice and emotional delivery made her one of Germany's most beloved singers.",
+      "fun_fact_de": "Marianne Rosenbergs Schlager-Hit von 1975 erlebte in den 80ern ein großes Revival und ist ein deutscher Klassiker geblieben. Ihre kraftvolle Stimme machte sie zu einer der beliebtesten Sängerinnen Deutschlands.",
+      "fun_fact_es": "El éxito Schlager de Marianne Rosenberg de 1975 experimentó un gran renacimiento en los 80 y sigue siendo un clásico alemán. Su poderosa voz la convirtió en una de las cantantes más queridas de Alemania.",
+      "fun_fact_fr": "Le tube Schlager de Marianne Rosenberg, sorti en 1975, a connu un formidable regain de popularité dans les années 80 et reste un classique incontournable en Allemagne. Sa voix puissante et son interprétation pleine d'émotion ont fait d'elle l'une des chanteuses les plus adorées du pays.",
+      "uri_apple_music": "applemusic://track/253845195",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=AwP7w54esDQ",
+      "uri_tidal": "tidal://track/22371988",
+      "uri_deezer": "deezer://track/2312569",
+      "fun_fact_nl": "Marianne Rosenbergs Schlager-hit uit 1975 beleefde een grote revival in de jaren 80 en is een Duits klassiek nummer gebleven. Haar krachtige stem en emotionele zang maakten haar een van Duitslands meest geliefde zangeressen.",
+      "awards_nl": [],
+      "isrc": "DEC737500013",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1626938161",
+        "de": "applemusic://track/1308496247",
+        "gb": "applemusic://track/1308496247",
+        "fr": "applemusic://track/1308496247",
+        "es": "applemusic://track/1308496247",
+        "nl": "applemusic://track/1308496247",
+        "it": "applemusic://track/1308496247"
+      }
+    },
+    {
+      "year": 1978,
+      "uri": "spotify:track:69G2bqmdxqFxOBj4mkvYQt",
+      "artist": "Kraftwerk",
+      "title": "Die Roboter",
+      "alt_artists": [
+        "Tangerine Dream",
+        "Jean-Michel Jarre"
+      ],
+      "certifications": [],
+      "fun_fact": "Kraftwerk built actual robot replicas of themselves that could perform on stage, bringing the song's concept to life in their concerts.",
+      "fun_fact_de": "Kraftwerk bauten echte Roboter-Nachbildungen von sich selbst, die auf der Bühne auftreten konnten, und erweckten so das Konzept des Songs in ihren Konzerten zum Leben.",
+      "fun_fact_es": "Kraftwerk construyó réplicas robot reales de sí mismos que podían actuar en el escenario, dando vida al concepto de la canción en sus conciertos.",
+      "fun_fact_fr": "Kraftwerk a construit de véritables répliques robotiques d'eux-mêmes capables de se produire sur scène, donnant vie au concept de la chanson lors de leurs concerts.",
+      "awards": [],
+      "uri_youtube_music": "https://music.youtube.com/watch?v=9plTe80SosA",
+      "uri_tidal": "tidal://track/11210159",
+      "uri_deezer": "deezer://track/13473869",
+      "fun_fact_nl": "Kraftwerk liet echte robotreplica's van zichzelf bouwen die op het podium konden optreden, waarmee ze het concept van het nummer tot leven brachten tijdens concerten.",
+      "awards_nl": []
+    },
+    {
+      "year": 1978,
+      "uri": "spotify:track:5xf5uP70cZB1YPHS52IMex",
+      "artist": "Kraftwerk",
+      "title": "Das Model",
+      "alt_artists": [
+        "Tangerine Dream",
+        "Depeche Mode"
+      ],
+      "certifications": [
+        "Gold (UK)"
+      ],
+      "fun_fact": "Originally released in 1978, 'Das Modell' reached #1 in the UK in 1982 when it was re-released as a B-side that became more popular than the A-side 'Computer Love'.",
+      "fun_fact_de": "'Das Modell' wurde 1978 veröffentlicht und erreichte 1982 #1 in Großbritannien, als es als B-Seite wiederveröffentlicht wurde, die populärer als die A-Seite 'Computerlove' wurde.",
+      "fun_fact_es": "Originalmente lanzada en 1978, 'Das Modell' alcanzó el #1 en el Reino Unido en 1982 cuando se relanzó como cara B que se volvió más popular que la cara A 'Computer Love'.",
+      "fun_fact_fr": "Sorti à l'origine en 1978, 'Das Modell' a atteint le #1 au Royaume-Uni en 1982 lors de sa ressortie en face B, devenue plus populaire que la face A 'Computer Love'.",
+      "awards": [],
+      "uri_apple_music": "applemusic://track/693113326",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=qCFIRjycV5Q",
+      "uri_tidal": "tidal://track/11210162",
+      "uri_deezer": "deezer://track/1006803652",
+      "fun_fact_nl": "Oorspronkelijk uitgebracht in 1978, bereikte 'Das Modell' de nummer 1 in het VK in 1982 toen het opnieuw werd uitgebracht als B-kant die populairder werd dan de A-kant 'Computer Love'.",
+      "awards_nl": [],
+      "isrc": "USCA20903078",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1572525083",
+        "de": "applemusic://track/693113326",
+        "gb": "applemusic://track/693113326",
+        "fr": "applemusic://track/693113326",
+        "es": "applemusic://track/693113326",
+        "nl": "applemusic://track/693113326",
+        "it": "applemusic://track/693113326"
+      }
+    },
+    {
+      "year": 1970,
+      "uri": "spotify:track:12rxrK9SZT9JDVf8WFyzsx",
+      "artist": "Desmond Dekker",
+      "alt_artists": [
+        "Jimmy Cliff",
+        "Bob Marley",
+        "Toots and the Maytals"
+      ],
+      "title": "You Can Get It If You Really Want",
+      "isrc": "GBAJE7000326",
+      "uri_apple_music": "applemusic://track/1434056762",
+      "uri_deezer": "deezer://track/3786050212",
+      "fun_fact": "Jimmy Cliff wrote it and recorded it himself, but it was Dekker's reading that went top ten in Britain — the songwriter's own version stayed the soundtrack cut.",
+      "fun_fact_de": "Jimmy Cliff schrieb den Song und nahm ihn selbst auf, doch in die britischen Top Ten brachte ihn Dekkers Fassung — die des Autors blieb die Soundtrack-Version.",
+      "fun_fact_es": "Jimmy Cliff la escribió y la grabó él mismo, pero fue la lectura de Dekker la que llegó al top ten británico; la del autor quedó como la versión de la banda sonora.",
+      "fun_fact_fr": "Jimmy Cliff l'a écrite et enregistrée lui-même, mais c'est la version de Dekker qui est entrée dans le top dix britannique ; celle de l'auteur est restée la version bande originale.",
+      "fun_fact_nl": "Jimmy Cliff schreef het en nam het zelf op, maar het was Dekkers versie die de Britse top tien haalde; die van de schrijver bleef de soundtrackversie.",
+      "fun_fact_it": "Jimmy Cliff la scrisse e la incise lui stesso, ma fu la versione di Dekker a entrare nella top ten britannica; quella dell'autore restò la versione della colonna sonora.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=PLFmbE6Maa8"
+    },
+    {
+      "year": 1970,
+      "uri": "spotify:track:476V2d6iA2tWXgQboKmTtA",
+      "artist": "Cat Stevens",
+      "alt_artists": [
+        "Yusuf",
+        "Boyzone",
+        "Ronan Keating"
+      ],
+      "title": "Father And Son",
+      "isrc": "GBUM71905972",
+      "uri_apple_music": "applemusic://track/1535559786",
+      "uri_deezer": "deezer://track/1157032882",
+      "fun_fact": "Stevens sings both parts, dropping his voice for the father and lifting it for the son — the whole argument is carried by one singer changing register.",
+      "fun_fact_de": "Stevens singt beide Rollen, senkt die Stimme für den Vater und hebt sie für den Sohn — der ganze Streit wird von einem Sänger getragen, der die Lage wechselt.",
+      "fun_fact_es": "Stevens canta ambos papeles, bajando la voz para el padre y subiéndola para el hijo: toda la discusión la sostiene un solo cantante cambiando de registro.",
+      "fun_fact_fr": "Stevens chante les deux rôles, baissant la voix pour le père et la montant pour le fils — toute la dispute repose sur un seul chanteur qui change de registre.",
+      "fun_fact_nl": "Stevens zingt beide rollen, laat zijn stem zakken voor de vader en tilt hem op voor de zoon — de hele ruzie wordt gedragen door één zanger die van register wisselt.",
+      "fun_fact_it": "Stevens canta entrambe le parti, abbassando la voce per il padre e alzandola per il figlio: tutta la discussione è retta da un solo cantante che cambia registro.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=P6zaCV4niKk"
+    },
+    {
+      "year": 1971,
+      "uri": "spotify:track:2U2ByqoO82fnayaPzO4x2d",
+      "artist": "Uriah Heep",
+      "alt_artists": [
+        "Deep Purple",
+        "Wishbone Ash",
+        "Nazareth"
+      ],
+      "title": "Lady In Black",
+      "isrc": "GBAJE7100113",
+      "uri_apple_music": "applemusic://track/1439522637",
+      "uri_deezer": "deezer://track/5748600",
+      "fun_fact": "Two chords, no chorus and a folk melody — the band's least typical song became its most durable one on German radio, where it still outpolls the hard rock.",
+      "fun_fact_de": "Zwei Akkorde, kein Refrain und eine Folk-Melodie — der untypischste Song der Band wurde im deutschen Radio ihr langlebigster und schlägt dort bis heute den harten Rock.",
+      "fun_fact_es": "Dos acordes, sin estribillo y una melodía folk: la canción menos típica del grupo se volvió la más duradera en la radio alemana, donde aún supera al hard rock.",
+      "fun_fact_fr": "Deux accords, pas de refrain et une mélodie folk — la chanson la moins typique du groupe est devenue la plus durable à la radio allemande, où elle devance encore le hard rock.",
+      "fun_fact_nl": "Twee akkoorden, geen refrein en een folkmelodie — het minst typische nummer van de band werd op de Duitse radio het duurzaamste en verslaat daar nog steeds de hardrock.",
+      "fun_fact_it": "Due accordi, nessun ritornello e una melodia folk: il brano meno tipico della band è diventato il più duraturo alla radio tedesca, dove batte ancora l'hard rock.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=bYZ2ftVIr0g"
+    },
+    {
+      "year": 1971,
+      "uri": "spotify:track:0uHYplBhwLYey7f9qAmnSM",
+      "artist": "Joan Baez",
+      "alt_artists": [
+        "The Band",
+        "Johnny Cash",
+        "Robbie Robertson"
+      ],
+      "title": "The Night They Drove Old Dixie Down",
+      "isrc": "USVG20500225",
+      "uri_apple_music": "applemusic://track/712163270",
+      "uri_deezer": "deezer://track/3507788",
+      "fun_fact": "Baez learned it by ear from The Band's record and got a line wrong; her misheard version is the one that reached number three and that most people now sing.",
+      "fun_fact_de": "Baez lernte den Song nach Gehör von der Platte von The Band und verhörte sich in einer Zeile; ihre falsch verstandene Fassung kam auf Platz drei und ist die, die heute gesungen wird.",
+      "fun_fact_es": "Baez lo aprendió de oído del disco de The Band y se equivocó en un verso; su versión mal oída llegó al número tres y es la que hoy canta la gente.",
+      "fun_fact_fr": "Baez l'a apprise à l'oreille sur le disque de The Band et s'est trompée sur un vers ; sa version mal entendue est arrivée troisième et c'est celle que l'on chante aujourd'hui.",
+      "fun_fact_nl": "Baez leerde het op het gehoor van de plaat van The Band en verstond een regel verkeerd; haar versie werd nummer drie en is degene die men nu zingt.",
+      "fun_fact_it": "Baez la imparò a orecchio dal disco della Band e sbagliò un verso; la sua versione fraintesa arrivò al terzo posto ed è quella che oggi si canta.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=GjMhA8wL7Pc"
+    },
+    {
+      "year": 1972,
+      "uri": "spotify:track:2l3PcN960dFLwkWsFQSw0n",
+      "artist": "John Kincade",
+      "alt_artists": [
+        "First Class",
+        "Middle of the Road",
+        "Christie"
+      ],
+      "title": "Dreams Are Ten A Penny",
+      "isrc": "GBBXC7220173",
+      "uri_apple_music": "applemusic://track/1605183970",
+      "uri_deezer": "deezer://track/1622212942",
+      "fun_fact": "Kincade was a studio name rather than a band, and the record did nothing at home while reaching the top five in Germany and the Netherlands.",
+      "fun_fact_de": "Kincade war ein Studioname und keine Band, und die Platte lief daheim ins Leere, während sie in Deutschland und den Niederlanden in die Top fünf kam.",
+      "fun_fact_es": "Kincade era un nombre de estudio más que un grupo, y el disco no funcionó en casa mientras llegaba al top cinco en Alemania y los Países Bajos.",
+      "fun_fact_fr": "Kincade était un nom de studio plutôt qu'un groupe, et le disque n'a rien fait chez lui tout en atteignant le top cinq en Allemagne et aux Pays-Bas.",
+      "fun_fact_nl": "Kincade was eerder een studionaam dan een band, en de plaat deed thuis niets terwijl hij in Duitsland en Nederland de top vijf haalde.",
+      "fun_fact_it": "Kincade era più un nome da studio che un gruppo, e il disco non fece nulla in patria mentre entrava nella top cinque in Germania e nei Paesi Bassi.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=1Od8wHQZc3M"
+    },
+    {
+      "year": 1973,
+      "uri": "spotify:track:1BmcaqiAwi3kbkCHNgSGuG",
+      "artist": "Nazareth",
+      "alt_artists": [
+        "Joni Mitchell",
+        "Uriah Heep",
+        "Deep Purple"
+      ],
+      "title": "This Flight Tonight",
+      "isrc": "GBCBR0402004",
+      "uri_apple_music": "applemusic://track/1441062608",
+      "uri_deezer": "deezer://track/65211028",
+      "fun_fact": "Joni Mitchell wrote it as a quiet acoustic piece; after hearing what Nazareth did to it she took to introducing it on stage as the Nazareth song.",
+      "fun_fact_de": "Joni Mitchell schrieb ihn als leises Akustikstück; nachdem sie gehört hatte, was Nazareth daraus machten, kündigte sie ihn auf der Bühne als den Nazareth-Song an.",
+      "fun_fact_es": "Joni Mitchell la escribió como una pieza acústica tranquila; tras oír lo que Nazareth hizo con ella, empezó a presentarla en directo como la canción de Nazareth.",
+      "fun_fact_fr": "Joni Mitchell l'avait écrite comme une pièce acoustique paisible ; après avoir entendu ce que Nazareth en avait fait, elle l'annonçait sur scène comme la chanson de Nazareth.",
+      "fun_fact_nl": "Joni Mitchell schreef het als een rustig akoestisch stuk; nadat ze hoorde wat Nazareth ermee deed, kondigde ze het op het podium aan als het Nazareth-nummer.",
+      "fun_fact_it": "Joni Mitchell la scrisse come un pezzo acustico sommesso; dopo aver sentito cosa ne avevano fatto i Nazareth, la presentava dal vivo come la canzone dei Nazareth.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=P9uvpr_gm64"
+    },
+    {
+      "year": 1973,
+      "uri": "spotify:track:6k6j3ZUljY1QLTMbc8VqB0",
+      "artist": "Sweet",
+      "alt_artists": [
+        "Slade",
+        "Suzi Quatro",
+        "Mud"
+      ],
+      "title": "Ballroom Blitz",
+      "isrc": "GBARL7300001",
+      "uri_apple_music": "applemusic://track/1446015804",
+      "uri_deezer": "deezer://track/2565717",
+      "fun_fact": "The spoken count-in came from a real night in Scotland where the band was driven off stage by a hail of bottles; the song is their reply to it.",
+      "fun_fact_de": "Das gesprochene Intro geht auf einen realen Abend in Schottland zurück, an dem die Band von einem Flaschenhagel von der Bühne getrieben wurde; der Song ist ihre Antwort darauf.",
+      "fun_fact_es": "La cuenta hablada del principio viene de una noche real en Escocia en la que una lluvia de botellas echó al grupo del escenario; la canción es su respuesta.",
+      "fun_fact_fr": "Le décompte parlé vient d'une vraie soirée en Écosse où une pluie de bouteilles a chassé le groupe de la scène ; la chanson est leur réponse.",
+      "fun_fact_nl": "De gesproken aftelling komt van een echte avond in Schotland waar de band door een hagel van flessen van het podium werd gejaagd; het nummer is hun antwoord.",
+      "fun_fact_it": "Il conteggio parlato viene da una serata vera in Scozia in cui una grandinata di bottiglie cacciò la band dal palco; la canzone è la loro risposta.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=7lTwA5xMeTM"
+    },
+    {
+      "year": 1974,
+      "uri": "spotify:track:3SZkTTibswLaKIEyEfaAFM",
+      "artist": "Slade",
+      "alt_artists": [
+        "Sweet",
+        "Mud",
+        "Wizzard"
+      ],
+      "title": "Far Far Away",
+      "isrc": "GBAKW7401001",
+      "uri_apple_music": "applemusic://track/6781552783",
+      "uri_deezer": "deezer://track/4083043791",
+      "fun_fact": "Noddy Holder wrote the words on tour in America, and for once Slade spelled the title correctly — the band's trademark was deliberate misspelling.",
+      "fun_fact_de": "Noddy Holder schrieb den Text auf US-Tournee, und ausnahmsweise schrieb Slade den Titel richtig — das Markenzeichen der Band waren absichtliche Rechtschreibfehler.",
+      "fun_fact_es": "Noddy Holder escribió la letra de gira por Estados Unidos y, por una vez, Slade escribió bien el título: la marca del grupo eran las faltas deliberadas.",
+      "fun_fact_fr": "Noddy Holder a écrit le texte en tournée américaine et, pour une fois, Slade a écrit le titre correctement — la marque du groupe était la faute d'orthographe volontaire.",
+      "fun_fact_nl": "Noddy Holder schreef de tekst tijdens een Amerikaanse tournee, en voor één keer spelde Slade de titel correct — het handelsmerk van de band waren opzettelijke spelfouten.",
+      "fun_fact_it": "Noddy Holder scrisse il testo in tournée in America e, per una volta, gli Slade scrissero il titolo correttamente: il marchio della band erano gli errori voluti.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=iQ5itYUNu70"
+    },
+    {
+      "year": 1974,
+      "uri": "spotify:track:2obblQ6tcePeOEVJV6nEGD",
+      "artist": "Harry Chapin",
+      "alt_artists": [
+        "Ugly Kid Joe",
+        "Jim Croce",
+        "Cat Stevens"
+      ],
+      "title": "Cat's in the Cradle",
+      "isrc": "USEE10801444",
+      "uri_apple_music": "applemusic://track/40286679",
+      "uri_deezer": "deezer://track/4118799",
+      "fun_fact": "The words began as a poem by Chapin's wife Sandy about her first husband and his father; Chapin only recorded it after his own son was born.",
+      "fun_fact_de": "Der Text begann als Gedicht von Chapins Frau Sandy über ihren ersten Mann und dessen Vater; Chapin nahm ihn erst auf, nachdem sein eigener Sohn geboren war.",
+      "fun_fact_es": "La letra empezó como un poema de Sandy, la mujer de Chapin, sobre su primer marido y el padre de este; Chapin solo la grabó tras nacer su propio hijo.",
+      "fun_fact_fr": "Le texte a commencé comme un poème de Sandy, la femme de Chapin, sur son premier mari et le père de celui-ci ; Chapin ne l'a enregistré qu'après la naissance de son fils.",
+      "fun_fact_nl": "De tekst begon als een gedicht van Chapins vrouw Sandy over haar eerste man en diens vader; Chapin nam het pas op nadat zijn eigen zoon was geboren.",
+      "fun_fact_it": "Il testo nacque come poesia di Sandy, moglie di Chapin, sul suo primo marito e il padre di lui; Chapin la incise solo dopo la nascita del proprio figlio.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=5u-KWa3tL-0"
+    },
+    {
+      "year": 1974,
+      "uri": "spotify:track:17pOLaBouf2EleJjsHfJSg",
+      "artist": "Blue Swede",
+      "alt_artists": [
+        "B. J. Thomas",
+        "Björn Skifs",
+        "David Hasselhoff"
+      ],
+      "title": "Hooked On A Feeling",
+      "isrc": "SEAMA7343050",
+      "uri_apple_music": "applemusic://track/726197782",
+      "uri_deezer": "deezer://track/3402413",
+      "fun_fact": "The wordless chant that opens it was not in B. J. Thomas's original; the Swedes borrowed it from a Jonathan King cover and made it the part everyone remembers.",
+      "fun_fact_de": "Der wortlose Sprechgesang am Anfang stand nicht im Original von B. J. Thomas; die Schweden übernahmen ihn von einer Coverversion von Jonathan King und machten daraus die Stelle, die alle kennen.",
+      "fun_fact_es": "El cántico sin palabras del inicio no estaba en el original de B. J. Thomas; los suecos lo tomaron de una versión de Jonathan King y lo convirtieron en lo que todos recuerdan.",
+      "fun_fact_fr": "Le chant sans paroles du début ne figurait pas dans l'original de B. J. Thomas ; les Suédois l'ont emprunté à une reprise de Jonathan King et en ont fait le passage que tout le monde retient.",
+      "fun_fact_nl": "Het woordeloze gezang aan het begin stond niet in het origineel van B. J. Thomas; de Zweden leenden het van een cover van Jonathan King en maakten er het stuk van dat iedereen kent.",
+      "fun_fact_it": "Il canto senza parole d'apertura non c'era nell'originale di B. J. Thomas; gli svedesi lo presero da una cover di Jonathan King e ne fecero il passaggio che tutti ricordano.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=l6DepmNwbn8"
+    },
+    {
+      "year": 1975,
+      "uri": "spotify:track:4Wr14AISsCuBGdkA6rids4",
+      "artist": "Silver Convention",
+      "alt_artists": [
+        "Boney M.",
+        "Donna Summer",
+        "Baccara"
+      ],
+      "title": "Fly Robin Fly",
+      "isrc": "USRDC7520003",
+      "uri_apple_music": "applemusic://track/394743930",
+      "uri_deezer": "deezer://track/11787290",
+      "fun_fact": "The whole lyric is six words repeated, which did not stop it going to number one in America and taking a Grammy for best disco recording.",
+      "fun_fact_de": "Der gesamte Text besteht aus sechs wiederholten Wörtern, was ihn nicht daran hinderte, in Amerika auf Platz eins zu gehen und einen Grammy für die beste Disco-Aufnahme zu holen.",
+      "fun_fact_es": "Toda la letra son seis palabras repetidas, lo que no impidió que llegara al número uno en Estados Unidos y ganara un Grammy a la mejor grabación disco.",
+      "fun_fact_fr": "Tout le texte tient en six mots répétés, ce qui ne l'a pas empêché d'atteindre la première place aux États-Unis et de remporter un Grammy du meilleur enregistrement disco.",
+      "fun_fact_nl": "De hele tekst bestaat uit zes herhaalde woorden, wat niet verhinderde dat het in Amerika nummer één werd en een Grammy won voor beste disco-opname.",
+      "fun_fact_it": "Tutto il testo sono sei parole ripetute, il che non impedì di arrivare al primo posto in America e di vincere un Grammy come miglior incisione disco.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=wC_kCnm3GYQ"
+    },
+    {
+      "year": 1975,
+      "uri": "spotify:track:4t9EUCjCPbdfqtOH25k8AU",
+      "artist": "Harpo",
+      "alt_artists": [
+        "Smokie",
+        "Chris Norman",
+        "Mud"
+      ],
+      "title": "Moviestar",
+      "isrc": "SEAMA7640010",
+      "uri_apple_music": null,
+      "uri_deezer": "deezer://track/6104213",
+      "fun_fact": "Sweden's Jan Svensson recorded it under a name he took from the Marx Brothers, and it sold better in Germany than anywhere else, including home.",
+      "fun_fact_de": "Der Schwede Jan Svensson nahm den Song unter einem Namen auf, den er sich von den Marx Brothers lieh, und er verkaufte sich in Deutschland besser als irgendwo sonst, auch besser als daheim.",
+      "fun_fact_es": "El sueco Jan Svensson lo grabó bajo un nombre tomado de los hermanos Marx, y se vendió mejor en Alemania que en ningún otro sitio, incluida su propia tierra.",
+      "fun_fact_fr": "Le Suédois Jan Svensson l'a enregistrée sous un nom emprunté aux Marx Brothers, et elle s'est mieux vendue en Allemagne que partout ailleurs, y compris chez lui.",
+      "fun_fact_nl": "De Zweed Jan Svensson nam het op onder een naam die hij aan de Marx Brothers ontleende, en het verkocht in Duitsland beter dan waar ook, ook beter dan thuis.",
+      "fun_fact_it": "Lo svedese Jan Svensson la incise sotto un nome preso in prestito dai fratelli Marx, e vendette in Germania meglio che altrove, patria compresa.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=vV0pcIRgcOk"
+    },
+    {
+      "year": 1976,
+      "uri": "spotify:track:2jxuI4zNuFKQfTryWQRq6M",
+      "artist": "David Dundas",
+      "alt_artists": [
+        "Smokie",
+        "Mungo Jerry",
+        "Chris Rea"
+      ],
+      "title": "Jeans On",
+      "isrc": "GBEHT0400612",
+      "uri_apple_music": "applemusic://track/1438755116",
+      "uri_deezer": "deezer://track/3783335362",
+      "fun_fact": "It started life as a thirty-second jingle for a Brutus jeans advert; the record company asked Dundas to stretch it into a song and it reached number three.",
+      "fun_fact_de": "Der Song begann als dreißigsekündiger Jingle für eine Brutus-Jeans-Werbung; die Plattenfirma bat Dundas, daraus ein ganzes Lied zu machen, und es kam auf Platz drei.",
+      "fun_fact_es": "Empezó como una cuña de treinta segundos para un anuncio de vaqueros Brutus; la discográfica pidió a Dundas que la estirara hasta hacer una canción y llegó al número tres.",
+      "fun_fact_fr": "Elle a commencé comme un jingle de trente secondes pour une publicité de jeans Brutus ; la maison de disques a demandé à Dundas d'en faire une chanson et elle a atteint la troisième place.",
+      "fun_fact_nl": "Het begon als een jingle van dertig seconden voor een reclame van Brutus-jeans; de platenmaatschappij vroeg Dundas er een lied van te maken en het werd nummer drie.",
+      "fun_fact_it": "Nacque come jingle di trenta secondi per una pubblicità di jeans Brutus; la casa discografica chiese a Dundas di farne una canzone e arrivò al terzo posto.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=UWdcZqG02Ls"
+    },
+    {
+      "year": 1976,
+      "uri": "spotify:track:2l6M2T0qbI74GXd7MqQhbw",
+      "artist": "Johnny Wakelin",
+      "alt_artists": [
+        "Boney M.",
+        "Baccara",
+        "Tina Charles"
+      ],
+      "title": "In Zaire",
+      "isrc": "GBAJE7600058",
+      "uri_apple_music": "applemusic://track/1710212104",
+      "uri_deezer": "deezer://track/3786451842",
+      "fun_fact": "Wakelin wrote two hits about Muhammad Ali, and this one is about the Rumble in the Jungle — a British singer's account of a fight in Kinshasa.",
+      "fun_fact_de": "Wakelin schrieb zwei Hits über Muhammad Ali, und dieser handelt vom Rumble in the Jungle — der Bericht eines britischen Sängers über einen Kampf in Kinshasa.",
+      "fun_fact_es": "Wakelin escribió dos éxitos sobre Muhammad Ali, y este trata del Rumble in the Jungle: la crónica de un cantante británico sobre un combate en Kinsasa.",
+      "fun_fact_fr": "Wakelin a écrit deux tubes sur Mohamed Ali, et celui-ci parle du Rumble in the Jungle — le récit par un chanteur britannique d'un combat à Kinshasa.",
+      "fun_fact_nl": "Wakelin schreef twee hits over Muhammad Ali, en deze gaat over de Rumble in the Jungle — het verslag van een Britse zanger over een gevecht in Kinshasa.",
+      "fun_fact_it": "Wakelin scrisse due successi su Muhammad Ali, e questo racconta il Rumble in the Jungle: la cronaca di un cantante britannico su un incontro a Kinshasa.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=GUpGRXT18R8"
+    },
+    {
+      "year": 1976,
+      "uri": "spotify:track:57TaM8GozkJBz90xvQ1xME",
+      "artist": "Smokie",
+      "alt_artists": [
+        "Chris Norman",
+        "New World",
+        "Suzi Quatro"
+      ],
+      "title": "Living Next Door to Alice",
+      "isrc": "DEA817600021",
+      "uri_apple_music": "applemusic://track/290383538",
+      "uri_deezer": "deezer://track/69883086",
+      "fun_fact": "Nicky Chinn and Mike Chapman wrote it for the Australian band New World in 1972; Smokie's remake four years later is the one that stuck across Europe.",
+      "fun_fact_de": "Nicky Chinn und Mike Chapman schrieben den Song 1972 für die australische Band New World; Smokies Neuaufnahme vier Jahre später ist die, die in Europa hängen blieb.",
+      "fun_fact_es": "Nicky Chinn y Mike Chapman la escribieron en 1972 para el grupo australiano New World; la nueva versión de Smokie cuatro años después es la que caló en Europa.",
+      "fun_fact_fr": "Nicky Chinn et Mike Chapman l'ont écrite en 1972 pour le groupe australien New World ; c'est la reprise de Smokie, quatre ans plus tard, qui s'est imposée en Europe.",
+      "fun_fact_nl": "Nicky Chinn en Mike Chapman schreven het in 1972 voor de Australische band New World; de nieuwe versie van Smokie vier jaar later is degene die in Europa bleef hangen.",
+      "fun_fact_it": "Nicky Chinn e Mike Chapman la scrissero nel 1972 per il gruppo australiano New World; il rifacimento degli Smokie quattro anni dopo è quello rimasto in Europa.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=Z6qnRS36EgE"
+    },
+    {
+      "year": 1977,
+      "uri": "spotify:track:2eYjEQFSl43STOZZe86QgB",
+      "artist": "Wings",
+      "alt_artists": [
+        "Paul McCartney",
+        "The Beatles",
+        "Wings"
+      ],
+      "title": "Mull Of Kintyre",
+      "isrc": "GBCCS7700746",
+      "uri_apple_music": "applemusic://track/1440942241",
+      "uri_deezer": "deezer://track/5664767",
+      "fun_fact": "McCartney set it on the Scottish headland where he keeps a farm, and the bagpipes of the Campbeltown Pipe Band carried it past two million UK sales.",
+      "fun_fact_de": "McCartney siedelte den Song auf der schottischen Landzunge an, auf der er eine Farm hat, und die Dudelsäcke der Campbeltown Pipe Band trugen ihn über zwei Millionen verkaufte Exemplare in Britannien.",
+      "fun_fact_es": "McCartney la situó en el cabo escocés donde tiene una granja, y las gaitas de la Campbeltown Pipe Band la llevaron más allá de los dos millones de copias en el Reino Unido.",
+      "fun_fact_fr": "McCartney l'a située sur la pointe écossaise où il possède une ferme, et les cornemuses du Campbeltown Pipe Band lui ont fait dépasser les deux millions de ventes au Royaume-Uni.",
+      "fun_fact_nl": "McCartney situeerde het op de Schotse landtong waar hij een boerderij heeft, en de doedelzakken van de Campbeltown Pipe Band brachten het voorbij twee miljoen verkochte exemplaren in Groot-Brittannië.",
+      "fun_fact_it": "McCartney la ambientò sul promontorio scozzese dove ha una fattoria, e le cornamuse della Campbeltown Pipe Band la portarono oltre i due milioni di copie nel Regno Unito.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=Plhtk_XJqhM"
+    },
+    {
+      "year": 1977,
+      "uri": "spotify:track:0rCEfFfigLLYmAFeJXQvm6",
+      "artist": "Santa Esmeralda",
+      "alt_artists": [
+        "The Animals",
+        "Nina Simone",
+        "Eric Burdon"
+      ],
+      "title": "Don't Let Me Be Misunderstood",
+      "isrc": "USGZ20600338",
+      "uri_apple_music": "applemusic://track/293764647",
+      "uri_deezer": "deezer://track/11567131",
+      "fun_fact": "Nina Simone recorded it first as a slow lament; Santa Esmeralda turned it into a sixteen-minute flamenco disco piece that Tarantino later put in Kill Bill.",
+      "fun_fact_de": "Nina Simone nahm den Song zuerst als langsame Klage auf; Santa Esmeralda machten daraus ein sechzehnminütiges Flamenco-Disco-Stück, das Tarantino später in Kill Bill verwendete.",
+      "fun_fact_es": "Nina Simone la grabó primero como un lamento lento; Santa Esmeralda la convirtió en una pieza de flamenco disco de dieciséis minutos que Tarantino usó luego en Kill Bill.",
+      "fun_fact_fr": "Nina Simone l'a d'abord enregistrée comme une lamentation lente ; Santa Esmeralda en a fait un morceau de flamenco disco de seize minutes que Tarantino a ensuite utilisé dans Kill Bill.",
+      "fun_fact_nl": "Nina Simone nam het eerst op als een traag klaaglied; Santa Esmeralda maakte er een flamencodiscostuk van zestien minuten van dat Tarantino later in Kill Bill gebruikte.",
+      "fun_fact_it": "Nina Simone la incise per prima come un lamento lento; i Santa Esmeralda ne fecero un pezzo flamenco disco di sedici minuti che Tarantino usò poi in Kill Bill.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=uvXeeus94GY"
+    },
+    {
+      "year": 1978,
+      "uri": "spotify:track:12VVhwwzhAi0GBzJFarIEP",
+      "artist": "Suzi Quatro",
+      "alt_artists": [
+        "Sweet",
+        "Joan Jett",
+        "Blondie"
+      ],
+      "title": "If You Can't Give Me Love",
+      "isrc": "UKKP21700074",
+      "uri_apple_music": "applemusic://track/1629153040",
+      "uri_deezer": "deezer://track/1787375817",
+      "fun_fact": "Chinn and Chapman handed Quatro a pop song rather than a rocker, and it outsold every leather-jacket single she had released before it.",
+      "fun_fact_de": "Chinn und Chapman gaben Quatro einen Popsong statt eines Rockers, und er verkaufte sich besser als jede Lederjacken-Single davor.",
+      "fun_fact_es": "Chinn y Chapman le dieron a Quatro una canción pop en lugar de un tema rockero, y vendió más que cualquier sencillo de cazadora de cuero anterior.",
+      "fun_fact_fr": "Chinn et Chapman ont donné à Quatro une chanson pop plutôt qu'un morceau rock, et elle s'est mieux vendue que tous ses singles blouson de cuir précédents.",
+      "fun_fact_nl": "Chinn en Chapman gaven Quatro een popnummer in plaats van een rocker, en het verkocht beter dan elke leren-jack-single daarvoor.",
+      "fun_fact_it": "Chinn e Chapman diedero a Quatro una canzone pop invece di un pezzo rock, e vendette più di ogni singolo in giacca di pelle precedente.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=KqyF4t7LDg0"
+    },
+    {
+      "year": 1979,
+      "uri": "spotify:track:284PXSCD8lGtytVviIkts3",
+      "artist": "Nick Straker Band",
+      "alt_artists": [
+        "M",
+        "Gary Numan",
+        "The Buggles"
+      ],
+      "title": "A Walk In The Park",
+      "isrc": "DEA311003597",
+      "uri_apple_music": "applemusic://track/78835989",
+      "uri_deezer": "deezer://track/60372121",
+      "fun_fact": "Straker played the synthesiser on M's 'Pop Muzik' before this; the same clipped electronic pop turns up here under his own name.",
+      "fun_fact_de": "Straker spielte davor den Synthesizer auf 'Pop Muzik' von M; derselbe knappe Elektro-Pop taucht hier unter seinem eigenen Namen wieder auf.",
+      "fun_fact_es": "Straker tocó el sintetizador en 'Pop Muzik' de M antes de esto; el mismo pop electrónico seco reaparece aquí bajo su propio nombre.",
+      "fun_fact_fr": "Straker jouait du synthétiseur sur 'Pop Muzik' de M avant cela ; la même pop électronique sèche revient ici sous son propre nom.",
+      "fun_fact_nl": "Straker speelde daarvoor synthesizer op 'Pop Muzik' van M; dezelfde strakke elektronische pop duikt hier onder zijn eigen naam op.",
+      "fun_fact_it": "Straker suonava il sintetizzatore in 'Pop Muzik' degli M prima di questo; lo stesso pop elettronico asciutto ritorna qui sotto il suo nome.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=MmcrGNHvPvI"
+    },
+    {
+      "year": 1979,
+      "uri": "spotify:track:2QTAl6K1dEwzOoPdkpZORX",
+      "artist": "The Alan Parsons Project",
+      "alt_artists": [
+        "Pink Floyd",
+        "Electric Light Orchestra",
+        "Mike Oldfield"
+      ],
+      "title": "Lucifer",
+      "isrc": "USAR19700011",
+      "uri_apple_music": "applemusic://track/598283277",
+      "uri_deezer": "deezer://track/15387905",
+      "fun_fact": "The instrumental spent years as the theme of the German television show Die aktuelle Schaubude, which is why it is far better known in Germany than in Britain.",
+      "fun_fact_de": "Das Instrumental war jahrelang das Thema der deutschen Fernsehsendung Die aktuelle Schaubude — deshalb ist es in Deutschland weit bekannter als in Britannien.",
+      "fun_fact_es": "El instrumental fue durante años la sintonía del programa alemán Die aktuelle Schaubude, por lo que es mucho más conocido en Alemania que en Gran Bretaña.",
+      "fun_fact_fr": "L'instrumental a longtemps servi de générique à l'émission allemande Die aktuelle Schaubude, ce qui explique qu'il soit bien plus connu en Allemagne qu'au Royaume-Uni.",
+      "fun_fact_nl": "Het instrumentale nummer was jarenlang de tune van het Duitse programma Die aktuelle Schaubude, waardoor het in Duitsland veel bekender is dan in Groot-Brittannië.",
+      "fun_fact_it": "Il brano strumentale fu per anni la sigla del programma tedesco Die aktuelle Schaubude, ed è per questo assai più noto in Germania che in Gran Bretagna.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=E9e9tp3_PE8"
+    },
+    {
+      "year": 1970,
+      "uri": "spotify:track:2ev5cqhY4qE0ekhbjiOPvQ",
+      "artist": "Miguel Ríos",
+      "alt_artists": [
+        "Waldo de los Ríos",
+        "James Last",
+        "Paul Mauriat"
+      ],
+      "title": "Song of Joy",
+      "isrc": "ES5151401396",
+      "uri_apple_music": "applemusic://track/1739835679",
+      "uri_deezer": "deezer://track/2739045771",
+      "fun_fact": "The melody is the choral finale of Beethoven's Ninth, turned into a pop single that went to number one in a dozen countries.",
+      "fun_fact_de": "Die Melodie ist das Chorfinale von Beethovens Neunter, zur Popsingle gemacht — in einem Dutzend Ländern auf Platz eins.",
+      "fun_fact_es": "La melodía es el final coral de la Novena de Beethoven convertido en single pop, número uno en una docena de países.",
+      "fun_fact_fr": "La mélodie est le finale choral de la Neuvième de Beethoven transformé en single pop, numéro un dans une douzaine de pays.",
+      "fun_fact_nl": "De melodie is de koorfinale van Beethovens Negende, omgevormd tot popsingle en in een tiental landen nummer één.",
+      "fun_fact_it": "La melodia è il finale corale della Nona di Beethoven trasformato in singolo pop, primo posto in una dozzina di paesi."
+    },
+    {
+      "year": 1970,
+      "uri": "spotify:track:4VnzKUBMB6cvog8Jvv1few",
+      "artist": "Christie",
+      "alt_artists": [
+        "Middle Of The Road",
+        "The New Seekers",
+        "Mungo Jerry"
+      ],
+      "title": "Yellow River",
+      "isrc": "GBBBN7000002",
+      "uri_apple_music": "applemusic://track/315999633",
+      "uri_deezer": "deezer://track/70751434",
+      "fun_fact": "Jeff Christie wrote it for The Tremeloes, who turned it down; he then sang it himself and took it to number one.",
+      "fun_fact_de": "Jeff Christie schrieb den Song für The Tremeloes, die ablehnten; dann sang er ihn selbst und ging damit auf Platz eins.",
+      "fun_fact_es": "Jeff Christie la escribió para The Tremeloes, que la rechazaron; luego la cantó él mismo y llegó al número uno.",
+      "fun_fact_fr": "Jeff Christie l'a écrite pour les Tremeloes, qui l'ont refusée ; il l'a alors chantée lui-même et a atteint la première place.",
+      "fun_fact_nl": "Jeff Christie schreef het voor The Tremeloes, die het afwezen; daarna zong hij het zelf en werd er nummer één mee.",
+      "fun_fact_it": "Jeff Christie la scrisse per i Tremeloes, che la rifiutarono; poi la cantò lui stesso e arrivò al primo posto."
+    },
+    {
+      "year": 1971,
+      "uri": "spotify:track:2ymeOsYijJz09LfKw3yM2x",
+      "artist": "Three Dog Night",
+      "alt_artists": [
+        "Creedence Clearwater Revival",
+        "The Guess Who",
+        "Grand Funk Railroad"
+      ],
+      "title": "Joy To The World",
+      "isrc": "USMC17049751",
+      "uri_apple_music": "applemusic://track/1434906971",
+      "uri_deezer": "deezer://track/391360542",
+      "fun_fact": "Hoyt Axton wrote the opening line about a bullfrog as a placeholder and never found anything better; it became the most famous line in the song.",
+      "fun_fact_de": "Hoyt Axton schrieb die Anfangszeile über einen Ochsenfrosch als Platzhalter und fand nie etwas Besseres — sie wurde die bekannteste Zeile des Songs.",
+      "fun_fact_es": "Hoyt Axton escribió el primer verso sobre una rana toro como relleno y nunca encontró nada mejor; acabó siendo el verso más famoso.",
+      "fun_fact_fr": "Hoyt Axton a écrit le premier vers sur une grenouille-taureau comme provisoire et n'a jamais trouvé mieux ; c'est devenu le vers le plus célèbre.",
+      "fun_fact_nl": "Hoyt Axton schreef de openingsregel over een brulkikker als tijdelijke invulling en vond nooit iets beters; het werd de bekendste regel.",
+      "fun_fact_it": "Hoyt Axton scrisse il verso d'apertura sulla rana toro come segnaposto e non trovò mai di meglio; divenne il verso più famoso."
+    },
+    {
+      "year": 1971,
+      "uri": "spotify:track:2XY4ViIjge2ihN3PSri8wH",
+      "artist": "Tony Christie",
+      "alt_artists": [
+        "Neil Sedaka",
+        "Tom Jones",
+        "Engelbert Humperdinck"
+      ],
+      "title": "(Is This The Way To) Amarillo",
+      "isrc": "USMC10200219",
+      "uri_apple_music": "applemusic://track/1442299594",
+      "uri_deezer": "deezer://track/1176308",
+      "fun_fact": "Neil Sedaka wrote it, and thirty-four years later a Peter Kay charity video sent the same recording back to number one in Britain.",
+      "fun_fact_de": "Neil Sedaka schrieb den Song, und vierunddreißig Jahre später brachte ein Benefizvideo von Peter Kay dieselbe Aufnahme zurück auf Platz eins in Britannien.",
+      "fun_fact_es": "La escribió Neil Sedaka, y treinta y cuatro años después un vídeo benéfico de Peter Kay devolvió esa misma grabación al número uno británico.",
+      "fun_fact_fr": "Neil Sedaka l'a écrite, et trente-quatre ans plus tard une vidéo caritative de Peter Kay a ramené le même enregistrement à la première place britannique.",
+      "fun_fact_nl": "Neil Sedaka schreef het, en vierendertig jaar later bracht een liefdadigheidsvideo van Peter Kay dezelfde opname terug op nummer één in Groot-Brittannië.",
+      "fun_fact_it": "La scrisse Neil Sedaka, e trentaquattro anni dopo un video benefico di Peter Kay riportò la stessa incisione al primo posto in Gran Bretagna."
+    },
+    {
+      "year": 1971,
+      "uri": "spotify:track:1YYhDizHx7PnDhAhko6cDS",
+      "artist": "John Denver",
+      "alt_artists": [
+        "Olivia Newton-John",
+        "Johnny Cash",
+        "James Taylor"
+      ],
+      "title": "Take Me Home, Country Roads",
+      "isrc": "USRC11100481",
+      "uri_apple_music": "applemusic://track/511074294",
+      "uri_deezer": "deezer://track/82697686",
+      "fun_fact": "Bill Danoff wrote about Maryland and changed it to West Virginia because the name scanned better; he had never been there.",
+      "fun_fact_de": "Bill Danoff schrieb über Maryland und änderte es in West Virginia, weil sich der Name besser sang — er war nie dort gewesen.",
+      "fun_fact_es": "Bill Danoff escribió sobre Maryland y lo cambió a Virginia Occidental porque el nombre encajaba mejor; nunca había estado allí.",
+      "fun_fact_fr": "Bill Danoff écrivait sur le Maryland et l'a changé en Virginie-Occidentale parce que le nom se chantait mieux ; il n'y était jamais allé.",
+      "fun_fact_nl": "Bill Danoff schreef over Maryland en veranderde het in West Virginia omdat de naam beter zong; hij was er nooit geweest.",
+      "fun_fact_it": "Bill Danoff scrisse del Maryland e lo cambiò in West Virginia perché il nome cantava meglio; non c'era mai stato.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=1vrEljMfXYo"
+    },
+    {
+      "year": 1971,
+      "uri": "spotify:track:6rbetlu2qWoxKi5c0u70Dq",
+      "artist": "The New Seekers",
+      "alt_artists": [
+        "The Seekers",
+        "Middle Of The Road",
+        "The Carpenters"
+      ],
+      "title": "Never Ending Song Of Love",
+      "isrc": "NLF057190044",
+      "uri_apple_music": "applemusic://track/1449915315",
+      "uri_deezer": "deezer://track/2298370",
+      "fun_fact": "The group was assembled by an agency and named after the band it replaced, which is about as manufactured as 1971 got.",
+      "fun_fact_de": "Die Gruppe wurde von einer Agentur zusammengestellt und nach der Band benannt, die sie ersetzte — künstlicher ging es 1971 kaum.",
+      "fun_fact_es": "El grupo lo montó una agencia y se llamó como la banda a la que sustituía, lo más prefabricado que daba 1971.",
+      "fun_fact_fr": "Le groupe a été monté par une agence et nommé d'après le groupe qu'il remplaçait — difficile de faire plus fabriqué en 1971.",
+      "fun_fact_nl": "De groep werd door een bureau samengesteld en genoemd naar de band die ze verving, ongeveer zo gefabriceerd als 1971 werd.",
+      "fun_fact_it": "Il gruppo fu messo insieme da un'agenzia e chiamato come la band che sostituiva: più costruito di così, nel 1971, non si poteva."
+    },
+    {
+      "year": 1971,
+      "uri": "spotify:track:2ZAqFu7QLIoNXSkvpwrKMU",
+      "artist": "Middle Of The Road",
+      "alt_artists": [
+        "The New Seekers",
+        "Christie",
+        "Mungo Jerry"
+      ],
+      "title": "Chirpy Chirpy Cheep Cheep",
+      "isrc": "ITB007000563",
+      "uri_apple_music": "applemusic://track/311923892",
+      "uri_deezer": "deezer://track/991969",
+      "fun_fact": "A Scottish band recorded it in Italy for an Italian label, and it sold ten million copies without anyone being sure what the words meant.",
+      "fun_fact_de": "Eine schottische Band nahm den Song in Italien für ein italienisches Label auf; er verkaufte sich zehn Millionen Mal, ohne dass jemand wusste, was der Text bedeutet.",
+      "fun_fact_es": "Un grupo escocés lo grabó en Italia para un sello italiano, y vendió diez millones de copias sin que nadie supiera qué decía la letra.",
+      "fun_fact_fr": "Un groupe écossais l'a enregistrée en Italie pour un label italien, et elle s'est vendue à dix millions d'exemplaires sans que personne sache ce que voulaient dire les paroles.",
+      "fun_fact_nl": "Een Schotse band nam het in Italië op voor een Italiaans label, en het verkocht tien miljoen keer zonder dat iemand wist wat de tekst betekende.",
+      "fun_fact_it": "Un gruppo scozzese la incise in Italia per un'etichetta italiana, e vendette dieci milioni di copie senza che nessuno sapesse cosa dicesse il testo."
+    },
+    {
+      "year": 1972,
+      "uri": "spotify:track:0DcrhZ12WcCqruCs8ibXSf",
+      "artist": "Johnny Nash",
+      "alt_artists": [
+        "Jimmy Cliff",
+        "Bob Marley",
+        "Desmond Dekker"
+      ],
+      "title": "I Can See Clearly Now",
+      "isrc": "GBBBN9999947",
+      "uri_apple_music": "applemusic://track/1276823184",
+      "uri_deezer": "deezer://track/549533",
+      "fun_fact": "Nash was an American who moved to Jamaica, and this was one of the first reggae-flavoured records to top the American chart.",
+      "fun_fact_de": "Nash war Amerikaner und zog nach Jamaika; die Platte war eine der ersten mit Reggae-Einschlag an der Spitze der US-Charts.",
+      "fun_fact_es": "Nash era estadounidense y se mudó a Jamaica; fue uno de los primeros discos con aire de reggae en llegar al número uno en Estados Unidos.",
+      "fun_fact_fr": "Nash était américain et s'est installé en Jamaïque ; ce fut l'un des premiers disques teintés de reggae à dominer le classement américain.",
+      "fun_fact_nl": "Nash was Amerikaan en verhuisde naar Jamaica; dit was een van de eerste reggae-getinte platen die de Amerikaanse lijst aanvoerde.",
+      "fun_fact_it": "Nash era americano e si trasferì in Giamaica; fu uno dei primi dischi di sapore reggae in cima alla classifica americana.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=b0cAWgTPiwM"
+    },
+    {
+      "year": 1972,
+      "uri": "spotify:track:57KfogSy3eKuk5JHLKwCJv",
+      "artist": "Neil Diamond",
+      "alt_artists": [
+        "Barry Manilow",
+        "Neil Sedaka",
+        "Elton John"
+      ],
+      "title": "Song Sung Blue",
+      "isrc": "USUG11400705",
+      "uri_apple_music": "applemusic://track/1425205876",
+      "uri_deezer": "deezer://track/529949721",
+      "fun_fact": "Diamond has said the melody owes a great deal to Mozart's Piano Concerto No. 21, which he was listening to at the time.",
+      "fun_fact_de": "Diamond hat gesagt, die Melodie verdanke viel Mozarts Klavierkonzert Nr. 21, das er damals hörte.",
+      "fun_fact_es": "Diamond ha dicho que la melodía debe mucho al Concierto para piano n.º 21 de Mozart, que escuchaba por entonces.",
+      "fun_fact_fr": "Diamond a dit que la mélodie devait beaucoup au Concerto pour piano nº 21 de Mozart, qu'il écoutait alors.",
+      "fun_fact_nl": "Diamond heeft gezegd dat de melodie veel te danken heeft aan Mozarts Pianoconcert nr. 21, dat hij toen beluisterde.",
+      "fun_fact_it": "Diamond ha detto che la melodia deve molto al Concerto per pianoforte n. 21 di Mozart, che ascoltava all'epoca.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=lSy9dt5FeS0"
+    },
+    {
+      "year": 1974,
+      "uri": "spotify:track:74jZhGv0fdLaf9q8AZZ15k",
+      "artist": "Carpenters",
+      "alt_artists": [
+        "The Marvelettes",
+        "The Beatles",
+        "The Supremes"
+      ],
+      "title": "Please Mr. Postman",
+      "isrc": "USAM17500067",
+      "uri_apple_music": "applemusic://track/1413927544",
+      "uri_deezer": "deezer://track/529915761",
+      "fun_fact": "The Marvelettes had the original in 1961 and the Beatles covered it in 1963; the Carpenters' version is the one that went to number one.",
+      "fun_fact_de": "Die Marvelettes hatten 1961 das Original, die Beatles coverten es 1963; die Fassung der Carpenters ist die, die auf Platz eins ging.",
+      "fun_fact_es": "Las Marvelettes tenían el original de 1961 y los Beatles la versionaron en 1963; la versión de los Carpenters es la que llegó al número uno.",
+      "fun_fact_fr": "Les Marvelettes avaient l'original en 1961 et les Beatles l'ont reprise en 1963 ; c'est la version des Carpenters qui a atteint la première place.",
+      "fun_fact_nl": "The Marvelettes hadden het origineel uit 1961 en de Beatles coverden het in 1963; de versie van de Carpenters werd nummer één.",
+      "fun_fact_it": "Le Marvelettes avevano l'originale del 1961 e i Beatles la reincisero nel 1963; la versione dei Carpenters è quella arrivata al primo posto.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=AHfddvbKb4w"
+    },
+    {
+      "year": 1974,
+      "uri": "spotify:track:6iXQrhhgBisdfvS34EMTZ3",
+      "artist": "Barry Manilow",
+      "alt_artists": [
+        "Neil Diamond",
+        "Eric Carmen",
+        "Bread"
+      ],
+      "title": "Mandy",
+      "isrc": "USAR17400164",
+      "uri_apple_music": "applemusic://track/177410267",
+      "uri_deezer": "deezer://track/548250",
+      "fun_fact": "Scott English wrote it in 1971 about a dog called Brandy; Manilow changed the name because another Brandy song was already on the radio.",
+      "fun_fact_de": "Scott English schrieb den Song 1971 über einen Hund namens Brandy; Manilow änderte den Namen, weil bereits ein anderes Brandy-Lied im Radio lief.",
+      "fun_fact_es": "Scott English la escribió en 1971 sobre un perro llamado Brandy; Manilow cambió el nombre porque ya sonaba otra canción con ese título.",
+      "fun_fact_fr": "Scott English l'a écrite en 1971 à propos d'un chien nommé Brandy ; Manilow a changé le nom parce qu'une autre chanson Brandy passait déjà à la radio.",
+      "fun_fact_nl": "Scott English schreef het in 1971 over een hond die Brandy heette; Manilow veranderde de naam omdat er al een ander Brandy-lied op de radio was.",
+      "fun_fact_it": "Scott English la scrisse nel 1971 su un cane di nome Brandy; Manilow cambiò il nome perché un'altra canzone intitolata Brandy era già in radio.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=AvGpvQbkccE"
+    },
+    {
+      "year": 1975,
+      "uri": "spotify:track:0AQqrtK1pULuwZUXhwaaDz",
+      "artist": "Eric Carmen",
+      "alt_artists": [
+        "Barry Manilow",
+        "Bread",
+        "Air Supply"
+      ],
+      "title": "All By Myself",
+      "isrc": "USAR10400530",
+      "uri_apple_music": "applemusic://track/1268087248",
+      "uri_deezer": "deezer://track/391680222",
+      "fun_fact": "The verses are Carmen's own and the middle section is lifted from Rachmaninoff's Second Piano Concerto, which forced a rights settlement.",
+      "fun_fact_de": "Die Strophen sind von Carmen, der Mittelteil stammt aus Rachmaninows zweitem Klavierkonzert — das führte zu einer Rechteeinigung.",
+      "fun_fact_es": "Las estrofas son de Carmen y la parte central procede del Segundo concierto para piano de Rajmáninov, lo que obligó a un acuerdo de derechos.",
+      "fun_fact_fr": "Les couplets sont de Carmen et le passage central est tiré du Deuxième concerto pour piano de Rachmaninov, ce qui a imposé un accord sur les droits.",
+      "fun_fact_nl": "De coupletten zijn van Carmen en het middendeel komt uit Rachmaninovs Tweede pianoconcert, wat een rechtenregeling afdwong.",
+      "fun_fact_it": "Le strofe sono di Carmen e la parte centrale viene dal Secondo concerto per pianoforte di Rachmaninov, il che impose un accordo sui diritti.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=iN9CjAfo5n0"
+    },
+    {
+      "year": 1975,
+      "uri": "spotify:track:3PR79C1jVvLLLmgdyHkXl3",
+      "artist": "KC & The Sunshine Band",
+      "alt_artists": [
+        "The Trammps",
+        "Tavares",
+        "Village People"
+      ],
+      "title": "That's the Way (I Like It)",
+      "isrc": "GBAYE0400454",
+      "uri_apple_music": null,
+      "uri_deezer": "deezer://track/107118556",
+      "fun_fact": "The version everyone knows is the second one; the first was considered too explicit for radio and quietly re-recorded.",
+      "fun_fact_de": "Die Fassung, die alle kennen, ist die zweite; die erste galt fürs Radio als zu deutlich und wurde still neu aufgenommen.",
+      "fun_fact_es": "La versión que todos conocen es la segunda; la primera se consideró demasiado explícita para la radio y se regrabó sin ruido.",
+      "fun_fact_fr": "La version que tout le monde connaît est la seconde ; la première était jugée trop explicite pour la radio et a été réenregistrée discrètement.",
+      "fun_fact_nl": "De versie die iedereen kent is de tweede; de eerste gold als te expliciet voor de radio en werd stilletjes opnieuw opgenomen.",
+      "fun_fact_it": "La versione che tutti conoscono è la seconda; la prima era ritenuta troppo esplicita per la radio e fu reincisa in sordina.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=yupPvZF6oBw"
+    },
+    {
+      "year": 1976,
+      "uri": "spotify:track:3XY0oIVf2roUFIwkzjBgwt",
+      "artist": "Bay City Rollers",
+      "alt_artists": [
+        "Dusty Springfield",
+        "The Osmonds",
+        "Slade"
+      ],
+      "title": "I Only Wanna Be with You",
+      "isrc": "USAR17600112",
+      "uri_apple_music": "applemusic://track/267153071",
+      "uri_deezer": "deezer://track/559240",
+      "fun_fact": "Dusty Springfield had the original in 1963; the Rollers' version came out at the height of a fan hysteria the British press called Rollermania.",
+      "fun_fact_de": "Dusty Springfield hatte 1963 das Original; die Fassung der Rollers erschien auf dem Höhepunkt einer Fanhysterie, die die britische Presse Rollermania nannte.",
+      "fun_fact_es": "Dusty Springfield tenía el original de 1963; la versión de los Rollers salió en pleno furor que la prensa británica llamó Rollermania.",
+      "fun_fact_fr": "Dusty Springfield avait l'original en 1963 ; la version des Rollers est sortie au sommet de l'hystérie que la presse britannique appelait la Rollermania.",
+      "fun_fact_nl": "Dusty Springfield had het origineel uit 1963; de versie van de Rollers verscheen op het hoogtepunt van de hysterie die de Britse pers Rollermania noemde.",
+      "fun_fact_it": "Dusty Springfield aveva l'originale del 1963; la versione dei Rollers uscì al culmine dell'isteria che la stampa britannica chiamava Rollermania.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=CGD27WgtKhI"
+    },
+    {
+      "year": 1976,
+      "uri": "spotify:track:0PBvvjD1p3TcH369HIbDx9",
+      "artist": "Tavares",
+      "alt_artists": [
+        "The Trammps",
+        "KC & The Sunshine Band",
+        "The Emotions"
+      ],
+      "title": "Heaven Must Be Missing An Angel",
+      "isrc": "USCA28900559",
+      "uri_apple_music": "applemusic://track/1553128879",
+      "uri_deezer": "deezer://track/3124572",
+      "fun_fact": "Five brothers from Rhode Island who took the family surname as the band name and spent a decade on the American charts.",
+      "fun_fact_de": "Fünf Brüder aus Rhode Island, die den Familiennamen zum Bandnamen machten und ein Jahrzehnt in den US-Charts standen.",
+      "fun_fact_es": "Cinco hermanos de Rhode Island que tomaron el apellido familiar como nombre del grupo y pasaron una década en las listas estadounidenses.",
+      "fun_fact_fr": "Cinq frères du Rhode Island qui ont pris le nom de famille comme nom de groupe et sont restés dix ans dans les classements américains.",
+      "fun_fact_nl": "Vijf broers uit Rhode Island die de familienaam als bandnaam namen en een decennium in de Amerikaanse lijsten stonden.",
+      "fun_fact_it": "Cinque fratelli del Rhode Island che presero il cognome di famiglia come nome della band e restarono un decennio nelle classifiche americane.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=J123lM0RvzM"
+    },
+    {
+      "year": 1976,
+      "uri": "spotify:track:5jWI1xNxABzDRFTnD2yp8L",
+      "artist": "Tina Charles",
+      "alt_artists": [
+        "Baccara",
+        "Silver Convention",
+        "Amanda Lear"
+      ],
+      "title": "I Love to Love",
+      "isrc": "GBBBN7500001",
+      "uri_apple_music": "applemusic://track/323724722",
+      "uri_deezer": "deezer://track/13159201",
+      "fun_fact": "Charles had already sung uncredited on a Jack Jones hit before this; the disco number one finally put her name on the label.",
+      "fun_fact_de": "Charles hatte zuvor ungenannt auf einem Hit von Jack Jones gesungen; die Disco-Nummer-eins brachte endlich ihren Namen aufs Etikett.",
+      "fun_fact_es": "Charles ya había cantado sin acreditar en un éxito de Jack Jones; este número uno disco puso por fin su nombre en la etiqueta.",
+      "fun_fact_fr": "Charles avait déjà chanté sans être créditée sur un tube de Jack Jones ; ce numéro un disco a enfin mis son nom sur l'étiquette.",
+      "fun_fact_nl": "Charles had eerder ongecrediteerd meegezongen op een hit van Jack Jones; deze disco-nummer-één zette eindelijk haar naam op het label.",
+      "fun_fact_it": "Charles aveva già cantato non accreditata in un successo di Jack Jones; questo numero uno disco mise finalmente il suo nome sull'etichetta.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=TMnns_iIB2M"
+    },
+    {
+      "year": 1976,
+      "uri": "spotify:track:3uiMBldZ07pW0ySHDX5gzE",
+      "artist": "Wings",
+      "alt_artists": [
+        "Paul McCartney",
+        "The Beatles",
+        "Elton John"
+      ],
+      "title": "Silly Love Songs",
+      "isrc": "GBCCS1400019",
+      "uri_apple_music": "applemusic://track/1507830240",
+      "uri_deezer": "deezer://track/126368801",
+      "fun_fact": "McCartney wrote it as a direct answer to critics who called his songs sentimental, and made it the biggest-selling single of the year.",
+      "fun_fact_de": "McCartney schrieb den Song als direkte Antwort auf Kritiker, die seine Lieder sentimental nannten — und machte daraus die meistverkaufte Single des Jahres.",
+      "fun_fact_es": "McCartney la escribió como respuesta directa a los críticos que llamaban sentimentales a sus canciones, y la convirtió en el sencillo más vendido del año.",
+      "fun_fact_fr": "McCartney l'a écrite en réponse directe aux critiques qui trouvaient ses chansons sentimentales, et en a fait le single le plus vendu de l'année.",
+      "fun_fact_nl": "McCartney schreef het als direct antwoord op critici die zijn liedjes sentimenteel noemden, en maakte er de best verkochte single van het jaar van.",
+      "fun_fact_it": "McCartney la scrisse come risposta diretta ai critici che definivano sentimentali le sue canzoni, e ne fece il singolo più venduto dell'anno.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=ap87QgZKTNw"
+    },
+    {
+      "year": 1978,
+      "uri": "spotify:track:4rZl9S1gO2sGUHrm7Hs3pb",
+      "artist": "Luv'",
+      "alt_artists": [
+        "Baccara",
+        "Silver Convention",
+        "Dolly Dots"
+      ],
+      "title": "You're The Greatest Lover",
+      "isrc": "NLA307800001",
+      "uri_apple_music": "applemusic://track/1471580258",
+      "uri_deezer": "deezer://track/88755483",
+      "fun_fact": "Three Dutch women singing English disco for the German market, which describes most of the continental charts that year.",
+      "fun_fact_de": "Drei Niederländerinnen, die englischen Disco für den deutschen Markt sangen — womit ein Großteil der kontinentalen Charts jenes Jahres beschrieben ist.",
+      "fun_fact_es": "Tres neerlandesas cantando disco en inglés para el mercado alemán, lo que describe buena parte de las listas continentales de aquel año.",
+      "fun_fact_fr": "Trois Néerlandaises chantant du disco en anglais pour le marché allemand, ce qui décrit une bonne part des classements continentaux de l'année.",
+      "fun_fact_nl": "Drie Nederlandse vrouwen die Engelse disco zongen voor de Duitse markt, wat een groot deel van de continentale lijsten van dat jaar beschrijft.",
+      "fun_fact_it": "Tre olandesi che cantavano disco in inglese per il mercato tedesco, il che descrive buona parte delle classifiche continentali di quell'anno.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=F7EWeEA0Ax0"
+    },
+    {
+      "year": 1978,
+      "uri": "spotify:track:2JK1wOZCGUDbJOSaHAa8BM",
+      "artist": "Exile",
+      "alt_artists": [
+        "Dr. Hook",
+        "Player",
+        "Firefall"
+      ],
+      "title": "Kiss You All Over",
+      "isrc": "USSM19915889",
+      "uri_apple_music": "applemusic://track/605808099",
+      "uri_deezer": "deezer://track/1069077",
+      "fun_fact": "Nicky Chinn and Mike Chapman wrote it for a band that had spent ten years backing other people; it went to number one for four weeks.",
+      "fun_fact_de": "Nicky Chinn und Mike Chapman schrieben den Song für eine Band, die zehn Jahre lang andere begleitet hatte — er stand vier Wochen auf Platz eins.",
+      "fun_fact_es": "Nicky Chinn y Mike Chapman la escribieron para un grupo que llevaba diez años acompañando a otros; estuvo cuatro semanas en el número uno.",
+      "fun_fact_fr": "Nicky Chinn et Mike Chapman l'ont écrite pour un groupe qui avait passé dix ans à accompagner les autres ; elle est restée quatre semaines première.",
+      "fun_fact_nl": "Nicky Chinn en Mike Chapman schreven het voor een band die tien jaar anderen had begeleid; het stond vier weken op nummer één.",
+      "fun_fact_it": "Nicky Chinn e Mike Chapman la scrissero per un gruppo che aveva passato dieci anni ad accompagnare altri; restò quattro settimane al primo posto.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=OpaCXtahXxk"
+    },
+    {
+      "year": 1978,
+      "uri": "spotify:track:0lIoY4ZQsdn5QzhraM9o9u",
+      "artist": "Patti Smith",
+      "alt_artists": [
+        "Bruce Springsteen",
+        "Natalie Merchant",
+        "10,000 Maniacs"
+      ],
+      "title": "Because the Night",
+      "isrc": "USAR10000781",
+      "uri_apple_music": "applemusic://track/304207991",
+      "uri_deezer": "deezer://track/13438425",
+      "fun_fact": "Springsteen wrote the music and could not finish the words; Patti Smith wrote them while waiting for a phone call from her future husband.",
+      "fun_fact_de": "Springsteen schrieb die Musik und kam mit dem Text nicht weiter; Patti Smith schrieb ihn, während sie auf einen Anruf ihres späteren Mannes wartete.",
+      "fun_fact_es": "Springsteen compuso la música y no lograba acabar la letra; Patti Smith la escribió mientras esperaba una llamada de su futuro marido.",
+      "fun_fact_fr": "Springsteen a composé la musique sans parvenir à finir le texte ; Patti Smith l'a écrit en attendant un appel de son futur mari.",
+      "fun_fact_nl": "Springsteen schreef de muziek en kreeg de tekst niet af; Patti Smith schreef die terwijl ze wachtte op een telefoontje van haar latere man.",
+      "fun_fact_it": "Springsteen scrisse la musica e non riusciva a finire il testo; Patti Smith lo scrisse aspettando una telefonata del futuro marito.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=c_BcivBprM0"
+    },
+    {
+      "year": 1979,
+      "uri": "spotify:track:3Ug96zKa29P3vICEEcYajZ",
+      "artist": "Cliff Richard",
+      "alt_artists": [
+        "Elton John",
+        "Chris Rea",
+        "Leo Sayer"
+      ],
+      "title": "We Don't Talk Anymore",
+      "isrc": "GBAYE0100642",
+      "uri_apple_music": "applemusic://track/680715757",
+      "uri_deezer": "deezer://track/3100717",
+      "fun_fact": "Richard sang it against his own instincts as a disco record and got his first American top ten in three decades out of it.",
+      "fun_fact_de": "Richard sang den Song gegen seine eigenen Instinkte als Disco-Platte ein und bekam dafür seine erste US-Top-Ten seit drei Jahrzehnten.",
+      "fun_fact_es": "Richard la cantó en contra de su propio instinto como disco de baile y consiguió con ella su primer top diez estadounidense en tres décadas.",
+      "fun_fact_fr": "Richard l'a chantée contre son propre instinct, en disque disco, et en a tiré son premier top dix américain en trois décennies.",
+      "fun_fact_nl": "Richard zong het tegen zijn eigen instinct in als discoplaat en kreeg er zijn eerste Amerikaanse top tien in drie decennia mee.",
+      "fun_fact_it": "Richard la cantò contro il proprio istinto come disco da ballo e ne ricavò la prima top ten americana in tre decenni.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=GzjX18psf9A"
     }
   ]
 }

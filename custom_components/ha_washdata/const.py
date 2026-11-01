@@ -16,7 +16,10 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 """Constants for the WashData integration."""
 
+import math
+from collections.abc import Mapping
 from enum import StrEnum
+from typing import Any
 
 DOMAIN = "ha_washdata"
 
@@ -43,10 +46,15 @@ CONF_POWER_SENSOR = "power_sensor"
 CONF_NAME = "name"
 CONF_MIN_POWER = "min_power"
 CONF_OFF_DELAY = "off_delay"
+# Bucket size (minutes) for the per-profile `power_profile` sensor attribute that
+# external planners (EMHASS, tibber_prices) consume. Configurable so short sharp
+# spikes are not blurred by the fixed 15-min default (#367). Read-time only.
+CONF_POWER_PROFILE_INTERVAL_MIN = "power_profile_interval_min"
 CONF_NOTIFY_SERVICE = "notify_service"  # Deprecated - kept for migration only
 CONF_NOTIFY_ACTIONS = "notify_actions"
 CONF_NOTIFY_PEOPLE = "notify_people"
 CONF_NOTIFY_ONLY_WHEN_HOME = "notify_only_when_home"
+# Retired by #478: the ha_washdata_* bus events always fire. Kept for migration only.
 CONF_NOTIFY_FIRE_EVENTS = "notify_fire_events"
 CONF_NOTIFY_EVENTS = "notify_events"  # Deprecated - kept for migration only
 CONF_NOTIFY_START_SERVICES = "notify_start_services"
@@ -55,33 +63,30 @@ CONF_NOTIFY_LIVE_SERVICES = "notify_live_services"
 CONF_NOTIFY_CYCLE_TIMERS = "notify_cycle_timers"
 CONF_NO_UPDATE_ACTIVE_TIMEOUT = "no_update_active_timeout"
 CONF_LOW_POWER_NO_UPDATE_TIMEOUT = "low_power_no_update_timeout"
-CONF_SMOOTHING_WINDOW = "smoothing_window"
-CONF_SAMPLING_INTERVAL = "sampling_interval"
+CONF_SMOOTHING_WINDOW = "smoothing_window"  # Removed in 0.5.8: never read; key kept for old migrations
+CONF_SAMPLING_INTERVAL = "sampling_interval"  # Retired in 0.5.9: the device type's default applies; key kept for migration and the panel's resolved defaults
 CONF_START_DURATION_THRESHOLD = (
     "start_duration_threshold"  # Debounce for start detection
 )
 CONF_DEVICE_TYPE = "device_type"
-CONF_PROFILE_DURATION_TOLERANCE = "profile_duration_tolerance"
+CONF_PROFILE_DURATION_TOLERANCE = "profile_duration_tolerance"  # Never read (audit DOCS-01); key kept for migration
 
 
 CONF_INTERRUPTED_MIN_SECONDS = "interrupted_min_seconds"  # Internal use only
 CONF_PROGRESS_RESET_DELAY = "progress_reset_delay"
 CONF_LEARNING_CONFIDENCE = "learning_confidence"
-CONF_DURATION_TOLERANCE = "duration_tolerance"
+CONF_DURATION_TOLERANCE = "duration_tolerance"  # Retired in 0.5.9: only fed an unread feedback field; key kept for migration
 CONF_AUTO_LABEL_CONFIDENCE = "auto_label_confidence"
 CONF_AUTO_MAINTENANCE = "auto_maintenance"
 CONF_PROFILE_MATCH_INTERVAL = "profile_match_interval"
 CONF_PROFILE_MATCH_MIN_DURATION_RATIO = "profile_match_min_duration_ratio"
 CONF_PROFILE_MATCH_MAX_DURATION_RATIO = "profile_match_max_duration_ratio"
-CONF_MAX_PAST_CYCLES = "max_past_cycles"
-CONF_MAX_FULL_TRACES_PER_PROFILE = "max_full_traces_per_profile"
-CONF_MAX_FULL_TRACES_UNLABELED = "max_full_traces_unlabeled"
 CONF_WATCHDOG_INTERVAL = "watchdog_interval"  # Derived from sampling_interval
 CONF_MATCH_PERSISTENCE = "match_persistence"
 CONF_COMPLETION_MIN_SECONDS = "completion_min_seconds"
 CONF_NOTIFY_BEFORE_END_MINUTES = "notify_before_end_minutes"
-CONF_RUNNING_DEAD_ZONE = "running_dead_zone"  # Seconds after start to ignore power dips
-CONF_END_REPEAT_COUNT = "end_repeat_count"  # Number of times end condition must be met
+CONF_RUNNING_DEAD_ZONE = "running_dead_zone"  # REMOVED in 0.5.3 — was never wired to detection
+CONF_END_REPEAT_COUNT = "end_repeat_count"  # Removed in 0.5.8: the detector never read it; stored values are ignored
 CONF_MIN_OFF_GAP = "min_off_gap"  # Minimum gap to separate cycles (seconds)
 CONF_START_ENERGY_THRESHOLD = "start_energy_threshold"  # Wh required to confirm start
 CONF_END_ENERGY_THRESHOLD = "end_energy_threshold"  # Wh allowed during end candidates
@@ -96,41 +101,22 @@ CONF_POWER_OFF_DELAY = (
     "power_off_delay"  # Seconds below the power-off threshold before Finished/Clean -> Off
 )
 CONF_EXPOSE_DEBUG_ENTITIES = "expose_debug_entities"  # Expose detailed debug sensors
-# Per-device opt-in: blend the phase-resolved (per-role budget) ETA into the
-# time-remaining estimate for phase-matching-supported device types (washing
-# machine, washer-dryer). Default off. Validated by the Phase-0 ETA gate; see
-# docs/superpowers/specs/2026-07-17-phase-segmented-matching-design.md.
-CONF_ENABLE_PHASE_MATCHING = "enable_phase_matching"
-# Phase-structure consistency advisory (Profiles tab, never a notification).
-# A single-program/temperature profile should have a fairly consistent heating
-# block; wildly varying heating time or heating present in only some cycles
-# usually means different programs/temperatures were labelled under one profile
-# (the "mixed labels" data-hygiene problem). Pure statistics from the cached
-# phase profile - no relabeling (phase matching does not label better than the
-# whole-cycle matcher; see the Phase-0 gate).
-# Minimum member cycles before a profile's cached phase profile is trusted to
-# drive the live phase-resolved ETA (mirrors the envelope's cycle_count>=2 gate);
-# below this the priors are too noisy (single-cycle -> zero variance) and the
-# estimate falls back to the classic one. Design §6 cold-start floor.
-PHASE_PROFILE_MIN_CYCLES = 2
-PHASE_CONSISTENCY_MIN_CYCLES = 4
-# Heating-time std/mean above this -> likely mixed temperatures under one label.
-# A clean single-temperature profile sits ~0.2 (load variation only); a profile
-# mixing 30/40/90C sits ~0.45-0.6, so 0.45 catches genuine mixing with margin.
-PHASE_HEAT_CV_WARN = 0.45
-PHASE_HEAT_OCC_MIXED_LO = 0.25    # heating present in only 25%-75% of cycles ->
-PHASE_HEAT_OCC_MIXED_HI = 0.75    #   mixed with a non-heating program
 CONF_SAVE_DEBUG_TRACES = (
     "save_debug_traces"  # Improve historical cycle data with rich debug info
 )
 CONF_AUTO_TUNE_NOISE_EVENTS_THRESHOLD = "auto_tune_noise_events_threshold"  # Noise events before auto-tune
-CONF_EXTERNAL_END_TRIGGER_ENABLED = "external_end_trigger_enabled"  # Enable external cycle end trigger
-CONF_EXTERNAL_END_TRIGGER = "external_end_trigger"  # Binary sensor entity for external cycle end
+CONF_EXTERNAL_END_TRIGGER_ENABLED = "external_end_trigger_enabled"  # Retired in 0.5.9: the trigger is on whenever its entity is set; key kept for migration
+CONF_EXTERNAL_END_TRIGGER = "external_end_trigger"  # Binary sensor entity that ends the cycle; set = on
 CONF_EXTERNAL_END_TRIGGER_INVERTED = "external_end_trigger_inverted"  # Invert external trigger logic (trigger on OFF)
 CONF_ANTI_WRINKLE_ENABLED = "anti_wrinkle_enabled"  # Dryer anti-wrinkle shielding
 CONF_ANTI_WRINKLE_MAX_POWER = "anti_wrinkle_max_power"  # W threshold for anti-wrinkle spikes
 CONF_ANTI_WRINKLE_MAX_DURATION = "anti_wrinkle_max_duration"  # Seconds to treat as anti-wrinkle
-CONF_ANTI_WRINKLE_EXIT_POWER = "anti_wrinkle_exit_power"  # W threshold for true-off exit
+CONF_ANTI_WRINKLE_EXIT_POWER = "anti_wrinkle_exit_power"  # Retired in 0.5.9: fixed at max(DEFAULT_ANTI_WRINKLE_EXIT_POWER, stop_threshold_w); key kept for migration
+CONF_ANTI_WRINKLE_IDLE_TIMEOUT = "anti_wrinkle_idle_timeout"  # Seconds below the exit level before anti-wrinkle ends
+CONF_DISHWASHER_END_SPIKE_QUIET_RELEASE = "dishwasher_end_spike_quiet_release"  # Dishwasher: sustained-quiet seconds after expected duration that release the end-of-cycle drain wait early (#379)
+CONF_SMART_TERMINATION_DURATION_RATIO = "smart_termination_duration_ratio"  # Fraction of the matched profile's expected (mean) duration that Smart Termination requires before it may fire (#393)
+CONF_ANTI_CREASE_FINALIZE_RATIO = "anti_crease_finalize_ratio"  # Fraction of the matched profile's expected (mean) duration the anti-crease finalise requires before it may fire (#429)
+CONF_CURVE_PREROLL_SECONDS = "curve_preroll_seconds"  # How far back readings from aborted start probes may be carried into a committed cycle's curve; 0 = off (#430)
 CONF_DELAY_START_DETECT_ENABLED = "delay_start_detect_enabled"  # Enable delayed-start detection
 CONF_DELAY_CONFIRM_SECONDS = "delay_confirm_seconds"  # Seconds power must stay in standby band before DELAY_WAIT engages
 CONF_DELAY_TIMEOUT_HOURS = "delay_timeout_hours"  # Safety timeout (hours) while waiting to start
@@ -146,18 +132,51 @@ NOTIFY_EVENT_TIMER = "cycle_timer"  # User-configured mid-cycle countdown timer
 
 CONF_NOTIFY_TITLE = "notify_title"
 CONF_NOTIFY_ICON = "notify_icon"
+# Per-device accent colour (#454). One setting, three companion-app keys: `color`
+# (Android notification accent), `notification_icon_color` (iOS icon glyph tint) and
+# `progress_bar_color` (iOS Live Activity bar). Mobile-only, blank = platform default.
+CONF_NOTIFY_ICON_COLOR = "notify_icon_color"
 CONF_NOTIFY_START_MESSAGE = "notify_start_message"
 CONF_NOTIFY_FINISH_MESSAGE = "notify_finish_message"
 CONF_NOTIFY_PRE_COMPLETE_MESSAGE = "notify_pre_complete_message"
 CONF_NOTIFY_LIVE_INTERVAL_SECONDS = "notify_live_interval_seconds"
 CONF_NOTIFY_LIVE_OVERRUN_PERCENT = "notify_live_overrun_percent"
 CONF_NOTIFY_LIVE_CHRONOMETER = "notify_live_chronometer"
+# Opt-in data keys on the EXISTING live progress notification (#347): keep-on-tap
+# (sticky) and a tap target (clickAction). Not new notification types. Mobile-only.
+CONF_NOTIFY_LIVE_STICKY = "notify_live_sticky"
+CONF_NOTIFY_LIVE_CLICK_ACTION = "notify_live_click_action"
+# Silent recurring live updates (#417). iOS alerts on every Live Activity refresh
+# unless the update is marked silent, so a 10-minute live interval buzzes the phone
+# all cycle long. Mobile-only, and never applied to the update that STARTS the
+# activity - that one stays audible (and `silent` has no effect there anyway).
+CONF_NOTIFY_LIVE_SILENT = "notify_live_silent"
 CONF_NOTIFY_REMINDER_MESSAGE = "notify_reminder_message"  # Distinct one-time pre-end alert
 CONF_NOTIFY_TIMEOUT_SECONDS = "notify_timeout_seconds"  # Auto-dismiss after N seconds (0 = never)
 CONF_NOTIFY_CHANNEL = "notify_channel"  # Android channel for status/live/reminder
 CONF_NOTIFY_FINISH_CHANNEL = "notify_finish_channel"  # Distinct Android channel for finished/clean
 CONF_ENERGY_PRICE_STATIC = "energy_price_static"
 CONF_ENERGY_PRICE_ENTITY = "energy_price_entity"
+# Dynamic (time-weighted) pricing (#426). With a price *entity* configured, the
+# cost of a cycle is integrated against the price in force at each moment instead
+# of freezing the single price that happened to be current when the cycle ended.
+# Only meaningful for a price entity - a static price has no time dimension, so
+# this is a no-op there and the flag is never consulted. Default on: the frozen
+# end-of-cycle price is simply wrong for a tariff that moves during the cycle,
+# and cost is display-only (no detection, matching or ML input depends on it).
+CONF_ENERGY_PRICE_DYNAMIC = "energy_price_dynamic"
+DEFAULT_ENERGY_PRICE_DYNAMIC = True
+# Cap on the stored per-cycle price timeline. Entries are deduplicated (a price
+# that did not change adds nothing), so an hourly tariff needs a handful and this
+# only bites on a template sensor that recomputes every few seconds. Past the cap
+# the timeline is coarsened by dropping the smallest price steps, which keeps the
+# cost figure within a rounding error of the uncapped one while bounding what a
+# cycle adds to the JSON store.
+PRICE_TIMELINE_MAX_POINTS = 240
+# Prices are rounded to this many decimals before dedup. Currency-per-kWh figures
+# are quoted to 4-5 decimals at most; the extra digit keeps sub-cent tariffs exact
+# while collapsing the float noise a template sensor emits on every recompute.
+PRICE_TIMELINE_PRICE_DECIMALS = 6
 # Optional external cumulative energy meter (issue #316). When set, each cycle's
 # reported energy is taken from this counter's start->end delta instead of the
 # integrated power trace, which systematically under-counts on report-on-change
@@ -173,10 +192,60 @@ CONF_PEAK_RATE_MESSAGE = "peak_rate_message"
 
 # Door sensor & pause
 CONF_DOOR_SENSOR_ENTITY = "door_sensor_entity"  # Optional binary_sensor for machine door
+# Auto-open dishwashers (AirDry etc.) pop the door at cycle end; a sustained
+# door-open then means the cycle finished, not a mid-cycle pause (#342).
+CONF_DOOR_OPENS_AT_END = "door_opens_at_end"
+CONF_DOOR_END_DWELL_SECONDS = "door_end_dwell_seconds"
+DEFAULT_DOOR_OPENS_AT_END = False
+DEFAULT_DOOR_END_DWELL_SECONDS = 60  # door must stay open this long to finalize
 CONF_PAUSE_CUTS_POWER = "pause_cuts_power"  # Also turn off switch entity when pausing
 CONF_SWITCH_ENTITY = "switch_entity"  # Optional switch entity toggled on pause/resume
 CONF_NOTIFY_UNLOAD_DELAY_MINUTES = "notify_unload_delay_minutes"  # Minutes before "laundry waiting" nag
 CONF_NOTIFY_UNLOAD_MESSAGE = "notify_unload_message"  # Template for the clean-laundry nag message
+# Repeat the unload reminder every delay-minutes until the door opens or the user
+# taps the notification's "stop reminding" action (opt-in, #374).
+CONF_NOTIFY_UNLOAD_REPEAT = "notify_unload_repeat"
+
+# Unload confirmation without a door sensor (#451). Not every machine can have a
+# contact sensor on its door (rented flat, steel door, no approval), and the Clean
+# state - plus the unload reminder that hangs off it - was reachable only through
+# one. Two additions give the same "the load has been taken out" signal:
+#   - an entity whose activation means unloaded (a Zigbee button as event.* /
+#     sensor.*, an input_button helper, a motion sensor, a scene), and
+#   - a plain opt-in for the Mark Unloaded button / ha_washdata.mark_unloaded
+#     service, for a setup that confirms from its own automation.
+# Either one on its own also enables the Clean state on a device with no door
+# sensor; with neither set, behaviour is exactly as before.
+CONF_UNLOAD_CONFIRM_ENTITY = "unload_confirm_entity"
+CONF_UNLOAD_TRACK_WITHOUT_DOOR = "unload_track_without_door"
+DEFAULT_UNLOAD_TRACK_WITHOUT_DOOR = False
+
+# How long after the confirmation entity is first seen - or comes back from
+# unavailable/unknown - a transition out of `unknown` is still treated as a replay
+# rather than a press (register items 367, 368).
+#
+# A fresh `event.*` / `button.*` / `input_button.*` sits at `unknown` until it is
+# first pressed, so excluding `unknown -> value` outright swallowed the first ever
+# press. Accepting it outright is not safe either: a z2m action sensor publishes
+# its action as a RETAINED MQTT message, which the broker replays on reconnect,
+# and that arrives as exactly the same transition. A restart is already covered by
+# the separate `old_state is None` guard, so this window only has to cover the gap
+# between our subscription and a late-arriving retained value.
+#
+# Measured against the reference point rather than guessed: the replay lands within
+# seconds of the MQTT connection, and the only cost of the window is a genuine press
+# in the first two minutes after the entity appears - which is nearly always
+# harmless, because `mark_unloaded` is a no-op unless a Clean state is waiting.
+#
+# **The residual is real and deliberate.** An entity that sits at `unknown` for
+# longer than this window and only then receives its first retained value is
+# indistinguishable from a first press: a generic HA state change carries no
+# "this was retained" marker, and the whole point of the option is that it accepts
+# any entity the user already owns (event, button, input_button, binary_sensor,
+# sensor, switch, scene, tag), most of which are not MQTT and have no reconnection
+# signal to consult. The guards narrow it to that one shape; the cost of being
+# wrong is a cleared unload reminder, never lost data.
+UNLOAD_CONFIRM_REPLAY_GRACE_S = 120.0
 
 # Quiet hours (do-not-disturb window). Both hours 0-23; unset/None (or start==end)
 # = feature off. When configured, finish-type notifications (finish, clean-laundry
@@ -199,25 +268,37 @@ CONF_LINKED_DEVICE = "linked_device"
 
 DEFAULT_NOTIFY_TITLE = "WashData: {device}"
 DEFAULT_NOTIFY_START_MESSAGE = "{device} started."
-DEFAULT_NOTIFY_FINISH_MESSAGE = "{device} finished. Duration: {duration}m."
+# "{duration} min", not "{duration}m": a voice assistant read "m" as metres (#93, #117).
+# A template the user saved keeps its own text.
+DEFAULT_NOTIFY_FINISH_MESSAGE = "{device} finished. Duration: {duration} min."
 DEFAULT_NOTIFY_PRE_COMPLETE_MESSAGE = "{device}: Less than {minutes} minutes remaining."
 DEFAULT_NOTIFY_REMINDER_MESSAGE = "{device}: about {minutes} minutes left."
 DEFAULT_NOTIFY_LIVE_WAITING_MESSAGE = "{device}: No profile matched yet."
 DEFAULT_NOTIFY_ONLY_WHEN_HOME = False
-DEFAULT_NOTIFY_FIRE_EVENTS = True
 DEFAULT_NOTIFY_LIVE_INTERVAL_SECONDS = 300
 DEFAULT_NOTIFY_LIVE_OVERRUN_PERCENT = 20
 DEFAULT_NOTIFY_LIVE_CHRONOMETER = False
+DEFAULT_NOTIFY_LIVE_STICKY = False  # #347: off = today's behaviour (tap dismisses)
+DEFAULT_NOTIFY_LIVE_CLICK_ACTION = ""  # #347: empty = no tap target (today's behaviour)
+# #417: on by default. A progress refresh is not an alert, and every other app with
+# live progress updates silently; the audible per-update buzz was the complaint, not
+# the feature. Turn it off to get a sound/vibration on every update again.
+DEFAULT_NOTIFY_LIVE_SILENT = True
 DEFAULT_NOTIFY_TIMEOUT_SECONDS = 0  # 0 = notifications never auto-dismiss
 DEFAULT_NOTIFY_CHANNEL = ""  # Empty = omit channel (companion app default)
 DEFAULT_NOTIFY_FINISH_CHANNEL = ""  # Empty = reuse status channel
 DEFAULT_NOTIFY_UNLOAD_DELAY_MINUTES = 60  # 1 hour before "still waiting" nag notification
-DEFAULT_NOTIFY_UNLOAD_MESSAGE = "{device} finished {duration}m ago - laundry is still inside."
+DEFAULT_NOTIFY_UNLOAD_MESSAGE = "{device} finished {duration} min ago - laundry is still inside."
+DEFAULT_NOTIFY_UNLOAD_REPEAT = False  # opt-in: re-send the unload reminder until dismissed (#374)
+# Safety bound on repeat mode (#374). The reminder is meant to run "until the door
+# opens", and the in-notification "Stop reminding" button is mobile_app-only - so a
+# user whose only notify target is non-mobile has the door sensor as their sole
+# escape. If that sensor never reports open (offline, or nobody home), the reminder
+# would re-fire forever AND pin the entity in Clean state, blocking the power-based
+# Off detection indefinitely. 48 reminders is ~2 days at the 60-minute default, far
+# past any legitimate reminder window, so normal use never reaches it.
+NOTIFY_UNLOAD_REPEAT_MAX_REMINDERS = 48
 DEFAULT_PEAK_RATE_MESSAGE = "Running at peak rate ({price}/kWh)."
-
-# Quiet hours default: feature off (both hours unset). See CONF_NOTIFY_QUIET_*.
-DEFAULT_NOTIFY_QUIET_START_HOUR = None
-DEFAULT_NOTIFY_QUIET_END_HOUR = None
 
 # Milestone notification defaults.
 DEFAULT_NOTIFY_MILESTONES = [50, 100, 500, 1000]
@@ -226,15 +307,14 @@ DEFAULT_NOTIFY_MILESTONE_MESSAGE = "{device} has completed {cycle_count} cycles!
 # Defaults
 DEFAULT_MIN_POWER = 2.0  # Watts
 DEFAULT_OFF_DELAY = 180  # Seconds (3 minutes, safer for 60s polling)
+DEFAULT_POWER_PROFILE_INTERVAL_MIN = 15  # power_profile attribute bucket (#367)
 DEFAULT_NAME = "Washing Machine"
 # Seconds without updates while active before forced stop (publish-on-change sockets)
 DEFAULT_NO_UPDATE_ACTIVE_TIMEOUT = 600  # 10 minutes
-DEFAULT_SMOOTHING_WINDOW = 2
 DEFAULT_SAMPLING_INTERVAL = 30.0  # Seconds
 DEFAULT_START_DURATION_THRESHOLD = 5.0  # Seconds (debounce)
 DEFAULT_END_ENERGY_THRESHOLD = 0.05  # Wh - Require effectively zero energy to end
 DEFAULT_DEVICE_TYPE = "washing_machine"
-DEFAULT_PROFILE_DURATION_TOLERANCE = 0.25
 
 DEFAULT_INTERRUPTED_MIN_SECONDS = 150  # Internal use only, not exposed
 
@@ -249,7 +329,6 @@ DEFAULT_PROGRESS_RESET_DELAY = 1800  # Seconds (30 minutes state expiry/unload w
 DEFAULT_POWER_OFF_THRESHOLD_W = 0.0  # Disabled
 DEFAULT_POWER_OFF_DELAY = 30  # Seconds
 DEFAULT_LEARNING_CONFIDENCE = 0.6  # Minimum confidence to request user verification
-DEFAULT_DURATION_TOLERANCE = 0.10  # Allow ±10% duration variance before flagging
 DEFAULT_AUTO_LABEL_CONFIDENCE = 0.9  # High confidence auto-label threshold
 DEFAULT_AUTO_MAINTENANCE = True  # Enable nightly cleanup by default
 DEFAULT_COMPLETION_MIN_SECONDS = 600  # 10 minutes
@@ -262,34 +341,94 @@ DEFAULT_PROFILE_MATCH_MIN_DURATION_RATIO = 0.10  # Allow match after 10% of expe
 # harness in devtools/dtw_ab_eval.py: widening 1.3->1.5 lifts commit-recall
 # 71.6%->73.4% for a negligible false-positive change; 1.3 was rejecting normal
 # longer-than-average runs (extended/anti-wrinkle variants).
-DEFAULT_PROFILE_MATCH_MAX_DURATION_RATIO = 1.5
-DEFAULT_MAX_PAST_CYCLES = 200
-DEFAULT_MAX_FULL_TRACES_PER_PROFILE = 20
-DEFAULT_MAX_FULL_TRACES_UNLABELED = 20
-DEFAULT_WATCHDOG_INTERVAL = 30  # Derived: 2 * sampling_interval + 1
+# Stage-1 upper duration gate (register item 311). Raised 1.5 -> 1.8 because at
+# 1.5 the gate deleted the TRUE candidate on 14 of 606 corpus folds (2.3%) - a
+# cycle that legitimately overran its programme was refused the chance to match
+# it at all. Measured against the item-307 kernel, which already penalises
+# far-off durations smoothly so the hard gate has less to do: +0.66pp top-1,
+# 4 devices better and 0 worse, cluster bootstrap [+0.15,+1.32] P(delta<=0)=0.017.
+# Costs ~8% more candidates to score (4.10 -> 4.44 per match, 37 -> 38 ms).
+# 2.5 measures slightly higher (+0.83pp) but regresses one device; 1.8 is the
+# point at which nothing gets worse.
+DEFAULT_PROFILE_MATCH_MAX_DURATION_RATIO = 1.8
+# A cycle needs at least this many trace points before its ML health is scored
+# (#459). It is the same floor `quality_features` uses before it falls back to a
+# `has_trace = 0` row, which no model was trained on.
+ML_HEALTH_MIN_TRACE_POINTS = 4
+DEFAULT_WATCHDOG_INTERVAL = 30  # Floor; effective default is resolved per device
+# A watchdog keepalive closing more than this many ticks was injected late (host
+# suspend, loop stall, restart): the interval it closes is unobserved (item 391).
+# On time it closes at most two (the first after a real reading), then one.
+WATCHDOG_LATE_TICK_FACTOR = 2.5
+# as max(this, 2*sampling_interval + 1) - see resolve_watchdog_interval_default (#396).
 DEFAULT_MATCH_PERSISTENCE = 3
-DEFAULT_RUNNING_DEAD_ZONE = 3  # Seconds after start to ignore power dips
-DEFAULT_END_REPEAT_COUNT = 1  # 1 = current behavior (no repeat required)
+DEFAULT_END_REPEAT_COUNT = 1  # Removed setting (see CONF_END_REPEAT_COUNT)
+
+# Share of the SHORTEST known profile that the match-interval suggestion is
+# allowed to spend before a program can first be committed (#431).  The
+# suggestion used to be cadence-only (`median_dt * 10`), so a plug reporting
+# every 60 s produced 599 s - longer than DEFAULT_PROFILE_MATCH_INTERVAL itself,
+# which makes applying the suggestion strictly worse than never touching the
+# setting.  The budget is spent on `match_persistence` consecutive matches, so
+# the cap is applied to `interval * persistence` rather than to the interval
+# alone; otherwise raising persistence brings the problem straight back.  At the
+# default persistence of 3 this is exactly the "shortest / 20" rule the reporter
+# proposed (3 / 20 = 0.15).  It bounds only the *suggestion* - a hand-set
+# interval is still whatever the user typed.
+MATCH_INTERVAL_SUGGESTION_DECISION_FRAC = 0.15
+
+# Absolute floor for the same suggestion, and the one case where the budget rule
+# above does NOT hold: a very short program (below ~200 s at the default
+# persistence) would cap the interval into a per-second poll, so the floor wins
+# and the decision budget then exceeds the fraction.  The suggestion says so
+# rather than claiming a bound it did not apply.  Matching is driven by incoming
+# readings, so a 10 s interval on a 60 s-reporting plug still only matches per
+# reading; the floor costs nothing there.
+MATCH_INTERVAL_SUGGESTION_MIN_S = 10
+
+# Issue #430: a cycle's curve begins at the start probe that finally COMMITS.
+# Earlier probes that aborted as false starts take their readings with them, so
+# on an appliance that probes repeatedly before settling (programme selection,
+# door lock, first fill) the first 40-217 s of real activity - up to 17 readings
+# on the reporter's dishwashers - is missing from the front of every curve. #403
+# makes this more common, not less: the first high reading now earns no evidence
+# toward either start gate, so a sparse change-only sensor aborts more probes.
+#
+# The detector keeps its own small ring buffer rather than reaching into the
+# manager's diag_buffer: that one is manager-owned and records RAW readings
+# before throttling, while the curve is built from throttled ones, so joining
+# the two would splice two different sample populations into one curve.
+#
+# OFF BY DEFAULT, and it must stay that way. The stored duration is
+# ``end_time - _current_cycle_start`` and matching resamples the stored curve, so
+# the start pointer has to move back with the curve or the two disagree - which
+# means avg_duration shifts. Cycles recorded before and after a change therefore
+# carry different durations for the SAME program, widening the envelope and
+# moving expected_duration (which arms Smart Termination x0.98 and the #429
+# anti-crease ratio) until the old cycles age out of the retention cap.
+DEFAULT_CURVE_PREROLL_SECONDS = 0.0  # 0 = off
+# Upper bound on the option (the panel's number input offers the same maximum), so
+# a mistyped value cannot drag minutes of unrelated standby into a curve. It is
+# headroom, not a measurement: the probe runs above were 40-217 s.
+CURVE_PREROLL_MAX_SECONDS = 600.0
+# A quiet stretch longer than this ends the carry: it separates "the same start,
+# probed twice" from "an unrelated blip earlier in the day". Deliberately a
+# constant, not an option - it is a property of how appliances probe, and one
+# more knob here is one more way to widen a curve by accident.
+PREROLL_CHAIN_BREAK_SECONDS = 90.0
 
 # Matching & Termination Stability
 DEFAULT_MATCH_REVERT_RATIO = 0.4  # Drop from peak score to revert to detecting
 DEFAULT_DEFER_FINISH_CONFIDENCE = 0.55  # Minimum confidence to defer cycle finish
-
-# ML live-match commit gate: P(top-1 is correct) threshold to commit a match
-# before the persistence counter is satisfied.  Set high to avoid false-early
-# commits; the model's owner-holdout precision is ~0.87 at this score.
-ML_MATCH_COMMIT_THRESHOLD = 0.85
-
-# ML quality gate: P(cycle is a problem) threshold above which even a high-
-# confidence auto-label is downgraded to a feedback request.  Tuned for a
-# specificity of ~0.84 (few false positives) so users are not flooded.
-ML_QUALITY_SUSPICIOUS_THRESHOLD = 0.65
-
-# Match ranking history: maximum number of per-cycle snapshots retained on-device.
-# Each snapshot stores pre-computed live_match feature scalars (not traces) so
-# footprint is small; 500 snapshots cover ~6–12 months of typical usage and are
-# enough to build a per-device live_match training dataset.
-MATCH_RANKING_HISTORY_MAX = 500
+# Fraction of the matched programme's expected duration below which a confident
+# match holds a fallback end (`CycleDetector._should_defer_finish`). Its OWN
+# constant, not a user option: since Feb 2026 the detector was fed the matcher's
+# Stage-1 `profile_match_min_duration_ratio` (0.10, or 0.05 once the suggestion was
+# applied) through a field of the same name, so a confident match only held an end
+# below 5-10% of expected - never in practice. Restoring 0.8 is the live fix for
+# item 390's split: splits 1.37 -> 1.03% over 295 replayed cycles, early ends
+# unchanged, dishwashers byte-identical (audit DETECT-02).
+DEFAULT_DEFER_FINISH_RATIO = 0.8
 
 # Runtime overrun anomaly: a *soft, visible* signal (attribute + cycle metadata,
 # never a notification) flagged once a running cycle exceeds its matched
@@ -316,6 +455,35 @@ CYCLE_OVERRUN_ANOMALY_RATIO = 1.5
 ENDING_HARD_FINALIZE_RATIO = 2.0
 ENDING_HARD_FINALIZE_MIN_QUIET_S = 600.0  # continuous sub-threshold span floor
 
+# Cap on how far the RUNNING->PAUSED / PAUSED->ENDING gates may be stretched by
+# the p95 sampling cadence (#424/#427).  The gates are 3x a cadence estimate; p95
+# is the 2nd-largest of the last 20 intervals, so a publish-on-change plug that
+# falls silent at standby drives the estimate onto its own silence and the gates
+# grow with it.  ``CycleDetector._gate_cadence`` therefore clamps p95 to this
+# multiple of the median interval.  5x is deliberately loose: it is above any
+# plausible jitter ratio for a regularly-reporting sensor (whose median equals
+# its p95, so the cap never binds and slow meters keep their wide gates) while
+# still rejecting the isolated multi-minute holes that caused both reports.
+# Caps the pause/end gate cadence at this multiple of the MEDIAN interval
+# (items 213/215). Was 5.0; lowered to 2.0 on measurement (register item 300).
+#
+# The cap only ever binds when p95 >> median - a fast plug that went quiet -
+# which is exactly the case it was introduced for. A uniformly slow meter has
+# p95 ~= median, so its gate is set by p95 and this value is irrelevant to it:
+# a 300 s-cadence meter keeps its 900 s gate at 2.0 exactly as at 5.0, so the
+# original rationale is preserved intact. At 5.0 it was under-correcting the
+# case it existed for: on #424's dishwasher (median 38.5 s, p95 970 s) it still
+# yielded a 578 s pause gate, which was the single largest remaining component
+# of that cycle's 17.9 min late finish.
+#
+# Measured over 246 clean cycles from the whole corpus at 5.0 vs 2.0: 16 cycles
+# that never closed within their stored trace now close, ZERO went the other
+# way, and exactly one stored duration changed - 302 s shorter, away from the
+# un-evidenced expected-duration fallback it had been pinned to. #424 finishes
+# 17.9 -> 10.8 min after the appliance; #427 is unaffected (its gate never
+# reached the cap).
+GATE_CADENCE_MEDIAN_FACTOR = 2.0
+
 # NOTE: STANDBY_BAND_* constants live further down, after the DEVICE_TYPE_*
 # definitions they reference (search "Standby-band stuck-in-RUNNING finalize").
 # Underrun anomaly: a cycle that finishes in less than this fraction of its
@@ -333,8 +501,10 @@ ENERGY_ANOMALY_Z_THRESHOLD = 2.5   # |z-score| above this = energy anomaly
 # Profile warm-up mode: a newly-created profile with fewer than this many
 # labeled cycles skips auto-labeling and always requests manual confirmation.
 # Prevents the system from confidently mis-labeling cycles before it has seen
-# enough examples of the program.
-CONF_PROFILE_MIN_WARMUP_CYCLES = 5   # labeled cycles before auto-matching is enabled
+# enough examples of the program. 5 until 0.5.8 (audit UI-26): eight programs
+# meant up to 40 confirmations before the first auto-label; the label gates
+# (margin, ambiguity, label_confidence) now carry what the extra prompts guarded.
+CONF_PROFILE_MIN_WARMUP_CYCLES = 2   # labeled cycles before auto-labelling is enabled
 
 # Shape drift detection: compares the average power-curve envelope of the
 # earliest third of a profile's cycles against the most recent third.
@@ -350,8 +520,9 @@ SHAPE_DRIFT_RESAMPLE_N = 50           # points for envelope comparison
 CLUSTER_SHAPE_SIMILARITY_THRESHOLD = 0.75   # min correlation for shape-similar cluster
 CLUSTER_RESAMPLE_N = 50                      # points for pairwise comparison
 
-# Terminal-drop fast finalize (opt-in; gated on CONF_ENABLE_ML_MODELS via the
-# manager provider). A hard cliff-to-~0 at an elapsed offset EARLIER than this
+# Terminal-drop fast finalize (on for TERMINAL_DROP_DEFAULT_ON_DEVICE_TYPES, else
+# gated on CONF_ENABLE_ML_MODELS; detector_config.terminal_drop_enabled decides
+# for the manager and the Playground). A hard cliff-to-~0 at an elapsed offset EARLIER than this
 # device has ever legitimately gone quiet (learned from its own completed
 # cycles) is an anomaly - almost certainly a real stop (plug pulled / cancelled)
 # rather than a soak pause - so the cycle is finalized quickly instead of waiting
@@ -371,6 +542,13 @@ TERMINAL_DROP_MIN_PEAK_RATIO = 5.0      # cycle must have been clearly ON (peak 
 # treated as potentially a NEW program and DEFERRED to the proven slow path
 # rather than assumed to be a stop.
 TERMINAL_DROP_PEAK_FAMILIAR_TOL = 0.4
+# Device types that get the terminal-drop finalize whatever the "Apply smart
+# models" toggle says (audit ML-08). It is pure statistics, not a model, and only
+# dishwashers gain from it: a plug pulled mid-wash closes in 3-4.5 min instead of
+# waiting out 70-121 min (and being stored as completed); washers: 0 fires.
+# Without the toggle it fires only on a committed, unambiguous match
+# (detector_config.terminal_drop_may_fire).
+TERMINAL_DROP_DEFAULT_ON_DEVICE_TYPES = frozenset({"dishwasher"})
 
 DEFAULT_AUTO_TUNE_NOISE_EVENTS_THRESHOLD = 3  # Ghost cycles before threshold adjustment
 
@@ -378,7 +556,14 @@ DEFAULT_AUTO_TUNE_NOISE_EVENTS_THRESHOLD = 3  # Ghost cycles before threshold ad
 DEFAULT_ANTI_WRINKLE_ENABLED = False
 DEFAULT_ANTI_WRINKLE_MAX_POWER = 400.0  # W
 DEFAULT_ANTI_WRINKLE_MAX_DURATION = 60.0  # s
+# Quiet level in anti-wrinkle, floored at stop_threshold_w (no longer a setting).
 DEFAULT_ANTI_WRINKLE_EXIT_POWER = 0.8  # W
+# Quiet gap a machine may leave between two anti-wrinkle pulses before the mode
+# ends. Keeps the previous hardcoded behaviour as the default; dryers whose
+# pulses sit further apart (a heat-pump dryer measured 130-660 s) need a higher
+# value, otherwise the mode drops out after the first pulse and every later one
+# surfaces as an aborted false start.
+DEFAULT_ANTI_WRINKLE_IDLE_TIMEOUT = 120.0  # s
 
 # Delayed-start detection defaults (disabled by default).
 #
@@ -396,10 +581,15 @@ DEFAULT_DELAY_TIMEOUT_HOURS = 8.0  # h - give up waiting after this long
 CONF_PUMP_STUCK_DURATION = "pump_stuck_duration"  # Seconds before a running pump is flagged as stuck
 DEFAULT_PUMP_STUCK_DURATION = 1800  # 30 min - typical sump pump runs <60 s; 30 min implies motor is jammed
 EVENT_PUMP_STUCK = "ha_washdata_pump_stuck"  # Fired when stuck-pump threshold is exceeded
+# Discussion #452: a cycle halted on a flat standby-level plateau (an unbalanced
+# load, a door warning). Once per stall, display/automation only, never a
+# notification (CycleDetector.stalled).
+EVENT_CYCLE_STALLED = "ha_washdata_cycle_stalled"
+CYCLE_ANOMALY_STALLED = "stalled"  # the state sensor's cycle_anomaly while stalled
 
 # Profile Matching Thresholds
 CONF_PROFILE_MATCH_THRESHOLD = "profile_match_threshold"
-CONF_PROFILE_UNMATCH_THRESHOLD = "profile_unmatch_threshold"
+CONF_PROFILE_UNMATCH_THRESHOLD = "profile_unmatch_threshold"  # Retired in 0.5.9: fixed at DEFAULT_PROFILE_UNMATCH_THRESHOLD; key kept for migration
 
 DEFAULT_PROFILE_MATCH_THRESHOLD = 0.4
 DEFAULT_PROFILE_UNMATCH_THRESHOLD = 0.35
@@ -430,38 +620,196 @@ MATCH_MAE_SCALE = 100.0            # half-saturation point of the MAE score curv
 MATCH_MAE_REF_PEAK = 1000.0        # peak (W) at which scoring matches the legacy formula
 MATCH_MAE_PEAK_FLOOR = 50.0        # floor so tiny/idle traces don't explode the ratio
 MATCH_KEEP_MIN_SCORE = 0.1         # candidates scoring below this are discarded
+# Shortest resampled current-cycle trace the matcher will score. Below this a
+# correlation is noise, so both match paths decline rather than return a number
+# nobody should act on. Named because the value was duplicated as a bare literal
+# in async_match_profile and in the Playground's matcher, and the two drifted:
+# the sim scored 5-point stretches that production had already rejected.
+MATCH_MIN_RESAMPLED_POINTS = 12
 # DTW refinement (Stage 3): blended = DTW_BLEND*core + (1-DTW_BLEND)*dtw_score,
 # dtw_score = DIST_SCALE / (DIST_SCALE + scaled_dtw_distance).
 MATCH_DTW_BLEND = 0.5
 MATCH_DTW_DIST_SCALE = 50.0
-MATCH_DTW_REFINE_TOP_N = 5         # DTW is applied to this many top candidates
-                                   # (5 tuned via dtw_ab_eval: rescues correct
-                                   #  profiles Stage-2 ranked 4th-5th; +1.8pp)
+MATCH_DTW_REFINE_TOP_N = 5         # DTW is applied to this many top candidates.
+                                   # On the shipped path 3 ties 5 and 8 is
+                                   # identical to 5; 1 costs -0.92pp mid-cycle
+                                   # (audit MR-05).
 # Stage-3 DTW modes (config key "dtw_mode"):
 #   "legacy" - original: raw sequences, distance / len(current), fixed 50 W scale.
 #   "scaled" - both sequences resampled to MATCH_DTW_RESAMPLE_N and the distance
 #              expressed relative to the current peak (behaviour-neutral at
-#              MATCH_MAE_REF_PEAK), matching the Stage-2 MAE treatment. Default.
+#              MATCH_MAE_REF_PEAK), matching the Stage-2 MAE treatment.
 #   "ddtw"   - like "scaled" but warps on the first derivative (slope) of the
 #              curves, so alignment is driven by shape rather than absolute level.
-#   "ensemble" - blend of "scaled" and "ddtw": ENSEMBLE_W*L1 + (1-W)*DDTW.
-# Defaults tuned via devtools/dtw_ab_eval.py on cycle_data/ (leave-one-out top-1):
-# off 62.4%, legacy 66.4%, scaled 69.9%, ddtw 69.0%, ensemble(w=0.7,dd=30) 70.7%.
+#   "ensemble" - blend of "scaled" and "ddtw": ENSEMBLE_W*L1 + (1-W)*DDTW. Default.
+# Measured on the shipped path (devtools/eval.py, audit MR-05), vs ensemble: DTW off
+# -2.16pp mid-cycle top-1 (-3.78 at 25%) but +0.16 at cycle end (n.s.); scaled
+# alone -0.32, ddtw alone -0.16. Stage 3 earns its keep mid-cycle only. (The older
+# dtw_ab_eval table, off 62.4% ... ensemble 70.7%, predates item 303 and did not
+# run the shipped matcher.)
 DEFAULT_DTW_MODE = "ensemble"
 MATCH_DTW_RESAMPLE_N = 200         # common grid length for "scaled"/"ddtw" DTW
 MATCH_DDTW_DIST_SCALE = 30.0       # half-saturation for derivative-DTW distance
 MATCH_DTW_ENSEMBLE_W = 0.7         # weight on L1 vs DDTW in "ensemble" mode
+# Envelope alignment grid cap: maximum number of time-grid points used by
+# compute_envelope_worker. The DTW cost matrix is (n+1)x(m+1)x8 B float64;
+# both n and m derive from this cap, so memory is bounded to roughly
+# MAX_ALIGN_GRID_POINTS² x 8 B ≈ 32 MB at 2000 — regardless of cycle duration
+# or recording density. Without this cap a 4 h cycle at 1 Hz asks for 1.81 GB
+# in a single np.full, which OOM-kills Home Assistant (issue #388).
+MAX_ALIGN_GRID_POINTS = 2000
 # Ambiguity: top1-top2 score gap below this flags the match as ambiguous.
+# Once a matched cycle has run past its programme's own expected length by this
+# ratio, the fallback end gate stops waiting out the full `min_off_gap` and waits
+# only END_GATE_LATE_SECONDS of quiet (register item 306). `min_off_gap` exists to
+# bridge mid-cycle soak periods; past the end of the programme there is nothing
+# left to bridge, and its default is a blind per-device prior (480 s washer /
+# 600 s washer-dryer / 3600 s dishwasher) that almost nobody tunes - 12 of the 27
+# real user exports carry an effective end wait of 30-60 min because of it.
+# Shorten-only and bounded: the user's explicit `off_delay` stays the floor, so
+# only the blind prior shrinks, and it is inert on unmatched cycles.
+END_GATE_LATE_RATIO = 1.05
+END_GATE_LATE_SECONDS = 300.0
+
+# Device-resolved on a washing machine: see END_GATE_LATE_RATIO_BY_DEVICE
+# and resolve_end_gate_late_ratio below, next to the device-type constants.
+
 MATCH_AMBIGUITY_MARGIN = 0.05
-# Smart Termination landscape guard: when a non-winning candidate is at least this
+# Separate, WIDER margin required before a finished cycle is auto-labelled
+# (register item 310). Deliberately NOT the same constant as
+# MATCH_AMBIGUITY_MARGIN: that one also gates Smart Termination via the
+# detector's `_match_ambiguous`, so widening it there would defer terminations
+# and undo the end-lag work of item 306. This one is consulted only where a
+# label is recorded.
+#
+# Auto-labelling is the asymmetric decision - a wrong label silently reshapes the
+# profile's avg_duration and therefore every future estimate, while a missed one
+# only asks the user. Measured over 606 completed folds (post-item-307):
+#   margin  coverage  precision  wrong labels
+#    0.05      84.3%      86.3%      69   <- confidence-only, the old behaviour
+#    0.08      77.3%      88.7%      52
+#    0.10      72.2%      90.0%      43
+# 0.08 is the argmax of right - 2 x wrong (a wrong label costing twice a missed
+# one) and was independently selected by grouped cross-validation in all five
+# held-out device groups. The absolute score is a much weaker guide here:
+# AUC 0.625 against the margin's 0.792.
+MATCH_LABEL_MIN_MARGIN = 0.08
+# Gap between the best and second-best candidate at which a mid-cycle switch may
+# skip the persistence wait (register item 305). The absolute score is close to
+# useless for this mid-run (AUC 0.535, because a prefix of a long programme looks
+# like a finished short one); the top1-top2 margin reaches AUC 0.773. Replayed over
+# 594 cycles x 10 checkpoints: 70.4% -> 72.6% end-of-cycle correctness, 16 better /
+# 3 worse, McNemar p = 0.0044, at 0.14 displayed switches per cycle against 0.07.
+# The sweep is monotone (0.05 -> +6.7pp at 0.27 flips, 0.08 -> +5.1, 0.10 -> +3.0),
+# so this is the conservative end of an accuracy/stability trade. Do not retune it
+# in isolation: any Stage-2 scoring change rescales the margin along with it.
+MATCH_DECISIVE_MARGIN = 0.12
+# The first commit of a live programme (match_rules.decide_switch, Case 1). A winner
+# that is AMBIGUOUS on the tick (inside MATCH_AMBIGUITY_MARGIN of the runner-up, or
+# flagged by a Stage-5 safeguard) commits only once it has led for this many times
+# match_persistence consecutive matches; a clear winner still commits at
+# match_persistence. Until 0.5.8 an ambiguous winner committed at match_persistence
+# too. Measured alone (devtools/decisive_margin_eval.py --switching --loo, 291
+# labelled cycles): first programme shown right on washers 29.8 -> 34.2%,
+# dishwashers 90.8 -> 93.1%, washer switches per cycle 1.32 -> 1.12, for a median
+# first commit 17.8 -> 19.5 min on washers (dishwashers unchanged at 11.1 min).
+# Not "never": a stable winner of an always-close pair must still get a programme
+# and an ETA (offline, waiting for a clear tick left 4 washer cycles uncommitted).
+MATCH_AMBIGUOUS_COMMIT_FACTOR = 2
+# DISPLAY ONLY - never a gate (audit MATCH-DECIDE-15/18). The Status card's
+# "Uncertain: X or Y, ~N% sure" figure while the live match is undecided:
+# P(the leading guess is the right programme) as a monotone piecewise-linear map
+# of the live top1-top2 margin, clamped at both ends. Being monotone, gating on it
+# equals gating on the margin, so it adds nothing as a gate and must not become one.
+# Fitted by devtools/margin_display_fit.py on devtools/eval.py --mode full, cuts
+# 0.1-0.9 (2324 live prefix folds from 48 exports, matcher-produced labels
+# excluded): 26% right at margin ~0 rising to 89% past 0.37; leave-one-source-out
+# ECE 0.059 (Brier 0.191 vs base rate 0.229). A lone candidate has no runner-up
+# (its margin is a 1.0 sentinel) and is right far less often than a real 1.0
+# margin, so it gets its own figure.
+MATCH_SURE_KNOTS: tuple[tuple[float, float], ...] = (
+    (0.007, 0.26), (0.036, 0.41), (0.064, 0.50), (0.099, 0.59),
+    (0.159, 0.73), (0.252, 0.84), (0.373, 0.89),
+)
+MATCH_SURE_SINGLE_CANDIDATE = 0.59
+# Prefix-landscape guard (#288): when a non-winning candidate is at least this
 # much longer than the matched profile AND has a decent shape score (before Stage-4
 # duration penalty), the current trace may be a *prefix* of that longer program
-# rather than a completed short one. Smart Termination is blocked; the power-based
-# fallback timeout decides instead. Ratio chosen so that programmes within ~50% of
+# rather than a completed short one. Ratio chosen so that programmes within ~50% of
 # each other (e.g. Quick 46 min vs Eco 60 min, ratio 1.30) do not trigger the guard
 # but genuine prefix pairs like Quick 46 vs Normal 88 min (ratio 1.91) always do.
+# Since audit LIVE-18 it guards only the dryer anti-crease finalize
+# (`MatchResult.is_prefix_ambiguous_full_shape`): at the ENDING gates it was every
+# false block at a genuine end.
 SMART_TERM_LANDSCAPE_RATIO = 1.5       # candidate must be >= 1.5× the matched duration
 SMART_TERM_LANDSCAPE_MIN_SHAPE = 0.40  # minimum shape score (pre-Stage-4) to qualify
+
+# Issue #364: the landscape guard above has three structural false negatives, all
+# reproduced by field reports on a multi-programme Miele washer:
+#   (1) it needs a longer profile to EXIST in the candidate pool, so an untrained
+#       longer programme is uncatchable;
+#   (2) it qualifies the longer candidate on its shape score against its FULL
+#       envelope, but a trace that is only part-way through a longer programme
+#       scores poorly against that programme's whole curve;
+#   (3) the 1.5 ratio is knife-edge - on a real 13-programme washer the observed
+#       neighbour ratios are 1.12-1.48, so the guard never fires at all.
+#
+# (a) Prefix scoring (for 2 + 3) was REMOVED in 0.5.8. It re-scored a longer
+# candidate against its own curve truncated to the elapsed time and blocked the
+# ENDING gates when that beat the winner's shape score by 0.15 (floor 0.40, ratio
+# > 1.10, at most 3 scorings per match). #400 took its premise away: Stages 2/3
+# now score a running cycle against every candidate's truncated curve, so a longer
+# programme whose start explains the trace better mostly wins the match itself.
+# Measured on the shipped matcher (devtools/prefix_guard_eval.py --quiet-cuts
+# --sweep, leave-one-out, 71 devices): 0 of 713 genuine ends and 0 of the 7 quiet
+# split positives (ENDING quiet inside a pause power later resumed from, the only
+# moment Smart Termination can split a cycle) at every point of a margin 0-0.15 x
+# floor 0-0.60 x ratio 1.0-1.5 grid - their best prefix margin was -0.024. What it
+# caught were mid-activity cuts that never reach ENDING, which (b) blocks.
+#
+# (c) Pause evidence (#424), on the #288 term. It asks whether the trace LOOKS like
+# the start of a longer programme, not whether that programme could be quiet right
+# now. A longer candidate can only explain a below-`stop_threshold_w` moment if it
+# is a programme that pauses below that threshold mid-cycle, so a candidate whose
+# stored cycles never once did no longer counts. Any stored pause of this length
+# keeps the guard; a programme with no traced evidence keeps it too. (Measured when
+# it also fed the ENDING gates: genuine-end fires 186/689 -> 142/689 on the old
+# harness, which OR-ed both terms.)
+SMART_TERM_PREFIX_MIN_PAUSE_S = 60.0
+
+# (b) Power plausibility (fixes 1, the untrained case, which no candidate-pool guard
+# can reach).  Both Smart-Termination paths key on `elapsed >= 0.98 * expected` and
+# neither checks whether the appliance is still WORKING, so a mis-matched shorter
+# profile finalises a cycle mid-wash.  Compare the trailing mean power against what
+# the matched profile itself draws at its own end: if we are drawing several times
+# that, this is not the end of anything.
+#
+# The two windows must cover the same FRACTION of the run, or the comparison is not
+# like-for-like.  A fixed 300 s trailing window is 4% of a cotton wash but a third
+# of a 15-minute "Spin & Drain", whose trailing mean is then the spin itself while
+# its profile tail is the quiet moment after the pump stops - ratios of 45-310x on
+# perfectly normal cycle ends.  So the trailing window is
+# `expected_duration * SMART_TERM_TAIL_WINDOW_FRAC`, clamped; that alone is strictly
+# better at every threshold (e.g. at 4.0x: false blocks 5% -> 3%).
+#
+# Swept with devtools/prefix_guard_eval.py over the whole cycle_data corpus (19
+# devices, 225 labelled cycles, leave-one-out): 114 folds where a shorter profile
+# is winning mid-cycle (the #364 split condition) vs 165 genuine cycle ends.
+#   ratio  caught      false-blocked
+#   3.0    27%         8%
+#   3.5    25%         4%   <- shipped, the knee
+#   4.0    20%         3%
+# 3.0 -> 3.5 halves the false blocks for 2pp of catch, and the reported cases sit
+# at 4-8x so they stay caught.  A false block only costs a later finish (the
+# power-based fallback timeout still ends the cycle); a miss costs a split cycle.
+# ~1 in 5 of the remaining false blocks had a wrong top-1 anyway, where blocking is right.
+# Re-measured 2026-10-04 on the shipped matcher (item 483, `--quiet-cuts`): at 3.5x
+# it catches 156 of 508 split positives with 0 of 675 false blocks.
+SMART_TERM_TAIL_MAX_RATIO = 3.5        # block while trailing mean > this x profile tail
+SMART_TERM_TAIL_WINDOW_S = 300.0       # upper clamp on the trailing window
+SMART_TERM_TAIL_WINDOW_MIN_S = 60.0    # lower clamp (short programmes)
+SMART_TERM_TAIL_MIN_POINTS = 3         # too few samples -> no opinion, do not block
+SMART_TERM_TAIL_WINDOW_FRAC = 0.05     # both windows = last 5% of the run
 
 # Number of points in the compact reference-profile curve exposed on the
 # `_program` sensor (`profile_store.reference_curve`). Chosen so the resulting
@@ -480,11 +828,86 @@ REFERENCE_PROFILE_CURVE_POINTS = 50
 # actually DROPPING (62.7%->59.9%). Raising weight alone at the old loose scale
 # inflated both recall and FP (net-negative), so both knobs move together.
 MATCH_DURATION_WEIGHT = 0.22
-# Despite the name, "energy" here means mean power (W), not Wh — the Stage-4
-# agreement term compares cur_energy=mean(curr_arr) vs profile_mean_power.
+# Stage-4 duration weight while the cycle is still RUNNING (live match). Mid-cycle
+# the duration term compares elapsed time with each candidate's FULL duration, a
+# systematic pull toward shorter programmes (80% of 50%-elapsed errors picked a
+# shorter one), so it carries less weight there. Measured leave-one-out on the
+# shipped path: +0.97pp mid-cycle top-1 [+0.11, +1.86], completed cycles and the
+# ambiguity rate unchanged (audit MR-03). The completed-cycle weight stays.
+MATCH_DURATION_WEIGHT_IN_PROGRESS = 0.15
+# The Stage-1 LOWER duration-ratio gate is skipped for a live match during the first
+# this-many seconds of a cycle. Matching starts as soon as the cycle runs, and at
+# 5-10 min elapsed/avg_duration is below the 0.10 floor for every programme longer
+# than 50-100 min, so only short programmes could compete: the gate removed the
+# true programme on 69/114 user folds at 5 min and 35/243 at 10 min. Composed from
+# the measured records: 5 min +83/-2, 10 min +63/-6, 15 min +17/-7, 25% of the cycle
+# +0/-1 (audit MATCH-CORE-02). From 15 min on the gate stays, where it stops a much
+# longer programme stealing the match.
+MATCH_MIN_RATIO_GRACE_S = 900.0
+
+# Hazard end gate (audit DETECT-16). Past an unambiguous match the ENDING fallback
+# waits MARGIN x the longest below-stop pause the matched profile's traced
+# evidence ever resumed from at or after this quiet's position (less SLACK of the
+# run), never less than off_delay and never longer than before. Needs MIN_CYCLES
+# traced cycles: a catalogue of one or two runs has not seen the programme's soaks.
+END_GATE_HAZARD_MARGIN = 1.25
+END_GATE_HAZARD_MIN_CYCLES = 3
+END_GATE_HAZARD_POSITION_SLACK = 0.05
+# Register item 498: a revoked match (divergence revert, or every candidate
+# rejected) leaves an envelope-verified pause with no expected duration, which only
+# high power cleared, so a finished cycle sat until the force stop. Released once the
+# gap-free quiet reaches END_GATE_HAZARD_MARGIN x the longest below-stop pause the
+# revoked programme's traced cycles ever resumed from, never before max(off_delay,
+# min_off_gap, ENDING_HARD_FINALIZE_MIN_QUIET_S) (what the unmatched fallback waits
+# anyway) and, above that floor, never after this cap: past the corpus's longest
+# resumed pause x margin (a 6838 s dishwasher drying phase before its pump-out ->
+# 8548 s) and 1.5 h inside the watchdog's 4.5 h silence limit under a verified pause.
+ORPHANED_PAUSE_MAX_WAIT_S = 10800.0
+# Stage-4 "energy" agreement. By default it compares mean power (W), not Wh:
+# cur_energy=mean(curr_arr) vs profile_mean_power. Washing machines and
+# washer-dryers compare integrated energy instead (analysis.stage4_energy_mode).
+# While elapsed < the template span both modes reduce to the mean ratio, so the
+# device choice only acts at cycle end or after an overrun (audit MR-09).
 MATCH_ENERGY_WEIGHT = 0.22
 MATCH_DURATION_SCALE = 0.175       # ~ln ratio at which duration agreement halves
 MATCH_ENERGY_SCALE = 0.25          # ~ln ratio at which energy agreement halves
+# At cycle end Stage 4 takes a washer's expected energy from the median of the
+# profile's own cycles (analysis.member_energy_reference) once it has this many;
+# below it, and mid-cycle, the template's mean power x duration as before. 3 was
+# measured slightly worse than 2 (eval.py full, cut 1.0: +3/-4 folds).
+MATCH_ENERGY_REF_MIN_CYCLES = 2
+# Issue #400: once a RUNNING cycle has outlasted a candidate, that is hard
+# evidence against it, and the penalty uses this sharper scale instead of
+# MATCH_DURATION_SCALE. Only reached when the caller opts in via
+# config["in_progress"]; the final match at cycle end keeps the symmetric term,
+# where elapsed IS the cycle's true duration.
+#
+# Below a candidate's duration the term is deliberately UNCHANGED. Suppressing the
+# penalty there ("we simply have not got there yet") was measured and rejected. On
+# the shipped path (audit MR-02) it gains +4.65pp top-1 at 50% elapsed but costs
+# -6.58pp at 98%, which is where Smart Termination reads the live match; it also
+# raises the share of correct matches flagged ambiguous (11.2% -> 13.3%) and costs
+# washer-dryers 18.2pp. Near the short programme's end it hands a longer sibling
+# full duration agreement, so a dishwasher's 50 deg and 65 deg programmes land
+# inside MATCH_AMBIGUITY_MARGIN of each other and Smart Termination is blocked
+# (#393 is about finishing on time). The earlier "+0.7pp / -3.7pp at 90%" figures
+# came from dtw_ab_eval, which does not run the shipped matcher.
+MATCH_DURATION_SCALE_OVERRUN = 0.05
+# Issue #400, shape half: while a cycle is running, Stages 2 and 3 score it against
+# each candidate TRUNCATED to the elapsed time (reusing the #364 prefix machinery),
+# but only while it is still clearly mid-run. Past this fraction of a candidate's
+# own span the truncation starts discarding the very thing that separates a short
+# programme from its longer sibling at the end - "I have already run longer than
+# everything you have shown me". Measured on cycle_data: mid-cycle top-1 62.6% ->
+# 71.0% at 0.7; at 0.8 the 90% checkpoint drops and a real dishwasher export loses
+# Smart Termination, the same cliff the rejected duration credit fell off.
+MATCH_PREFIX_SHAPE_MAX_RATIO = 0.7
+# The fewest template samples a truncated prefix may keep and still be correlated
+# and warped (analysis._prefix_point_count / prefix_shape_arrays), mirroring the
+# matcher's >= 12-sample floor. Named SMART_TERM_PREFIX_MIN_POINTS while the
+# removed #364 prefix guard shared it.
+MATCH_PREFIX_MIN_POINTS = 12
+
 
 # States
 STATE_OFF = "off"
@@ -499,9 +922,25 @@ STATE_FINISHED = "finished"
 STATE_ANTI_WRINKLE = "anti_wrinkle"
 STATE_INTERRUPTED = "interrupted"
 STATE_FORCE_STOPPED = "force_stopped"
-STATE_RINSE = "rinse"
+
+# States in which a cycle is in progress: what `binary_sensor.*_running` reports.
+# Only `running` used to count, so the sensor turned off during every soak, pause
+# and the end wait, and automations that treat "off" as "done" fired mid-cycle
+# (audit PLATFORM-06). STARTING is excluded (not yet a confirmed cycle), as is
+# ANTI_WRINKLE (the cycle has finished; the drum only tumbles the load).
+CYCLE_IN_PROGRESS_STATES = frozenset(
+    {STATE_RUNNING, STATE_PAUSED, STATE_USER_PAUSED, STATE_ENDING}
+)
+
 STATE_UNKNOWN = "unknown"
 STATE_CLEAN = "clean"  # Cycle ended but door not yet opened (laundry still inside)
+
+# A cycle start from one of these owns no update intervals yet, so the manager drops
+# the cadence intervals earlier false starts left pending (#458, items 504 and 515).
+CADENCE_RESET_FROM_STATES = frozenset({
+    STATE_OFF, STATE_UNKNOWN, STATE_DELAY_WAIT,
+    STATE_FINISHED, STATE_INTERRUPTED, STATE_FORCE_STOPPED,
+})
 
 # Authoritative state -> display color map. Single source of truth for the
 # full-screen panel (and any other frontend), surfaced over the WebSocket
@@ -521,7 +960,6 @@ STATE_COLORS = {
     STATE_ANTI_WRINKLE: "var(--info-color, #2196f3)",
     STATE_INTERRUPTED: "var(--error-color, #f44336)",
     STATE_FORCE_STOPPED: "var(--error-color, #f44336)",
-    STATE_RINSE: "var(--info-color, #2196f3)",
     STATE_CLEAN: "var(--teal-color, #009688)",
     STATE_UNKNOWN: "var(--disabled-color, #bdbdbd)",
     "recording": "var(--error-color, #f44336)",
@@ -532,8 +970,6 @@ DEVICE_TYPE_WASHING_MACHINE = "washing_machine"
 DEVICE_TYPE_DRYER = "dryer"
 DEVICE_TYPE_WASHER_DRYER = "washer_dryer"
 DEVICE_TYPE_DISHWASHER = "dishwasher"
-DEVICE_TYPE_AIR_FRYER = "air_fryer"
-DEVICE_TYPE_BREAD_MAKER = "bread_maker"
 DEVICE_TYPE_PUMP = "pump"
 # Full-featured generic type for predictable appliances that don't fit any of the
 # named categories. Participates in profile matching/learning like any other
@@ -544,17 +980,59 @@ DEVICE_TYPE_GENERIC = "generic"
 # Config entries whose stored device_type is no longer supported are migrated
 # to this bucket on load (see __init__.py), preserving their tuned options.
 DEVICE_TYPE_OTHER = "other"
+# Removed in 0.5.9 (maintainer decision 2026-10-19). Kept only for the migration
+# that moves an entry on one of them to DEVICE_TYPE_GENERIC: see
+# RETIRED_DEVICE_TYPE_OPTIONS below and options_utils.retire_device_type.
+DEVICE_TYPE_AIR_FRYER = "air_fryer"
+DEVICE_TYPE_BREAD_MAKER = "bread_maker"
+
+# Device types whose Stage-4 "energy agreement" compares INTEGRATED energy
+# (mean power x duration) instead of mean power. On these, same-base program
+# variants differ mainly in temperature/spin at roughly equal duration, so
+# integrated energy (which mean power dilutes) is the right discriminator -
+# validated on real store data (washer top-1 +3.4pp, FP down). Other device
+# types (dishwasher/dryer/...) keep mean power, because their programs are
+# distinguished by duration and integrated energy would conflate the two axes
+# (validated: it regresses there). See register item 99 / the cycle-variant
+# discrimination spec. Defined from the device-type constants above (not string
+# literals) so it can never drift from them.
+STAGE4_INTEGRATED_ENERGY_DEVICE_TYPES = (
+    DEVICE_TYPE_WASHING_MACHINE,
+    DEVICE_TYPE_WASHER_DRYER,
+)
 
 DEVICE_TYPES = {
     DEVICE_TYPE_WASHING_MACHINE: "Washing Machine",
     DEVICE_TYPE_DRYER: "Dryer",
     DEVICE_TYPE_WASHER_DRYER: "Washer-Dryer Combo",
     DEVICE_TYPE_DISHWASHER: "Dishwasher",
-    DEVICE_TYPE_AIR_FRYER: "Air Fryer",
-    DEVICE_TYPE_BREAD_MAKER: "Bread Maker",
     DEVICE_TYPE_PUMP: "Pump / Sump Pump",
     DEVICE_TYPE_GENERIC: "Other (Advanced)",
     DEVICE_TYPE_OTHER: "Threshold Device",
+}
+
+# 0.5.9: an entry on a removed device type migrates to DEVICE_TYPE_GENERIC (full
+# matching and learning), and every setting where the old type ran on a default of
+# its own keeps that value as an explicit option, so the detector it runs does not
+# change. Only the values that differ from generic's are listed (the rest resolve
+# the same): the completion floor and the minimum off gap the config builder took
+# from DEVICE_COMPLETION_THRESHOLDS / DEFAULT_MIN_OFF_GAP_BY_DEVICE. A key the user
+# has set is kept. Frozen: these are the values the old types shipped with.
+RETIRED_DEVICE_TYPE_OPTIONS: dict[str, dict[str, int]] = {
+    DEVICE_TYPE_AIR_FRYER: {CONF_COMPLETION_MIN_SECONDS: 300, CONF_MIN_OFF_GAP: 120},
+    DEVICE_TYPE_BREAD_MAKER: {CONF_COMPLETION_MIN_SECONDS: 1800, CONF_MIN_OFF_GAP: 600},
+}
+# What the manager reads when low_power_no_update_timeout is unset.
+DEFAULT_LOW_POWER_NO_UPDATE_TIMEOUT = 3600.0
+# ...and a floor rather than a default, as (floor, value when unset): the manager's
+# low-power silence budget was max(DEFAULT_NO_UPDATE_ACTIVE_TIMEOUT_BY_DEVICE[type],
+# low_power_no_update_timeout), so the migrated option is the max of the two,
+# whatever the user stored. (The bread maker's 7200 s in that map was never its
+# no_update_active_timeout: the manager reads that one with the scalar default.)
+RETIRED_DEVICE_TYPE_OPTION_FLOORS: dict[str, dict[str, tuple[float, float]]] = {
+    DEVICE_TYPE_BREAD_MAKER: {
+        CONF_LOW_POWER_NO_UPDATE_TIMEOUT: (7200.0, DEFAULT_LOW_POWER_NO_UPDATE_TIMEOUT),
+    },
 }
 
 # Standby-band stuck-in-RUNNING finalize (#296).  Some appliances finish but hold
@@ -570,14 +1048,71 @@ DEVICE_TYPES = {
 # never end an active low-power phase: it needs a matched profile, elapsed >= 2x
 # expected, and the whole recent window flat + below a small fraction of the cycle's
 # own peak.  Restricted to wet appliances where a stuck baseline is unambiguously
-# anomalous (bread-maker keep-warm, pump, air-fryer etc. have legitimate holds and
-# are excluded).
+# anomalous (a pump, a keep-warm hold etc. can be legitimate and are excluded).
 STANDBY_BAND_FINALIZE_DEVICE_TYPES = (
     DEVICE_TYPE_WASHING_MACHINE,
     DEVICE_TYPE_WASHER_DRYER,
     DEVICE_TYPE_DRYER,
 )
-STANDBY_BAND_MIN_RATIO = 2.0          # only past 2x the expected duration
+# Only past the programme's own expected duration (#445). Was 2.0, which on the
+# reporter's 91 min Miele meant 91.5 minutes of idle before the cycle closed:
+# that machine sits at 3.2-3.5 W after a programme ends, above its 2.56 W stop
+# threshold, so _time_below_threshold never accumulates and this is the ONLY
+# path that can end the cycle at all. Measured over 111 clean cycles from the
+# whole corpus at 2.0 vs 1.0: no cycle that finished under 2.0 finished any
+# differently, and two that never closed within their stored trace now close at
+# 103% and 94% of expected. The three plateau conditions below are what make it
+# safe - past expected AND >=10 min flat AND <=10% of the cycle's own peak is
+# an appliance that has finished, not one still working.
+STANDBY_BAND_MIN_RATIO = 1.0          # only past the expected duration
+# ...but only for a plateau that IS the #445 shape: sitting at or just above the
+# stop threshold, within max(STANDBY_BAND_NEAR_STOP_FACTOR x stop,
+# stop + STANDBY_BAND_NEAR_STOP_W). 0.5.7 dropped the ratio for EVERY plateau the
+# loose test below accepts - flat and under 10% of the heater peak, i.e. anything
+# from a 0 W soak to a 70 W rinse on a 2 kW machine - so a run matched to a shorter
+# programme was finalised mid-wash. Replaying the local corpus at 0.5.7 it fired on
+# 8 washer cycles (0 at 0.5.6): 2 split, 6 lost 6-31 min of real activity, and none
+# of the 8 plateaus sat within a few watts of the stop threshold. The #445 Miele
+# (3.2-3.5 W idle on a 2.56 W stop), #458 (2.2 W on 1.76 W) and #427's AEG (0.7 W on
+# 0.6 W) all do.
+STANDBY_BAND_NEAR_STOP_FACTOR = 2.0
+STANDBY_BAND_NEAR_STOP_W = 3.0
+# Any other flat low plateau keeps the 0.5.6 gate: twice the expected duration.
+STANDBY_BAND_LOOSE_MIN_RATIO = 2.0
+
+# Ceiling on the measured post-activity quiet span a stored cycle may bank
+# (register item 297). `profile_terminal_quiet_seconds` is a median over that profile's own
+# cycles, so it is already self-limiting; this is the guard against a corrupted
+# or hand-edited value licensing an unbounded tail - the one thing the field
+# exists to prevent. Not a measurement of drying: 30 min did not cover it
+# (register item 469). 01KGM619's Eco dries 4840-4860 s before its pump-out, so
+# a run closed without one stored last activity + 1800 s (~8.0k s of an ~11.1k s
+# programme). At 2 h: 12 such replays store 10.0-11.3k s, end lag unchanged on
+# dishwashers but one cycle (+3 min) and no early end or split moved.
+TERMINAL_QUIET_CAP_S = 7200.0
+# A measured quiet span is only trusted as a tail allowance when the profile has
+# actually shown it repeatedly (register item 297). Measured over 20 real profiles: the two
+# dishwashers, which genuinely end in a passive drying phase, scored 20/20 and
+# 17/17; every washing-machine profile that produced a value at all did so from
+# 1-4 cycles out of 4-12, one of them 2400 s. Below these floors the accessor
+# reports None and the caller keeps its previous behaviour.
+TERMINAL_QUIET_MIN_OBSERVATIONS = 3
+TERMINAL_QUIET_MIN_CONSISTENCY = 0.6
+# Store key set by the v12->v13 migration and cleared once the one-time repair
+# of banked cycle tails has run (register item 297). The repair itself cannot
+# live in the storage migration, which sees only the store payload: deciding
+# where a cycle's real activity ended needs `stop_threshold_w`, and that lives
+# in entry.options. Same split as the v10->v11 marker-only bump.
+BANKED_TAIL_REPAIR_KEY = "_banked_tail_repair_pending"
+# Don't churn a cycle for a few seconds of tail: only rewrite one whose banked
+# span is worth correcting. Measured median banking was 12.6 min, so this only
+# skips noise.
+BANKED_TAIL_REPAIR_MIN_S = 60.0
+# A dishwasher's stored end never falls before this fraction of the shortest
+# length the user has vouched for in its profile (`manual_duration`, a recorder
+# capture, a golden cycle). Shared by the banked-tail repair and the live
+# `_keep_tail_cap` (register item 384), so the two store the same duration.
+TRUSTED_LENGTH_FLOOR_FRAC = 0.9
 STANDBY_BAND_WINDOW_S = 600.0         # require a >=10 min flat plateau
 STANDBY_BAND_MAX_FRACTION = 0.10      # plateau level <= 10% of the cycle's peak
 STANDBY_BAND_FLATNESS_FRACTION = 0.03  # window (max-min) <= 3% of the cycle's peak
@@ -616,15 +1151,97 @@ STANDBY_BAND_FLATNESS_FLOOR_W = 2.0   # absolute flatness floor for low-peak dev
 # that never heats is left alone.  Asymmetric (finalise-only, can only shorten the
 # wait) and self-correcting (a new wash's heating burst leaves the regime and
 # re-arms matching).
-ANTI_CREASE_FINALIZE_RATIO = 0.98      # elapsed must reach 98% of expected duration
+# Issue #429: the ratio is per-appliance (CONF_ANTI_CREASE_FINALIZE_RATIO, range
+# 0.50-1.00, empty = this default), for the same reason as #393 - and note that
+# this is a DIFFERENT gate from CONF_SMART_TERMINATION_DURATION_RATIO, which
+# gates Smart Termination rather than the finalise into STATE_ANTI_WRINKLE.
+# ``_expected_duration`` is the profile's outlier-filtered arithmetic MEAN, so on
+# a sensor-dry program (runtime follows the load, not the clock) a fixed 98% of
+# the mean is unreachable for about half the runs by construction, and the path
+# built for exactly that tail can never engage. Measured by the reporter on a
+# condenser dryer: 15 of 15 matched runs landed at 0.38-0.92 of expected and all
+# 15 ended by fallback timeout, 14-39 min (median 27) after the last real
+# activity; at 0.75 the finalise fired on all 3 subsequent runs, 6-12 min after.
+#
+# Left per-appliance rather than re-defaulted, and NOT device-type-resolved,
+# because the safe value is a property of the individual machine: the reporter's
+# heat-pump dryer has no comparable tumble tail and closes 0.8-1.5 min after its
+# last high reading, so the fixed ratio costs it nothing.
+#
+# LOWER IT ON DRYERS, NOT ON WASHING MACHINES. On a washer this ratio is the
+# whole discriminator between the post-wash tail and a mid-wash trough (see the
+# rationale above): a washer spends most of its cycle below
+# ``anti_wrinkle_max_power``, so the low-power window check cannot tell the two
+# apart, and neither can the #364 trailing-power check (``_smart_term_power_
+# plausible`` compares against the profile's OWN tail level, which is also low).
+# ``_anticrease_spin_pending`` (#399) covers the terminal-spin case but fails
+# open when the profile carries no terminal high block.
+DEFAULT_ANTI_CREASE_FINALIZE_RATIO = 0.98  # elapsed must reach 98% of expected duration
+# The range the panel's number input enforces (min 0.5 / max 1.0), restated here so
+# the detector can hold a stored value to it. Nothing else validates the range:
+# `import_config` strips only nulls, a selective import writes numbers through, and
+# the Playground sanitizer casts to float. A stored 0.0 would make the past-expected
+# test `current_duration < expected * 0.0` pass for every non-negative duration, i.e.
+# remove the discriminator this gate rests on for washing machines (see above).
+ANTI_CREASE_FINALIZE_RATIO_MIN = 0.5
+ANTI_CREASE_FINALIZE_RATIO_MAX = 1.0
 ANTI_CREASE_CONFIRM_WINDOW_S = 180.0   # recent window that must hold no reading > max_power
+
+# Issue #399: both conditions above look BACKWARDS, so a wash whose final spin
+# lands just past 0.98 x expected - preceded by more than the confirm window below
+# `anti_wrinkle_max_power` (a delicate/rinse stretch) - was finalised seconds
+# before its own spin, and the spin then opened a second cycle record. The guard
+# asks the matched profile whether it ends with a high-power block and, if so,
+# refuses to finalise until THIS run has produced its counterpart.
+#
+# Deliberately event-based, not clock-based: blocking merely until elapsed passes
+# the profile's own last high sample delays the reported finalise by 16 s and then
+# splits the wash anyway, because a run's spin can sit hundreds of seconds later
+# than the profile's (load-dependent duration). Asymmetric like the other
+# anti-crease guards - it can only ever DELAY a finalise - and bounded by the cap
+# below so a program that legitimately skips its spin can never hang.
+ANTI_CREASE_TERMINAL_HIGH_MIN_FRAC = 0.90   # profile's last high block must START this
+                                            # late in its run to count as terminal;
+                                            # a genuinely low-power tail (the #296
+                                            # Miele tumble) never arms the guard
+ANTI_CREASE_TERMINAL_MATCH_FRAC = 0.5       # live high-power seconds after that
+                                            # position, as a fraction of the
+                                            # profile's own block, that count as
+                                            # "this run has had its spin"
+ANTI_CREASE_SPIN_WAIT_MAX_RATIO = 1.25      # never block past this x expected
+# Register item 480: the envelope's max band arms the guard when ANY member's last
+# block above the level is terminal, and washer spins straddle 400 W (held runs
+# peak at 331-394 W, the members that "spin" at 404-437 W). Once the band arms,
+# the guard stays armed only when at least this share of the profile's completed
+# traced members end with their own terminal block; with fewer members than the
+# floor the band (or sample) decides alone, as before.
+ANTI_CREASE_SPIN_ARM_MIN_SHARE = 0.5
+ANTI_CREASE_SPIN_ARM_MIN_MEMBERS = 2
+
+# Issue #474: a dryer's anti-crease tumble pulses (Miele T220A: ~125 W for 5-10 s
+# every ~70 s; #478 AEG TR719A4B: 130-300 W for 6-12 s every ~120 s) are above
+# stop_threshold_w, and since DETECT-04 every reading there restarted the quiet
+# tally, so Smart Termination and the off_delay/min_off_gap fallback never saw
+# enough quiet and the cycle ran to the 8 h cap. On these device types an
+# excursion above stop_threshold_w that peaks at or below anti_wrinkle_max_power
+# and lasts at most QUIET_PULSE_MAX_S (its first reading to the first reading back
+# below stop) leaves the quiet tallies and the last activity where they stood
+# before it (its own span is not counted as quiet, the fallback's energy window
+# skips it), and it does not resume RUNNING from PAUSED / ENDING. A
+# longer or hotter excursion (resumed heating, a fan-only phase) resets as before.
+# 30 s is 2.5x the longest pulse in both reports and far below any drying phase;
+# a plug polled slower than this cannot show a pulse that short, so it keeps the
+# old behaviour. Dryers only: a washer's soak drum turns have the same shape
+# mid-wash, and on the 24 washer-dryer corpus cycles the rule moved 3 ends and
+# (under the #296 tumble tail) cut 3 stored runs short of their own last turns.
+QUIET_PULSE_DEVICE_TYPES = (DEVICE_TYPE_DRYER,)
+QUIET_PULSE_MAX_S = 30.0
 
 # Device Type Defaults
 # Device Type Defaults (Maps)
 
 DEFAULT_NO_UPDATE_ACTIVE_TIMEOUT_BY_DEVICE = {
     DEVICE_TYPE_DISHWASHER: 14400,  # 4 hours (Drying can be long)
-    DEVICE_TYPE_BREAD_MAKER: 7200,  # 2 hours (Proving/Rising is very low-power for extended periods)
     DEVICE_TYPE_PUMP: DEFAULT_PUMP_STUCK_DURATION + 60,  # Must exceed stuck-alarm threshold so the alarm fires before the watchdog
 }
 
@@ -683,6 +1300,15 @@ DISHWASHER_MATCH_FREEZE_QUIET_SECONDS = 300.0
 # caught by the end-spike arm first.  Smaller than the 30-min window but large enough
 # to confirm a terminal tail rather than an inter-phase gap.
 DISHWASHER_END_SPIKE_QUIET_RELEASE_SECONDS = 600.0
+# ...but never shorter than this multiple of the matched profile's MEASURED quiet
+# before its terminal event (`profile_terminal_quiet_seconds`, match element 11):
+# a release after 600 s of quiet is premature on a programme measured to wait
+# 934-1810 s before its pump-out, and ended the corpus's "65° full" 12 min early
+# (register item 392). Lengthen-only, and bounded by the 30 min spike wait.
+# The same margin applies to the longest below-stop pause the profile's traced
+# cycles ever resumed from (match element 14, register item 465): element 11 is a
+# median that a cycle closed before its pump-out drags down.
+DISHWASHER_QUIET_RELEASE_TERMINAL_MARGIN = 1.1
 
 # Confirmation window a dishwasher must spend in ENDING before Smart Termination
 # fires.  This is deliberately a FIXED constant and NOT derived from off_delay:
@@ -721,10 +1347,39 @@ STARTING_PAUSED_TRUE_OFF_TIMEOUT_SECONDS = 300.0
 # a washer's longest legitimate mid-cycle soak trough while capping the pathology.
 WASHER_SMART_TERMINATION_DEBOUNCE_MAX_SECONDS = 600.0
 
+# Fraction of the matched profile's expected (mean) duration that Smart Termination
+# requires before it may fire (#393).  self._expected_duration is the profile's
+# outlier-filtered ARITHMETIC MEAN, so a fixed 0.98 gate against a mean is
+# structurally unreachable for appliances whose runtime depends on load, fill level
+# or inlet temperature - about half of those cycles are shorter than their own mean
+# by construction and can never take the fast path.  Exposed as the per-device
+# CONF_SMART_TERMINATION_DURATION_RATIO option (range 0.50-1.00; empty = default).
+# The default is device-type-resolved: dishwashers keep the conservative 0.99
+# (their programs are fixed, so the spread is small) while everything else keeps
+# 0.98.  The dishwasher pump-out relief (0.90 once the terminal pump-out spike is
+# confirmed) is combined with the configured value via min(), so the option can
+# only ever LOOSEN the gate, never tighten it.
+DEFAULT_SMART_TERMINATION_DURATION_RATIO = 0.98
+
 DEFAULT_OFF_DELAY_BY_DEVICE = {
     DEVICE_TYPE_DISHWASHER: 1800,  # 30 min (Drying)
-    DEVICE_TYPE_BREAD_MAKER: 300,  # 5 min (Keep-warm phase after baking)
     DEVICE_TYPE_PUMP: 20,  # 20 s (Pumps cut off sharply; no warm-down phase)
+}
+
+# Ceiling for the manager's *unmatched* zombie guard (seconds), i.e. the failsafe
+# that force-ends a cycle with no learned expected duration (expected == 0). This is
+# only a last-resort kill for a stuck FALSE START; the detector already hard-caps any
+# cycle at 8h (28800s), and the guard additionally only fires when the appliance is
+# effectively idle and no external end trigger is available (issue #404). All values
+# MUST stay below the detector's 28800s cap so the guard remains an *earlier* kill.
+# Wet/long appliances get a longer fuse because a genuine wash+dry or long cottons
+# programme with no matched profile can legitimately run well past 4h.
+DEFAULT_UNMATCHED_WATCHDOG_CEILING = 14400  # 4h scalar fallback
+DEFAULT_UNMATCHED_WATCHDOG_CEILING_BY_DEVICE = {
+    DEVICE_TYPE_WASHING_MACHINE: 21600,  # 6h (long cottons + pre-wash)
+    DEVICE_TYPE_WASHER_DRYER: 25200,  # 7h (combined wash+dry runs 6+h)
+    DEVICE_TYPE_DRYER: 21600,  # 6h (anti-crease can extend a long dry)
+    DEVICE_TYPE_DISHWASHER: 18000,  # 5h (long eco + silent drying pauses)
 }
 
 # Device-specific progress smoothing thresholds (percentage points)
@@ -734,8 +1389,6 @@ DEVICE_SMOOTHING_THRESHOLDS = {
     DEVICE_TYPE_DRYER: 3.0,  # More linear, less phase repetition
     DEVICE_TYPE_WASHER_DRYER: 5.0,  # Combined washer+dryer, use washer defaults
     DEVICE_TYPE_DISHWASHER: 5.0,  # Similar to washing machine with distinct phases
-    DEVICE_TYPE_AIR_FRYER: 2.0,  # Constant load with sudden drop
-    DEVICE_TYPE_BREAD_MAKER: 5.0,  # Large power swings between kneading, proving, baking
     DEVICE_TYPE_PUMP: 2.0,  # Binary on/off spikes; minimal smoothing needed
     DEVICE_TYPE_GENERIC: 3.0,  # Neutral middle ground for unknown appliance types
 }
@@ -746,8 +1399,6 @@ DEVICE_COMPLETION_THRESHOLDS = {
     DEVICE_TYPE_DRYER: 600,  # 10 min
     DEVICE_TYPE_WASHER_DRYER: 600,  # 10 min (same as washer)
     DEVICE_TYPE_DISHWASHER: 900,  # 15 min
-    DEVICE_TYPE_AIR_FRYER: 300,  # 5 min minimum
-    DEVICE_TYPE_BREAD_MAKER: 1800,  # 30 min (even express bread takes 30+ min)
     DEVICE_TYPE_PUMP: 5,  # 5 s - pump cycles can be under 30 seconds
 }
 
@@ -762,8 +1413,6 @@ DEFAULT_MIN_OFF_GAP_BY_DEVICE = {
     DEVICE_TYPE_DRYER: 300,  # 5 min (Cool down gaps?)
     DEVICE_TYPE_WASHER_DRYER: 600,  # 10 min (longer for combined cycles)
     DEVICE_TYPE_DISHWASHER: 3600,  # 1 hour (Drying pauses)
-    DEVICE_TYPE_AIR_FRYER: 120,  # 2 min (Shaking food)
-    DEVICE_TYPE_BREAD_MAKER: 600,  # 10 min (Resting between knead/prove keeps same cycle together)
     DEVICE_TYPE_PUMP: 60,  # 1 min (Pumps can cycle every 3-5 min in heavy rain)
 }
 DEFAULT_MIN_OFF_GAP = 60  # Scalar fallback
@@ -776,8 +1425,6 @@ DEFAULT_START_ENERGY_THRESHOLDS_BY_DEVICE = {
     DEVICE_TYPE_DRYER: 0.5,  # Heater kicks in hard
     DEVICE_TYPE_WASHER_DRYER: 0.3,  # Mix of washer and dryer
     DEVICE_TYPE_DISHWASHER: 0.2,  # Pump/Heater
-    DEVICE_TYPE_AIR_FRYER: 0.2,  # Heater kicks in
-    DEVICE_TYPE_BREAD_MAKER: 0.2,  # Kneading motor starts (~200W for a few seconds)
     DEVICE_TYPE_PUMP: 0.003,  # ~100W motor for ~0.1 s is enough to confirm a pump cycle
 }
 # Default sampling interval by device type
@@ -790,20 +1437,241 @@ DEFAULT_SAMPLING_INTERVAL_BY_DEVICE = {
     DEVICE_TYPE_PUMP: 10.0,  # 10s - pump cycles can be <30 s; 30s default would miss them
 }
 
-# Default profile match min duration ratio by device type
-DEFAULT_PROFILE_MATCH_MIN_DURATION_RATIO_BY_DEVICE = {
-    DEVICE_TYPE_DISHWASHER: 0.10,
+
+# Power units Home Assistant's sensor platform accepts (UnitOfPower), as factors to
+# watts (#481). Case matters: "mW" is milliwatts, "MW" megawatts. Any other unit,
+# or none, reads as watts, as every reading did before.
+POWER_UNIT_TO_W: dict[str, float] = {
+    "mW": 0.001,
+    "W": 1.0,
+    "kW": 1000.0,
+    "MW": 1_000_000.0,
+    "GW": 1_000_000_000.0,
+}
+# A rate of energy is power too: Home Assistant's Derivative helper turns a kWh
+# counter into "kWh/h" (#481). Factors to Wh, and the time unit in hours.
+_RATE_ENERGY_TO_WH: dict[str, float] = {"Wh": 1.0, "kWh": 1000.0, "MWh": 1_000_000.0}
+_RATE_TIME_IN_H: dict[str, float] = {"s": 1.0 / 3600.0, "min": 1.0 / 60.0, "h": 1.0, "d": 24.0}
+# Units of an energy counter (UnitOfEnergy, lowercased): never a power sensor (#481).
+ENERGY_UNITS = frozenset({
+    "mwh", "wh", "kwh", "gwh", "twh", "j", "kj", "mj", "gj", "cal", "kcal", "mcal", "gcal",
+})
+ENERGY_DEVICE_CLASSES = frozenset({"energy", "energy_storage"})
+
+
+def power_unit_scale(unit: Any, min_power: Any = DEFAULT_MIN_POWER) -> float:
+    """Factor that turns a power sensor's reading into watts (#481).
+
+    ``unit`` is the sensor's ``unit_of_measurement``. 1.0 for watts, an unknown
+    unit or none ("kw" in any case is kilowatts; an energy rate such as the
+    Derivative helper's "kWh/h" is power too). A device whose Min Power was evidently set in the sensor's own
+    unit keeps raw readings, so a setup made to work on raw kilowatts before
+    0.5.9 (thresholds under 1) does not change: below 1 W for a kilowatt (or
+    larger) sensor, 1000 W or more for a milliwatt one. Never raises.
+    """
+    text = unit.strip() if isinstance(unit, str) else ""
+    # "kw" is unambiguous (a hand-made template sensor); "mw" is not, so it stays W.
+    scale = POWER_UNIT_TO_W.get(text, 1000.0 if text.lower() == "kw" else 1.0)
+    energy, slash, per = text.partition("/")
+    if slash and energy.strip() in _RATE_ENERGY_TO_WH and per.strip() in _RATE_TIME_IN_H:
+        scale = _RATE_ENERGY_TO_WH[energy.strip()] / _RATE_TIME_IN_H[per.strip()]
+    try:
+        floor = float(min_power)
+    except (TypeError, ValueError, OverflowError):
+        return scale
+    if (scale > 1.0 and floor < 1.0) or (scale < 1.0 and floor >= 1000.0):
+        return 1.0
+    return scale
+
+
+def _is_power_unit(text: str) -> bool:
+    """A unit ``power_unit_scale`` reads as power: W, kW, ..., or an energy rate."""
+    if text in POWER_UNIT_TO_W or text.lower() == "kw":
+        return True
+    energy, slash, per = text.partition("/")
+    return bool(slash) and energy.strip() in _RATE_ENERGY_TO_WH and per.strip() in _RATE_TIME_IN_H
+
+
+def is_energy_counter(attributes: Any) -> bool:
+    """Whether a sensor's attributes prove it counts energy (kWh), not power (#481).
+
+    An energy unit, or an energy device class without a power unit (a power unit
+    wins over a device class set wrong on a hand-made template). Only positive
+    evidence counts: no attributes (an entity Home Assistant has not loaded yet)
+    is not an energy counter.
+    """
+    if not isinstance(attributes, Mapping):
+        return False
+    unit = str(attributes.get("unit_of_measurement") or "").strip()
+    if unit.lower() in ENERGY_UNITS:
+        return True
+    device_class = str(attributes.get("device_class") or "").strip().lower()
+    return device_class in ENERGY_DEVICE_CLASSES and not _is_power_unit(unit)
+
+
+def resolve_sampling_interval_default(device_type: str) -> float:
+    """Device-resolved default sampling interval (#396).
+
+    Single source of truth for the sampling default, so the manager, the panel
+    (via ws_get_options) and the config migration all agree. Wet appliances
+    sample fast (2 s) to capture the rapid 0<->150 W oscillation; everything else
+    keeps the coarse 30 s scalar.
+    """
+    return DEFAULT_SAMPLING_INTERVAL_BY_DEVICE.get(device_type, DEFAULT_SAMPLING_INTERVAL)
+
+
+def resolve_watchdog_interval_default(device_type: str) -> int:
+    """Device-resolved watchdog tick default (#396).
+
+    The panel enforces watchdog_interval >= 2*sampling_interval (a publish-on-change
+    sensor can skip a sample, so the staleness tick must be coarser than the
+    sampling gap). Derived as max(DEFAULT_WATCHDOG_INTERVAL, 2*sampling+1): 30 for
+    the fast/pump types (30 already clears 2*2 / 2*10), 61 for the 30 s-sampling
+    types. Never smaller than the 30 s floor so a fast-sampling device does not get
+    an over-aggressive watchdog.
+    """
+    sampling = resolve_sampling_interval_default(device_type)
+    return int(max(DEFAULT_WATCHDOG_INTERVAL, 2.0 * sampling + 1.0))
+
+
+def resolve_min_off_gap_default(device_type: str) -> int:
+    """Device-resolved minimum off gap (#445).
+
+    Published to the panel so the number that actually governs the end of a cycle
+    is visible. ``CycleDetector`` waits
+    ``effective_off_delay = max(off_delay, min_off_gap)``, so an unset
+    ``min_off_gap`` silently raises a hand-lowered ``off_delay`` to this blind
+    per-device prior - 480 s on a washing machine, 3600 s on a dishwasher. The
+    #445 reporter set ``off_delay`` to 180 s, waited 6 minutes, and force-stopped
+    three cycles because nothing told them the real wait was 480 s.
+
+    Deliberately published rather than lowered. The prior is there because a long
+    quiet stretch inside a cycle must not split it in two, and that is real: a
+    corpus sweep over 15 devices' stored cycles found dishwasher quiet-and-resumed
+    stretches up to **6791 s**. Only 2 of those 15 devices left ``min_off_gap``
+    unset at all, so honouring the lowered ``off_delay`` would be a no-op almost
+    everywhere and a cycle-splitting risk on exactly the device class that needs
+    the bridge. Showing the number lets the user make that call per appliance.
+    """
+    return int(DEFAULT_MIN_OFF_GAP_BY_DEVICE.get(device_type, DEFAULT_MIN_OFF_GAP))
+
+
+def resolve_off_delay_default(device_type: str) -> int:  # noqa: ARG001
+    """The off delay a device runs on when it has none set (#445).
+
+    ``DEFAULT_OFF_DELAY`` for every type. ``DEFAULT_OFF_DELAY_BY_DEVICE`` is the
+    suggestion engine's FLOOR for a proposed value, not a runtime default: no
+    device has ever run on it, because the config flow does not store an off
+    delay and the manager falls back to the scalar. Publishing the table here
+    made the panel show a dishwasher's unset Off Delay as 1800 s while the
+    detector used 180 s - and 180 is the floor of the late ENDING shortening, so
+    the difference is not cosmetic. The parameter is kept for the call sites.
+    """
+    return int(DEFAULT_OFF_DELAY)
+
+
+def resolve_start_duration_default(device_type: str) -> float:
+    """Device-resolved start-debounce default (#396).
+
+    The panel enforces start_duration_threshold >= sampling_interval (a debounce
+    shorter than one sample lets a single spike open a cycle). Derived as
+    max(DEFAULT_START_DURATION_THRESHOLD, sampling): 5 s for the fast types, the
+    sampling interval for the coarser ones.
+    """
+    sampling = resolve_sampling_interval_default(device_type)
+    return max(DEFAULT_START_DURATION_THRESHOLD, sampling)
+
+
+# Default Smart-Termination duration ratio by device type (#393).  Dishwashers run
+# fixed programs (measured spread +4%/+17% around the mean), so the conservative
+# 0.99 gate is defensible there; every other type keeps the scalar
+# DEFAULT_SMART_TERMINATION_DURATION_RATIO (0.98).  Resolved in the config builder,
+# never in the gate, so playground.effective_settings() always sees a real float.
+DEFAULT_SMART_TERMINATION_DURATION_RATIO_BY_DEVICE = {
+    DEVICE_TYPE_DISHWASHER: 0.99,
 }
 
-# Profile groups (Stage 5): the matcher only collapses a group into one
-# aggregate candidate when its members' minimum pairwise shape similarity is at
-# least this. Similarity is DTW/Sakoe-Chiba on peak-normalised envelopes, so it
-# tolerates the duration (longer heating/draining) and amplitude (temp/spin)
-# variation between real members. Looser groups stay individual (a blurry generic
-# aggregate could out-match unrelated profiles) and are flagged in the UI.
-# Calibrated on real profiles: genuine temp/spin variants score ~0.86-0.95,
-# distinct programs <~0.6; 0.80 leaves margin below the 0.85 suggestion bar.
+
+# ...except on a washing machine, where 1.05 is structurally out of reach
+# (register item 355). A washer's programme length is load-adaptive, so a run is
+# BELOW its profile's mean duration about half the time by definition: measured
+# over the `end_gate_eval.py` corpus the median washer reaches only 0.83 of the
+# bar before it stops, against 1.01 for a dishwasher, and the shortening fired on
+# 6.8% of washer cycles. That is what left washing machines waiting out the full
+# `min_off_gap` - a median 24.74 min after the last activity, against 6.89 for a
+# dishwasher. NOT an ambiguity problem, which is what the register used to say;
+# item 330 had already fixed that half.
+#
+# Scoped to the device class rather than lowered globally, because every early
+# end in the global sweep was a DISHWASHER: at 0.95 one dishwasher closed 5.58
+# min before its last activity (a 30 s 73 W blip after five dead-zero minutes),
+# while washing machines showed 0.00% early ends at every ratio tried. Measured
+# at 0.90, washers only: median end lag 24.74 -> 16.92 min, early ends 0.00%,
+# splits unchanged at 1.90%, dishwashers byte-identical. The cost is 2 cycles of
+# 158 losing their auto-label (92.4% -> 91.1%) because ending ~11 min sooner can
+# skip a final match tick; they are still stored and offered for confirmation,
+# which this codebase already treats as much cheaper than a wrong label (#325).
+END_GATE_LATE_RATIO_BY_DEVICE = {
+    DEVICE_TYPE_WASHING_MACHINE: 0.90,
+    DEVICE_TYPE_WASHER_DRYER: 0.90,
+}
+
+
+def resolve_end_gate_late_ratio(device_type: str) -> float:
+    """Device-resolved bar for the item-306 ENDING shortening.
+
+    Single source of truth for the detector and the Playground replay, so the
+    sim cannot diverge from live the way it did in item 352.
+    """
+    return END_GATE_LATE_RATIO_BY_DEVICE.get(device_type, END_GATE_LATE_RATIO)
+
+
+def resolve_smart_termination_duration_ratio_default(device_type: str) -> float:
+    """Device-resolved Smart-Termination duration ratio default (#393).
+
+    Single source of truth shared by the manager (config build/reload), the
+    Playground fallback config and the panel (via ws_get_options), so the value
+    the panel pre-populates always matches the one the detector actually uses:
+    0.99 for dishwashers (fixed programs), 0.98 for everything else.
+    """
+    return DEFAULT_SMART_TERMINATION_DURATION_RATIO_BY_DEVICE.get(
+        device_type, DEFAULT_SMART_TERMINATION_DURATION_RATIO
+    )
+
+# Profile groups (Stage 5): a group is mapped to its members (and so collapsed into
+# one family after every member is scored on its own curve) only when the members'
+# minimum pairwise shape similarity is at least this. There is no aggregate
+# candidate any more (#400). Similarity is DTW/Sakoe-Chiba on peak-normalised
+# envelopes, so it tolerates the duration (longer heating/draining) and amplitude
+# (temp/spin) variation between real members. Looser groups stay individual and are
+# flagged in the UI. Calibrated on real profiles: genuine temp/spin variants score
+# ~0.86-0.95, distinct programs <~0.6.
 GROUP_MIN_COHESION = 0.80
+
+# Per-profile terminal signature (`profile_store.compute_profile_terminal_signature`).
+# Measured over every export in `cycle_data/` (146 unique dishwasher cycles, 10
+# households): a dishwasher's terminal pump-out peaks at a median 1.3% of its own
+# cycle peak (p10 0.8%, p90 3.8%) and follows a median 906 s of quiet. Both bounds
+# are therefore RELATIVE - a fixed wattage does not survive the range, which is
+# exactly why the #399 spin extractor (fixed at `anti_wrinkle_max_power`, 400 W)
+# finds no terminal block at all on a dishwasher whose pump-out is 33 W.
+# The quiet minimum separates "the event after the drying phase" from an ordinary
+# gap inside the wash; 120 s is well under the measured p10 of 624 s.
+TERMINAL_EVENT_PEAK_FRAC = 0.004
+TERMINAL_QUIET_MIN_S = 120.0
+# ...but a gap of 120 s also sits between a dishwasher's own heating blocks
+# (120-160 s on 01KGM619), so a cycle closed before its pump-out offered its LAST
+# HEATING BLOCK as the terminal event (register item 469). A terminal event is a
+# low-power one: over every corpus dishwasher the candidates peak at <= 9.1% of
+# their cycle's peak (median 1.3%) or at >= 90% (main activity), nothing between.
+# Above this fraction the last run is main activity and the trace has no event.
+TERMINAL_EVENT_MAX_PEAK_FRAC = 0.25
+# Below this many evidence cycles the medians describe noise, not the programme.
+TERMINAL_SIGNATURE_MIN_CYCLES = 3
+# Cycles a profile needs before one of them can be called a duration outlier
+# (register item 304). Below this there is no established 'usual length' to be
+# an outlier from, and calling a program's second cycle an error is nonsense.
+SELF_UNMATCHABLE_MIN_CYCLES = 3
 
 # Storage
 # v6: backfill ml_review.golden=True for manually-recorded cycles (recorded ==
@@ -817,11 +1685,60 @@ GROUP_MIN_COHESION = 0.80
 # v9: pre-initialize additive top-level keys (lifetime_energy_wh,
 # settings_changelog, maintenance_log) so they are present from first load
 # rather than only appearing lazily on first use.
-# v11 is a marker-only bump: per-phase profiles (envelope["phase_profile"]) are
-# derived cache populated by async_rebuild_envelope, so no data migration is
-# needed - they self-populate on the next envelope rebuild.
-STORAGE_VERSION = 11
+# v11 is a marker-only bump. It introduced a per-phase envelope cache for the
+# phase-resolved ETA, removed with that stack in 0.5.8 (register item 411); the
+# version stays because a store version can never go back down.
+# v12: initialize `backfill_cycles`, the third cycle list (issue #344). Cycles
+# recovered from raw power history predating the integration are auto-detected and
+# unverified, so they belong in neither `past_cycles` (which feeds lifetime stats, ML
+# training labels and the feedback queue, and is retention-evicted oldest-first) nor
+# `reference_cycles` (curated community-store templates, golden by construction).
+# Additive `setdefault`, so it is idempotent and loses nothing.
+# v13: marker-only, arms the one-time banked-tail repair (register item 297).
+# v14: marker-only, re-arms it (#424): the v13 pass judged the drying phase at the
+# wrong threshold and skipped dishwasher timeout finishes.
+# v15: label provenance repair (audit MANAGER-01): cycles the user confirmed or
+# corrected in the review queue are stamped `label_source="manual"`, and an answer
+# the panel's Auto-label had replaced is put back. Pure data, idempotent.
+# v16: review-queue cleanup (register item 433): pending requests the new rule
+# would not raise are dropped, without recording an answer. Idempotent.
+# v17: drops the state of the ML parts removed in 0.5.8 (the early match commit,
+# the quality gate, the matcher weight tuner, and on-device training of every head
+# but total_energy): `match_ranking_history`, `matching_config`, and the
+# `live_match` / `quality` / `end` / `remaining_time` records in
+# `ml_model_versions` / `ml_training_history`. No cycle or label is touched.
+# Idempotent.
+STORAGE_VERSION = 17
 STORAGE_KEY = "ha_washdata"
+
+# Restore point for "Undo last import" (register item 195): the store as it was before
+# the last replace import, in its own file `ha_washdata.<entry_id>.pre_import` so the
+# main store's per-save rewrite never carries a second copy. One per device: the next
+# replace import overwrites it, an undo consumes it, deleting the device removes it
+# (`async_remove_entry` + the orphan sweep in `__init__.py`). The record carries the
+# `STORAGE_VERSION` it was taken at, and a restore migrates it forward.
+PRE_IMPORT_STORE_SUFFIX = "pre_import"
+PRE_IMPORT_STORE_VERSION = 1
+
+# Notifications held by quiet hours / presence when Home Assistant stops or the entry
+# unloads, in `ha_washdata.<entry_id>.notify_queue` (audit MANAGER-16). Written at the
+# stop, read and deleted once HA has started again; removed with the device.
+NOTIFY_QUEUE_STORE_SUFFIX = "notify_queue"
+
+# The last active-cycle snapshot that failed to restore, in
+# `ha_washdata.<entry_id>.failed_restore` (register item 266 follow-up): kept for the
+# diagnostics download instead of being deleted with the cycle it held. Written only
+# on a failure, one per device (the next failure overwrites it), removed with the device.
+FAILED_RESTORE_STORE_SUFFIX = "failed_restore"
+
+# ─── Config-entry schema version (NOT the storage version above) ───────────────
+# Single source for the config-entry schema: `ConfigFlow.VERSION`/`MINOR_VERSION`, every
+# stepwise block in `async_migrate_entry`, and the `minor_version=` the one-pass legacy
+# migration writes all read from here. They must move together - a bump that misses one
+# leaves an entry a version short, which then re-migrates on every start - and repeating
+# the literals in three places is what made that easy to do.
+CONFIG_ENTRY_VERSION = 3
+CONFIG_ENTRY_MINOR_VERSION = 12
 
 # Notification events
 EVENT_CYCLE_STARTED = "ha_washdata_cycle_started"
@@ -829,6 +1746,98 @@ EVENT_CYCLE_ENDED = "ha_washdata_cycle_ended"
 
 # Signals
 SIGNAL_WASHER_UPDATE = "ha_washdata_update_{}"
+
+# Triggers (#478). The manager sends SIGNAL_DEVICE_TRIGGER for its entry with
+# ``(trigger_type, variables)`` at the moment each occurrence happens; the device
+# triggers (``device_trigger.py``) and the integration triggers (``trigger.py``,
+# ``trigger: ha_washdata.<type>``) both listen to it, so the two can never fire
+# differently. Option filters live in ``trigger_rules.py``.
+SIGNAL_DEVICE_TRIGGER = "ha_washdata_device_trigger_{}"
+# hass.data key: {entry_id: number of attached triggers}, so the manager knows
+# whether an announcement is worth an immediate snapshot write.
+DATA_TRIGGER_LISTENERS = "ha_washdata_trigger_listeners"
+TRIGGER_CYCLE_STARTED = "cycle_started"
+TRIGGER_PROGRAM_RECOGNISED = "program_recognised"
+TRIGGER_PHASE_STARTED = "phase_started"
+TRIGGER_FINISHING_SOON = "finishing_soon"
+TRIGGER_CYCLE_OVERRUN = "cycle_overrun"
+TRIGGER_CYCLE_PAUSED = "cycle_paused"
+TRIGGER_CYCLE_RESUMED = "cycle_resumed"
+TRIGGER_CYCLE_STALLED = "cycle_stalled"
+TRIGGER_CYCLE_FINISHED = "cycle_finished"
+# Any end of a cycle that fired cycle_started, interrupted false starts included,
+# so a "while running" automation always gets its off.
+TRIGGER_CYCLE_ENDED = "cycle_ended"
+TRIGGER_ANTI_WRINKLE_STARTED = "anti_wrinkle_started"
+TRIGGER_STILL_TUMBLING = "still_tumbling"
+TRIGGER_UNLOAD_PENDING = "unload_pending"
+TRIGGER_UNLOADED = "unloaded"
+TRIGGER_STATE_CHANGED = "state_changed"
+TRIGGER_MAINTENANCE_DUE = "maintenance_due"
+TRIGGER_MILESTONE_REACHED = "milestone_reached"
+TRIGGER_PUMP_STUCK = "pump_stuck"
+DEVICE_TRIGGER_TYPES = (
+    TRIGGER_CYCLE_STARTED,
+    TRIGGER_PROGRAM_RECOGNISED,
+    TRIGGER_PHASE_STARTED,
+    TRIGGER_FINISHING_SOON,
+    TRIGGER_CYCLE_OVERRUN,
+    TRIGGER_CYCLE_PAUSED,
+    TRIGGER_CYCLE_RESUMED,
+    TRIGGER_CYCLE_STALLED,
+    TRIGGER_CYCLE_FINISHED,
+    TRIGGER_CYCLE_ENDED,
+    TRIGGER_ANTI_WRINKLE_STARTED,
+    TRIGGER_STILL_TUMBLING,
+    TRIGGER_UNLOAD_PENDING,
+    TRIGGER_UNLOADED,
+    TRIGGER_STATE_CHANGED,
+    TRIGGER_MAINTENANCE_DUE,
+    TRIGGER_MILESTONE_REACHED,
+    TRIGGER_PUMP_STUCK,
+)
+# The device types with profile matching: a Threshold Device (`other`) never
+# recognises a program, so it has no program, phase or time estimate to report.
+_MATCHING_DEVICE_TYPES = (
+    DEVICE_TYPE_WASHING_MACHINE,
+    DEVICE_TYPE_DRYER,
+    DEVICE_TYPE_WASHER_DRYER,
+    DEVICE_TYPE_DISHWASHER,
+    DEVICE_TYPE_PUMP,
+    DEVICE_TYPE_GENERIC,
+)
+# The device types that tumble a load after the program (cycle_detector anti_wrinkle_active).
+_TUMBLING_DEVICE_TYPES = (
+    DEVICE_TYPE_WASHING_MACHINE,
+    DEVICE_TYPE_DRYER,
+    DEVICE_TYPE_WASHER_DRYER,
+)
+# Types offered only for some device types; every other type is offered for all.
+# The manager never sends a type its device type is not offered.
+DEVICE_TRIGGER_ONLY_FOR = {
+    TRIGGER_PROGRAM_RECOGNISED: _MATCHING_DEVICE_TYPES,
+    TRIGGER_PHASE_STARTED: _MATCHING_DEVICE_TYPES,
+    TRIGGER_FINISHING_SOON: _MATCHING_DEVICE_TYPES,
+    TRIGGER_CYCLE_OVERRUN: _MATCHING_DEVICE_TYPES,
+    TRIGGER_ANTI_WRINKLE_STARTED: _TUMBLING_DEVICE_TYPES,
+    TRIGGER_STILL_TUMBLING: _TUMBLING_DEVICE_TYPES,
+    TRIGGER_PUMP_STUCK: (DEVICE_TYPE_PUMP,),
+}
+TRIGGER_FINISHING_SOON_DEFAULT_MINUTES = 10
+TRIGGER_CYCLE_OVERRUN_DEFAULT_PERCENT = 20
+TRIGGER_STILL_TUMBLING_DEFAULT_MINUTES = 15
+# still_tumbling (#478): a burst opens when the power reaches the start threshold
+# and closes at or below the stop threshold (the detector's own hysteresis, so a
+# standby sitting between the two never counts). Only a burst no longer than this
+# is a tumble; tracking stops this long after the finish.
+STILL_TUMBLING_MAX_BURST_S = 300.0
+STILL_TUMBLING_GIVE_UP_S = 4 * 3600.0
+# maintenance_due: how often the due list is re-read between cycle ends (a
+# day-interval task falls due at any time of day).
+TRIGGER_MAINTENANCE_RECHECK_S = 60.0
+# ... and how often it is re-checked while the appliance is idle, when a plug that
+# reports only on change sends nothing: as often as the Maintenance due sensor.
+TRIGGER_MAINTENANCE_IDLE_CHECK_S = 3600.0
 
 # Learning & Feedback
 
@@ -842,8 +1851,6 @@ SERVICE_SUBMIT_FEEDBACK = (
 # no panel sections render and no background work runs.
 #
 #   SHOW_ML_LAB           ML Lab comparison tab in the WashData panel.
-#   ENABLE_ML_SUGGESTIONS ML-model-driven setting suggestions (Stage 3), shown
-#                         side-by-side with the classic statistical suggestions.
 #   ENABLE_ML_TRAINING    On-device model training loop (Stage 4): scheduled
 #                         retraining on the user's own labeled cycles.
 #
@@ -851,8 +1858,16 @@ SERVICE_SUBMIT_FEEDBACK = (
 # are always on - they only improve the existing suggestion engine and add no
 # new surfaces, so they need no flag.
 SHOW_ML_LAB = True
-ENABLE_ML_SUGGESTIONS = True
 ENABLE_ML_TRAINING = True
+# Frozen off even when a device enables ML models (audit ML-05): replayed on 292
+# real cycles the end-guard prevented no premature stop and raised the washer
+# median end lag 12.2 -> 17.5 min, every deferral the full 30 min cap.
+ENABLE_ML_END_GUARD = False
+# Removed in 0.5.8, after being frozen here: the remaining-time regressor (C4,
+# audit ML-07: worse than the naive estimate on 7 of 8 installs), the early match
+# commit (C2, audit ML-02: 31% of its early commits wrong vs 8.4% for
+# persistence) and the quality gate (C3, audit ML-06: fired on 0 of the 12
+# auto-label-eligible real cycles), with the matcher weight tuner.
 
 # ─── Community store (online features) ────────────────────────────────────────
 # Opt-in browsing/importing/sharing of reference cycles via the WashData Store.
@@ -873,34 +1888,79 @@ DEFAULT_ENABLE_ONLINE_FEATURES = False
 SHAREABLE_SETTING_KEYS: tuple[str, ...] = (
     # Detection / recognition
     CONF_MIN_POWER,
-    CONF_OFF_DELAY,
     CONF_START_THRESHOLD_W,
     CONF_STOP_THRESHOLD_W,
     CONF_START_DURATION_THRESHOLD,
     CONF_START_ENERGY_THRESHOLD,
     CONF_COMPLETION_MIN_SECONDS,
-    CONF_RUNNING_DEAD_ZONE,
-    CONF_MIN_OFF_GAP,
     CONF_END_ENERGY_THRESHOLD,
-    CONF_POWER_OFF_THRESHOLD_W,
-    CONF_POWER_OFF_DELAY,
+    # (off_delay, min_off_gap, power_off_*, profile_match_interval dropped: they
+    # are functions of the SHARER'S plug cadence, not the model - a 94 s plug's
+    # 1800 s off_delay is a 30 min end lag on a 1 s plug. Audit STORE-06.)
     # Matching
     CONF_PROFILE_MATCH_THRESHOLD,
-    CONF_PROFILE_UNMATCH_THRESHOLD,
-    CONF_PROFILE_MATCH_INTERVAL,
     CONF_PROFILE_MATCH_MIN_DURATION_RATIO,
     CONF_PROFILE_MATCH_MAX_DURATION_RATIO,
-    CONF_PROFILE_DURATION_TOLERANCE,
-    CONF_DURATION_TOLERANCE,
+    # (profile_duration_tolerance dropped: nothing reads it - audit DOCS-01. The
+    # unmatch threshold and duration tolerance are no longer settings since
+    # 0.5.9; a bundle still carrying them has them dropped.)
     CONF_AUTO_LABEL_CONFIDENCE,
     CONF_LEARNING_CONFIDENCE,
 )
+
+
+# Shared settings the panel bounds to 0-1 (scores and a fraction). Every shareable
+# setting is also >= 0 there.
+_SHARED_UNIT_INTERVAL_KEYS = frozenset({
+    CONF_PROFILE_MATCH_THRESHOLD,
+    CONF_AUTO_LABEL_CONFIDENCE,
+    CONF_LEARNING_CONFIDENCE,
+})
+
+
+def sanitize_shared_settings(settings: Any) -> dict[str, float]:
+    """The allow-listed, finite, numeric subset of a shared settings map.
+
+    Every share/adopt/export site goes through this. A value outside the panel's
+    own range is dropped (a match threshold of 5 can never be met by a 0-1 score).
+    The duration ratios are also held to the shipped bounds (audit STORE-06):
+    25/25 store bundles carried a max ratio below 1.8 (12 at the 1.5 measured to
+    delete the true candidate on 2.3% of folds, register item 311), and min ratios
+    up to 0.81 forbid any match before 81% of a programme.
+    """
+    if not isinstance(settings, dict):
+        return {}
+    out: dict[str, float] = {}
+    for key, value in settings.items():
+        if key not in SHAREABLE_SETTING_KEYS or isinstance(value, bool):
+            continue
+        if not isinstance(value, (int, float)):
+            continue
+        try:
+            number = float(value)  # an oversized JSON integer raises here
+        except OverflowError:
+            continue
+        if not math.isfinite(number):
+            continue
+        if number < 0 or (key in _SHARED_UNIT_INTERVAL_KEYS and number > 1):
+            continue
+        if key == CONF_PROFILE_MATCH_MAX_DURATION_RATIO:
+            value = max(value, DEFAULT_PROFILE_MATCH_MAX_DURATION_RATIO)
+        elif key == CONF_PROFILE_MATCH_MIN_DURATION_RATIO:
+            value = min(value, DEFAULT_PROFILE_MATCH_MIN_DURATION_RATIO)
+        out[str(key)] = value
+    return out
 
 # Public Firebase web config for the community store (NOT secret - identifies the
 # project; access is enforced by the store's Firestore rules).
 STORE_PROJECT_ID = "washdata-store"
 STORE_API_KEY = "AIzaSyDzq0MoWdU_21CSohZUhIIV7ZwfWppjcAk"
 STORE_WEB_ORIGIN = "https://3dg1luk43.github.io/washdata-store"
+
+# The automation template library (#478): Home Assistant blueprints in their own
+# repository, reviewed there, downloaded only while online features are on.
+AUTOMATION_LIBRARY_REPO = "https://github.com/3dg1luk43/washdata-automations"
+AUTOMATION_LIBRARY_RAW = "https://raw.githubusercontent.com/3dg1luk43/washdata-automations/main"
 
 # Reference-cycle trace format versions this integration can import.
 SUPPORTED_CYCLE_SCHEMA_VERSIONS = {1}
@@ -914,25 +1974,53 @@ QC_MANUAL = 3      # a plain detected cycle flagged golden by hand
 # Config keys for the scheduled, opt-in retraining loop. All gated behind
 # ENABLE_ML_TRAINING; nothing runs and no options render when that flag is False.
 CONF_ML_TRAINING_ENABLED = "ml_training_enabled"        # per-device opt-in
-CONF_ML_TRAINING_HOUR = "ml_training_hour"              # local hour (0-23) to train
-CONF_ML_TRAINING_MIN_CYCLES = "ml_training_min_cycles"  # min labelled clean cycles before training
-CONF_ML_TRAINING_INTERVAL_DAYS = "ml_training_interval_days"  # min days between retrains
+# Retired in 0.5.9 (fixed below; the promotion gate guards quality). Kept for migration only.
+CONF_ML_TRAINING_HOUR = "ml_training_hour"
+CONF_ML_TRAINING_MIN_CYCLES = "ml_training_min_cycles"
+CONF_ML_TRAINING_INTERVAL_DAYS = "ml_training_interval_days"
 
 DEFAULT_ML_TRAINING_ENABLED = False
-DEFAULT_ML_TRAINING_HOUR = 2          # 02:00 local - quiet hour
-DEFAULT_ML_TRAINING_MIN_CYCLES = 30   # need a meaningful corpus first
-DEFAULT_ML_TRAINING_INTERVAL_DAYS = 7 # retrain at most weekly
+ML_TRAINING_HOUR = 2           # 02:00 local - quiet hour
+ML_TRAINING_MIN_CYCLES = 30    # stored cycles before a scheduled run; the manual trigger skips it
+ML_TRAINING_INTERVAL_DAYS = 7  # scheduled retrain at most weekly
 
-# A newly trained model is only promoted over the shipped baseline when its
-# held-out AUC is at least (baseline AUC - this margin). Small negative slack is
-# allowed so personalisation can win even at a tiny AUC cost.
-ML_TRAINING_AUC_MARGIN = 0.02
-# Separate tolerance for the calibration gate: a retrained classifier must not
-# degrade balanced accuracy AT the live operating cutoff by more than this. Kept
-# distinct from ML_TRAINING_AUC_MARGIN because it bounds a different metric (decision
-# quality at a fixed threshold, not overall rank quality); same 0.02 default today.
-ML_TRAINING_BACC_MARGIN = 0.02
-ML_TRAINING_MIN_POSITIVES = 20  # need at least this many positive examples to trust a fit
+# Option keys read by NOTHING at runtime. The 3.11 -> 3.12 migration drops them
+# from options and data (after converting the two whose value still meant
+# something: ``notify_service`` into the per-event lists, #472, and a disabled
+# ``external_end_trigger_enabled`` into a cleared entity), and an import or an
+# undo-import strips them, so a stray copy can never come back.
+RETIRED_OPTION_KEYS = frozenset({
+    # Notifications: the pre-0.3 single-service pair (#472), the "Fire HA
+    # events" toggle (#478: the bus events always fire).
+    CONF_NOTIFY_SERVICE,
+    CONF_NOTIFY_EVENTS,
+    CONF_NOTIFY_FIRE_EVENTS,
+    # 0.5.9 option trim: behaviour fixed at the shipped value.
+    CONF_DURATION_TOLERANCE,  # only fed an unread feedback field
+    CONF_ANTI_WRINKLE_EXIT_POWER,  # max(0.8 W, stop_threshold_w)
+    CONF_PROFILE_UNMATCH_THRESHOLD,  # 0.35
+    CONF_SAMPLING_INTERVAL,  # the device type's default (resolve_sampling_interval_default)
+    CONF_ML_TRAINING_HOUR,
+    CONF_ML_TRAINING_MIN_CYCLES,
+    CONF_ML_TRAINING_INTERVAL_DAYS,
+    # 0.5.9: the external end trigger is on whenever its entity is set.
+    CONF_EXTERNAL_END_TRIGGER_ENABLED,
+    # Leftovers of settings removed earlier that no step stripped.
+    CONF_END_REPEAT_COUNT,
+    CONF_SMOOTHING_WINDOW,
+    CONF_PROFILE_DURATION_TOLERANCE,
+    "max_past_cycles",  # retention caps, removed in 0.5.8 (item 463)
+    "max_full_traces_per_profile",
+    "max_full_traces_unlabeled",
+    "enable_phase_matching",  # phase-resolved ETA, removed in 0.5.8
+    "auto_merge_gap_seconds",  # auto-merge, removed in 0.4.0
+    "auto_merge_lookback_hours",
+})
+
+# (The classifier promotion gate - AUC margin, balanced-accuracy margin, minimum
+# positives - was removed in 0.5.8 with on-device classifier training: audit ML-11
+# measured it promoting worse models on 4-7 held-out positives. Only the
+# total_energy regressor is trained on-device now.)
 
 # Per-capability held-out-score history kept across training runs, so the panel
 # can show whether a model's fit is improving, steady, or declining over time
@@ -940,18 +2028,19 @@ ML_TRAINING_MIN_POSITIVES = 20  # need at least this many positive examples to t
 # are retained.
 ML_TRAINING_HISTORY_MAX = 30
 
-# Remaining-time regressor (standardized_linear). Unlike the classifier heads it
-# has no shipped baseline; it is only promoted when its held-out mean-absolute
-# error on the completion-fraction target beats the naive elapsed/expected
-# estimate by at least this relative margin (5% lower MAE). Trained from prefixes
-# of the device's own clean cycles.
+# Total-energy regressor (standardized_linear), the one head trained on-device.
+# It has no shipped baseline; it is only promoted when its held-out mean-absolute
+# error on the energy-fraction target beats the naive elapsed/expected
+# estimate by at least this relative margin (5% lower MAE) AND beats the model
+# already in use, scored on the same held-out cycles (audit ML-12). Trained from
+# prefixes of the device's own clean cycles.
 ML_TRAINING_REGRESSION_MARGIN = 0.05
 ML_TRAINING_MIN_REGRESSION_ROWS = 30  # synthesized prefix rows needed to fit
-# How strongly a promoted remaining-time regressor influences the live progress
-# estimate. The ML completion-fraction is blended with the phase-aware estimate
-# at this weight before the existing EMA smoothing/monotonicity guards run, so a
-# bad model can never wholly override the proven phase estimator.
-ML_PROGRESS_BLEND_WEIGHT = 0.5
+# Held-out cycles a regressor must be scored on before it can be promoted. The
+# 20% holdout rested on ONE cycle for the only real promotion on record (audit
+# PROGRESS-16); the split now holds out at least this many when the device has
+# twice as many usable cycles, and never promotes on fewer.
+ML_TRAINING_MIN_HOLDOUT_CYCLES = 5
 
 # Service + event names for the training loop.
 SERVICE_TRIGGER_ML_TRAINING = "trigger_ml_training"
@@ -982,15 +2071,211 @@ DEFAULT_MAINTENANCE_REMINDER_CYCLES = {
     "filter_clean": 50,
     "drum_clean": 100,
 }
-# Recognised maintenance event types. bearing_service / other default off (absent
-# from the default reminder dict) and are opt-in.
+# Recognised built-in maintenance event types. bearing_service / other default off
+# (absent from the default reminder dict) and are opt-in. The last four are the
+# device-type presets of discussion #461 (see MAINTENANCE_PRESETS_BY_DEVICE_TYPE).
 MAINTENANCE_EVENT_TYPES = (
     "descale",
     "filter_clean",
     "drum_clean",
     "bearing_service",
     "other",
+    "salt",
+    "rinse_aid",
+    "lint_filter",
+    "condenser_clean",
 )
+# Preset defaults per device type (cycles), replacing DEFAULT_MAINTENANCE_REMINDER_CYCLES
+# for that type while its reminder config was never saved. None of these can be
+# measured from power: they are manufacturer ballparks set on the early side, so the
+# reminder comes with headroom. Every type not listed keeps the washer default.
+MAINTENANCE_PRESETS_BY_DEVICE_TYPE: dict[str, dict[str, int]] = {
+    DEVICE_TYPE_DISHWASHER: {
+        # A 1-2 kg softener reservoir lasts ~30-60 cycles at medium-hard water.
+        "salt": 30,
+        # A ~110-150 ml rinse-aid reservoir at ~3 ml per cycle lasts ~40-50 cycles.
+        "rinse_aid": 40,
+        # Same 50 as the washer default, so an existing dishwasher's reminder stays put.
+        "filter_clean": 50,
+    },
+    DEVICE_TYPE_DRYER: {
+        # Manufacturers say every load; 10 is a backstop for a forgotten filter.
+        "lint_filter": 10,
+        # Condenser / heat-pump filters: manufacturers suggest every ~20-50 loads.
+        "condenser_clean": 30,
+    },
+}
+# Built-in types the reminder editor offers per device type (in this order). Types
+# not listed get the original five. A type with a saved positive threshold is shown
+# whatever its device type, so no saved reminder ever disappears from the editor.
+MAINTENANCE_TYPES_BY_DEVICE_TYPE: dict[str, tuple[str, ...]] = {
+    DEVICE_TYPE_DISHWASHER: ("salt", "rinse_aid", "filter_clean", "descale", "other"),
+    DEVICE_TYPE_DRYER: ("lint_filter", "condenser_clean", "other"),
+}
+# The preset types count "since last done" from the moment their reminder is first
+# active (a baseline stamped in the store), not from odometer 0: an upgraded
+# dishwasher with 300 cycles must not open with "salt due" (#461). The original five
+# keep counting from the whole odometer when never logged, exactly as before.
+MAINTENANCE_COUNT_FROM_ENABLE_TYPES = frozenset(
+    {"salt", "rinse_aid", "lint_filter", "condenser_clean"}
+)
+# User-defined maintenance tasks (#461), stored per device in the profile store
+# ("maintenance_tasks") next to the log entries that reference them. Each has a
+# free-text name and an interval in cycles and/or days (0 = off for that axis);
+# it is due when either is reached. Ids carry this prefix so they can never collide
+# with a built-in type.
+MAINTENANCE_CUSTOM_TASK_PREFIX = "custom_"
+MAINTENANCE_CUSTOM_TASK_MAX = 20
+MAINTENANCE_TASK_NAME_MAX = 60
+MAINTENANCE_INTERVAL_CYCLES_MAX = 100000
+MAINTENANCE_INTERVAL_DAYS_MAX = 3650
+# Programs whose finished cycle marks a task done (#480): per task, at most this
+# many, stored as {task_id: [profile names]} under "maintenance_programs".
+MAINTENANCE_PROGRAMS_MAX = 20
 # A logged maintenance event of a matching type within this many days suppresses
 # the "needs maintenance" nag advisory (duration-trend / shape-drift).
 MAINTENANCE_RECENT_SUPPRESS_DAYS = 30
+
+# ─── Playground setting presets (sandbox snapshots, per device) ────────────────
+# Named snapshots of the Playground control panel's values, stored under the
+# "playground_presets" store key. They never touch the live config: publishing a
+# value to entry.options is always an explicit, per-setting user action.
+PLAYGROUND_PRESET_MAX: int = 30                      # per-device cap (keeps the store small)
+PLAYGROUND_PRESET_NAME_MAX: int = 60                 # preset name length cap
+
+# ─── Which cycle categories count as evidence for a profile ────────────────────
+# A profile's envelope (its average curve + duration/energy spread) and the matching
+# template are built from stored cycles. By default all three categories count. Untick a
+# category and it stops shaping profiles - useful when you do not trust imported data -
+# without deleting anything: the cycles remain stored, listed and deletable.
+#
+# This gates *evidence* only (`ProfileStore.iter_evidence_cycles`), never
+# `iter_stored_cycles`/`find_stored_cycle`. Profile garbage collection and sample repair
+# delete or re-point a profile whose sample cycle resolves to nothing, so they must keep
+# seeing every stored cycle: a cycle excluded from evidence is still a stored cycle, and
+# gating those lookups would destroy a backfill-only profile the moment someone unticked
+# imported history.
+CONF_PROFILE_EVIDENCE_SOURCES = "profile_evidence_sources"
+EVIDENCE_REAL_CYCLES = "real_cycles"
+EVIDENCE_REFERENCE_CYCLES = "reference_cycles"
+EVIDENCE_BACKFILL_CYCLES = "backfill_cycles"
+# All three match the export taxonomy (`_EXPORT_CATEGORIES`), which the selective
+# export/import wizard enumerates per category (register item 129e).
+PROFILE_EVIDENCE_SOURCES = (
+    EVIDENCE_REAL_CYCLES,
+    EVIDENCE_REFERENCE_CYCLES,
+    EVIDENCE_BACKFILL_CYCLES,
+)
+# All three: the pre-setting behaviour, so an upgrade changes nothing.
+DEFAULT_PROFILE_EVIDENCE_SOURCES = list(PROFILE_EVIDENCE_SOURCES)
+
+# ─── Historical power-data import (issue #344) ─────────────────────────────────
+# An HA history export (or a recorder read) is a *change-based* stream: a steady
+# 0 W emits no rows at all, so it cannot be fed to the detector as-is (doing so
+# produces multi-day `force_stopped` blobs). `history_import.py` pre-segments the
+# stream into activity blocks first; these constants govern that pre-pass.
+HISTORY_IMPORT_MAX_BYTES: int = 32 * 1024 * 1024     # staged upload cap (~32 MiB of CSV text)
+HISTORY_IMPORT_MAX_ROWS: int = 500_000               # parsed-row cap (≈ a month at 5 s)
+HISTORY_IMPORT_CHUNK_BYTES: int = 512 * 1024         # per-WS-message upload chunk (frame cap is 4 MiB)
+# Samples replayed per executor job. 4000 was ~1.0 s of GIL per job on a desktop,
+# i.e. the #311 freeze pattern on a Pi (audit PLAYGROUND-11); 1000 is ~0.25 s.
+HISTORY_IMPORT_CHUNK_SAMPLES: int = 1000
+HISTORY_IMPORT_MIN_BLOCK_SAMPLES: int = 20           # floor for the per-block sample gate
+HISTORY_IMPORT_MAX_MEDIAN_INTERVAL_S: float = 120.0  # floor for the per-block cadence gate; the
+                                                     # effective gate is
+                                                     # max(this, 4 x sampling_interval) so a plug
+                                                     # that legitimately reports every 60 s is not
+                                                     # rejected
+HISTORY_IMPORT_EDGE_GAP_S: float = 60.0              # leading samples this far from the block body
+                                                     # are hourly-average debris and are trimmed
+                                                     # (leading edge ONLY - trimming the trailing
+                                                     # edge eats a real cycle's low-power tail)
+HISTORY_IMPORT_MAX_BRIDGE_S: float = 300.0           # an `unavailable` hole up to this long inside
+                                                     # a block is bridged as a plain gap (Wi-Fi
+                                                     # blip, HA restart), not a cut (PLAYGROUND-06)
+HISTORY_IMPORT_MAX_BLOCK_SPAN_S: float = 12 * 3600.0 # a block longer than this can only produce the
+                                                     # detector's 8 h `force_stopped` blob, so it is
+                                                     # reported rather than replayed
+HISTORY_IMPORT_DENSIFY_STEP_S: float = 30.0          # cadence of the synthetic samples inserted into
+                                                     # a carried-forward *quiet* gap, so the
+                                                     # detector's gap-free quiet tally can accrue
+                                                     # exactly as it does live
+HISTORY_IMPORT_TAIL_STEP_S: float = 30.0             # synthetic quiet-tail cadence used to close the
+                                                     # last cycle of a block
+HISTORY_IMPORT_MAX_SEGMENTS: int = 60                # candidates surfaced by one scan
+HISTORY_IMPORT_MAX_TOTAL_CYCLES: int = 200           # total backfilled cycles kept per device
+                                                     # (`backfill_cycles` has no retention pass and
+                                                     # the whole store blob is rewritten on every
+                                                     # throttled active-cycle save)
+HISTORY_IMPORT_RECORDER_MAX_DAYS: int = 3700         # ~10 years. HA's default `purge_keep_days`
+                                                     # is 10, but a recorder configured to keep
+                                                     # full-resolution states for years is a real
+                                                     # setup and must not be capped out of reach.
+                                                     # Reaching past what the recorder holds simply
+                                                     # returns fewer rows; the real guard is
+                                                     # HISTORY_IMPORT_MAX_ROWS, which stops the
+                                                     # day-by-day read as soon as enough accrues.
+HISTORY_IMPORT_RECORDER_EMPTY_DAY_STOP: int = 30     # consecutive empty days that end the walk.
+                                                     # Within the retention window a day always
+                                                     # yields at least the carried start-time state,
+                                                     # so a run of truly empty days means the
+                                                     # recorder has been purged past this point -
+                                                     # without this, a 10-year request would issue
+                                                     # thousands of pointless queries.
+HISTORY_IMPORT_SOURCE: str = "history_import"        # `meta.source` marker on imported cycles
+
+
+def numeric_option_keys() -> dict[str, type]:
+    """Option keys whose compiled default is a number -> that default's type.
+
+    Derived from the ``CONF_X`` / ``DEFAULT_X`` naming pair, so a new numeric
+    setting is covered without a list to maintain (audit PLATFORM-13).
+    """
+    g = globals()
+    out: dict[str, type] = {}
+    for name, key in g.items():
+        if not name.startswith("CONF_") or not isinstance(key, str):
+            continue
+        default = g.get("DEFAULT_" + name[5:])
+        if isinstance(default, (int, float)) and not isinstance(default, bool):
+            out[key] = type(default)
+    return out
+
+
+def coerce_numeric_option(value: Any, kind: type) -> float | int | None:
+    """``value`` as a finite number of ``kind``'s type, or None if it is not one."""
+    if isinstance(value, bool):
+        return None
+    try:
+        number = float(value)
+    except (TypeError, ValueError, OverflowError):
+        return None
+    if not math.isfinite(number):
+        return None
+    if kind is int:
+        return int(number) if number.is_integer() else number
+    return number
+
+
+def drop_invalid_numeric_options(options: Any) -> tuple[dict[str, Any], list[str]]:
+    """``(options without non-numeric numeric settings, the keys dropped)``.
+
+    A non-numeric value for a numeric setting is dropped so its default applies;
+    stored, it raised in the manager's constructor and the entry never set up
+    again (audit PLATFORM-13, register item 279).
+    """
+    if not isinstance(options, dict):
+        return {}, []
+    kinds = numeric_option_keys()
+    clean = dict(options)
+    dropped: list[str] = []
+    for key, kind in kinds.items():
+        if key in clean and clean[key] is not None:
+            number = coerce_numeric_option(clean[key], kind)
+            if number is None:
+                clean.pop(key)
+                dropped.append(key)
+            else:
+                clean[key] = number
+    return clean, dropped
+

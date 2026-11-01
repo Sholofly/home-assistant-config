@@ -1,6 +1,6 @@
 {
   "name": "100% Brasil 🇧🇷",
-  "version": "0.2",
+  "version": "0.8",
   "tags": [
     "brazil",
     "brasil",
@@ -13,8 +13,7 @@
     "mpb",
     "funk",
     "rock-nacional",
-    "multi-decade",
-    "hitster"
+    "multi-decade"
   ],
   "language": "pt",
   "songs": [
@@ -24,11 +23,6 @@
       "artist": "Enrico Caruso",
       "alt_artists": [],
       "title": "Rigoletto: \"La Donna E' Mobile\"",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -42,11 +36,11 @@
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1227510585",
         "de": "applemusic://track/1227510585",
-        "gb": null,
+        "gb": "applemusic://track/425634570",
         "fr": "applemusic://track/421822284",
         "es": "applemusic://track/599024462",
         "nl": "applemusic://track/475364732",
-        "it": null
+        "it": "applemusic://track/337110031"
       },
       "uri_deezer": "deezer://track/15468696",
       "uri_tidal": "tidal://track/278812509",
@@ -58,11 +52,6 @@
       "artist": "Noel Rosa",
       "alt_artists": [],
       "title": "Com Que Roupa?",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -74,13 +63,13 @@
       "isrc": "BRVLS3000003",
       "uri_apple_music": "applemusic://track/1463465761",
       "uri_apple_music_by_region": {
-        "us": null,
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
+        "us": "applemusic://track/1463465761",
+        "de": "applemusic://track/1463465761",
+        "gb": "applemusic://track/1463465761",
+        "fr": "applemusic://track/1463465761",
+        "es": "applemusic://track/1463465761",
+        "nl": "applemusic://track/1463465761",
+        "it": "applemusic://track/1463465761"
       },
       "uri_deezer": "deezer://track/679418982",
       "uri_tidal": "tidal://track/101616908",
@@ -92,11 +81,6 @@
       "artist": "Chuck Berry",
       "alt_artists": [],
       "title": "Johnny B. Goode",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -126,11 +110,6 @@
       "artist": "The Platters",
       "alt_artists": [],
       "title": "Smoke Gets In Your Eyes",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -160,29 +139,24 @@
       "artist": "Ray Charles",
       "alt_artists": [],
       "title": "Hit The Road Jack (1960 Recording Remastered)",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
-      "fun_fact": "Ray Charles is featured in the HITSTER Brasil playlist of iconic hits popular in Brazil.",
-      "fun_fact_de": "Ray Charles ist in der HITSTER Brasil-Playlist der ikonischen in Brasilien populären Hits vertreten.",
-      "fun_fact_es": "Ray Charles aparece en la lista de reproducción HITSTER Brasil de éxitos icónicos populares en Brasil.",
-      "fun_fact_fr": "Ray Charles figure dans la playlist HITSTER Brasil des succès iconiques populaires au Brésil.",
-      "fun_fact_nl": "Ray Charles is opgenomen in de HITSTER Brasil-playlist van iconische hits die populair zijn in Brazilië.",
+      "fun_fact": "Percy Mayfield wrote the song; Ray Charles took it to No. 1 on the Billboard Hot 100 in October 1961.",
+      "fun_fact_de": "Geschrieben hat den Song Percy Mayfield; Ray Charles brachte ihn im Oktober 1961 auf Platz 1 der Billboard Hot 100.",
+      "fun_fact_es": "La compuso Percy Mayfield; Ray Charles la llevó al n.º 1 del Billboard Hot 100 en octubre de 1961.",
+      "fun_fact_fr": "Percy Mayfield a écrit la chanson ; Ray Charles l'a portée au n° 1 du Billboard Hot 100 en octobre 1961.",
+      "fun_fact_nl": "Percy Mayfield schreef het nummer; Ray Charles bracht het in oktober 1961 naar nummer 1 in de Billboard Hot 100.",
       "isrc": "DEG320700128",
-      "uri_apple_music": "applemusic://track/1569553330",
+      "uri_apple_music": "applemusic://track/6796761362",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/1569553330",
-        "de": "applemusic://track/1569553330",
-        "gb": "applemusic://track/1569553330",
-        "fr": "applemusic://track/1569553330",
-        "es": "applemusic://track/1569553330",
-        "nl": "applemusic://track/1569553330",
-        "it": "applemusic://track/1569553330"
+        "us": "applemusic://track/6796761362",
+        "de": "applemusic://track/6796761362",
+        "gb": "applemusic://track/6796761362",
+        "fr": "applemusic://track/6796761362",
+        "es": "applemusic://track/6796761362",
+        "nl": "applemusic://track/6796761362",
+        "it": "applemusic://track/6796761362"
       },
       "uri_deezer": "deezer://track/62882810",
       "uri_tidal": "tidal://track/31611400",
@@ -194,11 +168,6 @@
       "artist": "James Brown & The Famous Flames",
       "alt_artists": [],
       "title": "I Got You (I Feel Good)",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -228,11 +197,6 @@
       "artist": "Elis Regina",
       "alt_artists": [],
       "title": "Arrastão",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -262,11 +226,6 @@
       "artist": "Nancy Sinatra",
       "alt_artists": [],
       "title": "These Boots Are Made for Walkin'",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -296,11 +255,6 @@
       "artist": "Joseito Fernández",
       "alt_artists": [],
       "title": "Guajira Guantanamera",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -330,11 +284,6 @@
       "artist": "Cliff Richard",
       "alt_artists": [],
       "title": "Congratulations - 1998 Remaster",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -364,11 +313,6 @@
       "artist": "The Archies",
       "alt_artists": [],
       "title": "Sugar, Sugar",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -398,11 +342,6 @@
       "artist": "Gilberto Gil",
       "alt_artists": [],
       "title": "Aquele Abraço",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -414,12 +353,12 @@
       "isrc": "BRWMB9701927",
       "uri_apple_music": "applemusic://track/1576818002",
       "uri_apple_music_by_region": {
-        "us": null,
+        "us": "applemusic://track/1576818002",
         "de": "applemusic://track/1576818002",
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
+        "gb": "applemusic://track/1576818002",
+        "fr": "applemusic://track/1576818002",
+        "es": "applemusic://track/1576818002",
+        "nl": "applemusic://track/1576818002",
         "it": "applemusic://track/1576818002"
       },
       "uri_deezer": "deezer://track/904664012",
@@ -432,11 +371,6 @@
       "artist": "Mungo Jerry",
       "alt_artists": [],
       "title": "In the Summertime",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -466,11 +400,6 @@
       "artist": "Erma Franklin",
       "alt_artists": [],
       "title": "Piece of My Heart",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -500,11 +429,6 @@
       "artist": "Carpenters",
       "alt_artists": [],
       "title": "Top Of The World",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -534,11 +458,6 @@
       "artist": "Milton Nascimento",
       "alt_artists": [],
       "title": "Maria Maria",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -568,11 +487,6 @@
       "artist": "Clara Nunes",
       "alt_artists": [],
       "title": "O Mar Serenou",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -602,11 +516,6 @@
       "artist": "Alcione",
       "alt_artists": [],
       "title": "Não Deixe O Samba Morrer",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -636,11 +545,6 @@
       "artist": "The Trammps",
       "alt_artists": [],
       "title": "Disco Inferno",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -652,12 +556,12 @@
       "isrc": "USAT27600009",
       "uri_apple_music": "applemusic://track/1445668725",
       "uri_apple_music_by_region": {
-        "us": null,
-        "de": null,
-        "gb": null,
-        "fr": null,
+        "us": "applemusic://track/1445668725",
+        "de": "applemusic://track/1121329085",
+        "gb": "applemusic://track/1121329085",
+        "fr": "applemusic://track/159362935",
         "es": "applemusic://track/80004001",
-        "nl": null,
+        "nl": "applemusic://track/1121329085",
         "it": "applemusic://track/1121329085"
       },
       "uri_deezer": "deezer://track/721611",
@@ -670,11 +574,6 @@
       "artist": "Linda Ronstadt",
       "alt_artists": [],
       "title": "Blue Bayou",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -704,11 +603,6 @@
       "artist": "Beth Carvalho",
       "alt_artists": [],
       "title": "Vou Festejar",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -717,7 +611,7 @@
       "fun_fact_es": "Beth Carvalho, la 'Madrinha do Pagode', defendió la cultura samba de Río durante toda su carrera. \"Vou Festejar\" representa el espíritu alegre del samba brasileño.",
       "fun_fact_fr": "Beth Carvalho, la 'Madrinha do Pagode', a défendu la culture samba de Rio tout au long de sa carrière. \"Vou Festejar\" représente l'esprit joyeux du samba brésilien.",
       "fun_fact_nl": "Beth Carvalho, de 'Madrinha do Pagode', vertegenwoordigde de sambacultuur van Rio haar hele carrière. \"Vou Festejar\" staat voor de vreugdevolle geest van de Braziliaanse samba.",
-      "isrc": "BRUKM1600051",
+      "isrc": "BRBMG7800024",
       "uri_apple_music": "applemusic://track/1435824014",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1435824014",
@@ -728,7 +622,7 @@
         "nl": "applemusic://track/1435824014",
         "it": "applemusic://track/1435824014"
       },
-      "uri_deezer": "deezer://track/128702397",
+      "uri_deezer": "deezer://track/552811332",
       "uri_tidal": "tidal://track/97270",
       "uri_youtube_music": "https://music.youtube.com/watch?v=KmUe9VYxJYQ"
     },
@@ -738,11 +632,6 @@
       "artist": "Donna Summer",
       "alt_artists": [],
       "title": "MacArthur Park - Single Version",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -772,11 +661,6 @@
       "artist": "Blondie",
       "alt_artists": [],
       "title": "Heart Of Glass",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -806,11 +690,6 @@
       "artist": "Gal Costa",
       "alt_artists": [],
       "title": "Balancê",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -840,11 +719,6 @@
       "artist": "The Rolling Stones",
       "alt_artists": [],
       "title": "Start Me Up - Remastered 2009",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -860,7 +734,7 @@
         "de": "applemusic://track/1584840350",
         "gb": "applemusic://track/1440812153",
         "fr": "applemusic://track/1584840350",
-        "es": null,
+        "es": "applemusic://track/1440812153",
         "nl": "applemusic://track/1440812153",
         "it": "applemusic://track/1440812153"
       },
@@ -874,11 +748,6 @@
       "artist": "The Police",
       "alt_artists": [],
       "title": "Every Breath You Take",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -908,11 +777,6 @@
       "artist": "Ritchie",
       "alt_artists": [],
       "title": "Menina Veneno",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -942,11 +806,6 @@
       "artist": "Os Paralamas Do Sucesso, Gilberto Gil",
       "alt_artists": [],
       "title": "Alagados",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -976,11 +835,6 @@
       "artist": "Fausto Fawcett e Os Robôs Efêmeros",
       "alt_artists": [],
       "title": "Kátia Flávia, a Godiva de Irajá",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -1010,11 +864,6 @@
       "artist": "Legião Urbana",
       "alt_artists": [],
       "title": "Há Tempos",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -1044,11 +893,6 @@
       "artist": "Gipsy Kings",
       "alt_artists": [],
       "title": "Volare (Nel Blu di Pinto di Blu)",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -1069,7 +913,7 @@
         "it": "applemusic://track/1512946315"
       },
       "uri_deezer": "deezer://track/958716372",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/16204463",
       "uri_youtube_music": "https://music.youtube.com/watch?v=X8TOhb_4jU0"
     },
     {
@@ -1078,11 +922,6 @@
       "artist": "Kaoma",
       "alt_artists": [],
       "title": "Lambada - Version 1989",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -1103,7 +942,7 @@
         "it": "applemusic://track/474535913"
       },
       "uri_deezer": "deezer://track/309174",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/24854500",
       "uri_youtube_music": "https://music.youtube.com/watch?v=iyLdoQGBchQ"
     },
     {
@@ -1112,11 +951,6 @@
       "artist": "Genesis",
       "alt_artists": [],
       "title": "No Son Of Mine",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -1137,7 +971,7 @@
         "it": "applemusic://track/268026802"
       },
       "uri_deezer": "deezer://track/14639814",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/34188141",
       "uri_youtube_music": "https://music.youtube.com/watch?v=cddQn1mZRfI"
     },
     {
@@ -1146,11 +980,6 @@
       "artist": "Lulu Santos",
       "alt_artists": [],
       "title": "A Cura",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -1159,7 +988,7 @@
       "fun_fact_es": "Lulu Santos es uno de los artistas de rock y pop más queridos de Brasil, conocido por su sofisticada composición que fusiona rock, pop y ritmos brasileños.",
       "fun_fact_fr": "Lulu Santos est l'un des artistes rock et pop les plus aimés du Brésil, reconnu pour sa composition sophistiquée qui mêle rock, pop et rythmes brésiliens.",
       "fun_fact_nl": "Lulu Santos is een van Brazilië's meest geliefde rock- en pop-artiesten, bekend om zijn gesofisticeerde songwriting die rock, pop en Braziliaanse ritmes mengt.",
-      "isrc": "BR3752100002",
+      "isrc": "BRBMG8800125",
       "uri_apple_music": "applemusic://track/623041165",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/623041165",
@@ -1170,8 +999,8 @@
         "nl": "applemusic://track/623041165",
         "it": "applemusic://track/623041165"
       },
-      "uri_deezer": "deezer://track/1522301102",
-      "uri_tidal": null,
+      "uri_deezer": "deezer://track/13540015",
+      "uri_tidal": "tidal://track/7606163",
       "uri_youtube_music": "https://music.youtube.com/watch?v=BXUqiiygC5Y"
     },
     {
@@ -1180,11 +1009,6 @@
       "artist": "Ed Motta",
       "alt_artists": [],
       "title": "Manuel",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -1205,7 +1029,7 @@
         "it": "applemusic://track/509909049"
       },
       "uri_deezer": "deezer://track/86130187",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/4718760",
       "uri_youtube_music": "https://music.youtube.com/watch?v=0zISy9OkZA0"
     },
     {
@@ -1214,11 +1038,6 @@
       "artist": "Alanis Morissette",
       "alt_artists": [],
       "title": "Ironic - 2015 Remaster",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -1239,7 +1058,7 @@
         "it": "applemusic://track/1715762825"
       },
       "uri_deezer": "deezer://track/789250",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/2123821",
       "uri_youtube_music": "https://music.youtube.com/watch?v=Adu-EfJbuBs"
     },
     {
@@ -1248,11 +1067,6 @@
       "artist": "Netinho",
       "alt_artists": [],
       "title": "Milla - Ao Vivo Em Aracaju / 1996",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -1273,7 +1087,7 @@
         "it": "applemusic://track/1802051245"
       },
       "uri_deezer": "deezer://track/4701615",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/2571391",
       "uri_youtube_music": "https://music.youtube.com/watch?v=RYbl88mMMJw"
     },
     {
@@ -1282,11 +1096,6 @@
       "artist": "Skank",
       "alt_artists": [],
       "title": "Garota Nacional",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -1307,7 +1116,7 @@
         "it": "applemusic://track/588335679"
       },
       "uri_deezer": "deezer://track/14897306",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/11457572",
       "uri_youtube_music": "https://music.youtube.com/watch?v=DjPtwYunRq4"
     },
     {
@@ -1316,11 +1125,6 @@
       "artist": "Claudinho & Buchecha",
       "alt_artists": [],
       "title": "Quero Te Encontrar",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -1338,10 +1142,10 @@
         "fr": "applemusic://track/1443740888",
         "es": "applemusic://track/1443740888",
         "nl": "applemusic://track/1443772064",
-        "it": "applemusic://track/1751829192"
+        "it": "applemusic://track/1443740888"
       },
       "uri_deezer": "deezer://track/3008633",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/4909100",
       "uri_youtube_music": "https://music.youtube.com/watch?v=nvGcaTGcN5A"
     },
     {
@@ -1350,11 +1154,6 @@
       "artist": "É O Tchan",
       "alt_artists": [],
       "title": "Dança Da Cordinha",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -1372,10 +1171,10 @@
         "fr": "applemusic://track/1418579202",
         "es": "applemusic://track/1418579202",
         "nl": "applemusic://track/1418579202",
-        "it": null
+        "it": "applemusic://track/1418579202"
       },
       "uri_deezer": "deezer://track/4704236",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/93011941",
       "uri_youtube_music": "https://music.youtube.com/watch?v=WvSF1Xi-EVg"
     },
     {
@@ -1384,11 +1183,6 @@
       "artist": "Stereophonics",
       "alt_artists": [],
       "title": "Have A Nice Day",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -1418,11 +1212,6 @@
       "artist": "Maria Alcina",
       "alt_artists": [],
       "title": "Filho maravilha (Fio maravilha)",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -1452,11 +1241,6 @@
       "artist": "Só Pra Contrariar",
       "alt_artists": [],
       "title": "Essa Tal Liberdade",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -1486,11 +1270,6 @@
       "artist": "Rouge",
       "alt_artists": [],
       "title": "Ragatanga (Asereje) - Versão Editada",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -1520,11 +1299,6 @@
       "artist": "Victor & Leo",
       "alt_artists": [],
       "title": "Borboletas",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -1554,11 +1328,6 @@
       "artist": "O-Zone",
       "alt_artists": [],
       "title": "Dragostea din tei",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -1588,11 +1357,6 @@
       "artist": "Adoniran Barbosa",
       "alt_artists": [],
       "title": "Trem Das Onze",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -1622,11 +1386,6 @@
       "artist": "Fresno",
       "alt_artists": [],
       "title": "Quebre As Correntes",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -1656,11 +1415,6 @@
       "artist": "Coldplay",
       "alt_artists": [],
       "title": "Viva La Vida",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -1690,11 +1444,6 @@
       "artist": "Madonna",
       "alt_artists": [],
       "title": "4 Minutes (feat. Justin Timberlake and Timbaland)",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -1724,11 +1473,6 @@
       "artist": "Michael Bublé",
       "alt_artists": [],
       "title": "Haven't Met You Yet",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -1758,11 +1502,6 @@
       "artist": "Maroon 5, Christina Aguilera",
       "alt_artists": [],
       "title": "Moves Like Jagger - Studio Recording From \"The Voice\" Performance",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -1792,19 +1531,14 @@
       "artist": "P!nk, Nate Ruess",
       "alt_artists": [],
       "title": "Just Give Me a Reason (feat. Nate Ruess)",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
-      "fun_fact": "P!nk, Nate Ruess is featured in the HITSTER Brasil playlist of iconic hits popular in Brazil.",
-      "fun_fact_de": "P!nk, Nate Ruess ist in der HITSTER Brasil-Playlist der ikonischen in Brasilien populären Hits vertreten.",
-      "fun_fact_es": "P!nk, Nate Ruess aparece en la lista de reproducción HITSTER Brasil de éxitos icónicos populares en Brasil.",
-      "fun_fact_fr": "P!nk, Nate Ruess figure dans la playlist HITSTER Brasil des succès iconiques populaires au Brésil.",
-      "fun_fact_nl": "P!nk, Nate Ruess is opgenomen in de HITSTER Brasil-playlist van iconische hits die populair zijn in Brazilië.",
+      "fun_fact": "Nate Ruess is the singer of fun.; the duet reached No. 1 on the Billboard Hot 100 in April 2013.",
+      "fun_fact_de": "Nate Ruess ist der Sänger von fun.; das Duett erreichte im April 2013 Platz 1 der Billboard Hot 100.",
+      "fun_fact_es": "Nate Ruess es el cantante de fun.; el dúo llegó al n.º 1 del Billboard Hot 100 en abril de 2013.",
+      "fun_fact_fr": "Nate Ruess est le chanteur de fun. ; le duo a atteint la 1re place du Billboard Hot 100 en avril 2013.",
+      "fun_fact_nl": "Nate Ruess is de zanger van fun.; het duet bereikte in april 2013 nummer 1 in de Billboard Hot 100.",
       "isrc": "USRC11200786",
       "uri_apple_music": "applemusic://track/545398139",
       "uri_apple_music_by_region": {
@@ -1826,11 +1560,6 @@
       "artist": "Marília Mendonça",
       "alt_artists": [],
       "title": "Infiel",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -1860,19 +1589,14 @@
       "artist": "Miley Cyrus",
       "alt_artists": [],
       "title": "Wrecking Ball",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
-      "fun_fact": "Miley Cyrus is featured in the HITSTER Brasil playlist of iconic hits popular in Brazil.",
-      "fun_fact_de": "Miley Cyrus ist in der HITSTER Brasil-Playlist der ikonischen in Brasilien populären Hits vertreten.",
-      "fun_fact_es": "Miley Cyrus aparece en la lista de reproducción HITSTER Brasil de éxitos icónicos populares en Brasil.",
-      "fun_fact_fr": "Miley Cyrus figure dans la playlist HITSTER Brasil des succès iconiques populaires au Brésil.",
-      "fun_fact_nl": "Miley Cyrus is opgenomen in de HITSTER Brasil-playlist van iconische hits die populair zijn in Brazilië.",
+      "fun_fact": "Wrecking Ball gave Miley Cyrus her first No. 1 on the Billboard Hot 100, in September 2013.",
+      "fun_fact_de": "Mit Wrecking Ball hatte Miley Cyrus im September 2013 ihren ersten Platz 1 in den Billboard Hot 100.",
+      "fun_fact_es": "Wrecking Ball le dio a Miley Cyrus su primer n.º 1 en el Billboard Hot 100, en septiembre de 2013.",
+      "fun_fact_fr": "Wrecking Ball a offert à Miley Cyrus son premier n° 1 au Billboard Hot 100, en septembre 2013.",
+      "fun_fact_nl": "Wrecking Ball was in september 2013 de eerste nummer 1 van Miley Cyrus in de Billboard Hot 100.",
       "isrc": "USRC11301214",
       "uri_apple_music": "applemusic://track/1460315319",
       "uri_apple_music_by_region": {
@@ -1894,11 +1618,6 @@
       "artist": "Icona Pop, Charli xcx",
       "alt_artists": [],
       "title": "I Love It (feat. Charli XCX)",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -1928,11 +1647,6 @@
       "artist": "John Legend",
       "alt_artists": [],
       "title": "All of Me",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -1962,11 +1676,6 @@
       "artist": "Daft Punk, Pharrell Williams, Nile Rodgers",
       "alt_artists": [],
       "title": "Get Lucky (feat. Pharrell Williams and Nile Rodgers)",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -1996,11 +1705,6 @@
       "artist": "Meghan Trainor",
       "alt_artists": [],
       "title": "All About That Bass",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -2030,11 +1734,6 @@
       "artist": "Biquini Cavadão",
       "alt_artists": [],
       "title": "Tédio",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -2055,7 +1754,7 @@
         "it": "applemusic://track/980648501"
       },
       "uri_deezer": "deezer://track/10701732",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/7240144",
       "uri_youtube_music": "https://music.youtube.com/watch?v=hv1Hnmt1GBo"
     },
     {
@@ -2064,11 +1763,6 @@
       "artist": "Alessia Cara",
       "alt_artists": [],
       "title": "Scars To Your Beautiful",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -2089,7 +1783,7 @@
         "it": "applemusic://track/1440827194"
       },
       "uri_deezer": "deezer://track/120739016",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/57738089",
       "uri_youtube_music": "https://music.youtube.com/watch?v=MWASeaYuHZo"
     },
     {
@@ -2098,11 +1792,6 @@
       "artist": "Imagine Dragons",
       "alt_artists": [],
       "title": "Thunder",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -2123,7 +1812,7 @@
         "it": "applemusic://track/1411629089"
       },
       "uri_deezer": "deezer://track/528330501",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/91950975",
       "uri_youtube_music": "https://music.youtube.com/watch?v=fKopy74weus"
     },
     {
@@ -2132,11 +1821,6 @@
       "artist": "IZA, Marcelo Falcão",
       "alt_artists": [],
       "title": "Pesadão",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -2157,7 +1841,7 @@
         "it": "applemusic://track/1285068167"
       },
       "uri_deezer": "deezer://track/407202172",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/78789765",
       "uri_youtube_music": "https://music.youtube.com/watch?v=g8psa0UBZKA"
     },
     {
@@ -2166,11 +1850,6 @@
       "artist": "Raça Negra",
       "alt_artists": [],
       "title": "Cheia de Manias",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -2191,7 +1870,7 @@
         "it": "applemusic://track/1464820184"
       },
       "uri_deezer": "deezer://track/705328182",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/54530373",
       "uri_youtube_music": "https://music.youtube.com/watch?v=lxNd6LRi-PQ"
     },
     {
@@ -2200,11 +1879,6 @@
       "artist": "Emicida",
       "alt_artists": [],
       "title": "Ubuntu Fristaili",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -2218,14 +1892,14 @@
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1465917526",
         "de": "applemusic://track/1465917526",
-        "gb": null,
-        "fr": null,
+        "gb": "applemusic://track/1465917526",
+        "fr": "applemusic://track/1465917526",
         "es": "applemusic://track/1465917526",
-        "nl": null,
+        "nl": "applemusic://track/1465917526",
         "it": "applemusic://track/1465917526"
       },
       "uri_deezer": "deezer://track/3246184951",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/419689547",
       "uri_youtube_music": "https://music.youtube.com/watch?v=vLtTpDbvQ5M"
     },
     {
@@ -2234,11 +1908,6 @@
       "artist": "Os Barões Da Pisadinha",
       "alt_artists": [],
       "title": "Tá Rocheda",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "awards_nl": [],
@@ -2259,7 +1928,7 @@
         "it": "applemusic://track/1534944568"
       },
       "uri_deezer": "deezer://track/3560332221",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/118851900",
       "uri_youtube_music": "https://music.youtube.com/watch?v=kNdIA-L8E3c"
     }
   ]

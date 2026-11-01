@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import logging
 from typing import TYPE_CHECKING, Any
 
 from homeassistant.components.sensor import (
@@ -19,8 +18,6 @@ from .insights_heating import calculate_confidence_recommendation
 if TYPE_CHECKING:
     from .heating_coordinator import HeatingCycleCoordinator
 
-_LOGGER = logging.getLogger(__name__)
-
 
 class TadoThermalInertiaSensor(CoordinatorEntity["HeatingCycleCoordinator"], SensorEntity):
     """Sensor for thermal inertia time (delay before temperature rises)."""
@@ -31,7 +28,6 @@ class TadoThermalInertiaSensor(CoordinatorEntity["HeatingCycleCoordinator"], Sen
     def __init__(
         self, home_id: str, coordinator: HeatingCycleCoordinator, zone_id: str, zone_name: str, zone_type: str,
     ) -> None:
-        """Initialize sensor with coordinator."""
         super().__init__(coordinator)
         self._home_id = home_id
         self._zone_id = zone_id
@@ -82,7 +78,6 @@ class TadoHeatingRateSensor(CoordinatorEntity["HeatingCycleCoordinator"], Sensor
     def __init__(
         self, home_id: str, coordinator: HeatingCycleCoordinator, zone_id: str, zone_name: str, zone_type: str,
     ) -> None:
-        """Initialize sensor with coordinator."""
         super().__init__(coordinator)
         self._home_id = home_id
         self._zone_id = zone_id
@@ -133,7 +128,6 @@ class TadoPreheatTimeSensor(CoordinatorEntity["HeatingCycleCoordinator"], Sensor
     def __init__(
         self, home_id: str, coordinator: HeatingCycleCoordinator, zone_id: str, zone_name: str, zone_type: str,
     ) -> None:
-        """Initialize sensor with coordinator."""
         super().__init__(coordinator)
         self._home_id = home_id
         self._zone_id = zone_id
@@ -219,7 +213,6 @@ class TadoConfidenceSensor(CoordinatorEntity["HeatingCycleCoordinator"], SensorE
     def __init__(
         self, home_id: str, coordinator: HeatingCycleCoordinator, zone_id: str, zone_name: str, zone_type: str,
     ) -> None:
-        """Initialize sensor with coordinator."""
         super().__init__(coordinator)
         self._home_id = home_id
         self._zone_id = zone_id
@@ -280,7 +273,6 @@ class TadoHeatingAccelerationSensor(CoordinatorEntity["HeatingCycleCoordinator"]
     def __init__(
         self, home_id: str, coordinator: HeatingCycleCoordinator, zone_id: str, zone_name: str, zone_type: str,
     ) -> None:
-        """Initialize sensor with coordinator."""
         super().__init__(coordinator)
         self._home_id = home_id
         self._zone_id = zone_id
@@ -339,7 +331,6 @@ class TadoApproachFactorSensor(CoordinatorEntity["HeatingCycleCoordinator"], Sen
     def __init__(
         self, home_id: str, coordinator: HeatingCycleCoordinator, zone_id: str, zone_name: str, zone_type: str,
     ) -> None:
-        """Initialize sensor with coordinator."""
         super().__init__(coordinator)
         self._home_id = home_id
         self._zone_id = zone_id

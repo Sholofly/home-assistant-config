@@ -181,9 +181,16 @@ window.BeatifyUtils = (function() {
         if (text === null || text === undefined) {
             return '';
         }
-        var div = document.createElement('div');
-        div.textContent = String(text);
-        return div.innerHTML;
+        // Escapes the five characters directly rather than routing through a
+        // detached div: the div trick leaves the quotes alone, which breaks
+        // attribute context. Kept byte-identical to the player-utils.js copy
+        // so the two cannot drift. (#2505)
+        return String(text)
+            .replace(/&/g, '&amp;')   // must come first
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
     }
 
     // ==========================================================================
@@ -392,6 +399,72 @@ window.BeatifyUtils = (function() {
     }
 
     /**
+     * Build a WebSocket `onclose` reconnect handler (#1662).
+     *
+     * The player page carried TWO near-identical onclose blocks (session
+     * reconnect vs. name-based join) that diverged only in HOW they rescheduled
+     * the next attempt. They also each open-coded a bespoke LINEAR backoff while
+     * the spectator dashboard used the capped-exponential
+     * {@link reconnectBackoffDelay}. This factory captures the shared reconnect
+     * contract ONCE — DOM-free and dependency-injected — so the call sites can
+     * no longer drift and the behaviour is unit-testable:
+     *
+     *   1. stop the heartbeat (always),
+     *   2. honour a one-shot intentional leave (clear the flag, do NOT reconnect),
+     *   3. while a session identity exists AND we are under the attempt cap:
+     *      flag reconnecting, bump the 1-based attempt counter, compute the
+     *      backoff delay, run the `onReconnecting(attempt, delay)` UI hook and
+     *      schedule the caller-supplied reconnect after that delay,
+     *   4. once the cap is hit: clear the reconnecting flag and run `onGiveUp()`.
+     *
+     * Every DOM/socket/timer touch is injected, so the returned handler is pure
+     * with respect to this module (see __tests__/player-ws-close.test.js).
+     *
+     * @param {Object} deps
+     * @param {Object} deps.state - shared state object; reads/writes
+     *   `intentionalLeave`, `isReconnecting`, `reconnectAttempts`, `playerName`.
+     * @param {number} deps.maxAttempts - reconnect attempt cap (inclusive give-up).
+     * @param {Function} deps.getDelay - () => next backoff delay in ms.
+     * @param {Function} deps.scheduleReconnect - () => void, performs the reconnect.
+     * @param {Function} [deps.stopHeartbeat] - teardown run on every close.
+     * @param {Function} [deps.onReconnecting] - (attempt, delay) => void UI hook.
+     * @param {Function} [deps.onGiveUp] - () => void UI hook at the cap.
+     * @param {Function} [deps.setTimeoutFn] - injectable timer (defaults to setTimeout).
+     * @returns {Function} a WebSocket onclose handler.
+     */
+    function createWsCloseHandler(deps) {
+        deps = deps || {};
+        var state = deps.state;
+        var maxAttempts = deps.maxAttempts;
+        var getDelay = deps.getDelay;
+        var scheduleReconnect = deps.scheduleReconnect;
+        var stopHeartbeat = deps.stopHeartbeat || function() {};
+        var onReconnecting = deps.onReconnecting || function() {};
+        var onGiveUp = deps.onGiveUp || function() {};
+        var setTimeoutFn = deps.setTimeoutFn
+            || (typeof setTimeout === 'function' ? setTimeout : function() {});
+
+        return function onClose() {
+            stopHeartbeat();
+            // Deliberate leave/rejoin: consume the one-shot flag and stay closed.
+            if (state.intentionalLeave) {
+                state.intentionalLeave = false;
+                return;
+            }
+            if (state.playerName && state.reconnectAttempts < maxAttempts) {
+                state.isReconnecting = true;
+                state.reconnectAttempts++;
+                var delay = getDelay();
+                onReconnecting(state.reconnectAttempts, delay);
+                setTimeoutFn(scheduleReconnect, delay);
+            } else if (state.reconnectAttempts >= maxAttempts) {
+                state.isReconnecting = false;
+                onGiveUp();
+            }
+        };
+    }
+
+    /**
      * Title & Artist verdict label for a resolved near-miss (#1180).
      * @param {boolean} accepted - whether the close call was accepted
      * @param {number} points - points awarded (only shown when accepted)
@@ -417,6 +490,453 @@ window.BeatifyUtils = (function() {
     }
 
     // ==========================================================================
+    // Leaderboard hydration (#1765)
+    // ==========================================================================
+
+    /**
+     * Re-attach per-player fields to a slim in-round leaderboard.
+     *
+     * #1765: the server now sends the PLAYING/REVEAL leaderboard as
+     * ``{rank, name, rank_change}`` only — score, streak, is_admin, connected,
+     * eliminated, eliminated_round and sat_out_by_host are already carried in the same frame's
+     * ``players`` array, so they no longer ride along in every leaderboard
+     * entry. This joins them back by name on receipt so all downstream render
+     * code (standings, TV rows, admin cards, steal modal) is unchanged.
+     *
+     * Non-destructive: a field already present on an entry wins, so the
+     * END-phase final leaderboard (which keeps its full stat block) passes
+     * through untouched and this is safe to call in any phase.
+     *
+     * @param {Array} leaderboard - Leaderboard entries (slim or full).
+     * @param {Array} players - Same frame's players array.
+     * @returns {Array} Entries with the per-player fields re-attached.
+     */
+    function hydrateLeaderboard(leaderboard, players) {
+        if (!Array.isArray(leaderboard)) return leaderboard;
+        var byName = {};
+        (players || []).forEach(function(p) {
+            if (p && p.name != null) byName[p.name] = p;
+        });
+        return leaderboard.map(function(entry) {
+            var p = entry ? byName[entry.name] : null;
+            if (!p) return entry;
+            // Object.assign(base, entry): entry wins on overlap, so rank/
+            // rank_change (and any full-leaderboard fields) are preserved.
+            return Object.assign({
+                score: p.score,
+                streak: p.streak,
+                is_admin: p.is_admin,
+                connected: p.connected,
+                eliminated: p.eliminated,
+                eliminated_round: p.eliminated_round,
+                // #2584: who hit this player this round and with what. Already
+                // in the players array (#1665) — the TV just never read it.
+                sabotaged_by: p.sabotaged_by,
+                sabotage_effect: p.sabotage_effect,
+                // #2578: sitzt dieses Stechen aus — nicht dasselbe wie eliminated.
+                playoff_spectator: p.playoff_spectator,
+                // #3000: taken out by the host (#2746). Without it the host's
+                // leaderboard never showed the badge or "Bring back".
+                sat_out_by_host: p.sat_out_by_host
+            }, entry);
+        });
+    }
+
+    // ==========================================================================
+    // Lobby brief — the one sentence the lobby reads out (#2647)
+    // ==========================================================================
+
+    /**
+     * What "normal" is, in one place: the server-side default of every game
+     * option the sentence can name.
+     *
+     * Deliberately NOT a hand-curated "these are the interesting settings"
+     * list. A setting is a deviation when, and only when, its value differs
+     * from what the server would have used had the host touched nothing —
+     * i.e. the default of the matching field on `GameOptions`
+     * (`game/config.py`), which is the single list `create_game`, the rematch
+     * and the HTTP create-game view all read.
+     *
+     * `__tests__/lobby-brief-2647.test.js` parses those dataclass defaults out
+     * of the Python source and fails when this map drifts, the same way
+     * `game-constants-mirror.test.js` guards the numbers in game-constants.js.
+     * So a new game option cannot silently change what counts as normal, and
+     * nobody has to remember to edit a second list.
+     */
+    var LOBBY_BRIEF_DEFAULTS = {
+        sudden_death_mode: false,
+        title_artist_mode: false,
+        round_duration: 45,
+        closest_wins_mode: false,
+        difficulty: 'normal',
+        sabotage_enabled: false,
+        comeback_token_enabled: false,
+        finale_double_enabled: false,
+        finale_tiebreaker_enabled: false,
+        difficulty_bet_scaling_enabled: false,
+        intro_mode_enabled: false,
+        rampup_order_enabled: false,
+        sample_duration: 0
+    };
+
+    /**
+     * How long the song plays per round, or 0 for the whole round (#3222).
+     *
+     * Mirrors `RoundManager.sample_playback_seconds()` on the server: a limit
+     * that is not shorter than the round is no limit at all, so a 20 s sample
+     * in a 15 s round reads as "the whole round". Intro rounds are left out on
+     * purpose — they are a per-round matter and have their own clause.
+     *
+     * @param {*} sample - `sample_duration` from the state payload
+     * @param {number} roundSeconds - the round time, already rounded
+     * @returns {number} the audible seconds, or 0
+     */
+    function lobbyBriefSampleSeconds(sample, roundSeconds) {
+        var seconds = Math.round(Number(sample));
+        if (!isFinite(seconds) || seconds < 1) return 0;
+        if (seconds >= roundSeconds) return 0;
+        return seconds;
+    }
+
+    /** How many deviations the sentence may name before it stops being one glance. */
+    var LOBBY_BRIEF_MAX_NAMED = 3;
+
+    /**
+     * The rank order: most game-changing first.
+     *
+     * It does two jobs, and both need it to be ONE list. It decides which
+     * deviations survive the cap of three — the top of the list is what a
+     * player has to know before the first song, the bottom is bookkeeping he
+     * can discover in play. And it decides where each clause sits in the
+     * sentence: rank 1 is held back to the closing slot (after the dash),
+     * because the surprise the issue is about is the one that should land
+     * last and loudest. The rest run in rank order in front of it.
+     *
+     * `yearRound: false` marks the settings that only mean something while the
+     * year round is the game — the same suppression the admin's icon row does
+     * with `yearRoundActive` (`admin/sections/game-settings.js`). Naming
+     * "only the closest guess scores" in a Title & Artist game would describe
+     * a rule that is not running.
+     */
+    var LOBBY_BRIEF_RULES = [
+        { field: 'sudden_death_mode', clause: 'suddenDeath' },
+        { field: 'title_artist_mode', clause: 'titleArtist' },
+        { field: 'round_duration', clause: 'duration' },
+        { field: 'closest_wins_mode', clause: 'closestWins', yearRound: true },
+        { field: 'difficulty', clause: 'difficulty', yearRound: true },
+        { field: 'sabotage_enabled', clause: 'sabotage' },
+        { field: 'comeback_token_enabled', clause: 'comeback' },
+        { field: 'finale_double_enabled', clause: 'finaleDouble' },
+        { field: 'finale_tiebreaker_enabled', clause: 'finaleTiebreaker' },
+        { field: 'difficulty_bet_scaling_enabled', clause: 'betScaling', yearRound: true },
+        { field: 'intro_mode_enabled', clause: 'intro', yearRound: true },
+        { field: 'rampup_order_enabled', clause: 'rampup' }
+    ];
+
+    /** Which slot gets which accent. Closing clause = the punchline = pink. */
+    var LOBBY_BRIEF_SLOT_CLASS = {
+        last: 'lobby-brief-em lobby-brief-em--key',
+        a: 'lobby-brief-em lobby-brief-em--alt',
+        b: 'lobby-brief-em',
+        more: 'lobby-brief-em lobby-brief-em--rest'
+    };
+
+    /**
+     * Fill `{slot}` placeholders in a locale-owned template.
+     *
+     * A function replacement, not a string one: a `$` in a translated clause
+     * would otherwise be read as a capture reference by String.replace. An
+     * unknown placeholder is left standing so a broken template is visible
+     * rather than silently swallowing a clause.
+     */
+    function lobbyBriefFill(template, slots) {
+        return String(template).replace(/\{(\w+)\}/g, function(whole, name) {
+            return Object.prototype.hasOwnProperty.call(slots, name) ? slots[name] : whole;
+        });
+    }
+
+    /**
+     * The lobby's one sentence, assembled from the game state (#2647).
+     *
+     * The room used to learn in round 2, at the first skull, that Sudden Death
+     * was on: the TV said "10 rounds • Normal" and nothing else, although the
+     * server sends every flag in every phase. This builds the sentence both
+     * the TV and the guest's phone show, from the same state, in the same
+     * words.
+     *
+     * The sentence is never assembled out of translated words. Each locale
+     * owns a whole clause per deviation and a whole sentence shape per number
+     * of clauses (`lobby.brief.one` … `lobby.brief.threePlus`), so German
+     * compounds, Romance word order and the position of the conjunction stay
+     * that locale's business. This function only decides WHICH clauses appear
+     * and in what order.
+     *
+     * @param {Object} data - a LOBBY state payload
+     * @param {Function} [translate] - injectable `t` (tests, and only tests)
+     * @returns {{text: string, html: string, named: number, hidden: number}|null}
+     *   null when there is nothing trustworthy to say — no state, or a round
+     *   count the server has not computed yet. The caller hides the line then,
+     *   which leaves the lobby looking exactly as it did before this existed.
+     */
+    function buildLobbyBrief(data, translate) {
+        var tr = translate || t;
+        if (!data) return null;
+
+        var rounds = Number(data.total_rounds);
+        if (!isFinite(rounds) || rounds < 1) return null;
+        rounds = Math.round(rounds);
+
+        // #1180: Title & Artist replaces the year round, so the year-only
+        // settings describe a rule that is not running this game.
+        var yearRound = data.title_artist_mode !== true;
+
+        var found = [];
+        LOBBY_BRIEF_RULES.forEach(function(rule) {
+            if (rule.yearRound && !yearRound) return;
+            var value = data[rule.field];
+            if (value === undefined || value === null) return;
+
+            if (rule.field === 'round_duration') {
+                var seconds = Math.round(Number(value));
+                if (!isFinite(seconds) || seconds < 1) return;
+                // #3222: a song sample is said even at the default 45 s —
+                // the music stopping halfway is the surprise, not the clock.
+                var sample = lobbyBriefSampleSeconds(data.sample_duration, seconds);
+                if (sample) {
+                    found.push({
+                        key: 'lobby.brief.dev.durationSample',
+                        params: { song: sample, round: seconds }
+                    });
+                    return;
+                }
+                if (seconds === LOBBY_BRIEF_DEFAULTS.round_duration) return;
+                found.push({ key: 'lobby.brief.dev.duration', params: { n: seconds } });
+                return;
+            }
+            if (value === LOBBY_BRIEF_DEFAULTS[rule.field]) return;
+            if (rule.field === 'difficulty') {
+                if (value !== 'easy' && value !== 'hard') return;
+                found.push({
+                    key: 'lobby.brief.dev.difficulty' + value.charAt(0).toUpperCase() + value.slice(1),
+                    params: null
+                });
+                return;
+            }
+            if (value !== true) return;
+            found.push({ key: 'lobby.brief.dev.' + rule.clause, params: null });
+        });
+
+        // #2958: with no round cap the "rounds" count is only the size of the
+        // song pool — "266 rounds" is a number nobody chose and nobody plays
+        // through. Such a game says nothing about rounds at all: each locale
+        // owns a second set of sentence shapes (`lobby.brief.open.*`) with the
+        // rounds slot left out.
+        var openEnded = isOpenEnded(data);
+        var prefix = openEnded ? 'lobby.brief.open.' : 'lobby.brief.';
+        var slots = {};
+        if (!openEnded) {
+            slots.rounds = tr(rounds === 1 ? 'lobby.brief.roundsOne' : 'lobby.brief.rounds', { n: rounds });
+        }
+        var shape;
+
+        if (found.length === 0) {
+            shape = prefix + 'standard';
+        } else {
+            // Rank 1 closes the sentence; ranks 2..3 run in front of it.
+            var named = found.slice(0, LOBBY_BRIEF_MAX_NAMED);
+            var hidden = found.length - named.length;
+            slots.last = tr(named[0].key, named[0].params || undefined);
+            if (named[1]) slots.a = tr(named[1].key, named[1].params || undefined);
+            if (named[2]) slots.b = tr(named[2].key, named[2].params || undefined);
+            if (hidden > 0) {
+                slots.more = hidden === 1
+                    ? tr('lobby.brief.moreOne', { n: hidden })
+                    : tr('lobby.brief.more', { n: hidden });
+                shape = prefix + 'threePlus';
+            } else {
+                shape = prefix + ['one', 'two', 'three'][named.length - 1];
+            }
+        }
+
+        var template = tr(shape);
+        // t() hands back the key itself when a locale is missing it. Printing
+        // "lobby.brief.three" across the TV would be worse than printing
+        // nothing, so treat an un-substituted template as no sentence at all.
+        if (!template || template === shape) return null;
+        if (!openEnded && template.indexOf('{rounds}') === -1) return null;
+
+        // #2958: without the rounds phrase in front, a clause can open the
+        // sentence — "every song plays through the whole 30-second round" is written lowercase
+        // because it normally follows a comma. Capitalise whichever slot the
+        // locale's template starts with; the template decides the order.
+        var lead = /^\{(\w+)\}/.exec(template);
+        if (lead && typeof slots[lead[1]] === 'string' && slots[lead[1]]) {
+            var first = slots[lead[1]];
+            slots[lead[1]] = first.charAt(0).toUpperCase() + first.slice(1);
+        }
+
+        var htmlSlots = {};
+        var textSlots = {};
+        Object.keys(slots).forEach(function(name) {
+            var safe = escapeHtml(slots[name]);
+            var cls = LOBBY_BRIEF_SLOT_CLASS[name];
+            textSlots[name] = slots[name];
+            htmlSlots[name] = cls ? '<span class="' + cls + '">' + safe + '</span>' : safe;
+        });
+
+        return {
+            text: lobbyBriefFill(template, textSlots),
+            html: lobbyBriefFill(escapeHtml(template), htmlSlots),
+            named: Math.min(found.length, LOBBY_BRIEF_MAX_NAMED),
+            hidden: Math.max(0, found.length - LOBBY_BRIEF_MAX_NAMED)
+        };
+    }
+
+    /**
+     * Write the sentence into an element, or hide it when there is none.
+     * Shared so the TV and the phone cannot drift in how they handle "no
+     * sentence" — the case an old server or an unstarted playlist produces.
+     */
+    function renderLobbyBrief(el, data, translate) {
+        if (!el) return null;
+        var brief = buildLobbyBrief(data, translate);
+        if (!brief) {
+            el.innerHTML = '';
+            el.classList.add('hidden');
+            return null;
+        }
+        el.innerHTML = brief.html;
+        el.classList.remove('hidden');
+        return brief;
+    }
+
+    /**
+     * #2958: is this a game without a round cap?
+     *
+     * `max_rounds` is the host's choice from the setup wizard (#1475): a
+     * positive number caps the game, 0 means "play every song". In the second
+     * case `total_rounds` is merely the size of the playable pool, so every
+     * screen shows "Round 7" instead of "Round 7 of 266". A server that does
+     * not send `max_rounds` yet counts as capped — the old display stays.
+     *
+     * @param {Object} data - a state payload
+     * @returns {boolean}
+     */
+    function isOpenEnded(data) {
+        return !!data && data.max_rounds === 0;
+    }
+
+    /**
+     * Toggle the "no total" look on round indicators (#2958).
+     *
+     * Every "Round X of Y" in the markup keeps its separator and total in
+     * elements marked `.round-total-part`; `.round-open` on a container hides
+     * them (styles.css). One rule for TV, phone and admin, so they cannot
+     * disagree about whether the game has an end.
+     *
+     * @param {Element|NodeList|Array|null} targets - containers to toggle
+     * @param {Object} data - a state payload
+     */
+    function applyRoundTotal(targets, data) {
+        if (!targets) return;
+        var list = (typeof targets.length === 'number') ? targets : [targets];
+        var open = isOpenEnded(data);
+        for (var i = 0; i < list.length; i++) {
+            if (list[i] && list[i].classList) list[i].classList.toggle('round-open', open);
+        }
+    }
+
+    // ==========================================================================
+    // Podium (#2835)
+    // ==========================================================================
+
+    var PODIUM_MEDALS = { 1: '🥇', 2: '🥈', 3: '🥉' };
+
+    /**
+     * Split a final leaderboard into the three podium stands and everyone else.
+     *
+     * #2835: all three end screens filled their stands with
+     * `find(rank === place)`. The server ranks competition-style — 282, 282, 0
+     * come out as 1, 1, 3 — so a tie for first found nobody holding rank 2 and
+     * dropped the second winner, and a "rank > 3" list below lost everyone else
+     * tied inside the top three. Stands are filled by POSITION in the ranked
+     * board instead; each entry keeps its own `rank`, which is what the stand's
+     * label and medal show.
+     *
+     * @param {Array} leaderboard - Final leaderboard entries carrying `rank`
+     * @returns {{stands: Array, rest: Array}} `stands` always has three slots
+     *     (`undefined` where nobody stands); `rest` is everyone not on a stand
+     */
+    function podiumStands(leaderboard) {
+        var ranked = (leaderboard || []).slice().sort(function(a, b) {
+            return a.rank - b.rank;
+        });
+        return { stands: [ranked[0], ranked[1], ranked[2]], rest: ranked.slice(3) };
+    }
+
+    /**
+     * The medal for a rank, so a co-winner on stand 2 wears gold (#2835).
+     * @param {number} rank
+     * @returns {string}
+     */
+    function podiumMedal(rank) {
+        return PODIUM_MEDALS[rank] || '';
+    }
+
+    // ==========================================================================
+    // End-screen awards (#3158)
+    // ==========================================================================
+
+    /**
+     * The unit behind every award value the server emits (#3158).
+     *
+     * One row per `value_label` in `game/scoring.py`. TV and phone each used
+     * to carry their own switch over a different subset, so the same award read
+     * "3 exact titles" on one screen and a bare "3" on the other.
+     * `tests/unit/test_award_value_labels_3158.py` reads this table and fails
+     * when scoring.py emits a label that has no row here.
+     *
+     *   key  - the unit's translation key
+     *   one  - the key to use when the value is exactly 1
+     *   lead - a language-neutral unit that sits between number and text
+     *   plus - a positive value carries a leading plus sign
+     */
+    var AWARD_VALUE_UNITS = {
+        avg_time: { key: 'superlatives.avgTime', lead: 's' },
+        streak: { key: 'superlatives.streak' },
+        bets: { key: 'superlatives.bets' },
+        points: { key: 'superlatives.points' },
+        close_guesses: { key: 'superlatives.closeGuesses' },
+        ghost_avg: { key: 'superlatives.ghostAvg' },
+        eliminated: { key: 'superlatives.eliminated', one: 'superlatives.eliminatedOne' },
+        movie_bonus: { key: 'superlatives.movie_bonus' },
+        intro_bonuses: { key: 'superlatives.intro_bonuses' },
+        improvement: { key: 'superlatives.improvement', plus: true },
+        perfect_rounds: { key: 'superlatives.perfectRounds' },
+        exact_titles: { key: 'superlatives.exactTitles' },
+        artists: { key: 'superlatives.artists' },
+        near_misses: { key: 'superlatives.nearMisses' }
+    };
+
+    /**
+     * The value line of an award card: number plus unit (#3158).
+     * @param {{value: number, value_label: string}} award
+     * @param {Function} [translate] - defaults to `t`; tests pass their own
+     * @returns {string} e.g. "3.2 s avg", "+4.5 pts per round", "1 knocked out"
+     */
+    function awardValueText(award, translate) {
+        if (!award) return '';
+        var value = award.value;
+        var unit = AWARD_VALUE_UNITS[award.value_label];
+        // An unknown label still shows its number rather than nothing.
+        if (!unit) return String(value);
+        var tr = translate || t;
+        var key = unit.one && value === 1 ? unit.one : unit.key;
+        var sign = unit.plus && value > 0 ? '+' : '';
+        return sign + value + ' ' + (unit.lead ? unit.lead + ' ' : '') + tr(key);
+    }
+
+    // ==========================================================================
     // Public API
     // ==========================================================================
 
@@ -424,9 +944,27 @@ window.BeatifyUtils = (function() {
         // Debug
         debug: debug,
 
+        // Leaderboard (#1765)
+        hydrateLeaderboard: hydrateLeaderboard,
+
+        // Podium (#2835)
+        podiumStands: podiumStands,
+        podiumMedal: podiumMedal,
+
         // i18n
         waitForI18n: waitForI18n,
         t: t,
+
+        // Lobby brief (#2647)
+        buildLobbyBrief: buildLobbyBrief,
+        renderLobbyBrief: renderLobbyBrief,
+
+        // Open-ended games (#2958)
+        isOpenEnded: isOpenEnded,
+        applyRoundTotal: applyRoundTotal,
+
+        // End-screen awards (#3158)
+        awardValueText: awardValueText,
 
         // Title & Artist helpers
         taVerdictLabel: taVerdictLabel,
@@ -446,6 +984,7 @@ window.BeatifyUtils = (function() {
         buildWebSocketUrl: buildWebSocketUrl,
         reconnectBackoffDelay: reconnectBackoffDelay,
         createReconnectGuard: createReconnectGuard,
+        createWsCloseHandler: createWsCloseHandler,
 
         // URL utilities
         getQueryParam: getQueryParam

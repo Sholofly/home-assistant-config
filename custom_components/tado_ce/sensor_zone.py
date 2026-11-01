@@ -15,14 +15,15 @@ from homeassistant.core import callback
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import SIGNAL_HOMEKIT_UPDATE
+from .climate_helpers import ac_power_percentage
+from .const import OPEN_WINDOW_DEFAULT_TEMP, SIGNAL_HOMEKIT_UPDATE
 from .device_manager import get_hub_device_info, get_zone_device_info
 from .entity_registry import ENTITY_REGISTRY, get_entity_category
 from .helpers import (
     PerEntityAvailabilityMixin,
     get_zone_state,
-    get_zone_states,
     merge_homekit_into_zone_data,
+    resolve_boiler_flow_temperature,
 )
 
 if TYPE_CHECKING:
@@ -41,7 +42,6 @@ class TadoZoneSensor(PerEntityAvailabilityMixin, CoordinatorEntity["TadoDataUpda
     def __init__(
         self, coordinator: TadoDataUpdateCoordinator, zone_id: str, zone_name: str, zone_type: str = "HEATING",
     ) -> None:
-        """Initialize the Zone Sensor."""
         super().__init__(coordinator)
         self._home_id = coordinator.home_id
         self._zone_id = zone_id
@@ -121,7 +121,6 @@ class TadoTemperatureSensor(TadoZoneSensor):
     def __init__(
         self, coordinator: TadoDataUpdateCoordinator, zone_id: str, zone_name: str, zone_type: str = "HEATING",
     ) -> None:
-        """Initialize the Temperature Sensor."""
         super().__init__(coordinator, zone_id, zone_name, zone_type)
         _meta = ENTITY_REGISTRY["sensor_temperature"]
         self._attr_translation_key = _meta.translation_key
@@ -202,7 +201,6 @@ class TadoHumiditySensor(TadoZoneSensor):
     def __init__(
         self, coordinator: TadoDataUpdateCoordinator, zone_id: str, zone_name: str, zone_type: str = "HEATING",
     ) -> None:
-        """Initialize the Humidity Sensor."""
         super().__init__(coordinator, zone_id, zone_name, zone_type)
         _meta = ENTITY_REGISTRY["sensor_humidity"]
         self._attr_translation_key = _meta.translation_key
@@ -246,8 +244,10 @@ class TadoHumiditySensor(TadoZoneSensor):
         self._attr_native_value = new_value
 
     def _update_homekit_attributes(self) -> None:
-        """Pin humidity source to cloud (bridge humidity lags; reconciler only flips on cloud failure)."""
-        self._data_source = "cloud"
+        """Report where the value came from: HomeKit when the published cloud humidity is missing, else cloud."""
+        zone = get_zone_state(self.coordinator.data, self._zone_id) or {}
+        cloud = ((zone.get("sensorDataPoints") or {}).get("humidity") or {}).get("percentage")
+        self._data_source = "homekit" if cloud is None and self._attr_native_value is not None else "cloud"
         self._last_homekit_update = None
 
 
@@ -259,7 +259,6 @@ class TadoHeatingPowerSensor(TadoZoneSensor):
     def __init__(
         self, coordinator: TadoDataUpdateCoordinator, zone_id: str, zone_name: str, zone_type: str = "HEATING",
     ) -> None:
-        """Initialize the Heating Power Sensor."""
         super().__init__(coordinator, zone_id, zone_name, zone_type)
         _meta = ENTITY_REGISTRY["sensor_heating_power"]
         self._attr_translation_key = _meta.translation_key
@@ -284,7 +283,6 @@ class TadoACPowerSensor(TadoZoneSensor):
     def __init__(
         self, coordinator: TadoDataUpdateCoordinator, zone_id: str, zone_name: str, zone_type: str = "AIR_CONDITIONING",
     ) -> None:
-        """Initialize the ACPower Sensor."""
         super().__init__(coordinator, zone_id, zone_name, zone_type)
         _meta = ENTITY_REGISTRY["sensor_ac_power"]
         self._attr_translation_key = _meta.translation_key
@@ -297,26 +295,17 @@ class TadoACPowerSensor(TadoZoneSensor):
     @callback
     def _update_from_zone_data(self, zone_data: dict[str, Any]) -> None:
         activity_data = zone_data.get("activityDataPoints") or {}
-        ac_power = activity_data.get("acPower") or {}
-        # Newer firmware reports `value` ("ON" / "OFF"); older firmware
-        # reports `percentage`. Coerce to a percentage either way so
-        # the sensor stays a stable shape for users / dashboards.
-        power = ac_power.get("percentage")
-        if power is None:
-            value = ac_power.get("value")
-            power = 100 if value == "ON" else 0
-        self._attr_native_value = power if power is not None else 0
+        self._attr_native_value = ac_power_percentage(activity_data)
 
 
 class TadoBoilerFlowTemperatureSensor(
     PerEntityAvailabilityMixin, CoordinatorEntity["TadoDataUpdateCoordinator"], SensorEntity,
 ):
-    """Hub-level boiler flow temperature, sourced from whichever zone reports it."""
+    """Hub-level boiler flow temperature, sourced from a reporting zone or a bound external entity."""
 
     _attr_has_entity_name = True
 
     def __init__(self, coordinator: TadoDataUpdateCoordinator) -> None:
-        """Initialize the Boiler Flow Temperature Sensor."""
         super().__init__(coordinator)
         _meta = ENTITY_REGISTRY["sensor_boiler_flow_temp"]
         self._attr_translation_key = _meta.translation_key
@@ -343,26 +332,15 @@ class TadoBoilerFlowTemperatureSensor(
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
         try:
-            data = self.coordinator.data
-            if not data:
+            if not self.coordinator.data:
                 self._data_present = False
                 self.async_write_ha_state()
                 return
 
-            zone_states = get_zone_states(data)
-            for zone_id, zone_data in zone_states.items():
-                activity_data = zone_data.get("activityDataPoints") or {}
-                flow_temp = (activity_data.get("boilerFlowTemperature") or {}).get("celsius")
-                if flow_temp is not None:
-                    self._attr_native_value = flow_temp
-                    self._source_zone = zone_id
-                    self._data_present = True
-                    self.async_write_ha_state()
-                    return
-
-            self._attr_native_value = None
-            self._source_zone = None
-            self._data_present = False
+            flow_temp, source = resolve_boiler_flow_temperature(self.coordinator)
+            self._attr_native_value = flow_temp
+            self._source_zone = source
+            self._data_present = flow_temp is not None
         except Exception:
             _LOGGER.debug(
                 "Zone Sensor: boiler flow temperature update failed, "
@@ -381,7 +359,6 @@ class TadoTargetTempSensor(TadoZoneSensor):
     def __init__(
         self, coordinator: TadoDataUpdateCoordinator, zone_id: str, zone_name: str, zone_type: str = "HEATING",
     ) -> None:
-        """Initialize the Target Temp Sensor."""
         super().__init__(coordinator, zone_id, zone_name, zone_type)
         _meta = ENTITY_REGISTRY["sensor_target"]
         self._attr_translation_key = _meta.translation_key
@@ -396,10 +373,13 @@ class TadoTargetTempSensor(TadoZoneSensor):
         setting = zone_data.get("setting") or {}
         if setting.get("power") == "ON":
             self._attr_native_value = (setting.get("temperature") or {}).get("celsius")
+        elif zone_data.get("overlayType") == "MANUAL":
+            # A manual OFF overlay is frost protection, same as the climate card.
+            self._attr_native_value = OPEN_WINDOW_DEFAULT_TEMP
         else:
-            # Power-off zones have no meaningful target; exposing
-            # the last value would mislead users into thinking the
-            # zone is still aiming for it.
+            # Schedule/Away OFF: no target to show. The climate entity's own
+            # target here can go stale when the schedule lookup fails, so
+            # mirroring it is a separate, undecided question.
             self._attr_native_value = None
 
 
@@ -411,7 +391,6 @@ class TadoOverlaySensor(TadoZoneSensor):
     def __init__(
         self, coordinator: TadoDataUpdateCoordinator, zone_id: str, zone_name: str, zone_type: str = "HEATING",
     ) -> None:
-        """Initialize the Overlay Sensor."""
         super().__init__(coordinator, zone_id, zone_name, zone_type)
         _meta = ENTITY_REGISTRY["sensor_overlay"]
         self._attr_translation_key = _meta.translation_key

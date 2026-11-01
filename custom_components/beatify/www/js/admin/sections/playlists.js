@@ -14,17 +14,78 @@
  * imports `renderPlaylists` from here; admin.js imports the loadStatus-driven
  * renderers + the validation helpers.
  *
- * `clearPlaylistFilters` is referenced from inline `onclick="..."` in the
- * HTML this module generates, so admin.js re-exports it on `window` (the shim
- * lives there alongside the other admin window globals).
+ * #2637: the two "clear the filters" buttons this module renders used to carry
+ * an inline `onclick="clearPlaylistFilters()"`, which only resolved because
+ * admin.js re-published this module's own export on `window`. The round trip
+ * through the page global is gone: the buttons are marked
+ * `data-action="clear-filters"` and wired with an event listener right after
+ * each render, so the section owns its own clicks and no longer needs its
+ * importer to hold anything for it.
  */
 
 import { adminState } from '../state.js';
 import { STORAGE_GAME_SETTINGS, TAG_CATEGORIES } from '../constants.js';
+import { seasonalSuggestionHtml, wireSeasonalSuggestion } from './seasonal-suggestion.js';
+import { tr } from '../util.js';
+import { providerCountForPlaylist } from '../provider-counts.js';
 
 // BeatifyUtils is a classic global script loaded before admin.min.js (module,
 // deferred), so this is safe at module init. Mirrors the admin.js pattern.
 const utils = window.BeatifyUtils || {};
+
+/**
+ * #1590: number of playable songs a playlist has for the given provider.
+ *
+ * Single source of truth for the per-provider count. Previously this logic
+ * lived ONLY inline in the render loop, baked into the checkbox's
+ * `data-provider-count` attribute — which made the rendered flat-admin DOM the
+ * de-facto data store: selection-restore read the count back out of the
+ * checkbox dataset. Extracting it lets the selection be restored straight from
+ * `adminState.playlistData` (the real data store) without that DOM round-trip.
+ *
+ * #2713 moved the body to `admin/provider-counts.js` so the mixer can call it
+ * without pulling this module's `window.BeatifyUtils` lookup into a test
+ * runner; it is re-exported here because that is where callers import it from.
+ */
+export { providerCountForPlaylist };
+
+/**
+ * #1590: restore `adminState.selectedPlaylists` from the in-memory data store
+ * (`adminState.playlistData` + localStorage) WITHOUT reading the flat-admin
+ * checkbox DOM. Used when `#playlists-list` is absent (the dead flat section
+ * has been removed, or simply never mounted on this view). Mirrors the
+ * DOM-based restore in renderPlaylists exactly: only valid playlists with a
+ * positive provider count are eligible, dedup by path, preserve-selection
+ * (provider switch) takes precedence over the localStorage fallback.
+ *
+ * @param {Array} previousSelections  selections to preserve across a re-render
+ */
+function restorePlaylistSelectionFromData(previousSelections) {
+    const provider = adminState.selectedProvider;
+    const pushIfEligible = (path) => {
+        const pl = adminState.playlistData.find((p) => p && p.path === path);
+        if (!pl || !pl.is_valid) return;
+        const providerCount = providerCountForPlaylist(pl, provider);
+        if (providerCount > 0 && !adminState.selectedPlaylists.some((p) => p.path === path)) {
+            adminState.selectedPlaylists.push({ path, songCount: providerCount });
+        }
+    };
+
+    // Preserve across provider-switch re-render (matches the DOM path's first pass)
+    previousSelections.forEach((prev) => pushIfEligible(prev.path));
+
+    // localStorage fallback — only when nothing was preserved (matches DOM path)
+    if (adminState.selectedPlaylists.length === 0) {
+        try {
+            const raw = localStorage.getItem(STORAGE_GAME_SETTINGS);
+            const saved = raw ? JSON.parse(raw) : null;
+            const savedPaths = Array.isArray(saved?.selectedPlaylists)
+                ? saved.selectedPlaylists.map((p) => (typeof p === 'string' ? p : p.path)).filter(Boolean)
+                : [];
+            savedPaths.forEach((path) => pushIfEligible(path));
+        } catch (e) { console.warn('[Beatify] restore saved playlists failed:', e); }
+    }
+}
 
 /**
  * Render playlists list with checkboxes for valid playlists
@@ -46,6 +107,21 @@ export function renderPlaylists(playlists, playlistDir, preserveSelection = fals
     adminState.selectedPlaylists = [];
     adminState.playlistData = playlists || [];
 
+    // #1590: decouple the selection data store from the dead flat-admin DOM.
+    // The flat #playlists section is dead UI (hidden via body.home-mode since
+    // rc11/#1138) but still load-bearing because selection-restore read the
+    // per-provider count back out of the rendered checkbox dataset. When the
+    // list element is absent, restore the selection from adminState.playlistData
+    // (the real data store) instead of throwing on `container.innerHTML`. When
+    // the list IS present the existing DOM render + restore path below runs
+    // unchanged, so production behaviour is identical.
+    if (!container) {
+        restorePlaylistSelectionFromData(previousSelections);
+        updateSelectionSummary();
+        updateStartButtonState();
+        return;
+    }
+
     // Render filter bar (Issue #70)
     renderPlaylistFilterBar(adminState.playlistData);
 
@@ -66,11 +142,11 @@ export function renderPlaylists(playlists, playlistDir, preserveSelection = fals
     if (!adminState.playlistData || adminState.playlistData.length === 0) {
         // AC2: No playlists error with documentation link
         const docsLink = adminState.playlistDocsUrl
-            ? `<a href="${utils.escapeHtml(adminState.playlistDocsUrl)}" target="_blank" rel="noopener">How to create playlists</a>`
+            ? `<a href="${utils.escapeHtml(adminState.playlistDocsUrl)}" target="_blank" rel="noopener">${tr('admin.howToCreatePlaylists', 'How to create playlists')}</a>`
             : '';
         container.innerHTML = `
             <div class="empty-state">
-                <p class="status-error">No playlists found. Add playlist JSON files to:</p>
+                <p class="status-error">${tr('admin.noPlaylistsFoundHint', 'No playlists found. Add playlist JSON files to:')}</p>
                 <p style="font-size: 14px;"><code>${utils.escapeHtml(playlistDir)}</code></p>
                 ${docsLink ? `<p style="margin-top: 12px;">${docsLink}</p>` : ''}
             </div>
@@ -84,40 +160,26 @@ export function renderPlaylists(playlists, playlistDir, preserveSelection = fals
     if (filteredPlaylists.length === 0) {
         container.innerHTML = `
             <div class="empty-state">
-                <p>No playlists match the selected filter.</p>
-                <button type="button" class="btn btn-secondary" onclick="clearPlaylistFilters()">Clear Filters</button>
+                <p>${tr('admin.noPlaylistsMatchFilter', 'No playlists match the selected filter.')}</p>
+                <button type="button" class="btn btn-secondary" data-action="clear-filters">${tr('admin.clearFilters', 'Clear Filters')}</button>
             </div>
         `;
+        wireClearFilterButtons(container);
         return;
     }
 
-    container.innerHTML = filteredPlaylists.map(playlist => {
+    // #1539: seasonal suggestion chip (option 2) — rendered as the FIRST element
+    // of the list when an occasion window is active, its playlist is present, and
+    // the host hasn't dismissed it this season. Empty string otherwise.
+    const seasonalHtml = seasonalSuggestionHtml(filteredPlaylists);
+
+    container.innerHTML = seasonalHtml + filteredPlaylists.map(playlist => {
         if (playlist.is_valid) {
             // AC1: Valid playlists with checkbox
             const songCount = playlist.song_count || 0;
-            const spotifyCount = playlist.spotify_count || 0;
-            const appleMusicCount = playlist.apple_music_count || 0;
-            const youtubeMusicCount = playlist.youtube_music_count || 0;
-            const tidalCount = playlist.tidal_count || 0;
-            const deezerCount = playlist.deezer_count || 0;
-            // Amazon Music uses Alexa text search — all songs are playable.
-            const amazonMusicCount = playlist.amazon_music_count || songCount;
-
-            // Get provider count based on selected provider
-            let providerCount = songCount;
-            if (adminState.selectedProvider === 'spotify') {
-                providerCount = spotifyCount || songCount; // fallback for legacy playlists
-            } else if (adminState.selectedProvider === 'apple_music') {
-                providerCount = appleMusicCount;
-            } else if (adminState.selectedProvider === 'youtube_music') {
-                providerCount = youtubeMusicCount;
-            } else if (adminState.selectedProvider === 'tidal') {
-                providerCount = tidalCount;
-            } else if (adminState.selectedProvider === 'deezer') {
-                providerCount = deezerCount;
-            } else if (adminState.selectedProvider === 'amazon_music') {
-                providerCount = amazonMusicCount;
-            }
+            // #1590: per-provider count now comes from the shared pure helper so
+            // the render markup and the DOM-free selection-restore stay in sync.
+            const providerCount = providerCountForPlaylist(playlist, adminState.selectedProvider);
 
             // Disable playlist if no songs for selected provider
             const isDisabled = providerCount === 0;
@@ -180,6 +242,10 @@ export function renderPlaylists(playlists, playlistDir, preserveSelection = fals
             }
         });
     });
+
+    // #1539: wire the seasonal chip's Add/Dismiss buttons (no-op if no chip).
+    // handlePlaylistToggle is passed in to keep selection state single-sourced.
+    wireSeasonalSuggestion(container, handlePlaylistToggle);
 
     // Restore valid selections when preserving (provider change)
     if (preserveSelection && previousSelections.length > 0) {
@@ -315,7 +381,7 @@ export function renderPlaylistFilterBar(playlists) {
         html += `
             <div class="filter-summary">
                 <span class="filter-summary-text">Showing: ${activeFiltersList.join(' • ')}</span>
-                <button type="button" class="filter-clear" onclick="clearPlaylistFilters()">Clear</button>
+                <button type="button" class="filter-clear" data-action="clear-filters">Clear</button>
             </div>
         `;
     }
@@ -329,6 +395,7 @@ export function renderPlaylistFilterBar(playlists) {
             handleFilterDropdownChange(this.dataset.category, this.value);
         });
     });
+    wireClearFilterButtons(filterBar);
 }
 
 /**
@@ -352,6 +419,21 @@ export function handleFilterDropdownChange(category, value) {
 export function updateActiveFilterTags() {
     const selectedTags = Object.values(adminState.activeFilters).filter(v => v);
     adminState.activeFilterTags = selectedTags.length > 0 ? selectedTags : ['all'];
+}
+
+/**
+ * Wire every `data-action="clear-filters"` button inside `root` (#2637).
+ *
+ * Called after each innerHTML write that can emit one. Re-rendering replaces
+ * the nodes, so the listeners go with them and there is nothing to detach.
+ *
+ * @param {ParentNode|null} root - container that was just re-rendered
+ */
+function wireClearFilterButtons(root) {
+    if (!root || typeof root.querySelectorAll !== 'function') return;
+    root.querySelectorAll('[data-action="clear-filters"]').forEach((btn) => {
+        btn.addEventListener('click', () => clearPlaylistFilters());
+    });
 }
 
 /**

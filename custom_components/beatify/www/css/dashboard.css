@@ -141,6 +141,32 @@
     margin-bottom: var(--space-lg);
 }
 
+/* #2645: the host's announcement on the TV. The reason takes poster size and
+   the word "Pause" drops to the line under it — inverted on purpose, because
+   the room's question is "why did the music stop", not "did it".
+   The cost of that inversion is that a glance reads the reason and not the
+   state, so the state keeps the accent colour rather than a muted grey: at
+   this size a grey line is not read at all. */
+#dashboard-pause-title.is-announcement {
+    font-size: clamp(48px, 8vw, 96px);
+    line-height: 1.05;
+    color: var(--color-accent-primary);
+    text-shadow: 0 0 34px rgba(255, 45, 106, 0.55);
+}
+
+.dashboard-pause-state {
+    margin-top: var(--space-sm);
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-accent-secondary);
+}
+
+.dashboard-pause-state.hidden {
+    display: none;
+}
+
 /* ==========================================
    Dashboard Header
    ========================================== */
@@ -180,13 +206,55 @@
    Lobby View (AC 10.4.2)
    ========================================== */
 
+/* #2647: the lobby brief — one sentence across the band the lobby left empty,
+   between the header and the QR/players row. Both of those keep their place and
+   their size; this only takes the air above them.
+
+   The colour split IS the message: the running text is the muted secondary,
+   because "10 rounds" is not news. Only what deviates from the server defaults
+   gets a colour, and the deviation that changes the game most gets the brand
+   pink and the glow — that is the skull the room used to meet in round 2.
+
+   Sized in raw px like the wordmark above it (48/64) rather than from the type
+   scale, which tops out at 32px: this has to read from the couch. It stays
+   below the reserved oversize tokens (year 56 / timer 64 / hero 72) — those
+   belong to the game moments, and a lobby line is not one.
+
+   The .lobby-brief-em* accents live in styles.css: the guest's phone shows the
+   same sentence and only loads that file. */
+.dashboard-lobby-brief {
+    flex-shrink: 0;
+    margin: 0 auto;
+    padding: 0 var(--space-xl);
+    max-width: min(90vw, 28ch);
+    font-family: var(--font-display);
+    font-size: 40px;
+    font-weight: var(--font-weight-bold);
+    line-height: 1.25;
+    text-align: center;
+    text-wrap: balance;
+    color: var(--color-text-neon-muted);
+}
+
+.dashboard-lobby-brief.hidden {
+    display: none;
+}
+
+/* The glow is the TV's alone — a phone at arm's length does not need it and
+   the accents themselves are shared (styles.css). */
+.dashboard-lobby-brief .lobby-brief-em--key {
+    text-shadow: var(--glow-primary);
+}
+
 .dashboard-lobby-content {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-2xl);
+    /* #2959: the QR keeps a bit more than a third, the name wall takes the
+       rest — it was a 1fr/1fr split with the right half 95% empty. */
+    grid-template-columns: minmax(0, 4fr) minmax(0, 5.4fr);
+    gap: 3vw;
     flex: 1;
     align-items: center;
-    padding: var(--space-lg);
+    padding: var(--space-lg) 5vw var(--space-lg) 3vw;
 }
 
 .lobby-qr-section {
@@ -194,6 +262,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    min-width: 0;
 }
 
 .dashboard-qr-code {
@@ -212,55 +281,138 @@
     height: 200px !important;
 }
 
-.dashboard-player-count {
+/* #2556: the call to action above the QR code. Same weight as the name
+   wall's heading so it reads from across the room. */
+.dashboard-scan-hint {
+    margin: 0 0 var(--space-md);
     font-size: var(--font-size-2xl);
     font-weight: var(--font-weight-bold);
-    margin-top: var(--space-lg);
-    color: var(--color-accent-secondary);
+    color: var(--color-text-white);
+    text-align: center;
 }
 
+/* #2959: the name wall. Sized in vw like the rest of the TV-only lobby, so a
+   1280x720 screen shows the same picture as 1920x1080, just smaller. */
 .lobby-players-section {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: center;
-    height: 100%;
-    max-height: 60vh;
+    align-items: stretch;
+    min-width: 0;
+    max-height: 62vh;
 }
 
-.players-title {
-    font-size: var(--font-size-2xl);
-    font-weight: var(--font-weight-bold);
-    margin-bottom: var(--space-md);
+.players-in {
+    margin: 0 0 1.6vw;
+    font-family: var(--font-display);
+    font-size: 2.1vw;
+    font-weight: 900;
     color: var(--color-text-white);
 }
 
+.players-in .players-in-count {
+    color: var(--color-accent-secondary);
+}
+
 .dashboard-player-list {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: var(--space-sm);
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1vw;
     overflow-y: auto;
-    padding-right: var(--space-sm);
+    /* Room for the new-joiner glow, which overflow would otherwise clip; the
+       negative margin keeps the tiles flush with the heading. */
+    padding: 1.6vw;
+    margin: -1.6vw;
+    /* Tile sizes per column step; see lobbyWallColumns() in dashboard.js. */
+    --tile-avatar: 3.6vw;
+    --tile-name: 2vw;
+    --tile-pad-y: 0.9vw;
+    --tile-pad-x: 1.2vw;
+}
+.dashboard-player-list[data-cols="4"] {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    --tile-avatar: 2.9vw;
+    --tile-name: 1.6vw;
+    --tile-pad-y: 0.75vw;
+    --tile-pad-x: 1vw;
+}
+.dashboard-player-list[data-cols="5"] {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0.8vw;
+    --tile-avatar: 2.3vw;
+    --tile-name: 1.25vw;
+    --tile-pad-y: 0.6vw;
+    --tile-pad-x: 0.7vw;
 }
 
 .dashboard-player-card {
-    background: var(--color-dark-surface);
-    padding: var(--space-sm) var(--space-md);
-    border-radius: var(--radius-md);
-    font-size: var(--font-size-lg);
-    animation: slide-in 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: calc(var(--tile-avatar) * 0.3);
+    min-width: 0;
+    padding: var(--tile-pad-y) var(--tile-pad-x);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.9vw;
+    transition: border-color 600ms ease, box-shadow 600ms ease;
 }
 
+.dashboard-player-avatar {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: var(--tile-avatar);
+    height: var(--tile-avatar);
+    border-radius: 50%;
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: calc(var(--tile-avatar) * 0.47);
+    color: #111;
+}
+
+.dashboard-player-name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--tile-name);
+    line-height: 1.2;
+    color: var(--color-text-white);
+}
+
+.dashboard-player-card .away-badge {
+    flex: none;
+    font-size: calc(var(--tile-name) * 0.55);
+    color: var(--color-text-secondary, #b3b3c2);
+}
+
+/* The newest joiner glows cyan for a moment (is-new is cleared after 2s).
+   #2964: only a new tile animates. Tiles already on the wall are never
+   re-created, and the slide-in is not on the base class, so reordering one
+   (a guest going away) does not replay it either. */
 .dashboard-player-card.is-new {
     animation: slide-in 0.5s ease;
-    background: var(--color-accent-primary);
+    border-color: var(--color-accent-secondary);
+    box-shadow: 0 0 1.5vw rgba(0, 245, 255, 0.35);
 }
 
 /* Story 11.4: Disconnected player styling */
 .dashboard-player-card--disconnected {
     opacity: 0.5;
     filter: grayscale(0.3);
+}
+
+.dashboard-player-card--waiting {
+    justify-content: center;
+    min-height: calc(var(--tile-avatar) + 2 * var(--tile-pad-y));
+    background: transparent;
+    border-style: dashed;
+    font-size: calc(var(--tile-name) * 0.55);
+    color: var(--color-text-muted, #8a8a9a);
+    text-align: center;
+    animation: none;
 }
 
 @keyframes slide-in {
@@ -271,6 +423,16 @@
     to {
         opacity: 1;
         transform: translateX(0);
+    }
+}
+
+/* #1663 item 3 (A11y — Reduced-Motion gate): honour prefers-reduced-motion for
+   the player-join cue. The slide-in is dropped; the cyan border on .is-new
+   stays as a non-motion "new player" indicator. */
+@media (prefers-reduced-motion: reduce) {
+    .dashboard-player-card,
+    .dashboard-player-card.is-new {
+        animation: none;
     }
 }
 
@@ -369,8 +531,7 @@
     }
 }
 
-.playing-right-section,
-.reveal-right-section {
+.playing-right-section {
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -522,14 +683,6 @@
     padding: var(--space-lg);
 }
 
-.reveal-left-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-lg);
-}
-
 .reveal-song-info {
     text-align: center;
 }
@@ -618,6 +771,46 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
     animation: bet-pulse 2s ease-in-out infinite;
+}
+
+/* #2578: die zwei Finalisten im Stechen. Bewusst das einzige Abzeichen mit
+   Akzentfarbe in der Zeile — es markiert genau zwei Spieler und sagt, warum
+   die Runde anders heisst. */
+.finalist-badge {
+    display: inline-block;
+    background: var(--color-accent-secondary, #c8a24a);
+    color: var(--color-text-dark, #11131a);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+    padding: 1px 6px;
+    border-radius: var(--radius-sm);
+    margin-left: var(--space-xs);
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+/* #2584: Sabotage-Treffer in der Zeile des Getroffenen. Bewusst ruhiger als
+   .bet-badge — kein Verlauf, kein Puls: es steht den ganzen Reveal lang da und
+   soll die Zahl daneben nicht ueberstrahlen. Aus vier Metern zaehlt der Kontrast
+   des Symbols, nicht die Flaeche. */
+.sabotage-badge {
+    display: inline-block;
+    background: rgba(90, 169, 214, 0.18);
+    color: #9fd2ee;
+    border: 1px solid rgba(90, 169, 214, 0.45);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+    padding: 1px 6px;
+    border-radius: var(--radius-sm);
+    margin-left: var(--space-xs);
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+.sabotage-badge small {
+    font-weight: var(--font-weight-normal);
+    opacity: 0.75;
+    margin-left: 3px;
 }
 
 .bet-badge--won {
@@ -796,8 +989,13 @@
         height: 300px !important;
     }
 
-    .dashboard-player-count {
+    .dashboard-scan-hint {
         font-size: var(--font-size-3xl);
+    }
+
+    .dashboard-lobby-brief {
+        font-size: 52px;
+        max-width: min(88vw, 30ch);
     }
 
     .dashboard-album-container {
@@ -1344,6 +1542,26 @@
     font-size: 22px;
     filter: drop-shadow(0 0 8px var(--color-accent-primary));
 }
+/* #2554: song stopped by the host. Neutral on purpose — it explains silence,
+   it does not celebrate anything. */
+.chip-badge.chip-badge--stopped {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.28);
+}
+/* #3152: the song length the host set has run out. The intro chip element is
+   reused for the line; this turns it neutral, with the same values as the
+   host-stopped chip above. Listed after the intro rules so it wins. */
+.chip-badge.chip-badge--sample-stopped {
+    color: var(--color-text-neon-muted);
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    box-shadow: none;
+    animation: none;
+}
+.chip-badge.chip-badge--sample-stopped .chip-badge-icon {
+    color: var(--color-text-neon-muted);
+    filter: none;
+}
 .chip-badge.chip-badge--closest {
     background: rgba(0, 245, 255, 0.15);
     border: 1px solid rgba(0, 245, 255, 0.5);
@@ -1383,6 +1601,11 @@
     color: var(--color-accent-secondary);
     font-weight: 900;
 }
+/* #2958: "Round 7" without a total — the pill shrinks to its content
+   instead of stretching across its grid column. */
+.chip-round.round-open {
+    justify-self: start;
+}
 
 .chip-meter {
     justify-self: end;
@@ -1403,18 +1626,28 @@
     transition: width 300ms ease;
 }
 .chip-meter .chip-meter-label {
+    /* #1717: was #fff text sitting directly on the cyan fill (~1.4:1, vanishing
+       as the meter filled toward the label). A shrink-wrapped dark pill keeps
+       the label at ~15:1 over BOTH the dark track and the cyan fill, at any
+       fill level. Centered without stretching (inset:0 → auto-sized pill). */
     position: absolute;
-    inset: 0;
-    display: flex;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 12px;
+    padding: 5px 16px;
+    border-radius: 999px;
+    background: rgba(4, 10, 16, 0.72);
     font-family: 'Inter', sans-serif;
-    font-weight: 600;
+    font-weight: 700;
     font-size: 14px;
     letter-spacing: 0.24em;
     text-transform: uppercase;
-    color: var(--color-text-white);
+    white-space: nowrap;
+    color: #ffffff;
 }
 
 .chip-motivator {
@@ -1497,6 +1730,57 @@
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: rgba(255, 159, 67, 0.92);
+}
+
+/* #2702: the TV ring once the countdown has run out and the next round has not
+   started. Same place, same size — the digit becomes an ellipsis and the
+   drained gauge becomes a quarter arc that turns. At TV distance the rotation
+   is the whole message: it answers "is this thing frozen?" without a word, and
+   a static "next song…" chip would have been exactly as silent as the zero it
+   replaced. The label swaps to the cold-start string that already exists in all
+   six locales, so nothing new had to be translated. */
+@keyframes chip-countdown-spin {
+    from { transform: rotate(-90deg); }
+    to   { transform: rotate(270deg); }
+}
+#dashboard-reveal .chip-countdown.is-waiting .chip-countdown-svg {
+    animation: chip-countdown-spin 1.15s linear infinite;
+}
+#dashboard-reveal .chip-countdown.is-waiting .chip-countdown-num {
+    font-size: 26px;
+    line-height: 0.5;
+}
+@media (prefers-reduced-motion: reduce) {
+    /* Static, but never the frozen zero: the gauge is gone, the digit is an
+       ellipsis and the track is dashed. */
+    #dashboard-reveal .chip-countdown.is-waiting .chip-countdown-svg { animation: none; }
+    #dashboard-reveal .chip-countdown.is-waiting .chip-countdown-bg {
+        stroke-dasharray: 5 7;
+        stroke: rgba(255, 159, 67, 0.35);
+    }
+}
+
+/* #2702: the reveal in three beats — the answer, then who got it right, then
+   the standings. The TV grid is fixed, so the later beats fade up in place
+   instead of being pulled out of the layout: a collapsing grid area would make
+   the whole screen jump twice per round. When the stage attribute is ABSENT
+   everything shows, so a TV whose timers never ran loses nothing. */
+#dashboard-reveal[data-reveal-stage] [data-stage] {
+    opacity: 1;
+    transform: none;
+    transition: opacity 340ms ease-out, transform 340ms ease-out;
+}
+#dashboard-reveal[data-reveal-stage="1"] [data-stage="2"],
+#dashboard-reveal[data-reveal-stage="1"] [data-stage="3"],
+#dashboard-reveal[data-reveal-stage="2"] [data-stage="3"] {
+    opacity: 0;
+    transform: translateY(14px);
+}
+@media (prefers-reduced-motion: reduce) {
+    #dashboard-reveal[data-reveal-stage] [data-stage] { transition: none; }
+    #dashboard-reveal[data-reveal-stage="1"] [data-stage="2"],
+    #dashboard-reveal[data-reveal-stage="1"] [data-stage="3"],
+    #dashboard-reveal[data-reveal-stage="2"] [data-stage="3"] { transform: none; }
 }
 
 /* Hide the legacy absolutely-positioned round indicator (replaced by chip strip) */
@@ -1601,8 +1885,7 @@
    fits its row, whatever the player count or viewport height — no
    overflow, no overlap, no cropping. overflow stays visible so the #1
    row's glow is never clipped. */
-.playing-right-section .dashboard-leaderboard,
-.reveal-right-section .dashboard-leaderboard {
+.playing-right-section .dashboard-leaderboard {
     gap: clamp(4px, 0.8vh, 12px);
     overflow: visible;  /* #1 lead row grows bigger — don't clip glow */
     padding-right: 0;
@@ -1652,8 +1935,7 @@
     font-size: 17cqh;
     padding: 6cqh 12cqh;
 }
-.playing-right-section,
-.reveal-right-section {
+.playing-right-section {
     max-height: none;
     padding-top: 8px;
     justify-content: center;  /* center the scoreboard vertically in the cell */
@@ -1670,6 +1952,13 @@
     border-radius: 16px;
     font-size: inherit;
     transition: transform 0.5s ease, background 0.3s ease;
+}
+/* #2828: the waiting/has-guessed dot is a fifth child in a four-column grid,
+   so auto-placement wrapped it onto a second row of its own. Pin it to an
+   implicit fifth column on the first row, right of the score. */
+.leaderboard-entry > .entry-submitted {
+    grid-column: 5;
+    grid-row: 1;
 }
 .leaderboard-entry.is-top-1 {
     padding: 22px 26px;
@@ -1773,26 +2062,10 @@
     min-height: 0;
 }
 
-.reveal-left-section {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: center;
-    gap: 20px;
-}
-
 /* Shrink the reveal album to fit alongside the hero year */
-.dashboard-album-container.dashboard-album-container--reveal,
-.reveal-left-section .dashboard-album-container {
+.dashboard-album-container.dashboard-album-container--reveal {
     width: 200px;
     height: 200px;
-}
-.reveal-left-section .dashboard-album-art {
-    width: 200px;
-    height: 200px;
-    border-radius: 14px;
-    border: 2px solid var(--color-accent-primary);
-    box-shadow: 0 0 40px rgba(255, 45, 106, 0.4);
 }
 
 /* Year row: label + giant number */
@@ -1881,13 +2154,6 @@
     font-style: italic;
 }
 
-/* Right side on REVEAL */
-.reveal-right-section {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    max-height: none;
-}
 .reveal-top-guesses .top-guesses-title {
     font-family: 'Outfit', sans-serif;
     font-weight: 700;
@@ -1943,50 +2209,6 @@
     background: rgba(255, 255, 255, 0.15);
     color: var(--color-text-neon-muted);
     box-shadow: none;
-}
-
-/* Compact standings rows on reveal */
-.reveal-right-section > .dashboard-leaderboard .leaderboard-entry {
-    grid-template-columns: 44px 1fr auto;
-    gap: 12px;
-    padding: 8px 16px;
-    border-radius: 10px;
-    border: none;
-    background: transparent;
-}
-.reveal-right-section > .dashboard-leaderboard .leaderboard-entry.is-top-1 {
-    background: rgba(255, 45, 106, 0.08);
-    border: 1px solid rgba(255, 45, 106, 0.35);
-    padding: 8px 16px;
-    box-shadow: none;
-}
-.reveal-right-section > .dashboard-leaderboard .leaderboard-entry .entry-rank {
-    width: auto;
-    height: auto;
-    border-radius: 0;
-    border: none;
-    background: transparent;
-    font-size: 18px;
-    color: var(--color-text-neon-muted);
-    font-weight: 900;
-}
-.reveal-right-section > .dashboard-leaderboard .leaderboard-entry.is-top-1 .entry-rank {
-    color: var(--color-accent-primary);
-    text-shadow: 0 0 10px rgba(255, 45, 106, 0.55);
-    box-shadow: none;
-}
-.reveal-right-section > .dashboard-leaderboard .leaderboard-entry .entry-name {
-    font-size: 20px;
-    font-weight: 600;
-}
-.reveal-right-section > .dashboard-leaderboard .leaderboard-entry .entry-score {
-    font-size: 26px;
-}
-.reveal-right-section > .dashboard-leaderboard .leaderboard-entry.is-top-1 .entry-score {
-    text-shadow: 0 0 10px rgba(0, 245, 255, 0.4);
-}
-.reveal-right-section > .dashboard-leaderboard .leaderboard-entry .entry-change {
-    display: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2173,13 +2395,22 @@
     font-variant-numeric: tabular-nums;
 }
 .end-stage-layout .end-meta-dot { width: 5px; height: 5px; border-radius: 50%; background: #ff2d6a; display: inline-block; }
+/* #2960: the average pts/round is the third item of the meta line, not a
+   pill of its own — that line of height goes to the podium. The dot in front
+   is drawn here so it disappears with the item. */
 .end-stage-layout .stats-comparison {
     display: inline-flex; align-items: center; gap: 8px;
-    margin-top: 12px; padding: 6px 16px;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    font-size: 15px; font-weight: 600; color: #b3b3c2;
+    margin: 0; padding: 0;
+    background: none; border: none;
+    font-size: inherit; font-weight: 500; color: #b3b3c2;
+}
+.end-stage-layout .stats-comparison .stats-comparison-icon,
+.end-stage-layout .stats-comparison .stats-comparison-text {
+    font-size: inherit; font-weight: inherit;
+}
+.end-stage-layout .stats-comparison::before {
+    content: ''; width: 5px; height: 5px; border-radius: 50%; background: #ff2d6a;
+    display: inline-block; margin-right: 6px;
 }
 .end-stage-layout .stats-comparison.hidden { display: none; }
 .end-stage-layout .stats-comparison--record { color: #ffd34d; border-color: rgba(255, 211, 77, 0.4); }
@@ -2190,7 +2421,8 @@
 .end-stage-layout .end-stage {
     flex: 1; min-height: 0;
     display: grid;
-    grid-template-columns: 1fr 1.25fr 1fr;
+    /* #2960: podium two thirds, highlights one third. */
+    grid-template-columns: minmax(0, 2.4fr) minmax(0, 1fr);
     gap: 28px;
     align-items: stretch;
 }
@@ -2211,100 +2443,214 @@
 }
 .end-stage-layout .end-panel-ic { font-size: 22px; }
 
-/* Standings list inside the left panel (override the in-game leaderboard box) */
-.end-stage-layout #end-leaderboard {
-    display: flex; flex-direction: column; gap: 10px;
-    flex: 1; min-height: 0; max-height: none; overflow-y: auto;
+/* Podium (left two thirds, #2960)
+   Sized in --u, one percent of a 1080p screen's width, so the numbers read
+   like the approved mockup. Short screens zoom the whole end screen (see the
+   #2960 block at the end of this file) rather than resizing single parts. */
+.end-stage-layout .end-podium-wrap {
+    --u: 19.2px;
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+    min-height: 0; min-width: 0;
+    padding: 0 calc(3 * var(--u));
 }
-.end-stage-layout .leaderboard-entry {
-    display: flex; align-items: center; gap: 14px;
-    height: auto; padding: 12px 16px;
-    border-radius: 14px;
-    background: rgba(255, 255, 255, 0.035);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    contain: none;
-}
-.end-stage-layout .leaderboard-entry .entry-rank {
-    font-family: var(--font-display, 'Outfit'), sans-serif;
-    font-weight: 900; font-size: 24px; color: #6c6c80; min-width: 46px;
-}
-.end-stage-layout .leaderboard-entry .entry-name { flex: 1; font-size: 26px; font-weight: 700; color: #fff; }
-.end-stage-layout .leaderboard-entry .entry-score {
-    font-family: var(--font-display, 'Outfit'), sans-serif;
-    font-weight: 900; font-size: 32px; color: #fff;
-    font-variant-numeric: tabular-nums;
-}
-
-/* Podium (center) */
-.end-stage-layout .end-podium-wrap { display: flex; align-items: flex-end; justify-content: center; min-height: 0; }
 .end-stage-layout .dashboard-podium {
-    display: flex; align-items: flex-end; justify-content: center;
-    gap: 22px; width: 100%; height: 100%; margin: 0;
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr) minmax(0, 1fr);
+    align-items: end;
+    gap: calc(1.4 * var(--u)); width: 100%; max-width: calc(62 * var(--u));
+    flex: 0 0 auto; margin: 0;
 }
+/* #2130 (zweite Runde): der Gewinnername brach mitten im Wort und lief aus
+   dem Podest heraus. Ursache war NICHT die Schriftgroesse, sondern dass
+   `.podium-place` als Flex-Kind schrumpfen darf: `.podium-stand` steht zwar
+   auf `width: 200px`, das Podest selbst hatte aber keine Untergrenze. Wird
+   die mittlere Spalte eng, quetscht sich alles zusammen und der Name bricht.
+
+   `flex: 0 1 200px` gibt jedem Podest dieselbe Sollbreite wie seinem Stand,
+   `min-width: 0` erlaubt das geordnete Schrumpfen darunter statt des
+   Ueberlaufs, und `.podium-info` deckelt die Textspalte auf die Podestbreite.
+   Der Name kuerzt dann mit Ellipse, statt umzubrechen — auf einem Bildschirm,
+   der aus 3-5 m gelesen wird, ist eine je Spiel andere Schriftgroesse die
+   schlechtere Antwort als ein sauber gekuerzter Name. */
 .end-stage-layout .podium-place {
     display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+    min-width: 0;
 }
-.end-stage-layout .podium-info { display: flex; flex-direction: column; align-items: center; margin-bottom: 16px; position: relative; }
+/* Kein Podest ohne Spieler: renderEndView() setzt diese Klasse, wenn den Rang
+   niemand haelt. Bewusst eine eigene Klasse statt `hidden` — `.podium-place`
+   steht auf `display: flex` und wuerde das UA-`[hidden]` ueberstimmen. */
+.end-stage-layout .podium-place--empty { display: none; }
+/* #2835: styles.css setzt die Neben-Podeste im dunklen Theme per
+   `body.theme-dark .podium-place.podium-2` (0,3,1) auf `display: grid` — das
+   schlug die Regel darueber (0,2,0), und ein leeres Podest stand mit "---" und
+   0 PTS auf dem Fernseher. Dieselbe Absicht, mit genug Spezifitaet (0,4,1). */
+body.theme-dark .end-stage-layout .podium-place.podium-place--empty { display: none; }
+.end-stage-layout .podium-info {
+    display: flex; flex-direction: column; align-items: center; margin-bottom: calc(0.6 * var(--u)); position: relative;
+    max-width: 100%; min-width: 0;
+}
 .end-stage-layout .podium-avatar {
     border-radius: 50%; display: flex; align-items: center; justify-content: center;
     font-family: var(--font-display, 'Outfit'), sans-serif; font-weight: 900; color: #0a0a12;
 }
-.end-stage-layout .podium-name { font-family: var(--font-display, 'Outfit'), sans-serif; font-weight: 800; margin-top: 12px; letter-spacing: 0.3px; }
+.end-stage-layout .podium-name {
+    font-family: var(--font-display, 'Outfit'), sans-serif; font-weight: 900;
+    margin-top: calc(0.5 * var(--u)); letter-spacing: 0.3px; line-height: 1.15;
+    max-width: 100%; min-width: 0;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
 .end-stage-layout .podium-score { font-family: var(--font-display, 'Outfit'), sans-serif; font-weight: 900; line-height: 1; font-variant-numeric: tabular-nums; }
-.end-stage-layout .podium-pts { font-family: var(--font-body, 'Inter'), sans-serif; font-weight: 600; font-size: 14px; color: #b3b3c2; letter-spacing: 1px; margin-left: 6px; }
+.end-stage-layout .podium-score { color: var(--color-accent-secondary, #00f5ff); }
+.end-stage-layout .podium-pts { font-family: var(--font-body, 'Inter'), sans-serif; font-weight: 500; font-size: calc(1 * var(--u)); color: #b3b3c2; letter-spacing: 1px; margin-left: 6px; }
+/* Real steps: the place number on the riser, no medal (#2960). */
 .end-stage-layout .podium-stand {
-    width: 200px; border-radius: 18px 18px 0 0;
-    display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-    padding-top: 16px; gap: 6px;
+    width: 100%; border-radius: calc(0.6 * var(--u)) calc(0.6 * var(--u)) 0 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 0;
     border: 1px solid rgba(255, 255, 255, 0.1); border-bottom: none;
 }
-.end-stage-layout .podium-medal { font-size: 40px; }
+.end-stage-layout .podium-medal { display: none; }
 .end-stage-layout .podium-place-lbl {
     font-family: var(--font-display, 'Outfit'), sans-serif; font-weight: 900;
-    font-size: 13px; letter-spacing: 3px; color: rgba(255, 255, 255, 0.5);
+    font-size: calc(3.4 * var(--u)); line-height: 1; letter-spacing: 0; color: rgba(255, 255, 255, 0.35);
 }
+.end-stage-layout .podium-1 .podium-place-lbl { font-size: calc(4.2 * var(--u)); }
+.end-stage-layout .podium-3 .podium-place-lbl { font-size: calc(2.8 * var(--u)); }
 /* 1st */
 .end-stage-layout .podium-1 .podium-avatar {
-    width: 118px; height: 118px; font-size: 46px;
+    width: calc(8.5 * var(--u)); height: calc(8.5 * var(--u)); font-size: calc(3.6 * var(--u));
     background: linear-gradient(140deg, #ffe07a, #ffd34d, #ff9d2e);
-    box-shadow: 0 0 0 5px rgba(255, 211, 77, 0.28), 0 0 60px 12px rgba(255, 211, 77, 0.45);
+    border: calc(0.3 * var(--u)) solid #d4a93a;
+    box-shadow: 0 0 calc(2.5 * var(--u)) rgba(255, 210, 63, 0.5);
 }
-.end-stage-layout .podium-1 .podium-name { font-size: 38px; color: #ffd34d; }
-.end-stage-layout .podium-1 .podium-score { font-size: 54px; color: #ffd34d; }
+.end-stage-layout .podium-1 .podium-name {
+    font-size: calc(3 * var(--u));
+    background: linear-gradient(90deg, #ff2d6a, #00f5ff);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent; color: transparent;
+}
+/* #2845: styles.css gibt dem Siegernamen im dunklen Theme per
+   `body.theme-dark .podium-place.podium-1 .podium-name` (0,4,1) `white-space: normal`,
+   `word-break: break-word` und bis zu 64px. Das schlug die TV-Regeln oben (0,3,0): auf
+   dem Fernseher lief der Name in 64px und brach mitten im Wort um ("Andr" / "eas").
+   Dieselbe Absicht wie oben, mit genug Spezifitaet (0,5,1). Der Farbverlauf bleibt. */
+body.theme-dark .end-stage-layout .podium-place.podium-1 .podium-name {
+    font-size: calc(3 * var(--u)); line-height: 1.15;
+    white-space: nowrap; word-break: normal; overflow: hidden; text-overflow: ellipsis;
+}
+.end-stage-layout .podium-1 .podium-score { font-size: calc(2.2 * var(--u)); }
 .end-stage-layout .podium-1 .podium-stand {
-    height: 240px;
+    height: calc(11 * var(--u));
     background: linear-gradient(180deg, rgba(255, 211, 77, 0.3), rgba(255, 211, 77, 0.06));
     border-color: rgba(255, 211, 77, 0.5); box-shadow: 0 0 50px rgba(255, 211, 77, 0.2);
 }
+/* The crown sits in the flow above the winner's avatar, so the stage
+   reserves its height instead of letting it poke into the header. */
 .end-stage-layout .podium-crown {
-    position: absolute; top: -46px; left: 50%; transform: translateX(-50%);
-    font-size: 46px; filter: drop-shadow(0 0 14px rgba(255, 211, 77, 0.8));
+    position: static; transform: none;
+    font-size: calc(2.6 * var(--u)); line-height: 1.1;
+    filter: drop-shadow(0 0 14px rgba(255, 211, 77, 0.8));
 }
 /* 2nd */
 .end-stage-layout .podium-2 .podium-avatar {
-    width: 92px; height: 92px; font-size: 34px;
+    width: calc(6.6 * var(--u)); height: calc(6.6 * var(--u)); font-size: calc(2.8 * var(--u));
     background: linear-gradient(140deg, #e8ecf5, #b9c2d6, #8b94ad);
     box-shadow: 0 0 0 4px rgba(200, 210, 230, 0.22);
 }
-.end-stage-layout .podium-2 .podium-name { font-size: 30px; color: #dfe5f2; }
-.end-stage-layout .podium-2 .podium-score { font-size: 42px; color: #dfe5f2; }
+.end-stage-layout .podium-2 .podium-name { font-size: calc(2 * var(--u)); color: #fff; }
+.end-stage-layout .podium-2 .podium-score { font-size: calc(1.7 * var(--u)); }
 .end-stage-layout .podium-2 .podium-stand {
-    height: 170px;
+    height: calc(7.5 * var(--u));
     background: linear-gradient(180deg, rgba(200, 210, 230, 0.18), rgba(200, 210, 230, 0.04));
     border-color: rgba(200, 210, 230, 0.34);
 }
 /* 3rd */
 .end-stage-layout .podium-3 .podium-avatar {
-    width: 92px; height: 92px; font-size: 34px;
+    width: calc(6.6 * var(--u)); height: calc(6.6 * var(--u)); font-size: calc(2.8 * var(--u));
     background: linear-gradient(140deg, #f0a878, #d6824e, #b5662f);
     box-shadow: 0 0 0 4px rgba(214, 130, 78, 0.22);
 }
-.end-stage-layout .podium-3 .podium-name { font-size: 30px; color: #f0b48c; }
-.end-stage-layout .podium-3 .podium-score { font-size: 42px; color: #f0b48c; }
+.end-stage-layout .podium-3 .podium-name { font-size: calc(2 * var(--u)); color: #fff; }
+.end-stage-layout .podium-3 .podium-score { font-size: calc(1.7 * var(--u)); }
 .end-stage-layout .podium-3 .podium-stand {
-    height: 130px;
+    height: calc(5 * var(--u));
     background: linear-gradient(180deg, rgba(214, 130, 78, 0.18), rgba(214, 130, 78, 0.04));
     border-color: rgba(214, 130, 78, 0.32);
+}
+
+/* #2960: dashboard.html runs under body.theme-dark, whose End-of-Game
+   Podium v2 (styles.css, built for the phone) turns #1 into a poster card and
+   #2/#3 into chips, at (0,3,1)-(0,4,1). On the TV that squeezed the three
+   stands on top of each other once they became grid cells. The id scopes this
+   reset above all of it; the TV rules above then apply unchanged. */
+#dashboard-end .end-stage-layout .podium-place.podium-1,
+#dashboard-end .end-stage-layout .podium-place.podium-2,
+#dashboard-end .end-stage-layout .podium-place.podium-3 {
+    grid-area: auto;
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+    width: auto; min-width: 0; height: auto;
+    padding: 0; gap: 0;
+    background: none; border: none; border-radius: 0; box-shadow: none;
+    text-align: center;
+}
+#dashboard-end .end-stage-layout .podium-place.podium-place--empty { display: none; }
+#dashboard-end .end-stage-layout .podium-place .podium-stand { display: flex; }
+#dashboard-end .end-stage-layout .podium-place .podium-medal { display: none; }
+#dashboard-end .end-stage-layout .podium-place .podium-name {
+    margin: calc(0.5 * var(--u)) 0 0; letter-spacing: 0.3px; line-height: 1.15;
+    white-space: nowrap; word-break: normal; overflow: hidden; text-overflow: ellipsis;
+    filter: none;
+}
+#dashboard-end .end-stage-layout .podium-place.podium-1 .podium-name { font-size: calc(3 * var(--u)); }
+#dashboard-end .end-stage-layout .podium-place.podium-2 .podium-name,
+#dashboard-end .end-stage-layout .podium-place.podium-3 .podium-name { font-size: calc(2 * var(--u)); color: #fff; }
+#dashboard-end .end-stage-layout .podium-place .podium-score {
+    font-family: var(--font-display, 'Outfit'), sans-serif; font-weight: 900; line-height: 1.1;
+    color: var(--color-accent-secondary, #00f5ff); text-shadow: none; margin: 0;
+}
+#dashboard-end .end-stage-layout .podium-place.podium-1 .podium-score { font-size: calc(2.2 * var(--u)); }
+#dashboard-end .end-stage-layout .podium-place.podium-2 .podium-score,
+#dashboard-end .end-stage-layout .podium-place.podium-3 .podium-score { font-size: calc(1.7 * var(--u)); }
+/* Only the winner says "pts" — on the side steps the number is enough. */
+#dashboard-end .end-stage-layout .podium-place.podium-2 .podium-pts,
+#dashboard-end .end-stage-layout .podium-place.podium-3 .podium-pts { display: none; }
+
+/* Places 4+ as chips directly under the podium (#2960). They wrap into a
+   second row past ~10 players; the podium above gives way (min-height: 0). */
+.end-stage-layout .end-rest {
+    display: flex; flex-wrap: wrap; justify-content: center;
+    gap: calc(0.8 * var(--u)) calc(1 * var(--u));
+    width: 100%; margin-top: calc(1.2 * var(--u)); flex-shrink: 0;
+}
+.end-stage-layout .end-rest.hidden { display: none; }
+.end-stage-layout .end-rest-chip {
+    display: flex; align-items: center; gap: calc(0.7 * var(--u));
+    padding: calc(0.3 * var(--u)) calc(1 * var(--u)) calc(0.3 * var(--u)) calc(0.35 * var(--u));
+    border-radius: 999px;
+    background: #1d1d27; border: 1px solid #2c2c38;
+    font-size: calc(1.2 * var(--u)); font-weight: 700; color: #fff;
+    max-width: 100%; min-width: 0;
+}
+.end-stage-layout .end-rest-chip--dim { opacity: 0.5; }
+/* Past ten chips the row gets denser so a big party still fits in ~3 rows. */
+.end-stage-layout .end-rest--dense .end-rest-chip { font-size: calc(1 * var(--u)); }
+/* ...and the steps get lower, so three rows of chips fit under the podium
+   without pushing the crown into the header. */
+.end-stage-layout .end-podium-wrap:has(.end-rest--dense) .podium-1 .podium-stand { height: calc(8 * var(--u)); }
+.end-stage-layout .end-podium-wrap:has(.end-rest--dense) .podium-2 .podium-stand { height: calc(5.5 * var(--u)); }
+.end-stage-layout .end-podium-wrap:has(.end-rest--dense) .podium-3 .podium-stand { height: calc(3.8 * var(--u)); }
+.end-stage-layout .end-rest--dense .end-rest-rank { width: calc(1.6 * var(--u)); height: calc(1.6 * var(--u)); font-size: calc(0.75 * var(--u)); }
+.end-stage-layout .end-rest-rank {
+    display: grid; place-items: center; flex: none;
+    width: calc(1.9 * var(--u)); height: calc(1.9 * var(--u)); border-radius: 50%;
+    background: #2a2a36; color: #8a8a9a;
+    font-family: var(--font-display, 'Outfit'), sans-serif; font-weight: 800; font-size: calc(0.9 * var(--u));
+}
+.end-stage-layout .end-rest-name { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.end-stage-layout .end-rest-chip .away-badge { font-size: calc(0.8 * var(--u)); color: #8a8a9a; }
+.end-stage-layout .end-rest-score {
+    font-family: var(--font-display, 'Outfit'), sans-serif; font-weight: 900;
+    color: var(--color-accent-secondary, #00f5ff); font-variant-numeric: tabular-nums;
+    margin-left: calc(0.4 * var(--u));
 }
 
 /* Highlights reel (right) */
@@ -2331,23 +2677,50 @@
     margin-top: 18px; flex-shrink: 0;
 }
 .end-stage-layout .superlatives-container.hidden { display: none; }
+/* #2130 (zweite Runde): die Werte der Award-Zeile standen RECHTS NEBEN ihrer
+   Karte statt darin. `.superlatives-container` ist `repeat(4, 1fr)`, und eine
+   `1fr`-Spur ist `minmax(auto, 1fr)` — ihr Auto-Minimum ist der min-content
+   der Karte. Weil die Karte selbst ein Grid mit einer `auto`-Wertspalte ist
+   und nirgends ein `min-width: 0` stand, konnte sie breiter werden als ihre
+   Spur und lief sichtbar heraus. `min-width: 0` schneidet diese Kette an
+   jeder Stelle durch, an der sie greift. */
 .end-stage-layout .superlative-card {
     display: grid;
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: auto minmax(0, 1fr) auto;
     grid-template-areas: "emoji title value" "emoji player value";
     column-gap: 14px; align-items: center;
     padding: 12px 20px; border-radius: 18px;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.12);
+    min-width: 0;
+    /* #2824: the shared styles.css caps `.superlative-card` at 160 px for the
+       phone. On the TV that left four 160 px cards in 450 px tracks — the
+       title column collapsed to nothing and the value wrapped letter by
+       letter. The card fills its track here, and the type is sized for a
+       room. */
+    max-width: none;
+    align-items: center;
 }
-.end-stage-layout .superlative-emoji { grid-area: emoji; font-size: 32px; align-self: center; }
+.end-stage-layout .superlative-emoji { grid-area: emoji; font-size: 44px; align-self: center; margin: 0; }
 .end-stage-layout .superlative-title {
     grid-area: title; align-self: end;
     font-family: var(--font-display, 'Outfit'), sans-serif; font-weight: 800;
-    font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; color: #8a8a9c;
+    font-size: 16px; letter-spacing: 1.5px; text-transform: uppercase; color: #8a8a9c;
+    text-align: left; margin: 0;
+    min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.end-stage-layout .superlative-player { grid-area: player; align-self: start; font-size: 22px; font-weight: 700; color: #fff; line-height: 1.1; }
-.end-stage-layout .superlative-value { grid-area: value; font-size: 15px; color: #b3b3c2; font-weight: 600; font-variant-numeric: tabular-nums; }
+.end-stage-layout .superlative-player {
+    grid-area: player; align-self: start; font-size: 30px; font-weight: 700; color: #fff; line-height: 1.15;
+    text-align: left; margin: 0;
+    min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+/* Der Wert ist die einzige Angabe, die von Spiel zu Spiel beliebig lang wird
+   ("17 Pkt in letzten 3"). Er darf umbrechen statt zu kuerzen — gekuerzt
+   waere er wertlos, umgebrochen bleibt er lesbar. */
+.end-stage-layout .superlative-value {
+    grid-area: value; font-size: 20px; color: #b3b3c2; font-weight: 600; font-variant-numeric: tabular-nums;
+    text-align: right; overflow-wrap: anywhere;
+}
 
 
 /* ==========================================================================
@@ -2435,6 +2808,13 @@
 #dashboard-reveal .reveal-ac-result--won { color: var(--color-success-neon, #39ff14); background: rgba(57, 255, 20, 0.12); border: 1px solid rgba(57, 255, 20, 0.4); }
 #dashboard-reveal .reveal-ac-result--none { color: var(--color-text-neon-muted, #b3b3c2); background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.12); }
 
+/* #2720: the movie-quiz result sits directly under the artist-challenge chip
+   and shares its shape. Only the accent changes, so two decided mini-games in
+   one reveal are told apart at TV distance without reading them. */
+#dashboard-reveal .reveal-movie-challenge {
+    border-color: rgba(99, 102, 241, 0.45);
+}
+
 /* --- Standings card --- */
 #dashboard-reveal .reveal-standings-card {
     background: rgba(255, 255, 255, 0.05);
@@ -2447,9 +2827,119 @@
     font-family: var(--font-display, 'Outfit'), sans-serif;
     font-weight: 800; font-size: 24px; color: #fff; margin: 0 0 14px;
 }
+/* #2130: `overflow: hidden` schnitt die Standings still ab — wer unten aus
+   der Karte fiel, war spurlos weg, ohne jeden Hinweis darauf, dass es
+   weitergeht. Scrollen macht den Rest wenigstens erreichbar und den
+   Abschnitt sichtbar (Scrollbar als Hinweis). `overflow-x: hidden`, damit
+   eine lange Namenszeile keine waagerechte Leiste erzeugt. */
 #dashboard-reveal .reveal-standings-card #reveal-leaderboard {
-    flex: 1; min-height: 0; overflow: hidden;
+    flex: 1; min-height: 0;
+    overflow-y: auto; overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.28) transparent;
     display: flex; flex-direction: column; gap: 8px;
+}
+#dashboard-reveal .reveal-standings-card #reveal-leaderboard::-webkit-scrollbar {
+    width: 8px;
+}
+#dashboard-reveal .reveal-standings-card #reveal-leaderboard::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.28);
+    border-radius: 999px;
+}
+#dashboard-reveal .reveal-standings-card #reveal-leaderboard::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* #2134: das #963-Verfahren aus der Playing-Ansicht auf die Reveal-Standings
+   uebertragen. Dort teilen sich die Zeilen die verfuegbare Hoehe, jede Zeile
+   ist ein Size-Container, und die Schriften skalieren in `cqh` — als Bruchteil
+   der eigenen Zeilenhoehe. Damit passt der Text immer in seine Zeile, bei jeder
+   Spielerzahl und jeder Viewport-Hoehe.
+
+   Warum das noetig ist, obwohl #2133 bereits scrollen laesst: eine Scrollbar
+   ist auf einem TV ohne Zeigegeraet nicht bedienbar. #2133 macht den Abschnitt
+   sichtbar statt ihn zu verbergen — fuer eine Ansicht, die aus 3–5 m gelesen
+   wird, ist das die ehrlichere Variante desselben Problems, nicht die Loesung.
+
+   Die Reveal-Zeile hatte bis hier KEINE eigenen Groessen: sie erbte
+   `font-size: var(--font-size-lg)` und die Pixel-Mindestbreiten aus dem
+   generischen `.leaderboard-entry`-Block. Genau deshalb kam #963 hier nie an —
+   dort wurden eigene Regeln danebengelegt, hier nicht.
+
+   Die Zahlen sind NICHT aus Playing uebernommen. Dort gilt `max-height: 92px`;
+   die Reveal-Zeile ist dichter, deshalb 64px. Bei 12 Spielern ergibt das
+   12 x 64 + 11 x 8 Abstand = 856px, was auf 1080p in die Karte passt, solange
+   die Lower-Third-Bande bei ihren `max-height: 42vh` aus #2133 bleibt.
+
+   Bewusst KEIN `is-top-1`-Sonderfall wie in Playing (`flex-grow: 1.35`): in der
+   Ergebnisansicht steht der Gewinner ohnehin in einem eigenen Block darueber,
+   ein zweites Hervorheben kostet nur die Hoehe, die bei 12 Spielern fehlt.
+
+   Nicht geloest und bewusst getrennt: der horizontale Druck durch Streak-Badge
+   und Rangwechsel-Pfeil, die im Spielverlauf wachsen und die Namensspalte
+   zusammenschieben (bestaetigter Teilbefund aus #2130). */
+/* #2821: the cqh rows above shrank with the player count — at 20 players
+   the text was a few pixels tall and the 52 px rank circles, still sized by
+   the generic `.leaderboard-entry` block, were cut off by the row. Title &
+   Artist mode now uses the plain-row pattern #2502 gave year mode: fixed
+   rows, fixed type, no circles, and past ten rows nine plus "+ N more"
+   (renderStandingsMore). The year-mode block further down tightens this to
+   34 px rows and a cap of eight. */
+#dashboard-reveal .reveal-standings-card #reveal-leaderboard {
+    flex: 0 1 auto;   /* "+ N more" follows the last row instead of the card's floor */
+    gap: 0;
+    overflow: hidden;
+}
+#dashboard-reveal .reveal-standings-card #reveal-leaderboard .leaderboard-entry {
+    flex: 0 0 44px;
+    min-height: 0;
+    max-height: 44px;
+    container-type: normal;
+    grid-template-columns: 52px 1fr auto auto;
+    gap: 14px;
+    padding: 0 4px;
+    background: none;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+#dashboard-reveal .reveal-standings-card #reveal-leaderboard .entry-rank {
+    min-width: 0;
+    width: auto;
+    height: auto;
+    font-size: 28px;
+    background: none;
+    border: 0;
+    box-shadow: none;
+    color: var(--color-text-neon-muted, #b3b3c2);
+    justify-content: flex-start;
+}
+#dashboard-reveal .reveal-standings-card #reveal-leaderboard .is-top-1 .entry-rank {
+    color: var(--color-accent-primary, #ff2d6a);
+}
+#dashboard-reveal .reveal-standings-card #reveal-leaderboard .entry-name {
+    font-size: 28px;
+    font-weight: 600;
+}
+#dashboard-reveal .reveal-standings-card #reveal-leaderboard .entry-score {
+    min-width: 0;
+    font-size: 28px;
+    font-weight: 800;
+    color: #fff;
+    text-shadow: none;
+    font-variant-numeric: tabular-nums;
+}
+#dashboard-reveal .reveal-standings-card #reveal-leaderboard .entry-meta,
+#dashboard-reveal .reveal-standings-card #reveal-leaderboard .streak-indicator,
+#dashboard-reveal .reveal-standings-card #reveal-leaderboard .entry-change {
+    font-size: 20px;
+    line-height: 1.2;
+}
+#dashboard-reveal .reveal-standings-card #reveal-leaderboard .entry-change {
+    padding: 1px 10px;
+}
+#dashboard-reveal.reveal-standings-capped:not(.reveal-axis-mode) #reveal-leaderboard .leaderboard-entry:nth-child(n+10) {
+    display: none;
 }
 
 /* --- This-round results strip --- */
@@ -2478,10 +2968,26 @@
 #dashboard-reveal .reveal-results .top-guess-name { font-weight: 700; color: #fff; }
 #dashboard-reveal .reveal-results .top-guess-year { color: var(--color-text-neon-muted, #b3b3c2); font-weight: 500; margin-left: 6px; font-variant-numeric: tabular-nums; }
 #dashboard-reveal .reveal-results .top-guess-points { color: var(--color-success-neon, #39ff14); font-weight: 800; font-variant-numeric: tabular-nums; }
-#dashboard-reveal .reveal-results .dashboard-fun-fact { margin-top: 14px; font-size: 18px; color: var(--color-text-neon-muted, #b3b3c2); display: flex; gap: 8px; }
+#dashboard-reveal .reveal-results .dashboard-fun-fact { margin-top: 14px; font-size: 18px; color: var(--color-text-neon-muted, #b3b3c2); display: flex; gap: 8px; max-width: none; min-height: 0; }
 #dashboard-reveal .reveal-results .dashboard-fun-fact.hidden { display: none; }
+/* #2822: a long fun fact grew the results card past its grid row and ran into
+   the band below. The card clips, and the text itself stops after three lines
+   — clamped on the text, not on the padded box, so no half line leaks out. */
+#dashboard-reveal .reveal-results { overflow: hidden; }
+#dashboard-reveal .dashboard-fun-fact .fun-fact-text {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
 
-/* --- Lower-third announce band --- */
+/* --- Lower-third announce band ---
+   #2130: die Bande ist `flex-shrink: 0` und hatte KEINEN Höhendeckel. In
+   Name-the-Tune wächst sie mit den Close-Call-Karten und Verdikt-Chips —
+   und weil die Bühne darüber `flex: 1; min-height: 0` ist, ging jeder
+   zusätzliche Pixel direkt von der Standings-Karte ab. `max-height`
+   deckelt das; die Antwortzeile (Titel — Interpret) bleibt immer stehen,
+   nur der Abstimmungs-Teil darunter scrollt. */
 #dashboard-reveal .reveal-lowerthird {
     flex-shrink: 0;
     border-radius: 24px;
@@ -2492,6 +2998,7 @@
     border: 1px solid rgba(255, 255, 255, 0.14);
     display: flex; align-items: center; justify-content: center;
     min-height: 180px;
+    max-height: 42vh;
     position: relative;
     overflow: hidden;
 }
@@ -2518,11 +3025,30 @@
     font-variant-numeric: tabular-nums;
 }
 /* TA answer in the band */
-#dashboard-reveal .reveal-lowerthird .dashboard-ta-banner { width: 100%; }
+/* #2130: unter dem Höhendeckel der Bande muss die Antwort Vorrang haben —
+   sie ist der Grund, warum die Bande existiert. Antwortzeile `flex: 0 0
+   auto`, der Abstimmungs-Teil darunter schrumpfbar und scrollend. */
+#dashboard-reveal .reveal-lowerthird .dashboard-ta-banner {
+    width: 100%;
+    max-height: 100%;
+    display: flex; flex-direction: column;
+    min-height: 0;
+}
 #dashboard-reveal .reveal-lowerthird .dashboard-ta-banner.hidden { display: none; }
 #dashboard-reveal .reveal-lowerthird .dashboard-ta-answer {
     display: flex; align-items: baseline; justify-content: center; gap: 16px; flex-wrap: wrap;
+    flex: 0 0 auto;
 }
+#dashboard-reveal .reveal-lowerthird .dashboard-ta-live,
+#dashboard-reveal .reveal-lowerthird .dashboard-ta-outcomes {
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.28) transparent;
+}
+#dashboard-reveal .reveal-lowerthird .dashboard-ta-live.hidden,
+#dashboard-reveal .reveal-lowerthird .dashboard-ta-outcomes.hidden { display: none; }
 #dashboard-reveal .reveal-lowerthird .dashboard-ta-title {
     font-family: var(--font-display, 'Outfit'), sans-serif; font-weight: 900; font-size: 72px; line-height: 1;
     background: linear-gradient(90deg, #ff2d6a, #00f5ff);
@@ -2530,3 +3056,847 @@
 }
 #dashboard-reveal .reveal-lowerthird .dashboard-ta-sep { font-size: 40px; color: var(--color-text-neon-muted, #b3b3c2); }
 #dashboard-reveal .reveal-lowerthird .dashboard-ta-artist { font-size: 40px; font-weight: 700; color: #fff; }
+
+/* ==========================================================================
+   #1712 / #1713 / #1717 — TV legibility for the long-lived non-game states
+   ========================================================================== */
+
+/* #1712: while the WebSocket is down, dashboard.js freezes the last live frame
+   and toggles .dashboard-disconnected on the container — dim it (never wipe it
+   to "No active game") so the room can tell the connection dropped without the
+   game reading as a crash. */
+.dashboard-container.dashboard-disconnected {
+    filter: brightness(0.55) saturate(0.85);
+    transition: filter 240ms ease;
+}
+
+/* #1713: human-readable join address beneath the lobby QR — large + wrapping so
+   a guest can read or type it, and the on-screen fallback when the QR library
+   fails to load. */
+.dashboard-join-url {
+    margin-top: var(--space-md);
+    max-width: 100%;
+    font-family: 'Inter', sans-serif;
+    font-size: 1.15vw;
+    font-weight: var(--font-weight-bold);
+    line-height: 1.35;
+    letter-spacing: 0.01em;
+    color: var(--color-text-white);
+    text-align: center;
+}
+/* #2959: two fixed lines — host and path, then the game ID. The ID line never
+   wraps, so the break can only ever fall in front of "game=". */
+.dashboard-join-url .join-url-head,
+.dashboard-join-url .join-url-id {
+    display: block;
+}
+.dashboard-join-url .join-url-head {
+    overflow-wrap: anywhere;
+}
+.dashboard-join-url .join-url-id {
+    white-space: nowrap;
+    color: var(--color-accent-secondary);
+}
+.dashboard-join-url.hidden { display: none; }
+
+/* #1713: QR-load-failure notice inside the (white) QR box — dark text points
+   guests at the join URL shown beneath it. */
+.dashboard-qr-fallback {
+    margin: 0;
+    padding: var(--space-md);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-dark-bg, #12121a);
+    text-align: center;
+}
+
+/* #1717: TV breakpoint — upscale the states the display sits on for long
+   stretches (loading / no-game / paused / join URL / meter label) so they read
+   from the couch (3-5m). Appended last so it wins on source order without
+   bumping selector specificity. */
+@media (min-width: 1400px) {
+    .loading-text {
+        font-size: 28px;
+    }
+    .dashboard-message {
+        font-size: 52px;
+    }
+    .dashboard-hint {
+        font-size: 28px;
+    }
+    .chip-meter .chip-meter-label {
+        font-size: 22px;
+        padding: 7px 22px;
+    }
+}
+
+/* ==========================================================================
+   #2504 — the join corner
+   The server admits latecomers throughout PLAYING and REVEAL, but the code
+   used to leave the TV the moment round one started. This sits in the corner,
+   clear of the artwork/timer/chips zone, and is hidden by dashboard.js on a
+   deterministic rule (Sudden Death armed, or under three songs left).
+   ========================================================================== */
+.join-corner {
+    position: fixed;
+    right: clamp(16px, 2.2vw, 40px);
+    bottom: clamp(16px, 2.2vw, 40px);
+    z-index: 40;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-areas: "qr text" "hint hint";
+    gap: 10px 12px;
+    align-items: center;
+    padding: 14px;
+    border-radius: 12px;
+    background: rgba(23, 26, 33, 0.92);
+    border: 1px solid rgba(91, 200, 200, 0.45);
+    backdrop-filter: blur(6px);
+    max-width: 260px;
+}
+
+.join-corner__qr {
+    grid-area: qr;
+    display: flex;
+    padding: 6px;
+    background: #ffffff;
+    border-radius: 6px;
+    line-height: 0;
+}
+
+.join-corner__qr img,
+.join-corner__qr canvas {
+    display: block;
+    width: 96px;
+    height: 96px;
+}
+
+.join-corner__text {
+    grid-area: text;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.join-corner__badge {
+    margin: 0;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #5bc8c8;
+}
+
+.join-corner__url {
+    margin: 0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.6875rem;
+    color: #868c97;
+    /* A long path must not push the panel wider than its max-width. */
+    overflow-wrap: anywhere;
+}
+
+.join-corner__hint {
+    grid-area: hint;
+    margin: 0;
+    font-size: 0.75rem;
+    color: #b9bec7;
+}
+
+/* The TV is watched from the sofa; on a small screen the corner would cover
+   the round itself, so it steps aside rather than shrinking into illegibility. */
+@media (max-width: 720px) {
+    .join-corner { display: none; }
+}
+
+/* #2833 / #2834 — room for the corner. It is fixed, so whatever the layout puts
+   beneath it is painted over: the score and has-guessed dot of the last
+   leaderboard rows while PLAYING, the right end of the guess axis at REVEAL.
+   While dashboard.js marks the corner open, both keep its footprint free.
+   Footprint: the 260 px panel, its viewport inset, and a 16 px gap. The
+   leaderboard ends 56 px from the viewport edge. */
+body.join-corner-open .playing-right-section .dashboard-leaderboard {
+    padding-right: calc(clamp(16px, 2.2vw, 40px) + 220px);
+}
+/* Under 1600 px the column was too narrow to give up 260 px, and giving up
+   height instead shrank eleven rows to 6 px type at 1280×720. Below 1200 px
+   that still holds: leave it. */
+@media (max-width: 1199px) {
+    body.join-corner-open .playing-right-section .dashboard-leaderboard {
+        padding-right: 0;
+    }
+}
+/* #2965 — between 1200 and 1599 px the corner sat on the lowest rows (at
+   1280×720 with five players the last two names were hidden). The width the
+   leaderboard needs comes out of the artwork column instead: it is a fixed
+   640 px, but the art inside it is only min(480px, 45vh) wide, and 324 px at
+   720p. The column follows the art (50vh leaves room for the glow), the gap
+   narrows, and the leaderboard keeps the corner's footprint free the same
+   way it does from 1600 px up. Row heights are untouched — the rows keep
+   the full column height, only their right end moves. 1600 px and wider
+   match no query and are unchanged. */
+@media (min-width: 1200px) and (max-width: 1599px) {
+    .dashboard-playing-content {
+        grid-template-columns: min(640px, 50vh) minmax(0, 1fr);
+        gap: 40px;
+    }
+}
+/* The plot ends a half dot plus the gap short of the panel. */
+body.join-corner-open #dashboard-reveal {
+    --guess-axis-inset-right: calc(clamp(16px, 2.2vw, 40px) + 308px);
+}
+@media (max-width: 720px) {
+    body.join-corner-open .playing-right-section .dashboard-leaderboard { padding: 0; }
+    body.join-corner-open #dashboard-reveal { --guess-axis-inset-right: 110px; }
+}
+
+/* #2559 Ghost League — die zweite Tabelle auf dem Fernseher.
+   Gestrichelt und gedaempft, weil sie NICHT die Rangliste ist: die gewaehlte
+   Variante nimmt zwei Tabellen auf einem Bildschirm in Kauf, und die einzige
+   Verteidigung dagegen ist, dass man auf einen Blick sieht, welche die
+   richtige ist. Kein Totenkopf: hier wird gespielt, nicht getrauert. */
+.ghost-league {
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid var(--color-border, rgba(255, 255, 255, 0.12));
+}
+
+.ghost-league-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 8px;
+    color: var(--color-text-secondary, rgba(255, 255, 255, 0.66));
+    font-size: 0.78rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+}
+
+.ghost-league-note {
+    color: var(--color-text-secondary, rgba(255, 255, 255, 0.5));
+    font-size: 0.68rem;
+    letter-spacing: 0.04em;
+}
+
+.ghost-row {
+    display: grid;
+    grid-template-columns: 2.2rem 1fr auto auto;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+    padding: 8px 12px;
+    border: 1px dashed var(--color-border, rgba(255, 255, 255, 0.18));
+    border-radius: var(--radius-md, 12px);
+    color: var(--color-text-secondary, rgba(255, 255, 255, 0.7));
+}
+
+.ghost-rank { font-variant-numeric: tabular-nums; opacity: 0.7; }
+.ghost-name { font-weight: 600; }
+.ghost-meta { font-size: 0.72rem; opacity: 0.65; }
+.ghost-score { font-variant-numeric: tabular-nums; font-weight: 700; }
+
+/* ==========================================================================
+   #2563 — the closing moment
+   A prologue to the end screen, not a panel inside it: it covers the whole
+   view for three seconds and then fades, leaving the podium stage exactly as
+   it was built. Positioned against #dashboard-end so nothing in the stage
+   layout has to make room. Sized in viewport units because this is a TV at
+   whatever kiosk resolution the host's screen happens to run.
+   ========================================================================== */
+
+#dashboard-end {
+    position: relative;
+}
+
+.end-moment {
+    position: absolute;
+    inset: 0;
+    z-index: 40;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 2.4vh;
+    padding: 6vh 6vw;
+    background: var(--color-bg, #0a0a0f);
+    opacity: 1;
+    transition: opacity 600ms ease;
+}
+
+.end-moment.hidden {
+    display: none;
+}
+
+.end-moment.is-leaving {
+    opacity: 0;
+}
+
+.end-moment__kicker {
+    margin: 0;
+    font-family: var(--font-display, 'Outfit'), sans-serif;
+    font-weight: 700;
+    font-size: clamp(18px, 2.2vw, 40px);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    text-align: center;
+    color: var(--color-text-secondary, rgba(255, 255, 255, 0.7));
+}
+
+.end-moment__chart {
+    width: min(76vw, 1400px);
+}
+
+.end-moment__chart svg {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.end-moment__line {
+    margin: 0;
+    font-family: var(--font-display, 'Outfit'), sans-serif;
+    font-weight: 800;
+    font-size: clamp(24px, 3.2vw, 64px);
+    line-height: 1.1;
+    text-align: center;
+    color: var(--color-text, #fff);
+}
+
+.end-moment__line .is-winner { color: #39ff14; }
+.end-moment__line .is-loser { color: #ff6600; }
+
+/* The two lines draw themselves left to right; --len is the measured path
+   length, written by dashboard.js after the path is in the document. */
+.end-moment__path {
+    fill: none;
+    stroke-width: 6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: var(--len);
+    stroke-dashoffset: var(--len);
+    animation: end-moment-draw 1700ms cubic-bezier(0.42, 0, 0.3, 1) forwards;
+}
+
+@keyframes end-moment-draw {
+    to { stroke-dashoffset: 0; }
+}
+
+.end-moment__mark {
+    opacity: 0;
+    animation: end-moment-mark 400ms 1500ms forwards;
+}
+
+@keyframes end-moment-mark {
+    to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .end-moment__path {
+        animation: none;
+        stroke-dashoffset: 0;
+    }
+    .end-moment__mark {
+        animation: none;
+        opacity: 1;
+    }
+    .end-moment {
+        transition: none;
+    }
+}
+
+/* ==========================================================================
+   #2502 — the room's guess spread on the TV (design Variant A, "axis as stage")
+   --------------------------------------------------------------------------
+   Year mode only (`.reveal-axis-mode`, set by renderRevealView). The upper
+   stage shrinks to the now-revealing card and a tighter standings card; the
+   top-three strip goes; the lower band becomes a full-width year axis with the
+   150 px year standing over its own position. Title & Artist mode and a voided
+   round never get the class and keep the layout above untouched.
+   Geometry (in band pixels, from the mockup): axis line 236 px from the top,
+   first dot row 48 px under it, 110 px inset left and right. The mockup's
+   242/50/70 is nudged up by a few pixels so a fifth 64 px row still fits a
+   1080 p band.
+   ========================================================================== */
+#dashboard-reveal.reveal-axis-mode .reveal-broadcast .reveal-stage {
+    flex: 0 0 auto;
+    height: 350px;
+    grid-template-columns: 1120fr 696fr;
+    grid-template-rows: minmax(0, 1fr);
+    grid-template-areas: "now standings";
+}
+#dashboard-reveal.reveal-axis-mode .reveal-results { display: none; }
+
+/* Now-revealing card: larger cover, the title may take two lines. */
+#dashboard-reveal.reveal-axis-mode .reveal-nowcard { min-height: 0; overflow: hidden; }
+#dashboard-reveal.reveal-axis-mode .reveal-broadcast .dashboard-album-container--reveal {
+    width: 240px;
+    height: 240px;
+}
+#dashboard-reveal.reveal-axis-mode .reveal-broadcast .reveal-song-info { max-width: none; }
+#dashboard-reveal.reveal-axis-mode .reveal-broadcast .reveal-title {
+    font-size: 54px;
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+/* #2822: `.reveal-song-info` orders the title 1 and the artist 2, so a fact
+   appended with the default order 0 landed ABOVE the title and ran into it.
+   Order 3 puts it under the artist. The clamp sits on the text: on the padded
+   box a third line showed through the padding. */
+#dashboard-reveal.reveal-axis-mode .reveal-song-info .dashboard-fun-fact {
+    order: 3;
+    margin-top: 12px;
+    font-size: 18px;
+    max-width: none;
+    align-items: flex-start;
+}
+#dashboard-reveal.reveal-axis-mode .reveal-song-info .dashboard-fun-fact .fun-fact-text {
+    -webkit-line-clamp: 2;
+}
+#dashboard-reveal.reveal-axis-mode .reveal-song-info .dashboard-fun-fact.hidden { display: none; }
+
+/* Standings: plain 34 px rows instead of the tall cards, 24 px type. */
+#dashboard-reveal.reveal-axis-mode .reveal-standings-card { padding: 18px 26px; }
+#dashboard-reveal.reveal-axis-mode .reveal-standings-card .leaderboard-title { margin: 0 0 6px; }
+#dashboard-reveal.reveal-axis-mode .reveal-standings-card #reveal-leaderboard {
+    gap: 0;
+    overflow: hidden;
+}
+#dashboard-reveal.reveal-axis-mode .reveal-standings-card #reveal-leaderboard .leaderboard-entry {
+    flex: 0 0 34px;
+    max-height: 34px;
+    container-type: normal;
+    grid-template-columns: 40px 1fr auto auto;
+    gap: 12px;
+    padding: 0 4px;
+    background: none;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+#dashboard-reveal.reveal-axis-mode .reveal-standings-card #reveal-leaderboard .entry-rank {
+    min-width: 0;
+    width: auto;
+    height: auto;
+    font-size: 24px;
+    background: none;
+    border: 0;
+    box-shadow: none;
+    color: var(--color-text-neon-muted, #b3b3c2);
+    justify-content: flex-start;
+}
+#dashboard-reveal.reveal-axis-mode .reveal-standings-card #reveal-leaderboard .is-top-1 .entry-rank {
+    color: var(--color-accent-primary, #ff2d6a);
+}
+#dashboard-reveal.reveal-axis-mode .reveal-standings-card #reveal-leaderboard .entry-name {
+    font-size: 24px;
+    font-weight: 600;
+}
+#dashboard-reveal.reveal-axis-mode .reveal-standings-card #reveal-leaderboard .entry-score {
+    min-width: 0;
+    font-size: 24px;
+    font-weight: 800;
+    color: #fff;
+    font-variant-numeric: tabular-nums;
+}
+#dashboard-reveal.reveal-axis-mode .reveal-standings-card #reveal-leaderboard .entry-meta,
+#dashboard-reveal.reveal-axis-mode .reveal-standings-card #reveal-leaderboard .streak-indicator,
+#dashboard-reveal.reveal-axis-mode .reveal-standings-card #reveal-leaderboard .entry-change {
+    font-size: 18px;
+    line-height: 1.2;
+}
+#dashboard-reveal.reveal-axis-mode .reveal-standings-card #reveal-leaderboard .entry-change {
+    padding: 1px 10px;
+}
+#dashboard-reveal.reveal-standings-capped.reveal-axis-mode #reveal-leaderboard .leaderboard-entry:nth-child(n+8) {
+    display: none;
+}
+#dashboard-reveal .reveal-leaderboard-more {
+    font-family: var(--font-body, 'Inter'), sans-serif;
+    font-size: 19px;
+    font-weight: 600;
+    color: var(--color-text-dim, #6b6b7a);
+    padding: 2px 4px 0;
+}
+#dashboard-reveal .reveal-leaderboard-more.hidden { display: none; }
+
+/* The band itself becomes a positioning box for the axis. */
+#dashboard-reveal.reveal-axis-mode .reveal-lowerthird {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
+    display: block;
+    padding: 0;
+}
+#dashboard-reveal.reveal-axis-mode .reveal-broadcast .reveal-year-row {
+    position: absolute;
+    top: 88px;
+    left: calc(110px + (100% - 110px - var(--guess-axis-inset-right, 110px)) * var(--guess-axis-year, 0.5));
+    transform: translateX(-50%);
+    z-index: 1;
+    pointer-events: none;
+}
+#dashboard-reveal.reveal-axis-mode .reveal-broadcast .reveal-year-label { display: none; }
+#dashboard-reveal.reveal-axis-mode .reveal-broadcast .reveal-year {
+    font-size: 150px;
+    line-height: 1;
+    filter: drop-shadow(0 0 22px rgba(0, 245, 255, 0.3));
+}
+
+#dashboard-reveal .guess-axis {
+    --guess-axis-y: 236px;
+    --guess-axis-row0: 284px;
+    --guess-axis-pitch: 68px;
+    --guess-axis-dot: 64px;
+    position: absolute;
+    inset: 0;
+}
+#dashboard-reveal .guess-axis.guess-axis--compact {
+    --guess-axis-pitch: 56px;
+    --guess-axis-dot: 52px;
+}
+#dashboard-reveal .guess-axis.hidden { display: none; }
+#dashboard-reveal .guess-axis-head {
+    position: absolute;
+    top: 26px;
+    left: 44px;
+    right: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    min-height: 52px;
+}
+#dashboard-reveal .guess-axis-title {
+    font-family: var(--font-body, 'Inter'), sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-text-neon-muted, #b3b3c2);
+}
+#dashboard-reveal .guess-axis-missed {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: var(--font-body, 'Inter'), sans-serif;
+    color: var(--color-text-dim, #6b6b7a);
+}
+#dashboard-reveal .guess-axis-missed-label {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    margin-right: 4px;
+}
+#dashboard-reveal .guess-axis-missed-item { display: inline-flex; align-items: center; gap: 8px; }
+#dashboard-reveal .guess-axis-missed-dot {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 3px dashed var(--color-text-dim, #6b6b7a);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display, 'Outfit'), sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+}
+#dashboard-reveal .guess-axis-missed-name { font-size: 24px; font-weight: 600; }
+
+#dashboard-reveal .guess-axis-plot {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 110px;
+    right: var(--guess-axis-inset-right, 110px);
+}
+#dashboard-reveal .guess-axis-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(var(--guess-axis-y) - 1.5px);
+    height: 3px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.24);
+}
+#dashboard-reveal .guess-axis-tick {
+    position: absolute;
+    top: calc(var(--guess-axis-y) - 9px);
+    width: 2px;
+    height: 18px;
+    margin-left: -1px;
+    background: rgba(255, 255, 255, 0.35);
+}
+#dashboard-reveal .guess-axis-tick-label {
+    position: absolute;
+    bottom: 26px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--font-body, 'Inter'), sans-serif;
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--color-text-neon-muted, #b3b3c2);
+    white-space: nowrap;
+}
+/* A guess more than 30 years out sits past a break in the axis. */
+#dashboard-reveal .guess-axis-break {
+    position: absolute;
+    top: calc(var(--guess-axis-y) - 16px);
+    width: 22px;
+    height: 32px;
+    margin-left: -11px;
+    background:
+        linear-gradient(115deg, transparent 38%, rgba(255, 255, 255, 0.55) 38%, rgba(255, 255, 255, 0.55) 46%, transparent 46%,
+            transparent 58%, rgba(255, 255, 255, 0.55) 58%, rgba(255, 255, 255, 0.55) 66%, transparent 66%),
+        linear-gradient(var(--color-bg-primary, #0a0a12), var(--color-bg-primary, #0a0a12)) center / 100% 8px no-repeat;
+}
+#dashboard-reveal .guess-axis-marker {
+    position: absolute;
+    top: calc(var(--guess-axis-y) - 24px);
+    bottom: 18px;
+    width: 4px;
+    margin-left: -2px;
+    border-radius: 2px;
+    background: var(--color-accent-secondary, #00f5ff);
+    box-shadow: 0 0 18px rgba(0, 245, 255, 0.7);
+}
+#dashboard-reveal .guess-axis-dots { position: absolute; inset: 0; }
+#dashboard-reveal .guess-axis-dot {
+    position: absolute;
+    top: calc(var(--guess-axis-row0) + var(--row, 0) * var(--guess-axis-pitch) - var(--guess-axis-dot) / 2);
+    width: var(--guess-axis-dot);
+    height: var(--guess-axis-dot);
+    margin-left: calc(var(--guess-axis-dot) / -2);
+    box-sizing: border-box;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display, 'Outfit'), sans-serif;
+    font-size: calc(var(--guess-axis-dot) * 0.43);
+    font-weight: 800;
+    line-height: 1;
+    color: #fff;
+    background: var(--color-surface-dark, #1a1a2e);
+    border: 3px solid var(--color-text-neon-muted, #b3b3c2);
+    box-shadow: 0 0 0 5px var(--color-bg-primary, #0a0a12);
+}
+#dashboard-reveal .guess-axis-dot--exact {
+    background: var(--color-success-neon, #39ff14);
+    border-color: var(--color-success-neon, #39ff14);
+    color: var(--color-bg-primary, #0a0a12);
+    box-shadow: 0 0 0 5px var(--color-bg-primary, #0a0a12), 0 0 26px rgba(57, 255, 20, 0.65);
+}
+#dashboard-reveal .guess-axis-dot--near {
+    background: var(--color-accent-secondary, #00f5ff);
+    border-color: var(--color-accent-secondary, #00f5ff);
+    color: var(--color-bg-primary, #0a0a12);
+}
+#dashboard-reveal .guess-axis-dot--more {
+    /* solid underneath, so the answer marker does not show through the tint */
+    background: linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1)), var(--color-bg-primary, #0a0a12);
+    border: 2px solid #fff;
+}
+#dashboard-reveal .guess-axis-span {
+    position: absolute;
+    top: calc(var(--guess-axis-row0) - 1.5px);
+    height: 3px;
+    background: repeating-linear-gradient(90deg, var(--color-accent-primary, #ff2d6a) 0 10px, transparent 10px 19px);
+}
+#dashboard-reveal .guess-axis-span-label {
+    position: absolute;
+    top: calc(var(--guess-axis-row0) - 44px);
+    transform: translateX(-50%);
+    font-family: var(--font-display, 'Outfit'), sans-serif;
+    font-size: 30px;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--color-accent-primary, #ff2d6a);
+    white-space: nowrap;
+}
+#dashboard-reveal .guess-axis-span-name {
+    position: absolute;
+    top: calc(var(--guess-axis-row0) + var(--row, 1) * var(--guess-axis-pitch) - 16px);
+    transform: translateX(-50%);
+    font-family: var(--font-body, 'Inter'), sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--color-text-white, #fff);
+    white-space: nowrap;
+}
+
+/* #2961 — the axis reveal is laid out in 1080p pixels: a 350 px stage, the
+   150 px year 88 px into the band, the axis line at 236 px and the first dot
+   row at 284 px (the last two are also constants in dashboard.js, which
+   places the dots). Under the header that needs ~975 px of height. At
+   1280×720 the band got 243 px: the year sat on the bottom edge and every dot
+   fell below the screen. Scaling single sizes would break the geometry the
+   script shares, so short screens zoom the whole broadcast block instead —
+   720p shows the 1080p picture, smaller. The steps keep (height − 105 px
+   header) / zoom ≥ 975 px; 1080p and taller match no query and stay as they
+   are. The join-corner inset is divided back out, because the QR panel is
+   fixed and outside the zoom. */
+@media (orientation: landscape) and (min-width: 721px) and (max-height: 1000px) {
+    #dashboard-reveal.reveal-axis-mode .reveal-broadcast { zoom: 0.82; }
+    body.join-corner-open #dashboard-reveal.reveal-axis-mode {
+        --guess-axis-inset-right: calc((clamp(16px, 2.2vw, 40px) + 308px) / 0.82);
+    }
+}
+@media (orientation: landscape) and (min-width: 721px) and (max-height: 904px) {
+    #dashboard-reveal.reveal-axis-mode .reveal-broadcast { zoom: 0.7; }
+    body.join-corner-open #dashboard-reveal.reveal-axis-mode {
+        --guess-axis-inset-right: calc((clamp(16px, 2.2vw, 40px) + 308px) / 0.7);
+    }
+}
+@media (orientation: landscape) and (min-width: 721px) and (max-height: 786px) {
+    #dashboard-reveal.reveal-axis-mode .reveal-broadcast { zoom: 0.62; }
+    body.join-corner-open #dashboard-reveal.reveal-axis-mode {
+        --guess-axis-inset-right: calc((clamp(16px, 2.2vw, 40px) + 308px) / 0.62);
+    }
+}
+
+/* #2960 — the end screen is laid out in 1080p pixels (header, podium in
+   --u = 19.2px, award row). At 1280x720 that overflowed and the stands ran
+   into the award row. Same answer as #2961 for the reveal: short landscape
+   screens zoom the whole end screen, so 720p shows the 1080p picture, smaller.
+   Each step keeps height / zoom >= ~1080 px and width / zoom >= 1920 px at
+   16:9; 1080p and taller match no query and are unchanged. */
+@media (orientation: landscape) and (min-width: 721px) and (max-height: 1000px) {
+    #dashboard-end .dashboard-end-content.end-stage-layout { zoom: 0.9; }
+}
+@media (orientation: landscape) and (min-width: 721px) and (max-height: 904px) {
+    #dashboard-end .dashboard-end-content.end-stage-layout { zoom: 0.8; }
+}
+@media (orientation: landscape) and (min-width: 721px) and (max-height: 786px) {
+    #dashboard-end .dashboard-end-content.end-stage-layout { zoom: 0.7; }
+}
+@media (orientation: landscape) and (min-width: 721px) and (max-height: 740px) {
+    #dashboard-end .dashboard-end-content.end-stage-layout { zoom: 0.64; }
+}
+
+/* ==========================================================================
+   #3095 — intro round, waiting for the host
+   The phones show a dialog while an intro round waits to be started; the TV
+   showed a normal playing view with a resting timer and "Now Playing", which
+   a silent room reads as a hang. This is a card over the stage: the playing
+   content stays where it is and is dimmed by a scrim that starts below the
+   chip strip, so the intro badge, the round and the submissions stay lit.
+
+   Sizes are in viewport units, one unit = 1% of the TV width (the same
+   approach as .end-moment), each capped by the equivalent share of the height
+   so an ultra-wide or a short window cannot push the card off the stage. At
+   16:9 both arms of every min() are equal; 1080p and 720p show the same
+   picture at different sizes.
+
+   The scrim sits one above the join corner (z-index 40) so the QR dims with
+   the rest, and below the reactions and the reconnect badge.
+   ========================================================================== */
+.dashboard-playing-content {
+    position: relative;
+}
+
+.intro-wait {
+    position: absolute;
+    inset: 0;
+    z-index: 41;
+    display: grid;
+    place-items: center;
+    background: rgba(10, 10, 18, 0.82);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 240ms ease, visibility 0s linear 240ms;
+}
+
+.intro-wait.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 240ms ease;
+}
+
+.intro-wait__card {
+    box-sizing: border-box;
+    width: 62%;
+    max-height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: min(1.2vw, 2.13vh);
+    padding: min(3.2vw, 5.7vh) min(3vw, 5.3vh);
+    border-radius: min(2vw, 3.6vh);
+    border: 1px solid rgba(255, 45, 106, 0.7);
+    background: rgba(22, 14, 26, 0.96);
+    box-shadow: 0 0 5vw rgba(255, 45, 106, 0.35);
+    text-align: center;
+}
+
+.intro-wait__title {
+    margin: 0;
+    font-family: var(--font-display, 'Outfit'), sans-serif;
+    font-weight: 900;
+    font-size: min(6.4vw, 11.4vh);
+    line-height: 1;
+    color: var(--color-text-white, #fff);
+    overflow-wrap: anywhere;
+}
+
+.intro-wait__bolt {
+    width: 0.78em;
+    height: 0.78em;
+    margin-right: 0.12em;
+    vertical-align: -0.06em;
+    fill: var(--color-accent-primary, #ff2d6a);
+    filter: drop-shadow(0 0 0.12em var(--color-accent-primary, #ff2d6a));
+}
+
+.intro-wait__desc {
+    margin: 0;
+    font-family: var(--font-body, 'Inter'), sans-serif;
+    font-weight: var(--font-weight-medium, 500);
+    font-size: min(2.2vw, 3.9vh);
+    line-height: 1.3;
+    color: #e9e9f2;
+}
+
+.intro-wait__waiting {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6em;
+    font-family: var(--font-body, 'Inter'), sans-serif;
+    font-weight: var(--font-weight-bold, 700);
+    font-size: min(1.7vw, 3vh);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-accent-secondary, #00f5ff);
+}
+
+.intro-wait__dot {
+    flex: none;
+    width: 0.65em;
+    height: 0.65em;
+    border-radius: 50%;
+    background: var(--color-accent-secondary, #00f5ff);
+    box-shadow: 0 0 0.7em var(--color-accent-secondary, #00f5ff);
+    animation: intro-wait-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes intro-wait-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.45; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .intro-wait,
+    .intro-wait.is-visible {
+        transition: none;
+    }
+    .intro-wait__dot {
+        animation: none;
+    }
+}

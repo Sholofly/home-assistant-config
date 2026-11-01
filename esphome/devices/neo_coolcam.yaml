@@ -11,7 +11,7 @@ binary_sensor:
       number: 13
       mode: INPUT_PULLUP
       inverted: true
-    name: "${name} button"
+    name: None
     on_press:
       - switch.toggle: "${id}_relay"
     internal: true
@@ -25,7 +25,7 @@ switch:
     internal: true
 
   - platform: gpio
-    name: "${name}"
+    name: None
     icon: "mdi:power-plug"
     pin: GPIO12
     id: "${id}_relay"

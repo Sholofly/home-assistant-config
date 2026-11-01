@@ -23,12 +23,14 @@ from typing import Any
 import voluptuous as vol
 
 from homeassistant import config_entries
+from homeassistant.config_entries import ConfigFlowResult
 from homeassistant.const import CONF_NAME
-from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers import selector
 
 from .const import (
     DOMAIN,
+    CONFIG_ENTRY_MINOR_VERSION,
+    CONFIG_ENTRY_VERSION,
     CONF_POWER_SENSOR,
     CONF_MIN_POWER,
     CONF_DEVICE_TYPE,
@@ -36,6 +38,7 @@ from .const import (
     DEFAULT_MIN_POWER,
     DEFAULT_DEVICE_TYPE,
     DEVICE_TYPES,
+    is_energy_counter,
 )
 
 
@@ -59,6 +62,19 @@ def _resolve_options_first(
     DEVICE_TYPES.
     """
     return entry.options.get(key, entry.data.get(key, default))
+
+
+def _power_sensor_error(hass: Any, entity_id: Any) -> str | None:
+    """``power_sensor_energy`` when the chosen sensor is an energy counter (#481).
+
+    A kWh counter never reads as power, so every cycle would go undetected. Only
+    positive evidence refuses: a sensor Home Assistant has not loaded is accepted.
+    """
+    states = getattr(hass, "states", None)
+    state = states.get(entity_id) if states is not None and isinstance(entity_id, str) else None
+    if state is not None and is_energy_counter(getattr(state, "attributes", None)):
+        return "power_sensor_energy"
+    return None
 
 
 def _merge_structural_options(
@@ -146,8 +162,9 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # pylint: disable=abstract-method
     """Handle a config flow for WashData."""
 
-    VERSION = 3
-    MINOR_VERSION = 7
+    # Single source in const.py; the migration blocks in __init__.py read the same two.
+    VERSION = CONFIG_ENTRY_VERSION
+    MINOR_VERSION = CONFIG_ENTRY_MINOR_VERSION
 
     def __init__(self) -> None:
         """Initialize the config flow."""
@@ -161,7 +178,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # pylint: disable=a
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None  # pylint: disable=unused-argument
-    ) -> FlowResult:
+    ) -> ConfigFlowResult:
         """Handle the initial step."""
         errors: dict[str, str] = {}
         if user_input is None:
@@ -172,6 +189,8 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # pylint: disable=a
         try:
             if user_input[CONF_MIN_POWER] <= 0:
                 errors[CONF_MIN_POWER] = "invalid_power"
+            if sensor_error := _power_sensor_error(self.hass, user_input.get(CONF_POWER_SENSOR)):
+                errors[CONF_POWER_SENSOR] = sensor_error
         except Exception:  # pylint: disable=broad-exception-caught
             _LOGGER.exception("Unexpected exception")
             errors["base"] = "unknown"
@@ -186,7 +205,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # pylint: disable=a
 
     async def async_step_reconfigure(
         self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
+    ) -> ConfigFlowResult:
         """Handle reconfigure flow to change sensor, device type, or name."""
         entry = self._get_reconfigure_entry()
         errors: dict[str, str] = {}
@@ -195,6 +214,10 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # pylint: disable=a
             try:
                 if user_input[CONF_MIN_POWER] <= 0:
                     errors[CONF_MIN_POWER] = "invalid_power"
+                if sensor_error := _power_sensor_error(
+                    self.hass, user_input.get(CONF_POWER_SENSOR)
+                ):
+                    errors[CONF_POWER_SENSOR] = sensor_error
             except Exception:  # pylint: disable=broad-exception-caught
                 _LOGGER.exception("Unexpected exception")
                 errors["base"] = "unknown"
@@ -204,10 +227,21 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # pylint: disable=a
                 # NB: intentionally do NOT write entry.data here — post-3.6 the
                 # structural fields live in options and the display name is carried
                 # by the entry title (see test_reconfigure_saves_and_aborts_on_valid_input).
+                # Update only (audit PLATFORM-15): the entry's update listener
+                # already reloads in place (sensor swap included, item 61);
+                # async_update_reload_and_abort ALSO scheduled a full unload/setup,
+                # which interrupted a running cycle and raced the in-place reload.
+                if entry.state is config_entries.ConfigEntryState.LOADED:
+                    self.hass.config_entries.async_update_entry(
+                        entry, title=user_input[CONF_NAME], options=new_options
+                    )
+                    return self.async_abort(reason="reconfigure_successful")
+                # Not loaded (a failed setup, often what the reconfigure is fixing):
+                # the update listener is registered only by a successful setup, so
+                # nothing would apply the options until a restart. Reload instead.
                 return self.async_update_reload_and_abort(
-                    entry,
-                    title=user_input[CONF_NAME],
-                    options=new_options,
+                    entry, title=user_input[CONF_NAME], options=new_options,
+                    reason="reconfigure_successful",
                 )
 
         schema = _structural_schema(entry)
@@ -241,7 +275,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
+    ) -> ConfigFlowResult:
         """Show the minimal options form."""
         entry = self._config_entry
         errors: dict[str, str] = {}
@@ -249,6 +283,8 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         if user_input is not None:
             if user_input.get(CONF_MIN_POWER, 0) <= 0:
                 errors[CONF_MIN_POWER] = "invalid_power"
+            if sensor_error := _power_sensor_error(self.hass, user_input.get(CONF_POWER_SENSOR)):
+                errors[CONF_POWER_SENSOR] = sensor_error
             if not errors:
                 new_name = str(user_input.get(CONF_NAME, "")).strip()
                 new_options = _merge_structural_options(entry, user_input)

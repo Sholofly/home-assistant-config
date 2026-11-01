@@ -9,25 +9,13 @@ from homeassistant.components.button import (
     ButtonEntity,
     ButtonEntityDescription,
 )
-from homeassistant.const import (
-    CONF_DEVICE_ID,
-)
-from homeassistant.core import HomeAssistant, callback
-from homeassistant.helpers import (
-    device_registry as dr,
-    entity_registry as er,
-)
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.util import dt as dt_util
 
 from .const import (
-    ATTR_BATTERY_QUANTITY,
-    ATTR_BATTERY_TYPE,
-    ATTR_BATTERY_TYPE_AND_QUANTITY,
-    ATTR_DEVICE_ID,
-    ATTR_DEVICE_NAME,
-    ATTR_SOURCE_ENTITY_ID,
     DOMAIN,
     EVENT_BATTERY_REPLACED,
     SUBENTRY_BATTERY_NOTE,
@@ -48,24 +36,6 @@ class BatteryNotesButtonEntityDescription(
     unique_id_suffix: str
 
 
-@callback
-def async_add_to_device(
-    hass: HomeAssistant, entry: BatteryNotesConfigEntry
-) -> str | None:
-    """Add our config entry to the device."""
-    device_registry = dr.async_get(hass)
-
-    device_id = entry.data.get(CONF_DEVICE_ID)
-
-    if device_id:
-        if device_registry.async_get(device_id):
-            device_registry.async_update_device(
-                device_id, add_config_entry_id=entry.entry_id
-            )
-            return device_id
-    return None
-
-
 async def async_setup_entry(
     hass: HomeAssistant,
     config_entry: BatteryNotesConfigEntry,
@@ -73,10 +43,7 @@ async def async_setup_entry(
 ) -> None:
     """Initialize Battery Type config entry."""
 
-    for subentry in config_entry.subentries.values():
-        if subentry.subentry_type != SUBENTRY_BATTERY_NOTE:
-            continue
-
+    for subentry in config_entry.get_subentries_of_type(SUBENTRY_BATTERY_NOTE):
         assert config_entry.runtime_data.subentry_coordinators
         coordinator = config_entry.runtime_data.subentry_coordinators.get(
             subentry.subentry_id
@@ -136,6 +103,8 @@ class BatteryNotesButton(BatteryNotesEntity, ButtonEntity):
 
     async def async_added_to_hass(self) -> None:
         """Handle added to Hass."""
+        await super().async_added_to_hass()
+
         registry = er.async_get(self.hass)
         if registry.async_get(self.entity_id) is not None:
             registry.async_update_entity_options(
@@ -148,17 +117,7 @@ class BatteryNotesButton(BatteryNotesEntity, ButtonEntity):
         """Press the button."""
         self.coordinator.last_replaced = dt_util.utcnow()
 
-        self.hass.bus.async_fire(
-            EVENT_BATTERY_REPLACED,
-            {
-                ATTR_DEVICE_ID: self.coordinator.device_id or "",
-                ATTR_SOURCE_ENTITY_ID: self.coordinator.source_entity_id or "",
-                ATTR_DEVICE_NAME: self.coordinator.device_name,
-                ATTR_BATTERY_TYPE_AND_QUANTITY: self.coordinator.battery_type_and_quantity,
-                ATTR_BATTERY_TYPE: self.coordinator.battery_type,
-                ATTR_BATTERY_QUANTITY: self.coordinator.battery_quantity,
-            },
-        )
+        self.hass.bus.async_fire(EVENT_BATTERY_REPLACED, self.coordinator.event_data())
 
         _LOGGER.debug(
             "Raised event battery replaced %s",

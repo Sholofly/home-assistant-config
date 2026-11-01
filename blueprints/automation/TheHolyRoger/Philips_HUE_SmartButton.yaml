@@ -1,130 +1,132 @@
 blueprint:
   name: HUE Smart Button (Multi-press)
-  description: '# Philips HUE Smart Button - Multi-press Controller v0.2
+  description: "# Philips HUE Smart Button - Multi-press Controller v0.2
 
-    '
+    "
   domain: automation
   input:
     controller_device:
       name: (HUE & ZHA) Button Device
       description: The button device to use for the automation (do not fill if using
         Zigbee2MQTT).
-      default: ''
+      default: ""
       selector:
         device:
           entity:
-          - domain:
-            - sensor
-            device_class:
-            - battery
-            integration: hue
-          - domain:
-            - sensor
-            device_class:
-            - battery
-            integration: zha
+            - domain:
+                - sensor
+              device_class:
+                - battery
+              integration: hue
+            - domain:
+                - sensor
+              device_class:
+                - battery
+              integration: zha
           filter:
-          - integration: hue
-            model: Hue Smart button (ROM001)
-            manufacturer: Signify Netherlands B.V.
-          - integration: hue
-            model: Hue Smart button (ROM001)
-            manufacturer: Philips
-          - integration: hue
-            model: Hue Smart button (RDM003)
-            manufacturer: Signify Netherlands B.V.
-          - integration: hue
-            model: Hue Smart button (RDM003)
-            manufacturer: Philips
-          - integration: zha
-            model: ROM001
-            manufacturer: Signify Netherlands B.V.
-          - integration: zha
-            model: ROM001
-            manufacturer: Philips
+            - integration: hue
+              model: Hue Smart button (ROM001)
+              manufacturer: Signify Netherlands B.V.
+            - integration: hue
+              model: Hue Smart button (ROM001)
+              manufacturer: Philips
+            - integration: hue
+              model: Hue Smart button (RDM003)
+              manufacturer: Signify Netherlands B.V.
+            - integration: hue
+              model: Hue Smart button (RDM003)
+              manufacturer: Philips
+            - integration: zha
+              model: ROM001
+              manufacturer: Signify Netherlands B.V.
+            - integration: zha
+              model: ROM001
+              manufacturer: Philips
           multiple: false
     controller_topic:
       name: (Zigbee2MQTT) Button `/action` Topic
       description: The MQTT topic to use for the automation (only fill if using Zigbee2MQTT)
-      default: ''
+      default: ""
       selector:
-        text: {}
+        text:
+          multiline: false
+          multiple: false
     helper_last_controller_event:
       name: (Required) Helper - Input Text
       description: Input Text used to store the last event fired by the controller.
         You will need to manually create a text input entity for this, please read
         the blueprint Additional Notes for more info.
-      default: ''
+      default: ""
       selector:
         entity:
           filter:
-          - domain:
-            - input_text
+            - domain:
+                - input_text
           multiple: false
           reorder: false
     hold_to_dim_entity:
       name: (Optional) Toggle/Dim Light Entity
       description: Light entity to be dimmed when holding or toggled on first press
         as configured below.
-      default: ''
+      default: ""
       selector:
         entity:
           filter:
-          - domain:
-            - light
+            - domain:
+                - light
           multiple: false
           reorder: false
     scene_first_release:
-      default: ''
+      default: ""
       selector:
         entity:
           filter:
-          - domain:
-            - scene
+            - domain:
+                - scene
           multiple: false
           reorder: false
       name: (Optional) First Press/Release Scene
       description: Select a scene to be activated on the first button press/release.
     scene_second_release:
-      default: ''
+      default: ""
       selector:
         entity:
           filter:
-          - domain:
-            - scene
+            - domain:
+                - scene
           multiple: false
           reorder: false
       name: (Optional) Second Press/Release Scene
       description: Select a scene to be activated on the second button press/release.
     scene_third_release:
-      default: ''
+      default: ""
       selector:
         entity:
           filter:
-          - domain:
-            - scene
+            - domain:
+                - scene
           multiple: false
           reorder: false
       name: (Optional) Third Press/Release Scene
       description: Select a scene to be activated on the third button press/release.
     scene_fourth_release:
-      default: ''
+      default: ""
       selector:
         entity:
           filter:
-          - domain:
-            - scene
+            - domain:
+                - scene
           multiple: false
           reorder: false
       name: (Optional) Fourth Press/Release Scene
       description: Select a scene to be activated on the fourth button press/release.
     scene_fifth_release:
-      default: ''
+      default: ""
       selector:
         entity:
           filter:
-          - domain:
-            - scene
+            - domain:
+                - scene
           multiple: false
           reorder: false
       name: (Optional) Fifth Press/Release Scene
@@ -358,410 +360,412 @@ variables:
   scene_fourth_release: !input scene_fourth_release
   scene_fifth_release: !input scene_fifth_release
   resume_light_state_when_off: !input resume_light_state_when_off
-  adjusted_multi_press_delay: '{{ [helper_multi_press_delay - helper_debounce_delay,
-    100] | max }}'
+  adjusted_multi_press_delay: "{{ [helper_multi_press_delay - helper_debounce_delay,
+    100] | max }}"
   button_initial_press:
-  - initial_press
-  - on_press
-  - press
+    - initial_press
+    - on_press
+    - press
   button_short_release:
-  - short_release
-  - on_short_release
-  - release
+    - short_release
+    - on_short_release
+    - release
   button_long_repeat:
-  - long_repeat
-  - repeat
-  - on_hold
-  - hold
+    - long_repeat
+    - repeat
+    - on_hold
+    - hold
   button_long_release:
-  - long_release
-  - on_long_release
-  - release
+    - long_release
+    - on_long_release
+    - release
   controller_topic: !input controller_topic
   controller_topic_internal: '{% if controller_topic|length > 0 %} {{ controller_topic
     }} {% else %} {{ "empty_mqtt_topic_unused" }} {% endif %}'
   controller_device: !input controller_device
-  controller_id: '{% if controller_topic|length > 0 %} {{ controller_topic }} {% else
-    %} {{controller_device}} {% endif %}'
-  is_z2m: '{{ (controller_topic|length > 0) }}'
-  action_repeat_on_press: '{{ action_repeat_on_press_count > 0 }}'
+  controller_id: "{% if controller_topic|length > 0 %} {{ controller_topic }} {% else
+    %} {{controller_device}} {% endif %}"
+  is_z2m: "{{ (controller_topic|length > 0) }}"
+  action_repeat_on_press: "{{ action_repeat_on_press_count > 0 }}"
   release_types:
-  - short_release
-  - second_release
-  - third_release
-  - fourth_release
-  - fifth_release
-  toggle_dim_entity_configured: '{{ (hold_to_dim_entity | string | length) > 0 }}'
-  toggle_dim_entity_first_press_enabled: '{{ button_toggle_dim_entity_first_press
-    and toggle_dim_entity_configured }}'
+    - short_release
+    - second_release
+    - third_release
+    - fourth_release
+    - fifth_release
+  toggle_dim_entity_configured: "{{ (hold_to_dim_entity | string | length) > 0 }}"
+  toggle_dim_entity_first_press_enabled: "{{ button_toggle_dim_entity_first_press
+    and toggle_dim_entity_configured }}"
 trigger_variables:
   controller_topic: !input controller_topic
   controller_topic_internal: '{% if controller_topic|length > 0 %} {{ controller_topic
     }} {% else %} {{ "empty_mqtt_topic_unused" }} {% endif %}'
   initial_press_action: !input action_button_initial_press
-  hue_press_trigger: '{{ ''initial_press'' if initial_press_action|length else ''ignore_press''
-    }}'
-  zha_press_trigger: '{{ ''on_press'' if initial_press_action|length else ''ignore_on_press''
-    }}'
-  z2m_press_trigger: '{{ ''press'' if initial_press_action|length else ''ignore_press''
-    }}'
+  hue_press_trigger: "{{ 'initial_press' if initial_press_action|length else 'ignore_press'
+    }}"
+  zha_press_trigger: "{{ 'on_press' if initial_press_action|length else 'ignore_on_press'
+    }}"
+  z2m_press_trigger: "{{ 'press' if initial_press_action|length else 'ignore_press'
+    }}"
 mode: restart
 max_exceeded: silent
 trigger:
-- platform: event
-  event_type: &id002
-  - hue_event
-  event_data:
-    device_id: &id003 !input controller_device
-    type: '{{ hue_press_trigger }}'
-- platform: event
-  event_type: *id002
-  event_data:
-    device_id: *id003
-    type: short_release
-- platform: event
-  event_type: *id002
-  event_data:
-    device_id: *id003
-    type: repeat
-- platform: event
-  event_type: *id002
-  event_data:
-    device_id: *id003
-    type: long_release
-- platform: event
-  event_type: &id004
-  - zha_event
-  event_data:
-    device_id: *id003
-    command: '{{ zha_press_trigger }}'
-- platform: event
-  event_type: *id004
-  event_data:
-    device_id: *id003
-    command: on_short_release
-- platform: event
-  event_type: *id004
-  event_data:
-    device_id: *id003
-    command: on_hold
-- platform: event
-  event_type: *id004
-  event_data:
-    device_id: *id003
-    command: on_long_release
-- platform: mqtt
-  topic: '{{ controller_topic_internal }}'
-  payload: '{{ z2m_press_trigger }}'
-- platform: mqtt
-  topic: '{{ controller_topic_internal }}'
-  payload: release
-- platform: mqtt
-  topic: '{{ controller_topic_internal }}'
-  payload: hold
+  - platform: event
+    event_type: &id002
+      - hue_event
+    event_data:
+      device_id: !input &id003 controller_device
+      type: "{{ hue_press_trigger }}"
+  - platform: event
+    event_type: *id002
+    event_data:
+      device_id: *id003
+      type: short_release
+  - platform: event
+    event_type: *id002
+    event_data:
+      device_id: *id003
+      type: repeat
+  - platform: event
+    event_type: *id002
+    event_data:
+      device_id: *id003
+      type: long_release
+  - platform: event
+    event_type: &id004
+      - zha_event
+    event_data:
+      device_id: *id003
+      command: "{{ zha_press_trigger }}"
+  - platform: event
+    event_type: *id004
+    event_data:
+      device_id: *id003
+      command: on_short_release
+  - platform: event
+    event_type: *id004
+    event_data:
+      device_id: *id003
+      command: on_hold
+  - platform: event
+    event_type: *id004
+    event_data:
+      device_id: *id003
+      command: on_long_release
+  - platform: mqtt
+    topic: "{{ controller_topic_internal }}"
+    payload: "{{ z2m_press_trigger }}"
+  - platform: mqtt
+    topic: "{{ controller_topic_internal }}"
+    payload: release
+  - platform: mqtt
+    topic: "{{ controller_topic_internal }}"
+    payload: hold
 condition:
-- condition: and
-  conditions:
-  - condition: template
-    value_template: '{%- set trigger_action -%} {% if "payload" in trigger %} {{ trigger.payload
-      }} {% elif "type" in trigger.event.data %} {{ trigger.event.data.type }} {%
-      else %} {{ trigger.event.data.command }} {% endif %} {%- endset -%} {{ trigger_action
-      not in ["","None"] }}'
+  - condition: and
+    conditions:
+      - condition: template
+        value_template: '{%- set trigger_action -%} {% if "payload" in trigger %} {{ trigger.payload
+          }} {% elif "type" in trigger.event.data %} {{ trigger.event.data.type }} {%
+          else %} {{ trigger.event.data.command }} {% endif %} {%- endset -%} {{ trigger_action
+          not in ["","None"] }}'
 action:
-- choose:
-  - conditions:
-    - condition: template
-      value_template: '{{ (helper_last_controller_event | length < 1) or state_attr(helper_last_controller_event,
-        ''max'') < 500 }}'
-    sequence:
-    - action: persistent_notification.create
-      data:
-        message: 'Invalid Config: "Helper - Last Controller Event" is not set or too
-          short. Set max length to 500 or more.'
-        title: Philips Hue Smart Button
-  - conditions:
-    - condition: template
-      value_template: '{{ is_z2m and ((controller_device | length) > 0) }}'
-    sequence:
-    - action: persistent_notification.create
-      data:
-        message: 'Invalid Config: Cannot have both MQTT topic and Controller Device
-          set.'
-        title: Philips Hue Smart Button
-  default:
-  - delay:
-      milliseconds: '{{ helper_debounce_delay }}'
-  - variables:
-      trigger_action: '{% if "payload" in trigger %} {{ trigger.payload }} {% elif
-        "type" in trigger.event.data %} {{ trigger.event.data.type }} {% else %} {{
-        trigger.event.data.command }} {% endif %}'
-      helper_valid: '{{ helper_last_controller_event is not none and (states(helper_last_controller_event)|length)
-        and (states(helper_last_controller_event) | regex_match("^[{\[]{1}([,:{}\[\]0-9.\-+Eaeflnr-u
-        \n\r\t]|\".*?\")+[}\]]{1}$")) }}'
-      helper_state: '{{ states(helper_last_controller_event) }}'
-      trigger_delta: '{% if helper_valid %} {% set trig_time = helper_state.last_triggered
-        %} {% else %} {% set trig_time = "1970-01-01 00:00:00" %} {% endif %} {{ (as_timestamp(now())
-        - as_timestamp(trig_time)) * 1000 }}'
-      default_dim_direction: '{{ "down" if hold_to_dim_direction_down else "up" }}'
-      last_dim_direction: '{% if helper_valid and "last_dim_direction" in helper_state
-        and trigger_delta | int <= ((helper_multi_press_delay | int) * 2) %} {{ helper_state.last_dim_direction
-        }} {% else %} {{ default_dim_direction }} {% endif %}'
-      current_dim_direction: '{{ last_dim_direction }}'
-      last_press_type: '{% if helper_valid and "press_type" in helper_state %} {{
-        helper_state.press_type }} {% else %} {{ "None" }} {% endif %}'
-      trigger_valid: '{{ (trigger_delta | int) <= (helper_multi_press_delay | int)
-        }}'
-      multipress_valid: '{{ button_multi_press_enabled and trigger_valid }}'
-      press_type: "{%- if (trigger_action | string) in button_initial_press -%} {{-
-        \"initial_press\" -}} {%- elif (trigger_action | string) in button_short_release
-        -%}\n  {%- if (not is_z2m or (last_press_type | string not in button_long_repeat))
-        -%}\n    {%- if multipress_valid and (release_types[0] == last_press_type)
-        and ((scene_second_release|length) > 0 or (second_release_action|length) >
-        0) -%}\n    {{- release_types[1] -}}\n    {%- elif multipress_valid and (release_types[1]
-        == last_press_type) and ((scene_third_release|length) > 0 or (third_release_action|length)
-        > 0) -%}\n    {{- release_types[2] -}}\n    {%- elif multipress_valid and
-        (release_types[2] == last_press_type) and ((scene_fourth_release|length) >
-        0 or (fourth_release_action|length) > 0) -%}\n    {{- release_types[3] -}}\n
-        \   {%- elif multipress_valid and (release_types[3] == last_press_type) and
-        ((scene_fifth_release|length) > 0 or (fifth_release_action|length) > 0) -%}\n
-        \   {{- release_types[4] -}}\n    {%- else -%}\n    {{- release_types[0] -}}\n
-        \   {%- endif -%}\n  {%- else -%}\n    {{- \"long_release\" -}}\n  {%- endif
-        -%}\n{%- elif (trigger_action | string) in button_long_repeat -%} {{- \"long_repeat\"
-        -}} {%- elif (trigger_action | string) in button_long_release -%} {{- \"long_release\"
-        -}} {%- else -%} {{- \"\" -}} {%- endif -%}"
-      pressed_scene_action: '{%- if press_type == release_types[0] -%} {{- [scene_first_release,
-        first_release_action] -}} {%- elif press_type == release_types[1] -%} {{-
-        [scene_second_release, second_release_action] -}} {%- elif press_type == release_types[2]
-        -%} {{- [scene_third_release, third_release_action] -}} {%- elif press_type
-        == release_types[3] -%} {{- [scene_fourth_release, fourth_release_action]
-        -}} {%- elif press_type == release_types[4] -%} {{- [scene_fifth_release,
-        fifth_release_action] -}} {%- else -%} {{- ["", ""] -}} {%- endif -%}'
   - choose:
-    - conditions:
-      - condition: template
-        value_template: '{{ press_type == "initial_press" }}'
-      sequence:
-      - &id005
-        event: ahb_controller_event
-        event_data:
-          controller: '{{ controller_id }}'
-          action: button_{{press_type}}
-      - choose:
-        - conditions: []
-          sequence: !input action_button_initial_press
-    - conditions:
-      - condition: template
-        value_template: '{{ press_type in release_types }}'
-      sequence:
-      - choose:
-        - conditions:
+      - conditions:
           - condition: template
-            value_template: '{{ press_type == release_types[0] }}'
-          sequence:
-          - &id009
-            action: input_text.set_value
+            value_template: "{{ (helper_last_controller_event is none) or state_attr(helper_last_controller_event,
+              'max') < 255 }}"
+        sequence:
+          - action: persistent_notification.create
             data:
-              entity_id: !input helper_last_controller_event
-              value: '{{ {"press_type":press_type,"last_triggered":now() | string,"last_dim_direction":current_dim_direction}
-                | to_json }}'
-          - choose:
-            - conditions:
+              message: 'Invalid Config: "Helper - Last Controller Event" is not set or too
+                short. Set max length to 500 or more.'
+              title: Philips Hue Smart Button
+      - conditions:
+          - condition: template
+            value_template: "{{ is_z2m and ((controller_device | length) > 0) }}"
+        sequence:
+          - action: persistent_notification.create
+            data:
+              message: "Invalid Config: Cannot have both MQTT topic and Controller Device
+                set."
+              title: Philips Hue Smart Button
+    default:
+      - delay:
+          milliseconds: "{{ helper_debounce_delay }}"
+      - variables:
+          trigger_action: '{% if "payload" in trigger %} {{ trigger.payload }} {% elif
+            "type" in trigger.event.data %} {{ trigger.event.data.type }} {% else %} {{
+            trigger.event.data.command }} {% endif %}'
+          helper_valid: '{{ helper_last_controller_event is not none and (states(helper_last_controller_event)|length)
+            and (states(helper_last_controller_event) | regex_match("^[{\[]{1}([,:{}\[\]0-9.\-+Eaeflnr-u
+            \n\r\t]|\".*?\")+[}\]]{1}$")) }}'
+          helper_state: "{{ states(helper_last_controller_event) }}"
+          trigger_delta: '{% if helper_valid %} {% set trig_time = helper_state.last_triggered
+            %} {% else %} {% set trig_time = "1970-01-01 00:00:00" %} {% endif %} {{ (as_timestamp(now())
+            - as_timestamp(trig_time)) * 1000 }}'
+          default_dim_direction: '{{ "down" if hold_to_dim_direction_down else "up" }}'
+          last_dim_direction: '{% if helper_valid and "last_dim_direction" in helper_state
+            and trigger_delta | int <= ((helper_multi_press_delay | int) * 2) %} {{ helper_state.last_dim_direction
+            }} {% else %} {{ default_dim_direction }} {% endif %}'
+          current_dim_direction: "{{ last_dim_direction }}"
+          last_press_type: '{% if helper_valid and "press_type" in helper_state %} {{
+            helper_state.press_type }} {% else %} {{ "None" }} {% endif %}'
+          trigger_valid: "{{ (trigger_delta | int) <= (helper_multi_press_delay | int)
+            }}"
+          multipress_valid: "{{ button_multi_press_enabled and trigger_valid }}"
+          press_type: "{%- if (trigger_action | string) in button_initial_press -%} {{-
+            \"initial_press\" -}} {%- elif (trigger_action | string) in button_short_release
+            -%}\n  {%- if (not is_z2m or (last_press_type | string not in button_long_repeat))
+            -%}\n    {%- if multipress_valid and (release_types[0] == last_press_type)
+            and ((scene_second_release|length) > 0 or (second_release_action|length) >
+            0) -%}\n    {{- release_types[1] -}}\n    {%- elif multipress_valid and (release_types[1]
+            == last_press_type) and ((scene_third_release|length) > 0 or (third_release_action|length)
+            > 0) -%}\n    {{- release_types[2] -}}\n    {%- elif multipress_valid and
+            (release_types[2] == last_press_type) and ((scene_fourth_release|length) >
+            0 or (fourth_release_action|length) > 0) -%}\n    {{- release_types[3] -}}\n
+            \   {%- elif multipress_valid and (release_types[3] == last_press_type) and
+            ((scene_fifth_release|length) > 0 or (fifth_release_action|length) > 0) -%}\n
+            \   {{- release_types[4] -}}\n    {%- else -%}\n    {{- release_types[0] -}}\n
+            \   {%- endif -%}\n  {%- else -%}\n    {{- \"long_release\" -}}\n  {%- endif
+            -%}\n{%- elif (trigger_action | string) in button_long_repeat -%} {{- \"long_repeat\"
+            -}} {%- elif (trigger_action | string) in button_long_release -%} {{- \"long_release\"
+            -}} {%- else -%} {{- \"\" -}} {%- endif -%}"
+          pressed_scene_action: '{%- if press_type == release_types[0] -%} {{- [scene_first_release,
+            first_release_action] -}} {%- elif press_type == release_types[1] -%} {{-
+            [scene_second_release, second_release_action] -}} {%- elif press_type == release_types[2]
+            -%} {{- [scene_third_release, third_release_action] -}} {%- elif press_type
+            == release_types[3] -%} {{- [scene_fourth_release, fourth_release_action]
+            -}} {%- elif press_type == release_types[4] -%} {{- [scene_fifth_release,
+            fifth_release_action] -}} {%- else -%} {{- ["", ""] -}} {%- endif -%}'
+      - choose:
+          - conditions:
               - condition: template
-                value_template: '{{ button_multi_press_enabled }}'
-              sequence:
+                value_template: '{{ press_type == "initial_press" }}'
+            sequence:
+              - &id005
+                event: ahb_controller_event
+                event_data:
+                  controller: "{{ controller_id }}"
+                  action: button_{{press_type}}
               - choose:
-                - conditions:
-                  - condition: template
-                    value_template: '{{ button_multi_press_always_fire_first_release
-                      }}'
-                  sequence: []
-                default:
-                - delay:
-                    milliseconds: '{{ adjusted_multi_press_delay }}'
-          - *id005
-          - choose:
-            - conditions:
-              - &id006
-                condition: template
-                value_template: '{{ toggle_dim_entity_first_press_enabled }}'
-              sequence:
+                  - conditions: []
+                    sequence: !input action_button_initial_press
+          - conditions:
+              - condition: template
+                value_template: "{{ press_type in release_types }}"
+            sequence:
               - choose:
-                - conditions:
-                  - condition: template
-                    value_template: '{{ expand(hold_to_dim_entity) | selectattr("state",
-                      "eq", "on") | list | count > 0 }}'
-                  - condition: template
-                    value_template: '{{ not button_multi_press_enabled or not multipress_valid
-                      }}'
-                  sequence:
-                  - action: input_text.set_value
-                    data:
-                      entity_id: !input helper_last_controller_event
-                      value: ''
-                  - action: light.turn_off
-                    target:
-                      entity_id: '{{ hold_to_dim_entity }}'
-                    data:
-                      transition: '{{ toggle_dim_entity_transition }}'
-                default: &id008
-                - choose:
                   - conditions:
-                    - condition: template
-                      value_template: '{{ resume_light_state_when_off and (not button_multi_press_enabled
-                        or not multipress_valid) }}'
+                      - condition: template
+                        value_template: "{{ press_type == release_types[0] }}"
                     sequence:
-                    - action: light.turn_on
-                      target: &id007
-                        entity_id: '{{ hold_to_dim_entity }}'
-                  default:
-                  - choose: &id010
-                    - conditions:
-                      - condition: template
-                        value_template: '{{ pressed_scene_action[0]|length > 0 }}'
-                      sequence:
-                      - action: scene.turn_on
-                        target:
-                          entity_id: '{{ pressed_scene_action[0] }}'
-                    default:
-                    - choose:
-                      - conditions:
-                        - *id006
-                        sequence:
-                        - action: light.turn_on
-                          target: *id007
-                          data: '{% if (toggle_dim_entity_brightness | int) > 0 %}
-                            {{ {"transition": toggle_dim_entity_transition, "brightness_pct":
-                            (toggle_dim_entity_brightness | int)} }} {% else %} {{
-                            {"transition": toggle_dim_entity_transition } }} {% endif
-                            %}
+                      - &id009
+                        action: input_text.set_value
+                        data:
+                          entity_id: !input helper_last_controller_event
+                          value:
+                            '{{ {"press_type":press_type,"last_triggered":now() | string,"last_dim_direction":current_dim_direction}
+                            | to_json }}'
+                      - choose:
+                          - conditions:
+                              - condition: template
+                                value_template: "{{ button_multi_press_enabled }}"
+                            sequence:
+                              - choose:
+                                  - conditions:
+                                      - condition: template
+                                        value_template: "{{ button_multi_press_always_fire_first_release
+                                          }}"
+                                    sequence: []
+                                default:
+                                  - delay:
+                                      milliseconds: "{{ adjusted_multi_press_delay }}"
+                      - *id005
+                      - choose:
+                          - conditions:
+                              - &id006
+                                condition: template
+                                value_template: "{{ toggle_dim_entity_first_press_enabled }}"
+                            sequence:
+                              - choose:
+                                  - conditions:
+                                      - condition: template
+                                        value_template: '{{ expand(hold_to_dim_entity) | selectattr("state",
+                                          "eq", "on") | list | count > 0 }}'
+                                      - condition: template
+                                        value_template: "{{ not button_multi_press_enabled or not multipress_valid
+                                          }}"
+                                    sequence:
+                                      - action: input_text.set_value
+                                        data:
+                                          entity_id: !input helper_last_controller_event
+                                          value: ""
+                                      - action: light.turn_off
+                                        target:
+                                          entity_id: "{{ hold_to_dim_entity }}"
+                                        data:
+                                          transition: "{{ toggle_dim_entity_transition }}"
+                                default: &id008
+                                  - choose:
+                                      - conditions:
+                                          - condition: template
+                                            value_template:
+                                              "{{ resume_light_state_when_off and (not button_multi_press_enabled
+                                              or not multipress_valid) }}"
+                                        sequence:
+                                          - action: light.turn_on
+                                            target: &id007
+                                              entity_id: "{{ hold_to_dim_entity }}"
+                                    default:
+                                      - choose: &id010
+                                          - conditions:
+                                              - condition: template
+                                                value_template: "{{ pressed_scene_action[0]|length > 0 }}"
+                                            sequence:
+                                              - action: scene.turn_on
+                                                target:
+                                                  entity_id: "{{ pressed_scene_action[0] }}"
+                                        default:
+                                          - choose:
+                                              - conditions:
+                                                  - *id006
+                                                sequence:
+                                                  - action: light.turn_on
+                                                    target: *id007
+                                                    data: '{% if (toggle_dim_entity_brightness | int) > 0 %}
+                                                      {{ {"transition": toggle_dim_entity_transition, "brightness_pct":
+                                                      (toggle_dim_entity_brightness | int)} }} {% else %} {{
+                                                      {"transition": toggle_dim_entity_transition } }} {% endif
+                                                      %}
 
-                            '
-                  - choose:
-                    - conditions: &id011
+                                                      '
+                                      - choose:
+                                          - conditions: &id011
+                                              - condition: template
+                                                value_template: "{{ pressed_scene_action[1]|length > 0 }}"
+                                            sequence: !input action_button_short_release
+                        default: *id008
+                  - conditions:
                       - condition: template
-                        value_template: '{{ pressed_scene_action[1]|length > 0 }}'
-                      sequence: !input action_button_short_release
-            default: *id008
-        - conditions:
-          - condition: template
-            value_template: '{{ press_type == release_types[1] }}'
-          sequence:
-          - &id012
-            choose:
-            - conditions: []
-              sequence:
-              - *id009
-              - *id005
-          - repeat:
-              count: '{{action_repeat_on_press_count}}'
-              sequence:
-              - &id013
-                choose: *id010
-              - choose:
-                - conditions: *id011
-                  sequence: !input action_button_double_press
-              - &id014
-                choose:
-                - conditions:
-                  - condition: template
-                    value_template: '{{ action_repeat_on_press }}'
-                  sequence:
-                  - delay:
-                      milliseconds: '{{ delay_between_action_repeats }}'
-        - conditions:
-          - condition: template
-            value_template: '{{ press_type == release_types[2] }}'
-          sequence:
-          - *id012
-          - repeat:
-              count: '{{action_repeat_on_press_count}}'
-              sequence:
-              - *id013
-              - choose:
-                - conditions: *id011
-                  sequence: !input action_button_triple_press
-              - *id014
-        - conditions:
-          - condition: template
-            value_template: '{{ press_type == release_types[3] }}'
-          sequence:
-          - *id012
-          - repeat:
-              count: '{{action_repeat_on_press_count}}'
-              sequence:
-              - *id013
-              - choose:
-                - conditions: *id011
-                  sequence: !input action_button_quadruple_press
-              - *id014
-        - conditions:
-          - condition: template
-            value_template: '{{ press_type == release_types[4] }}'
-          sequence:
-          - *id012
-          - repeat:
-              count: '{{action_repeat_on_press_count}}'
-              sequence:
-              - *id013
-              - choose:
-                - conditions: *id011
-                  sequence: !input action_button_quintuple_press
-              - *id014
-    - conditions:
-      - condition: template
-        value_template: '{{ press_type == "long_repeat" }}'
-      sequence:
-      - *id012
-      - choose:
-        - conditions:
-          - condition: template
-            value_template: '{{ button_hold_to_dim and toggle_dim_entity_configured
-              }}'
-          sequence:
-          - variables:
-              current_brightness: '{% set brightness_list=expand(hold_to_dim_entity)
-                | selectattr("state", "eq", "on") | selectattr("attributes.brightness",
-                "defined") | map(attribute="attributes.brightness") | list %} {{ [(((brightness_list
-                | sum) / (brightness_list | length)) if (brightness_list | length)
-                > 0 else 0 | int), 255] | min }}'
-          - choose:
-            - conditions:
+                        value_template: "{{ press_type == release_types[1] }}"
+                    sequence:
+                      - &id012
+                        choose:
+                          - conditions: []
+                            sequence:
+                              - *id009
+                              - *id005
+                      - repeat:
+                          count: "{{action_repeat_on_press_count}}"
+                          sequence:
+                            - &id013
+                              choose: *id010
+                            - choose:
+                                - conditions: *id011
+                                  sequence: !input action_button_double_press
+                            - &id014
+                              choose:
+                                - conditions:
+                                    - condition: template
+                                      value_template: "{{ action_repeat_on_press }}"
+                                  sequence:
+                                    - delay:
+                                        milliseconds: "{{ delay_between_action_repeats }}"
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ press_type == release_types[2] }}"
+                    sequence:
+                      - *id012
+                      - repeat:
+                          count: "{{action_repeat_on_press_count}}"
+                          sequence:
+                            - *id013
+                            - choose:
+                                - conditions: *id011
+                                  sequence: !input action_button_triple_press
+                            - *id014
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ press_type == release_types[3] }}"
+                    sequence:
+                      - *id012
+                      - repeat:
+                          count: "{{action_repeat_on_press_count}}"
+                          sequence:
+                            - *id013
+                            - choose:
+                                - conditions: *id011
+                                  sequence: !input action_button_quadruple_press
+                            - *id014
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ press_type == release_types[4] }}"
+                    sequence:
+                      - *id012
+                      - repeat:
+                          count: "{{action_repeat_on_press_count}}"
+                          sequence:
+                            - *id013
+                            - choose:
+                                - conditions: *id011
+                                  sequence: !input action_button_quintuple_press
+                            - *id014
+          - conditions:
               - condition: template
-                value_template: '{{ (last_dim_direction == "down" and current_brightness
-                  > 0) or current_brightness >= 250 }}'
-              sequence:
-              - variables:
-                  new_brightness_value: '{{ -hold_to_dim_brightness_step }}'
-                  current_dim_direction: down
-              - &id015
-                choose:
-                - conditions: []
-                  sequence:
-                  - action: light.turn_on
-                    target: *id007
-                    data:
-                      brightness_step: '{{ new_brightness_value }}'
-                  - *id009
-            default:
-            - variables:
-                new_brightness_value: '{{ hold_to_dim_brightness_step }}'
-                current_dim_direction: up
-            - *id015
-      - choose:
-        - conditions:
-          - condition: template
-            value_template: '{{ button_long_repeat_loop }}'
-          sequence:
-          - repeat:
-              while: '{{ repeat.index < button_long_repeat_max_loop_repeats | int
-                }}'
-              sequence: !input action_button_long_repeat
-        default: !input action_button_long_repeat
-    - conditions:
-      - condition: template
-        value_template: '{{ press_type == "long_release" }}'
-      sequence:
-      - *id012
-      - choose:
-        - conditions: []
-          sequence: !input action_button_long_release
+                value_template: '{{ press_type == "long_repeat" }}'
+            sequence:
+              - *id012
+              - choose:
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ button_hold_to_dim and toggle_dim_entity_configured
+                          }}"
+                    sequence:
+                      - variables:
+                          current_brightness: '{% set brightness_list=expand(hold_to_dim_entity)
+                            | selectattr("state", "eq", "on") | selectattr("attributes.brightness",
+                            "defined") | map(attribute="attributes.brightness") | list %} {{ [(((brightness_list
+                            | sum) / (brightness_list | length)) if (brightness_list | length)
+                            > 0 else 0 | int), 255] | min }}'
+                      - choose:
+                          - conditions:
+                              - condition: template
+                                value_template: '{{ (last_dim_direction == "down" and current_brightness
+                                  > 0) or current_brightness >= 250 }}'
+                            sequence:
+                              - variables:
+                                  new_brightness_value: "{{ -hold_to_dim_brightness_step }}"
+                                  current_dim_direction: down
+                              - &id015
+                                choose:
+                                  - conditions: []
+                                    sequence:
+                                      - action: light.turn_on
+                                        target: *id007
+                                        data:
+                                          brightness_step: "{{ new_brightness_value }}"
+                                      - *id009
+                        default:
+                          - variables:
+                              new_brightness_value: "{{ hold_to_dim_brightness_step }}"
+                              current_dim_direction: up
+                          - *id015
+              - choose:
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ button_long_repeat_loop }}"
+                    sequence:
+                      - repeat:
+                          while: "{{ repeat.index < button_long_repeat_max_loop_repeats | int
+                            }}"
+                          sequence: !input action_button_long_repeat
+                default: !input action_button_long_repeat
+          - conditions:
+              - condition: template
+                value_template: '{{ press_type == "long_release" }}'
+            sequence:
+              - *id012
+              - choose:
+                  - conditions: []
+                    sequence: !input action_button_long_release

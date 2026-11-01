@@ -91,7 +91,11 @@ async def restore_state(hass: HomeAssistant) -> None:
     """Restores the persisted pyscript state."""
     # this is a hack accessing hass internals; should re-implement using RestoreEntity
     restore_data = hass.data[DATA_RESTORE_STATE]
-    for entity_id, value in restore_data.last_states.items():
+    # HA 2026.11 renamed last_states to last_states_by_entity_id (local patch until pyscript is updated)
+    last_states = getattr(restore_data, "last_states_by_entity_id", None)
+    if last_states is None:
+        last_states = restore_data.last_states
+    for entity_id, value in last_states.items():
         if entity_id.startswith("pyscript."):
             last_state = value.state
             hass.states.async_set(entity_id, last_state.state, last_state.attributes)
@@ -354,7 +358,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
         DOMAIN, SERVICE_GENERATE_STUBS, generate_stubs_service, supports_response=SupportsResponse.ONLY
     )
 
-    async def jupyter_kernel_start(call: ServiceCall) -> None:
+    async def jupyter_kernel_start(call: ServiceCall) -> dict:
         """Handle Jupyter kernel start call."""
         _LOGGER.debug("service call to jupyter_kernel_start: %s", call.data)
 
@@ -369,14 +373,25 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
         Function.install_ast_funcs(ast_ctx)
         kernel = Kernel(call.data, ast_ctx, global_ctx, global_ctx_name)
         await kernel.session_start()
-        hass.states.async_set(call.data["state_var"], json.dumps(kernel.get_ports()))
 
-        def state_var_remove():
-            hass.states.async_remove(call.data["state_var"])
+        # older kernels look for this state var
+        if "state_var" in call.data:
+            hass.states.async_set(call.data["state_var"], json.dumps(kernel.get_ports()))
 
-        kernel.set_session_cleanup_callback(state_var_remove)
+            def state_var_remove():
+                hass.states.async_remove(call.data["state_var"])
 
-    hass.services.async_register(DOMAIN, SERVICE_JUPYTER_KERNEL_START, jupyter_kernel_start)
+            kernel.set_session_cleanup_callback(state_var_remove)
+
+        # newer kernels use the service response
+        return {"ports": kernel.get_ports()}
+
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_JUPYTER_KERNEL_START,
+        jupyter_kernel_start,
+        supports_response=SupportsResponse.OPTIONAL,
+    )
 
     async def state_changed(event: HAEvent) -> None:
         var_name = event.data["entity_id"]

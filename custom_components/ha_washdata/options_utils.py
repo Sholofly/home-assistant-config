@@ -1,0 +1,219 @@
+# WashData - Home Assistant integration for appliance cycle monitoring via smart plugs.
+# Copyright (C) 2026 Lukas Bandura
+# SPDX-License-Identifier: AGPL-3.0-or-later
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+"""Pure normalization helpers for ``entry.options``.
+
+No Home Assistant imports, so the same rules apply on both write (the panel's
+``ws_set_options``) and read-back (integration setup) without pulling the WS
+layer into the setup path.
+
+An option is either present with a real value or absent - absent is what makes
+``options.get(key, DEFAULT)`` hand back the compiled default. A persisted
+``None`` looks like "not set" to a human but is returned verbatim by ``.get()``,
+so the ``float()`` / ``int()`` casts that build ``CycleDetectorConfig`` raise
+``TypeError`` and the entry can never be set up again. Dropping the key is
+therefore the faithful way to store "not set", and it is what every reader
+already expects.
+
+The rule is uniform: no option is ever persisted as ``None``. See
+``NULL_MEANINGFUL_OPTION_KEYS`` for when a future key would need an exception,
+and why none does today.
+"""
+from __future__ import annotations
+
+import math
+from collections.abc import Mapping, MutableMapping
+from typing import Any
+
+from .const import (
+    CONF_DEVICE_TYPE,
+    DEVICE_TYPE_GENERIC,
+    RETIRED_DEVICE_TYPE_OPTION_FLOORS,
+    RETIRED_DEVICE_TYPE_OPTIONS,
+)
+
+# Dropping a key and storing None are the same thing to every reader that takes
+# no default (`.get(key)`, `.get(key) or None`, `.get(key, "")` behind a falsy
+# check) and to `.get(key) or entry.data.get(key)`, where the `or` swallows both.
+# They differ only where an absent key falls through to a *non-None* default. The
+# rule for a future key is therefore "does an absent key fall through to a
+# non-None default, AND is None at that read a state the integration supports?" -
+# not "is it nullable?".
+#
+# Today nothing qualifies, so the set is empty. `power_sensor` is the only key
+# whose default argument is a non-None `entry.data` lookup
+# (`options.get(CONF_POWER_SENSOR, entry.data.get(CONF_POWER_SENSOR))`), but a
+# None there is not a supported state: the config flow requires a sensor and
+# writes it into `entry.data`, the panel's field is not clearable (an emptied
+# non-clearable field is dropped from the submission, and the selector-clearing
+# loop in `ws_set_options` deliberately omits this key), and a stored None makes
+# `async_setup` raise `AttributeError` inside `hass.states.get(None)`
+# (`None.lower()`) - i.e. the same bricked entry this module exists to prevent,
+# in a form no `except TypeError` can catch. Falling through to the sensor in
+# `entry.data` is the correct recovery, so this key is stripped like the rest.
+NULL_MEANINGFUL_OPTION_KEYS: frozenset[str] = frozenset()
+
+
+def strip_null_options(options: Mapping[str, Any]) -> dict[str, Any]:
+    """Return a copy of ``options`` with unset-meaning ``None`` values dropped.
+
+    The input is never mutated. Keys in ``NULL_MEANINGFUL_OPTION_KEYS`` keep their
+    ``None``; every other key holding one is removed, so the read falls through to
+    the compiled default instead of handing ``None`` to a numeric cast.
+    """
+    return {
+        k: v
+        for k, v in options.items()
+        if v is not None or k in NULL_MEANINGFUL_OPTION_KEYS
+    }
+
+
+def option_float(value: Any, default: float) -> float:
+    """Coerce a stored option to ``float``, falling back to ``default``.
+
+    ``strip_null_options`` removes the ``None`` that broke setup in #389, but a
+    stored value can still be the wrong *type*: ``import_config`` and the legacy
+    import service write hand-editable option maps straight into ``entry.options``,
+    and ``ws_set_options`` validates the payload as a plain ``dict`` with no
+    per-key coercion. A non-numeric string then survives ``.get(key, DEFAULT)`` and
+    raises at whatever line first casts or compares it, which for an option read at
+    cycle end is inside a spawned task - the cycle is lost, not just the setting.
+
+    Falls back to the compiled default rather than to ``0.0``: these values are
+    thresholds, and zero is a meaningful setting ("accept anything"), so silently
+    substituting it would change behaviour instead of restoring it.
+
+    Non-finite results are rejected too. ``float()`` happily accepts ``"nan"``,
+    ``"inf"`` and ``"infinity"``, and either one is worse than a raise for a
+    threshold: every comparison against ``nan`` is False and every one against
+    ``inf`` is False for real confidences, so the feature the threshold gates goes
+    quietly dead instead of failing loudly.
+
+    ``OverflowError`` is caught alongside the type errors because ``json`` parses an
+    integer literal of any length into a Python ``int`` of unbounded size, and
+    ``float()`` on one of those raises rather than returning ``inf``. An import file
+    is hand-editable, so that lands in ``entry.options`` and would otherwise abort
+    setup - the same bricked-entry outcome this module exists to prevent.
+
+    A stored ``bool`` is rejected before the cast, because ``bool`` is a subclass of
+    ``int`` and ``float(True)`` is a perfectly good ``1.0``. No numeric option is
+    read through here as a boolean, so one can only arrive from a hand-edited import
+    or an untyped ``ws_set_options`` payload - and adopting it is the silent
+    behaviour change the fallback exists to avoid: ``True`` becomes the strictest
+    possible threshold (1.0, gating the feature off) and ``False`` becomes "accept
+    anything" (0.0), or 1 under an ``option_int`` floor. The default is the honest
+    answer to a value of the wrong type.
+    """
+    if isinstance(value, bool):
+        return float(default)
+    try:
+        result = float(value)
+    except (TypeError, ValueError, OverflowError):
+        return float(default)
+    return result if math.isfinite(result) else float(default)
+
+
+def option_int(value: Any, default: int, minimum: int | None = None) -> int:
+    """Coerce a stored option to ``int``, falling back to ``default``.
+
+    The integer companion to :func:`option_float`, and it routes THROUGH it rather
+    than calling ``int(value)`` directly, because ``int()`` is not the whole test.
+    Python integers are arbitrary precision, so a JSON literal such as ``10**400``
+    survives ``int()`` intact and only raises ``OverflowError`` further downstream,
+    at whatever line first asks ``float()`` for it - a division, a ``timedelta``, a
+    log format. That is register item 278: the guard was in place and the value
+    still escaped it, one line later. Proving the value is representable as a float
+    here means the caller holds an int it can actually use.
+
+    ``minimum`` clamps the result for the settings where a zero or negative silently
+    DISABLES the gate it configures rather than tightening it. Pass it only where a
+    floor is already established elsewhere (a panel schema ``min``, or a sibling
+    reader's own clamp), so the two readers of one key cannot disagree.
+    """
+    result = int(option_float(value, default))
+    if minimum is not None and result < minimum:
+        return minimum
+    return result
+
+
+def canonical_device_type(device_type: Any) -> Any:
+    """``device_type``, or ``generic`` for a type removed in 0.5.9.
+
+    For a device type read from outside this entry (an export's fingerprint), so
+    an Air Fryer or Bread Maker export still counts as the same kind of device as
+    the entry it migrated to.
+    """
+    if isinstance(device_type, str) and device_type in RETIRED_DEVICE_TYPE_OPTIONS:
+        return DEVICE_TYPE_GENERIC
+    return device_type
+
+
+def _runs_as_set(value: Any) -> bool:
+    """Whether the config builder uses this stored value instead of the default.
+
+    Mirrors ``detector_config.build_detector_config``'s ``opt``: a missing, null or
+    non-numeric value (or a non-finite one) falls back to the device default, so
+    it is not the user's setting.
+    """
+    if value is None:
+        return False
+    if isinstance(value, bool):
+        return True
+    try:
+        number = float(value)
+    except (TypeError, ValueError, OverflowError):
+        return False
+    return math.isfinite(number)
+
+
+def retire_device_type(
+    options: MutableMapping[str, Any], data: MutableMapping[str, Any]
+) -> list[str]:
+    """Move an entry off a device type removed in 0.5.9, in place.
+
+    The device type is read options-first, then ``data`` (as the manager reads
+    it). When it is Air Fryer or Bread Maker it becomes ``generic`` in options,
+    and every per-type default that differs from generic's
+    (``RETIRED_DEVICE_TYPE_OPTIONS``) is written into options unless the user has
+    set the key, so the detector runs the same values. A floor
+    (``RETIRED_DEVICE_TYPE_OPTION_FLOORS``) is written as the max of the floor and
+    the stored value, as the manager applied it. A retired type left in ``data``
+    becomes ``generic`` too. Idempotent. Returns the options keys it wrote.
+
+    Shared by the 3.11 -> 3.12 step, the one-pass legacy migration, the import,
+    the undo-import and ``ws_set_options``.
+    """
+    retired = options.get(CONF_DEVICE_TYPE)
+    if not retired:  # absent, or a stored null: the type is the one in data
+        retired = data.get(CONF_DEVICE_TYPE)
+    # A list or dict (a hand-edited import, a stray WS payload) is not hashable:
+    # it is no retired type, rather than a TypeError that fails the whole save.
+    data_type = data.get(CONF_DEVICE_TYPE)
+    if isinstance(data_type, str) and data_type in RETIRED_DEVICE_TYPE_OPTIONS:
+        data[CONF_DEVICE_TYPE] = DEVICE_TYPE_GENERIC
+    if not isinstance(retired, str) or retired not in RETIRED_DEVICE_TYPE_OPTIONS:
+        return []
+    written = [CONF_DEVICE_TYPE]
+    options[CONF_DEVICE_TYPE] = DEVICE_TYPE_GENERIC
+    for key, value in RETIRED_DEVICE_TYPE_OPTIONS[retired].items():
+        if not _runs_as_set(options.get(key)):
+            options[key] = value
+            written.append(key)
+    for key, (floor, unset) in RETIRED_DEVICE_TYPE_OPTION_FLOORS.get(retired, {}).items():
+        if option_float(options.get(key), unset) < floor:
+            options[key] = floor
+            written.append(key)
+    return written

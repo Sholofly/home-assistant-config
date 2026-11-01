@@ -3,7 +3,6 @@
 ## Bepaalt wat wel/niet wordt opgeslagen in de historiedatabase
 ################################################
 recorder:
-  #db_url: !secret recorder_db_url
   purge_keep_days: 1
   exclude:
     # Domeinen zonder historische waarde

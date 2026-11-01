@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "WashData sąranka",
-        "description": "Sukonfigūruokite skalbimo mašiną ar kitą prietaisą.\n\nReikalingas galios jutiklis.\n\n**Toliau jūsų paklaus, ar norite susikurti pirmąjį profilį.**",
+        "description": "Sukonfigūruokite skalbimo mašiną ar kitą prietaisą. Reikalingas galios jutiklis.\n\nBaigę sąranką, atidarykite WashData skydelį šoninėje juostoje ([/ha-washdata](/ha-washdata)), kad matytumėte ciklus, profilius ir visus nustatymus.",
         "data": {
           "name": "Įrenginio pavadinimas",
           "device_type": "Įrenginio tipas",
@@ -12,22 +12,14 @@
         },
         "data_description": {
           "name": "Patogus šio įrenginio pavadinimas (pvz., 'Skalbimo mašina', 'Indaplovė').",
-          "device_type": "Kokio tipo tai prietaisas? Padeda pritaikyti aptikimą ir ženklinimą.",
-          "power_sensor": "Jutiklio objektas, kuris realiuoju laiku praneša energijos suvartojimą (vatais) iš jūsų išmaniojo kištuko.",
-          "min_power": "Galios rodmenys, viršijantys šią ribą (vatais), rodo, kad prietaisas veikia. Pradėkite nuo 2 W daugeliui įrenginių."
-        }
-      },
-      "first_profile": {
-        "title": "Sukurkite pirmąjį profilį",
-        "description": "**Ciklas** yra visas jūsų prietaiso veikimas (pvz., skalbinių įkrovimas). **Profilis** sugrupuoja šiuos ciklus pagal tipą (pvz., 'Medvilnė', 'Greitas skalbimas'). Sukūrus profilį dabar galima nedelsiant apskaičiuoti integracijos trukmę.\n\nGalite rankiniu būdu pasirinkti šį profilį įrenginio valdikliuose, jei jis neaptinkamas automatiškai.\n\n**Jei norite praleisti šį veiksmą, palikite 'Profilio pavadinimas' tuščią.**",
-        "data": {
-          "profile_name": "Profilio pavadinimas (neprivaloma)",
-          "manual_duration": "Numatoma trukmė (min.)"
+          "device_type": "Nustato šio prietaiso tipo numatytuosius aptikimo nustatymus.",
+          "power_sensor": "Išmaniojo kištuko galios jutiklis (W arba kW), o ne jo energijos skaitiklis (kWh).",
+          "min_power": "Rodmenys virš šios ribos (vatais) reiškia, kad prietaisas veikia. Daugeliui įrenginių tinka 2 W."
         }
       },
       "reconfigure": {
         "title": "WashData rekonfigūracija",
-        "description": "Atnaujinkite įrenginio pavadinimą, prietaiso tipą arba galios jutiklį.",
+        "description": "Pakeiskite įrenginio pavadinimą, prietaiso tipą arba galios jutiklį.\n\nVisa kita yra WashData skydelyje (šoninė juosta arba [/ha-washdata](/ha-washdata)).",
         "data": {
           "name": "Įrenginio pavadinimas",
           "device_type": "Įrenginio tipas",
@@ -37,10 +29,9 @@
       }
     },
     "error": {
-      "cannot_connect": "Nepavyko prisijungti",
-      "invalid_auth": "Neteisingas autentifikavimas",
       "unknown": "Netikėta klaida",
-      "invalid_power": "Galios slenkstis turi būti didesnis nei 0"
+      "invalid_power": "Galios slenkstis turi būti didesnis nei 0",
+      "power_sensor_energy": "Tai energijos skaitiklis (kWh), o ne galios jutiklis. Pasirinkite kištuko galios jutiklį (W arba kW). Jei kištukas jo neturi, jį iš skaitiklio gali sukurti pagalbininkas „Išvestinis jutiklis“."
     },
     "abort": {
       "already_configured": "Įrenginys jau sukonfigūruotas",
@@ -51,7 +42,7 @@
     "step": {
       "init": {
         "title": "WashData nustatymai",
-        "description": "All settings -- detection, matching, timing, notifications, profiles, and cycles -- are available in the WashData panel. Use this form only to change the power sensor, device type, or standby threshold.",
+        "description": "Pervadinkite įrenginį arba pakeiskite pagrindinius nustatymus. Visa kita yra [WashData skydelyje](/ha-washdata) šoninėje juostoje.",
         "data": {
           "name": "Įrenginio pavadinimas",
           "device_type": "Įrenginio tipas",
@@ -64,10 +55,12 @@
       "timer_default_message": "{device}: {minutes} min. laikmatis",
       "timer_pause_action_title": "Tęsti ciklą",
       "timer_pause_body_suffix": "Ciklas pristabdytas. Atidarykite WashData skydelį, kad tęstumėte.",
+      "unload_dismiss_action_title": "Nustoti priminti",
       "notify_live_waiting_message": "{device}: Kol kas neatpažintas joks profilis.",
       "vs_typical_longer": "{pct}% ilgiau nei įprastai",
       "vs_typical_shorter": "{pct}% trumpiau nei įprastai",
-      "invalid_power": "Galios slenkstis turi būti didesnis nei 0"
+      "invalid_power": "Galios slenkstis turi būti didesnis nei 0",
+      "power_sensor_energy": "Tai energijos skaitiklis (kWh), o ne galios jutiklis. Pasirinkite kištuko galios jutiklį (W arba kW). Jei kištukas jo neturi, jį iš skaitiklio gali sukurti pagalbininkas „Išvestinis jutiklis“."
     }
   },
   "selector": {
@@ -77,11 +70,35 @@
         "dryer": "Džiovintuvas",
         "washer_dryer": "Skalbimo-džiovinimo kombinacija",
         "dishwasher": "Indaplovė",
-        "air_fryer": "Oro gruzdintuvė",
-        "bread_maker": "Duonkepė",
         "pump": "Siurblys / Drenažinis siurblys",
         "generic": "Kita (išplėstinė)",
         "other": "Slenksčio įtaisas"
+      }
+    },
+    "trigger_cycle_status": {
+      "options": {
+        "any": "Bet koks",
+        "completed": "Baigta",
+        "force_stopped": "Priverstinai sustabdyta",
+        "interrupted": "Nutraukta"
+      }
+    },
+    "trigger_state": {
+      "options": {
+        "off": "Išjungta",
+        "idle": "Tuščia eiga",
+        "starting": "Pradedama",
+        "running": "Veikia",
+        "paused": "Pristabdyta",
+        "user_paused": "Vartotojo pristabdyta",
+        "ending": "Baigiama",
+        "finished": "Baigta",
+        "anti_wrinkle": "Apsauga nuo raukšlių",
+        "delay_wait": "Laukiama pradžios",
+        "interrupted": "Nutraukta",
+        "force_stopped": "Priverstinai sustabdyta",
+        "unknown": "Nežinoma",
+        "clean": "Švarus"
       }
     }
   },
@@ -100,7 +117,7 @@
         },
         "profile_name": {
           "name": "Profilio pavadinimas",
-          "description": "Esamo profilio pavadinimas (sukurkite profilius meniu Tvarkyti profilius). Palikite tuščią, kad pašalintumėte etiketę."
+          "description": "Esamo profilio pavadinimas (profiliai kuriami WashData skydelyje). Palikite tuščią, kad pašalintumėte žymę."
         }
       }
     },
@@ -150,13 +167,13 @@
         },
         "confidence_threshold": {
           "name": "Patikimumo slenkstis",
-          "description": "Minimalus atitikties patikimumas (0,50–0,95) etiketėms taikyti."
+          "description": "Minimalus atitikties patikimumas (0,50-0,95) etiketėms taikyti. Palikite tuščią, kad būtų naudojamas įrenginio nustatymas „Automatinio žymėjimo pasitikėjimas“."
         }
       }
     },
     "export_config": {
       "name": "Eksportuoti konfigūraciją",
-      "description": "Eksportuoti šio įrenginio profilius, ciklus ir nustatymus į JSON failą (kiekvienam įrenginiui).",
+      "description": "Eksportuoti šio įrenginio profilius, ciklus ir nustatymus į JSON failą.",
       "fields": {
         "device_id": {
           "name": "Įrenginys",
@@ -184,7 +201,7 @@
     },
     "submit_cycle_feedback": {
       "name": "Pateikti ciklo atsiliepimą",
-      "description": "Patvirtinti arba pataisyti automatiškai aptiktą programą po baigto ciklo. Pateikite `entry_id` (išplėstinis) arba `device_id` (rekomenduojama).",
+      "description": "Patvirtinti arba pataisyti baigto ciklo aptiktą programą. Nurodykite `device_id` (rekomenduojama) arba `entry_id`.",
       "fields": {
         "device_id": {
           "name": "Įrenginys",
@@ -287,6 +304,16 @@
           "description": "WashData įrenginys, kurio modelius reikia iš naujo apmokyti."
         }
       }
+    },
+    "mark_unloaded": {
+      "name": "Pažymėti kaip iškrautą",
+      "description": "Patvirtinti, kad baigto ciklo turinys išimtas. Išvalo būseną „Švarus“ ir iškrovimo priminimą.",
+      "fields": {
+        "device_id": {
+          "name": "Įrenginys",
+          "description": "„WashData“ įrenginys, iš kurio išimtas baigto ciklo turinys."
+        }
+      }
     }
   },
   "entity": {
@@ -296,6 +323,32 @@
       },
       "match_ambiguity": {
         "name": "Atitikties dviprasmiškumas"
+      },
+      "maintenance_due": {
+        "name": "Reikia priežiūros",
+        "state": {
+          "on": "Reikia",
+          "off": "Nereikia"
+        },
+        "state_attributes": {
+          "due_task_ids": {
+            "name": "Reikalingų užduočių ID"
+          },
+          "due_tasks": {
+            "name": "Reikalingos užduotys",
+            "state": {
+              "descale": "Kalkių šalinimas",
+              "filter_clean": "Valyti filtrą",
+              "drum_clean": "Valyti būgną",
+              "bearing_service": "Guolių aptarnavimas",
+              "other": "Kita",
+              "salt": "Papildyti druskos",
+              "rinse_aid": "Papildyti skalavimo priemonės",
+              "lint_filter": "Valyti pūkų filtrą",
+              "condenser_clean": "Valyti kondensatorių"
+            }
+          }
+        }
       }
     },
     "sensor": {
@@ -313,10 +366,18 @@
           "anti_wrinkle": "Apsauga nuo raukšlių",
           "interrupted": "Nutraukta",
           "force_stopped": "Priverstinai sustabdyta",
-          "rinse": "Skalavimas",
           "unknown": "Nežinoma",
           "clean": "Švarus",
           "delay_wait": "Laukiama pradžios"
+        },
+        "state_attributes": {
+          "cycle_anomaly": {
+            "name": "Ciklo anomalija",
+            "state": {
+              "overrun": "Veikia ilgai",
+              "stalled": "Užstrigo"
+            }
+          }
         }
       },
       "washer_program": {
@@ -395,6 +456,9 @@
       },
       "record_stop": {
         "name": "Sustabdyti ciklo įrašymą"
+      },
+      "mark_unloaded": {
+        "name": "Pažymėti kaip iškrautą"
       }
     }
   },
@@ -443,6 +507,194 @@
     },
     "assign_profile_failed": {
       "message": "Nepavyko priskirti profilio: {error}"
+    }
+  },
+  "device_automation": {
+    "trigger_type": {
+      "cycle_started": "Ciklas pradėtas",
+      "cycle_finished": "Ciklas baigtas",
+      "cycle_ended": "Ciklas pasibaigė (bet kokia priežastis)",
+      "anti_wrinkle_started": "Apsauga nuo raukšlių pradėta",
+      "cycle_stalled": "Ciklas įstrigo",
+      "unload_pending": "Laukiama iškrovimo",
+      "program_recognised": "Programa atpažinta",
+      "phase_started": "Fazė prasidėjo",
+      "finishing_soon": "Baigsis greitai",
+      "cycle_overrun": "Ciklas trunka per ilgai",
+      "cycle_paused": "Ciklas pristabdytas",
+      "cycle_resumed": "Ciklas atnaujintas",
+      "still_tumbling": "Vis dar sukasi po ciklo",
+      "unloaded": "Iškrauta",
+      "state_changed": "Būsena pasikeitė",
+      "maintenance_due": "Reikalinga priežiūra",
+      "milestone_reached": "Ciklo riba pasiekta",
+      "pump_stuck": "Siurblys įstrigo"
+    },
+    "extra_fields": {
+      "program": "Programa",
+      "phase": "Fazė",
+      "minutes": "Minutės",
+      "percent": "Ilgesnis per (%)",
+      "include_detected": "Įtraukti aptiktas pauzes",
+      "status": "Baigėsi kaip",
+      "from": "Iš",
+      "to": "Į",
+      "task": "Užduotis"
+    },
+    "extra_fields_descriptions": {
+      "program": "Tik ši programa, tiksliu pavadinimu. Palikite tuščia bet kuriai programai.",
+      "phase": "Tik ši fazė, pavadinimu. Palikite tuščia bet kuriai fazei.",
+      "minutes": "Baigsis greitai: likusios minutės. Vis dar sukasi: minutės po pabaigos.",
+      "percent": "Procentai viršijant įprastą programos trukmę.",
+      "include_detected": "Suaktyvinkite ir dėl WashData maitinime aptiktų pauzių, pvz., mirkymui ar sustojimui.",
+      "status": "Tik taip pasibaigę ciklai.",
+      "from": "Tik pokyčiai iš šios būsenos. Palikite tuščia bet kuriai.",
+      "to": "Tik pokyčiai į šią būseną. Palikite tuščia bet kuriai.",
+      "task": "Tik ši užduotis, pagal pavadinimą ar ID. Palikite tuščia bet kuriai užduočiai."
+    }
+  },
+  "triggers": {
+    "cycle_started": {
+      "name": "Ciklas pradėtas",
+      "description": "Suaktyvinamas, kai prietaisas pradeda ciklą."
+    },
+    "program_recognised": {
+      "name": "Programa atpažinta",
+      "description": "Suaktyvinamas, kai WashData atpažįsta veikiančio ciklo programą arba perjungia ją į kitą.",
+      "fields": {
+        "program": {
+          "name": "Programa",
+          "description": "Tik ši programa, tiksliu pavadinimu. Palikite tuščia bet kuriai programai."
+        }
+      }
+    },
+    "phase_started": {
+      "name": "Fazė prasidėjo",
+      "description": "Suaktyvinamas, kai vykstantis ciklas pereina į naują programos fazę.",
+      "fields": {
+        "phase": {
+          "name": "Fazė",
+          "description": "Tik ši fazė, pavadinimu. Palikite tuščia bet kuriai fazei."
+        }
+      }
+    },
+    "finishing_soon": {
+      "name": "Baigsis greitai",
+      "description": "Suaktyvinamas vieną kartą per ciklą, kai likęs laikas pirmą kartą nukrenta iki šio minučių skaičiaus.",
+      "fields": {
+        "minutes": {
+          "name": "Likusios minutės",
+          "description": "Suaktyvinti, kai liko tiek ar mažiau minučių."
+        }
+      }
+    },
+    "cycle_overrun": {
+      "name": "Ciklas trunka per ilgai",
+      "description": "Suaktyvinamas vieną kartą per ciklą, kai jis trunka tiek ilgiau nei įprasta programos trukmė.",
+      "fields": {
+        "percent": {
+          "name": "Ilgesnis per",
+          "description": "Procentai viršijant įprastą programos trukmę."
+        }
+      }
+    },
+    "cycle_paused": {
+      "name": "Ciklas pristabdytas",
+      "description": "Suaktyvinamas, kai sustabdote ciklą, ir neprivaloma, kai prietaisas sustoja pats.",
+      "fields": {
+        "include_detected": {
+          "name": "Įtraukti aptiktas pauzes",
+          "description": "Suaktyvinkite ir dėl WashData aptiktų pauzių, pvz., mirkymui ar sustojimui, ne tik jūsų pradėtoms pauzėms."
+        }
+      }
+    },
+    "cycle_resumed": {
+      "name": "Ciklas atnaujintas",
+      "description": "Suaktyvinamas, kai pristabdytas ciklas tęsiasi.",
+      "fields": {
+        "include_detected": {
+          "name": "Įtraukti aptiktas pauzes",
+          "description": "Suaktyvinkite ir dėl WashData aptiktų pauzių, pvz., mirkymui ar sustojimui, ne tik jūsų pradėtoms pauzėms."
+        }
+      }
+    },
+    "cycle_stalled": {
+      "name": "Ciklas įstrigo",
+      "description": "Suaktyvinamas, kai vykstantis ciklas sustoja esant žemam, tolygiam galios lygiui."
+    },
+    "cycle_finished": {
+      "name": "Ciklas baigtas",
+      "description": "Suaktyvinamas, kai ciklas baigiasi, taip pat kai jį sustabdote. Ne dėl klaidingo paleidimo.",
+      "fields": {
+        "program": {
+          "name": "Programa",
+          "description": "Tik ši programa, tiksliu pavadinimu. Palikite tuščia bet kuriai programai."
+        }
+      }
+    },
+    "cycle_ended": {
+      "name": "Ciklas pasibaigė (bet kokia priežastis)",
+      "description": "Suaktyvinamas, kai ciklas baigiasi dėl bet kokios priežasties, įskaitant klaidingus paleidimus.",
+      "fields": {
+        "status": {
+          "name": "Baigėsi kaip",
+          "description": "Tik taip pasibaigę ciklai."
+        }
+      }
+    },
+    "anti_wrinkle_started": {
+      "name": "Apsauga nuo raukšlių pradėta",
+      "description": "Suaktyvinamas, kai prietaisas pradeda sukti baigtą skalbinį prieš raukšles."
+    },
+    "still_tumbling": {
+      "name": "Vis dar sukasi po ciklo",
+      "description": "Suaktyvinamas vieną kartą, kai prietaisas vis dar sukasi trumpais impulsais tiek minučių po ciklo pabaigos. Sustoja esant naujam ciklui arba po 4 valandų nuo pabaigos.",
+      "fields": {
+        "minutes": {
+          "name": "Minutės po pabaigos",
+          "description": "Suaktyvinti pirmojo sukimosi metu, kuris yra bent tiek po pabaigos."
+        }
+      }
+    },
+    "unload_pending": {
+      "name": "Laukiama iškrovimo",
+      "description": "Suaktyvinamas, kai ciklas baigtas ir skalbiniai vis dar viduje."
+    },
+    "unloaded": {
+      "name": "Iškrauta",
+      "description": "Suaktyvinamas, kai skalbiniai išimami po ciklo: durys atidarytos arba iškrovimas patvirtintas."
+    },
+    "state_changed": {
+      "name": "Būsena pasikeitė",
+      "description": "Suaktyvinamas, kai pasikeičia WashData būsena.",
+      "fields": {
+        "from": {
+          "name": "Iš",
+          "description": "Tik pokyčiai iš šios būsenos. Palikite tuščia bet kuriai."
+        },
+        "to": {
+          "name": "Į",
+          "description": "Tik pokyčiai į šią būseną. Palikite tuščia bet kuriai."
+        }
+      }
+    },
+    "maintenance_due": {
+      "name": "Reikalinga priežiūra",
+      "description": "Suaktyvinamas, kai priežiūros užduotis tampa atidėtina.",
+      "fields": {
+        "task": {
+          "name": "Užduotis",
+          "description": "Tik ši užduotis, pagal pavadinimą ar ID. Palikite tuščia bet kuriai užduočiai."
+        }
+      }
+    },
+    "milestone_reached": {
+      "name": "Ciklo riba pasiekta",
+      "description": "Suaktyvinamas, kai viso laikotarpio ciklų skaičius pasiekia vieną iš pranešimų ribų."
+    },
+    "pump_stuck": {
+      "name": "Siurblys įstrigo",
+      "description": "Suaktyvinamas, kai siurblys veikia ilgiau nei jam nustatyta įstrigimo riba."
     }
   }
 }

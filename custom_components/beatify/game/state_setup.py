@@ -17,8 +17,10 @@ the two builders attach to their PlaylistManager. It is **behavior-preserving**:
 it carries the exact same methods that previously lived on ``GameState``, so its
 public API and every caller / test are unchanged.
 
-* ``create_game`` — the new-session builder. Validates the round duration,
-  clears any leftover sessions, mints a fresh ``game_id`` / ``admin_token``,
+* ``create_game`` — the new-session builder, taking its options as a single
+  :class:`~custom_components.beatify.game.config.GameOptions` (#2635) rather
+  than 18 parameters. Validates the round duration, clears any leftover
+  sessions, mints a fresh ``game_id`` / ``admin_token``,
   builds the join URL, constructs the :class:`PlaylistManager` (failing fast on
   a provider with zero playable songs, #709), resets round tracking + the
   config-managed fields, and configures the challenge / power-up / intro / mode
@@ -37,6 +39,12 @@ public API and every caller / test are unchanged.
   settings, runs ``_reset_game_internals``, restores the snapshot, re-detects the
   storefront + re-creates the PlaylistManager, resets each player's per-game
   stats, mints a new ``game_id`` / ``admin_token`` and regenerates the join URL.
+  The snapshot is a :class:`~custom_components.beatify.game.config.GameOptions`
+  read back by field name (#2635), not a hand-written dict — the dict was a
+  transcript of ``create_game``'s parameter list, and an option missing from it
+  silently fell back to its default on the rematch. Since #2648 it also takes
+  an optional new song list + playlist selection, so the next game can be a
+  different playlist without anyone leaving the room.
 * ``_detect_storefront`` — resolves the Apple-Music storefront (#808 follow-up)
   from ``hass.config.country`` (lower-cased) or ``None``; used only by the two
   builders above.
@@ -76,24 +84,48 @@ back into ``state.py``.
 
 from __future__ import annotations
 
+import asyncio
 import logging
 import secrets
+from dataclasses import replace
 from typing import Any
 
 from custom_components.beatify.const import (
-    DEFAULT_ROUND_DURATION,
-    DIFFICULTY_DEFAULT,
-    PROVIDER_DEFAULT,
     ROUND_DURATION_MAX,
     ROUND_DURATION_MIN,
+    SAMPLE_DURATION_OPTIONS,
 )
 
+from .config import REMATCH_CARRYOVER_ATTRS, GameOptions
 from .playlist import PlaylistManager
+from .state_contract import GameStateBase
 
 _LOGGER = logging.getLogger(__name__)
 
 
-class GameSetupMixin:
+class NoPlayableSongsError(ValueError):
+    """The chosen provider has no playable song in the selected playlist(s).
+
+    #2530: ``create_game`` raises ``ValueError`` for two unrelated reasons — an
+    out-of-range round duration and this one. The HTTP layer has a distinct
+    error code for each (``INVALID_REQUEST`` / ``NO_PLAYABLE_SONGS``) and cannot
+    tell them apart from a bare ``ValueError`` without matching on the message
+    text, which a translation or a reword would silently break.
+
+    It subclasses ``ValueError`` deliberately: every existing caller and test
+    that expects a ``ValueError`` from ``create_game`` keeps working, so this
+    adds a distinction without changing the contract.
+
+    #3076: ``provider`` travels with the error so the host phone can render the
+    sentence in its own language instead of the English ``str(err)``.
+    """
+
+    def __init__(self, message: str, provider: str | None = None) -> None:
+        super().__init__(message)
+        self.provider = provider
+
+
+class GameSetupMixin(GameStateBase):
     """Game-setup (create / reset / end / rematch) behavior for :class:`GameState`.
 
     Carries the new-session builder plus the teardown / rematch rebuild and
@@ -102,22 +134,14 @@ class GameSetupMixin:
     expects on ``self`` at runtime.
     """
 
-    def create_game(  # noqa: PLR0913
+    def create_game(
         self,
         playlists: list[str],
         songs: list[dict[str, Any]],
         media_player: str,
         base_url: str,
-        round_duration: int = DEFAULT_ROUND_DURATION,
-        difficulty: str = DIFFICULTY_DEFAULT,
-        provider: str = PROVIDER_DEFAULT,
-        platform: str = "unknown",
-        artist_challenge_enabled: bool = True,
-        movie_quiz_enabled: bool = True,
-        intro_mode_enabled: bool = False,
-        closest_wins_mode: bool = False,
-        title_artist_mode: bool = False,
-        reveal_auto_advance: int = 0,
+        options: GameOptions | None = None,
+        **option_overrides: Any,
     ) -> dict[str, Any]:
         """
         Create a new game session.
@@ -127,30 +151,51 @@ class GameSetupMixin:
             songs: List of song dicts loaded from playlists
             media_player: Entity ID of media player
             base_url: HA base URL for join URL construction
-            round_duration: Round timer duration in seconds (10-60, default 30)
-            difficulty: Difficulty level (easy/normal/hard, default normal)
-            provider: Music provider (spotify/apple_music, default spotify)
-            platform: Platform identifier for playback routing (music_assistant, sonos, alexa_media)
-            artist_challenge_enabled: Whether to enable artist guessing (default True)
-            movie_quiz_enabled: Whether to enable movie quiz bonus (default True)
-            intro_mode_enabled: Whether to enable intro mode (~20% random rounds)
-            closest_wins_mode: Whether only the closest guess(es) earn points
-            title_artist_mode: Whether title/artist guessing replaces the year guess
+            options: The admin-configured game options (:class:`GameOptions`).
+                Defaults to every option at its default value.
+            **option_overrides: Individual :class:`GameOptions` fields, applied
+                on top of ``options``. This is what keeps the long-standing
+                ``create_game(..., sudden_death_mode=True)`` call style
+                working now that the option list lives in the dataclass
+                (#2635). An unknown name raises ``TypeError``, exactly as a
+                stray keyword argument did when every option was spelled out
+                in this signature.
 
         Returns:
             dict with game_id, join_url, song_count, phase
 
         Raises:
+            TypeError: If an unknown option name is passed
             ValueError: If round_duration is outside valid range (10-60)
 
         """
-        from .state import GamePhase  # noqa: PLC0415
+        from .state import GamePhase
+
+        # #2635: one list. The options arrive as a dataclass instead of 18
+        # parameters that had to be repeated in the rematch's `preserved` dict
+        # and in game_views' `create_kwargs` — miss one there and the option
+        # silently fell back to its default on the rematch.
+        opts = options if options is not None else GameOptions()
+        if option_overrides:
+            opts = replace(opts, **option_overrides)
 
         # Validate round duration (Story 13.1)
-        if not (ROUND_DURATION_MIN <= round_duration <= ROUND_DURATION_MAX):
+        if not (ROUND_DURATION_MIN <= opts.round_duration <= ROUND_DURATION_MAX):
             raise ValueError(
                 f"Round duration must be between {ROUND_DURATION_MIN} "
                 f"and {ROUND_DURATION_MAX} seconds"
+            )
+
+        # #3152: the song sample is one of the offered steps and shorter than
+        # the round. The HTTP layer answers this with its own error; this is
+        # the backstop for every other caller.
+        if opts.sample_duration and (
+            opts.sample_duration not in SAMPLE_DURATION_OPTIONS
+            or opts.sample_duration >= opts.round_duration
+        ):
+            raise ValueError(
+                "Song sample length must be one of "
+                f"{SAMPLE_DURATION_OPTIONS} and shorter than the round duration"
             )
 
         # #1378: validate BEFORE mutating any state. Building the
@@ -171,15 +216,24 @@ class GameSetupMixin:
         # _detect_storefront is read-only, so it is safe to run pre-mutation.
         storefront = self._detect_storefront()
 
-        # Initialize PlaylistManager for song selection (Epic 4, Story 17.2: with provider)
-        playlist_manager = PlaylistManager(songs, provider, storefront=storefront)
+        # Initialize PlaylistManager for song selection (Epic 4, Story 17.2: with
+        # provider). #1726: when ramp-up ordering is opted in, the manager also
+        # gets a difficulty-lookup so it can arrange the songs into an arc.
+        playlist_manager = self._build_playlist_manager(
+            songs,
+            opts.provider,
+            storefront,
+            opts.rampup_order_enabled,
+            opts.max_rounds,
+        )
 
         # #709: if the chosen provider has zero playable songs, fail fast with
         # a clear error rather than silently starting a game that will stall.
         if not playlist_manager.has_playable_songs():
-            raise ValueError(
-                f"No playable songs for provider '{provider}' in the selected "
-                f"playlist(s). Pick a different playlist or provider."
+            raise NoPlayableSongsError(
+                f"No playable songs for provider '{opts.provider}' in the selected "
+                f"playlist(s). Pick a different playlist or provider.",
+                provider=opts.provider,
             )
 
         # Validation passed — now it is safe to mutate game state.
@@ -190,6 +244,7 @@ class GameSetupMixin:
         # await from a prior game/session.
         self._game_epoch += 1
         self.game_id = secrets.token_urlsafe(8)
+        self.rematched_from_game_id = None  # #2947: a new game has no predecessor
         self.admin_token = secrets.token_urlsafe(16)  # Issue #386: REST admin auth
         self._set_phase(GamePhase.LOBBY)
         self.playlists = playlists
@@ -204,19 +259,41 @@ class GameSetupMixin:
         # provider until HA itself restarts. rematch_game() intentionally preserves
         # these values, so this reset stays scoped to create_game.
         self._media_player_service = None
+        # #2143: a NEW game starts owing nothing. Promises to speakers of a
+        # previous game are dropped here on purpose — carrying them across
+        # would restore a stale volume/track at the end of an unrelated game.
+        # (rematch_game does NOT come through here and keeps its promises.)
+        self._pending_speaker_states = {}
+        # Same recycling mechanism as the media service above, same fix.
+        # configure_tts / configure_party_lights are only called when a config
+        # is supplied, so with TTS or lights DISABLED nothing cleared the
+        # previous game's service: a new game announced on the PREVIOUS game's
+        # speaker and drove the previous game's lights (hardware-confirmed).
+        self._tts_service = None
+        self._party_lights = None
         self.join_url = f"{base_url}/beatify/play?game={self.game_id}"
         self.players = {}
 
-        # Store provider setting (Story 17.2)
-        self.provider = provider
-
-        # Store platform for playback routing
-        self.platform = platform
+        # #2635: every admin-configured option in one go — round_duration,
+        # difficulty, provider, platform, max_rounds (#1475), the REVEAL dwell
+        # (#1012) and all the mode flags. The rematch re-applies the very same
+        # object, so an option can no longer be forgotten on the way back.
+        # The challenge configure() below still runs afterwards: it is what
+        # nulls the per-round challenge objects and enforces the
+        # artist-challenge / Title & Artist exclusion.
+        opts.apply_to(self)
 
         self.storefront = storefront
 
         # Reset error detail
         self.last_error_detail = ""
+        # #2614: the #1936 consecutive-timeout budget belongs to ONE game.
+        # It is not config-managed, so nothing above clears it — and
+        # create_game does not route through _reset_game_internals. Without
+        # this line a game that ended two timeouts deep hands the next game a
+        # budget of one: a single slow start in round 1 pauses it with the
+        # re-authenticate banner instead of skipping the song.
+        self._consecutive_playback_failures = 0
 
         self._playlist_manager = playlist_manager
 
@@ -226,25 +303,29 @@ class GameSetupMixin:
         self.deadline = None
         self.current_song = None
         self.last_round = False
+        # #2503: a new game has no encore offer open. Cleared on every round
+        # start as well, but a game created straight out of a REVEAL (the
+        # rematch path does not come through here, the admin page does) would
+        # otherwise inherit the previous game's open window.
+        self._encore_window = False
+        self._returned_this_round: list[str] = []
         self.pause_reason = None
         self._previous_phase = None
 
-        # Reset timing for speed bonus (Story 5.1) and configurable duration (Story 13.1)
+        # Reset timing for speed bonus (Story 5.1). The configurable duration
+        # (Story 13.1) came from opts.apply_to above.
         self.round_start_time = None
-        self.round_duration = round_duration
 
-        # Set difficulty (Story 14.1). Explicit annotation so mypy has a
-        # declared type at the assignment point — without it the gated
+        # Set difficulty (Story 14.1) — already written by opts.apply_to; this
+        # repeats it purely for the explicit annotation, which mypy needs as a
+        # declared type at an assignment point. Without it the gated
         # game/service.py read (self._game_state.difficulty) hit a mypy
         # has-type deferral once GameState grew to 9 mixins (#1271).
-        self.difficulty: str = difficulty
+        self.difficulty: str = opts.difficulty
 
         # Reset song stopped flag (Story 6.2)
         self.song_stopped = False
 
-        # #1012: REVEAL auto-advance — seconds to wait in REVEAL before
-        # starting the next round automatically (0 = off / manual only).
-        self.reveal_auto_advance = reveal_auto_advance
         # #1359: cancel any leftover auto-advance / vote-window task from a
         # prior game instead of just dropping the handle — a bare
         # ``self._auto_advance_task = None`` would orphan a still-running
@@ -262,6 +343,10 @@ class GameSetupMixin:
         # #1371: clear the pause snapshot of the vote window too.
         self._paused_vote_open = False
         self._paused_vote_deadline = None
+        # #2883: and the frozen round clock.
+        self._paused_round_remaining_ms = None
+        self._paused_at = None
+        self._paused_clock_unstarted = False
 
         # Reset round analytics (Story 13.3)
         self.round_analytics = None
@@ -269,28 +354,38 @@ class GameSetupMixin:
         # Issue #351: Reset power-up state for new game
         self._powerup_manager.reset()
 
-        # Story 20.1 / Issue #28 / Issue #1180: Set challenge configuration
+        # Story 20.1 / Issue #28 / Issue #1180: Set challenge configuration.
+        # Runs after opts.apply_to so the Title & Artist exclusion wins and the
+        # per-round challenge objects are nulled for the new game.
         self._challenge_manager.configure(
-            artist_challenge_enabled=artist_challenge_enabled,
-            movie_quiz_enabled=movie_quiz_enabled,
-            title_artist_mode=title_artist_mode,
+            artist_challenge_enabled=opts.artist_challenge_enabled,
+            movie_quiz_enabled=opts.movie_quiz_enabled,
+            title_artist_mode=opts.title_artist_mode,
         )
 
-        # Issue #23: Set intro mode configuration
-        self.intro_mode_enabled = intro_mode_enabled
-
-        # Issue #442: Set closest wins mode
-        self.closest_wins_mode = closest_wins_mode
+        # #1725: runtime bookkeeping for the tiebreaker playoff — not an
+        # option, so opts.apply_to does not cover it.
+        self._finale_playoff_rounds = 0
+        self._finale_playoff_active = False
         self.is_intro_round = False
         self.intro_stopped = False
         self._round_manager._intro_round_start_time = None
         self._round_manager._rounds_since_intro = 0
         self._round_manager._cancel_intro_timer()
+        self._round_manager._cancel_sample_timer()  # #3152
+        self.sample_stopped = False
 
         # Reset timer task for new game
         self.cancel_timer()
 
         _LOGGER.info("Game created: %s with %d songs", self.game_id, len(songs))
+
+        # #1540: pre-warm the MediaPlayerService during LOBBY so Round 1 doesn't
+        # pay the construction + cold first-call (preflight) latency that #803
+        # tracked. Fire-and-forget / best-effort — must NOT block create_game.
+        # _ensure_media_player_service() stays the idempotent fallback if this
+        # didn't run (or hasn't finished) by the time the first round starts.
+        self.schedule_media_player_prewarm()
 
         return {
             "game_id": self.game_id,
@@ -310,8 +405,12 @@ class GameSetupMixin:
         service refs (_stats_service, _on_round_end, _on_metadata_update),
         or volume_level (caller's responsibility).
         """
-        # Issue #477: Clear admin spectator WS (connection stays open, just de-ref)
-        self._admin_ws = None
+        # #2638: the admin spectator WebSocket is an aiohttp socket the server
+        # opens; it used to be de-referenced here. GameState no longer holds
+        # it, so instead we tell whoever registered — in production
+        # ``BeatifyWebSocketHandler.clear_admin_socket`` — at the exact same
+        # point in the teardown (Issue #477 behaviour, unchanged).
+        self._notify_reset_callbacks()
 
         # Issue #464: Reset round lifecycle (timers, metadata, intro state)
         self._round_manager.reset()
@@ -328,6 +427,13 @@ class GameSetupMixin:
         self._title_artist_voting_open = False
         self._title_artist_vote_deadline = None
 
+        # #2614: same story for the #1936 consecutive-playback-failure streak.
+        # It is round-start retry state, not a config field, so _apply_config
+        # leaves it alone. Clearing it here covers both teardown paths at once
+        # — end_game and rematch_game — which is exactly what this shared
+        # reset exists for.
+        self._consecutive_playback_failures = 0
+
         # Issue #351: Reset power-up state
         self._powerup_manager.reset()
 
@@ -337,9 +443,17 @@ class GameSetupMixin:
         # Issue #75: Reset highlights tracker
         self.highlights_tracker.reset()
 
-    async def end_game(self) -> None:
-        """End the current game and reset state."""
-        from .state import GamePhase  # noqa: PLC0415
+    async def end_game(self, *, defer_speaker_handback: bool = False) -> None:
+        """End the current game and reset state.
+
+        #3041: with ``defer_speaker_handback`` the speaker's volume and queue
+        are handed back in a tracked background task instead of inline. The
+        Music Assistant queue restore alone takes ~8 s (it waits for the track
+        to load and then holds the #2605 pause), and the REST end-game used to
+        sit on it before telling anyone the game was over. The game state is
+        torn down exactly as before; only the speaker work moves.
+        """
+        from .state import GamePhase
 
         _LOGGER.info("Game ended: %s", self.game_id)
         self.cancel_timer()
@@ -349,6 +463,10 @@ class GameSetupMixin:
         # is still REVEAL there) and trigger the next song after the game ended.
         # advance_to_end() already does this; the HTTP/force-end path lands here.
         self._cancel_auto_advance()
+        # #1540 review: cancel a still-running LOBBY media-player pre-warm so it
+        # can't keep probing the speaker after the game ended (analogous to the
+        # auto-advance cancel above).
+        self._cancel_prewarm()
         # #1358: bump the game-identity epoch synchronously, BEFORE the awaits
         # below (same rationale as the _cancel_auto_advance above). A start_round
         # that's parked in play_song and resumes anytime during this teardown —
@@ -370,58 +488,199 @@ class GameSetupMixin:
         async with self._score_lock:
             # Issue #331: Restore lights before resetting
             await self.disable_party_lights()
+            # #2143: a speaker switch during PLAYING/REVEAL leaves the old
+            # device's promises parked on the game with no service to carry
+            # them out. Build one so the restores below reach every speaker
+            # this game touched, not just the last one.
+            if self._pending_speaker_states and self.media_player:
+                self._ensure_media_player_service()
             # #1516: restore the speaker volume to its pre-game level (the host
             # had to manually reset it after every game otherwise). No-op if
             # Beatify never changed the volume this game.
-            await self.restore_player_volume()
+            #
+            # #2143: hand back the track the speaker was playing before the
+            # game — paused, at its old position. No-op outside Music
+            # Assistant, or when the speaker was idle at game start.
+            if defer_speaker_handback:
+                self._schedule_speaker_handback()
+            else:
+                await self.restore_player_volume()
+                await self.restore_player_queue()
             # Issue #447: Disable TTS
             await self.disable_tts()
             self._reset_game_internals()
             self.game_id = None
+            self.rematched_from_game_id = None  # #2947
             self._set_phase(GamePhase.LOBBY, notify=False)
             self.players = {}
             self.clear_all_sessions()
             self._notify_state_callbacks()
 
-    def rematch_game(self) -> None:
-        """Reset game for rematch, preserving connected players (Issue #108)."""
-        from .state import GamePhase  # noqa: PLC0415
+    #: Upper bound on how long a new game waits for the previous game's
+    #: speaker hand-back (#3041). The restore bounds its own waits (track load,
+    #: #2605 pause hold); this only keeps a wedged speaker from holding the
+    #: next game's start request open for good.
+    _SPEAKER_HANDBACK_WAIT_S = 30.0
+
+    def _schedule_speaker_handback(self) -> None:
+        """Restore the speaker's volume and queue in the background (#3041).
+
+        Runs on the service object captured here, not on
+        ``self._media_player_service`` — ``create_game`` replaces that
+        reference, and the hand-back belongs to the game that just ended.
+        Both restores take their promises before their first await, so the
+        service is left owing nothing even while the calls are still running.
+        """
+        service = self._media_player_service
+        if service is None:
+            return
+        previous = self._speaker_handback_task
+
+        async def _runner() -> None:
+            # Two ends in quick succession must not interleave their calls to
+            # the same speaker.
+            if previous is not None and not previous.done():
+                await asyncio.wait({previous})
+            try:
+                await service.restore_volume()
+            except Exception:
+                _LOGGER.exception("Restoring the speaker volume after the game failed")
+            try:
+                await service.restore_queue()
+            except Exception:
+                _LOGGER.exception("Restoring the speaker queue after the game failed")
+
+        # Same tracked-task pattern as the #1540 pre-warm: HA's helper ties the
+        # task to the integration's lifecycle; the bare task is the fallback for
+        # the hass-less GameState in unit tests. Either way the handle is kept.
+        creator = getattr(self._hass, "async_create_background_task", None)
+        if callable(creator):
+            task = creator(_runner(), name="beatify_speaker_handback")
+        else:
+            task = asyncio.create_task(_runner())
+        self._speaker_handback_task = task
+
+        def _forget(done: asyncio.Task) -> None:
+            if self._speaker_handback_task is done:
+                self._speaker_handback_task = None
+
+        task.add_done_callback(_forget)
+
+    async def wait_for_speaker_handback(self, timeout: float | None = None) -> bool:
+        """Wait until the previous game has handed the speaker back (#3041).
+
+        A new game must not touch the speaker while the old queue is still
+        being restored onto it: its first ``save_volume``/``save_queue`` would
+        capture Beatify's own leftovers as the host's "pre-game" state, and the
+        restore's ``play_media``/pause would land on top of round one.
+
+        Returns:
+            True when nothing was pending or the hand-back finished, False when
+            ``timeout`` ran out first (the game then starts anyway).
+        """
+        task = self._speaker_handback_task
+        if task is None or task.done():
+            return True
+        limit = self._SPEAKER_HANDBACK_WAIT_S if timeout is None else timeout
+        _, pending = await asyncio.wait({task}, timeout=limit)
+        if pending:
+            _LOGGER.warning(
+                "Speaker hand-back from the previous game still running after "
+                "%.1fs — starting the new game anyway (#3041)",
+                limit,
+            )
+            return False
+        return True
+
+    def rematch_game(
+        self,
+        songs: list[dict[str, Any]] | None = None,
+        playlists: list[str] | None = None,
+    ) -> None:
+        """Reset game for rematch, preserving connected players (Issue #108).
+
+        #2648: the next game may use different music. Pass ``songs`` (already
+        loaded and tagged) plus the ``playlists`` they came from and the
+        rematch swaps the content while everything else — the players, their
+        names, their sessions, and every setting the host configured — carries
+        over exactly as it always has. Omit both and this is the historic
+        same-playlist rematch, unchanged.
+
+        Raises :class:`NoPlayableSongsError` when the new songs yield nothing
+        the current provider can play. The check runs BEFORE anything is
+        mutated, so a refused swap leaves the finished game standing and the
+        host still looking at the end screen.
+        """
+        from .state import GamePhase
 
         _LOGGER.info("Rematch initiated from game: %s", self.game_id)
+
+        swap_songs: list[dict[str, Any]] | None = None
+        if songs is not None:
+            swap_songs = list(songs)
+            # Provider, storefront, ramp-up and the round cap do not change
+            # across a rematch, so probing with today's values is exactly what
+            # the rebuild further down will do with them.
+            probe = self._build_playlist_manager(
+                swap_songs,
+                self.provider,
+                self._detect_storefront(),
+                bool(getattr(self, "rampup_order_enabled", False)),
+                self.max_rounds,
+            )
+            if not probe.has_playable_songs():
+                raise NoPlayableSongsError(
+                    f"No playable songs for provider '{self.provider}' in the "
+                    f"selected playlist(s). Pick a different playlist.",
+                    provider=self.provider,
+                )
+
         self.cancel_timer()
 
-        # Preserve game settings that the admin configured (Issue #591)
-        preserved = {
-            "playlists": self.playlists,
-            "songs": list(self.songs),
-            "media_player": self.media_player,
-            "join_url": self.join_url,
-            "provider": self.provider,
-            "platform": self.platform,
-            "difficulty": self.difficulty,
-            "language": self.language,
-            "round_duration": self.round_duration,
-            "artist_challenge_enabled": self.artist_challenge_enabled,
-            "movie_quiz_enabled": self.movie_quiz_enabled,
-            "intro_mode_enabled": self.intro_mode_enabled,
-            "closest_wins_mode": self.closest_wins_mode,
-            "title_artist_mode": self.title_artist_mode,
-        }
+        # Preserve game settings that the admin configured (Issue #591).
+        # #2635: read back by field name from GameOptions instead of a
+        # hand-written dict. That dict was a transcript of create_game's
+        # parameter list, and a new option that missed it fell back to its
+        # default on the rematch with no error anywhere.
+        preserved = GameOptions.capture(self)
+        # The rest of the session the rematch keeps: content, the derived join
+        # URL, and the language the HTTP layer sets after create_game. All of
+        # them are GameStateConfig fields, so the reset below clears them.
+        carryover = {name: getattr(self, name) for name in REMATCH_CARRYOVER_ATTRS}
+        # The rematch works on its own copy of the song list.
+        carryover["songs"] = list(carryover["songs"])
+        if swap_songs is not None:
+            # #2648: the swap replaces the content only. It goes through the
+            # same carryover dict so the restore loop below stays the single
+            # place that writes these fields.
+            carryover["songs"] = swap_songs
+            carryover["playlists"] = list(playlists or [])
 
         self._reset_game_internals()
+        # #1725: the playoff counters are runtime state, not config fields, so
+        # _reset_game_internals doesn't touch them — clear them for the rematch.
+        self._finale_playoff_rounds = 0
+        self._finale_playoff_active = False
 
         # Restore preserved settings for seamless rematch
-        for attr, value in preserved.items():
+        for attr, value in carryover.items():
             setattr(self, attr, value)
+        preserved.apply_to(self)
 
         # Re-create PlaylistManager with fresh song list
         # #808 follow-up: re-detect storefront for the rematch (in case
         # HA's country config changed) and re-attach it.
         self.storefront = self._detect_storefront()
-        self._playlist_manager = PlaylistManager(
-            preserved["songs"],
-            preserved["provider"],
-            storefront=self.storefront,
+        # #1726: rebuild with the same ramp-up choice the host made at create.
+        # #1475: die Rundenzahl gehoert zur Spielkonfiguration, nicht zur
+        # einzelnen Partie. Ohne diese Zeile waere die Revanche wieder ueber
+        # die volle Playlist gelaufen, obwohl der Gastgeber 20 eingestellt hat.
+        self._playlist_manager = self._build_playlist_manager(
+            carryover["songs"],
+            preserved.provider,
+            self.storefront,
+            preserved.rampup_order_enabled,
+            preserved.max_rounds,
         )
         # #1377: derive total_rounds from the filtered/deduped playable pool
         # (exactly like create_game, state_setup.py), not the raw song list.
@@ -439,12 +698,15 @@ class GameSetupMixin:
         for player in self.players.values():
             player.reset_for_new_game()
         # Generate new game ID and admin token for the rematch
+        # #2947: remember the finished game's id so a guest still holding it
+        # (QR scanned during the podium) can be led into this lobby.
+        self.rematched_from_game_id = self.game_id
         self.game_id = secrets.token_urlsafe(8)
         self.admin_token = secrets.token_urlsafe(16)  # Issue #386
 
         # Regenerate join_url with new game_id
-        if preserved["join_url"]:
-            base_url = preserved["join_url"].split("/beatify/play")[0]
+        if carryover["join_url"]:
+            base_url = carryover["join_url"].split("/beatify/play")[0]
             self.join_url = f"{base_url}/beatify/play?game={self.game_id}"
 
         _LOGGER.info(
@@ -452,6 +714,170 @@ class GameSetupMixin:
             len(self.players),
             self.total_rounds,
             self.game_id,
+        )
+
+    def replace_songs(self, songs: list[dict[str, Any]]) -> bool:
+        """Swap the game's song list while still in LOBBY (Crate Digger).
+
+        A room freezes its songs at creation, but the lobby's reset button
+        creates the next room immediately — so a popularity/genre change made
+        afterwards missed its own game and only took effect one game later.
+        The library provider therefore regenerates songs from the CURRENT
+        settings in a pre-start hook and installs them here.
+
+        Rebuilds the manager through ``_build_playlist_manager`` so ramp-up
+        ordering (#1726) and storefront detection behave exactly as they do at
+        create/rematch, and re-derives ``total_rounds`` from the filtered
+        playable pool (#1377) rather than the raw list. Returns False (leaving
+        the existing songs untouched) if the new set yields nothing playable.
+        """
+        from .state import GamePhase
+
+        if self.phase != GamePhase.LOBBY or not songs:
+            return False
+        manager = self._build_playlist_manager(
+            songs,
+            self.provider,
+            self.storefront,
+            bool(getattr(self, "rampup_order_enabled", False)),
+        )
+        if manager.get_total_count() <= 0:
+            _LOGGER.warning(
+                "replace_songs: %d song(s) yielded no playable tracks — "
+                "keeping the existing playlist",
+                len(songs),
+            )
+            return False
+        self.songs = songs
+        self._playlist_manager = manager
+        self.total_rounds = manager.get_total_count()
+        return True
+
+    def apply_lobby_options(
+        self,
+        options: GameOptions,
+        songs: list[dict[str, Any]] | None = None,
+        playlists: list[str] | None = None,
+    ) -> bool:
+        """Re-apply admin options to a game that has not started yet (#2769).
+
+        A room freezes its options at creation. The setup wizard, however,
+        rewrites ``saved_setup`` and then returns the host to a lobby whose
+        game was created from the PREVIOUS blob — same ``game_id``, same flags,
+        same round count. Measured on the real installation on 2026-09-08: the
+        wizard switched the play style from Chaos to Classic and raised the
+        rounds from 10 to 20, and the game in the lobby kept Sabotage, the
+        comeback token, ramp-up ordering, intro mode and ten rounds. The host
+        then starts a game that runs the settings they just replaced, and the
+        home screen shows neither the style nor the round count, so nothing
+        contradicts them.
+
+        **Patched, not replaced.** Replacing the game would be cheap in state
+        terms — a lobby has no scores and no rounds played — but it mints a new
+        ``game_id`` and drops every guest who already joined by QR code. The
+        normal case is a host adjusting the setup while the room fills up, so
+        the cost of replacing lands on exactly the people who did nothing
+        wrong.
+
+        LOBBY only, and deliberately so: ``update-lobby`` also serves PLAYING
+        and REVEAL for the speaker, but a round count or a mode flag that
+        changes mid-game rewrites the rules under the players.
+
+        **Playlists too (#2888).** ``songs`` and ``playlists`` carry a changed
+        playlist selection from the same wizard run. They go through the same
+        single rebuild as the options, so the new pool is filtered for the
+        (possibly also new) provider and capped at the (possibly also new)
+        round count in one step — applying them one after the other would
+        judge the new playlists by the old provider, or the old playlists by
+        the new one. Omitted, the game keeps the songs it has.
+
+        Returns True when the options were applied. False means the phase was
+        wrong or the rebuilt playlist would have been empty — in which case
+        nothing is touched, exactly as ``replace_songs`` behaves.
+        """
+        from .state import GamePhase
+
+        if self.phase != GamePhase.LOBBY or not self.game_id:
+            return False
+
+        # The manager carries ramp-up ordering (#1726) and the round cap
+        # (#1475), so those two only take effect through a rebuild. Built
+        # BEFORE anything is written, so an empty result leaves the game as it
+        # was rather than half-updated — the same order create_game uses for
+        # its #1378 validation.
+        new_songs = songs if songs is not None else self.songs
+        manager = self._build_playlist_manager(
+            new_songs,
+            options.provider,
+            self.storefront,
+            options.rampup_order_enabled,
+            options.max_rounds,
+        )
+        if manager.get_total_count() <= 0:
+            _LOGGER.warning(
+                "apply_lobby_options: the new options yield no playable "
+                "tracks — keeping the current setup"
+            )
+            return False
+
+        if songs is not None:
+            self.songs = songs
+            if playlists is not None:
+                self.playlists = playlists
+            # A Crate Digger game created without playlists regenerates its
+            # songs from the library at gameplay start. Once the host has
+            # picked playlists, that hook would throw them away again — and a
+            # game created with playlists never installs it in the first place.
+            self.pre_start_hook = None
+
+        options.apply_to(self)
+        # Same call create_game makes right after ``apply_to``: it is what
+        # enforces the Title & Artist exclusion and nulls the per-round
+        # challenge objects. Without it a lobby switched INTO Title & Artist
+        # would keep the artist challenge alongside it.
+        self._challenge_manager.configure(
+            artist_challenge_enabled=options.artist_challenge_enabled,
+            movie_quiz_enabled=options.movie_quiz_enabled,
+            title_artist_mode=options.title_artist_mode,
+        )
+        self._playlist_manager = manager
+        self.total_rounds = manager.get_total_count()
+        return True
+
+    def _build_playlist_manager(
+        self,
+        songs: list[dict[str, Any]],
+        provider: str,
+        storefront: str | None,
+        rampup_order_enabled: bool,
+        max_rounds: int = 0,
+    ) -> PlaylistManager:
+        """Construct a :class:`PlaylistManager`, wiring ramp-up ordering (#1726).
+
+        Shared by ``create_game`` and ``rematch_game`` so both build the manager
+        the same way. When ``rampup_order_enabled`` is True a difficulty-lookup
+        (backed by the connected StatsService via ``get_song_difficulty``) is
+        passed so the manager can arrange songs into a difficulty arc; otherwise
+        the manager keeps its historic uniform-random behaviour untouched.
+        """
+        from .playlist import SONG_ORDER_RAMPUP  # noqa: PLC0415
+
+        if not rampup_order_enabled:
+            return PlaylistManager(
+                songs, provider, storefront=storefront, max_rounds=max_rounds
+            )
+
+        def _difficulty_lookup(uri: str) -> int | None:
+            rating = self.get_song_difficulty(uri)
+            return rating["stars"] if rating else None
+
+        return PlaylistManager(
+            songs,
+            provider,
+            storefront=storefront,
+            song_order=SONG_ORDER_RAMPUP,
+            difficulty_lookup=_difficulty_lookup,
+            max_rounds=max_rounds,
         )
 
     def _detect_storefront(self) -> str | None:

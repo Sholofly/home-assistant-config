@@ -5,7 +5,7 @@
 unique_id: current_power_usage
 name: Current power usage
 state: >
-  {% set solar = states('sensor.solaredge_ac_power') | float(0) %}
+  {% set solar = states('sensor.kleine_schuur_solaredge_se5k_vermogen') | float(0) %}
   {% set export = states('sensor.electricity_meter_power_production') | float(0) * 1000 %}
   {% set import = states('sensor.electricity_meter_power_consumption') | float(0) * 1000 %}
   {{ solar - export + import }}

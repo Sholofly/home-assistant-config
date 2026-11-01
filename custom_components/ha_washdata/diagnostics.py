@@ -23,7 +23,7 @@ from typing import Any
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
-from .const import DOMAIN
+from .const import CONF_AUTO_MAINTENANCE, DEFAULT_AUTO_MAINTENANCE, DOMAIN
 from .manager import WashDataManager
 
 # Keys that can identify the user or their home network - redacted in all contexts.
@@ -52,16 +52,30 @@ _SENSITIVE_KEYS = {
     "power_sensor",
     "external_end_trigger",
     "door_sensor_entity",
+    "unload_confirm_entity",
     "switch_entity",
     "energy_price_entity",
     "energy_sensor",
+    # The active-cycle snapshot's meter entity (kept in `failed_restore`).
+    "energy_meter_source",
 }
+
+
+# A record that names a setting in a field instead of using it as the dict key -
+# a settings-changelog row is `{"key": "power_sensor", "old": ..., "new": ...}` -
+# carries the sensitive value under these generic names, which slipped past the
+# key-based redaction: entity ids, person.* and notify targets (audit PLATFORM-08).
+_VALUE_FIELDS = ("old", "new", "value")
 
 
 def _redact(obj: Any) -> Any:
     if isinstance(obj, dict):
+        named = obj.get("key")
+        names_sensitive = isinstance(named, str) and named in _SENSITIVE_KEYS
         return {
-            k: "**REDACTED**" if k in _SENSITIVE_KEYS else _redact(v)
+            k: "**REDACTED**"
+            if k in _SENSITIVE_KEYS or (names_sensitive and k in _VALUE_FIELDS)
+            else _redact(v)
             for k, v in obj.items()
         }
     if isinstance(obj, list):
@@ -69,11 +83,23 @@ def _redact(obj: Any) -> Any:
     return obj
 
 
+async def _failed_restore(manager: WashDataManager) -> Any:
+    """The kept failed-restore record, redacted; None on any problem reading it."""
+    try:
+        return _redact(await manager.profile_store.async_get_failed_restore())
+    except Exception:  # noqa: BLE001 - the download must never fail on this
+        return None
+
+
 async def async_get_config_entry_diagnostics(
     hass: HomeAssistant, entry: ConfigEntry
 ) -> dict[str, Any]:
     """Return diagnostics for a config entry."""
-    manager: WashDataManager = hass.data[DOMAIN][entry.entry_id]
+    manager: WashDataManager | None = hass.data.get(DOMAIN, {}).get(entry.entry_id)
+    if manager is None:
+        # Setup failed or the entry is unloaded: the download must still work - it
+        # is how such a failure gets reported (audit PLATFORM-14).
+        return {"entry": _redact(entry.as_dict()), "manager_state": None}
 
     # Full store export - same payload as the export_config service, but the
     # entry_data / entry_options pass through the redactor to strip personal keys.
@@ -82,8 +108,14 @@ async def async_get_config_entry_diagnostics(
         entry_options=dict(entry.options),
     )
 
+    from .frontend import served_asset_report
+
     return {
         "entry": _redact(entry.as_dict()),
+        # Which panel/card variant is actually being served. Both are served at the
+        # same URL by design, so without this a bug report cannot tell us whether the
+        # reporter was running the minified bundle or the readable fallback.
+        "frontend_assets": served_asset_report(),
         "manager_state": {
             "current_state": manager.check_state(),
             "current_program": manager.current_program,
@@ -95,11 +127,33 @@ async def async_get_config_entry_diagnostics(
                 else {}
             ),
             "profile_sample_repair_stats": manager.profile_sample_repair_stats,
+            # Programs the matcher cannot even consider (no evidence cycle behind them),
+            # which used to be a debug log only - #400 was reported against a device in
+            # exactly this state, where the right program could neither win a match nor
+            # veto a shorter look-alike.
+            "unmatchable_profiles": manager.profile_store.unmatchable_profiles(),
             "suggestions": manager.profile_store.get_suggestions(),
+            # Read each flag off the object that actually owns it. Two of these used
+            # to be read off the manager, which owns neither, so they reported False
+            # for everyone and sent triage down the wrong path (issue #407).
             "feature_flags": {
-                "auto_maintenance": bool(getattr(manager, "_auto_maintenance", False)),
-                "save_debug_traces": bool(getattr(manager, "_save_debug_traces", False)),
-                "notify_fire_events": bool(getattr(manager, "_notify_fire_events", False)),
+                # No runtime mirror on the manager: the option is read on demand in
+                # _setup_maintenance_scheduler. Report the effective option *and*
+                # whether the midnight job actually armed, so a divergence points at
+                # the scheduler instead of looking like a stale flag.
+                "auto_maintenance": bool(
+                    entry.options.get(
+                        CONF_AUTO_MAINTENANCE,
+                        entry.data.get(CONF_AUTO_MAINTENANCE, DEFAULT_AUTO_MAINTENANCE),
+                    )
+                ),
+                "auto_maintenance_scheduled": (
+                    getattr(manager, "_remove_maintenance_scheduler", None) is not None
+                ),
+                # Lives on the store, not the manager.
+                "save_debug_traces": bool(
+                    getattr(manager.profile_store, "save_debug_traces", False)
+                ),
             },
         },
         "store_export": _redact(exported),
@@ -108,4 +162,8 @@ async def async_get_config_entry_diagnostics(
         # state_history: [{ts, from, to, program}, ...] - detector state changes
         # logs:          [{ts, lvl}, ...] - log timestamps and levels (msg removed)
         "live_diagnostics": manager.diag_buffer.redacted_snapshot(),
+        # The last active-cycle snapshot that failed to restore, with the error and
+        # its age (register item 266 follow-up); None when none ever has. A download,
+        # not a bus event, so the 32 KB event-data limit does not apply.
+        "failed_restore": await _failed_restore(manager),
     }

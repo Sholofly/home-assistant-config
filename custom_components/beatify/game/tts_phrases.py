@@ -21,7 +21,7 @@ from __future__ import annotations
 DEFAULT_LANGUAGE = "en"
 
 # Languages the game accepts (matches the validation in the WS/REST handlers).
-SUPPORTED_LANGUAGES = ("en", "de", "es", "fr", "nl")
+SUPPORTED_LANGUAGES = ("en", "de", "es", "fr", "nl", "it")
 
 # Word joining names in a spoken list ("Marco and Anna"). The English form uses
 # " and ".join(...) verbatim, so two names read "A and B" and the rare 3+ case
@@ -32,6 +32,7 @@ _AND: dict[str, str] = {
     "es": "y",
     "fr": "et",
     "nl": "en",
+    "it": "e",
 }
 
 # Spoken difficulty labels inserted into the game_start template via {difficulty}.
@@ -41,6 +42,7 @@ _DIFFICULTY: dict[str, dict[str, str]] = {
     "es": {"easy": "fácil", "normal": "normal", "hard": "difícil"},
     "fr": {"easy": "facile", "normal": "normale", "hard": "difficile"},
     "nl": {"easy": "makkelijk", "normal": "normaal", "hard": "moeilijk"},
+    "it": {"easy": "facile", "normal": "normale", "hard": "difficile"},
 }
 
 # Podium place labels, used as "{label}: {name}" in the top-3 readout.
@@ -50,6 +52,7 @@ _PLACE: dict[str, dict[int, str]] = {
     "es": {1: "primer puesto", 2: "segundo puesto", 3: "tercer puesto"},
     "fr": {1: "première place", 2: "deuxième place", 3: "troisième place"},
     "nl": {1: "eerste plaats", 2: "tweede plaats", 3: "derde plaats"},
+    "it": {1: "primo posto", 2: "secondo posto", 3: "terzo posto"},
 }
 
 # str.format templates per language. Keys must be identical across languages;
@@ -57,8 +60,10 @@ _PLACE: dict[str, dict[int, str]] = {
 _PHRASES: dict[str, dict[str, str]] = {
     "en": {
         "game_start": "Let's play Beatify! {rounds} rounds, {difficulty} difficulty.",
+        "game_start_open": "Let's play Beatify — {difficulty} difficulty.",
         "winner_single": "And the winner is... {name} with {points} points!",
         "winner_tie": "It's a tie between {names} with {points} points!",
+        "finale_playoff": "It's a dead heat! {names} — one more song decides it.",
         "round_start": "Round {round} — get ready!",
         "countdown": "Three, two, one — go!",
         "time_up": "Time's up!",
@@ -69,6 +74,7 @@ _PHRASES: dict[str, dict[str, str]] = {
         "intro_round": "Intro round — quick, you only get the opening seconds!",
         "steal_used": "{stealer} stole the answer from {target}!",
         "answer": "The answer was {year}.",
+        "answer_title_artist": "The answer was {title} by {artist}.",
         "exact": "{names} got it exactly right.",
         "closest": "{name} was closest.",
         "nobody": "Nobody got it this round.",
@@ -77,13 +83,16 @@ _PHRASES: dict[str, dict[str, str]] = {
         "bet_won": "{name} doubled their points.",
         "bet_lost": "{name} loses the bet.",
         "steal_unlocked": "{name} unlocked steal.",
+        "comeback_tokens": "Halfway. {names} get a steal — the field is closing up.",
         "tie_at_top": "It's a tie at the top.",
         "leader_change": "{name} just took the lead.",
     },
     "de": {
         "game_start": "Auf geht's mit Beatify! {rounds} Runden, Schwierigkeit {difficulty}.",
+        "game_start_open": "Auf geht's mit Beatify! Schwierigkeit {difficulty}.",
         "winner_single": "Und der Sieger ist... {name} mit {points} Punkten!",
         "winner_tie": "Gleichstand zwischen {names} mit je {points} Punkten!",
+        "finale_playoff": "Kopf an Kopf! {names} — ein Song entscheidet.",
         "round_start": "Runde {round} — macht euch bereit!",
         "countdown": "Drei, zwei, eins — los!",
         "time_up": "Zeit ist um!",
@@ -94,6 +103,7 @@ _PHRASES: dict[str, dict[str, str]] = {
         "intro_round": "Intro-Runde — schnell, ihr hört nur die ersten Sekunden!",
         "steal_used": "{stealer} hat {target} die Antwort geklaut!",
         "answer": "Die Antwort war {year}.",
+        "answer_title_artist": "Die Antwort war {title} von {artist}.",
         "exact": "Goldrichtig: {names}.",
         "closest": "{name} war am nächsten dran.",
         "nobody": "Diese Runde hatte niemand richtig.",
@@ -102,13 +112,16 @@ _PHRASES: dict[str, dict[str, str]] = {
         "bet_won": "{name} hat die Punkte verdoppelt.",
         "bet_lost": "{name} verliert die Wette.",
         "steal_unlocked": "{name} hat Klauen freigeschaltet.",
+        "comeback_tokens": "Halbzeit. {names} bekommen einen Steal — das Feld rückt zusammen.",
         "tie_at_top": "Gleichstand an der Spitze.",
         "leader_change": "{name} geht in Führung!",
     },
     "es": {
         "game_start": "¡A jugar a Beatify! {rounds} rondas, dificultad {difficulty}.",
+        "game_start_open": "¡A jugar a Beatify! Dificultad {difficulty}.",
         "winner_single": "Y el ganador es... ¡{name} con {points} puntos!",
         "winner_tie": "¡Empate entre {names} con {points} puntos!",
+        "finale_playoff": "¡Cabeza a cabeza! {names} — una canción lo decide.",
         "round_start": "Ronda {round}: ¡preparados!",
         "countdown": "Tres, dos, uno... ¡ya!",
         "time_up": "¡Se acabó el tiempo!",
@@ -119,6 +132,7 @@ _PHRASES: dict[str, dict[str, str]] = {
         "intro_round": "¡Ronda intro! Rápido, ¡solo suenan los primeros segundos!",
         "steal_used": "¡{stealer} le robó la respuesta a {target}!",
         "answer": "La respuesta era {year}.",
+        "answer_title_artist": "La respuesta era {title}, de {artist}.",
         "exact": "{names}: ¡respuesta exacta!",
         "closest": "{name} fue quien más se acercó.",
         "nobody": "Nadie acertó esta ronda.",
@@ -127,13 +141,16 @@ _PHRASES: dict[str, dict[str, str]] = {
         "bet_won": "{name} dobla sus puntos.",
         "bet_lost": "{name} pierde la apuesta.",
         "steal_unlocked": "{name} desbloquea el robo.",
+        "comeback_tokens": "Mitad del juego. {names} reciben un robo — el grupo se acerca.",
         "tie_at_top": "¡Empate en la cima!",
         "leader_change": "¡{name} se pone en cabeza!",
     },
     "fr": {
         "game_start": "On joue à Beatify ! {rounds} manches, difficulté {difficulty}.",
+        "game_start_open": "On joue à Beatify ! Difficulté {difficulty}.",
         "winner_single": "Et le gagnant est... {name} avec {points} points !",
         "winner_tie": "Égalité entre {names} avec {points} points !",
+        "finale_playoff": "Au coude à coude ! {names} — une chanson décide.",
         "round_start": "Manche {round} — préparez-vous !",
         "countdown": "Trois, deux, un — partez !",
         "time_up": "Temps écoulé !",
@@ -144,6 +161,7 @@ _PHRASES: dict[str, dict[str, str]] = {
         "intro_round": "Manche intro — vite, vous n'avez que les premières secondes !",
         "steal_used": "{stealer} a volé la réponse de {target} !",
         "answer": "La réponse était {year}.",
+        "answer_title_artist": "La réponse était {title}, de {artist}.",
         "exact": "{names}, dans le mille !",
         "closest": "{name} était le plus proche.",
         "nobody": "Personne n'a trouvé cette manche.",
@@ -152,13 +170,16 @@ _PHRASES: dict[str, dict[str, str]] = {
         "bet_won": "{name} double ses points.",
         "bet_lost": "{name} perd son pari.",
         "steal_unlocked": "{name} débloque le vol.",
+        "comeback_tokens": "Mi-parcours. {names} reçoivent un vol — les écarts se resserrent.",
         "tie_at_top": "Égalité en tête.",
         "leader_change": "{name} prend la tête !",
     },
     "nl": {
         "game_start": "We spelen Beatify! {rounds} rondes, moeilijkheid {difficulty}.",
+        "game_start_open": "We spelen Beatify! Moeilijkheid {difficulty}.",
         "winner_single": "En de winnaar is... {name} met {points} punten!",
         "winner_tie": "Gelijkspel tussen {names} met {points} punten!",
+        "finale_playoff": "Nek aan nek! {names} — één nummer beslist.",
         "round_start": "Ronde {round} — maak je klaar!",
         "countdown": "Drie, twee, een — go!",
         "time_up": "De tijd is om!",
@@ -169,6 +190,7 @@ _PHRASES: dict[str, dict[str, str]] = {
         "intro_round": "Introronde — snel, je hoort alleen de eerste seconden!",
         "steal_used": "{stealer} jatte het antwoord van {target}!",
         "answer": "Het antwoord was {year}.",
+        "answer_title_artist": "Het antwoord was {title} van {artist}.",
         "exact": "{names} had het precies goed.",
         "closest": "{name} zat er het dichtst bij.",
         "nobody": "Niemand had het deze ronde goed.",
@@ -177,8 +199,38 @@ _PHRASES: dict[str, dict[str, str]] = {
         "bet_won": "{name} verdubbelt de punten.",
         "bet_lost": "{name} verliest de weddenschap.",
         "steal_unlocked": "{name} heeft jatten vrijgespeeld.",
+        "comeback_tokens": "Halverwege. {names} krijgen een jatkans — het veld sluit aan.",
         "tie_at_top": "Het is gelijkspel aan kop.",
         "leader_change": "{name} neemt de leiding.",
+    },
+    "it": {
+        "game_start": "Si gioca a Beatify! {rounds} round, difficoltà {difficulty}.",
+        "game_start_open": "Si gioca a Beatify! Difficoltà {difficulty}.",
+        "winner_single": "E il vincitore è... {name} con {points} punti!",
+        "winner_tie": "Pareggio tra {names} con {points} punti!",
+        "finale_playoff": "Testa a testa! {names} — una canzone decide.",
+        "round_start": "Round {round} — preparatevi!",
+        "countdown": "Tre, due, uno — via!",
+        "time_up": "Tempo scaduto!",
+        "player_join": "{name} è entrato in partita!",
+        "player_reconnect": "Bentornato, {name}!",
+        "last_round": "Questo è l'ultimo round!",
+        "rematch": "Rivincita! Preparatevi!",
+        "intro_round": "Round introduttivo — veloci, sentite solo i primi secondi!",
+        "steal_used": "{stealer} ha rubato la risposta a {target}!",
+        "answer": "La risposta era {year}.",
+        "answer_title_artist": "La risposta era {title} di {artist}.",
+        "exact": "{names}: in pieno centro.",
+        "closest": "{name} è andato più vicino.",
+        "nobody": "Questo round non l'ha indovinato nessuno.",
+        "streak_milestone": "{name} è a una serie di {streak} canzoni.",
+        "streak_broken": "La serie di {name} finisce a {previous}.",
+        "bet_won": "{name} ha raddoppiato i punti.",
+        "bet_lost": "{name} perde la scommessa.",
+        "steal_unlocked": "{name} ha sbloccato il furto.",
+        "comeback_tokens": "Metà partita. {names} ricevono un furto — il gruppo si ricompatta.",
+        "tie_at_top": "Parità in testa.",
+        "leader_change": "{name} passa in testa!",
     },
 }
 

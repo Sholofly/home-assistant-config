@@ -32,7 +32,7 @@ switch:
   # It creates a "virtual" switch based
   # on a global variable.
   - platform: template
-    name: "${name} enabled"
+    name: "Enabled"
     id: "${id}_enabled"
     restore_mode: DISABLED
     turn_on_action:
@@ -51,7 +51,7 @@ switch:
 binary_sensor:
   - platform: gpio
     id: "${id}_button"
-    name: "${name} button"
+    name: "Button"
     pin:
       # Connected to GPIO on the ESP-01S.
       number: GPIO2

@@ -28,7 +28,7 @@
  * import in admin.js, and adds the two pure WS helpers below.
  */
 
-import { _adminHeaders, _setAdminToken } from './util.js';
+import { _adminHeaders, _setAdminToken, errorHeadlineAndDetail } from './util.js';
 
 // Re-export the REST header helper so admin.js can import the whole hub surface
 // (REST + WS) from one module. The implementation stays in util.js (step 2).
@@ -60,6 +60,18 @@ export function reconnectDelay(attempt) {
 // admin.js registers these once via initAdminApi(). Defaults are inert so the
 // module is import-safe before init (no TDZ, no throw at module eval).
 
+/**
+ * #3057: the text for a `type:'error'` frame. The server's `message` is hard
+ * English ("Need at least 2 players to start"); `errors.<CODE>` exists in all
+ * six locales, so look the code up first and keep the server sentence only as
+ * the fallback for a code without a translation.
+ */
+export function localizedErrorMessage(data) {
+    var i18n = (typeof window !== 'undefined' && window.BeatifyI18n) || null;
+    var translate = i18n && typeof i18n.t === 'function' ? i18n.t.bind(i18n) : null;
+    return errorHeadlineAndDetail(data, translate, data && data.message).message;
+}
+
 let deps = {
     debug: () => {},
     // live state readers (admin.js owns these mutable bindings)
@@ -75,6 +87,8 @@ let deps = {
     startLobbyPolling: () => {},
     stopLobbyPolling: () => {},
     showError: () => {},
+    showSpeakerSetupError: () => {},
+    showKickError: () => {},
     resetHomeStartButton: () => {},
 };
 
@@ -110,6 +124,14 @@ let adminWsConnecting = false;
 // failure (reset the home button + blocking error). Unrelated mid-game command
 // errors (set_volume, stop_song, …) must NOT rewrite the home button.
 let startPending = false;
+// #2718: the display name of the player a `kick_player` is in flight for, or
+// null. Same shape and lifetime as `startPending` above, and for the same
+// reason: without it a kick rejection lands in the catch-all branch below and
+// is only console.warn'd, so the host taps Remove, nothing happens, and no
+// screen ever says why. The one rejection that realistically fires is
+// "Cannot remove a connected player" — the guest reconnected between the
+// render that offered the tile and the tap.
+let kickPending = null;
 
 // --- WS accessors (used by admin.js view code instead of touching adminWs) -
 
@@ -134,6 +156,11 @@ export function sendAdminWs(payload) {
         // the error handler (start rejected).
         if (payload && payload.action === 'start_game') {
             startPending = true;
+        }
+        // #2718: same arming for kick_player, carrying the name so the error
+        // branch can say WHO could not be removed.
+        if (payload && payload.action === 'kick_player') {
+            kickPending = payload.player_name || '';
         }
         adminWs.send(JSON.stringify(payload));
         return true;
@@ -238,7 +265,27 @@ export async function connectAdminWebSocket() {
                 var data = JSON.parse(event.data);
                 handleAdminWsMessage(data);
             } catch (err) {
-                console.error('[Admin WS] Message parse error:', err);
+                // #1580: a malformed/unparseable WS frame (truncated payload,
+                // or a server/client version mismatch sending a shape we can't
+                // read) previously only hit console.error — state sync stalled
+                // silently with zero user feedback. Log a warning WITH the raw
+                // payload context, surface a reload hint to the admin, and skip
+                // this frame so the connection keeps handling later well-formed
+                // messages instead of breaking sync.
+                console.warn(
+                    '[Admin WS] Skipping malformed message:',
+                    err,
+                    '| raw:',
+                    typeof event.data === 'string'
+                        ? event.data.slice(0, 200)
+                        : event.data
+                );
+                try {
+                    deps.showError(
+                        BeatifyI18n.t('admin.connectionDisrupted') ||
+                        'Connection disrupted — please reload the page.'
+                    );
+                } catch (e) { /* showError / i18n may not be ready on early load */ }
             }
         };
 
@@ -300,6 +347,9 @@ export function handleAdminWsMessage(data) {
             // disarm start-failure handling so a later unrelated command error
             // doesn't get mistaken for a start failure.
             startPending = false;
+            // #2718: the kick broadcasts state on success, so a state frame
+            // disarms the pending kick exactly as it disarms a pending start.
+            kickPending = null;
             deps.handleAdminStateUpdate(data);
             break;
 
@@ -407,14 +457,26 @@ export function handleAdminWsMessage(data) {
                     connectAdminWebSocket();
                 });
             } else if (data.code === 'NAME_TAKEN' || data.code === 'NAME_INVALID') {
-                deps.showError(data.message);
+                // #1579: the join was rejected — un-stick the modal so the host
+                // can retry cleanly. The modal may already be closed (the join is
+                // sent optimistically), in which case openAdminJoinModal() also
+                // resets on reopen; this handles the case where it is still open.
+                deps.showError(localizedErrorMessage(data));
                 deps.setIsPlaying(false);
                 deps.setAdminPlayerName(null);
                 var joinBtn = document.getElementById('admin-join-btn');
                 if (joinBtn) {
                     joinBtn.disabled = false;
-                    joinBtn.textContent = BeatifyI18n.t('admin.join');
+                    joinBtn.textContent =
+                        (window.BeatifyI18n && BeatifyI18n.t('admin.join')) || 'Join';
                 }
+            } else if (kickPending !== null) {
+                // #2718: a kick_player rejection. Non-blocking toast naming the
+                // guest — the home Start button is not involved, so nothing
+                // else on the screen may be rewritten here.
+                var kickedName = kickPending;
+                kickPending = null;
+                deps.showKickError(kickedName, data.code, data.message);
             } else if (startPending) {
                 // #949: a start_game rejection — MEDIA_PLAYER_UNAVAILABLE,
                 // GAME_NOT_STARTED, NO_SONGS_REMAINING, INVALID_ACTION, … startGameplay()
@@ -425,7 +487,16 @@ export function handleAdminWsMessage(data) {
                 // resets the home button. Cleared here either way.
                 startPending = false;
                 deps.resetHomeStartButton();
-                deps.showError(data.message);
+                if (data.code === 'MEDIA_PLAYER_UNAVAILABLE') {
+                    // #2269: the speaker is gone. A toast names that and then
+                    // disappears, leaving the host on the same home card with
+                    // the speaker list collapsed out of sight below it. This
+                    // one stays above the Start button and carries a button
+                    // that opens the list.
+                    deps.showSpeakerSetupError(localizedErrorMessage(data));
+                } else {
+                    deps.showError(localizedErrorMessage(data));
+                }
             } else {
                 // #1402 B7: an error for some other mid-game command
                 // (set_volume, stop_song, next_round, …). The home "Start game"

@@ -70,14 +70,13 @@ vi.mock('../player-utils.js', () => ({
     escapeHtml: (s) => String(s),
     prefersReducedMotion: () => true,
     animateValue: () => {},
-    animateScoreChange: () => {},
-    showPointsPopup: () => {},
     previousState: {},
     isPreviousStateInitialized: () => false,
-    isStreakMilestone: () => false,
     AnimationUtils: {},
     triggerConfetti: () => {},
     stopConfetti: () => {},
+    // #1664 item 3: player-reveal.js now unifies TA-mode detection on this helper.
+    isTitleArtistMode: (data) => !!(data && data.title_artist_mode),
 }));
 vi.mock('../player-game.js', () => ({
     updateLeaderboard: () => {},

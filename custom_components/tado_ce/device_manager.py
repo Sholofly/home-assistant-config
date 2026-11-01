@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from functools import lru_cache
+from inspect import signature
 import json
 import logging
 from pathlib import Path
@@ -39,9 +40,55 @@ def _get_cached_version() -> str:
     return load_version()
 
 
+_hub_device_ids: dict[str, str] = {}
+
+
+def _hub_identifier(home_id: str) -> str:
+    """Single source of truth for the hub's stable identifier string."""
+    return f"tado_ce_hub_{home_id}" if home_id != "unknown" else "tado_ce_hub"
+
+
+def set_cached_hub_device_id(home_id: str, device_id: str) -> None:
+    """Record the hub device's registry id for this home, set once per setup by register_hub_device."""
+    _hub_device_ids[home_id] = device_id
+
+
+def clear_cached_hub_device_id(home_id: str) -> None:
+    """Drop the cached id on entry unload: a stale id is worse than a miss, not equivalent to one."""
+    _hub_device_ids.pop(home_id, None)
+
+
+def _get_cached_hub_device_id(home_id: str) -> str | None:
+    return _hub_device_ids.get(home_id)
+
+
+@lru_cache(maxsize=1)
+def _hub_parenting_kwarg() -> str:
+    """Return 'via_device_id' on HA 2026.8+, else the legacy 'via_device' (still accepted below it)."""
+    from homeassistant.helpers import device_registry as dr
+
+    params = signature(dr.DeviceRegistry.async_get_or_create).parameters
+    return "via_device_id" if "via_device_id" in params else "via_device"
+
+
+def hub_parent_kwargs(home_id: str) -> DeviceInfo:
+    """Return the DeviceInfo parenting kwarg(s) for the hub, on whichever HA the install supports."""
+    kwarg = _hub_parenting_kwarg()
+    parent: DeviceInfo = {}
+    if kwarg == "via_device_id":
+        hub_device_id = _get_cached_hub_device_id(home_id)
+        if hub_device_id:
+            parent = {"via_device_id": hub_device_id}
+    else:
+        # via_device is dropped from DeviceInfo on HA 2026.9+'s stub, but this
+        # branch only runs on the older floor that still needs it.
+        parent = {"via_device": (DOMAIN, _hub_identifier(home_id))}  # type: ignore[typeddict-unknown-key]
+    return parent
+
+
 def get_hub_device_info(home_id: str) -> DeviceInfo:
     """Build the home-scoped Tado CE hub `DeviceInfo` (parents the global entities)."""
-    identifier = f"tado_ce_hub_{home_id}" if home_id != "unknown" else "tado_ce_hub"
+    identifier = _hub_identifier(home_id)
 
     return DeviceInfo(
         configuration_url="https://app.tado.com",
@@ -56,13 +103,11 @@ def get_hub_device_info(home_id: str) -> DeviceInfo:
 def get_zone_device_info(zone_id: str, zone_name: str, zone_type: str, home_id: str) -> DeviceInfo:
     """Build a zone `DeviceInfo` parented to the home's hub."""
     model = get_zone_type_display(zone_type)
+    zone_identifier = (
+        f"tado_ce_{home_id}_zone_{zone_id}" if home_id != "unknown" else f"tado_ce_zone_{zone_id}"
+    )
 
-    if home_id != "unknown":
-        zone_identifier = f"tado_ce_{home_id}_zone_{zone_id}"
-        hub_identifier = f"tado_ce_hub_{home_id}"
-    else:
-        zone_identifier = f"tado_ce_zone_{zone_id}"
-        hub_identifier = "tado_ce_hub"
+    parent = hub_parent_kwargs(home_id)
 
     return DeviceInfo(
         configuration_url=f"https://app.tado.com/en/main/home/zoneV2/{zone_id}",
@@ -71,7 +116,30 @@ def get_zone_device_info(zone_id: str, zone_name: str, zone_type: str, home_id: 
         manufacturer=MANUFACTURER,
         model=model,
         suggested_area=zone_name,
-        via_device=(DOMAIN, hub_identifier),
+        **parent,
+    )
+
+
+def get_bridge_device_info(serial: str, home_id: str) -> DeviceInfo:
+    """Build the Internet Bridge `DeviceInfo`, parented to the home's hub.
+
+    `register_bridge_devices` builds on this and adds the model/firmware
+    read from Tado's cloud; entities omit those fields so they never
+    overwrite them with nothing when an entity sets up first.
+
+    The serial is upper-cased because it reaches here from two sources,
+    the user-typed option and the cloud's `shortSerialNo`, and a case
+    difference between them would otherwise split one bridge into two
+    devices.
+    """
+    parent = hub_parent_kwargs(home_id)
+
+    return DeviceInfo(
+        configuration_url="https://app.tado.com",
+        identifiers={(DOMAIN, serial.upper())},
+        name="Internet Bridge",
+        manufacturer=MANUFACTURER,
+        **parent,
     )
 
 

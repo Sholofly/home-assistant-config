@@ -3,6 +3,18 @@
  * AnimationQueue, easing functions, score popups, confetti helpers, DOM utilities
  */
 
+// #3076: re-exported so the player modules keep importing from one place.
+import { specificErrorText } from './admin/util.js';
+export { specificErrorText };
+// #2627: the name cap comes from the shared mirror of const.py, not from a
+// local literal. It used to be declared here AND written out as
+// `name.length > 20` twice in admin.js AND as `maxlength="20"` in two forms.
+import {
+    MAX_NAME_LENGTH,
+    DIFFICULTY_SCORING,
+    DIFFICULTY_DEFAULT,
+} from './game-constants.js';
+
 var utils = window.BeatifyUtils || {};
 
 // ============================================
@@ -16,8 +28,16 @@ export var state = {
     reconnectAttempts: 0,
     isReconnecting: false,
     intentionalLeave: false,
-    hasReactedThisPhase: false,
+    // #2562: `Date.now()` at which the reaction bar comes back to life. Replaces
+    // the old `hasReactedThisPhase` flag — the brake is a time throttle now, not
+    // a one-per-phase budget, and the server's ack is what sets this.
+    reactionCooldownUntil: 0,
+    // #2562: the phase of the last state frame. `player_reaction` frames arrive
+    // outside the phase switch and are rendered on the phone only at the reveal.
+    currentPhase: null,
     currentRoundNumber: 0,
+    joinTimeoutId: null,  // #1663: initial-join watchdog timer id
+    joinPending: false,   // #2499: a connect attempt is waiting for its ack
     gameId: new URLSearchParams(window.location.search).get('game'),
     // Connection functions set by core module (avoids circular deps)
     connectWithSession: null,
@@ -42,8 +62,10 @@ var revealView = document.getElementById('reveal-view');
 var pausedView = document.getElementById('paused-view');
 var endView = document.getElementById('end-view');
 var connectionLostView = document.getElementById('connection-lost-view');
+// #1718: SESSION_TAKEOVER gets its own view (not the misleading connection-lost one).
+var sessionTakeoverView = document.getElementById('session-takeover-view');
 
-var allViews = [loadingView, startingView, notFoundView, endedView, inProgressView, joinView, tourView, readyView, lobbyView, gameView, revealView, pausedView, endView, connectionLostView];
+var allViews = [loadingView, startingView, notFoundView, endedView, inProgressView, joinView, tourView, readyView, lobbyView, gameView, revealView, pausedView, endView, connectionLostView, sessionTakeoverView];
 
 /**
  * Show a specific view and hide all others
@@ -70,16 +92,179 @@ export function showView(viewId) {
     // Set calm energy for entry screens (Story 9.9)
     if (viewId === 'join-view' || viewId === 'loading-view' ||
         viewId === 'not-found-view' || viewId === 'ended-view' ||
-        viewId === 'in-progress-view' || viewId === 'connection-lost-view') {
+        viewId === 'in-progress-view' || viewId === 'connection-lost-view' ||
+        viewId === 'session-takeover-view') {
         setEnergyLevel('calm');
     }
 
     if (viewId === 'join-view') {
+        // #2627: the cap the field enforces is the cap the server enforces.
+        // player.html no longer ships `maxlength="20"` — a second copy of the
+        // number that a server-side change would have left behind.
+        applyNameLengthCap(document.getElementById('name-input'));
+        // #2506: tapping Join disables the button and relabels it "Joining…",
+        // and only the join-timeout path ever put it back. Leaving a game, a
+        // session takeover, a failed reconnect and an unknown session all
+        // returned here and left a dead grey button reading "Joining…" — the
+        // guest's only way out was to edit a letter of their own name, and even
+        // then the label stayed wrong. Resetting where the view is shown covers
+        // every route into it, including the ones added after this.
+        resetJoinButton();
         setTimeout(function() {
             var nameInput = document.getElementById('name-input');
             if (nameInput) nameInput.focus();
         }, 100);
     }
+}
+
+// Re-exported so existing importers of this module keep working; the value
+// itself is defined once, in game-constants.js (#2627).
+export { MAX_NAME_LENGTH };
+
+/**
+ * Stamp the shared cap onto a name field (#2627).
+ *
+ * The markup deliberately carries no `maxlength`: an attribute is a literal
+ * that no server-side change can reach, which is how the join button and the
+ * two forms drifted apart from `const.py` in the first place. Setting it here
+ * means the field, `validateName()` and `game/player_registry.py` all cap at
+ * the same number.
+ *
+ * @param {HTMLInputElement|null} input
+ */
+export function applyNameLengthCap(input) {
+    if (input) input.maxLength = MAX_NAME_LENGTH;
+}
+
+/**
+ * Validate a typed player name. Pure — moved here from player-core (#2506) so
+ * the join view's button state has one owner that can reach it.
+ */
+/** utils.t with the same optional-utils guard the rest of this module uses. */
+function tr(key, fallback) {
+    return utils.t ? utils.t(key, fallback) : fallback;
+}
+
+export function validateName(name) {
+    var trimmed = (name || '').trim();
+    if (!trimmed) {
+        // #2553: these two were the only join-screen strings still hard-coded
+        // in English, on the very first screen a guest sees.
+        return { valid: false, error: tr('errors.nameEmpty', 'Please enter a name') };
+    }
+    if (trimmed.length > MAX_NAME_LENGTH) {
+        var tooLong = tr('errors.nameTooLong', 'Name too long (max {max} characters)');
+        return { valid: false, error: tooLong.replace(/\{max\}/g, MAX_NAME_LENGTH) };
+    }
+    return { valid: true, name: trimmed };
+}
+
+/**
+ * Put the join button back the way an untouched join view has it: the original
+ * label, and enabled only if the name in the box would pass. The button ships
+ * `disabled` in the markup precisely because an empty box must not be
+ * submittable, so this restores that rule rather than simply enabling it.
+ *
+ * Exported for the #2506 tests.
+ */
+export function resetJoinButton() {
+    var joinBtn = document.getElementById('join-btn');
+    if (!joinBtn) return;
+    joinBtn.textContent = utils.t ? utils.t('join.joinButton') : 'Join Game';
+    var nameInput = document.getElementById('name-input');
+    joinBtn.disabled = !validateName(nameInput ? nameInput.value : '').valid;
+}
+
+// ============================================
+// Modal Focus Management (#1716)
+// ============================================
+
+/**
+ * #1716: accessible focus management for aria-modal dialogs. On activate() we
+ * move focus into the dialog, trap Tab within its `.modal-content`, and close
+ * on Escape; deactivate() restores focus to whatever held it before the dialog
+ * opened. Kept DOM-injectable (reads the modal's ownerDocument) so it is pure
+ * with respect to this module and unit-testable without a real browser
+ * (see __tests__/modal-focus-trap.test.js).
+ *
+ * @param {Element} modal - the dialog root (`.hidden` toggled by the caller).
+ * @param {Object} [options]
+ * @param {string} [options.contentSelector='.modal-content'] - focus-trap scope.
+ * @returns {{activate:Function, deactivate:Function}}
+ */
+export function createModalFocusTrap(modal, options) {
+    var opts = options || {};
+    var contentSelector = opts.contentSelector || '.modal-content';
+    var doc = (modal && modal.ownerDocument) ||
+        (typeof document !== 'undefined' ? document : null);
+    var previouslyFocused = null;
+    var keydownHandler = null;
+    var activeOnEscape = null;
+
+    var FOCUSABLE = 'button, [href], input, select, textarea, ' +
+        '[tabindex]:not([tabindex="-1"])';
+
+    function focusable() {
+        var scope = (modal && modal.querySelector(contentSelector)) || modal;
+        if (!scope || !scope.querySelectorAll) return [];
+        var nodes = scope.querySelectorAll(FOCUSABLE);
+        return Array.prototype.filter.call(nodes, function(el) {
+            // Skip disabled / explicitly hidden nodes; keep everything else so a
+            // minimal test DOM (no layout) still yields the trap targets.
+            return !el.disabled && el.getAttribute('aria-hidden') !== 'true';
+        });
+    }
+
+    function onKeydown(e) {
+        if (e.key === 'Escape' || e.key === 'Esc') {
+            if (typeof activeOnEscape === 'function') {
+                if (e.preventDefault) e.preventDefault();
+                activeOnEscape();
+            }
+            return;
+        }
+        if (e.key !== 'Tab') return;
+        var f = focusable();
+        if (f.length === 0) { if (e.preventDefault) e.preventDefault(); return; }
+        var first = f[0];
+        var last = f[f.length - 1];
+        var active = doc ? doc.activeElement : null;
+        var idx = Array.prototype.indexOf.call(f, active);
+        if (e.shiftKey) {
+            if (idx <= 0) { if (e.preventDefault) e.preventDefault(); last.focus(); }
+        } else if (idx === -1 || idx === f.length - 1) {
+            if (e.preventDefault) e.preventDefault();
+            first.focus();
+        }
+    }
+
+    function activate(activateOpts) {
+        activateOpts = activateOpts || {};
+        activeOnEscape = typeof activateOpts.onEscape === 'function'
+            ? activateOpts.onEscape : null;
+        previouslyFocused = doc ? doc.activeElement : null;
+        var f = focusable();
+        var initial = activateOpts.initialFocus || f[0];
+        if (initial && typeof initial.focus === 'function') initial.focus();
+        keydownHandler = onKeydown;
+        if (doc && doc.addEventListener) {
+            doc.addEventListener('keydown', keydownHandler, true);
+        }
+    }
+
+    function deactivate() {
+        if (keydownHandler && doc && doc.removeEventListener) {
+            doc.removeEventListener('keydown', keydownHandler, true);
+        }
+        keydownHandler = null;
+        activeOnEscape = null;
+        if (previouslyFocused && typeof previouslyFocused.focus === 'function') {
+            previouslyFocused.focus();
+        }
+        previouslyFocused = null;
+    }
+
+    return { activate: activate, deactivate: deactivate };
 }
 
 // ============================================
@@ -112,13 +297,21 @@ export function showConfirmModal(title, message, confirmText, cancelText) {
         yesBtn.textContent = confirmText || utils.t('common.confirm') || 'Confirm';
         noBtn.textContent = cancelText || utils.t('common.cancel') || 'Cancel';
 
+        var backdrop = modal.querySelector('.modal-backdrop');
+        // #1716: focus management — trap Tab in .modal-content, Escape cancels,
+        // focus restores to the trigger on close.
+        var trap = createModalFocusTrap(modal);
+
         modal.classList.remove('hidden');
+        // Cancel is the safe default focus target for a destructive confirm.
+        trap.activate({ initialFocus: noBtn, onEscape: onCancel });
 
         function cleanup() {
             modal.classList.add('hidden');
             yesBtn.removeEventListener('click', onConfirm);
             noBtn.removeEventListener('click', onCancel);
-            backdrop.removeEventListener('click', onCancel);
+            if (backdrop) backdrop.removeEventListener('click', onCancel);
+            trap.deactivate();
         }
 
         function onConfirm() {
@@ -131,8 +324,6 @@ export function showConfirmModal(title, message, confirmText, cancelText) {
             resolve(false);
         }
 
-        var backdrop = modal.querySelector('.modal-backdrop');
-
         yesBtn.addEventListener('click', onConfirm);
         noBtn.addEventListener('click', onCancel);
         if (backdrop) backdrop.addEventListener('click', onCancel);
@@ -144,14 +335,107 @@ export function showConfirmModal(title, message, confirmText, cancelText) {
 // ============================================
 
 /**
- * Escape HTML to prevent XSS
+ * Escape text for insertion into HTML, in text nodes AND in attribute values.
+ *
+ * This used to route through a detached div (textContent in, innerHTML out).
+ * That encodes & < > and leaves the quote characters alone — correct for a
+ * text node, wrong for an attribute value, where a quote ends the value and
+ * everything after it is read as further attributes. Three call sites put
+ * player names into attributes (data-player, data-name, aria-label), and a
+ * player name is free text: the server checks only its length, and the name
+ * renders on every guest's phone rather than only the author's. (#2505)
+ *
+ * Escaping the five characters directly fixes both contexts at once, needs no
+ * DOM, and cannot drift apart from the second copy in utils.js.
+ *
  * @param {string} text - Text to escape
- * @returns {string} Escaped text
+ * @returns {string} Escaped text, safe in both contexts
  */
 export function escapeHtml(text) {
-    var div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
+    if (text === null || text === undefined) {
+        return '';
+    }
+    return String(text)
+        .replace(/&/g, '&amp;')   // must come first
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+/**
+ * #2499: does this server error mean the join was refused?
+ *
+ * The four codes below are the ones the server answers a join with when it
+ * will not let the player in. It keeps the socket open, so nothing else marks
+ * the attempt as failed.
+ *
+ * The second argument is what makes the decision correct. ``state.playerName``
+ * looks like the obvious signal and is not: it is set optimistically when the
+ * socket opens, before any acknowledgement, so it is already truthy while the
+ * join is still in flight. ``joinPending`` is raised on the connect attempt and
+ * lowered by join_ack / reconnect_ack, so it is true exactly for the window in
+ * which a rejection can arrive. GAME_ENDED reaches both paths and means
+ * different things in each — a refused join, or a game that has just finished
+ * around a player who is already in it.
+ *
+ * @param {string} code - server error code
+ * @param {boolean} joinPending - a connect attempt is waiting for its ack
+ * @returns {boolean}
+ */
+export var JOIN_REJECTED_CODES = ['NAME_TAKEN', 'NAME_INVALID', 'GAME_FULL', 'GAME_ENDED'];
+
+export function isJoinRejection(code, joinPending) {
+    return Boolean(joinPending) && JOIN_REJECTED_CODES.indexOf(code) !== -1;
+}
+
+/**
+ * The text a refused guest reads (#2532).
+ *
+ * #2511 gave the rejection a home on the join view but passed the server's own
+ * ``message`` straight through, so a German or Spanish guest read "Name taken,
+ * choose another" on an otherwise translated screen. All four codes in
+ * ``JOIN_REJECTED_CODES`` have an ``errors.<CODE>`` entry in every locale — the
+ * lookup simply never happened.
+ *
+ * **Why the second argument and not ``||``.** The tempting form is
+ * ``t('errors.' + code) || serverMessage``, and it can never reach the right
+ * side: ``t`` returns the key itself when the lookup misses, and for a missing
+ * key with no fallback it *generates* one from the key ("Name Taken"). Both are
+ * truthy, so the server message would be dead code and an unknown code would
+ * surface as ``errors.SOMETHING`` on screen. ``t``'s two-argument form is the
+ * only one that actually falls back.
+ *
+ * @param {string} code - server error code, e.g. NAME_TAKEN
+ * @param {string} serverMessage - the server's English text, used as fallback
+ * @param {function} t - translation helper (utils.t)
+ * @returns {string} localized text, the server's message, or a last resort
+ */
+export function joinRejectionMessage(code, serverMessage, t, data) {
+    var fallback = serverMessage || 'Could not join';
+    // #3076: the specific message first, the generic errors.<CODE> only after.
+    var specific = specificErrorText(data, t);
+    if (specific) return specific;
+    if (typeof t !== 'function' || !code) return fallback;
+    return t('errors.' + code, fallback);
+}
+
+/**
+ * #1664 item 3: single source of truth for "are we in Title & Artist mode?".
+ *
+ * The server ships the top-level `title_artist_mode` flag on EVERY serialized
+ * payload (see game/serializers.py — set in the base state dict before phase
+ * branching, so it's present in PLAYING *and* REVEAL). player-game.js and the
+ * TV dashboard already keyed off this flag; player-reveal.js instead sniffed
+ * `title_artist_challenge.correct_title`, which diverged from the others on the
+ * edge where the mode is on but the challenge payload is momentarily absent.
+ * Unify every mode check on the authoritative flag.
+ *
+ * @param {Object} data - server state payload
+ * @returns {boolean} True when Title & Artist mode is active
+ */
+export function isTitleArtistMode(data) {
+    return !!(data && data.title_artist_mode);
 }
 
 // ============================================
@@ -173,6 +457,58 @@ export function prefersReducedMotion() {
  */
 export function easeOutQuart(t) {
     return 1 - Math.pow(1 - t, 4);
+}
+
+// ============================================
+// Year-guess classification (#2624)
+// ============================================
+
+/**
+ * The scoring table and the default level, re-exported for the reveal's callers.
+ *
+ * The reveal screen used to decide "so close" against fixed distances of 2 and
+ * 5 years while the server awarded points from this table. On easy that showed
+ * the sad face over a 5-point round; on hard it said "so close" over a
+ * 0-pointer. One table, two readings, and the player saw them contradict each
+ * other on screen (#2624).
+ *
+ * #2625 landed the frontend's single mirror of const.py in game-constants.js
+ * shortly after #2624 put a copy here; this file now reads that one rather than
+ * keeping a second. ``tests/unit/test_reveal_difficulty_parity_2624.py`` and
+ * ``__tests__/game-constants-mirror.test.js`` both fail if it stops matching
+ * const.py.
+ */
+export { DIFFICULTY_SCORING, DIFFICULTY_DEFAULT };
+
+/**
+ * Classify a year guess exactly the way the server scores it (#2624).
+ *
+ * Returns the server's own vocabulary from
+ * ``GameState._apply_round_results`` — deliberately, so there is one set of
+ * names for one rule instead of a second frontend one that can drift:
+ *
+ *   'exact'  — bang on, POINTS_EXACT
+ *   'scored' — inside close_range, close_points
+ *   'close'  — inside near_range, near_points (a consolation point)
+ *   'missed' — no points, or no guess at all
+ *
+ * A range of 0 disables its band (hard has no near band), which is why both
+ * checks test the range before the distance.
+ *
+ * @param {number|null|undefined} yearsOff - absolute distance to the real year
+ * @param {string} difficulty - 'easy' | 'normal' | 'hard'
+ * @returns {string} one of exact | scored | close | missed
+ */
+export function classifyYearsOff(yearsOff, difficulty) {
+    if (yearsOff == null || isNaN(yearsOff)) return 'missed';
+
+    var cfg = DIFFICULTY_SCORING[difficulty] || DIFFICULTY_SCORING[DIFFICULTY_DEFAULT];
+    var diff = Math.abs(yearsOff);
+
+    if (diff === 0) return 'exact';
+    if (cfg.close_range > 0 && diff <= cfg.close_range) return 'scored';
+    if (cfg.near_range > 0 && diff <= cfg.near_range) return 'close';
+    return 'missed';
 }
 
 /**
@@ -240,105 +576,6 @@ export function animateValue(element, start, end, duration, easing) {
     };
 }
 
-/**
- * Animate score change with visual effects
- * @param {HTMLElement} element - Score element to animate
- * @param {number} oldScore - Previous score value
- * @param {number} newScore - New score value
- * @param {Object} options - Effect options: { betWon, betLost, streakMilestone, isBigScore }
- */
-export function animateScoreChange(element, oldScore, newScore, options) {
-    options = options || {};
-
-    var duration = 500;
-    if (options.betWon) {
-        duration = 800;
-    } else if (options.isBigScore) {
-        duration = 700;
-    } else if (options.betLost) {
-        duration = 400;
-    }
-
-    element.classList.add('score-animating');
-
-    var animationClass = null;
-    if (options.betWon) {
-        animationClass = 'score-glow-gold';
-    } else if (options.betLost) {
-        animationClass = 'score-shake';
-        element.classList.add('score-flash-red');
-    } else if (options.streakMilestone) {
-        animationClass = 'score-burst';
-    } else if (options.isBigScore) {
-        animationClass = 'score-pop';
-    }
-
-    if (animationClass && !prefersReducedMotion()) {
-        element.classList.add(animationClass);
-    }
-
-    animateValue(element, oldScore, newScore, duration);
-
-    function cleanup() {
-        element.classList.remove('score-animating');
-        if (animationClass) {
-            element.classList.remove(animationClass);
-        }
-        element.classList.remove('score-flash-red');
-    }
-
-    if (animationClass && !prefersReducedMotion()) {
-        element.addEventListener('animationend', function onEnd() {
-            element.removeEventListener('animationend', onEnd);
-            cleanup();
-        });
-    } else {
-        setTimeout(cleanup, duration + 50);
-    }
-}
-
-/**
- * Show floating points popup above target element
- * @param {HTMLElement} targetElement - Element to position popup relative to
- * @param {number} points - Points value to display
- * @param {Object} options - Options: { text, isStreak, isBetWin }
- */
-export function showPointsPopup(targetElement, points, options) {
-    options = options || {};
-
-    if (prefersReducedMotion()) {
-        return;
-    }
-
-    var popup = document.createElement('div');
-    popup.className = 'points-popup';
-    popup.textContent = options.text || ('+' + points);
-
-    if (options.isStreak) {
-        popup.classList.add('points-popup--streak');
-    } else if (options.isBetWin) {
-        popup.classList.add('points-popup--gold');
-    }
-
-    var rect = targetElement.getBoundingClientRect();
-    popup.style.left = (rect.left + rect.width / 2) + 'px';
-    popup.style.top = rect.top + 'px';
-
-    document.body.appendChild(popup);
-
-    popup.addEventListener('animationend', function() {
-        if (popup.parentNode) {
-            popup.parentNode.removeChild(popup);
-        }
-    });
-
-    setTimeout(function() {
-        if (popup.parentNode) {
-            popup.parentNode.removeChild(popup);
-        }
-    }, 1200);
-}
-
 // ============================================
 // Previous State Cache (Story 13.2)
 // ============================================
@@ -355,24 +592,6 @@ export var previousState = {
  */
 export function isPreviousStateInitialized() {
     return previousState.initialized;
-}
-
-var STREAK_MILESTONES = [3, 5, 10, 15, 20, 25];
-
-/**
- * Check if a streak milestone was just reached
- * @param {number} oldStreak - Previous streak value
- * @param {number} newStreak - Current streak value
- * @returns {number|null} Milestone reached or null
- */
-export function isStreakMilestone(oldStreak, newStreak) {
-    for (var i = 0; i < STREAK_MILESTONES.length; i++) {
-        var milestone = STREAK_MILESTONES[i];
-        if (oldStreak < milestone && newStreak >= milestone) {
-            return milestone;
-        }
-    }
-    return null;
 }
 
 /**
@@ -422,14 +641,8 @@ export function updatePreviousState(players, leaderboard) {
     previousState.initialized = true;
 }
 
-/**
- * Reset previous state (called on game end/new game)
- */
-export function resetPreviousState() {
-    previousState.players = {};
-    previousState.leaderboard = [];
-    previousState.initialized = false;
-}
+// #2583: `resetPreviousState` reset the three fields above and was
+// exported with no caller — game end and new-game go elsewhere.
 
 // ============================================
 // Animation Performance Utilities (Story 18.3)
@@ -766,7 +979,9 @@ export function renderLeaderboardEntry(entry) {
     }
 
     var disconnectedClass = entry.connected === false ? 'leaderboard-entry--disconnected' : '';
-    var awayBadge = entry.connected === false ? '<span class="away-badge">(away)</span>' : '';
+    var awayBadge = entry.connected === false
+        ? '<span class="away-badge">(' + escapeHtml(tr('lobby.away', 'away')) + ')</span>'
+        : '';
 
     var displayScore = entry._displayScore !== undefined ? entry._displayScore : score;
 
@@ -851,30 +1066,6 @@ export function setupLeaderboardResizeHandler() {
 
     window.addEventListener('resize', handleResize);
     window.addEventListener('orientationchange', handleResize);
-}
-
-// ============================================
-// QR Section - Responsive Collapse (Story 18.8)
-// ============================================
-
-export function initQrCollapsible() {
-    var qrSection = document.getElementById('qr-share-area');
-    if (!qrSection || qrSection.tagName !== 'DETAILS') return;
-
-    var STORAGE_KEY = 'beatify_qr_expanded';
-    var MOBILE_BREAKPOINT = 768;
-
-    var savedState = sessionStorage.getItem(STORAGE_KEY);
-
-    if (savedState !== null) {
-        qrSection.open = savedState === 'true';
-    } else {
-        qrSection.open = window.innerWidth >= MOBILE_BREAKPOINT;
-    }
-
-    qrSection.addEventListener('toggle', function() {
-        sessionStorage.setItem(STORAGE_KEY, qrSection.open.toString());
-    });
 }
 
 // ============================================

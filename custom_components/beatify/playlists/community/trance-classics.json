@@ -1,6 +1,6 @@
 {
   "name": "Trance Classics",
-  "version": "1.2",
+  "version": "1.16",
   "tags": [
     "trance",
     "hands-up",
@@ -30,7 +30,7 @@
         "it": "applemusic://track/965253293"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=0snTYLgg9w0",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/41016043",
       "uri_deezer": "deezer://track/94877938",
       "fun_fact": "A trance and dance-floor classic (1991).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (1991).",
@@ -55,7 +55,7 @@
         "it": "applemusic://track/1681922688"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=G6W-dR2q478",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/288817742",
       "uri_deezer": "deezer://track/494371812",
       "fun_fact": "A trance and dance-floor classic (1992).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (1992).",
@@ -80,7 +80,7 @@
         "it": "applemusic://track/1741028427"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=RiF6KE455Ts",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/63552634",
       "uri_deezer": "deezer://track/2748904931",
       "fun_fact": "The Prodigy are a British group that fused rave, breakbeat and punk energy.",
       "fun_fact_de": "The Prodigy sind eine britische Gruppe, die Rave, Breakbeat und Punk-Energie verschmolz.",
@@ -94,7 +94,7 @@
       "year": 1993,
       "isrc": "DEL020260008",
       "uri": "spotify:track:2w9Yfj0FcyKcPCIkzsRSwD",
-      "uri_apple_music": "applemusic://track/1456244005",
+      "uri_apple_music": "applemusic://track/1703077503",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/785625381",
         "de": "applemusic://track/785392307",
@@ -105,7 +105,7 @@
         "it": "applemusic://track/785392307"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=LrPRuKyNFn4",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/311361551",
       "uri_deezer": "deezer://track/633930282",
       "fun_fact": "A trance and dance-floor classic (1993).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (1993).",
@@ -130,7 +130,7 @@
         "it": "applemusic://track/890938635"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=-eS6aKSSQ_E",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/28313870",
       "uri_deezer": "deezer://track/81375810",
       "fun_fact": "A trance and dance-floor classic (1994).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (1994).",
@@ -155,7 +155,7 @@
         "it": "applemusic://track/1803633859"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=maPrpcHwXsc",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/425424008",
       "uri_deezer": "deezer://track/3289112261",
       "fun_fact": "A trance and dance-floor classic (1995).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (1995).",
@@ -180,8 +180,8 @@
         "it": "applemusic://track/1803373904"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=yWSfBM8c2QE",
-      "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_tidal": "tidal://track/425169309",
+      "uri_deezer": "deezer://track/3286785761",
       "fun_fact": "A trance and dance-floor classic (1995).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (1995).",
       "fun_fact_es": "Un clásico del trance y la pista de baile (1995).",
@@ -205,7 +205,7 @@
         "it": "applemusic://track/581006823"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=sUUErsKirPI",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/4978602",
       "uri_deezer": "deezer://track/7035328",
       "fun_fact": "Faithless were a British electronic act behind some of dance music's biggest anthems.",
       "fun_fact_de": "Faithless waren ein britisches Electronic-Projekt hinter einigen der größten Dance-Hymnen.",
@@ -230,7 +230,7 @@
         "it": "applemusic://track/207180296"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=yuTNcjRdX4Q",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/560432",
       "uri_deezer": "deezer://track/560269",
       "fun_fact": "Faithless were a British electronic act behind some of dance music's biggest anthems.",
       "fun_fact_de": "Faithless waren ein britisches Electronic-Projekt hinter einigen der größten Dance-Hymnen.",
@@ -255,7 +255,7 @@
         "it": "applemusic://track/1477101639"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=bkJuuvaLLx8",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/80833967",
       "uri_deezer": "deezer://track/735851582",
       "fun_fact": "A trance and dance-floor classic (1996).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (1996).",
@@ -280,7 +280,7 @@
         "it": "applemusic://track/929890001"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=th5vPy1oJjc",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/36435739",
       "uri_deezer": "deezer://track/16499761",
       "fun_fact": "A trance and dance-floor classic (1996).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (1996).",
@@ -305,7 +305,7 @@
         "it": "applemusic://track/557884346"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=QCSy20zoO_8",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/16857905",
       "uri_deezer": "deezer://track/59127921",
       "fun_fact": "A trance and dance-floor classic (1996).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (1996).",
@@ -330,7 +330,7 @@
         "it": "applemusic://track/890939271"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=Fj19pGOY5dk",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/28314086",
       "uri_deezer": "deezer://track/77427801",
       "fun_fact": "A trance and dance-floor classic (1996).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (1996).",
@@ -380,7 +380,7 @@
         "it": "applemusic://track/1675762578"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=K423XiHkPbU",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/199438734",
       "uri_deezer": "deezer://track/1758959207",
       "fun_fact": "A trance and dance-floor classic (1996).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (1996).",
@@ -394,9 +394,9 @@
       "year": 1996,
       "isrc": "DED579605120",
       "uri": "spotify:track:4AmULZtflj3SktU5MPB6EK",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1443151729",
       "uri_apple_music_by_region": {
-        "us": null,
+        "us": "applemusic://track/1443151729",
         "de": "applemusic://track/1442565960",
         "gb": "applemusic://track/1442565960",
         "fr": "applemusic://track/1442565960",
@@ -405,7 +405,7 @@
         "it": "applemusic://track/1442565960"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=JBE9FgGkcwM",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/3983981",
       "uri_deezer": "deezer://track/2253781",
       "fun_fact": "A trance and dance-floor classic (1996).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (1996).",
@@ -424,13 +424,13 @@
         "us": "applemusic://track/1657393728",
         "de": "applemusic://track/1673414656",
         "gb": "applemusic://track/1673414656",
-        "fr": "applemusic://track/430891171",
+        "fr": "applemusic://track/1657393728",
         "es": "applemusic://track/1673414656",
         "nl": "applemusic://track/1673414656",
         "it": "applemusic://track/1673414656"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=0BRJlBUpDi8",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/263758398",
       "uri_deezer": "deezer://track/2045360607",
       "fun_fact": "A trance and dance-floor classic (1997).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (1997).",
@@ -455,7 +455,7 @@
         "it": "applemusic://track/1657393738"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=U70SgSqbU6M",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/263758400",
       "uri_deezer": "deezer://track/2045360627",
       "fun_fact": "A trance and dance-floor classic (1997).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (1997).",
@@ -480,8 +480,8 @@
         "it": "applemusic://track/696886444"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=mSVBwwAZKkI",
-      "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_tidal": "tidal://track/161018",
+      "uri_deezer": "deezer://track/3129776",
       "fun_fact": "A trance and dance-floor classic (1997).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (1997).",
       "fun_fact_es": "Un clásico del trance y la pista de baile (1997).",
@@ -505,7 +505,7 @@
         "it": "applemusic://track/1247939867"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=qoCoIrWcVMQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/70199934",
       "uri_deezer": "deezer://track/372961111",
       "fun_fact": "A trance and dance-floor classic (1997).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (1997).",
@@ -530,7 +530,7 @@
         "it": "applemusic://track/1203765916"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=pDeiPbJ2Q28",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/70199927",
       "uri_deezer": "deezer://track/435030182",
       "fun_fact": "A trance and dance-floor classic (1997).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (1997).",
@@ -555,7 +555,7 @@
         "it": "applemusic://track/438738791"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=MKrwetR7IPg",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/6874733",
       "uri_deezer": "deezer://track/12254747",
       "fun_fact": "A trance and dance-floor classic (1997).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (1997).",
@@ -580,7 +580,7 @@
         "it": "applemusic://track/1647327166"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=hhWf2GuDZZc",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/250952230",
       "uri_deezer": "deezer://track/1936409977",
       "fun_fact": "A trance and dance-floor classic (1997).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (1997).",
@@ -605,7 +605,7 @@
         "it": "applemusic://track/1505310416"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=Vxoyvz1na-E",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/19020555",
       "uri_deezer": "deezer://track/916849682",
       "fun_fact": "A trance and dance-floor classic (1997).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (1997).",
@@ -630,7 +630,7 @@
         "it": "applemusic://track/1160733023"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=xXahlXQhMF4",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/65545333",
       "uri_deezer": "deezer://track/133204794",
       "fun_fact": "A trance and dance-floor classic (1997).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (1997).",
@@ -644,7 +644,7 @@
       "year": 1997,
       "isrc": "DEF069615240",
       "uri": "spotify:track:67Zp9TsbLDAiMdmr66EKx0",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1171366699",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1160733022",
         "de": "applemusic://track/1160733022",
@@ -669,7 +669,7 @@
       "year": 1997,
       "isrc": "NLC050700178",
       "uri": "spotify:track:0TZL4krCFcuTlYZ8J9kcBX",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/261646301",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1383671519",
         "de": "applemusic://track/1383671519",
@@ -680,7 +680,7 @@
         "it": "applemusic://track/1383671519"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=s9QS0Zlc_Yk",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/89356374",
       "uri_deezer": "deezer://track/504525632",
       "fun_fact": "A trance and dance-floor classic (1997).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (1997).",
@@ -705,7 +705,7 @@
         "it": "applemusic://track/1657448193"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=Y4xYY8uflFI",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/263785106",
       "uri_deezer": "deezer://track/2045342097",
       "fun_fact": "A trance and dance-floor classic (1997).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (1997).",
@@ -730,8 +730,8 @@
         "it": "applemusic://track/1703698474"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=89P8b-mIo8A",
-      "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_tidal": "tidal://track/235078660",
+      "uri_deezer": "deezer://track/1802291377",
       "fun_fact": "A trance and dance-floor classic (1998).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (1998).",
       "fun_fact_es": "Un clásico del trance y la pista de baile (1998).",
@@ -755,7 +755,7 @@
         "it": "applemusic://track/509175791"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=GA0g1hec-Bo",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/14094151",
       "uri_deezer": "deezer://track/604533",
       "fun_fact": "Faithless were a British electronic act behind some of dance music's biggest anthems.",
       "fun_fact_de": "Faithless waren ein britisches Electronic-Projekt hinter einigen der größten Dance-Hymnen.",
@@ -780,7 +780,7 @@
         "it": "applemusic://track/438700730"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=vTfJi_Oj24M",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/6874694",
       "uri_deezer": "deezer://track/12254712",
       "fun_fact": "A trance and dance-floor classic (1998).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (1998).",
@@ -794,7 +794,7 @@
       "year": 1998,
       "isrc": "DEPI82101599",
       "uri": "spotify:track:2b8Vn3lkRj0A715jUgMIVq",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1589304135",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1583233643",
         "de": "applemusic://track/1583233643",
@@ -805,7 +805,7 @@
         "it": "applemusic://track/1583233643"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=C9MT5NowzCk",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/205276680",
       "uri_deezer": "deezer://track/1541481792",
       "fun_fact": "A trance and dance-floor classic (1998).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (1998).",
@@ -819,18 +819,18 @@
       "year": 1998,
       "isrc": "DEW760900106",
       "uri": "spotify:track:5JcZHbUi60uykbQNXPLoCG",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1463197973",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1605918726",
         "de": "applemusic://track/1863359574",
-        "gb": "applemusic://track/1440644961",
+        "gb": "applemusic://track/1463197973",
         "fr": "applemusic://track/1605918726",
         "es": "applemusic://track/1605918726",
         "nl": "applemusic://track/1605918726",
         "it": "applemusic://track/1605918726"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=lBKtD9TdVrI",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/483399556",
       "uri_deezer": "deezer://track/1626487942",
       "fun_fact": "Paul van Dyk is a German DJ who became one of trance's first global superstars.",
       "fun_fact_de": "Paul van Dyk ist ein deutscher DJ, der zu einem der ersten globalen Trance-Superstars wurde.",
@@ -880,7 +880,7 @@
         "it": "applemusic://track/1790568085"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=pyPd5VuXzBQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/3834240",
       "uri_deezer": "deezer://track/2959691321",
       "fun_fact": "ATB is German producer André Tanneberger, whose 'guitar plucking' sound defined trance.",
       "fun_fact_de": "ATB ist der deutsche Produzent André Tanneberger, dessen 'Gitarren-Zupf'-Sound den Trance prägte.",
@@ -894,7 +894,7 @@
       "year": 1999,
       "isrc": "FISME9900023",
       "uri": "spotify:track:2vlgOAH3M8Fmo19wOjeRyw",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/260655284",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/260655284",
         "de": "applemusic://track/260655284",
@@ -905,7 +905,7 @@
         "it": "applemusic://track/260655284"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=GWtSamzbGOs",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/3381203",
       "uri_deezer": "deezer://track/5363024",
       "fun_fact": "A trance and dance-floor classic (1999).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (1999).",
@@ -930,7 +930,7 @@
         "it": "applemusic://track/271969650"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=XjvkxXblpz8",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/7715350",
       "uri_deezer": "deezer://track/11390027",
       "fun_fact": "Darude is a Finnish producer whose 'Sandstorm' became an internet-era dance institution.",
       "fun_fact_de": "Darude ist ein finnischer Produzent, dessen 'Sandstorm' zur Dance-Institution des Internetzeitalters wurde.",
@@ -955,7 +955,7 @@
         "it": "applemusic://track/365527344"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=i-n6CUiFWjA",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/16908071",
       "uri_deezer": "deezer://track/61685880",
       "fun_fact": "A trance and dance-floor classic (1999).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (1999).",
@@ -980,7 +980,7 @@
         "it": "applemusic://track/1530897393"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=r9F2FrmnUdk",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/63261261",
       "uri_deezer": "deezer://track/61057255",
       "fun_fact": "Gigi D'Agostino is an Italian DJ and the figurehead of the bouncy 'Lento Violento' sound.",
       "fun_fact_de": "Gigi D'Agostino ist ein italienischer DJ und Galionsfigur des hüpfenden 'Lento Violento'-Sounds.",
@@ -1005,7 +1005,7 @@
         "it": "applemusic://track/384919391"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=ZuY2s58bRrE",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/63545799",
       "uri_deezer": "deezer://track/61419158",
       "fun_fact": "Gigi D'Agostino is an Italian DJ and the figurehead of the bouncy 'Lento Violento' sound.",
       "fun_fact_de": "Gigi D'Agostino ist ein italienischer DJ und Galionsfigur des hüpfenden 'Lento Violento'-Sounds.",
@@ -1030,7 +1030,7 @@
         "it": "applemusic://track/121304778"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=aP1PrVeBiIA",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/2358828",
       "uri_deezer": "deezer://track/3748162",
       "fun_fact": "A trance and dance-floor classic (1999).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (1999).",
@@ -1055,7 +1055,7 @@
         "it": "applemusic://track/121304765"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=aP1PrVeBiIA",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/2358830",
       "uri_deezer": "deezer://track/3748159",
       "fun_fact": "A trance and dance-floor classic (1999).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (1999).",
@@ -1080,7 +1080,7 @@
         "it": "applemusic://track/1490201645"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=qNwamr09M84",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/491347173",
       "uri_deezer": "deezer://track/3786234122",
       "fun_fact": "A trance and dance-floor classic (1999).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (1999).",
@@ -1105,7 +1105,7 @@
         "it": "applemusic://track/1713815717"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=qNwamr09M84",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/491260868",
       "uri_deezer": "deezer://track/3786457612",
       "fun_fact": "A trance and dance-floor classic (1999).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (1999).",
@@ -1122,7 +1122,7 @@
       "uri_apple_music": null,
       "uri_apple_music_by_region": {},
       "uri_youtube_music": "https://music.youtube.com/watch?v=2oNnjVBMTKU",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/276644242",
       "uri_deezer": null,
       "fun_fact": "A trance and dance-floor classic (1999).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (1999).",
@@ -1148,7 +1148,7 @@
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=48apI4bpnSo",
       "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_deezer": "deezer://track/10265110",
       "fun_fact": "A trance and dance-floor classic (1999).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (1999).",
       "fun_fact_es": "Un clásico del trance y la pista de baile (1999).",
@@ -1164,8 +1164,8 @@
       "uri_apple_music": "applemusic://track/129611463",
       "uri_apple_music_by_region": {},
       "uri_youtube_music": "https://music.youtube.com/watch?v=hjexeNExXKU",
-      "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_tidal": "tidal://track/13143071",
+      "uri_deezer": "deezer://track/7121774",
       "fun_fact": "A trance and dance-floor classic (1999).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (1999).",
       "fun_fact_es": "Un clásico del trance y la pista de baile (1999).",
@@ -1189,8 +1189,8 @@
         "it": "applemusic://track/129611463"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=hjexeNExXKU",
-      "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_tidal": "tidal://track/13143072",
+      "uri_deezer": "deezer://track/10265111",
       "fun_fact": "A trance and dance-floor classic (1999).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (1999).",
       "fun_fact_es": "Un clásico del trance y la pista de baile (1999).",
@@ -1214,7 +1214,7 @@
         "it": "applemusic://track/310439630"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=2xqkfeil4qI",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/4158645",
       "uri_deezer": "deezer://track/61538082",
       "fun_fact": "A trance and dance-floor classic (2000).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2000).",
@@ -1239,7 +1239,7 @@
         "it": "applemusic://track/1571951674"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=LM4_Ae0jJ7c",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/658331",
       "uri_deezer": "deezer://track/15263221",
       "fun_fact": "A trance and dance-floor classic (2000).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2000).",
@@ -1264,7 +1264,7 @@
         "it": "applemusic://track/271969670"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=9t8ovH8lco4",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/9356441",
       "uri_deezer": "deezer://track/11390029",
       "fun_fact": "Darude is a Finnish producer whose 'Sandstorm' became an internet-era dance institution.",
       "fun_fact_de": "Darude ist ein finnischer Produzent, dessen 'Sandstorm' zur Dance-Institution des Internetzeitalters wurde.",
@@ -1289,7 +1289,7 @@
         "it": "applemusic://track/1671521459"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=CR3U1MtZoVE",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/276441085",
       "uri_deezer": "deezer://track/2147457977",
       "fun_fact": "A trance and dance-floor classic (2000).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2000).",
@@ -1303,7 +1303,7 @@
       "year": 2000,
       "isrc": "DEE199700058",
       "uri": "spotify:track:6DKWXCVX996z5CXqnZ8WSW",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1646214731",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1646214731",
         "de": "applemusic://track/1646214731",
@@ -1314,7 +1314,7 @@
         "it": "applemusic://track/1646214731"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=ovMBy4RlKaw",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/249699217",
       "uri_deezer": "deezer://track/1923878837",
       "fun_fact": "A trance and dance-floor classic (2000).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2000).",
@@ -1330,13 +1330,13 @@
       "uri": "spotify:track:3fe81dBfsLlnHjVOUhWZYA",
       "uri_apple_music": "applemusic://track/1817940643",
       "uri_apple_music_by_region": {
-        "us": null,
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
+        "us": "applemusic://track/1817940643",
+        "de": "applemusic://track/1817940643",
+        "gb": "applemusic://track/1817940643",
+        "fr": "applemusic://track/1817940643",
+        "es": "applemusic://track/1817940643",
+        "nl": "applemusic://track/1817940643",
+        "it": "applemusic://track/1817940643"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=1li8W2vVKCw",
       "uri_tidal": null,
@@ -1389,7 +1389,7 @@
         "it": "applemusic://track/119218506"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=ZTNej2USaYk",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/63261254",
       "uri_deezer": "deezer://track/61751496",
       "fun_fact": "Gigi D'Agostino is an Italian DJ and the figurehead of the bouncy 'Lento Violento' sound.",
       "fun_fact_de": "Gigi D'Agostino ist ein italienischer DJ und Galionsfigur des hüpfenden 'Lento Violento'-Sounds.",
@@ -1414,7 +1414,7 @@
         "it": "applemusic://track/1000697876"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=g3oml70ktKs",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/46733723",
       "uri_deezer": "deezer://track/101575806",
       "fun_fact": "A trance and dance-floor classic (2000).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2000).",
@@ -1439,7 +1439,7 @@
         "it": "applemusic://track/1000697873"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=WO-emYoJh_g",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/46733721",
       "uri_deezer": "deezer://track/101575802",
       "fun_fact": "A trance and dance-floor classic (2000).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2000).",
@@ -1453,7 +1453,7 @@
       "year": 2000,
       "isrc": "DEN061500084",
       "uri": "spotify:track:6NCtoXr1S8uphNcBFq5olf",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1000698805",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1000698805",
         "de": "applemusic://track/1000698805",
@@ -1464,7 +1464,7 @@
         "it": "applemusic://track/1000698805"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=u_hzWzdRCjU",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/46733731",
       "uri_deezer": "deezer://track/101575822",
       "fun_fact": "A trance and dance-floor classic (2000).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2000).",
@@ -1489,7 +1489,7 @@
         "it": "applemusic://track/453248119"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=AQRYNLWd5xc",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/19020550",
       "uri_deezer": "deezer://track/1614843262",
       "fun_fact": "Mauro Picotto is an Italian DJ central to the hard-trance sound of the early 2000s.",
       "fun_fact_de": "Mauro Picotto ist ein italienischer DJ, zentral für den Hard-Trance-Sound der frühen 2000er.",
@@ -1507,14 +1507,14 @@
       "uri_apple_music_by_region": {
         "us": "applemusic://track/675141309",
         "de": "applemusic://track/675579127",
-        "gb": "applemusic://track/1440645252",
+        "gb": "applemusic://track/675579127",
         "fr": "applemusic://track/675579127",
         "es": "applemusic://track/675579127",
         "nl": "applemusic://track/675579127",
         "it": "applemusic://track/675579127"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=ed8otHRhrBI",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/7419634",
       "uri_deezer": "deezer://track/69202023",
       "fun_fact": "A trance and dance-floor classic (2000).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2000).",
@@ -1539,7 +1539,7 @@
         "it": "applemusic://track/1512393749"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=RScTWhZVZRQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/141011278",
       "uri_deezer": "deezer://track/954815912",
       "fun_fact": "A trance and dance-floor classic (2001).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2001).",
@@ -1555,16 +1555,16 @@
       "uri": "spotify:track:25ys1lEf3z6lvkDEE5mG0R",
       "uri_apple_music": "applemusic://track/298597016",
       "uri_apple_music_by_region": {
-        "us": null,
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
+        "us": "applemusic://track/298597016",
+        "de": "applemusic://track/298597016",
+        "gb": "applemusic://track/27530464",
+        "fr": "applemusic://track/27530464",
+        "es": "applemusic://track/27530464",
+        "nl": "applemusic://track/27530464",
+        "it": "applemusic://track/298597016"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=omwXLXeTR4w",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/2203669",
       "uri_deezer": "deezer://track/3905167791",
       "fun_fact": "A trance and dance-floor classic (2001).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2001).",
@@ -1589,7 +1589,7 @@
         "it": "applemusic://track/1024495429"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=q6Y8RSE3fTQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/186951977",
       "uri_deezer": "deezer://track/85963015",
       "fun_fact": "A trance and dance-floor classic (2001).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2001).",
@@ -1614,7 +1614,7 @@
         "it": "applemusic://track/1288504727"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=XZKvbsLDTbc",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/79115549",
       "uri_deezer": "deezer://track/410332102",
       "fun_fact": "A trance and dance-floor classic (2001).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2001).",
@@ -1639,7 +1639,7 @@
         "it": "applemusic://track/908949364"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=DE3StFNAbWI",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/560435",
       "uri_deezer": "deezer://track/560272",
       "fun_fact": "Faithless were a British electronic act behind some of dance music's biggest anthems.",
       "fun_fact_de": "Faithless waren ein britisches Electronic-Projekt hinter einigen der größten Dance-Hymnen.",
@@ -1655,13 +1655,13 @@
       "uri": "spotify:track:0PxHuN63iEo4RkcsLP98Ii",
       "uri_apple_music": "applemusic://track/1817940235",
       "uri_apple_music_by_region": {
-        "us": null,
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
+        "us": "applemusic://track/1817940235",
+        "de": "applemusic://track/1817940235",
+        "gb": "applemusic://track/1817940235",
+        "fr": "applemusic://track/1817940235",
+        "es": "applemusic://track/1817940235",
+        "nl": "applemusic://track/1817940235",
+        "it": "applemusic://track/1817940235"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=K86F2ZgrqF4",
       "uri_tidal": null,
@@ -1689,7 +1689,7 @@
         "it": "applemusic://track/313831550"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=Wz4rOwNbXnQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/16797485",
       "uri_deezer": "deezer://track/61638709",
       "fun_fact": "A trance and dance-floor classic (2001).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2001).",
@@ -1714,7 +1714,7 @@
         "it": "applemusic://track/578628307"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=7HpWi7EKEw0",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/6874735",
       "uri_deezer": "deezer://track/62380982",
       "fun_fact": "A trance and dance-floor classic (2001).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2001).",
@@ -1739,7 +1739,7 @@
         "it": "applemusic://track/1675004395"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=3AORUszSmZo",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/279514169",
       "uri_deezer": "deezer://track/2171445307",
       "fun_fact": "A trance and dance-floor classic (2001).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2001).",
@@ -1756,8 +1756,8 @@
       "uri_apple_music": null,
       "uri_apple_music_by_region": {},
       "uri_youtube_music": "https://music.youtube.com/watch?v=FZ9RvUMTfLg",
-      "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_tidal": "tidal://track/430498622",
+      "uri_deezer": "deezer://track/2101296767",
       "fun_fact": "A trance and dance-floor classic (2001).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2001).",
       "fun_fact_es": "Un clásico del trance y la pista de baile (2001).",
@@ -1781,7 +1781,7 @@
         "it": "applemusic://track/1863429998"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=7a22mifPaDs",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/32677867",
       "uri_deezer": "deezer://track/81881756",
       "fun_fact": "A trance and dance-floor classic (2001).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2001).",
@@ -1806,7 +1806,7 @@
         "it": "applemusic://track/65971020"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=OQAho9sqWzw",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/16797318",
       "uri_deezer": "deezer://track/61638574",
       "fun_fact": "A trance and dance-floor classic (2001).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2001).",
@@ -1831,7 +1831,7 @@
         "it": "applemusic://track/1841360040"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=-gIMw01DHZY",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/16797320",
       "uri_deezer": "deezer://track/61638576",
       "fun_fact": "A trance and dance-floor classic (2001).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2001).",
@@ -1856,7 +1856,7 @@
         "it": "applemusic://track/603828375"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=l33Frsn__o8",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/19020574",
       "uri_deezer": "deezer://track/2103115997",
       "fun_fact": "A trance and dance-floor classic (2001).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2001).",
@@ -1881,7 +1881,7 @@
         "it": "applemusic://track/1675143108"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=4CsyFsiYeeA",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/279582659",
       "uri_deezer": "deezer://track/2172117197",
       "fun_fact": "A trance and dance-floor classic (2001).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2001).",
@@ -1893,21 +1893,21 @@
       "artist": "Tiga",
       "title": "Sunglasses at Night",
       "year": 2001,
-      "isrc": "NLF712503080",
+      "isrc": "DEG932001576",
       "uri": "spotify:track:5rITB9SHFWx7XtKSn9y4TY",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1752165066",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/1811782895",
-        "de": "applemusic://track/1813948216",
-        "gb": "applemusic://track/1811782895",
-        "fr": "applemusic://track/1811782895",
-        "es": "applemusic://track/1811782895",
-        "nl": "applemusic://track/1811782895",
-        "it": "applemusic://track/1811782895"
+        "us": "applemusic://track/1752165066",
+        "de": "applemusic://track/1752165066",
+        "gb": "applemusic://track/1752165066",
+        "fr": "applemusic://track/1752165066",
+        "es": "applemusic://track/1752165066",
+        "nl": "applemusic://track/1752165066",
+        "it": "applemusic://track/1752165066"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=l7tNo5S6xEE",
-      "uri_tidal": null,
-      "uri_deezer": "deezer://track/3363395621",
+      "uri_tidal": "tidal://track/369417365",
+      "uri_deezer": "deezer://track/2914943901",
       "fun_fact": "A trance and dance-floor classic (2001).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2001).",
       "fun_fact_es": "Un clásico del trance y la pista de baile (2001).",
@@ -1931,7 +1931,7 @@
         "it": "applemusic://track/1719317849"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=4nL5m74W9_U",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/649280",
       "uri_deezer": "deezer://track/15800611",
       "fun_fact": "A trance and dance-floor classic (2001).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2001).",
@@ -1956,7 +1956,7 @@
         "it": "applemusic://track/67702305"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=hjNYw4x1sWI",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/3834374",
       "uri_deezer": "deezer://track/61676333",
       "fun_fact": "ATB is German producer André Tanneberger, whose 'guitar plucking' sound defined trance.",
       "fun_fact_de": "ATB ist der deutsche Produzent André Tanneberger, dessen 'Gitarren-Zupf'-Sound den Trance prägte.",
@@ -1972,7 +1972,7 @@
       "uri": "spotify:track:2mRNUz2RbAFf0AkPeQWelt",
       "uri_apple_music": "applemusic://track/1711841891",
       "uri_apple_music_by_region": {
-        "us": null,
+        "us": "applemusic://track/1712041112",
         "de": "applemusic://track/1731208758",
         "gb": "applemusic://track/1731208758",
         "fr": "applemusic://track/1731208758",
@@ -1981,7 +1981,7 @@
         "it": "applemusic://track/1731208758"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=HYVWhwkERcQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/122448027",
       "uri_deezer": "deezer://track/804239442",
       "fun_fact": "A trance and dance-floor classic (2002).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2002).",
@@ -1995,7 +1995,7 @@
       "year": 2002,
       "isrc": "DEF910200049",
       "uri": "spotify:track:2bd1FeFKgVACAUhcuyf9cC",
-      "uri_apple_music": "applemusic://track/147801325",
+      "uri_apple_music": "applemusic://track/454161919",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/454161919",
         "de": "applemusic://track/454161919",
@@ -2006,7 +2006,7 @@
         "it": "applemusic://track/275599367"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=_-fr5i2dtME",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/15977137",
       "uri_deezer": "deezer://track/1138338122",
       "fun_fact": "A trance and dance-floor classic (2002).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2002).",
@@ -2020,7 +2020,7 @@
       "year": 2002,
       "isrc": "DEF910300017",
       "uri": "spotify:track:2exL6aDr7Cmtf1FIEqeMaH",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1443122012",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/454165725",
         "de": "applemusic://track/454165725",
@@ -2031,7 +2031,7 @@
         "it": "applemusic://track/454165725"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=rzEnAEI8Qkw",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/15975080",
       "uri_deezer": "deezer://track/727758952",
       "fun_fact": "A trance and dance-floor classic (2002).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2002).",
@@ -2056,7 +2056,7 @@
         "it": "applemusic://track/438738841"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=h4h6EDIgHE8",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/6874737",
       "uri_deezer": "deezer://track/12254751",
       "fun_fact": "A trance and dance-floor classic (2002).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2002).",
@@ -2081,7 +2081,7 @@
         "it": "applemusic://track/578610104"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=R0FDx5P8pWg",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/18199083",
       "uri_deezer": "deezer://track/62544290",
       "fun_fact": "A trance and dance-floor classic (2002).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2002).",
@@ -2093,21 +2093,21 @@
       "artist": "Kate Ryan",
       "title": "Désenchantée",
       "year": 2002,
-      "isrc": "NLZ542600145",
+      "isrc": "BEC010100040",
       "uri": "spotify:track:4yOU9FaCmFFo2qfy1FHIe3",
       "uri_apple_music": "applemusic://track/693612028",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/1888467820",
-        "de": "applemusic://track/1888467820",
-        "gb": "applemusic://track/1888467820",
-        "fr": "applemusic://track/1888467820",
-        "es": "applemusic://track/1888467820",
-        "nl": "applemusic://track/1888467820",
-        "it": "applemusic://track/1888467820"
+        "us": "applemusic://track/693612028",
+        "de": "applemusic://track/693612028",
+        "gb": "applemusic://track/693612028",
+        "fr": "applemusic://track/693612028",
+        "es": "applemusic://track/693612028",
+        "nl": "applemusic://track/693612028",
+        "it": "applemusic://track/693612028"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=2Az_Ux2uNmk",
-      "uri_tidal": null,
-      "uri_deezer": "deezer://track/3925239971",
+      "uri_tidal": "tidal://track/1453841",
+      "uri_deezer": "deezer://track/3092650",
       "fun_fact": "A trance and dance-floor classic (2002).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2002).",
       "fun_fact_es": "Un clásico del trance y la pista de baile (2002).",
@@ -2131,7 +2131,7 @@
         "it": "applemusic://track/1000698813"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=FW-8ZV2XRpE",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/46733734",
       "uri_deezer": "deezer://track/101575828",
       "fun_fact": "A trance and dance-floor classic (2002).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2002).",
@@ -2156,7 +2156,7 @@
         "it": "applemusic://track/1000699043"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=wJlCXNBL8Is",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/46733739",
       "uri_deezer": "deezer://track/101575838",
       "fun_fact": "A trance and dance-floor classic (2002).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2002).",
@@ -2181,7 +2181,7 @@
         "it": "applemusic://track/1692345732"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=Tvx1Hehxzko",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/279180985",
       "uri_deezer": "deezer://track/2168791207",
       "fun_fact": "Scooter are a German group famous for H.P. Baxxter's shouted catchphrases and hard dance beats.",
       "fun_fact_de": "Scooter sind eine deutsche Gruppe, berühmt für H.P. Baxxters gebrüllte Catchphrases und harte Dance-Beats.",
@@ -2206,7 +2206,7 @@
         "it": "applemusic://track/1708999657"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=HiuqKbetgXw",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/279180978",
       "uri_deezer": "deezer://track/2482991481",
       "fun_fact": "Scooter are a German group famous for H.P. Baxxter's shouted catchphrases and hard dance beats.",
       "fun_fact_de": "Scooter sind eine deutsche Gruppe, berühmt für H.P. Baxxters gebrüllte Catchphrases und harte Dance-Beats.",
@@ -2231,7 +2231,7 @@
         "it": "applemusic://track/1843365310"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=f-xKKx5eVZg",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/415034823",
       "uri_deezer": "deezer://track/3125016911",
       "fun_fact": "Tiësto is a Dutch DJ who helped take trance from clubs to stadiums worldwide.",
       "fun_fact_de": "Tiësto ist ein niederländischer DJ, der Trance von den Clubs in die Stadien der Welt brachte.",
@@ -2249,15 +2249,15 @@
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1711820967",
         "de": "applemusic://track/1668179033",
-        "gb": "applemusic://track/1440645257",
+        "gb": "applemusic://track/1704614656",
         "fr": "applemusic://track/1668179033",
         "es": "applemusic://track/1668179033",
         "nl": "applemusic://track/383517266",
         "it": "applemusic://track/1668179033"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=9gKTxhYeJCY",
-      "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_tidal": "tidal://track/273603097",
+      "uri_deezer": "deezer://track/2125515417",
       "fun_fact": "A trance and dance-floor classic (2002).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2002).",
       "fun_fact_es": "Un clásico del trance y la pista de baile (2002).",
@@ -2281,7 +2281,7 @@
         "it": "applemusic://track/1691685783"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=EhDI2bNR18Y",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/173330",
       "uri_deezer": "deezer://track/762855",
       "fun_fact": "A trance and dance-floor classic (2003).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2003).",
@@ -2306,7 +2306,7 @@
         "it": "applemusic://track/1455468598"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=RqmufRi2KyM",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/105248338",
       "uri_deezer": "deezer://track/643744962",
       "fun_fact": "A trance and dance-floor classic (2003).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2003).",
@@ -2331,7 +2331,7 @@
         "it": "applemusic://track/519216714"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=g6oPaJ1pctk",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/88075110",
       "uri_deezer": "deezer://track/487971832",
       "fun_fact": "A trance and dance-floor classic (2004).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2004).",
@@ -2356,7 +2356,7 @@
         "it": "applemusic://track/1000699030"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=zMpm_CuEI-M",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/46733735",
       "uri_deezer": "deezer://track/101575830",
       "fun_fact": "A trance and dance-floor classic (2004).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2004).",
@@ -2381,7 +2381,7 @@
         "it": "applemusic://track/925659664"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=uDGJ9DyF25I",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/40844686",
       "uri_deezer": "deezer://track/78304463",
       "fun_fact": "A trance and dance-floor classic (2004).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2004).",
@@ -2406,7 +2406,7 @@
         "it": "applemusic://track/1809974901"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=Xu2B3TgNwVo",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/431460060",
       "uri_deezer": "deezer://track/3334867981",
       "fun_fact": "A trance and dance-floor classic (2004).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2004).",
@@ -2431,7 +2431,7 @@
         "it": "applemusic://track/1541606763"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=5eOMT6at2FE",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/159123965",
       "uri_deezer": "deezer://track/135335116",
       "fun_fact": "A trance and dance-floor classic (2004).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2004).",
@@ -2456,7 +2456,7 @@
         "it": "applemusic://track/1541606760"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=2pspyVddtkU",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/159123963",
       "uri_deezer": "deezer://track/135335112",
       "fun_fact": "A trance and dance-floor classic (2004).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2004).",
@@ -2472,9 +2472,9 @@
       "uri": "spotify:track:6jbglMwIqyg1G1N96COAsD",
       "uri_apple_music": "applemusic://track/41483825",
       "uri_apple_music_by_region": {
-        "us": null,
+        "us": "applemusic://track/1598226577",
         "de": "applemusic://track/1573248494",
-        "gb": null,
+        "gb": "applemusic://track/1828707507",
         "fr": "applemusic://track/41483822",
         "es": "applemusic://track/41483822",
         "nl": "applemusic://track/41483822",
@@ -2506,7 +2506,7 @@
         "it": "applemusic://track/1024495874"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=EiS9isTa82Y",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/65170112",
       "uri_deezer": "deezer://track/3212563611",
       "fun_fact": "Tiësto is a Dutch DJ who helped take trance from clubs to stadiums worldwide.",
       "fun_fact_de": "Tiësto ist ein niederländischer DJ, der Trance von den Clubs in die Stadien der Welt brachte.",
@@ -2531,7 +2531,7 @@
         "it": "applemusic://track/352917828"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=enOtfOGqm-0",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/5731682",
       "uri_deezer": "deezer://track/387719111",
       "fun_fact": "Cascada are a German act that brought hands-up dance-pop to the global charts.",
       "fun_fact_de": "Cascada sind ein deutscher Act, der Hands-Up-Dance-Pop in die weltweiten Charts brachte.",
@@ -2556,8 +2556,8 @@
         "it": "applemusic://track/696479088"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=4qlDWL1kMcQ",
-      "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_tidal": "tidal://track/154511",
+      "uri_deezer": "deezer://track/3155983",
       "fun_fact": "A trance and dance-floor classic (2005).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2005).",
       "fun_fact_es": "Un clásico del trance y la pista de baile (2005).",
@@ -2606,7 +2606,7 @@
         "it": "applemusic://track/82446848"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=Py-foWjaZ2U",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/247632383",
       "uri_deezer": "deezer://track/61662767",
       "fun_fact": "A trance and dance-floor classic (2005).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2005).",
@@ -2631,7 +2631,7 @@
         "it": "applemusic://track/1828435408"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=sUiZwsTqolQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/284283184",
       "uri_deezer": "deezer://track/2171027587",
       "fun_fact": "A trance and dance-floor classic (2005).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2005).",
@@ -2645,7 +2645,7 @@
       "year": 2005,
       "isrc": "NL8FJ2500354",
       "uri": "spotify:track:3GjQ7r5SWFnMMbwfp22aF3",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1107127807",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1886746417",
         "de": "applemusic://track/1850479182",
@@ -2656,7 +2656,7 @@
         "it": "applemusic://track/1886746417"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=UG1QPlR4X04",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/2382805",
       "uri_deezer": "deezer://track/3635868902",
       "fun_fact": "A trance and dance-floor classic (2005).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2005).",
@@ -2681,7 +2681,7 @@
         "it": "applemusic://track/963586125"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=IQtlZXsslGw",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/88325807",
       "uri_deezer": "deezer://track/494659282",
       "fun_fact": "A trance and dance-floor classic (2005).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2005).",
@@ -2731,7 +2731,7 @@
         "it": "applemusic://track/279679223"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=XaA6i32f2PY",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/1844969",
       "uri_deezer": "deezer://track/735670",
       "fun_fact": "A trance and dance-floor classic (2006).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2006).",
@@ -2756,7 +2756,7 @@
         "it": "applemusic://track/6769267879"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=WCcj-8d_K2M",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/13843082",
       "uri_deezer": "deezer://track/1755793187",
       "fun_fact": "A trance and dance-floor classic (2006).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2006).",
@@ -2781,7 +2781,7 @@
         "it": "applemusic://track/1216908995"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=1uy7r3ZexLY",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/529049235",
       "uri_deezer": "deezer://track/144527228",
       "fun_fact": "A trance and dance-floor classic (2006).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2006).",
@@ -2806,7 +2806,7 @@
         "it": "applemusic://track/1539215862"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=Aivzwnexylg",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/161301487",
       "uri_deezer": "deezer://track/1134280742",
       "fun_fact": "A trance and dance-floor classic (2006).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2006).",
@@ -2848,7 +2848,7 @@
         "it": "applemusic://track/1120222071"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=hf34GxAzASE",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/61540990",
       "uri_deezer": "deezer://track/126036749",
       "fun_fact": "A trance and dance-floor classic (2006).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2006).",
@@ -2873,7 +2873,7 @@
         "it": "applemusic://track/1648265171"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=y4-xi4kH63M",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/15742376",
       "uri_deezer": "deezer://track/1945881057",
       "fun_fact": "A trance and dance-floor classic (2007).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2007).",
@@ -2898,7 +2898,7 @@
         "it": "applemusic://track/1526153479"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=MGmmg2UoVlA",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/150853312",
       "uri_deezer": "deezer://track/1041079272",
       "fun_fact": "A trance and dance-floor classic (2007).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2007).",
@@ -2923,7 +2923,7 @@
         "it": "applemusic://track/304161923"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=gP7QjAQAfVc",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/3436136",
       "uri_deezer": "deezer://track/3377717621",
       "fun_fact": "A trance and dance-floor classic (2008).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2008).",
@@ -2948,7 +2948,7 @@
         "it": "applemusic://track/518488101"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=9T1CCYpddto",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/73486347",
       "uri_deezer": "deezer://track/356709551",
       "fun_fact": "A trance and dance-floor classic (2008).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2008).",
@@ -2973,7 +2973,7 @@
         "it": "applemusic://track/322109282"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=E2Z40L3cWkc",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/3087251",
       "uri_deezer": "deezer://track/4161883",
       "fun_fact": "A trance and dance-floor classic (2009).",
       "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2009).",

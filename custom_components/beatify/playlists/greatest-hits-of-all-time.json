@@ -1,6 +1,6 @@
 {
   "name": "Greatest Hits of All Time",
-  "version": "2.10",
+  "version": "2.29",
   "tags": [
     "classics",
     "top-hits",
@@ -43,24 +43,27 @@
       "awards_fr": [
         "Grammy Hall of Fame (2004)"
       ],
-      "uri_apple_music": "applemusic://track/1440650711",
+      "uri_apple_music": "applemusic://track/6781027645",
       "uri_youtube_music": "https://music.youtube.com/watch?v=fJ9rUzIMcZQ",
-      "uri_tidal": "tidal://track/21844140",
       "uri_deezer": "deezer://track/9997018",
       "fun_fact_nl": "Bohemian Rhapsody werd aanvankelijk afgewezen door platenmaatschappijen die dachten dat een opera-rocknummer van 6 minuten nooit op de radio zou komen. Freddie Mercury spendeerde drie weken aan het opnemen van de complexe vocale harmonieën, met 180 afzonderlijke overdubs. Het werd het kenmerkende nummer van Queen.",
       "awards_nl": [
         "Grammy Hall of Fame (2004)"
       ],
+      "awards_it": [
+        "Grammy Hall of Fame (2004)"
+      ],
       "isrc": "GBUM71029604",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/1842449358",
-        "de": "applemusic://track/1842449358",
-        "gb": "applemusic://track/1842449358",
-        "fr": "applemusic://track/1842449358",
-        "es": "applemusic://track/1842449358",
-        "nl": "applemusic://track/1842449358",
-        "it": "applemusic://track/1842449358"
-      }
+        "de": "applemusic://track/6781080302",
+        "gb": "applemusic://track/6781027645",
+        "fr": "applemusic://track/6781027645",
+        "es": "applemusic://track/6781027645",
+        "nl": "applemusic://track/6781027645",
+        "it": "applemusic://track/6781080302",
+        "us": null
+      },
+      "uri_tidal": "tidal://track/567396540"
     },
     {
       "year": 1982,
@@ -218,6 +221,9 @@
       "awards_nl": [
         "Grammy – Beste Mannelijke Pop Zangprestatie (1984)"
       ],
+      "awards_it": [
+        "Grammy per la migliore interpretazione vocale pop maschile (1984)"
+      ],
       "isrc": "USSM19902989",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/655262182",
@@ -347,6 +353,9 @@
       "awards_nl": [
         "Grammy Hall of Fame (2001)"
       ],
+      "awards_it": [
+        "Grammy Hall of Fame (2001)"
+      ],
       "isrc": "GBUM71505902",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1856287169",
@@ -441,6 +450,10 @@
         "Grammy Hall of Fame (2004)",
         "Grammy – Beste Originele Filmmuziek (1971)"
       ],
+      "awards_it": [
+        "Grammy Hall of Fame (2004)",
+        "Grammy per la migliore colonna sonora originale (1971)"
+      ],
       "isrc": "GBAYE0601713",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1441164738",
@@ -491,6 +504,9 @@
       "uri_deezer": "deezer://track/92719900",
       "fun_fact_nl": "Highway to Hell was het laatste AC/DC-album met de oorspronkelijke zanger Bon Scott, die zes maanden na de release overleed. De titel verwijst naar het slopende leven van toeren, niet naar satanisme. Producer Mutt Lange duwde de band in de richting van een meer gepolijst geluid dat hun toekomstige werk bepaalde.",
       "awards_nl": [
+        "Grammy Hall of Fame (2020)"
+      ],
+      "awards_it": [
         "Grammy Hall of Fame (2020)"
       ],
       "isrc": "AUAP07900028",
@@ -549,6 +565,10 @@
         "Grammy – Opname van het Jaar (1978)",
         "Grammy Hall of Fame (2003)"
       ],
+      "awards_it": [
+        "Grammy per il disco dell'anno (1978)",
+        "Grammy Hall of Fame (2003)"
+      ],
       "isrc": "USEE11300195",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/635770202",
@@ -592,24 +612,27 @@
       "awards_fr": [
         "American Music Award (1981)"
       ],
-      "uri_apple_music": "applemusic://track/1440650719",
+      "uri_apple_music": "applemusic://track/6781027662",
       "uri_youtube_music": "https://music.youtube.com/watch?v=rY0WxgSXdEE",
-      "uri_tidal": "tidal://track/21844141",
       "uri_deezer": "deezer://track/12206946",
       "fun_fact_nl": "Another One Bites the Dust werd aanvankelijk tegengewerkt door het management van Queen die het te disco vond. Michael Jackson moedigde de band persoonlijk aan om het als single uit te brengen. John Deacons baslijn was geïnspireerd op Chic's 'Good Times' en werd een wereldwijd fenomeen.",
       "awards_nl": [
         "American Music Award (1981)"
       ],
+      "awards_it": [
+        "American Music Award (1981)"
+      ],
       "isrc": "GBUM71029605",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/1440650719",
-        "de": "applemusic://track/1441571446",
-        "gb": "applemusic://track/1441571446",
-        "fr": "applemusic://track/1441571446",
-        "es": "applemusic://track/1441571446",
-        "nl": "applemusic://track/1441571446",
-        "it": "applemusic://track/1441571446"
-      }
+        "de": "applemusic://track/6781080305",
+        "gb": "applemusic://track/6781027662",
+        "fr": "applemusic://track/6781080305",
+        "es": "applemusic://track/6781027662",
+        "nl": "applemusic://track/6781075748",
+        "it": "applemusic://track/6781076397",
+        "us": null
+      },
+      "uri_tidal": "tidal://track/534096894"
     },
     {
       "year": 1982,
@@ -655,6 +678,10 @@
       "awards_nl": [
         "Grammy – Opname van het Jaar (1984)",
         "Grammy – Beste Mannelijke Rock Zangprestatie (1984)"
+      ],
+      "awards_it": [
+        "Grammy per il disco dell'anno (1984)",
+        "Grammy per la migliore interpretazione vocale rock maschile (1984)"
       ],
       "isrc": "USSM19902990",
       "uri_apple_music_by_region": {
@@ -745,6 +772,9 @@
       "awards_nl": [
         "Grammy Hall of Fame (1998)"
       ],
+      "awards_it": [
+        "Grammy Hall of Fame (1998)"
+      ],
       "isrc": "GBUM71700184",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1652668538",
@@ -795,6 +825,9 @@
       "fun_fact_nl": "Eye of the Tiger werd geschreven als antwoord op Sylvester Stallone's verzoek om een themalied voor Rocky III nadat Queen's 'Another One Bites the Dust' niet gelicenseerd kon worden. De band schreef het met beelden uit de eerste twee Rocky-films als inspiratie. Het haalde wereldwijd de hitlijsten.",
       "awards_nl": [
         "Grammy – Beste Rockprestatie (1983)"
+      ],
+      "awards_it": [
+        "Grammy per la migliore interpretazione rock (1983)"
       ],
       "isrc": "USVR19300001",
       "uri_apple_music_by_region": {
@@ -885,15 +918,18 @@
       "awards_nl": [
         "Grammy Hall of Fame (2023)"
       ],
+      "awards_it": [
+        "Grammy Hall of Fame (2023)"
+      ],
       "isrc": "USRH11602140",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1099335223",
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
+        "de": "applemusic://track/1440787908",
+        "gb": "applemusic://track/1440787908",
+        "fr": "applemusic://track/1440787908",
+        "es": "applemusic://track/1440787908",
+        "nl": "applemusic://track/1440787908",
+        "it": "applemusic://track/1440787908"
       }
     },
     {
@@ -935,6 +971,9 @@
       "fun_fact_nl": "Het tempo van Stayin' Het tempo van 104 BPM komt overeen met het ideale tempo voor het uitvoeren van reanimatie op de borst, waardoor het een aanbevolen nummer is voor medische training. Het nummer werd in slechts een paar uur geschreven tijdens een onderbreking van het filmen van Saturday Night Fever. Het definieerde het discotijdperk.",
       "awards_nl": [
         "Grammy – Beste Pop Zangprestatie (1979)"
+      ],
+      "awards_it": [
+        "Grammy per la migliore interpretazione vocale pop (1979)"
       ],
       "isrc": "NLF057790034",
       "uri_apple_music_by_region": {
@@ -979,24 +1018,27 @@
       "awards_fr": [
         "Grammy Hall of Fame (2009)"
       ],
-      "uri_apple_music": "applemusic://track/1440651281",
+      "uri_apple_music": "applemusic://track/6781081102",
       "uri_youtube_music": "https://music.youtube.com/watch?v=04854XqcfCY",
-      "uri_tidal": "tidal://track/21844156",
       "uri_deezer": "deezer://track/67503808",
       "fun_fact_nl": "Het is wetenschappelijk bewezen dat We Are the Champions het aanstekelijkste liedje is dat ooit is geschreven, volgens een onderzoek van Goldsmiths University. Freddie Mercury schreef het als een volkslied voor publieksparticipatie. Het wordt al tientallen jaren door sportteams wereldwijd gebruikt als overwinningslied.",
       "awards_nl": [
         "Grammy Hall of Fame (2009)"
       ],
+      "awards_it": [
+        "Grammy Hall of Fame (2009)"
+      ],
       "isrc": "GBUM71029619",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/1440646546",
-        "de": "applemusic://track/1441457684",
-        "gb": "applemusic://track/1441457684",
-        "fr": "applemusic://track/1441457684",
-        "es": "applemusic://track/1441457684",
-        "nl": "applemusic://track/1441457684",
-        "it": "applemusic://track/1441457684"
-      }
+        "de": "applemusic://track/6781080744",
+        "gb": "applemusic://track/6781081102",
+        "fr": "applemusic://track/6781080744",
+        "es": "applemusic://track/6781081102",
+        "nl": "applemusic://track/6781080744",
+        "it": "applemusic://track/6781027708",
+        "us": null
+      },
+      "uri_tidal": "tidal://track/541963982"
     },
     {
       "year": 1985,
@@ -1037,6 +1079,9 @@
       "fun_fact_nl": "Take on Me werd drie keer uitgebracht voordat het een hit werd. De innovatieve videoclip, die een potloodschets-animatie met live action combineerde, kostte 100.000 dollar en de productie nam 16 weken in beslag. Het succes van de video bewees dat MTV de populariteit van een nummer kon maken of breken.",
       "awards_nl": [
         "MTV VMA – Beste Nieuwe Artiest (1986)"
+      ],
+      "awards_it": [
+        "MTV VMA per il miglior artista esordiente (1986)"
       ],
       "isrc": "USWB11506543",
       "uri_apple_music_by_region": {
@@ -1133,6 +1178,10 @@
         "Ivor Novello Award (1966)",
         "Grammy Hall of Fame (1997)"
       ],
+      "awards_it": [
+        "Ivor Novello Award (1966)",
+        "Grammy Hall of Fame (1997)"
+      ],
       "isrc": "GBAYE0601477",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1441133496",
@@ -1183,6 +1232,9 @@
       "fun_fact_nl": "Sweet Dreams werd geschreven door Annie Lennox en Dave Stewart tijdens het verbreken van hun romantische relatie. De synthesizerhook van het nummer ontstond per ongeluk toen Stewart apparatuur verkeerd had aangesloten. Het werd het bepalende geluid van synthpop uit de jaren 80 en lanceerde Eurythmics naar de roem.",
       "awards_nl": [
         "MTV VMA – Beste Nieuwe Artiest (1984)"
+      ],
+      "awards_it": [
+        "MTV VMA per il miglior artista esordiente (1984)"
       ],
       "isrc": "GBARL8300004",
       "uri_apple_music_by_region": {
@@ -1303,24 +1355,27 @@
       "awards_fr": [
         "Grammy Hall of Fame (2009)"
       ],
-      "uri_apple_music": "applemusic://track/1440651216",
+      "uri_apple_music": "applemusic://track/6781081101",
       "uri_youtube_music": "https://music.youtube.com/watch?v=-tJYN-eG1zk",
-      "uri_tidal": "tidal://track/6836313",
       "uri_deezer": "deezer://track/12206933",
       "fun_fact_nl": "De iconische stomp-stomp-clap beat van We Will Rock You werd ontworpen door Brian May om te worden uitgevoerd door stadionpubliek. May wilde iets creëren dat 'zelfs een stadion vol mensen kon doen'. Het nummer wordt tot op de dag van vandaag bij vrijwel elk sportevenement wereldwijd gespeeld.",
       "awards_nl": [
         "Grammy Hall of Fame (2009)"
       ],
+      "awards_it": [
+        "Grammy Hall of Fame (2009)"
+      ],
       "isrc": "GBUM71029618",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/1834502336",
-        "de": "applemusic://track/1440831384",
-        "gb": "applemusic://track/1440831384",
-        "fr": "applemusic://track/1440831384",
-        "es": "applemusic://track/1440831384",
-        "nl": "applemusic://track/1440831384",
-        "it": "applemusic://track/1440831384"
-      }
+        "de": "applemusic://track/6781081101",
+        "gb": "applemusic://track/6781081101",
+        "fr": "applemusic://track/6781081101",
+        "es": "applemusic://track/6781027660",
+        "nl": "applemusic://track/6781081101",
+        "it": "applemusic://track/6781080737",
+        "us": null
+      },
+      "uri_tidal": "tidal://track/541963983"
     },
     {
       "year": 1990,
@@ -1516,6 +1571,9 @@
       "awards_nl": [
         "Grammy Hall of Fame (2017)"
       ],
+      "awards_it": [
+        "Grammy Hall of Fame (2017)"
+      ],
       "isrc": "USMC16991138",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1422721989",
@@ -1565,6 +1623,9 @@
       "uri_deezer": "deezer://track/136710424",
       "fun_fact_nl": "Stand By Me werd in slechts 15 minuten geschreven in de kelder van het appartement van Ben E. King in New York. Het nummer was geïnspireerd op een gospelhymne. Het is gebruikt in meer dan 150 films en tv-shows en werd door de Recording Industry Association uitgeroepen tot een van de Songs of the Century.",
       "awards_nl": [
+        "Grammy Hall of Fame (1999)"
+      ],
+      "awards_it": [
         "Grammy Hall of Fame (1999)"
       ],
       "isrc": "USAT21402270",
@@ -1619,6 +1680,9 @@
       "awards_nl": [
         "Grammy Hall of Fame (1999)"
       ],
+      "awards_it": [
+        "Grammy Hall of Fame (1999)"
+      ],
       "isrc": "USMC16758823",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1483870398",
@@ -1668,6 +1732,9 @@
       "uri_deezer": "deezer://track/4188287",
       "fun_fact_nl": "I Want You Back was de debuutsingle van de Jackson 5, met de 11-jarige Michael Jackson als leadzanger. Motown-oprichter Berry Gordy hield persoonlijk toezicht op de productie. Het nummer toonde Michael's ongelooflijke vocale vaardigheden en lanceerde een van de meest legendarische carrières in de muziek.",
       "awards_nl": [
+        "Grammy Hall of Fame (1999)"
+      ],
+      "awards_it": [
         "Grammy Hall of Fame (1999)"
       ],
       "isrc": "USMO19400306",
@@ -1763,6 +1830,10 @@
       "awards_nl": [
         "Grammy – Opname van het Jaar (1986)",
         "Grammy – Lied van het Jaar (1986)"
+      ],
+      "awards_it": [
+        "Grammy per il disco dell'anno (1986)",
+        "Grammy per la canzone dell'anno (1986)"
       ],
       "isrc": "US25T0511671",
       "uri_apple_music_by_region": {
@@ -1937,6 +2008,10 @@
         "Grammy – Opname van het Jaar (1989)",
         "Grammy – Lied van het Jaar (1989)"
       ],
+      "awards_it": [
+        "Grammy per il disco dell'anno (1989)",
+        "Grammy per la canzone dell'anno (1989)"
+      ],
       "isrc": "USEM38800361",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/6762672295",
@@ -1989,6 +2064,9 @@
       "awards_nl": [
         "Eurovisionwinnaar (1974)"
       ],
+      "awards_it": [
+        "Vincitore dell'Eurovision Song Contest 1974"
+      ],
       "isrc": "SEAYD7415010",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1612497895",
@@ -2023,19 +2101,19 @@
       "fun_fact_fr": "YMCA a été écrite par Jacques Morali après sa visite d'un YMCA à New York, qu'il trouvait formidable pour les jeunes. La chanson des Village People est devenue un hymne gay et un classique du disco. Les célèbres mouvements de bras avec les lettres ont été inventés par le public, et non chorégraphiés.",
       "uri_apple_music": "applemusic://track/1443926626",
       "uri_youtube_music": "https://music.youtube.com/watch?v=CS9OO0S5w2k",
-      "uri_tidal": "tidal://track/31895290",
+      "uri_tidal": "tidal://track/35286168",
       "uri_deezer": "deezer://track/11133258",
       "fun_fact_nl": "YMCA werd geschreven door Jacques Morali nadat hij een YMCA in New York had bezocht en het een geweldige plek vond voor jonge mensen om rond te hangen. Het nummer van de Village People werd een homo-hymne en discoklassieker. De beroemde armbewegingen werden door het publiek bedacht, niet gechoreografeerd.",
       "awards_nl": [],
       "isrc": "USPR37800001",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1443926626",
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
+        "de": "applemusic://track/504994461",
+        "gb": "applemusic://track/1452863525",
+        "fr": "applemusic://track/1452863525",
+        "es": "applemusic://track/1452863525",
+        "nl": "applemusic://track/1452863525",
+        "it": "applemusic://track/504994461"
       }
     },
     {
@@ -2105,13 +2183,13 @@
       "awards_nl": [],
       "isrc": "DEH259900010",
       "uri_apple_music_by_region": {
-        "us": null,
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
+        "us": "applemusic://track/1322068804",
+        "de": "applemusic://track/1318383098",
+        "gb": "applemusic://track/1322068804",
+        "fr": "applemusic://track/1322068804",
+        "es": "applemusic://track/1322068804",
         "nl": "applemusic://track/1656111119",
-        "it": null
+        "it": "applemusic://track/1322068804"
       }
     },
     {
@@ -2251,20 +2329,21 @@
       "fun_fact_es": "I Love Rock 'n' Roll fue grabada originalmente por Arrows en 1975. Joan Jett los vio interpretarla en la televisión británica y quedó obsesionada con la canción. Su versión se convirtió en uno de los mayores éxitos de principios de los 80 y definió su carrera como la reina de la actitud del rock and roll.",
       "fun_fact_fr": "I Love Rock 'n' Roll a été enregistrée à l'origine par Arrows en 1975. Joan Jett les a vus la jouer à la télévision britannique et en est tombée obsédée. Sa version est devenue l'un des plus grands succès du début des années 80 et a défini sa carrière de reine de l'attitude rock'n'roll.",
       "uri_apple_music": "applemusic://track/1871187077",
-      "uri_tidal": "tidal://track/94089523",
       "uri_deezer": "deezer://track/545992732",
       "fun_fact_nl": "I Love Rock 'n' Roll werd oorspronkelijk opgenomen door Arrows in 1975. Joan Jett zag het optreden op de Britse tv en raakte geobsedeerd door het nummer. Haar versie werd een van de grootste hits van de vroege jaren 80 en definieerde haar carrière als de koningin van de rock-'n-roll attitude.",
       "awards_nl": [],
       "isrc": "USBH18100118",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1871187077",
-        "de": "applemusic://track/1778713857",
-        "gb": "applemusic://track/1778713857",
-        "fr": "applemusic://track/1778713857",
-        "es": "applemusic://track/1778713857",
-        "nl": "applemusic://track/1778713857",
-        "it": "applemusic://track/1778713857"
-      }
+        "de": "applemusic://track/1881685586",
+        "gb": "applemusic://track/1881685586",
+        "fr": "applemusic://track/1881685586",
+        "es": "applemusic://track/1881685586",
+        "nl": "applemusic://track/1881685586",
+        "it": "applemusic://track/1881685586"
+      },
+      "uri_youtube_music": "https://music.youtube.com/watch?v=wMsazR6Tnf8",
+      "uri_tidal": "tidal://track/492462481"
     },
     {
       "year": 1984,
@@ -2337,7 +2416,7 @@
         "us": "applemusic://track/1787328102",
         "de": "applemusic://track/827814095",
         "gb": "applemusic://track/450578425",
-        "fr": null,
+        "fr": "applemusic://track/273400238",
         "es": "applemusic://track/1298435999",
         "nl": "applemusic://track/1790923385",
         "it": "applemusic://track/284881685"
@@ -2480,22 +2559,22 @@
       "fun_fact_de": "Somebody to Love war Queens Hommage an Gospel-Musik mit über 100 Gesangs-Overdubs. Freddie Mercury wurde von Aretha Franklins Gospel-beeinflussten Auftritten inspiriert. Der Song zeigt Queens unglaubliche Harmonien und Mercurys Vier-Oktaven-Stimmumfang in absoluter Perfektion.",
       "fun_fact_es": "Somebody to Love fue el tributo de Queen a la música gospel, con más de 100 sobregrabaciones vocales. Freddie Mercury se inspiró en las interpretaciones influenciadas por el gospel de Aretha Franklin. La canción muestra las increíbles armonías de Queen y el rango vocal de cuatro octavas de Mercury en su máxima expresión.",
       "fun_fact_fr": "Somebody to Love est l'hommage de Queen à la musique gospel, avec plus de 100 overdubs vocaux. Freddie Mercury s'est inspiré des performances gospel d'Aretha Franklin. Le morceau met en lumière les harmonies extraordinaires de Queen et la tessiture de quatre octaves de Mercury à son sommet absolu.",
-      "uri_apple_music": "applemusic://track/1440651012",
+      "uri_apple_music": "applemusic://track/6781027364",
       "uri_youtube_music": "https://music.youtube.com/watch?v=kijpcUv-b8M",
-      "uri_tidal": "tidal://track/21844149",
       "uri_deezer": "deezer://track/568120932",
       "fun_fact_nl": "Somebody to Love was Queen's eerbetoon aan gospelmuziek, met meer dan 100 vocale overdubs. Freddie Mercury werd geïnspireerd door de gospelachtige optredens van Aretha Franklin. Het nummer laat de ongelooflijke harmonieën van Queen horen en Mercury's vocale bereik van vier octaven op zijn best.",
       "awards_nl": [],
       "isrc": "GBUM71029613",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/1440743586",
-        "de": "applemusic://track/1440822112",
-        "gb": "applemusic://track/1440822112",
-        "fr": "applemusic://track/1440822112",
-        "es": "applemusic://track/1440822112",
-        "nl": "applemusic://track/1440822112",
-        "it": "applemusic://track/1440822112"
-      }
+        "de": "applemusic://track/6781080944",
+        "gb": "applemusic://track/6781027364",
+        "fr": "applemusic://track/6781027364",
+        "es": "applemusic://track/6781027364",
+        "nl": "applemusic://track/6781080944",
+        "it": "applemusic://track/6781027364",
+        "us": null
+      },
+      "uri_tidal": "tidal://track/534050515"
     },
     {
       "year": 1967,
@@ -2545,6 +2624,11 @@
       "awards_nl": [
         "Grammy – Beste R&B-opname (1968)",
         "Grammy – Beste R&B Zangprestatie (1968)",
+        "Grammy Hall of Fame (1998)"
+      ],
+      "awards_it": [
+        "Grammy per la migliore registrazione R&B (1968)",
+        "Grammy per la migliore interpretazione vocale R&B (1968)",
         "Grammy Hall of Fame (1998)"
       ],
       "isrc": "USAT21403673",
@@ -2598,6 +2682,9 @@
       "awards_nl": [
         "Grammy – Opname van het Jaar (1983)"
       ],
+      "awards_it": [
+        "Grammy per il disco dell'anno (1983)"
+      ],
       "isrc": "USSM18200245",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/318675271",
@@ -2650,6 +2737,9 @@
       "awards_nl": [
         "Grammy Hall of Fame (2015)"
       ],
+      "awards_it": [
+        "Grammy Hall of Fame (2015)"
+      ],
       "isrc": "SEAYD7601020",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1580810375",
@@ -2683,22 +2773,22 @@
       "fun_fact_de": "Don't Stop Me Now wurde von Freddie Mercury während einer besonders hedonistischen Phase seines Lebens geschrieben. Andere Bandmitglieder mochten es zunächst nicht, weil es Exzess förderte. 2020 nannte eine wissenschaftliche Studie es aufgrund von Tempo, Text und Tonart den 'glücklichsten Song aller Zeiten'. Mercurys Lieblings-Queen-Song.",
       "fun_fact_es": "Don't Stop Me Now fue escrita por Freddie Mercury durante un período particularmente hedonista de su vida. Otros miembros de la banda inicialmente no les gustó porque promovía el exceso. En 2020, un estudio científico la nombró la 'canción más feliz de todos los tiempos' basándose en tempo, letra y tonalidad. La canción favorita de Queen de Mercury.",
       "fun_fact_fr": "Don't Stop Me Now a été écrite par Freddie Mercury durant une période particulièrement hédoniste de sa vie. Les autres membres du groupe ne l'aimaient pas au départ car elle glorifiait l'excès. En 2020, une étude scientifique l'a désignée « chanson la plus joyeuse jamais écrite » d'après son tempo, ses paroles et sa tonalité. C'était la chanson préférée de Mercury parmi celles de Queen.",
-      "uri_apple_music": "applemusic://track/1440650733",
+      "uri_apple_music": "applemusic://track/6781080941",
       "uri_youtube_music": "https://music.youtube.com/watch?v=HgzGwKwLmgM",
-      "uri_tidal": "tidal://track/6851486",
       "uri_deezer": "deezer://track/12209331",
       "fun_fact_nl": "Don't Stop Me Now werd geschreven door Freddie Mercury tijdens een bijzonder hedonistische periode van zijn leven. Andere bandleden hadden er aanvankelijk een hekel aan omdat het overdaad zou bevorderen. In 2020 werd het in een wetenschappelijke studie het 'gelukkigste nummer ooit' genoemd op basis van tempo, tekst en toonsoort. Het favoriete Queen-nummer van Mercury.",
       "awards_nl": [],
       "isrc": "GBUM71029610",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/1494536053",
-        "de": "applemusic://track/1441457594",
-        "gb": "applemusic://track/1441457594",
-        "fr": "applemusic://track/1441457594",
-        "es": "applemusic://track/1441457594",
-        "nl": "applemusic://track/1441457594",
-        "it": "applemusic://track/1441457594"
-      }
+        "de": "applemusic://track/6781079522",
+        "gb": "applemusic://track/6781080941",
+        "fr": "applemusic://track/6781080941",
+        "es": "applemusic://track/6781079522",
+        "nl": "applemusic://track/6781079522",
+        "it": "applemusic://track/6781079518",
+        "us": null
+      },
+      "uri_tidal": "tidal://track/559893516"
     },
     {
       "year": 1992,
@@ -2744,6 +2834,10 @@
       "awards_nl": [
         "Grammy – Opname van het Jaar (1994)",
         "Grammy – Beste Pop Zangprestatie (1994)"
+      ],
+      "awards_it": [
+        "Grammy per il disco dell'anno (1994)",
+        "Grammy per la migliore interpretazione vocale pop (1994)"
       ],
       "isrc": "USAR19200110",
       "uri_apple_music_by_region": {
@@ -2796,16 +2890,10 @@
       "awards_nl": [
         "Grammy Hall of Fame (2003)"
       ],
-      "isrc": "USCA20001654",
-      "uri_apple_music_by_region": {
-        "us": "applemusic://track/1698230404",
-        "de": "applemusic://track/1698230404",
-        "gb": "applemusic://track/1698230404",
-        "fr": "applemusic://track/1698230404",
-        "es": "applemusic://track/1698230404",
-        "nl": "applemusic://track/1698230404",
-        "it": "applemusic://track/1698230404"
-      }
+      "awards_it": [
+        "Grammy Hall of Fame (2003)"
+      ],
+      "isrc": "USCA20001654"
     },
     {
       "year": 1987,
@@ -2923,6 +3011,9 @@
       "awards_nl": [
         "Grammy – Beste Pop Zangprestatie (1988)"
       ],
+      "awards_it": [
+        "Grammy per la migliore interpretazione vocale pop (1988)"
+      ],
       "isrc": "USAR18700121",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1627099927",
@@ -2994,12 +3085,12 @@
       "fun_fact_de": "Music von John Miles baut sich von einer sanften Ballade zu einem symphonischen Rock-Epos mit vollem Orchester auf. Miles schrieb es als Hommage an die Kraft der Musik selbst. Der Song bleibt ein Konzertfavorit und gilt als eine der größten Progressive-Rock-Kompositionen der 1970er.",
       "fun_fact_es": "Music de John Miles se construye desde una balada suave hasta una épica de rock sinfónico con orquesta completa. Miles la escribió como tributo al poder de la música misma. La canción sigue siendo una favorita en conciertos y se considera una de las mejores composiciones de rock progresivo de los años 70.",
       "fun_fact_fr": "Music de John Miles évolue d'une ballade délicate vers une épopée de rock symphonique avec orchestre complet. Miles l'a écrite comme un hommage à la puissance de la musique elle-même. Le morceau reste un favori en concert et est considéré comme l'une des plus grandes compositions de rock progressif des années 70.",
-      "uri_youtube_music": "https://music.youtube.com/watch?v=lAsvjVx-Mg4",
       "uri_apple_music": "applemusic://track/1768738565",
       "uri_tidal": "tidal://track/34823548",
       "uri_deezer": "deezer://track/16143727",
       "fun_fact_nl": "De muziek van John Miles bouwt op van een rustige ballade naar een symfonisch rockepos met volledig orkest. Miles schreef het als een eerbetoon aan de kracht van muziek zelf. Het nummer blijft een concertfavoriet en wordt beschouwd als een van de grootste progressieve rockcomposities van de jaren 1970.",
-      "awards_nl": []
+      "awards_nl": [],
+      "uri_youtube_music": "https://music.youtube.com/watch?v=lAsvjVx-Mg4"
     },
     {
       "year": 1981,
@@ -3039,6 +3130,9 @@
       "uri_deezer": "deezer://track/625643",
       "fun_fact_nl": "Don't Stop Believin' werd het best verkopende digitale nummer van de 20e eeuw na het gebruik ervan in de finale van The Sopranos. Journey's Steve Perry schreef het over zijn eigen dorpse afkomst. Drie decennia na de release beleefde het nummer een enorme revival, waardoor het bij nieuwe generaties fans werd geïntroduceerd.",
       "awards_nl": [
+        "Grammy Hall of Fame (2021)"
+      ],
+      "awards_it": [
         "Grammy Hall of Fame (2021)"
       ],
       "isrc": "USSM18100116",
@@ -3130,6 +3224,9 @@
       "fun_fact_nl": "I Will Survive werd oorspronkelijk uitgebracht als B-kant voordat DJ's het begonnen te draaien in clubs. Gloria Gaynor nam het in één take op, ondanks het feit dat ze net hersteld was van een rugoperatie. Het nummer werd een disco-anthem en later een symbool van empowerment voor de LGBTQ+ gemeenschap wereldwijd.",
       "awards_nl": [
         "Grammy – Beste Disco-opname (1980)"
+      ],
+      "awards_it": [
+        "Grammy per la migliore registrazione disco (1980)"
       ],
       "isrc": "USPR37800083",
       "uri_apple_music_by_region": {
@@ -3263,6 +3360,10 @@
       "awards_nl": [
         "Grammy – Beste R&B Zangprestatie (1984)",
         "Grammy – Beste R&B-nummer (1984)"
+      ],
+      "awards_it": [
+        "Grammy per la migliore interpretazione vocale R&B (1984)",
+        "Grammy per la migliore canzone R&B (1984)"
       ],
       "isrc": "USSM19902991",
       "uri_apple_music_by_region": {
@@ -3489,7 +3590,6 @@
       "fun_fact_fr": "Narcotic a propulsé le groupe allemand Liquido sur la scène internationale. Le riff de guitare accrocheur et les paroles directes sur l'addiction en ont fait un classique du rock alternatif de la fin des années 90. Le titre a dominé les charts à travers toute l'Europe et reste un favori nostalgique pour les amateurs de rock des années 90.",
       "uri_apple_music": "applemusic://track/1857765665",
       "uri_youtube_music": "https://music.youtube.com/watch?v=0W6J01rBU6I",
-      "uri_tidal": "tidal://track/489946237",
       "uri_deezer": "deezer://track/3776251662",
       "fun_fact_nl": "Narcotic maakte de Duitse band Liquido internationaal bekend. Het aanstekelijke gitaarrifje en de duidelijke tekst over verslaving maakten van het nummer een alternatief rocknummer aan het eind van de jaren 90. Het nummer stond bovenaan de hitlijsten in heel Europa en blijft een nostalgische favoriet voor fans van rockmuziek uit de jaren 90.",
       "awards_nl": [],
@@ -3643,22 +3743,22 @@
       "fun_fact_de": "The Show Must Go On wurde aufgenommen, als Freddie Mercury schwer an AIDS erkrankt war. Mercury trank Berichten zufolge Wodka, um seine Schmerzen während der Aufnahme zu betäuben, und lieferte dann eine der kraftvollsten Gesangsdarbietungen des Rock ab. Brian May sagte, er wisse nicht, wie Mercury es physisch schaffte, zu singen.",
       "fun_fact_es": "The Show Must Go On fue grabada mientras Freddie Mercury estaba gravemente enfermo de SIDA. Según los informes, Mercury bebió vodka para adormecer su dolor durante la grabación, luego entregó una de las interpretaciones vocales más poderosas del rock. Brian May dijo que no sabía cómo Mercury físicamente logró cantarla.",
       "fun_fact_fr": "The Show Must Go On a été enregistrée alors que Freddie Mercury était gravement malade du sida. Mercury buvait de la vodka pour supporter la douleur pendant l'enregistrement, avant de livrer l'une des performances vocales les plus puissantes du rock. Brian May a confié ne pas comprendre comment Mercury avait physiquement réussi à chanter.",
-      "uri_apple_music": "applemusic://track/1440630994",
+      "uri_apple_music": "applemusic://track/6781081188",
       "uri_youtube_music": "https://music.youtube.com/watch?v=t99KH0TR-J4",
-      "uri_tidal": "tidal://track/96583647",
       "uri_deezer": "deezer://track/568121132",
       "fun_fact_nl": "The Show Must Go On werd opgenomen terwijl Freddie Mercury ernstig ziek was door AIDS. Naar verluidt dronk Mercury wodka om zijn pijn te verdoven tijdens de opnames, waarna hij een van de krachtigste zangprestaties van de rock bracht. Brian May zei dat hij niet wist hoe Mercury het fysiek voor elkaar kreeg om het te zingen.",
       "awards_nl": [],
       "isrc": "GBUM71106221",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/1699722786",
-        "de": "applemusic://track/1825250853",
-        "gb": "applemusic://track/1825250853",
-        "fr": "applemusic://track/1825250853",
-        "es": "applemusic://track/1825250853",
-        "nl": "applemusic://track/1825250853",
-        "it": "applemusic://track/1825250853"
-      }
+        "de": "applemusic://track/6781081188",
+        "gb": "applemusic://track/6781081188",
+        "fr": "applemusic://track/6781081191",
+        "es": "applemusic://track/6781027712",
+        "nl": "applemusic://track/6781027712",
+        "it": "applemusic://track/6781078887",
+        "us": null
+      },
+      "uri_tidal": "tidal://track/534096680"
     },
     {
       "year": 1961,
@@ -3700,6 +3800,9 @@
       "awards_nl": [
         "Grammy – Beste Rock-'n-Roll-opname (1962)"
       ],
+      "awards_it": [
+        "Grammy per la migliore registrazione rock and roll (1962)"
+      ],
       "isrc": "USA176140170",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1443091056",
@@ -3733,22 +3836,22 @@
       "fun_fact_de": "Under Pressure entstand während einer spontanen Jam-Session zwischen Queen und David Bowie. Die berühmte Basslinie wurde von John Deacon gespielt. Bowie und Mercury gerieten Berichten zufolge über die kreative Kontrolle aneinander und nahmen ihre Gesangsstimmen getrennt auf. Der Song wurde zu einer wegweisenden Zusammenarbeit der Rockgeschichte.",
       "fun_fact_es": "Under Pressure fue creada durante una sesión de jam improvisada entre Queen y David Bowie. La famosa línea de bajo fue tocada por John Deacon. Bowie y Mercury supuestamente chocaron por el control creativo, grabando cada uno sus voces por separado. La canción se convirtió en una colaboración histórica en la historia del rock.",
       "fun_fact_fr": "Under Pressure est née d'une jam session improvisée entre Queen et David Bowie. La célèbre ligne de basse a été jouée par John Deacon. Bowie et Mercury se seraient affrontés sur le contrôle créatif, chacun enregistrant ses voix séparément. Le titre est devenu une collaboration historique dans les annales du rock.",
-      "uri_apple_music": "applemusic://track/1440810475",
+      "uri_apple_music": "applemusic://track/1255089803",
       "uri_youtube_music": "https://music.youtube.com/watch?v=a01QQZyl-_I",
-      "uri_tidal": "tidal://track/6923045",
       "uri_deezer": "deezer://track/12274786",
       "fun_fact_nl": "Under Pressure ontstond tijdens een geïmproviseerde jamsessie tussen Queen en David Bowie. De beroemde baslijn werd gespeeld door John Deacon. Bowie en Mercury hadden naar verluidt ruzie over de creatieve controle en namen elk apart de vocalen op. Het nummer werd een mijlpaal in de rockgeschiedenis.",
       "awards_nl": [],
       "isrc": "GBUM71404523",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/1440651291",
-        "de": "applemusic://track/1422664556",
-        "gb": "applemusic://track/1422664556",
-        "fr": "applemusic://track/1422664556",
-        "es": "applemusic://track/1422664556",
-        "nl": "applemusic://track/1422664556",
-        "it": "applemusic://track/1422664556"
-      }
+        "de": "applemusic://track/1255089803",
+        "gb": "applemusic://track/1255089803",
+        "fr": "applemusic://track/1255089803",
+        "nl": "applemusic://track/1255089803",
+        "it": "applemusic://track/1255089803",
+        "es": null,
+        "us": null
+      },
+      "uri_tidal": "tidal://track/534049405"
     },
     {
       "year": 1963,
@@ -3942,6 +4045,9 @@
       "awards_nl": [
         "Grammy Hall of Fame (2017)"
       ],
+      "awards_it": [
+        "Grammy Hall of Fame (2017)"
+      ],
       "isrc": "USGF19942501",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1440783625",
@@ -4112,6 +4218,10 @@
         "Grammy – Beste Pop Zangprestatie (1984)",
         "Oscar – Beste Originele Lied (1984)"
       ],
+      "awards_it": [
+        "Grammy per la migliore interpretazione vocale pop (1984)",
+        "Oscar per la migliore canzone originale (1984)"
+      ],
       "isrc": "CAU118300354",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/280711410",
@@ -4276,6 +4386,9 @@
       "fun_fact_nl": "De iconische gitaarriff van Sweet Child O' Mine was eigenlijk een opwarmoefening die Slash aan het spelen was. Axl Rose hoorde het en eiste dat ze er een nummer van maakten. Het nummer werd in slechts vijf dagen geschreven. Het werd Guns N' Roses' grootste hit en een van de meest geliefde ballads van de rock.",
       "awards_nl": [
         "American Music Award – Favoriete Pop/Rock Single (1989)"
+      ],
+      "awards_it": [
+        "American Music Award per il singolo pop/rock preferito (1989)"
       ],
       "isrc": "USGF18714809",
       "uri_apple_music_by_region": {
@@ -4536,6 +4649,9 @@
       "awards_nl": [
         "Grammy Hall of Fame (2003)"
       ],
+      "awards_it": [
+        "Grammy Hall of Fame (2003)"
+      ],
       "isrc": "USAT21207031",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/902620521",
@@ -4572,11 +4688,12 @@
       "fun_fact_de": "Pete Townshend schrieb Behind Blue Eyes ursprünglich für seine unvollendete Rockoper 'Lifehouse.' Der Song sollte aus der Perspektive des Bösewichts Jumbo gesungen werden. Roger Daltreys Gesangsleistung gilt als eine seiner besten, die in den sanften Strophen perfekt Verletzlichkeit einfängt, bevor sie in die schwere Bridge ausbricht.",
       "fun_fact_es": "Pete Townshend escribió originalmente Behind Blue Eyes para su ópera rock inacabada 'Lifehouse.' La canción debía ser cantada desde la perspectiva del villano Jumbo. La interpretación vocal de Roger Daltrey es considerada una de sus mejores, capturando perfectamente la vulnerabilidad en los versos suaves antes de estallar en el puente pesado.",
       "fun_fact_fr": "Pete Townshend a écrit Behind Blue Eyes à l'origine pour son opéra-rock inachevé « Lifehouse ». La chanson devait être interprétée du point de vue du méchant, Jumbo. La performance vocale de Roger Daltrey est considérée comme l'une de ses meilleures, capturant à merveille la vulnérabilité des couplets doux avant d'exploser dans le pont lourd.",
-      "uri_apple_music": "",
+      "uri_apple_music": "applemusic://track/1440815888",
       "uri_youtube_music": "https://music.youtube.com/watch?v=E1S-6LCCfxo",
       "uri_deezer": "deezer://track/2121812",
       "fun_fact_nl": "Pete Townshend schreef Behind Blue Eyes oorspronkelijk voor zijn onvoltooide rockopera 'Lifehouse'. Het nummer was bedoeld om gezongen te worden vanuit het perspectief van de schurk Jumbo. Roger Daltrey's vocale prestatie wordt algemeen beschouwd als een van zijn beste, met een perfecte weergave van de kwetsbaarheid in de zachte coupletten voordat hij uitbarst in de zware brug.",
-      "awards_nl": []
+      "awards_nl": [],
+      "uri_tidal": "tidal://track/3710224"
     },
     {
       "year": 1984,
@@ -4616,7 +4733,7 @@
       "fun_fact_de": "Prince spielte Purple Rain erstmals live bei einem Benefizkonzert im August 1983, über ein Jahr vor der Studioversion. Die Live-Version war so kraftvoll, dass sie fast als Album-Track verwendet wurde. Das Gitarrensolo war größtenteils improvisiert, und Prince soll beim Filmdreh echte Tränen geweint haben.",
       "fun_fact_es": "Prince interpretó Purple Rain en vivo por primera vez en un concierto benéfico en agosto de 1983, más de un año antes de su lanzamiento en estudio. La versión en vivo fue tan poderosa que casi se usó como pista del álbum. El solo de guitarra fue en gran parte improvisado, y Prince supuestamente lloró lágrimas reales durante su filmación en la película.",
       "fun_fact_fr": "Prince a interprété Purple Rain en live pour la première fois lors d'un concert caritatif en août 1983, plus d'un an avant la sortie studio. La version live était si puissante qu'elle a failli être retenue pour l'album. Le solo de guitare était en grande partie improvisé, et Prince aurait versé de vraies larmes lors du tournage du film.",
-      "uri_apple_music": "",
+      "uri_apple_music": "applemusic://track/1229320478",
       "uri_youtube_music": "https://music.youtube.com/watch?v=347vCib_lMs",
       "uri_tidal": "tidal://track/691735",
       "uri_deezer": "deezer://track/374283061",
@@ -4624,6 +4741,10 @@
       "awards_nl": [
         "Grammy – Beste Rock Zangprestatie (1985)",
         "Oscar – Beste Originele Liedpartituur (1985)"
+      ],
+      "awards_it": [
+        "Grammy per la migliore interpretazione vocale rock (1985)",
+        "Oscar per la migliore colonna sonora con canzoni originali (1985)"
       ]
     },
     {
@@ -4703,21 +4824,24 @@
       "fun_fact_fr": "Paranoid a été écrite en seulement 20 minutes comme bouche-trou de dernière minute car l'album était trop court. Tony Iommi a inventé le riff sur le vif et Geezer Butler a griffonné en vitesse des paroles sur la dépression. Malgré son statut d'arrière-pensée, le titre est devenu le plus grand single de Black Sabbath et la chanson qui a défini le heavy metal.",
       "uri_apple_music": "applemusic://track/785232521",
       "uri_youtube_music": "https://music.youtube.com/watch?v=q9-2NCZLUv0",
-      "uri_tidal": "tidal://track/155212754",
+      "uri_tidal": "tidal://track/69642548",
       "uri_deezer": "deezer://track/3788156052",
       "fun_fact_nl": "Paranoid werd in slechts 20 minuten geschreven als een last-minute filler track toen het album bijna op was. Tony Iommi bedacht de riff ter plekke en Geezer Butler krabbelde snel een tekst over depressie. Ondanks dat het een bijzaak was, werd het Black Sabbaths grootste hitsingle en het nummer dat heavy metal definieerde.",
       "awards_nl": [
         "Grammy Hall of Fame (2021)"
       ],
+      "awards_it": [
+        "Grammy Hall of Fame (2021)"
+      ],
       "isrc": "USWB11304369",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/787644021",
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
+        "de": "applemusic://track/1451206494",
+        "gb": "applemusic://track/471306671",
+        "fr": "applemusic://track/1533659669",
+        "es": "applemusic://track/471306671",
+        "nl": "applemusic://track/1440282325",
+        "it": "applemusic://track/1533659669"
       }
     },
     {
@@ -4788,7 +4912,7 @@
       "fun_fact_de": "Until It Sleeps war Metallicas bestplatzierte Single in den Billboard Hot 100 zu dieser Zeit. James Hetfield schrieb den zutiefst persönlichen Text über den Krebskampf seiner Mutter und deren Überzeugung als Christliche Wissenschaftlerin, die sie davon abhielt, medizinische Behandlung zu suchen. Das Musikvideo war von den Gemälden von Hieronymus Bosch inspiriert.",
       "fun_fact_es": "Until It Sleeps fue el single de Metallica con mejor posición en el Billboard Hot 100 en ese momento. James Hetfield escribió la letra profundamente personal sobre la batalla de su madre contra el cáncer y sus creencias de la Ciencia Cristiana que le impedían buscar tratamiento médico. El video musical fue inspirado por las pinturas de Hieronymus Bosch.",
       "fun_fact_fr": "Until It Sleeps était le single de Metallica le mieux classé au Billboard Hot 100 à l'époque. James Hetfield a écrit ces paroles profondément personnelles sur le combat de sa mère contre le cancer et ses convictions de Science Chrétienne qui l'empêchaient de chercher un traitement médical. Le clip, réalisé par Samuel Bayer, s'inspirait des tableaux de Jérôme Bosch.",
-      "uri_apple_music": "",
+      "uri_apple_music": "applemusic://track/1806720493",
       "uri_youtube_music": "https://music.youtube.com/watch?v=8Al-8t8ZlF0",
       "uri_tidal": "tidal://track/441279643",
       "uri_deezer": "deezer://track/3407660531",
@@ -4836,6 +4960,9 @@
       "fun_fact_nl": "De iconische baslijn is eigenlijk een gitaar die bespeeld wordt door een octaafpedaal - de White Stripes hebben nooit een bas gebruikt. Jack White schreef de riff in een hotelkamer in Melbourne tijdens een tournee. Het nummer werd een van de meest gezongen melodieën in sportstadions wereldwijd, vooral bij voetbalwedstrijden, en evenaart 'We Will Rock You' in alomtegenwoordigheid.",
       "awards_nl": [
         "Grammy – Beste Rocknummer (2004)"
+      ],
+      "awards_it": [
+        "Grammy per la migliore canzone rock (2004)"
       ],
       "isrc": "USVT10300001",
       "uri_apple_music_by_region": {
@@ -4931,6 +5058,9 @@
       "awards_nl": [
         "Grammy Hall of Fame (2014)"
       ],
+      "awards_it": [
+        "Grammy Hall of Fame (2014)"
+      ],
       "isrc": "USAT21207009",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/674271148",
@@ -4976,12 +5106,12 @@
       "isrc": "USWB11304343",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/787641279",
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
+        "de": "applemusic://track/1451206590",
+        "gb": "applemusic://track/1551599034",
+        "fr": "applemusic://track/1439958428",
+        "es": "applemusic://track/1551599034",
+        "nl": "applemusic://track/1551599034",
+        "it": "applemusic://track/1439958428"
       }
     },
     {
@@ -5025,15 +5155,18 @@
       "awards_nl": [
         "Grammy Hall of Fame (1999)"
       ],
+      "awards_it": [
+        "Grammy Hall of Fame (1999)"
+      ],
       "isrc": "USA176460010",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1440781975",
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
+        "de": "applemusic://track/697238871",
+        "gb": "applemusic://track/726189776",
+        "fr": "applemusic://track/697238871",
+        "es": "applemusic://track/727825262",
+        "nl": "applemusic://track/1542617044",
+        "it": "applemusic://track/697238871"
       }
     },
     {
@@ -5113,11 +5246,13 @@
       "fun_fact_fr": "Nikki Sixx a écrit Kickstart My Heart après une overdose d'héroïne quasi fatale en 1987. Il a été cliniquement mort pendant deux minutes avant que les secouristes ne le raniment avec deux injections d'adrénaline en plein cœur. La montée d'adrénaline qui l'a ramené à la vie a inspiré l'énergie débordante du morceau.",
       "uri_apple_music": "applemusic://track/1764396024",
       "uri_youtube_music": "https://music.youtube.com/watch?v=CmXWkMlKFkI",
-      "uri_tidal": "tidal://track/213783917",
       "uri_deezer": "deezer://track/1632505782",
       "fun_fact_nl": "Nikki Sixx schreef Kickstart My Heart na een bijna fatale overdosis heroïne in 1987. Hij was klinisch dood gedurende twee minuten voordat paramedici hem weer tot leven wekten met twee injecties met adrenaline recht in het hart. De adrenalinestoot die hem weer tot leven bracht, inspireerde de stuwende energie van het nummer. De basintro is opgenomen op 200+ BPM.",
       "awards_nl": [
         "Grammy-nominatie – Beste Hardrockprestatie (1990)"
+      ],
+      "awards_it": [
+        "Candidatura al Grammy per la migliore interpretazione hard rock (1990)"
       ],
       "isrc": "USBY29900215",
       "uri_apple_music_by_region": {
@@ -5128,7 +5263,8 @@
         "es": "applemusic://track/1764396024",
         "nl": "applemusic://track/1764396024",
         "it": "applemusic://track/1764396024"
-      }
+      },
+      "uri_tidal": "tidal://track/491706918"
     },
     {
       "year": 1973,
@@ -5163,13 +5299,13 @@
       "awards_nl": [],
       "isrc": "USSM10011897",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/1885596530",
-        "de": "applemusic://track/1885596530",
-        "gb": "applemusic://track/1885596530",
-        "fr": "applemusic://track/1885596530",
-        "es": "applemusic://track/1885596530",
-        "nl": "applemusic://track/1885596530",
-        "it": "applemusic://track/1885596530"
+        "us": "applemusic://track/1658644941",
+        "de": "applemusic://track/1658644941",
+        "gb": "applemusic://track/1658644941",
+        "fr": "applemusic://track/1658644941",
+        "es": "applemusic://track/1658644941",
+        "nl": "applemusic://track/1658644941",
+        "it": "applemusic://track/1658644941"
       }
     },
     {
@@ -5297,6 +5433,9 @@
       "fun_fact_nl": "Kirk Hammett bedacht de iconische riff van Enter Sandman om 3 uur 's nachts, toen hij het half slapend in een bandrecorder speelde. Producer Bob Rock pushte de band om een toegankelijker geluid te creëren, wat spanning veroorzaakte maar uiteindelijk hun best verkopende album opleverde. Het nummer gebruikt de melodie van 'Hush, Little Baby' in de brug, verdraaid in een nachtmerrieachtige context over kinderangsten.",
       "awards_nl": [
         "Grammy-nominatie – Beste Metalprestatie (1992)"
+      ],
+      "awards_it": [
+        "Candidatura al Grammy per la migliore interpretazione metal (1992)"
       ],
       "isrc": "QMKHM1900001",
       "uri_apple_music_by_region": {
@@ -5480,7 +5619,7 @@
       }
     },
     {
-      "year": 1972,
+      "year": 1971,
       "uri": "spotify:track:5UwbnHhjnbinJH8TefuQfN",
       "artist": "The Hollies",
       "alt_artists": [
@@ -5506,7 +5645,6 @@
       "fun_fact_fr": "Long Cool Woman a été écrite par Allan Clarke et Roger Cook en hommage au style swamp rock de Creedence Clearwater Revival. Le morceau était si différent du pop harmonique habituel des Hollies que Graham Nash n'a pas cru que c'était eux en l'entendant à la radio. Le récit sur un agent du FBI était inspiré de la littérature policière américaine.",
       "uri_apple_music": "applemusic://track/1750160810",
       "uri_youtube_music": "https://music.youtube.com/watch?v=YbJ6vY1v084",
-      "uri_tidal": "tidal://track/1493491",
       "uri_deezer": "deezer://track/3161471",
       "fun_fact_nl": "Long Cool Woman werd geschreven door Allan Clarke en Roger Cook als een eerbetoon aan de swamp rock stijl van Creedence Clearwater Revival. Het was zo anders dan de typische harmonie-gedreven pop van The Hollies dat Graham Nash (die al vertrokken was naar CSN) niet geloofde dat zij het waren toen hij het voor het eerst op de radio hoorde. Het verhaal van het nummer over een FBI-agent was geïnspireerd op Amerikaanse misdaadfictie.",
       "awards_nl": [],
@@ -5519,7 +5657,8 @@
         "es": "applemusic://track/1750088188",
         "nl": "applemusic://track/1750088188",
         "it": "applemusic://track/1750088188"
-      }
+      },
+      "uri_tidal": "tidal://track/142184"
     },
     {
       "year": 1984,
@@ -5632,7 +5771,6 @@
       "fun_fact_fr": "La Grange parle du Chicken Ranch, un légendaire bordel près de La Grange, au Texas, en activité depuis les années 1840. L'établissement a été fermé en 1973 — la même année que la sortie de la chanson — après un reportage télévisé d'investigation. Le riff boogie s'inspire du style de guitare de John Lee Hooker. Le son de guitare de Billy Gibbons sur ce titre a été infiniment étudié et imité par les guitaristes.",
       "uri_apple_music": "applemusic://track/1728071989",
       "uri_youtube_music": "https://music.youtube.com/watch?v=bSt4myecN_c",
-      "uri_tidal": "tidal://track/297952",
       "uri_deezer": "deezer://track/3667326",
       "fun_fact_nl": "La Grange gaat over de Chicken Ranch, een legendarisch bordeel in de buurt van La Grange, Texas, dat al sinds de jaren 1840 in bedrijf was. Het etablissement werd in 1973 gesloten - hetzelfde jaar dat het nummer werd uitgebracht - na een tv-onderzoek. De boogie riff was geïnspireerd op de gitaarstijl van John Lee Hooker. Billy Gibbons' gitaartoon op het nummer is eindeloos bestudeerd en nagemaakt door gitaristen.",
       "awards_nl": [],
@@ -5645,7 +5783,8 @@
         "es": "applemusic://track/1728078888",
         "nl": "applemusic://track/1728078888",
         "it": "applemusic://track/1728078888"
-      }
+      },
+      "uri_tidal": "tidal://track/184450588"
     },
     {
       "year": 1983,
@@ -5693,6 +5832,10 @@
       "awards_nl": [
         "Grammy – Lied van het Jaar (1984)",
         "Grammy – Beste Popprestatie door Duo of Groep (1984)"
+      ],
+      "awards_it": [
+        "Grammy per la canzone dell'anno (1984)",
+        "Grammy per la migliore interpretazione pop di un duo o gruppo (1984)"
       ],
       "isrc": "GBAAM0201110",
       "uri_apple_music_by_region": {
@@ -5793,6 +5936,10 @@
         "Grammy – Beste Korte Muziekvideo (1992)",
         "Grammy – Beste Popprestatie door Duo of Groep (1992)"
       ],
+      "awards_it": [
+        "Grammy per il miglior video musicale di forma breve (1992)",
+        "Grammy per la migliore interpretazione pop di un duo o gruppo (1992)"
+      ],
       "isrc": "USWB10402077",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1422693816",
@@ -5843,7 +5990,8 @@
         "es": "applemusic://track/1722450564",
         "nl": "applemusic://track/1722450564",
         "it": "applemusic://track/1722450564"
-      }
+      },
+      "uri_tidal": "tidal://track/18676722"
     },
     {
       "year": 1981,
@@ -6054,6 +6202,9 @@
       "awards_nl": [
         "Grammy Hall of Fame (2009)"
       ],
+      "awards_it": [
+        "Grammy Hall of Fame (2009)"
+      ],
       "isrc": "USEE11200581",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1776775823",
@@ -6261,19 +6412,19 @@
       "fun_fact_fr": "Le riff d'ouverture iconique a été composé par le guitariste Rudolf Schenker sur une Gibson Flying V. Les paroles ont été écrites par le batteur Herman Rarebell, ce qui était inhabituel pour les Scorpions. Le titre a failli ne pas figurer sur l'album « Love at First Sting », mais le producteur Dieter Dierks a insisté pour l'inclure. Il est devenu la chanson emblématique des Scorpions à l'international.",
       "uri_apple_music": "applemusic://track/1425261763",
       "uri_youtube_music": "https://music.youtube.com/watch?v=6yP1tcy9a10",
-      "uri_tidal": "tidal://track/111052685",
+      "uri_tidal": "tidal://track/93436718",
       "uri_deezer": "deezer://track/3807039752",
       "fun_fact_nl": "De iconische openingsriff werd geschreven door gitarist Rudolf Schenker met behulp van een Gibson Flying V. De tekst werd eigenlijk geschreven door een externe songwriter, Herman Rarebell, de drummer van de band, wat ongebruikelijk was voor de Scorpions. Het nummer haalde bijna het album 'Love at First Sting' niet, maar producer Dieter Dierks stond erop om het op te nemen. Het werd internationaal het signatuurnummer van de Scorpions.",
       "awards_nl": [],
       "isrc": "USPR38430331",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1624147676",
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
+        "de": "applemusic://track/1297035676",
+        "gb": "applemusic://track/1297035676",
+        "fr": "applemusic://track/1297035676",
+        "es": "applemusic://track/1297035676",
+        "nl": "applemusic://track/1297035676",
+        "it": "applemusic://track/474741556"
       }
     },
     {
@@ -6321,6 +6472,10 @@
       "awards_nl": [
         "Grammy Hall of Fame (1998)",
         "Rolling Stone – #2 Beste Nummer Aller Tijden"
+      ],
+      "awards_it": [
+        "Grammy Hall of Fame (1998)",
+        "Rolling Stone – n. 2 tra le migliori canzoni di sempre"
       ],
       "isrc": "USA176510160",
       "uri_apple_music_by_region": {
@@ -6409,13 +6564,16 @@
       "fun_fact_de": "Das Musikvideo zu November Rain kostete geschätzte 1,5 Millionen Dollar und war damit eines der teuersten seiner Zeit. Axl Rose arbeitete fast ein Jahrzehnt an dem Song. Das Orchesterarrangement umfasst ein 60-köpfiges Orchester. Das Video wurde 2018 das erste aus den 1990ern, das auf YouTube 1 Milliarde Aufrufe überschritt.",
       "fun_fact_es": "El video musical de November Rain costó aproximadamente 1.5 millones de dólares, convirtiéndolo en uno de los más caros de su época. Axl Rose trabajó en la canción durante casi una década. El arreglo orquestal presenta una orquesta de 60 músicos. El video se convirtió en 2018 en el primero de los años 90 en superar los mil millones de visitas en YouTube.",
       "fun_fact_fr": "Le clip de November Rain a coûté environ 1,5 million de dollars, l'un des plus chers jamais réalisés à l'époque. Axl Rose a travaillé sur le morceau pendant près d'une décennie avant de l'enregistrer. L'arrangement orchestral comprend un orchestre de 60 musiciens. Le clip est devenu en 2018 le premier des années 90 à dépasser le milliard de vues sur YouTube.",
-      "uri_apple_music": "",
+      "uri_apple_music": "applemusic://track/1440896193",
       "uri_youtube_music": "https://music.youtube.com/watch?v=4_fvXrgAm1A",
       "uri_tidal": "tidal://track/258404388",
       "uri_deezer": "deezer://track/1169683",
       "fun_fact_nl": "De videoclip van November Rain kostte naar schatting 1,5 miljoen dollar, waarmee het een van de duurste videoclips ooit was. Axl Rose werkte bijna tien jaar aan het nummer voordat hij het opnam. Het orkestrale arrangement bevat een 60-koppig orkest. De video werd de eerste uit de jaren 90 die meer dan 1 miljard keer werd bekeken op YouTube en bereikte deze mijlpaal in 2018.",
       "awards_nl": [
         "MTV VMA – Beste Cinematografie (1992)"
+      ],
+      "awards_it": [
+        "MTV VMA per la migliore fotografia (1992)"
       ]
     },
     {
@@ -6614,7 +6772,6 @@
       "fun_fact_fr": "Sharp Dressed Man faisait partie de l'album Eliminator de ZZ Top qui les a transformés de groupe de blues-rock en superstars MTV. Le clip avec l'iconique Ford Coupé rouge de 1933 (la voiture « Eliminator ») et des femmes mystérieuses est devenu un incontournable de MTV. Malgré les légendaires longues barbes de Billy Gibbons et Dusty Hill, le batteur Frank Beard est ironiquement le seul membre sans barbe.",
       "uri_apple_music": "applemusic://track/1728071582",
       "uri_youtube_music": "https://music.youtube.com/watch?v=7wRHBLwpASw",
-      "uri_tidal": "tidal://track/3268420",
       "uri_deezer": "deezer://track/5094404",
       "fun_fact_nl": "Sharp Dressed Man maakte deel uit van het enorme Eliminator album van ZZ Top dat hen transformeerde van een bluesrock band in MTV supersterren. De videoclip met de iconische rode 1933 Ford Coupe (de 'Eliminator' auto) en mysterieuze vrouwen werd een vast onderdeel van MTV. Ondanks de legendarische lange baarden van Billy Gibbons en Dusty Hill, is drummer Frank Beard ironisch genoeg het enige lid zonder baard.",
       "awards_nl": [],
@@ -6627,7 +6784,8 @@
         "es": "applemusic://track/1728071582",
         "nl": "applemusic://track/1728071582",
         "it": "applemusic://track/1728071582"
-      }
+      },
+      "uri_tidal": "tidal://track/298012797"
     },
     {
       "year": 1977,
@@ -6738,7 +6896,7 @@
       "fun_fact_de": "Black Francis schrieb Where Is My Mind? beim Tauchen in der Karibik, als ein kleiner Fisch ihm immer wieder folgte. Der Song war relativ unbekannt, bis er in der Schlussszene des Films 'Fight Club' (1999) verwendet wurde, wo Gebäude zu seiner eindringlichen Melodie einstürzen. Kurt Cobain nannte die Pixies einen großen Einfluss und bezeichnete 'Smells Like Teen Spirit' als seinen Versuch, einen Pixies-Song zu schreiben.",
       "fun_fact_es": "Black Francis escribió Where Is My Mind? mientras buceaba en el Caribe y un pequeño pez lo seguía. La canción era relativamente desconocida hasta que fue usada en la escena final de la película 'Fight Club' (1999), donde edificios se derrumban con su melodía evocadora. Kurt Cobain citó a los Pixies como una gran influencia, llamando a 'Smells Like Teen Spirit' su intento de escribir una canción de los Pixies.",
       "fun_fact_fr": "Black Francis a écrit Where Is My Mind? en faisant de la plongée sous-marine dans les Caraïbes, alors qu'un petit poisson n'arrêtait pas de le suivre. Le morceau est resté relativement confidentiel jusqu'à son utilisation dans la scène finale de « Fight Club » (1999), où des immeubles s'effondrent sur sa mélodie envoûtante. Kurt Cobain a cité les Pixies comme influence majeure, qualifiant « Smells Like Teen Spirit » de sa tentative d'écrire un morceau des Pixies.",
-      "uri_apple_music": "",
+      "uri_apple_music": "applemusic://track/1027465608",
       "uri_youtube_music": "https://music.youtube.com/watch?v=OJ62RzJkYUo",
       "uri_tidal": "tidal://track/49794929",
       "uri_deezer": "deezer://track/936899",
@@ -6786,15 +6944,18 @@
       "awards_nl": [
         "Grammy Hall of Fame (2016)"
       ],
+      "awards_it": [
+        "Grammy Hall of Fame (2016)"
+      ],
       "isrc": "USEV19900002",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1275600554",
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
+        "de": "applemusic://track/1440901431",
+        "gb": "applemusic://track/1440901431",
+        "fr": "applemusic://track/1442993961",
+        "es": "applemusic://track/1442993961",
+        "nl": "applemusic://track/1442993961",
+        "it": "applemusic://track/1442993961"
       }
     },
     {
@@ -6914,12 +7075,15 @@
       "fun_fact_de": "Eric Clapton schrieb Layla über seine unerwiderte Liebe zu Pattie Boyd, die damals mit seinem besten Freund George Harrison verheiratet war. Der Titel wurde von der persischen Liebesgeschichte 'Layla und Madschnun' inspiriert. Duane Allmans Gastgitarrenarbeit schuf eine der berühmtesten Dual-Lead-Gitarren-Darbietungen. Das Piano-Coda wurde von Schlagzeuger Jim Gordon geschrieben.",
       "fun_fact_es": "Eric Clapton escribió Layla sobre su amor no correspondido por Pattie Boyd, quien estaba casada con su mejor amigo George Harrison. El título fue inspirado por la historia de amor persa 'Layla y Majnún.' El trabajo de guitarra invitada de Duane Allman creó una de las interpretaciones más famosas de guitarra dual. La coda de piano fue escrita por el baterista Jim Gordon.",
       "fun_fact_fr": "Eric Clapton a écrit Layla sur son amour non partagé pour Pattie Boyd, alors mariée à son meilleur ami George Harrison. Le titre s'inspire de l'histoire d'amour persane « Laïla et Majnoun ». Le jeu de guitare invité de Duane Allman a créé l'une des plus célèbres performances de guitare en duo du rock. La coda au piano a été composée par le batteur Jim Gordon et a failli devenir un morceau séparé.",
-      "uri_apple_music": "",
+      "uri_apple_music": "applemusic://track/1440663520",
       "uri_youtube_music": "https://music.youtube.com/watch?v=_gVCDP78hb0",
       "uri_tidal": "tidal://track/5816274",
       "uri_deezer": "deezer://track/1175612",
       "fun_fact_nl": "Eric Clapton schreef Layla over zijn onbeantwoorde liefde voor Pattie Boyd, die in die tijd getrouwd was met zijn beste vriend George Harrison. De titel was geïnspireerd op het Perzische liefdesverhaal 'Layla en Majnun'. Het gastgitaarwerk van Duane Allman creëerde een van de beroemdste gitaaruitvoeringen met dubbele lead in de rock. De uitgebreide pianocoda van het nummer werd geschreven door drummer Jim Gordon en werd bijna een apart nummer.",
       "awards_nl": [
+        "Grammy Hall of Fame (2000)"
+      ],
+      "awards_it": [
         "Grammy Hall of Fame (2000)"
       ]
     },
@@ -6964,6 +7128,9 @@
       "fun_fact_nl": "Fly Away werd in één middag geschreven en opgenomen. Lenny Kravitz bedacht de riff tijdens het jammen in zijn thuisstudio en legde alle instrumenten zelf neer. Het nummer werd zijn grootste commerciële hit en werd veel gebruikt in tv-commercials, videospelletjes en soundtracks van films. Het hielp Kravitz' reputatie als moderne classic rock revivalist te verstevigen.",
       "awards_nl": [
         "Grammy – Beste Mannelijke Rock Zangprestatie (2000)"
+      ],
+      "awards_it": [
+        "Grammy per la migliore interpretazione vocale rock maschile (2000)"
       ],
       "isrc": "USVI29800169",
       "uri_apple_music_by_region": {
@@ -7235,6 +7402,10 @@
         "Grammy – Beste Hardrockprestatie (1995)",
         "Grammy – Beste Metalprestatie (1995)"
       ],
+      "awards_it": [
+        "Grammy per la migliore interpretazione hard rock (1995)",
+        "Grammy per la migliore interpretazione metal (1995)"
+      ],
       "isrc": "USAM19400007",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1436558379",
@@ -7324,7 +7495,6 @@
       "isrc": "USPR37609134",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1590952411",
-        "de": "applemusic://track/1442323421",
         "gb": "applemusic://track/1590952411",
         "fr": "applemusic://track/1590952411",
         "es": "applemusic://track/1590952411",
@@ -7360,19 +7530,19 @@
       "fun_fact_fr": "La chanson n'a rien à voir avec le personnage Marvel. Tony Iommi a trouvé le riff principal et Ozzy Osbourne a trouvé que ça sonnait comme « un grand bonhomme de fer qui se balade ». Le slide de guitare lourd de Bill Ward crée l'intro qui évoque une voix. C'est le seul titre de Black Sabbath à être entré au Billboard Hot 100, et il a acquis une nouvelle renommée grâce aux films Iron Man de Marvel.",
       "uri_apple_music": "applemusic://track/787845531",
       "uri_youtube_music": "https://music.youtube.com/watch?v=b3-QqGVt-tM",
-      "uri_tidal": "tidal://track/155212756",
+      "uri_tidal": "tidal://track/69642550",
       "uri_deezer": "deezer://track/625170",
       "fun_fact_nl": "Het nummer heeft niets te maken met het Marvel-karakter. Tony Iommi bedacht de hoofdriff en Ozzy Osbourne vond het klinken als 'een grote ijzeren kerel die rondloopt'. De zware gitaarslides van Bill Ward zorgen voor de stemachtige intro. Het was Black Sabbaths enige Amerikaanse Billboard Hot 100-hit en kreeg later nieuwe bekendheid door de Marvel Iron Man-films.",
       "awards_nl": [],
       "isrc": "USWB11304371",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/787845531",
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
+        "de": "applemusic://track/1533659672",
+        "gb": "applemusic://track/1533659672",
+        "fr": "applemusic://track/1452843406",
+        "es": "applemusic://track/1533659672",
+        "nl": "applemusic://track/1440282327",
+        "it": "applemusic://track/1533659672"
       }
     },
     {
@@ -7575,7 +7745,7 @@
       "fun_fact_fr": "Souvent comparée à leur précédent hit « You Really Got Me », le riff agressif en power chords est considéré comme un précurseur du punk rock et du heavy metal. Ray Davies l'a écrite comme une suite. « Hello, I Love You » des Doors a plus tard été accusée d'être trop similaire, sans qu'aucune poursuite n'ait été engagée.",
       "uri_apple_music": "applemusic://track/1436281765",
       "uri_youtube_music": "https://music.youtube.com/watch?v=fOGMRnKl5co",
-      "uri_tidal": "tidal://track/69041281",
+      "uri_tidal": "tidal://track/493118753",
       "uri_deezer": "deezer://track/3786363902",
       "fun_fact_nl": "Vaak vergeleken met hun eerdere hit 'You Really Got Me,' wordt de agressieve power chord riff van het nummer beschouwd als een voorloper van punk rock en heavy metal. Ray Davies schreef het als een vervolg. The Doors' 'Hello, I Love You' werd later beschuldigd van een te grote gelijkenis, hoewel er geen rechtszaak werd aangespannen.",
       "awards_nl": [],
@@ -7856,22 +8026,23 @@
       "uri": "spotify:track:54OR1VDpfkBuOY5zZjhZAY",
       "uri_apple_music": null,
       "uri_apple_music_by_region": {
-        "us": null,
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
+        "de": "applemusic://track/1872720856",
+        "gb": "applemusic://track/1872720856",
+        "fr": "applemusic://track/6795719648",
+        "es": "applemusic://track/6795719648",
+        "nl": "applemusic://track/6795719648",
+        "it": "applemusic://track/6795719648",
+        "us": null
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=7-F8wkjKWg8",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/109576042",
       "uri_deezer": "deezer://track/3809086042",
       "fun_fact": "A chart hit by Village People (1978).",
       "fun_fact_de": "Ein Chart-Hit von Village People (1978).",
       "fun_fact_es": "Un éxito de Village People (1978).",
       "fun_fact_fr": "Un tube de Village People (1978).",
-      "fun_fact_nl": "Een chart-hit van Village People (1978)."
+      "fun_fact_nl": "Een chart-hit van Village People (1978).",
+      "fun_fact_it": "Un successo in classifica di Village People (1978)."
     },
     {
       "artist": "Alice Cooper",
@@ -7890,13 +8061,14 @@
         "it": "applemusic://track/1847311020"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=RWgTD_0jxeE",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/214632",
       "uri_deezer": "deezer://track/730866",
       "fun_fact": "A chart hit by Alice Cooper (1972).",
       "fun_fact_de": "Ein Chart-Hit von Alice Cooper (1972).",
       "fun_fact_es": "Un éxito de Alice Cooper (1972).",
       "fun_fact_fr": "Un tube de Alice Cooper (1972).",
-      "fun_fact_nl": "Een chart-hit van Alice Cooper (1972)."
+      "fun_fact_nl": "Een chart-hit van Alice Cooper (1972).",
+      "fun_fact_it": "Un successo in classifica di Alice Cooper (1972)."
     },
     {
       "artist": "Cheap Trick",
@@ -7915,13 +8087,14 @@
         "it": "applemusic://track/324742469"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=xWDGv0L1HfI",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/1781328",
       "uri_deezer": "deezer://track/104760756",
       "fun_fact": "A chart hit by Cheap Trick (1977).",
       "fun_fact_de": "Ein Chart-Hit von Cheap Trick (1977).",
       "fun_fact_es": "Un éxito de Cheap Trick (1977).",
       "fun_fact_fr": "Un tube de Cheap Trick (1977).",
-      "fun_fact_nl": "Een chart-hit van Cheap Trick (1977)."
+      "fun_fact_nl": "Een chart-hit van Cheap Trick (1977).",
+      "fun_fact_it": "Un successo in classifica di Cheap Trick (1977)."
     },
     {
       "year": 1979,
@@ -7929,7 +8102,6 @@
       "artist": "Blondie",
       "alt_artists": [],
       "title": "Sunday Girl",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Blondie, fronted by Debbie Harry, were pioneers of the late-70s New York new wave and punk scene.",
@@ -7959,7 +8131,6 @@
       "artist": "Adamski, Seal",
       "alt_artists": [],
       "title": "Killer",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Adamski's 'Killer', featuring a young Seal on vocals, was a landmark of UK rave-era pop.",
@@ -7989,7 +8160,6 @@
       "artist": "Dire Straits",
       "alt_artists": [],
       "title": "So Far Away",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Dire Straits, led by Mark Knopfler, became one of the biggest rock bands of the 80s with their fingerstyle guitar sound.",
@@ -8019,7 +8189,6 @@
       "artist": "The Style Council, Jay Mark",
       "alt_artists": [],
       "title": "Shout To The Top",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "The Style Council was Paul Weller's post-Jam project, mixing soul, jazz and pop.",
@@ -8049,7 +8218,6 @@
       "artist": "INXS",
       "alt_artists": [],
       "title": "New Sensation",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "INXS were an Australian rock band that became global superstars in the 80s under frontman Michael Hutchence.",
@@ -8079,7 +8247,6 @@
       "artist": "Blondie",
       "alt_artists": [],
       "title": "Atomic",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Blondie, fronted by Debbie Harry, were pioneers of the late-70s New York new wave and punk scene.",
@@ -8109,7 +8276,6 @@
       "artist": "T. Rex",
       "alt_artists": [],
       "title": "Hot Love",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "T. Rex, led by Marc Bolan, sparked the early-70s glam rock craze in Britain.",
@@ -8117,8 +8283,8 @@
       "fun_fact_es": "T. Rex, con Marc Bolan, desataron la fiebre del glam rock en Gran Bretaña a principios de los 70.",
       "fun_fact_fr": "T. Rex, menés par Marc Bolan, déclenchèrent la vague glam rock au Royaume-Uni au début des années 70.",
       "uri_apple_music": "applemusic://track/5132981",
-      "uri_youtube_music": null,
-      "uri_tidal": null,
+      "uri_youtube_music": "https://music.youtube.com/watch?v=1kqbpbHbqm0",
+      "uri_tidal": "tidal://track/15027969",
       "fun_fact_nl": "T. Rex, met Marc Bolan, ontketenden begin jaren 70 de glamrock-rage in Groot-Brittannië.",
       "awards_nl": [],
       "isrc": "GB2DY1200002",
@@ -8139,7 +8305,6 @@
       "artist": "Roxy Music",
       "alt_artists": [],
       "title": "Jealous Guy",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Roxy Music, with Bryan Ferry and Brian Eno, fused art rock and glamour into a hugely influential sound.",
@@ -8148,7 +8313,7 @@
       "fun_fact_fr": "Roxy Music, avec Bryan Ferry et Brian Eno, mêlèrent art rock et glamour en un son très influent.",
       "uri_apple_music": "applemusic://track/724413586",
       "uri_youtube_music": "https://music.youtube.com/watch?v=hRzGzRqNj58",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/1395771",
       "fun_fact_nl": "Roxy Music, met Bryan Ferry en Brian Eno, versmolten artrock en glamour tot een zeer invloedrijke sound.",
       "awards_nl": [],
       "isrc": "GBAAA8100171",
@@ -8169,7 +8334,6 @@
       "artist": "Eurythmics, Annie Lennox, Dave Stewart",
       "alt_artists": [],
       "title": "Thorn in My Side",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Eurythmics, the duo of Annie Lennox and Dave Stewart, defined the synth-pop sound of the 80s.",
@@ -8178,7 +8342,7 @@
       "fun_fact_fr": "Eurythmics, le duo d'Annie Lennox et Dave Stewart, ont défini le son synth-pop des années 80.",
       "uri_apple_music": "applemusic://track/303097875",
       "uri_youtube_music": "https://music.youtube.com/watch?v=_AmkmqYEarw",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/26689",
       "fun_fact_nl": "Eurythmics, het duo Annie Lennox en Dave Stewart, bepaalden de synthpop-sound van de jaren 80.",
       "awards_nl": [],
       "isrc": "GBARL0300632",
@@ -8199,7 +8363,6 @@
       "artist": "T. Rex",
       "alt_artists": [],
       "title": "Children Of The Revolution",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "T. Rex, led by Marc Bolan, sparked the early-70s glam rock craze in Britain.",
@@ -8208,7 +8371,7 @@
       "fun_fact_fr": "T. Rex, menés par Marc Bolan, déclenchèrent la vague glam rock au Royaume-Uni au début des années 70.",
       "uri_apple_music": "applemusic://track/1444854131",
       "uri_youtube_music": "https://music.youtube.com/watch?v=PP2FyYSUJ54",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/4259752",
       "fun_fact_nl": "T. Rex, met Marc Bolan, ontketenden begin jaren 70 de glamrock-rage in Groot-Brittannië.",
       "awards_nl": [],
       "isrc": "GBAFR7210010",
@@ -8229,7 +8392,6 @@
       "artist": "Simple Minds",
       "alt_artists": [],
       "title": "Alive And Kicking",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Simple Minds grew from a Scottish post-punk band into stadium-filling 80s rock.",
@@ -8238,7 +8400,7 @@
       "fun_fact_fr": "Simple Minds passèrent d'un groupe post-punk écossais au rock de stade des années 80.",
       "uri_apple_music": "applemusic://track/1440842097",
       "uri_youtube_music": "https://music.youtube.com/watch?v=ljIQo1OHkTI",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/10839653",
       "fun_fact_nl": "Simple Minds groeiden van een Schotse postpunkband uit tot stadionrock in de jaren 80.",
       "awards_nl": [],
       "isrc": "GBAAA8500070",
@@ -8259,7 +8421,6 @@
       "artist": "The Specials",
       "alt_artists": [],
       "title": "Ghost Town",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "The Specials led the late-70s 2 Tone ska revival, mixing Jamaican rhythms with punk energy and social comment.",
@@ -8267,8 +8428,8 @@
       "fun_fact_es": "The Specials lideraron el revival ska 2 Tone de finales de los 70, mezclando ritmos jamaicanos y energía punk.",
       "fun_fact_fr": "The Specials menèrent le revival ska 2 Tone de la fin des années 70, mêlant rythmes jamaïcains et énergie punk.",
       "uri_apple_music": "applemusic://track/1629522574",
-      "uri_youtube_music": null,
-      "uri_tidal": null,
+      "uri_youtube_music": "https://music.youtube.com/watch?v=RZ2oXzrnti4",
+      "uri_tidal": "tidal://track/233194655",
       "fun_fact_nl": "The Specials leidden de 2 Tone-ska-revival van eind jaren 70, met Jamaicaanse ritmes en punkenergie.",
       "awards_nl": [],
       "isrc": "GBAYK8100051",
@@ -8289,7 +8450,6 @@
       "artist": "David Bowie",
       "alt_artists": [],
       "title": "Sound and Vision",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "David Bowie was one of pop's great reinventors, shifting style and persona across five decades.",
@@ -8297,8 +8457,8 @@
       "fun_fact_es": "David Bowie fue uno de los grandes camaleones del pop, reinventando estilo y personaje durante cinco décadas.",
       "fun_fact_fr": "David Bowie fut l'un des grands caméléons de la pop, réinventant style et personnage sur cinq décennies.",
       "uri_apple_music": "applemusic://track/1347895843",
-      "uri_youtube_music": null,
-      "uri_tidal": null,
+      "uri_youtube_music": "https://music.youtube.com/watch?v=ZV_UsQPTBy4",
+      "uri_tidal": "tidal://track/84556462",
       "fun_fact_nl": "David Bowie was een van de grote vernieuwers van de pop, die vijf decennia lang stijl en persona bleef veranderen.",
       "awards_nl": [],
       "isrc": "USJT11600370",
@@ -8319,7 +8479,6 @@
       "artist": "ABC",
       "alt_artists": [],
       "title": "All Of My Heart",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "ABC, led by Martin Fry, crafted lush, orchestrated new-romantic pop in the early 80s.",
@@ -8327,18 +8486,18 @@
       "fun_fact_es": "ABC, con Martin Fry, crearon un pop new romantic exuberante y orquestado a principios de los 80.",
       "fun_fact_fr": "ABC, menés par Martin Fry, façonnèrent une pop new romantic luxuriante au début des années 80.",
       "uri_apple_music": "applemusic://track/1440921464",
-      "uri_youtube_music": null,
-      "uri_tidal": null,
+      "uri_youtube_music": "https://music.youtube.com/watch?v=Lfph3043yZU",
+      "uri_tidal": "tidal://track/2529746",
       "fun_fact_nl": "ABC, met Martin Fry, maakten begin jaren 80 weelderige, georkestreerde new-romantic pop.",
       "awards_nl": [],
       "isrc": "GBF088200895",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1440921464",
-        "de": null,
+        "de": "applemusic://track/1443275794",
         "gb": "applemusic://track/1440921464",
         "fr": "applemusic://track/1440921464",
         "es": "applemusic://track/1440921464",
-        "nl": null,
+        "nl": "applemusic://track/1444103660",
         "it": "applemusic://track/1440921464"
       },
       "uri_deezer": "deezer://track/1174009"
@@ -8349,7 +8508,6 @@
       "artist": "Roxy Music",
       "alt_artists": [],
       "title": "Love Is The Drug",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Roxy Music, with Bryan Ferry and Brian Eno, fused art rock and glamour into a hugely influential sound.",
@@ -8357,8 +8515,8 @@
       "fun_fact_es": "Roxy Music, con Bryan Ferry y Brian Eno, fusionaron art rock y glamour en un sonido muy influyente.",
       "fun_fact_fr": "Roxy Music, avec Bryan Ferry et Brian Eno, mêlèrent art rock et glamour en un son très influent.",
       "uri_apple_music": "applemusic://track/723878503",
-      "uri_youtube_music": null,
-      "uri_tidal": null,
+      "uri_youtube_music": "https://music.youtube.com/watch?v=0n3OepDn5GU",
+      "uri_tidal": "tidal://track/161836",
       "fun_fact_nl": "Roxy Music, met Bryan Ferry en Brian Eno, versmolten artrock en glamour tot een zeer invloedrijke sound.",
       "awards_nl": [],
       "isrc": "GBAAA9900187",
@@ -8379,7 +8537,6 @@
       "artist": "David Bowie",
       "alt_artists": [],
       "title": "Ashes to Ashes",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "David Bowie was one of pop's great reinventors, shifting style and persona across five decades.",
@@ -8387,8 +8544,8 @@
       "fun_fact_es": "David Bowie fue uno de los grandes camaleones del pop, reinventando estilo y personaje durante cinco décadas.",
       "fun_fact_fr": "David Bowie fut l'un des grands caméléons de la pop, réinventant style et personnage sur cinq décennies.",
       "uri_apple_music": "applemusic://track/1347896328",
-      "uri_youtube_music": null,
-      "uri_tidal": null,
+      "uri_youtube_music": "https://music.youtube.com/watch?v=HyMm4rJemtI",
+      "uri_tidal": "tidal://track/143445370",
       "fun_fact_nl": "David Bowie was een van de grote vernieuwers van de pop, die vijf decennia lang stijl en persona bleef veranderen.",
       "awards_nl": [],
       "isrc": "USJT11700046",
@@ -8409,7 +8566,6 @@
       "artist": "Squeeze",
       "alt_artists": [],
       "title": "Cool For Cats",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Squeeze, with songwriters Chris Difford and Glenn Tilbrook, were celebrated for their sharp British pop craftsmanship.",
@@ -8418,7 +8574,7 @@
       "fun_fact_fr": "Squeeze, avec Chris Difford et Glenn Tilbrook, étaient salués pour leur art aiguisé de la pop britannique.",
       "uri_apple_music": "applemusic://track/1443780692",
       "uri_youtube_music": "https://music.youtube.com/watch?v=uJ2cEc_TCH8",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/100550069",
       "fun_fact_nl": "Squeeze, met Chris Difford en Glenn Tilbrook, werden geroemd om hun scherpe Britse popvakmanschap.",
       "awards_nl": [],
       "isrc": "GBAAM0201034",
@@ -8439,7 +8595,6 @@
       "artist": "Supertramp",
       "alt_artists": [],
       "title": "Dreamer",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Supertramp were a British band whose melodic, keyboard-led progressive pop sold millions in the 70s.",
@@ -8447,8 +8602,8 @@
       "fun_fact_es": "Supertramp fue una banda británica cuyo pop progresivo melódico vendió millones en los 70.",
       "fun_fact_fr": "Supertramp était un groupe britannique dont la pop progressive mélodique se vendit par millions dans les années 70.",
       "uri_apple_music": "applemusic://track/1440799023",
-      "uri_youtube_music": null,
-      "uri_tidal": null,
+      "uri_youtube_music": "https://music.youtube.com/watch?v=B885n08hOmw",
+      "uri_tidal": "tidal://track/77676944",
       "fun_fact_nl": "Supertramp was een Britse band wiens melodieuze, door toetsen geleide progpop in de jaren 70 miljoenen verkocht.",
       "awards_nl": [],
       "isrc": "USAM19500630",
@@ -8469,7 +8624,6 @@
       "artist": "The Police",
       "alt_artists": [],
       "title": "Walking On The Moon",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "The Police — Sting, Andy Summers and Stewart Copeland — blended rock with reggae into a string of late-70s/80s hits.",
@@ -8477,8 +8631,8 @@
       "fun_fact_es": "The Police —Sting, Andy Summers y Stewart Copeland— mezclaron rock y reggae en una serie de éxitos de los 70/80.",
       "fun_fact_fr": "The Police — Sting, Andy Summers et Stewart Copeland — mêlèrent rock et reggae en une série de tubes des années 70/80.",
       "uri_apple_music": "applemusic://track/1440744171",
-      "uri_youtube_music": null,
-      "uri_tidal": null,
+      "uri_youtube_music": "https://music.youtube.com/watch?v=zPwMdZOlPo8",
+      "uri_tidal": "tidal://track/3958009",
       "fun_fact_nl": "The Police — Sting, Andy Summers en Stewart Copeland — mengden rock met reggae tot een reeks hits eind jaren 70/80.",
       "awards_nl": [],
       "isrc": "GBAAM7900007",
@@ -8499,7 +8653,6 @@
       "artist": "David Bowie",
       "alt_artists": [],
       "title": "Changes",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "David Bowie was one of pop's great reinventors, shifting style and persona across five decades.",
@@ -8507,8 +8660,8 @@
       "fun_fact_es": "David Bowie fue uno de los grandes camaleones del pop, reinventando estilo y personaje durante cinco décadas.",
       "fun_fact_fr": "David Bowie fut l'un des grands caméléons de la pop, réinventant style et personnage sur cinq décennies.",
       "uri_apple_music": "applemusic://track/1039798010",
-      "uri_youtube_music": null,
-      "uri_tidal": null,
+      "uri_youtube_music": "https://music.youtube.com/watch?v=4BgF7Y3q-as",
+      "uri_tidal": "tidal://track/51161419",
       "fun_fact_nl": "David Bowie was een van de grote vernieuwers van de pop, die vijf decennia lang stijl en persona bleef veranderen.",
       "awards_nl": [],
       "isrc": "USJT11500128",
@@ -8529,7 +8682,6 @@
       "artist": "Lou Reed",
       "alt_artists": [],
       "title": "Perfect Day",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Lou Reed, formerly of The Velvet Underground, was one of rock's most influential songwriters.",
@@ -8537,8 +8689,8 @@
       "fun_fact_es": "Lou Reed, exintegrante de The Velvet Underground, fue uno de los compositores más influyentes del rock.",
       "fun_fact_fr": "Lou Reed, ancien du Velvet Underground, fut l'un des auteurs les plus influents du rock.",
       "uri_apple_music": "applemusic://track/463899650",
-      "uri_youtube_music": null,
-      "uri_tidal": null,
+      "uri_youtube_music": "https://music.youtube.com/watch?v=9wxI4KK9ZYo",
+      "uri_tidal": "tidal://track/43719963",
       "fun_fact_nl": "Lou Reed, ooit van The Velvet Underground, was een van de invloedrijkste songwriters van de rock.",
       "awards_nl": [],
       "isrc": "USRC17201946",
@@ -8559,27 +8711,26 @@
       "artist": "David Bowie",
       "alt_artists": [],
       "title": "Absolute Beginners",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "David Bowie was one of pop's great reinventors, shifting style and persona across five decades.",
       "fun_fact_de": "David Bowie war einer der grossen Wandlungskünstler des Pop, der über fünf Jahrzehnte Stil und Rolle ständig neu erfand.",
       "fun_fact_es": "David Bowie fue uno de los grandes camaleones del pop, reinventando estilo y personaje durante cinco décadas.",
       "fun_fact_fr": "David Bowie fut l'un des grands caméléons de la pop, réinventant style et personnage sur cinq décennies.",
-      "uri_apple_music": "applemusic://track/1675151420",
-      "uri_youtube_music": null,
-      "uri_tidal": null,
+      "uri_apple_music": "applemusic://track/926949962",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=iCJLOXqnT2I",
+      "uri_tidal": "tidal://track/620625",
       "fun_fact_nl": "David Bowie was een van de grote vernieuwers van de pop, die vijf decennia lang stijl en persona bleef veranderen.",
       "awards_nl": [],
       "isrc": "USJT10500038",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/1675151420",
-        "de": "applemusic://track/695543535",
         "gb": "applemusic://track/926949962",
-        "fr": "applemusic://track/695543535",
-        "es": "applemusic://track/695543535",
         "nl": "applemusic://track/926949962",
-        "it": "applemusic://track/695543535"
+        "de": null,
+        "es": null,
+        "fr": null,
+        "it": null,
+        "us": null
       },
       "uri_deezer": "deezer://track/3108557"
     },
@@ -8589,7 +8740,6 @@
       "artist": "Mott The Hoople",
       "alt_artists": [],
       "title": "All the Young Dudes",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Mott The Hoople were a British rock band immortalised by Bowie's gift of 'All the Young Dudes'.",
@@ -8598,7 +8748,7 @@
       "fun_fact_fr": "Mott The Hoople étaient un groupe britannique immortalisé par le cadeau de Bowie 'All the Young Dudes'.",
       "uri_apple_music": "applemusic://track/155713011",
       "uri_youtube_music": "https://music.youtube.com/watch?v=9IqiRY60ZDE",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/548547",
       "fun_fact_nl": "Mott The Hoople was een Britse rockband, vereeuwigd door Bowies geschenk 'All the Young Dudes'.",
       "awards_nl": [],
       "isrc": "USSM17200181",
@@ -8619,7 +8769,6 @@
       "artist": "Sheryl Crow",
       "alt_artists": [],
       "title": "If It Makes You Happy",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Sheryl Crow is an American singer-songwriter who blends rock, pop and country roots.",
@@ -8627,8 +8776,8 @@
       "fun_fact_es": "Sheryl Crow es una cantautora estadounidense que mezcla rock, pop y raíces country.",
       "fun_fact_fr": "Sheryl Crow est une auteure-compositrice américaine mêlant rock, pop et racines country.",
       "uri_apple_music": "applemusic://track/1440651534",
-      "uri_youtube_music": null,
-      "uri_tidal": null,
+      "uri_youtube_music": "https://music.youtube.com/watch?v=dyihQtBes1I",
+      "uri_tidal": "tidal://track/636179",
       "fun_fact_nl": "Sheryl Crow is een Amerikaanse singer-songwriter die rock, pop en countrywortels combineert.",
       "awards_nl": [],
       "isrc": "USAM19604339",
@@ -8649,21 +8798,20 @@
       "artist": "The Clash",
       "alt_artists": [],
       "title": "I Fought the Law",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "The Clash were one of the defining bands of British punk, later broadening into reggae, dub and rockabilly.",
       "fun_fact_de": "The Clash waren eine der prägenden Bands des britischen Punk und öffneten sich später Reggae, Dub und Rockabilly.",
       "fun_fact_es": "The Clash fueron una de las bandas clave del punk británico, ampliándose luego al reggae, el dub y el rockabilly.",
       "fun_fact_fr": "The Clash furent l'un des groupes phares du punk britannique, s'ouvrant ensuite au reggae, au dub et au rockabilly.",
-      "uri_apple_music": null,
-      "uri_youtube_music": null,
-      "uri_tidal": null,
+      "uri_apple_music": "applemusic://track/647246433",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=AL8chWFuM-s",
+      "uri_tidal": "tidal://track/21536235",
       "fun_fact_nl": "The Clash waren een van de bepalende bands van de Britse punk, later verbreed met reggae, dub en rockabilly.",
       "awards_nl": [],
       "isrc": "GBARL1201017",
       "uri_apple_music_by_region": {
-        "us": null,
+        "us": "applemusic://track/647246433",
         "de": "applemusic://track/647981479",
         "gb": "applemusic://track/647981479",
         "fr": "applemusic://track/647246433",
@@ -8679,21 +8827,20 @@
       "artist": "The Undertones",
       "alt_artists": [],
       "title": "Teenage Kicks",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "The Undertones were a Northern Irish punk-pop band whose 'Teenage Kicks' was a John Peel favourite.",
       "fun_fact_de": "The Undertones waren eine nordirische Punk-Pop-Band, deren 'Teenage Kicks' John Peels Lieblingssong war.",
       "fun_fact_es": "The Undertones fueron una banda norirlandesa de punk-pop cuyo 'Teenage Kicks' era el favorito de John Peel.",
       "fun_fact_fr": "The Undertones étaient un groupe punk-pop nord-irlandais dont 'Teenage Kicks' était le favori de John Peel.",
-      "uri_apple_music": null,
-      "uri_youtube_music": null,
-      "uri_tidal": null,
+      "uri_apple_music": "applemusic://track/1716086003",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=PinCg7IGqHg",
+      "uri_tidal": "tidal://track/492947730",
       "fun_fact_nl": "The Undertones waren een Noord-Ierse punkpopband wiens 'Teenage Kicks' John Peels favoriet was.",
       "awards_nl": [],
       "isrc": "GBAJE7800192",
       "uri_apple_music_by_region": {
-        "us": null,
+        "us": "applemusic://track/1716086003",
         "de": "applemusic://track/1806628286",
         "gb": "applemusic://track/1806624271",
         "fr": "applemusic://track/1806624271",
@@ -8709,7 +8856,6 @@
       "artist": "Steve Harley, Steve Harley & Cockney Rebel",
       "alt_artists": [],
       "title": "Make Me Smile (Come up and See Me)",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Steve Harley & Cockney Rebel were a British glam-era band led by the distinctive voice of Steve Harley.",
@@ -8717,8 +8863,8 @@
       "fun_fact_es": "Steve Harley & Cockney Rebel fue una banda británica de la era glam con la voz singular de Steve Harley.",
       "fun_fact_fr": "Steve Harley & Cockney Rebel était un groupe britannique de l'ère glam mené par la voix de Steve Harley.",
       "uri_apple_music": "applemusic://track/1631057937",
-      "uri_youtube_music": null,
-      "uri_tidal": null,
+      "uri_youtube_music": "https://music.youtube.com/watch?v=dAoaVU3-ve0",
+      "uri_tidal": "tidal://track/233183048",
       "fun_fact_nl": "Steve Harley & Cockney Rebel was een Britse glamband met de kenmerkende stem van Steve Harley.",
       "awards_nl": [],
       "isrc": "GBAYE1349972",
@@ -8739,7 +8885,6 @@
       "artist": "T. Rex",
       "alt_artists": [],
       "title": "Ride A White Swan",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "T. Rex, led by Marc Bolan, sparked the early-70s glam rock craze in Britain.",
@@ -8747,8 +8892,8 @@
       "fun_fact_es": "T. Rex, con Marc Bolan, desataron la fiebre del glam rock en Gran Bretaña a principios de los 70.",
       "fun_fact_fr": "T. Rex, menés par Marc Bolan, déclenchèrent la vague glam rock au Royaume-Uni au début des années 70.",
       "uri_apple_music": "applemusic://track/1256676331",
-      "uri_youtube_music": null,
-      "uri_tidal": null,
+      "uri_youtube_music": "https://music.youtube.com/watch?v=skjvDLpeh4c",
+      "uri_tidal": "tidal://track/120929267",
       "fun_fact_nl": "T. Rex, met Marc Bolan, ontketenden begin jaren 70 de glamrock-rage in Groot-Brittannië.",
       "awards_nl": [],
       "isrc": "GBCHM0000080",
@@ -8769,7 +8914,6 @@
       "artist": "Squeeze",
       "alt_artists": [],
       "title": "Up The Junction",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Squeeze, with songwriters Chris Difford and Glenn Tilbrook, were celebrated for their sharp British pop craftsmanship.",
@@ -8777,8 +8921,8 @@
       "fun_fact_es": "Squeeze, con Chris Difford y Glenn Tilbrook, fueron alabados por su fino oficio del pop británico.",
       "fun_fact_fr": "Squeeze, avec Chris Difford et Glenn Tilbrook, étaient salués pour leur art aiguisé de la pop britannique.",
       "uri_apple_music": "applemusic://track/1443780577",
-      "uri_youtube_music": null,
-      "uri_tidal": null,
+      "uri_youtube_music": "https://music.youtube.com/watch?v=RQciegmLPAo",
+      "uri_tidal": "tidal://track/16133619",
       "fun_fact_nl": "Squeeze, met Chris Difford en Glenn Tilbrook, werden geroemd om hun scherpe Britse popvakmanschap.",
       "awards_nl": [],
       "isrc": "GBAAM7901001",
@@ -8799,7 +8943,6 @@
       "artist": "Fine Young Cannibals",
       "alt_artists": [],
       "title": "Good Thing",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Fine Young Cannibals, led by Roland Gift's distinctive voice, scored worldwide hits in the late 80s.",
@@ -8807,8 +8950,8 @@
       "fun_fact_es": "Fine Young Cannibals, con la voz inconfundible de Roland Gift, lograron éxitos mundiales a finales de los 80.",
       "fun_fact_fr": "Fine Young Cannibals, portés par la voix de Roland Gift, signèrent des tubes mondiaux à la fin des années 80.",
       "uri_apple_music": "applemusic://track/1313940403",
-      "uri_youtube_music": null,
-      "uri_tidal": null,
+      "uri_youtube_music": "https://music.youtube.com/watch?v=We_9MthGzwk",
+      "uri_tidal": "tidal://track/82528973",
       "fun_fact_nl": "Fine Young Cannibals, met de kenmerkende stem van Roland Gift, scoorden eind jaren 80 wereldhits.",
       "awards_nl": [],
       "isrc": "USRH10901908",
@@ -8829,7 +8972,6 @@
       "artist": "Free",
       "alt_artists": [],
       "title": "Wishing Well",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Free were a British blues-rock band best known for the anthem 'All Right Now'.",
@@ -8837,8 +8979,8 @@
       "fun_fact_es": "Free fue una banda británica de blues rock conocida sobre todo por el himno 'All Right Now'.",
       "fun_fact_fr": "Free était un groupe britannique de blues rock surtout connu pour l'hymne 'All Right Now'.",
       "uri_apple_music": "applemusic://track/1443134752",
-      "uri_youtube_music": null,
-      "uri_tidal": null,
+      "uri_youtube_music": "https://music.youtube.com/watch?v=LLSAGnHNqGc",
+      "uri_tidal": "tidal://track/17640686",
       "fun_fact_nl": "Free was een Britse bluesrockband, vooral bekend van de hymne 'All Right Now'.",
       "awards_nl": [],
       "isrc": "GBAAN7200016",
@@ -8859,7 +9001,6 @@
       "artist": "The Police",
       "alt_artists": [],
       "title": "Roxanne",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "The Police — Sting, Andy Summers and Stewart Copeland — blended rock with reggae into a string of late-70s/80s hits.",
@@ -8867,8 +9008,8 @@
       "fun_fact_es": "The Police —Sting, Andy Summers y Stewart Copeland— mezclaron rock y reggae en una serie de éxitos de los 70/80.",
       "fun_fact_fr": "The Police — Sting, Andy Summers et Stewart Copeland — mêlèrent rock et reggae en une série de tubes des années 70/80.",
       "uri_apple_music": "applemusic://track/1440883524",
-      "uri_youtube_music": null,
-      "uri_tidal": null,
+      "uri_youtube_music": "https://music.youtube.com/watch?v=3T1c7GkzRQQ",
+      "uri_tidal": "tidal://track/3958020",
       "fun_fact_nl": "The Police — Sting, Andy Summers en Stewart Copeland — mengden rock met reggae tot een reeks hits eind jaren 70/80.",
       "awards_nl": [],
       "isrc": "GBAAM7800003",
@@ -8889,7 +9030,6 @@
       "artist": "Thin Lizzy",
       "alt_artists": [],
       "title": "Whiskey In The Jar",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Thin Lizzy, led by Phil Lynott, were Irish hard-rock pioneers famed for twin-guitar harmonies.",
@@ -8897,8 +9037,8 @@
       "fun_fact_es": "Thin Lizzy, con Phil Lynott, fueron pioneros irlandeses del hard rock famosos por sus guitarras gemelas.",
       "fun_fact_fr": "Thin Lizzy, menés par Phil Lynott, furent des pionniers irlandais du hard rock aux guitares jumelles.",
       "uri_apple_music": "applemusic://track/1444118604",
-      "uri_youtube_music": null,
-      "uri_tidal": null,
+      "uri_youtube_music": "https://music.youtube.com/watch?v=6WDSY8Kaf6o",
+      "uri_tidal": "tidal://track/635101",
       "fun_fact_nl": "Thin Lizzy, met Phil Lynott, waren Ierse hardrockpioniers, beroemd om hun dubbele gitaarharmonieën.",
       "awards_nl": [],
       "isrc": "GBF077220250",
@@ -8919,7 +9059,6 @@
       "artist": "Dire Straits",
       "alt_artists": [],
       "title": "Romeo And Juliet",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Dire Straits, led by Mark Knopfler, became one of the biggest rock bands of the 80s with their fingerstyle guitar sound.",
@@ -8927,8 +9066,8 @@
       "fun_fact_es": "Dire Straits, liderados por Mark Knopfler, se convirtieron en una de las grandes bandas de rock de los 80.",
       "fun_fact_fr": "Dire Straits, menés par Mark Knopfler, devinrent l'un des plus grands groupes de rock des années 80.",
       "uri_apple_music": "applemusic://track/89342575",
-      "uri_youtube_music": null,
-      "uri_tidal": null,
+      "uri_youtube_music": "https://music.youtube.com/watch?v=rC95MEenIxA",
+      "uri_tidal": "tidal://track/621536",
       "fun_fact_nl": "Dire Straits, met Mark Knopfler, werden met hun fingerstyle-gitaarsound een van de grootste rockbands van de jaren 80.",
       "awards_nl": [],
       "isrc": "GBF088000675",
@@ -8949,7 +9088,6 @@
       "artist": "The Communards, Sarah Jane Morris",
       "alt_artists": [],
       "title": "Don't Leave Me This Way (with Sarah Jane Morris)",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "The Communards, with Jimmy Somerville's falsetto, turned Hi-NRG dance-pop into 80s chart hits.",
@@ -8957,8 +9095,8 @@
       "fun_fact_es": "The Communards, con el falsete de Jimmy Somerville, convirtieron el Hi-NRG en éxitos de los 80.",
       "fun_fact_fr": "The Communards, avec le falsetto de Jimmy Somerville, firent du Hi-NRG des tubes des années 80.",
       "uri_apple_music": "applemusic://track/1313396599",
-      "uri_youtube_music": null,
-      "uri_tidal": null,
+      "uri_youtube_music": "https://music.youtube.com/watch?v=1RHBAd5YUR8",
+      "uri_tidal": "tidal://track/82528996",
       "fun_fact_nl": "The Communards maakten met Jimmy Somervilles falset Hi-NRG-dancepop tot hits in de jaren 80.",
       "awards_nl": [],
       "isrc": "GBANP8600001",
@@ -8979,7 +9117,6 @@
       "artist": "Free",
       "alt_artists": [],
       "title": "My Brother Jake",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Free were a British blues-rock band best known for the anthem 'All Right Now'.",
@@ -8987,8 +9124,8 @@
       "fun_fact_es": "Free fue una banda británica de blues rock conocida sobre todo por el himno 'All Right Now'.",
       "fun_fact_fr": "Free était un groupe britannique de blues rock surtout connu pour l'hymne 'All Right Now'.",
       "uri_apple_music": "applemusic://track/1445887421",
-      "uri_youtube_music": null,
-      "uri_tidal": null,
+      "uri_youtube_music": "https://music.youtube.com/watch?v=ddDGj1Xko_c",
+      "uri_tidal": "tidal://track/20767003",
       "fun_fact_nl": "Free was een Britse bluesrockband, vooral bekend van de hymne 'All Right Now'.",
       "awards_nl": [],
       "isrc": "GBAAN7100001",
@@ -9009,7 +9146,6 @@
       "artist": "The Blow Monkeys",
       "alt_artists": [],
       "title": "It Doesn't Have to Be This Way",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "The Blow Monkeys were a British pop band known for their sophisticated, soul-tinged 80s singles.",
@@ -9017,8 +9153,8 @@
       "fun_fact_es": "The Blow Monkeys fueron una banda británica conocida por sus singles ochenteros sofisticados y soul.",
       "fun_fact_fr": "The Blow Monkeys étaient un groupe britannique connu pour leurs singles soul des années 80.",
       "uri_apple_music": "applemusic://track/262574676",
-      "uri_youtube_music": null,
-      "uri_tidal": null,
+      "uri_youtube_music": "https://music.youtube.com/watch?v=y_ra8X_8waA",
+      "uri_tidal": "tidal://track/71686",
       "fun_fact_nl": "The Blow Monkeys waren een Britse popband bekend om hun verfijnde, soulachtige jaren-80-singles.",
       "awards_nl": [],
       "isrc": "GBARL8700037",
@@ -9039,7 +9175,6 @@
       "artist": "Curiosity Killed The Cat",
       "alt_artists": [],
       "title": "Down To Earth",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Curiosity Killed The Cat were a stylish London pop band who broke through in the mid-80s.",
@@ -9047,8 +9182,8 @@
       "fun_fact_es": "Curiosity Killed The Cat fue una elegante banda londinense que triunfó a mediados de los 80.",
       "fun_fact_fr": "Curiosity Killed The Cat était un groupe londonien stylé révélé au milieu des années 80.",
       "uri_apple_music": "applemusic://track/1846353444",
-      "uri_youtube_music": null,
-      "uri_tidal": null,
+      "uri_youtube_music": "https://music.youtube.com/watch?v=9cZQcQw4mDE",
+      "uri_tidal": "tidal://track/467123394",
       "fun_fact_nl": "Curiosity Killed The Cat was een stijlvolle Londense popband die halverwege de jaren 80 doorbrak.",
       "awards_nl": [],
       "isrc": "FR10S1421157",
@@ -9069,7 +9204,6 @@
       "artist": "Prefab Sprout",
       "alt_artists": [],
       "title": "Cars and Girls",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Prefab Sprout, led by Paddy McAloon, were critics' favourites for their literate, sophisticated pop.",
@@ -9077,8 +9211,8 @@
       "fun_fact_es": "Prefab Sprout, con Paddy McAloon, fueron favoritos de la crítica por su pop sofisticado y literario.",
       "fun_fact_fr": "Prefab Sprout, menés par Paddy McAloon, étaient les chouchous de la critique pour leur pop sophistiquée.",
       "uri_apple_music": "applemusic://track/274578978",
-      "uri_youtube_music": null,
-      "uri_tidal": null,
+      "uri_youtube_music": "https://music.youtube.com/watch?v=jEJdfDD4dVg",
+      "uri_tidal": "tidal://track/656737",
       "fun_fact_nl": "Prefab Sprout, met Paddy McAloon, waren critici-favorieten om hun verfijnde, literaire pop.",
       "awards_nl": [],
       "isrc": "GBARL1900214",
@@ -9099,7 +9233,6 @@
       "artist": "Hothouse Flowers",
       "alt_artists": [],
       "title": "Don't Go",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Hothouse Flowers are an Irish band fusing rock, soul and traditional folk.",
@@ -9107,8 +9240,8 @@
       "fun_fact_es": "Hothouse Flowers es una banda irlandesa que fusiona rock, soul y folk tradicional.",
       "fun_fact_fr": "Hothouse Flowers est un groupe irlandais mêlant rock, soul et folk traditionnel.",
       "uri_apple_music": "applemusic://track/1318176872",
-      "uri_youtube_music": null,
-      "uri_tidal": null,
+      "uri_youtube_music": "https://music.youtube.com/watch?v=HDEY1UeIsr4",
+      "uri_tidal": "tidal://track/82536733",
       "fun_fact_nl": "Hothouse Flowers is een Ierse band die rock, soul en traditionele folk versmelt.",
       "awards_nl": [],
       "isrc": "GBAAP8800297",
@@ -9129,7 +9262,6 @@
       "artist": "The Communards",
       "alt_artists": [],
       "title": "Never Can Say Goodbye",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "The Communards, with Jimmy Somerville's falsetto, turned Hi-NRG dance-pop into 80s chart hits.",
@@ -9137,8 +9269,8 @@
       "fun_fact_es": "The Communards, con el falsete de Jimmy Somerville, convirtieron el Hi-NRG en éxitos de los 80.",
       "fun_fact_fr": "The Communards, avec le falsetto de Jimmy Somerville, firent du Hi-NRG des tubes des années 80.",
       "uri_apple_music": "applemusic://track/1320061729",
-      "uri_youtube_music": null,
-      "uri_tidal": null,
+      "uri_youtube_music": "https://music.youtube.com/watch?v=Hvlv5qrhDUM",
+      "uri_tidal": "tidal://track/82530868",
       "fun_fact_nl": "The Communards maakten met Jimmy Somervilles falset Hi-NRG-dancepop tot hits in de jaren 80.",
       "awards_nl": [],
       "isrc": "GBAAP8700195",
@@ -9159,7 +9291,6 @@
       "artist": "The Housemartins",
       "alt_artists": [],
       "title": "Happy Hour",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "The Housemartins were a witty Hull indie-pop band whose members later formed The Beautiful South and Fatboy Slim.",
@@ -9167,7 +9298,7 @@
       "fun_fact_es": "The Housemartins fueron una ingeniosa banda indie de Hull cuyos miembros formaron luego The Beautiful South y Fatboy Slim.",
       "fun_fact_fr": "The Housemartins étaient un groupe indie pop malicieux de Hull, dont les membres fondèrent The Beautiful South et Fatboy Slim.",
       "uri_apple_music": "applemusic://track/887484194",
-      "uri_youtube_music": null,
+      "uri_youtube_music": "https://music.youtube.com/watch?v=KfDoPEN7n5k",
       "uri_tidal": "tidal://track/33266883",
       "fun_fact_nl": "The Housemartins waren een geestige indiepopband uit Hull; leden vormden later The Beautiful South en Fatboy Slim.",
       "awards_nl": [],
@@ -9189,7 +9320,6 @@
       "artist": "The Stranglers",
       "alt_artists": [],
       "title": "No More Heroes",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "The Stranglers emerged from British punk with a distinctive keyboard-driven sound that long outlasted the era.",
@@ -9197,7 +9327,7 @@
       "fun_fact_es": "The Stranglers surgieron del punk británico con un sonido distintivo guiado por teclados que perduró mucho.",
       "fun_fact_fr": "The Stranglers émergèrent du punk britannique avec un son singulier mené par les claviers, qui survécut à l'époque.",
       "uri_apple_music": "applemusic://track/697424948",
-      "uri_youtube_music": null,
+      "uri_youtube_music": "https://music.youtube.com/watch?v=2B4bsqYxwo0",
       "uri_tidal": "tidal://track/1563023",
       "fun_fact_nl": "The Stranglers kwamen voort uit de Britse punk met een kenmerkende, door keyboards gedreven sound.",
       "awards_nl": [],
@@ -9219,7 +9349,6 @@
       "artist": "Supertramp",
       "alt_artists": [],
       "title": "Give A Little Bit",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Supertramp were a British band whose melodic, keyboard-led progressive pop sold millions in the 70s.",
@@ -9227,7 +9356,7 @@
       "fun_fact_es": "Supertramp fue una banda británica cuyo pop progresivo melódico vendió millones en los 70.",
       "fun_fact_fr": "Supertramp était un groupe britannique dont la pop progressive mélodique se vendit par millions dans les années 70.",
       "uri_apple_music": "applemusic://track/1440756780",
-      "uri_youtube_music": null,
+      "uri_youtube_music": "https://music.youtube.com/watch?v=0dJ30dREjaE",
       "uri_tidal": "tidal://track/169909129",
       "fun_fact_nl": "Supertramp was een Britse band wiens melodieuze, door toetsen geleide progpop in de jaren 70 miljoenen verkocht.",
       "awards_nl": [],
@@ -9249,7 +9378,6 @@
       "artist": "Pretenders",
       "alt_artists": [],
       "title": "Brass in Pocket",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "The Pretenders, fronted by Chrissie Hynde, bridged punk and classic rock from 1979 onward.",
@@ -9257,7 +9385,7 @@
       "fun_fact_es": "The Pretenders, con Chrissie Hynde, tendieron un puente entre el punk y el rock clásico desde 1979.",
       "fun_fact_fr": "The Pretenders, menés par Chrissie Hynde, firent le pont entre punk et rock classique à partir de 1979.",
       "uri_apple_music": "applemusic://track/197211499",
-      "uri_youtube_music": null,
+      "uri_youtube_music": "https://music.youtube.com/watch?v=0H6re3PCP3E",
       "uri_tidal": "tidal://track/68737210",
       "fun_fact_nl": "The Pretenders, met Chrissie Hynde, sloegen vanaf 1979 een brug tussen punk en classic rock.",
       "awards_nl": [],
@@ -9279,7 +9407,6 @@
       "artist": "Pretenders",
       "alt_artists": [],
       "title": "Don't Get Me Wrong",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "The Pretenders, fronted by Chrissie Hynde, bridged punk and classic rock from 1979 onward.",
@@ -9287,7 +9414,7 @@
       "fun_fact_es": "The Pretenders, con Chrissie Hynde, tendieron un puente entre el punk y el rock clásico desde 1979.",
       "fun_fact_fr": "The Pretenders, menés par Chrissie Hynde, firent le pont entre punk et rock classique à partir de 1979.",
       "uri_apple_music": "applemusic://track/1829569595",
-      "uri_youtube_music": null,
+      "uri_youtube_music": "https://music.youtube.com/watch?v=qbAab1hTxN4",
       "uri_tidal": "tidal://track/481721",
       "fun_fact_nl": "The Pretenders, met Chrissie Hynde, sloegen vanaf 1979 een brug tussen punk en classic rock.",
       "awards_nl": [],
@@ -9309,7 +9436,6 @@
       "artist": "Peter Gabriel",
       "alt_artists": [],
       "title": "Solsbury Hill",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Peter Gabriel left Genesis to build an inventive solo career blending art rock and world music.",
@@ -9317,7 +9443,7 @@
       "fun_fact_es": "Peter Gabriel dejó Genesis para forjar una carrera solista que mezcla art rock y música del mundo.",
       "fun_fact_fr": "Peter Gabriel quitta Genesis pour une carrière solo inventive mêlant art rock et musiques du monde.",
       "uri_apple_music": "applemusic://track/986876652",
-      "uri_youtube_music": null,
+      "uri_youtube_music": "https://music.youtube.com/watch?v=_OO2PuGz-H8",
       "uri_tidal": "tidal://track/88802908",
       "fun_fact_nl": "Peter Gabriel verliet Genesis voor een inventieve solocarrière tussen artrock en wereldmuziek.",
       "awards_nl": [],
@@ -9339,7 +9465,6 @@
       "artist": "Martha and the Muffins",
       "alt_artists": [],
       "title": "Echo Beach",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Martha and the Muffins were a Canadian new-wave band best known for 'Echo Beach'.",
@@ -9347,8 +9472,7 @@
       "fun_fact_es": "Martha and the Muffins fueron una banda canadiense de new wave conocida por 'Echo Beach'.",
       "fun_fact_fr": "Martha and the Muffins était un groupe new wave canadien surtout connu pour 'Echo Beach'.",
       "uri_apple_music": "applemusic://track/1672128812",
-      "uri_youtube_music": null,
-      "uri_tidal": "tidal://track/170170644",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=lpqDTQOFvf0",
       "fun_fact_nl": "Martha and the Muffins was een Canadese new-waveband, vooral bekend van 'Echo Beach'.",
       "awards_nl": [],
       "isrc": "GBAAA8000289",
@@ -9361,7 +9485,8 @@
         "nl": "applemusic://track/714738520",
         "it": "applemusic://track/714738520"
       },
-      "uri_deezer": "deezer://track/3152859"
+      "uri_deezer": "deezer://track/3152859",
+      "uri_tidal": "tidal://track/82231114"
     },
     {
       "year": 1980,
@@ -9369,7 +9494,6 @@
       "artist": "Jona Lewie",
       "alt_artists": [],
       "title": "You'll Always Find Me In The Kitchen At Parties",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Jona Lewie is a British singer-songwriter remembered for his quirky, witty new-wave hits.",
@@ -9377,7 +9501,7 @@
       "fun_fact_es": "Jona Lewie es un cantautor británico recordado por sus excéntricos e ingeniosos éxitos new wave.",
       "fun_fact_fr": "Jona Lewie est un auteur-compositeur britannique connu pour ses tubes new wave excentriques.",
       "uri_apple_music": "applemusic://track/1364965640",
-      "uri_youtube_music": null,
+      "uri_youtube_music": "https://music.youtube.com/watch?v=62eTq8ErUOQ",
       "uri_tidal": "tidal://track/86566398",
       "fun_fact_nl": "Jona Lewie is een Britse singer-songwriter, herinnerd om zijn eigenzinnige, geestige new-wavehits.",
       "awards_nl": [],
@@ -9399,7 +9523,6 @@
       "artist": "Bryan Ferry",
       "alt_artists": [],
       "title": "Slave To Love",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Bryan Ferry, the Roxy Music frontman, became a style icon with his suave solo pop.",
@@ -9407,7 +9530,7 @@
       "fun_fact_es": "Bryan Ferry, líder de Roxy Music, se volvió un icono de estilo con su elegante pop en solitario.",
       "fun_fact_fr": "Bryan Ferry, leader de Roxy Music, devint une icône de style avec sa pop solo raffinée.",
       "uri_apple_music": "applemusic://track/724306487",
-      "uri_youtube_music": null,
+      "uri_youtube_music": "https://music.youtube.com/watch?v=UH1CMCtV4to",
       "uri_tidal": "tidal://track/443260918",
       "fun_fact_nl": "Bryan Ferry, frontman van Roxy Music, werd met zijn stijlvolle solopop een stijlicoon.",
       "awards_nl": [],
@@ -9429,7 +9552,6 @@
       "artist": "The Stranglers",
       "alt_artists": [],
       "title": "Golden Brown",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "The Stranglers emerged from British punk with a distinctive keyboard-driven sound that long outlasted the era.",
@@ -9437,7 +9559,7 @@
       "fun_fact_es": "The Stranglers surgieron del punk británico con un sonido distintivo guiado por teclados que perduró mucho.",
       "fun_fact_fr": "The Stranglers émergèrent du punk britannique avec un son singulier mené par les claviers, qui survécut à l'époque.",
       "uri_apple_music": "applemusic://track/696838901",
-      "uri_youtube_music": null,
+      "uri_youtube_music": "https://music.youtube.com/watch?v=7KIHvuMl4Kk",
       "uri_tidal": "tidal://track/1563124",
       "fun_fact_nl": "The Stranglers kwamen voort uit de Britse punk met een kenmerkende, door keyboards gedreven sound.",
       "awards_nl": [],
@@ -9447,7 +9569,7 @@
         "de": "applemusic://track/696838901",
         "gb": "applemusic://track/697039305",
         "fr": "applemusic://track/696838901",
-        "es": null,
+        "es": "applemusic://track/696838901",
         "nl": "applemusic://track/696838901",
         "it": "applemusic://track/696838901"
       },
@@ -9459,7 +9581,6 @@
       "artist": "Take That",
       "alt_artists": [],
       "title": "Pray",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Take That were one of Britain's biggest boy bands, launching the career of Robbie Williams and Gary Barlow.",
@@ -9467,7 +9588,7 @@
       "fun_fact_es": "Take That fueron una de las mayores boy bands británicas, lanzando a Robbie Williams y Gary Barlow.",
       "fun_fact_fr": "Take That furent l'un des plus grands boys bands britanniques, lançant Robbie Williams et Gary Barlow.",
       "uri_apple_music": "applemusic://track/1494128057",
-      "uri_youtube_music": null,
+      "uri_youtube_music": "https://music.youtube.com/watch?v=QbsAqs3YHyg",
       "uri_tidal": "tidal://track/7252229",
       "fun_fact_nl": "Take That was een van de grootste Britse boybands, met de start van Robbie Williams en Gary Barlow.",
       "awards_nl": [],
@@ -9489,21 +9610,20 @@
       "artist": "The Teardrop Explodes",
       "alt_artists": [],
       "title": "Reward",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "The Teardrop Explodes, fronted by Julian Cope, were leading lights of the Liverpool post-punk scene.",
       "fun_fact_de": "The Teardrop Explodes um Julian Cope waren Aushängeschilder der Liverpooler Post-Punk-Szene.",
       "fun_fact_es": "The Teardrop Explodes, con Julian Cope, fueron referentes del post-punk de Liverpool.",
       "fun_fact_fr": "The Teardrop Explodes, menés par Julian Cope, étaient des figures du post-punk de Liverpool.",
-      "uri_apple_music": null,
+      "uri_apple_music": "applemusic://track/1443803092",
       "uri_youtube_music": "https://music.youtube.com/watch?v=o2_sJHPIbVw",
       "uri_tidal": "tidal://track/617133",
       "fun_fact_nl": "The Teardrop Explodes, met Julian Cope, waren boegbeelden van de Liverpoolse postpunkscene.",
       "awards_nl": [],
       "isrc": "GBF088000023",
       "uri_apple_music_by_region": {
-        "us": null,
+        "us": "applemusic://track/1443803092",
         "de": "applemusic://track/1444017495",
         "gb": "applemusic://track/1443803092",
         "fr": "applemusic://track/1444017495",
@@ -9519,21 +9639,20 @@
       "artist": "Fine Young Cannibals",
       "alt_artists": [],
       "title": "Johnny Come Home",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Fine Young Cannibals, led by Roland Gift's distinctive voice, scored worldwide hits in the late 80s.",
       "fun_fact_de": "Fine Young Cannibals um die markante Stimme von Roland Gift landeten Ende der 80er Welthits.",
       "fun_fact_es": "Fine Young Cannibals, con la voz inconfundible de Roland Gift, lograron éxitos mundiales a finales de los 80.",
       "fun_fact_fr": "Fine Young Cannibals, portés par la voix de Roland Gift, signèrent des tubes mondiaux à la fin des années 80.",
-      "uri_apple_music": null,
-      "uri_youtube_music": null,
+      "uri_apple_music": "applemusic://track/1313443614",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=2yvWl8EcLmo",
       "uri_tidal": "tidal://track/82531768",
       "fun_fact_nl": "Fine Young Cannibals, met de kenmerkende stem van Roland Gift, scoorden eind jaren 80 wereldhits.",
       "awards_nl": [],
       "isrc": "GBAMY8500222",
       "uri_apple_music_by_region": {
-        "us": null,
+        "us": "applemusic://track/1313443614",
         "de": "applemusic://track/1313443614",
         "gb": "applemusic://track/1313443614",
         "fr": "applemusic://track/1313443614",

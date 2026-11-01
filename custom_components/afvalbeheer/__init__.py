@@ -1,9 +1,10 @@
 """
 Sensor component for waste pickup dates from dutch and belgium waste collectors
 Original Author: Pippijn Stortelder
-Current Version: 6.5.18 20260625
+Current Version: 6.5.35 20261028
 """
 
+import hashlib
 import logging
 from datetime import datetime
 from datetime import timedelta
@@ -11,20 +12,65 @@ from datetime import timedelta
 from homeassistant.const import Platform
 
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.typing import ConfigType
+from pathlib import Path
 from homeassistant.components import persistent_notification
 
 from .const import DOMAIN, PLATFORM_SCHEMA, CONF_ID, NOTIFICATION_ID, CONF_WASTE_COLLECTOR
 from .API import get_wastedata_from_config
 
 
-__version__ = "6.5.18"
+__version__ = "6.5.35"
 
 _LOGGER = logging.getLogger(__name__)
+
+FRONTEND_URL = "/afvalbeheer/afvalbeheer-icons.js"
+FRONTEND_FILE = Path(__file__).parent / "frontend" / "afvalbeheer-icons.js"
+
+
+def _file_hash(path):
+    """Return a short hash of the file contents, used to bust the browser cache."""
+    return hashlib.sha1(path.read_bytes()).hexdigest()[:8]
+
+
+async def _async_register_frontend(hass: HomeAssistant):
+    """Register the frontend custom iconset with Home Assistant."""
+    if "afvalbeheer_frontend_registered" in hass.data:
+        return
+
+    hass.data["afvalbeheer_frontend_registered"] = True
+
+    try:
+        from homeassistant.components.frontend import add_extra_js_url
+        from homeassistant.components.http import StaticPathConfig
+
+        if FRONTEND_FILE.exists():
+            if hasattr(hass.http, "async_register_static_paths"):
+                await hass.http.async_register_static_paths([
+                    StaticPathConfig(
+                        FRONTEND_URL,
+                        str(FRONTEND_FILE),
+                        False,
+                    )
+                ])
+            elif hasattr(hass.http, "register_static_path"):
+                hass.http.register_static_path(
+                    FRONTEND_URL,
+                    str(FRONTEND_FILE),
+                    False,
+                )
+            # Include a content hash so browsers load the new file whenever it changes
+            content_hash = await hass.async_add_executor_job(_file_hash, FRONTEND_FILE)
+            add_extra_js_url(hass, f"{FRONTEND_URL}?v={__version__}-{content_hash}")
+            _LOGGER.debug("Registered Afvalbeheer custom iconset at %s", FRONTEND_URL)
+    except (OSError, HomeAssistantError) as err:
+        _LOGGER.warning("Could not register Afvalbeheer frontend icons: %s", err)
 
 
 async def async_setup(hass: HomeAssistant, config: ConfigType):
     _LOGGER.debug("Setup of Afvalbeheer component Rest API retriever")
+    await _async_register_frontend(hass)
 
     yaml_config = config.get(DOMAIN, None)
 
@@ -85,17 +131,23 @@ async def async_migrate_entry(hass, config_entry):
     """Migrate old config entries to new format."""
     _LOGGER.warning("=== MIGRATION FUNCTION CALLED ===")
     _LOGGER.warning("Migration check: config entry version %s.%s, current version %s.%s", 
-                   config_entry.version, config_entry.minor_version, 3, 1)
-    
+                   config_entry.version, config_entry.minor_version, 3, 2)
+
     # For existing entries that might have the wrong unique ID format
     # Check if migration is needed based on entity unique IDs rather than just version
     needs_migration = _check_if_migration_needed(hass, config_entry)
-    
+
     if config_entry.version < 3 or needs_migration:
-        _LOGGER.warning("Migrating config entry from version %s.%s to %s.%s", 
+        _LOGGER.warning("Migrating config entry from version %s.%s to %s.%s",
                        config_entry.version, config_entry.minor_version, 3, 1)
-        return await _migrate_entry_to_v3(hass, config_entry)
-    
+        if not await _migrate_entry_to_v3(hass, config_entry):
+            return False
+
+    if config_entry.version == 3 and config_entry.minor_version < 2:
+        _LOGGER.warning("Migrating config entry from version %s.%s to %s.%s",
+                       config_entry.version, config_entry.minor_version, 3, 2)
+        return await _migrate_entry_to_v3_2(hass, config_entry)
+
     _LOGGER.info("No migration needed for config entry %s", config_entry.title)
     return True
 
@@ -119,7 +171,7 @@ def _check_if_migration_needed(hass, config_entry):
                     return True
         
         return False
-    except Exception as e:
+    except (KeyError, AttributeError) as e:
         _LOGGER.error("Error checking migration need: %s", e)
         return False
 
@@ -127,8 +179,9 @@ def _check_if_migration_needed(hass, config_entry):
 async def _migrate_entry_to_v3(hass, config_entry):
     """Migrate to version 3 - update entity unique IDs to new consistent format."""
     from homeassistant.helpers import entity_registry as er
-    from .const import CONF_WASTE_COLLECTOR, CONF_POSTCODE, CONF_STREET_NUMBER, CONF_NAME
-    
+    from .const import CONF_WASTE_COLLECTOR, CONF_POSTCODE, CONF_STREET_NUMBER, CONF_NAME, CONF_NAME_PREFIX
+    from .sensor import _format_unique_id
+
     try:
         entity_registry = er.async_get(hass)
         config_data = {**config_entry.data, **config_entry.options}
@@ -137,6 +190,7 @@ async def _migrate_entry_to_v3(hass, config_entry):
         postcode = config_data.get(CONF_POSTCODE, "")
         street_number = str(config_data.get(CONF_STREET_NUMBER, ""))
         name = config_data.get(CONF_NAME, "")
+        name_prefix = config_data.get(CONF_NAME_PREFIX, False)
         
         _LOGGER.info("Migrating entities for waste_collector=%s, postcode=%s, street_number=%s", 
                     waste_collector, postcode, street_number)
@@ -168,15 +222,13 @@ async def _migrate_entry_to_v3(hass, config_entry):
                         sensor_type = entity_name
                 
                 if sensor_type:
-                    # Generate new unique_id using the consistent format
-                    if not name:
-                        # Simple format like YAML used: just the sensor type  
-                        new_unique_id = sensor_type.lower()
-                    else:
-                        # If custom name is provided, include it for uniqueness
-                        parts = [name, sensor_type]
-                        new_unique_id = "_".join(parts).replace(" ", "_").replace("-", "_").lower()
-                    
+                    # Generate the new unique_id using the same canonical format
+                    # sensor.py itself uses, so collectors with special prefixing
+                    # rules (e.g. cleanprofs/frissekliko) migrate consistently.
+                    new_unique_id = _format_unique_id(
+                        name, name_prefix, waste_collector, sensor_type, config_entry.entry_id
+                    ).lower()
+
                     if new_unique_id != old_unique_id:
                         _LOGGER.info("Migrating entity %s: %s -> %s", 
                                    entity.entity_id, old_unique_id, new_unique_id)
@@ -198,12 +250,89 @@ async def _migrate_entry_to_v3(hass, config_entry):
         
         return True
         
-    except Exception as e:
+    except (KeyError, AttributeError, ValueError) as e:
+        _LOGGER.error("Migration failed: %s", e)
+        return False
+
+
+async def _migrate_entry_to_v3_2(hass, config_entry):
+    """Migrate to version 3.2 - Cleanprofs fractions are now prefixed with 'Reiniging'."""
+    from homeassistant.const import CONF_RESOURCES
+    from homeassistant.helpers import entity_registry as er
+    from .const import CONF_NAME, CONF_NAME_PREFIX, CONF_POSTCODE, CONF_STREET_NUMBER
+    from .sensor import _format_unique_id
+
+    try:
+        config_data = {**config_entry.data, **config_entry.options}
+
+        if str(config_data.get(CONF_WASTE_COLLECTOR, "")).lower() != "cleanprofs":
+            hass.config_entries.async_update_entry(config_entry, version=3, minor_version=2)
+            return True
+
+        def _prefix(resource):
+            if str(resource).lower().startswith("reiniging"):
+                return resource
+            return f"Reiniging {resource}"
+
+        resource_mapping = {
+            resource: _prefix(resource) for resource in config_data.get(CONF_RESOURCES, [])
+        }
+
+        # Update the entity unique IDs so existing sensors keep their entity_id and history
+        entity_registry = er.async_get(hass)
+        unique_id_args = (
+            config_data.get(CONF_NAME), config_data.get(CONF_NAME_PREFIX), config_data.get(CONF_WASTE_COLLECTOR),
+        )
+        unique_id_mapping = {
+            _format_unique_id(*unique_id_args, old, config_entry.entry_id).lower():
+            _format_unique_id(*unique_id_args, new, config_entry.entry_id).lower()
+            for old, new in resource_mapping.items() if old != new
+        }
+
+        migrated_count = 0
+        for entity in list(entity_registry.entities.values()):
+            if (entity.domain == "sensor" and
+                entity.platform == DOMAIN and
+                entity.config_entry_id == config_entry.entry_id and
+                entity.unique_id in unique_id_mapping):
+
+                new_unique_id = unique_id_mapping[entity.unique_id]
+                if entity_registry.async_get_entity_id("sensor", DOMAIN, new_unique_id):
+                    _LOGGER.warning("Skipping migration of %s, unique_id %s already exists",
+                                    entity.entity_id, new_unique_id)
+                    continue
+
+                _LOGGER.info("Migrating entity %s: %s -> %s",
+                             entity.entity_id, entity.unique_id, new_unique_id)
+                entity_registry.async_update_entity(entity.entity_id, new_unique_id=new_unique_id)
+                migrated_count += 1
+
+        # Update the selected resources in both data and options
+        new_data = {**config_entry.data}
+        new_options = {**config_entry.options}
+        for store in (new_data, new_options):
+            if CONF_RESOURCES in store:
+                store[CONF_RESOURCES] = [_prefix(resource) for resource in store[CONF_RESOURCES]]
+
+        _LOGGER.info("Cleanprofs migration completed. Updated %d entities.", migrated_count)
+
+        hass.config_entries.async_update_entry(
+            config_entry,
+            data=new_data,
+            options=new_options,
+            version=3,
+            minor_version=2
+        )
+
+        return True
+
+    except (KeyError, AttributeError, ValueError) as e:
         _LOGGER.error("Migration failed: %s", e)
         return False
 
 
 async def async_setup_entry(hass, entry):
+    await _async_register_frontend(hass)
     config = {**entry.data, **entry.options}
 
     if DOMAIN not in hass.data:

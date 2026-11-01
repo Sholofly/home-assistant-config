@@ -1,6 +1,6 @@
 {
   "name": "Anime Openings",
-  "version": "1.8",
+  "version": "1.29",
   "tags": [
     "anime",
     "japanese",
@@ -29,7 +29,7 @@
         "it": "applemusic://track/1837658529"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=Cb0JZhdmjtg",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/458404972",
       "uri_deezer": "deezer://track/3540533651",
       "fun_fact": "Theme song for the 2025 film 'Chainsaw Man – The Movie: Reze Arc'.",
       "fun_fact_de": "Titelsong des Films 'Chainsaw Man – The Movie: Reze Arc' (2025).",
@@ -54,8 +54,8 @@
         "it": "applemusic://track/1771603031"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=W0dsUNS4RT8",
-      "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_tidal": "tidal://track/390601678",
+      "uri_deezer": "deezer://track/3024903811",
       "fun_fact": "Opening theme of 'Dandadan' (2024) — Creepy Nuts following up their viral 'Bling-Bang-Bang-Born'.",
       "fun_fact_de": "Opening von 'Dandadan' (2024) — Creepy Nuts' Nachfolger zum viralen 'Bling-Bang-Bang-Born'.",
       "fun_fact_es": "Opening de 'Dandadan' (2024), de Creepy Nuts tras su viral 'Bling-Bang-Bang-Born'.",
@@ -79,7 +79,7 @@
         "it": "applemusic://track/1795912065"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=o4rpy5gaUJw",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/404540555",
       "uri_deezer": "deezer://track/3126427261",
       "alt_artists": [
         "Felix"
@@ -107,7 +107,7 @@
         "it": "applemusic://track/1857886416"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=yzvFG03sSwM",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/407570434",
       "uri_deezer": "deezer://track/3155594841",
       "fun_fact": "Anime opening by singer-songwriter Lilas Ikuta (also half of the duo YOASOBI's vocalist Ikura).",
       "fun_fact_de": "Anime-Opening von Singer-Songwriterin Lilas Ikuta (zugleich YOASOBI-Sängerin Ikura).",
@@ -157,8 +157,8 @@
         "it": "applemusic://track/1581481510"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=wNjvuRZtQeI",
-      "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_tidal": "tidal://track/113039187",
+      "uri_deezer": "deezer://track/711676642",
       "fun_fact": "Opening 1 of 'Fire Force' (2019) — one of Mrs. GREEN APPLE's signature hits.",
       "fun_fact_de": "Opening 1 von 'Fire Force' (2019) — einer der Signature-Hits von Mrs. GREEN APPLE.",
       "fun_fact_es": "Opening 1 de 'Fire Force' (2019), uno de los grandes éxitos de Mrs. GREEN APPLE.",
@@ -182,7 +182,7 @@
         "it": "applemusic://track/1759899365"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=NMA_isZYsYQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/252167040",
       "uri_deezer": "deezer://track/1946911957",
       "fun_fact": "Opening of 'Chainsaw Man' (2022) — the first anime song to be certified Gold by the RIAA in the US.",
       "fun_fact_de": "Opening von 'Chainsaw Man' (2022) — der erste Anime-Song mit RIAA-Gold-Auszeichnung in den USA.",
@@ -207,8 +207,8 @@
         "it": "applemusic://track/1536256935"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=udNgJUiBCRg",
-      "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_tidal": "tidal://track/105884373",
+      "uri_deezer": "deezer://track/121134202",
       "fun_fact": "Opening 3 of 'Naruto Shippuden' (2008) — one of the most beloved Naruto openings.",
       "fun_fact_de": "Opening 3 von 'Naruto Shippuden' (2008) — eines der beliebtesten Naruto-Openings.",
       "fun_fact_es": "Opening 3 de 'Naruto Shippuden' (2008), uno de los openings más queridos de Naruto.",
@@ -232,7 +232,7 @@
         "it": "applemusic://track/1808582681"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=L96bDUNaRVI",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/430166616",
       "uri_deezer": "deezer://track/3325137991",
       "alt_artists": [
         "Naeleck"
@@ -260,7 +260,7 @@
         "it": "applemusic://track/1674062563"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=o7fgFaXKVa0",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/205642483",
       "uri_deezer": "deezer://track/1557745322",
       "fun_fact": "Opening of the cult 1998 series 'Serial Experiments Lain' — bôa's enduring signature song.",
       "fun_fact_de": "Opening der Kultserie 'Serial Experiments Lain' (1998) — bôas bis heute bekanntester Song.",
@@ -285,7 +285,7 @@
         "it": "applemusic://track/1702823583"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=r_hJWTufE6w",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/311108517",
       "uri_deezer": "deezer://track/2413426495",
       "fun_fact": "Opening of 'Jujutsu Kaisen' Season 2 (Shibuya Incident arc) by King Gnu.",
       "fun_fact_de": "Opening von 'Jujutsu Kaisen' Staffel 2 (Shibuya-Incident-Arc) von King Gnu.",
@@ -310,7 +310,7 @@
         "it": "applemusic://track/1793489143"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=6gMBmZ28Xg4",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/334541300",
       "uri_deezer": "deezer://track/2580253682",
       "fun_fact": "Opening of 'Mashle' Season 2 (2024) — its dance went massively viral on TikTok.",
       "fun_fact_de": "Opening von 'Mashle' Staffel 2 (2024) — der Tanz dazu ging auf TikTok extrem viral.",
@@ -335,8 +335,8 @@
         "it": "applemusic://track/1529543135"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=TqyfmFaZlqw",
-      "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_tidal": "tidal://track/156732851",
+      "uri_deezer": "deezer://track/976228172",
       "fun_fact": "Opening 1 of 'Demon Slayer: Kimetsu no Yaiba' (2019) — LiSA's career-defining smash.",
       "fun_fact_de": "Opening 1 von 'Demon Slayer: Kimetsu no Yaiba' (2019) — LiSAs karrieredefinierender Hit.",
       "fun_fact_es": "Opening 1 de 'Demon Slayer: Kimetsu no Yaiba' (2019), el éxito que definió la carrera de LiSA.",
@@ -360,7 +360,7 @@
         "it": "applemusic://track/1535535911"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=mtawrvojDyU",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/145060431",
       "uri_deezer": "deezer://track/975968052",
       "fun_fact": "Opening of 'Tokyo Ghoul' (2014) — one of the most iconic anime openings of the 2010s.",
       "fun_fact_de": "Opening von 'Tokyo Ghoul' (2014) — eines der ikonischsten Anime-Openings der 2010er.",
@@ -385,7 +385,7 @@
         "it": "applemusic://track/1707581765"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=m9SMT5ipbxk",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/285515076",
       "uri_deezer": "deezer://track/2210493097",
       "fun_fact": "Opening of 'Oshi no Ko' (2023) — hit #1 on the Billboard Global chart.",
       "fun_fact_de": "Opening von 'Oshi no Ko' (2023) — erreichte Platz 1 der Billboard-Global-Charts.",
@@ -410,8 +410,8 @@
         "it": "applemusic://track/1594814706"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=d6NPs3OQIAU",
-      "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_tidal": "tidal://track/209819742",
+      "uri_deezer": "deezer://track/1549796212",
       "fun_fact": "Opening of 'Demon Slayer: Entertainment District Arc' (2021) by Aimer.",
       "fun_fact_de": "Opening von 'Demon Slayer: Entertainment District Arc' (2021) von Aimer.",
       "fun_fact_es": "Opening de 'Demon Slayer: Distrito del Entretenimiento' (2021), de Aimer.",
@@ -434,9 +434,9 @@
         "nl": "applemusic://track/1692289314",
         "it": "applemusic://track/1692289314"
       },
-      "uri_youtube_music": "https://music.youtube.com/watch?v=A2jr18ZbkFc",
-      "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_youtube_music": "https://music.youtube.com/watch?v=zuoVd2QNxJo",
+      "uri_tidal": "tidal://track/300548847",
+      "uri_deezer": "deezer://track/2332722735",
       "fun_fact": "Opening 1 of 'Jujutsu Kaisen' Season 2 by Tatsuya Kitani.",
       "fun_fact_de": "Opening 1 von 'Jujutsu Kaisen' Staffel 2 von Tatsuya Kitani.",
       "fun_fact_es": "Opening 1 de 'Jujutsu Kaisen' temporada 2, de Tatsuya Kitani.",
@@ -460,7 +460,7 @@
         "it": "applemusic://track/1537445612"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=0NJCpJZ19n8",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/144438717",
       "uri_deezer": "deezer://track/975952742",
       "fun_fact": "Opening 1 of 'Fullmetal Alchemist: Brotherhood' (2009).",
       "fun_fact_de": "Opening 1 von 'Fullmetal Alchemist: Brotherhood' (2009).",
@@ -485,7 +485,7 @@
         "it": "applemusic://track/1607077118"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=rdryKml2YXI",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/214065166",
       "uri_deezer": "deezer://track/1634748192",
       "alt_artists": [
         "Naeleck"
@@ -513,7 +513,7 @@
         "it": "applemusic://track/1611527058"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=isY3rtuSsK8",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/162359753",
       "uri_deezer": "deezer://track/1143848452",
       "fun_fact": "Opening 1 of 'Jujutsu Kaisen' (2020) by Eve.",
       "fun_fact_de": "Opening 1 von 'Jujutsu Kaisen' (2020) von Eve.",
@@ -563,7 +563,7 @@
         "it": "applemusic://track/1672185103"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=uFUEq5ZadUw",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/277247127",
       "uri_deezer": "deezer://track/2152253197",
       "fun_fact": "Opening of 'Attack on Titan' The Final Season by Japanese reggae-metal band SiM.",
       "fun_fact_de": "Opening der finalen Staffel von 'Attack on Titan' von der Reggae-Metal-Band SiM.",
@@ -588,8 +588,8 @@
         "it": "applemusic://track/1678949889"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=fR8iPh9S9qg",
-      "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_tidal": "tidal://track/285513858",
+      "uri_deezer": "deezer://track/2205130627",
       "alt_artists": [
         "milet"
       ],
@@ -616,7 +616,7 @@
         "it": "applemusic://track/1611734944"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=b4vc629T4b8",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/504137276",
       "uri_deezer": "deezer://track/2665292502",
       "fun_fact": "Opening 1 of 'Death Note' (2006) by visual-kei band NIGHTMARE.",
       "fun_fact_de": "Opening 1 von 'Death Note' (2006) von der Visual-Kei-Band NIGHTMARE.",
@@ -666,7 +666,7 @@
         "it": "applemusic://track/1838917398"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=IHaUGQVrBa8",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/460934402",
       "uri_deezer": "deezer://track/3628584642",
       "fun_fact": "Opening 2 of 'Noragami Aragoto' (2015) by THE ORAL CIGARETTES.",
       "fun_fact_de": "Opening 2 von 'Noragami Aragoto' (2015) von THE ORAL CIGARETTES.",
@@ -691,8 +691,8 @@
         "it": "applemusic://track/1614421257"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=Sdy5fSHz6t4",
-      "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_tidal": "tidal://track/209819560",
+      "uri_deezer": "deezer://track/1499948762",
       "alt_artists": [
         "Naeleck"
       ],
@@ -719,7 +719,7 @@
         "it": "applemusic://track/1616586639"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=EZy_vHyFedw",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/233415499",
       "uri_deezer": "deezer://track/1701852587",
       "fun_fact": "Opening of 'Spy x Family' (2022) by OFFICIAL HIGE DANDISM.",
       "fun_fact_de": "Opening von 'Spy x Family' (2022) von OFFICIAL HIGE DANDISM.",
@@ -744,8 +744,8 @@
         "it": "applemusic://track/1538157315"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=zqKrpw36xnU",
-      "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_tidal": "tidal://track/144783680",
+      "uri_deezer": "deezer://track/850742542",
       "fun_fact": "Opening 16 of 'Naruto Shippuden' (2014) by KANA-BOON.",
       "fun_fact_de": "Opening 16 von 'Naruto Shippuden' (2014) von KANA-BOON.",
       "fun_fact_es": "Opening 16 de 'Naruto Shippuden' (2014), de KANA-BOON.",
@@ -769,7 +769,7 @@
         "it": "applemusic://track/1617909669"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=URR_Nv-6MZs",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/331641748",
       "uri_deezer": "deezer://track/2128227357",
       "fun_fact": "Theme song from 'Spy x Family' (2022), written and performed by Gen Hoshino.",
       "fun_fact_de": "Titelsong aus 'Spy x Family' (2022), geschrieben und gesungen von Gen Hoshino.",
@@ -805,10 +805,10 @@
     {
       "artist": "Sawano Hiroyuki",
       "title": "Attack on Titan",
-      "year": 2019,
+      "year": 2013,
       "isrc": "JPPC01301131",
       "uri": "spotify:track:5IzZpz0vA73IIjqFPpXSXP",
-      "uri_apple_music": "applemusic://track/1468037829",
+      "uri_apple_music": "applemusic://track/661050320",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/661050320",
         "de": "applemusic://track/661050320",
@@ -844,7 +844,7 @@
         "it": "applemusic://track/1593439939"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=k0g04t7ZeSw",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/165503615",
       "uri_deezer": "deezer://track/1171495792",
       "fun_fact": "Opening 2 of 'Beastars' (2021) by YOASOBI.",
       "fun_fact_de": "Opening 2 von 'Beastars' (2021) von YOASOBI.",
@@ -869,7 +869,7 @@
         "it": "applemusic://track/1661623946"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=4qqeafI9kXM",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/156747592",
       "uri_deezer": "deezer://track/1093607442",
       "alt_artists": [
         "AKLO"
@@ -898,7 +898,7 @@
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=yIlBb1Jvjbk",
       "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_deezer": "deezer://track/2354674545",
       "fun_fact": "Opening of 'Black Clover' (2018) by VK Blanka.",
       "fun_fact_de": "Opening von 'Black Clover' (2018) von VK Blanka.",
       "fun_fact_es": "Opening de 'Black Clover' (2018), de VK Blanka.",
@@ -922,7 +922,7 @@
         "it": "applemusic://track/1537757136"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=dOVWGxU5YsU",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/91842914",
       "uri_deezer": "deezer://track/526633962",
       "fun_fact": "Opening of 'My Hero Academia' Season 3 (2018) by UVERworld.",
       "fun_fact_de": "Opening von 'My Hero Academia' Staffel 3 (2018) von UVERworld.",
@@ -948,7 +948,7 @@
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=tdzsOODJiX8",
       "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_deezer": "deezer://track/1597185922",
       "fun_fact": "Ending theme of 'Attack on Titan' The Final Season by Ai Higuchi.",
       "fun_fact_de": "Ending-Theme der finalen Staffel von 'Attack on Titan' von Ai Higuchi.",
       "fun_fact_es": "Tema de cierre de la temporada final de 'Attack on Titan', de Ai Higuchi.",
@@ -972,7 +972,7 @@
         "it": "applemusic://track/1677340392"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=weGtT2hxFvg",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/149317240",
       "uri_deezer": "deezer://track/976022032",
       "fun_fact": "Opening of 'Haikyu!!' (2016) by BURNOUT SYNDROMES.",
       "fun_fact_de": "Opening von 'Haikyu!!' (2016) von BURNOUT SYNDROMES.",
@@ -998,7 +998,7 @@
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=N8wfYwSDTa4",
       "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_deezer": "deezer://track/543429922",
       "fun_fact": "Opening 1 of 'My Hero Academia' (2016) by Porno Graffitti.",
       "fun_fact_de": "Opening 1 von 'My Hero Academia' (2016) von Porno Graffitti.",
       "fun_fact_es": "Opening 1 de 'My Hero Academia' (2016), de Porno Graffitti.",
@@ -1022,8 +1022,8 @@
         "it": "applemusic://track/1535768529"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=fMU6nclDzNs",
-      "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_tidal": "tidal://track/149297746",
+      "uri_deezer": "deezer://track/904161152",
       "fun_fact": "Opening of 'My Hero Academia' Season 4 (2019) by BLUE ENCOUNT.",
       "fun_fact_de": "Opening von 'My Hero Academia' Staffel 4 (2019) von BLUE ENCOUNT.",
       "fun_fact_es": "Opening de 'My Hero Academia' temporada 4 (2019), de BLUE ENCOUNT.",
@@ -1047,7 +1047,7 @@
         "it": "applemusic://track/1440166936"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=B_Bm36MqxWU",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/136823691",
       "uri_deezer": "deezer://track/560996512",
       "alt_artists": [
         "Naeleck",
@@ -1076,7 +1076,7 @@
         "it": "applemusic://track/551273032"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=3SqhXiimlrg",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/504161436",
       "uri_deezer": "deezer://track/2665357712",
       "fun_fact": "Opening 1 of 'Hunter x Hunter' (2011) — Masatoshi Ono's high-energy anthem.",
       "fun_fact_de": "Opening 1 von 'Hunter x Hunter' (2011) — Masatoshi Onos energiegeladene Hymne.",
@@ -1101,7 +1101,7 @@
         "it": "applemusic://track/1542182776"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=by4SYYWlhEs",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/124449196",
       "uri_deezer": "deezer://track/824731152",
       "fun_fact": "YOASOBI's breakout debut single (2019), based on a short story — over a billion streams.",
       "fun_fact_de": "YOASOBIs Durchbruch-Debütsingle (2019), basierend auf einer Kurzgeschichte — über eine Milliarde Streams.",
@@ -1126,38 +1126,13 @@
         "it": "applemusic://track/1538276685"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=GA9Yw5t-Mto",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/144446114",
       "uri_deezer": "deezer://track/1024962302",
       "fun_fact": "Opening of 'The Promised Neverland' (2019) by UVERworld.",
       "fun_fact_de": "Opening von 'The Promised Neverland' (2019) von UVERworld.",
       "fun_fact_es": "Opening de 'The Promised Neverland' (2019), de UVERworld.",
       "fun_fact_fr": "Générique de 'The Promised Neverland' (2019) par UVERworld.",
       "fun_fact_nl": "Opening van 'The Promised Neverland' (2019) van UVERworld."
-    },
-    {
-      "artist": "FLOW",
-      "title": "Sign",
-      "year": 2013,
-      "isrc": "FXR592401590",
-      "uri": "spotify:track:1hi0P1Y2he1p09xnUccuAN",
-      "uri_apple_music": "applemusic://track/1536382006",
-      "uri_apple_music_by_region": {
-        "us": "applemusic://track/1770552813",
-        "de": "applemusic://track/1770552813",
-        "gb": "applemusic://track/1770552813",
-        "fr": "applemusic://track/1770552813",
-        "es": "applemusic://track/1770552813",
-        "nl": "applemusic://track/1770552813",
-        "it": "applemusic://track/1770552813"
-      },
-      "uri_youtube_music": "https://music.youtube.com/watch?v=csVeFCLhmAM",
-      "uri_tidal": null,
-      "uri_deezer": "deezer://track/3000818931",
-      "fun_fact": "Opening 6 of 'Naruto Shippuden' (2008) by FLOW.",
-      "fun_fact_de": "Opening 6 von 'Naruto Shippuden' (2008) von FLOW.",
-      "fun_fact_es": "Opening 6 de 'Naruto Shippuden' (2008), de FLOW.",
-      "fun_fact_fr": "Générique 6 de 'Naruto Shippuden' (2008) par FLOW.",
-      "fun_fact_nl": "Opening 6 van 'Naruto Shippuden' (2008) van FLOW."
     },
     {
       "artist": "Linked Horizon",
@@ -1226,8 +1201,8 @@
         "it": "applemusic://track/1763092108"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=DO_aopUeFnw",
-      "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_tidal": "tidal://track/355408037",
+      "uri_deezer": "deezer://track/2737587691",
       "fun_fact": "Opening of 'Frieren: Beyond Journey's End' (2024) by Mrs. GREEN APPLE.",
       "fun_fact_de": "Opening von 'Frieren: Beyond Journey's End' (2024) von Mrs. GREEN APPLE.",
       "fun_fact_es": "Opening de 'Frieren: Beyond Journey's End' (2024), de Mrs. GREEN APPLE.",
@@ -1252,7 +1227,7 @@
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=gxp3R7l1iSk",
       "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_deezer": "deezer://track/2618011022",
       "fun_fact": "Opening of 'Domestic Girlfriend' (2019) by singer-songwriter Minami.",
       "fun_fact_de": "Opening von 'Domestic Girlfriend' (2019) von Singer-Songwriterin Minami.",
       "fun_fact_es": "Opening de 'Domestic Girlfriend' (2019), de la cantautora Minami.",
@@ -1277,7 +1252,7 @@
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=PXkHAlskFAM",
       "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_deezer": "deezer://track/2972441211",
       "fun_fact": "Opening of 'Frieren: Beyond Journey's End' (2024) by Yorushika.",
       "fun_fact_de": "Opening von 'Frieren: Beyond Journey's End' (2024) von Yorushika.",
       "fun_fact_es": "Opening de 'Frieren: Beyond Journey's End' (2024), de Yorushika.",
@@ -1301,7 +1276,7 @@
         "it": "applemusic://track/551273033"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=CyIoNt2m1Gw",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/330339430",
       "uri_deezer": "deezer://track/2665262582",
       "fun_fact": "Opening of 'Hunter x Hunter' (2011) by power-metal band GALNERYUS.",
       "fun_fact_de": "Opening von 'Hunter x Hunter' (2011) von der Power-Metal-Band GALNERYUS.",
@@ -1327,7 +1302,7 @@
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=qp0AktOIAag",
       "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_deezer": "deezer://track/545599342",
       "fun_fact": "Theme from the record-breaking 2016 film 'Your Name' by RADWIMPS.",
       "fun_fact_de": "Titelmusik aus dem Rekordfilm 'Your Name' (2016) von RADWIMPS.",
       "fun_fact_es": "Tema de la exitosa película 'Your Name' (2016), de RADWIMPS.",
@@ -1379,7 +1354,7 @@
         "it": "applemusic://track/1537452458"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=mAENQIa-MtM",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/82599645",
       "uri_deezer": "deezer://track/442437862",
       "fun_fact": "Opening of 'The Seven Deadly Sins' (2015) by MAN WITH A MISSION.",
       "fun_fact_de": "Opening von 'The Seven Deadly Sins' (2015) von MAN WITH A MISSION.",
@@ -1404,7 +1379,7 @@
         "it": "applemusic://track/1538285855"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=F9GXgPHeKfA",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/144815604",
       "uri_deezer": "deezer://track/976378422",
       "fun_fact": "Opening 1 of 'Sword Art Online' (2012) — LiSA's breakthrough anime song.",
       "fun_fact_de": "Opening 1 von 'Sword Art Online' (2012) — LiSAs Durchbruch-Anime-Song.",
@@ -1429,8 +1404,8 @@
         "it": "applemusic://track/1538275660"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=9aJVr5tTTWk",
-      "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_tidal": "tidal://track/192157851",
+      "uri_deezer": "deezer://track/1355416752",
       "fun_fact": "Opening of 'My Hero Academia' Season 2 (2017) by Kenshi Yonezu.",
       "fun_fact_de": "Opening von 'My Hero Academia' Staffel 2 (2017) von Kenshi Yonezu.",
       "fun_fact_es": "Opening de 'My Hero Academia' temporada 2 (2017), de Kenshi Yonezu.",
@@ -1454,8 +1429,8 @@
         "it": "applemusic://track/1538105641"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=MUGYErw8QU0",
-      "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_tidal": "tidal://track/144525932",
+      "uri_deezer": "deezer://track/976227682",
       "fun_fact": "Opening of 'My Hero Academia' Season 3 (2017) by amazarashi.",
       "fun_fact_de": "Opening von 'My Hero Academia' Staffel 3 (2017) von amazarashi.",
       "fun_fact_es": "Opening de 'My Hero Academia' temporada 3 (2017), de amazarashi.",
@@ -1479,7 +1454,7 @@
         "it": "applemusic://track/1045437112"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=4dOw3TpoHtk",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/330340239",
       "uri_deezer": "deezer://track/2665262552",
       "fun_fact": "Opening of 'Parasyte -the maxim-' (2014) by Fear, and Loathing in Las Vegas.",
       "fun_fact_de": "Opening von 'Parasyte -the maxim-' (2014) von Fear, and Loathing in Las Vegas.",
@@ -1504,7 +1479,7 @@
         "it": "applemusic://track/1097861770"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=Lt8AfIeJOxw",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/58990512",
       "uri_deezer": "deezer://track/138539973",
       "fun_fact": "Radiohead's 1997 classic, used as the ending theme of the 2006 anime 'Ergo Proxy'.",
       "fun_fact_de": "Radioheads Klassiker von 1997, verwendet als Ending-Theme des Animes 'Ergo Proxy' (2006).",
@@ -1530,7 +1505,7 @@
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=pJ-MywdW98o",
       "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_deezer": "deezer://track/2508753791",
       "fun_fact": "Opening of 'Kakegurui' (2017) by Tia.",
       "fun_fact_de": "Opening von 'Kakegurui' (2017) von Tia.",
       "fun_fact_es": "Opening de 'Kakegurui' (2017), de Tia.",
@@ -1554,8 +1529,8 @@
         "it": "applemusic://track/1650882057"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=M8w716ZKYY0",
-      "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_tidal": "tidal://track/459692287",
+      "uri_deezer": "deezer://track/2326347075",
       "fun_fact": "Opening 1 of 'Noragami' (2014) by Hello Sleepwalkers.",
       "fun_fact_de": "Opening 1 von 'Noragami' (2014) von Hello Sleepwalkers.",
       "fun_fact_es": "Opening 1 de 'Noragami' (2014), de Hello Sleepwalkers.",
@@ -1579,7 +1554,7 @@
         "it": "applemusic://track/1538286188"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=GWysc_zFTIA",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/144671543",
       "uri_deezer": "deezer://track/1355425922",
       "fun_fact": "Theme of the film 'Sword Art Online: Ordinal Scale' (2017) by LiSA.",
       "fun_fact_de": "Titelsong des Films 'Sword Art Online: Ordinal Scale' (2017) von LiSA.",
@@ -1604,7 +1579,7 @@
         "it": "applemusic://track/1740667526"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=5etD8mRAsio",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/90835236",
       "uri_deezer": "deezer://track/1124776602",
       "fun_fact": "Opening 4 of 'Naruto' (2004) by FLOW — among the most famous Naruto openings.",
       "fun_fact_de": "Opening 4 von 'Naruto' (2004) von FLOW — eines der berühmtesten Naruto-Openings.",
@@ -1629,7 +1604,7 @@
         "it": "applemusic://track/1538109174"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=Y4vZUSkshCg",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/149296852",
       "uri_deezer": "deezer://track/1024952482",
       "fun_fact": "Opening of 'Tokyo Ghoul:re' (2018) by Cö shu Nie.",
       "fun_fact_de": "Opening von 'Tokyo Ghoul:re' (2018) von Cö shu Nie.",
@@ -1654,7 +1629,7 @@
         "it": "applemusic://track/661050321"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=nMNU9lhVdy4",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/501806125",
       "uri_deezer": "deezer://track/1837567857",
       "fun_fact": "Theme from the 'Attack on Titan' soundtrack by Hiroyuki Sawano's project SawanoHiroyuki[nZk].",
       "fun_fact_de": "Stück aus dem 'Attack on Titan'-Soundtrack von Hiroyuki Sawanos Projekt SawanoHiroyuki[nZk].",
@@ -1679,8 +1654,8 @@
         "it": "applemusic://track/1536394884"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=wCqpacYI6b0",
-      "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_tidal": "tidal://track/157607390",
+      "uri_deezer": "deezer://track/1100592452",
       "fun_fact": "Opening 2 of 'Naruto' (2002) by ASIAN KUNG-FU GENERATION.",
       "fun_fact_de": "Opening 2 von 'Naruto' (2002) von ASIAN KUNG-FU GENERATION.",
       "fun_fact_es": "Opening 2 de 'Naruto' (2002), de ASIAN KUNG-FU GENERATION.",
@@ -1729,8 +1704,8 @@
         "it": "applemusic://track/1535548886"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=N0ixzrZe--0",
-      "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_tidal": "tidal://track/145124039",
+      "uri_deezer": "deezer://track/1086616762",
       "fun_fact": "Opening of 'Darling in the Franxx' (2018), produced by HYDE of L'Arc-en-Ciel.",
       "fun_fact_de": "Opening von 'Darling in the Franxx' (2018), produziert von HYDE (L'Arc-en-Ciel).",
       "fun_fact_es": "Opening de 'Darling in the Franxx' (2018), producido por HYDE de L'Arc-en-Ciel.",
@@ -1755,7 +1730,7 @@
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=8A0hgdWuRnI",
       "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_deezer": "deezer://track/975968432",
       "fun_fact": "Opening of 'My Hero Academia' Season 4 (2019) by LiSA.",
       "fun_fact_de": "Opening von 'My Hero Academia' Staffel 4 (2019) von LiSA.",
       "fun_fact_es": "Opening de 'My Hero Academia' temporada 4 (2019), de LiSA.",
@@ -1779,7 +1754,7 @@
         "it": "applemusic://track/1538160322"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=GrIEGraOuSQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/144565964",
       "uri_deezer": "deezer://track/976202432",
       "fun_fact": "Opening of 'Code Geass' (2006) by FLOW.",
       "fun_fact_de": "Opening von 'Code Geass' (2006) von FLOW.",
@@ -1804,8 +1779,8 @@
         "it": "applemusic://track/1536461315"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=psUh0fbszsw",
-      "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_tidal": "tidal://track/157610641",
+      "uri_deezer": "deezer://track/976006152",
       "fun_fact": "Opening of 'Naruto Shippuden' by ASIAN KUNG-FU GENERATION.",
       "fun_fact_de": "Opening von 'Naruto Shippuden' von ASIAN KUNG-FU GENERATION.",
       "fun_fact_es": "Opening de 'Naruto Shippuden', de ASIAN KUNG-FU GENERATION.",
@@ -1830,7 +1805,7 @@
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=MtLHwqbE1eI",
       "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_deezer": "deezer://track/545599272",
       "fun_fact": "Theme from the 2016 film 'Your Name' by RADWIMPS.",
       "fun_fact_de": "Titelmusik aus dem Film 'Your Name' (2016) von RADWIMPS.",
       "fun_fact_es": "Tema de la película 'Your Name' (2016), de RADWIMPS.",
@@ -1879,8 +1854,8 @@
         "it": "applemusic://track/1536257490"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=7GMPeHFy2Dk",
-      "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_tidal": "tidal://track/144921234",
+      "uri_deezer": "deezer://track/975958552",
       "fun_fact": "Opening 5 of 'Naruto Shippuden' (2009) by Ikimonogakari.",
       "fun_fact_de": "Opening 5 von 'Naruto Shippuden' (2009) von Ikimonogakari.",
       "fun_fact_es": "Opening 5 de 'Naruto Shippuden' (2009), de Ikimonogakari.",
@@ -1930,7 +1905,7 @@
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=nnmb1GXqz60",
       "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_deezer": "deezer://track/1024938922",
       "fun_fact": "Theme from the anime 'Given' (2019), a story about a band of the same name.",
       "fun_fact_de": "Titelsong des Animes 'Given' (2019), die Geschichte einer gleichnamigen Band.",
       "fun_fact_es": "Tema del anime 'Given' (2019), la historia de una banda del mismo nombre.",
@@ -1955,7 +1930,7 @@
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=Tll_g1Gx7I8",
       "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_deezer": "deezer://track/975875672",
       "fun_fact": "King Gnu's breakout hit (2019), originally a TV-drama theme — over 500 million streams.",
       "fun_fact_de": "King Gnus Durchbruchshit (2019), ursprünglich ein TV-Drama-Theme — über 500 Mio. Streams.",
       "fun_fact_es": "Éxito revelación de King Gnu (2019), originalmente tema de un drama de TV; más de 500 millones de reproducciones.",
@@ -1979,7 +1954,7 @@
         "it": "applemusic://track/1226945985"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=azNG-AU0eGg",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/307416597",
       "uri_deezer": "deezer://track/1248334202",
       "alt_artists": [
         "ATLUS Sound Team",
@@ -2009,7 +1984,7 @@
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=AyXwQ3bZZ7c",
       "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_deezer": "deezer://track/1067405902",
       "fun_fact": "Anime opening by the unit CHiCO with HoneyWorks.",
       "fun_fact_de": "Anime-Opening der Formation CHiCO with HoneyWorks.",
       "fun_fact_es": "Opening de anime del grupo CHiCO with HoneyWorks.",
@@ -2033,7 +2008,7 @@
         "it": "applemusic://track/1590326855"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=DEZd8I6QMIM",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/167062926",
       "uri_deezer": "deezer://track/1186939392",
       "fun_fact": "Opening 2 of 'Jujutsu Kaisen' (2021) by Who-ya Extended.",
       "fun_fact_de": "Opening 2 von 'Jujutsu Kaisen' (2021) von Who-ya Extended.",
@@ -2058,7 +2033,7 @@
         "it": "applemusic://track/1783489424"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=8cAYlTjVdsQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/404540703",
       "uri_deezer": "deezer://track/3127692481",
       "fun_fact": "Anime opening by Awich, one of Japan's most prominent hip-hop artists.",
       "fun_fact_de": "Anime-Opening von Awich, einer der prominentesten Hip-Hop-Künstlerinnen Japans.",
@@ -2083,7 +2058,7 @@
         "it": "applemusic://track/1521453384"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=UFFa0QoHWvE",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/146929281",
       "uri_deezer": "deezer://track/1006888182",
       "fun_fact": "Opening of 'Cowboy Bebop' (1998) — the jazz-fueled classic by The Seatbelts.",
       "fun_fact_de": "Opening von 'Cowboy Bebop' (1998) — der jazzgetriebene Klassiker von The Seatbelts.",
@@ -2134,7 +2109,7 @@
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=0DBkXcDU270",
       "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_deezer": "deezer://track/975993252",
       "fun_fact": "Opening 1 of 'Rurouni Kenshin' (1996) by JUDY AND MARY.",
       "fun_fact_de": "Opening 1 von 'Rurouni Kenshin' (1996) von JUDY AND MARY.",
       "fun_fact_es": "Opening 1 de 'Rurouni Kenshin' (1996), de JUDY AND MARY.",
@@ -2158,7 +2133,7 @@
         "it": "applemusic://track/1536387606"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=8gE7LxbxvZY",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/144843125",
       "uri_deezer": "deezer://track/976828652",
       "fun_fact": "Opening 2 of 'Fullmetal Alchemist' (2004) by rock legends L'Arc-en-Ciel.",
       "fun_fact_de": "Opening 2 von 'Fullmetal Alchemist' (2004) von den Rocklegenden L'Arc-en-Ciel.",
@@ -2183,7 +2158,7 @@
         "it": "applemusic://track/1290661205"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=muoWDA6zmsY",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/504143627",
       "uri_deezer": "deezer://track/2665324252",
       "fun_fact": "Opening 2 of 'Death Note' (2007) by metal band MAXIMUM THE HORMONE.",
       "fun_fact_de": "Opening 2 von 'Death Note' (2007) von der Metal-Band MAXIMUM THE HORMONE.",
@@ -2209,7 +2184,7 @@
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=A8CbP6Pjqko",
       "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_deezer": "deezer://track/975906392",
       "fun_fact": "Opening of 'Puella Magi Madoka Magica' (2011) by ClariS.",
       "fun_fact_de": "Opening von 'Puella Magi Madoka Magica' (2011) von ClariS.",
       "fun_fact_es": "Opening de 'Puella Magi Madoka Magica' (2011), de ClariS.",
@@ -2233,7 +2208,7 @@
         "it": "applemusic://track/1444575351"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=N2tSDKngeoY",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/100081904",
       "uri_deezer": "deezer://track/598884752",
       "fun_fact": "Theme of the film 'Evangelion: 1.0 You Are (Not) Alone' (2007) by Hikaru Utada.",
       "fun_fact_de": "Titelsong des Films 'Evangelion: 1.0 You Are (Not) Alone' (2007) von Hikaru Utada.",
@@ -2258,7 +2233,7 @@
         "it": "applemusic://track/1639887721"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=9cC8Q8RAEso",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/238790291",
       "uri_deezer": "deezer://track/1831943227",
       "fun_fact": "Theme of the cult OVA 'FLCL' (2000) by alt-rock band the pillows.",
       "fun_fact_de": "Titelsong des Kult-OVA 'FLCL' (2000) von der Alt-Rock-Band the pillows.",
@@ -2283,7 +2258,7 @@
         "it": "applemusic://track/1537515443"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=L1RG1YqWwuo",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/145046629",
       "uri_deezer": "deezer://track/975971522",
       "fun_fact": "Opening 5 of 'Bleach' (2006) by YUI.",
       "fun_fact_de": "Opening 5 von 'Bleach' (2006) von YUI.",
@@ -2308,8 +2283,8 @@
         "it": "applemusic://track/1536363700"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=G3_8jgVceBs",
-      "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_tidal": "tidal://track/157608004",
+      "uri_deezer": "deezer://track/1100590662",
       "fun_fact": "Opening 4 of 'Fullmetal Alchemist' (2004) by ASIAN KUNG-FU GENERATION.",
       "fun_fact_de": "Opening 4 von 'Fullmetal Alchemist' (2004) von ASIAN KUNG-FU GENERATION.",
       "fun_fact_es": "Opening 4 de 'Fullmetal Alchemist' (2004), de ASIAN KUNG-FU GENERATION.",
@@ -2333,7 +2308,7 @@
         "it": "applemusic://track/208201045"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=dWmFeYA9Nj4",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/350268480",
       "uri_deezer": "deezer://track/2116054937",
       "fun_fact": "Opening of 'Chobits' (2002) by ROUND TABLE featuring Nino.",
       "fun_fact_de": "Opening von 'Chobits' (2002) von ROUND TABLE featuring Nino.",
@@ -2345,7 +2320,7 @@
       "artist": "SCANDAL",
       "title": "少女Ｓ",
       "year": 2009,
-      "isrc": "QMFMF1324377",
+      "isrc": "JPES00900841",
       "uri": "spotify:track:31A3fFQivbhGo9aJQQCdtP",
       "uri_apple_music": "applemusic://track/1536257542",
       "uri_apple_music_by_region": {
@@ -2359,7 +2334,7 @@
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=7TRD1UZkXN0",
       "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_deezer": "deezer://track/976832982",
       "fun_fact": "Opening 10 of 'Bleach' (2009) by all-female rock band SCANDAL.",
       "fun_fact_de": "Opening 10 von 'Bleach' (2009) von der reinen Frauen-Rockband SCANDAL.",
       "fun_fact_es": "Opening 10 de 'Bleach' (2009), de la banda de rock femenina SCANDAL.",
@@ -2384,7 +2359,7 @@
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=_oqGqdJueXM",
       "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_deezer": "deezer://track/976368072",
       "fun_fact": "Opening 3 of 'Bleach' (2005) by HIGH and MIGHTY COLOR.",
       "fun_fact_de": "Opening 3 von 'Bleach' (2005) von HIGH and MIGHTY COLOR.",
       "fun_fact_es": "Opening 3 de 'Bleach' (2005), de HIGH and MIGHTY COLOR.",
@@ -2408,7 +2383,7 @@
         "it": "applemusic://track/1538966061"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=0Ob_NVJ09Mw",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/144953171",
       "uri_deezer": "deezer://track/976093112",
       "fun_fact": "Opening 2 of 'Bleach' (2005) by UVERworld.",
       "fun_fact_de": "Opening 2 von 'Bleach' (2005) von UVERworld.",
@@ -2433,7 +2408,7 @@
         "it": "applemusic://track/1536475736"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=0FRnEHwZroM",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/144498318",
       "uri_deezer": "deezer://track/976282242",
       "fun_fact": "Opening 4 of 'Naruto' (2004) by FLOW.",
       "fun_fact_de": "Opening 4 von 'Naruto' (2004) von FLOW.",
@@ -2483,7 +2458,7 @@
         "it": "applemusic://track/1746903724"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=33PRAngMcSI",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/363770477",
       "uri_deezer": "deezer://track/2806493382",
       "fun_fact": "Opening of 'Kuroko's Basketball' (2013) by OLDCODEX.",
       "fun_fact_de": "Opening von 'Kuroko's Basketball' (2013) von OLDCODEX.",
@@ -2508,7 +2483,7 @@
         "it": "applemusic://track/1793063511"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=74nQhJzUZec",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/362453049",
       "uri_deezer": "deezer://track/2793587022",
       "fun_fact": "Opening 1 of 'Kuroko's Basketball' (2012) by GRANRODEO.",
       "fun_fact_de": "Opening 1 von 'Kuroko's Basketball' (2012) von GRANRODEO.",
@@ -2533,7 +2508,7 @@
         "it": "applemusic://track/1679484430"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=XPerYFKqk60",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/454733112",
       "uri_deezer": "deezer://track/2212229337",
       "fun_fact": "Opening of 'Blood Blockade Battlefront' (2015) by BUMP OF CHICKEN.",
       "fun_fact_de": "Opening von 'Blood Blockade Battlefront' (2015) von BUMP OF CHICKEN.",
@@ -2559,7 +2534,7 @@
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=D1FHfPN39Y4",
       "uri_tidal": null,
-      "uri_deezer": null,
+      "uri_deezer": "deezer://track/143818800",
       "fun_fact": "Opening of 'Great Teacher Onizuka' (1999) by Porno Graffitti.",
       "fun_fact_de": "Opening von 'Great Teacher Onizuka' (1999) von Porno Graffitti.",
       "fun_fact_es": "Opening de 'Great Teacher Onizuka' (1999), de Porno Graffitti.",
@@ -2583,7 +2558,7 @@
         "it": "applemusic://track/1537790375"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=HxlysqrFjHo",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/170958443",
       "uri_deezer": "deezer://track/1220973532",
       "fun_fact": "Orchestral composer whose 2014 works included dramatic anime scores with cinematic arrangements",
       "fun_fact_de": "Orchesterkomponist, dessen Werke 2014 dramatische Anime-Scores mit filmischen Arrangements umfassten",
@@ -2608,7 +2583,7 @@
         "it": "applemusic://track/1371246458"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=hgFPAJNuVhM",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/518147953",
       "uri_deezer": "deezer://track/2266011437",
       "fun_fact": "Singer known for delivering intense vocal performances in anime opening and ending themes",
       "fun_fact_de": "Sängerin, bekannt für intensive Stimmleistungen bei Anime-Öffnungs- und Abspannthemen",
@@ -2633,7 +2608,7 @@
         "it": "applemusic://track/1536482656"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=G-h_sVWP1SQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/144565974",
       "uri_deezer": "deezer://track/976202472",
       "fun_fact": "Opening theme of Code Geass, a dark anime about superpowers used for political manipulation",
       "fun_fact_de": "Anfangsthema von Code Geass, ein dunkler Anime über Superkräfte zur politischen Manipulation",
@@ -2658,7 +2633,7 @@
         "it": "applemusic://track/1422126913"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=P-eNMO8L5Hs",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/93065497",
       "uri_deezer": "deezer://track/537151152",
       "fun_fact": "J-rock band whose music has featured in multiple anime opening sequences and soundtracks",
       "fun_fact_de": "J-Rock-Band, deren Musik in mehreren Anime-Öffnungssequenzen und Soundtracks vertreten ist",
@@ -2683,7 +2658,7 @@
         "it": "applemusic://track/1838917472"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=Hh9yZWeTmVM",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/459692273",
       "uri_deezer": "deezer://track/3620224292",
       "fun_fact": "Japanese rock band that gained fame through anime theme songs and international rock tours",
       "fun_fact_de": "Japanische Rockband, die durch Anime-Themensongs und internationale Rocktourneen berühmt wurde",
@@ -2719,52 +2694,27 @@
     {
       "artist": "Yasuharu Takanashi",
       "title": "FAIRY TAIL Main Theme",
-      "year": 2017,
-      "isrc": "JPPC01000884",
+      "year": 2010,
+      "isrc": "JPPC00903987",
       "uri": "spotify:track:7JoZiEMrwjpD18krCV8Czo",
-      "uri_apple_music": "applemusic://track/1612105965",
+      "uri_apple_music": "applemusic://track/346057850",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/1612105965",
-        "de": "applemusic://track/1612105965",
-        "gb": "applemusic://track/1612105965",
-        "fr": "applemusic://track/1612105965",
-        "es": "applemusic://track/1612105965",
-        "nl": "applemusic://track/1612105965",
-        "it": "applemusic://track/1612105965"
+        "us": "applemusic://track/346057850",
+        "de": "applemusic://track/346057850",
+        "gb": "applemusic://track/346057850",
+        "fr": "applemusic://track/346057850",
+        "es": "applemusic://track/346057850",
+        "nl": "applemusic://track/346057850",
+        "it": "applemusic://track/346057850"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=m6kb96YWXMA",
       "uri_tidal": null,
-      "uri_deezer": "deezer://track/1672668127",
+      "uri_deezer": "deezer://track/472517562",
       "fun_fact": "Yasuharu Takanashi composed Fairy Tail's iconic main theme, establishing him as a leading anime composer.",
       "fun_fact_de": "Yasuharu Takanashi komponierte Fairy Tails Thema und ist einer der wichtigsten Anime-Komponisten.",
       "fun_fact_es": "Yasuharu Takanashi compuso el tema principal de Fairy Tail, estableciéndose como compositor de anime líder.",
       "fun_fact_fr": "Yasuharu Takanashi a composé le thème principal de Fairy Tail, l'un des plus grands compositeurs anime.",
       "fun_fact_nl": "Yasuharu Takanashi schreef het iconische Fairy Tail-thema en werd een leidende anime-componist."
-    },
-    {
-      "artist": "Yasuharu Takanashi",
-      "title": "Fairy Tail Main Theme - Piano Ver.",
-      "year": 2010,
-      "isrc": "JPPC01000884",
-      "uri": "spotify:track:0jJtnvfeVFwBMYrt3clXZf",
-      "uri_apple_music": "applemusic://track/1612105965",
-      "uri_apple_music_by_region": {
-        "us": "applemusic://track/1612105965",
-        "de": "applemusic://track/1612105965",
-        "gb": "applemusic://track/1612105965",
-        "fr": "applemusic://track/1612105965",
-        "es": "applemusic://track/1612105965",
-        "nl": "applemusic://track/1612105965",
-        "it": "applemusic://track/1612105965"
-      },
-      "uri_youtube_music": "https://music.youtube.com/watch?v=ULZbyqGt2_Q",
-      "uri_tidal": null,
-      "uri_deezer": "deezer://track/1672668127",
-      "fun_fact": "The piano arrangement of Fairy Tail's main theme showcases Takanashi's melody through a classical lens.",
-      "fun_fact_de": "Die Klavierversion von Fairy Tails Hauptthema zeigt Takanaschis Melodie in klassischem Stil.",
-      "fun_fact_es": "La versión para piano del tema principal de Fairy Tail muestra la melodía de Takanashi en estilo clásico.",
-      "fun_fact_fr": "L'arrangement au piano du thème principal de Fairy Tail met en évidence la mélodie de Takanashi.",
-      "fun_fact_nl": "De pianoversie van Fairy Tails hoofdthema toont Takanaschis melodie in klassieke stijl."
     },
     {
       "artist": "Yasuharu Takanashi",
@@ -2808,7 +2758,7 @@
         "it": "applemusic://track/1463232194"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=oomE4oltFRo",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/219073826",
       "uri_deezer": "deezer://track/678377952",
       "fun_fact": "Gurenge is the opening theme for Demon Slayer Season 1, achieving platinum certification in Japan.",
       "fun_fact_de": "Gurenge ist das Öffnungsthema für Demon Slayer Staffel 1 und erreichte Platinstatus in Japan.",
@@ -2833,7 +2783,7 @@
         "it": "applemusic://track/1538160328"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=qpi9YXaChHI",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/145213302",
       "uri_deezer": "deezer://track/976146912",
       "fun_fact": "Opening theme for Fullmetal Alchemist: Brotherhood Season 1, an iconic anime adaptation released 2009-2010.",
       "fun_fact_de": "Opening-Thema für Fullmetal Alchemist: Brotherhood Staffel 1, eine ikonische Anime-Adaption von 2009-2010.",
@@ -2858,7 +2808,7 @@
         "it": "applemusic://track/1536503601"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=raMTMjaQ3mc",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/144406160",
       "uri_deezer": "deezer://track/975992652",
       "fun_fact": "SID, a visual kei rock band active since 2005, is renowned for composing anime opening and ending themes.",
       "fun_fact_de": "SID, eine Visual-Kei-Rockband seit 2005 aktiv, ist berühmt für die Komposition von Anime-Opening- und Ending-Themen.",
@@ -2908,7 +2858,7 @@
         "it": "applemusic://track/1528877472"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=QwACoXnNcwg",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/487464847",
       "uri_deezer": "deezer://track/1059340662",
       "fun_fact": "Yuki Hayashi's My Hero Academia track, an iconic action theme heard during pivotal battle sequences.",
       "fun_fact_de": "Yuki Hayashis My Hero Academia-Track, ein ikonisches Action-Thema in entscheidenden Kampfszenen.",
@@ -2920,21 +2870,21 @@
       "artist": "Yuki Hayashi",
       "title": "My Hero Academia",
       "year": 2016,
-      "isrc": "JPV432500049",
+      "isrc": "JPZ921607311",
       "uri": "spotify:track:50o13VmOJiUj3WfU7XmEAn",
-      "uri_apple_music": "applemusic://track/1890211129",
+      "uri_apple_music": "applemusic://track/1127314669",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/1890211129",
-        "de": "applemusic://track/1890211129",
-        "gb": "applemusic://track/1890211129",
-        "fr": "applemusic://track/1890211129",
-        "es": "applemusic://track/1890211129",
-        "nl": "applemusic://track/1890211129",
-        "it": "applemusic://track/1890211129"
+        "us": "applemusic://track/1127314669",
+        "de": "applemusic://track/1127314669",
+        "gb": "applemusic://track/1127314669",
+        "fr": "applemusic://track/1127314669",
+        "es": "applemusic://track/1127314669",
+        "nl": "applemusic://track/1127314669",
+        "it": "applemusic://track/1127314669"
       },
-      "uri_youtube_music": null,
-      "uri_tidal": null,
-      "uri_deezer": "deezer://track/3293025721",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=nsUUBIISWyE",
+      "uri_tidal": "tidal://track/487464883",
+      "uri_deezer": "deezer://track/3758443432",
       "fun_fact": "Yuki Hayashi's My Hero Academia compositions became iconic for the series' most intense action sequences.",
       "fun_fact_de": "Yuki Hayashis My Hero Academia-Kompositionen wurden ikonisch für die intensivsten Actionszenen der Serie.",
       "fun_fact_es": "Las composiciones de My Hero Academia de Yuki Hayashi se volvieron icónicas para las secuencias de acción más intensas.",
@@ -2958,7 +2908,7 @@
         "it": "applemusic://track/6767143828"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=yQEUGxngQN4",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/149317244",
       "uri_deezer": "deezer://track/975929972",
       "fun_fact": "J-rock power duo BURNOUT SYNDROMES known for prolific anime opening/ending releases from 2016-2020",
       "fun_fact_de": "J-Rock-Duo BURNOUT SYNDROMES bekannt für zahlreiche Anime-Opening/Ending-Veröffentlichungen von 2016–2020",
@@ -3008,7 +2958,7 @@
         "it": "applemusic://track/1482123622"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=BYtIrAZWVtM",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/119312420",
       "uri_deezer": "deezer://track/767814512",
       "fun_fact": "Opening theme for My Hero Academia season 4; Miura Jam's powerful vocal performance on hero-themed rock",
       "fun_fact_de": "Eröffnungsthema für My Hero Academia Staffel 4; Miura Jams kraftvolle Gesangsleistung im Helden-Rock",
@@ -3033,7 +2983,7 @@
         "it": "applemusic://track/1537756480"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=UEqL_I0G7qU",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/144303944",
       "uri_deezer": "deezer://track/975949182",
       "fun_fact": "UVERworld's ODD FUTURE served as ending theme for My Hero Academia season 3, demonstrating band versatility",
       "fun_fact_de": "UVERworlds ODD FUTURE war Endthema für My Hero Academia Staffel 3, zeigt Bandvielseitigkeit",
@@ -3058,7 +3008,7 @@
         "it": "applemusic://track/1538131047"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=PwZBiq1c6Mc",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/144922190",
       "uri_deezer": "deezer://track/975907272",
       "fun_fact": "BURNOUT SYNDROMES' early anime theme from 2016 showcasing signature high-energy J-rock instrumental style",
       "fun_fact_de": "BURNOUT SYNDROMES' frühes Anime-Thema von 2016 zeigt charakteristischen hochenergetischen J-Rock-Sound",
@@ -3070,7 +3020,7 @@
       "artist": "SID",
       "title": "嘘",
       "year": 2009,
-      "isrc": "DEUM71501571",
+      "isrc": "JPKS00900421",
       "uri": "spotify:track:0ODOmKxO0CKv4DzoP3HHIC",
       "uri_apple_music": "applemusic://track/1536375094",
       "uri_apple_music_by_region": {
@@ -3145,7 +3095,7 @@
       "artist": "Kumi Koda",
       "title": "Guess Who Is Back",
       "year": 2018,
-      "isrc": "JPN300501882",
+      "isrc": "JPB601802274",
       "uri": "spotify:track:4lBliLm5ufCBNPlCzpvrQB",
       "uri_apple_music": "applemusic://track/1420545183",
       "uri_apple_music_by_region": {
@@ -3183,7 +3133,7 @@
         "it": "applemusic://track/1538264260"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=hoxUfOTE5II",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/144888568",
       "uri_deezer": "deezer://track/976001772",
       "fun_fact": "Eir Aoi's emotional rock-pop vocals power many anime openings across shonen and romance genres",
       "fun_fact_de": "Eir Aoi's emotionale Rock-Pop-Stimme treibt viele Anime-Openings in Shonen- und Romance-Genres an",
@@ -3208,7 +3158,7 @@
         "it": "applemusic://track/1551120604"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=c8I4iu7Qvyg",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/170921986",
       "uri_deezer": "deezer://track/1220736152",
       "fun_fact": "Attack on Titan Season 1 opening theme with Sawano Hiroyuki's signature orchestral style",
       "fun_fact_de": "Opening-Thema von Attack on Titan Staffel 1 mit Sawano Hiroyukis charakteristischem Orchestersound",
@@ -3258,7 +3208,7 @@
         "it": "applemusic://track/1147022401"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=zyuvcD7vdy0",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/320017168",
       "uri_deezer": "deezer://track/2191817367",
       "fun_fact": "Chinese anime collaboration featuring pianist Neo Liu and vocalist Tu Hua Bing from 2016",
       "fun_fact_de": "Chinesische Anime-Zusammenarbeit mit Pianist Neo Liu und Sänger Tu Hua Bing aus 2016",
@@ -3283,7 +3233,7 @@
         "it": "applemusic://track/1754899924"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=57wkY1MGOXA",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/372417866",
       "uri_deezer": "deezer://track/2870893462",
       "fun_fact": "2024 anime theme by vocalist Yuuri, whose name means Curtain Call in the song title",
       "fun_fact_de": "Anime-Thema 2024 von Sängerin Yuuri, deren Name Curtain Call im Songtitel bedeutet",
@@ -3308,7 +3258,7 @@
         "it": "applemusic://track/1538150756"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=MF8kHWWFO10",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/144628782",
       "uri_deezer": "deezer://track/975986202",
       "fun_fact": "J-rock duo 7!! composed this 2013 anime theme, specializing in opening and ending tracks",
       "fun_fact_de": "J-Rock-Duo 7!! komponierte dieses 2013-Anime-Thema und spezialisiert sich auf Opening- und Ending-Songs",
@@ -3333,7 +3283,7 @@
         "it": "applemusic://track/1535496920"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=ipBCtl0j4O8",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/160304756",
       "uri_deezer": "deezer://track/976651752",
       "fun_fact": "Naruto Shippuden Season 1 opening by nobodyknows+, iconic 2007 J-rock anthem",
       "fun_fact_de": "Naruto Shippuden Staffel 1 Opening von nobodyknows+, ikonische J-Rock-Hymne 2007",
@@ -3358,7 +3308,7 @@
         "it": "applemusic://track/1536115701"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=RCbjLfpCbhQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/144480268",
       "uri_deezer": "deezer://track/976145962",
       "fun_fact": "J-rock band Long Shot Party's 2010 anime opening/ending theme",
       "fun_fact_de": "2010 Anime-Opening/Ending-Theme der J-Rock-Band Long Shot Party",
@@ -3383,7 +3333,7 @@
         "it": "applemusic://track/1536963815"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=WYYmt1hxOQU",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/145183005",
       "uri_deezer": "deezer://track/976805902",
       "fun_fact": "Little by Little, J-pop/rock artist known for emotional anime ballads in 2005",
       "fun_fact_de": "Little by Little, J-Pop/Rock-Künstler bekannt für emotionale Anime-Balladen 2005",
@@ -3408,7 +3358,7 @@
         "it": "applemusic://track/1536372805"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=4Cp0WgkgDbQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/144464482",
       "uri_deezer": "deezer://track/976034772",
       "fun_fact": "Joe Inoue, prolific anime composer known for Bleach and Fullmetal Alchemist themes",
       "fun_fact_de": "Joe Inoue, produktiver Anime-Komponist bekannt für Bleach und Fullmetal Alchemist",
@@ -3433,7 +3383,7 @@
         "it": "applemusic://track/1799137353"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=iv7NPL1s2A0",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/411940946",
       "uri_deezer": "deezer://track/3187492791",
       "fun_fact": "MAN WITH A MISSION, Japanese rock band known for multiple anime theme tracks",
       "fun_fact_de": "MAN WITH A MISSION, japanische Rockband bekannt für mehrere Anime-Theme-Tracks",
@@ -3458,7 +3408,7 @@
         "it": "applemusic://track/1831294708"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=CCWaIsOX4d0",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/452332632",
       "uri_deezer": "deezer://track/3493163131",
       "fun_fact": "2025 character song blending Japanese vocals with Marc Hudson's English collaboration",
       "fun_fact_de": "2025er Charakterlied, das japanische Vocals mit Marc Hudsons englischer Zusammenarbeit verbindet",
@@ -3483,7 +3433,7 @@
         "it": "applemusic://track/1816860628"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=DJq0jJhPSjg",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/459325550",
       "uri_deezer": "deezer://track/3546718551",
       "fun_fact": "J-pop artist Daichi Miura brought this 2024 anime theme to listeners worldwide",
       "fun_fact_de": "J-Pop-Künstler Daichi Miura brachte dieses 2024er Anime-Thema an ein weltweites Publikum",
@@ -3508,7 +3458,7 @@
         "it": "applemusic://track/1824084891"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=ce6yxES9oLA",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/445551893",
       "uri_deezer": "deezer://track/3440829701",
       "fun_fact": "Hip-hop duo Creepy Nuts delivers rapid-fire rap vocals in this 2025 anime theme",
       "fun_fact_de": "Das Hip-Hop-Duo Creepy Nuts liefert schnelle Rap-Vocals in diesem 2025er Anime-Thema",

@@ -3,11 +3,15 @@
 from __future__ import annotations
 
 import asyncio
+from collections import deque
 import contextlib
 from datetime import datetime
 import logging
+import time
 from typing import TYPE_CHECKING, Any
 
+from aiohomekit.exceptions import AccessoryDisconnectedError, HttpErrorResponse
+import aiohttp
 from homeassistant.helpers.dispatcher import async_dispatcher_send
 from homeassistant.util import dt as dt_util
 
@@ -17,8 +21,8 @@ from .const import (
     HOMEKIT_WRITE_TIMEOUT_SECONDS,
     SIGNAL_HOMEKIT_UPDATE,
 )
+from .helpers import mask_home_id, mask_serial
 from .homekit_client import (
-    CHAR_CURRENT_HEATING_STATE,
     CHAR_CURRENT_HUMIDITY,
     CHAR_CURRENT_TEMPERATURE,
     CHAR_IDENTIFY,
@@ -32,6 +36,22 @@ if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
 
 _LOGGER = logging.getLogger(__name__)
+
+_AccessoryKey = tuple[int, int]
+_CacheEntry = tuple[Any, datetime | None, datetime]
+_NO_KEY: _AccessoryKey = (-1, -1)
+
+# HAP RESOURCE_NOT_EXIST: a subscribed characteristic iid no longer resolves,
+# the signature of a stale iid cache after a bridge config-number bump.
+_HAP_RESOURCE_NOT_EXIST = -70409
+
+# aiohomekit fires an EMPTY event dict on every (re)connect. 5 of those
+# inside 60s means it is spinning reconnects, not settling after one.
+_SPIN_PULSE_THRESHOLD = 5
+_SPIN_PULSE_WINDOW_SECONDS = 60
+
+# A write raising one of these may already have reached the bridge; aiohomekit's disconnect errors are not OSError.
+HOMEKIT_UNKNOWN_OUTCOME_ERRORS = (TimeoutError, aiohttp.ClientError, OSError, AccessoryDisconnectedError)
 
 
 def _find_char_iid(
@@ -68,9 +88,9 @@ class HomeKitLocalProvider:
     """Push-driven cache + write path against a paired Tado HomeKit bridge.
 
     Read-side: maintains a `(value, last_changed_at, last_observed_at)`
-    tuple per `(zone_id, char_type)` so the state reconciler can
-    distinguish "value hasn't changed" from "we haven't seen a
-    fresh sample". Write-side: temperature and HVAC mode go via
+    tuple per `(zone_id, char_type, accessory)` and folds them into one
+    zone value on read, so the state reconciler can distinguish "value
+    hasn't changed" from "we haven't seen a fresh sample". Write-side: temperature and HVAC mode go via
     `pairing.put_characteristics` with a strict timeout so a stalled
     bridge doesn't hang the user's set-temperature service call.
     """
@@ -80,11 +100,14 @@ class HomeKitLocalProvider:
         self._client = client
         self._hass = hass
         self._home_id = home_id
-        self._cache: dict[str, dict[str, tuple[Any, datetime, datetime]]] = {}
+        self._cache: dict[str, dict[str, dict[_AccessoryKey | None, _CacheEntry]]] = {}
+        self._ambiguous_zones: set[str] = set()
         self._accessories: list[dict[str, Any]] = []
         self._unsub_dispatcher: Any | None = None
         self._event_map: dict[tuple[int, int], tuple[str, str]] = {}
         self._cache_refresh_task: asyncio.Task[None] | None = None
+        self._subscribe_lock = asyncio.Lock()
+        self._reconnect_pulse_times: deque[float] = deque(maxlen=_SPIN_PULSE_THRESHOLD)
 
     @property
     def is_connected(self) -> bool:
@@ -101,71 +124,124 @@ class HomeKitLocalProvider:
         char_type: str,
         value: Any,
         observed_at: datetime | None = None,
+        *,
+        from_poll: bool = False,
+        accessory_key: _AccessoryKey | None = None,
     ) -> None:
-        """Update the cache, advancing `last_observed_at` even when the value is unchanged.
-
-        `last_changed_at` only advances on a real value change so
-        the state reconciler can tell "stable reading" from "no
-        new data". Keep-alive writes (same value) should still call
-        this to refresh `last_observed_at`.
-        """
+        """Update one accessory's entry; `last_changed_at` moves only when that accessory's own value changes."""
+        # A fetched first reading (from_poll) may have been constant for weeks, so it is not a change.
         now = observed_at or dt_util.utcnow()
-        if zone_id not in self._cache:
-            self._cache[zone_id] = {}
-        prev = self._cache[zone_id].get(char_type)
-        if prev is not None and prev[0] == value:
+        entries = self._cache.setdefault(zone_id, {}).setdefault(char_type, {})
+        prev = entries.get(accessory_key)
+        if prev is None:
+            changed_at = None if from_poll else now
+        elif prev[0] == value:
             # Same value: keep last_changed_at, advance last_observed_at only.
-            self._cache[zone_id][char_type] = (prev[0], prev[1], now)
+            changed_at = prev[1]
         else:
-            self._cache[zone_id][char_type] = (value, now, now)
+            changed_at = now
+        entries[accessory_key] = (value, changed_at, now)
+
+    def _entry(self, zone_id: str, char_type: str, key: _AccessoryKey) -> _CacheEntry | None:
+        """Return one accessory's cached entry, or None when it has none yet."""
+        return self._cache.get(zone_id, {}).get(char_type, {}).get(key)
+
+    @staticmethod
+    def _latest_changes(entries: dict[_AccessoryKey | None, _CacheEntry]) -> list[_CacheEntry]:
+        """Return the entries that share the newest genuine change time."""
+        changed = [entry for entry in entries.values() if entry[1] is not None]
+        if not changed:
+            return []
+        latest = max(entry[1] for entry in changed if entry[1] is not None)
+        return [entry for entry in changed if entry[1] == latest]
+
+    @staticmethod
+    def _all_agree(entries: list[_CacheEntry]) -> bool:
+        """Return True when every entry holds the same value."""
+        return all(entry[0] == entries[0][0] for entry in entries)
+
+    def _zone_value(
+        self, zone_id: str, char_type: str,
+    ) -> tuple[Any, datetime | None, datetime | None]:
+        """Fold the per-accessory entries into the zone's `(value, changed, observed)`."""
+        entries = self._cache.get(zone_id, {}).get(char_type)
+        if not entries:
+            return None, None, None
+        if char_type != CHAR_TARGET_TEMPERATURE:
+            # Latest sample wins; equal sample times fall to the greatest accessory key.
+            return max(
+                entries.items(),
+                key=lambda item: (item[1][2], item[0] if item[0] is not None else _NO_KEY),
+            )[1]
+        observed = max(entry[2] for entry in entries.values())
+        candidates = self._latest_changes(entries)
+        if candidates:
+            # Same-batch disagreement has no winner; None sends the reconciler to the cloud value.
+            if self._all_agree(candidates):
+                return candidates[0][0], candidates[0][1], observed
+            return None, None, observed
+        everything = list(entries.values())
+        if self._all_agree(everything):
+            return everything[0][0], None, observed
+        return None, None, observed
+
+    def _note_target_ambiguity(self, zone_id: str) -> None:
+        """Log once when the zone's newest target changes start to disagree."""
+        candidates = self._latest_changes(self._cache.get(zone_id, {}).get(CHAR_TARGET_TEMPERATURE, {}))
+        if candidates and not self._all_agree(candidates):
+            if zone_id not in self._ambiguous_zones:
+                self._ambiguous_zones.add(zone_id)
+                _LOGGER.debug(
+                    "HomeKit: zone %s accessories disagree on a new target, using the cloud value",
+                    zone_id,
+                )
+        else:
+            self._ambiguous_zones.discard(zone_id)
+
+    def _prune_cache(self, event_map: dict[_AccessoryKey, tuple[str, str]]) -> None:
+        """Drop entries whose accessory is no longer mapped to the same zone and characteristic."""
+        for zone_id in list(self._cache):
+            chars = self._cache[zone_id]
+            for char_type in list(chars):
+                entries = chars[char_type]
+                for key in list(entries):
+                    if key is None or event_map.get(key) != (zone_id, char_type):
+                        del entries[key]
+                if not entries:
+                    del chars[char_type]
+            if not chars:
+                del self._cache[zone_id]
+                self._ambiguous_zones.discard(zone_id)
+
+    def drop_zone(self, zone_id: str) -> None:
+        """Forget a zone's event-map entries, cached values and ambiguity flag."""
+        for key in [k for k, (zid, _char) in self._event_map.items() if zid == zone_id]:
+            del self._event_map[key]
+        self._cache.pop(zone_id, None)
+        self._ambiguous_zones.discard(zone_id)
 
     def get_temperature(
         self, zone_id: str,
     ) -> tuple[float | None, datetime | None, datetime | None]:
         """Return `(celsius, last_changed_at, last_observed_at)` for the zone."""
-        entry = self._cache.get(zone_id, {}).get(CHAR_CURRENT_TEMPERATURE)
-        if entry is None:
-            return None, None, None
-        return entry
+        return self._zone_value(zone_id, CHAR_CURRENT_TEMPERATURE)
 
     def get_humidity(
         self, zone_id: str,
     ) -> tuple[float | None, datetime | None, datetime | None]:
         """Return `(percentage, last_changed_at, last_observed_at)` for the zone."""
-        entry = self._cache.get(zone_id, {}).get(CHAR_CURRENT_HUMIDITY)
-        if entry is None:
-            return None, None, None
-        return entry
+        return self._zone_value(zone_id, CHAR_CURRENT_HUMIDITY)
 
     def get_target_temperature(
         self, zone_id: str,
     ) -> tuple[float | None, datetime | None, datetime | None]:
         """Return `(target_celsius, last_changed_at, last_observed_at)` for the zone."""
-        entry = self._cache.get(zone_id, {}).get(CHAR_TARGET_TEMPERATURE)
-        if entry is None:
-            return None, None, None
-        return entry
+        return self._zone_value(zone_id, CHAR_TARGET_TEMPERATURE)
 
-    def get_hvac_state(
-        self, zone_id: str,
-    ) -> tuple[int | None, datetime | None, datetime | None]:
-        """Return current HVAC state (0=Off, 1=Heat, 2=Cool) and timestamps."""
-        entry = self._cache.get(zone_id, {}).get(CHAR_CURRENT_HEATING_STATE)
-        if entry is None:
-            return None, None, None
-        return entry
-
-    def get_target_heating_state(
-        self, zone_id: str,
-    ) -> tuple[int | None, datetime | None, datetime | None]:
-        """Return target HVAC state (0=Off, 1=Heat, 2=Cool, 3=Auto) and timestamps."""
-        entry = self._cache.get(zone_id, {}).get(CHAR_TARGET_HEATING_STATE)
-        if entry is None:
-            return None, None, None
-        return entry
-
-    async def set_temperature(self, zone_id: str, temperature: float) -> bool:
-        """Write `temperature` to the zone's TRV via HomeKit, returning success."""
+    async def set_temperature(
+        self, zone_id: str, temperature: float, *, raise_ambiguous: bool = False,
+    ) -> bool:
+        """Write `temperature` to the zone's TRV via HomeKit; optionally raise when the write may have landed."""
         if not self._client.is_connected or not self._client.pairing:
             return False
 
@@ -193,7 +269,9 @@ class HomeKitLocalProvider:
                 result = await self._client.pairing.put_characteristics([(aid, iid, temperature)])
             if not result:
                 # aiohomekit returns an empty dict on success.
-                self.update_cache(zone_id, CHAR_TARGET_TEMPERATURE, temperature)
+                self.update_cache(
+                    zone_id, CHAR_TARGET_TEMPERATURE, temperature, accessory_key=(aid, iid),
+                )
                 _LOGGER.debug(
                     "HomeKit: zone %s target temperature set to %.1f°C "
                     "via local bridge",
@@ -212,13 +290,22 @@ class HomeKitLocalProvider:
                 "after %ds, falling back to cloud write",
                 zone_id, HOMEKIT_WRITE_TIMEOUT_SECONDS,
             )
+            if raise_ambiguous:
+                raise
             return False
-        except Exception:
+        except Exception as err:
             _LOGGER.debug(
                 "HomeKit: zone %s target-temperature write raised an "
                 "exception, falling back to cloud write",
                 zone_id, exc_info=True,
             )
+            # A 4xx answer is a definite refusal, though aiohomekit files it under the disconnect errors.
+            if (
+                raise_ambiguous
+                and isinstance(err, HOMEKIT_UNKNOWN_OUTCOME_ERRORS)
+                and not isinstance(err, HttpErrorResponse)
+            ):
+                raise
             return False
 
     async def set_hvac_mode(self, zone_id: str, mode: int) -> bool:
@@ -249,7 +336,6 @@ class HomeKitLocalProvider:
             async with asyncio.timeout(HOMEKIT_WRITE_TIMEOUT_SECONDS):
                 result = await self._client.pairing.put_characteristics([(aid, iid, mode)])
             if not result:
-                self.update_cache(zone_id, CHAR_TARGET_HEATING_STATE, mode)
                 _LOGGER.debug(
                     "HomeKit: zone %s HVAC mode set to %d via local bridge",
                     zone_id, mode,
@@ -305,7 +391,7 @@ class HomeKitLocalProvider:
         if aid is None:
             _LOGGER.debug(
                 "HomeKit: serial %s has no mapped accessory, cannot "
-                "identify via local bridge", serial,
+                "identify via local bridge", mask_serial(serial),
             )
             return False
 
@@ -321,108 +407,139 @@ class HomeKitLocalProvider:
             async with asyncio.timeout(HOMEKIT_WRITE_TIMEOUT_SECONDS):
                 result = await self._client.pairing.put_characteristics([(aid, iid, True)])
             if not result:
-                _LOGGER.debug("HomeKit: identify flashed device %s via local bridge", serial)
+                _LOGGER.debug("HomeKit: identify flashed device %s via local bridge", mask_serial(serial))
                 return True
             _LOGGER.warning(
                 "HomeKit: identify write for %s rejected by the bridge: %s",
-                serial, result,
+                mask_serial(serial), result,
             )
             return False
         except TimeoutError:
             _LOGGER.warning(
                 "HomeKit: identify write for %s timed out after %ds, "
-                "falling back to cloud identify", serial, HOMEKIT_WRITE_TIMEOUT_SECONDS,
+                "falling back to cloud identify", mask_serial(serial), HOMEKIT_WRITE_TIMEOUT_SECONDS,
             )
             return False
         except Exception:
             _LOGGER.debug(
                 "HomeKit: identify write for %s raised an exception, "
-                "falling back to cloud identify", serial, exc_info=True,
+                "falling back to cloud identify", mask_serial(serial), exc_info=True,
             )
             return False
 
     async def async_subscribe_events(self) -> None:
         """Subscribe to characteristic events for every mapped zone."""
-        if not self._client.is_connected or not self._client.pairing:
-            _LOGGER.debug(
-                "HomeKit: cannot subscribe, bridge is not connected, "
-                "will retry once the connection comes back",
+        async with self._subscribe_lock:
+            if not self._client.is_connected or not self._client.pairing:
+                _LOGGER.debug(
+                    "HomeKit: cannot subscribe, bridge is not connected, "
+                    "will retry once the connection comes back",
+                )
+                return
+
+            if not self._accessories:
+                await self.async_refresh_accessories()
+
+            if not self._accessories:
+                # `async_list_accessories` swallows every bridge error and
+                # returns [], so an empty list here means the bridge did not
+                # answer, a transient condition and exactly the one a
+                # config-number bump creates (the bridge is reconfiguring).
+                # Keep the live event map and poll loop so the stale-iid
+                # counter can still drive recovery, and escalate the way the
+                # subscribe-failure branch does.
+                _LOGGER.warning(
+                    "HomeKit: bridge listed no accessories, keeping the "
+                    "current local device map and triggering a reconnect, "
+                    "local control will recover once the bridge answers again",
+                )
+                await self._client.async_reconnect()
+                return
+
+            subscribe_chars: list[tuple[int, int]] = []
+            # Build into a local map and commit it only once the bridge has
+            # accepted the subscription: a rebuild that fails partway must not
+            # leave the poll loop and the event handler reading an emptied map.
+            event_map: dict[tuple[int, int], tuple[str, str]] = {}
+            char_types = (
+                CHAR_CURRENT_TEMPERATURE,
+                CHAR_CURRENT_HUMIDITY,
+                CHAR_TARGET_TEMPERATURE,
             )
-            return
 
-        if not self._accessories:
-            await self.async_refresh_accessories()
+            for zone_id, aids in self._client.zone_aid_map.items():
+                for aid in aids:
+                    for char_type in char_types:
+                        iid = _find_char_iid(self._accessories, aid, char_type)
+                        if iid is not None:
+                            subscribe_chars.append((aid, iid))
+                            event_map[(aid, iid)] = (zone_id, char_type)
 
-        subscribe_chars: list[tuple[int, int]] = []
-        self._event_map = {}
-        char_types = (
-            CHAR_CURRENT_TEMPERATURE,
-            CHAR_CURRENT_HUMIDITY,
-            CHAR_TARGET_TEMPERATURE,
-            CHAR_CURRENT_HEATING_STATE,
-            CHAR_TARGET_HEATING_STATE,
-        )
+            if not subscribe_chars:
+                # The bridge answered but exposes none of the tracked
+                # characteristics. Unlike the empty-accessories case this is
+                # persistent, so a reconnect could not change the outcome.
+                _LOGGER.debug(
+                    "HomeKit: no subscribable characteristics found, "
+                    "skipping event subscription",
+                )
+                return
 
-        for zone_id, aids in self._client.zone_aid_map.items():
-            for aid in aids:
-                for char_type in char_types:
-                    iid = _find_char_iid(self._accessories, aid, char_type)
-                    if iid is not None:
-                        subscribe_chars.append((aid, iid))
-                        self._event_map[(aid, iid)] = (zone_id, char_type)
+            try:
+                await self._client.pairing.subscribe(subscribe_chars)
+            except Exception:
+                # A bridge that drops between connect and subscribe must not
+                # propagate to the caller (setup, poll-retry, or reconnect
+                # callback) and crash it. Self-protect like the other
+                # bridge-touching methods: reconnect (its callback re-subscribes)
+                # and return. Broad catch is deliberate; exc_info keeps a real
+                # bug visible.
+                _LOGGER.warning(
+                    "HomeKit: subscribing to bridge events failed, triggering a "
+                    "reconnect, local control will recover once the bridge is "
+                    "reachable again",
+                )
+                _LOGGER.debug("HomeKit: subscribe error details", exc_info=True)
+                await self._client.async_reconnect()
+                return
 
-        if not subscribe_chars:
-            _LOGGER.debug(
-                "HomeKit: no subscribable characteristics found, "
-                "skipping event subscription",
+            # The bridge accepted the subscription, so the rebuilt map is now
+            # the live one.
+            self._event_map = event_map
+            self._prune_cache(event_map)
+            # Tear down the previous dispatcher on reconnect; without
+            # this, every reconnect leaks a live callback and each
+            # bridge event triggers N duplicate state updates.
+            if self._unsub_dispatcher is not None:
+                self._unsub_dispatcher()
+                self._unsub_dispatcher = None
+            self._unsub_dispatcher = self._client.pairing.dispatcher_connect(
+                self._on_event_callback,
             )
-            return
-
-        try:
-            await self._client.pairing.subscribe(subscribe_chars)
-        except Exception:
-            # A bridge that drops between connect and subscribe must not
-            # propagate to the caller (setup, poll-retry, or reconnect
-            # callback) and crash it. Self-protect like the other
-            # bridge-touching methods: reconnect (its callback re-subscribes)
-            # and return. Broad catch is deliberate; exc_info keeps a real
-            # bug visible.
-            _LOGGER.warning(
-                "HomeKit: subscribing to bridge events failed, triggering a "
-                "reconnect, local control will recover once the bridge is "
-                "reachable again",
+            _LOGGER.info(
+                "HomeKit: subscribed to %d characteristic(s) across %d zone(s)",
+                len(subscribe_chars),
+                len(self._client.zone_aid_map),
             )
-            _LOGGER.debug("HomeKit: subscribe error details", exc_info=True)
-            await self._client.async_reconnect()
-            return
-        # Tear down the previous dispatcher on reconnect; without
-        # this, every reconnect leaks a live callback and each
-        # bridge event triggers N duplicate state updates.
-        if self._unsub_dispatcher is not None:
-            self._unsub_dispatcher()
-            self._unsub_dispatcher = None
-        self._unsub_dispatcher = self._client.pairing.dispatcher_connect(
-            self._on_event_callback,
-        )
-        _LOGGER.info(
-            "HomeKit: subscribed to %d characteristic(s) across %d zone(s)",
-            len(subscribe_chars),
-            len(self._client.zone_aid_map),
-        )
 
-        # Start the periodic cache refresh so stable readings still
-        # advance `last_observed_at`.
-        if self._cache_refresh_task is not None:
-            self._cache_refresh_task.cancel()
-            with contextlib.suppress(asyncio.CancelledError):
-                await self._cache_refresh_task
-        self._cache_refresh_task = asyncio.create_task(
-            self._periodic_cache_refresh(),
-        )
+            # Start the periodic cache refresh so stable readings still
+            # advance `last_observed_at`.
+            if self._cache_refresh_task is not None:
+                self._cache_refresh_task.cancel()
+                with contextlib.suppress(asyncio.CancelledError):
+                    await self._cache_refresh_task
+            self._cache_refresh_task = asyncio.create_task(
+                self._periodic_cache_refresh(),
+            )
 
     def _on_event_callback(self, event_data: dict[tuple[int, int], dict[str, Any]]) -> None:
         """Apply pushed event values to the cache and fan out one signal per zone."""
+        if not event_data:
+            self._record_reconnect_pulse()
+            return
         updated_zones: set[str] = set()
+        # One timestamp for the whole batch so simultaneous changes tie.
+        observed_at = dt_util.utcnow()
         for key, data in event_data.items():
             mapping = self._event_map.get(key)
             if mapping is None:
@@ -430,18 +547,38 @@ class HomeKitLocalProvider:
             zone_id, char_type = mapping
             value = data.get("value")
             if value is not None:
-                old_entry = self._cache.get(zone_id, {}).get(char_type)
+                old_entry = self._entry(zone_id, char_type, key)
                 old_value = old_entry[0] if old_entry else None
-                self.update_cache(zone_id, char_type, value)
+                self.update_cache(zone_id, char_type, value, observed_at, accessory_key=key)
                 updated_zones.add(zone_id)
                 if value != old_value:
                     _LOGGER.debug(
-                        "HomeKit: zone %s %s changed %s → %s (event push)",
-                        zone_id, char_type, old_value, value,
+                        "HomeKit: zone %s accessory %d %s changed %s → %s (event push)",
+                        zone_id, key[0], char_type, old_value, value,
                     )
         signal = SIGNAL_HOMEKIT_UPDATE.format(home_id=self._home_id)
         for zone_id in updated_zones:
+            self._note_target_ambiguity(zone_id)
             async_dispatcher_send(self._hass, signal, zone_id)
+
+    def _record_reconnect_pulse(self) -> None:
+        """Record a connect pulse and trigger spin recovery once the threshold trips.
+
+        An EMPTY_EVENT pulse means the connection just (re)established. Several in a
+        short window means aiohomekit is spinning, not reconnecting once.
+        """
+        now = time.monotonic()
+        self._reconnect_pulse_times.append(now)
+        _LOGGER.debug(
+            "HomeKit: reconnect pulse for home %s (%d in window)",
+            mask_home_id(self._home_id), len(self._reconnect_pulse_times),
+        )
+        if (
+            len(self._reconnect_pulse_times) == self._reconnect_pulse_times.maxlen
+            and now - self._reconnect_pulse_times[0] < _SPIN_PULSE_WINDOW_SECONDS
+        ):
+            self._reconnect_pulse_times.clear()
+            self._client.async_schedule_spin_recovery()
 
     async def _periodic_cache_refresh(self) -> None:
         """Periodically poll subscribed characteristics so stable values still age fresh.
@@ -452,6 +589,7 @@ class HomeKitLocalProvider:
         after `CACHE_REFRESH_FAILURE_THRESHOLD` consecutive failures.
         """
         consecutive_failures = 0
+        stale_warned = False
         first_refresh = True
         while True:
             await asyncio.sleep(HOMEKIT_CACHE_REFRESH_SECONDS)
@@ -462,28 +600,52 @@ class HomeKitLocalProvider:
                 if not chars_to_read:
                     continue
                 result = await self._client.pairing.get_characteristics(chars_to_read)
+                # One timestamp for the whole poll so simultaneous changes tie.
+                observed_at = dt_util.utcnow()
                 updated_zones: set[str] = set()
                 changes_found = 0
+                stale_found = 0
                 for key, data in result.items():
                     mapping = self._event_map.get(key)
                     if mapping is None:
                         continue
                     zone_id, char_type = mapping
                     value = data.get("value")
-                    if value is not None:
-                        old_entry = self._cache.get(zone_id, {}).get(char_type)
-                        old_value = old_entry[0] if old_entry else None
-                        self.update_cache(zone_id, char_type, value)
-                        updated_zones.add(zone_id)
-                        if value != old_value:
-                            changes_found += 1
-                            _LOGGER.debug(
-                                "HomeKit: zone %s %s changed %s → %s (poll refresh)",
-                                zone_id, char_type, old_value, value,
-                            )
-                consecutive_failures = 0
+                    if value is None:
+                        if data.get("status") == _HAP_RESOURCE_NOT_EXIST:
+                            stale_found += 1
+                        continue
+                    old_entry = self._entry(zone_id, char_type, key)
+                    old_value = old_entry[0] if old_entry else None
+                    self.update_cache(
+                        zone_id, char_type, value, observed_at, from_poll=True, accessory_key=key,
+                    )
+                    updated_zones.add(zone_id)
+                    if value != old_value:
+                        changes_found += 1
+                        _LOGGER.debug(
+                            "HomeKit: zone %s accessory %d %s changed %s → %s (poll refresh)",
+                            zone_id, key[0], char_type, old_value, value,
+                        )
+                if stale_found:
+                    consecutive_failures += 1
+                    if not stale_warned:
+                        _LOGGER.warning(
+                            "HomeKit: %d characteristic(s) returning stale-resource "
+                            "errors for home %s, bridge may have reconfigured. "
+                            "Reconnecting.",
+                            stale_found, mask_home_id(self._home_id),
+                        )
+                        stale_warned = True
+                    if consecutive_failures >= CACHE_REFRESH_FAILURE_THRESHOLD:
+                        await self._client.async_reconnect()
+                        consecutive_failures = 0
+                else:
+                    consecutive_failures = 0
+                    stale_warned = False
                 signal = SIGNAL_HOMEKIT_UPDATE.format(home_id=self._home_id)
                 for zone_id in updated_zones:
+                    self._note_target_ambiguity(zone_id)
                     async_dispatcher_send(self._hass, signal, zone_id)
                 if first_refresh:
                     _LOGGER.debug(

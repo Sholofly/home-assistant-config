@@ -1,0 +1,32 @@
+################################################
+## Dashboard / Kiosk Hub
+## Immich Kiosk per Nest Hub, gecast via Home Assistant Cast (touch werkt)
+################################################
+kiosk_mode:
+  hide_header: true
+  hide_sidebar: true
+
+views:
+  - title: Foto keuken
+    path: foto
+    panel: true
+    cards:
+      - type: iframe
+        url: "https://kiosk.sholofly.nl/"
+        aspect_ratio: "1024x600"
+
+  - title: Foto Noa
+    path: foto-noa
+    panel: true
+    cards:
+      - type: iframe
+        url: "https://kiosk.sholofly.nl/?person=628dd362-6c70-43fd-bba3-2e909ea083fb"
+        aspect_ratio: "1024x600"
+
+  - title: Foto Mika
+    path: foto-mika
+    panel: true
+    cards:
+      - type: iframe
+        url: "https://kiosk.sholofly.nl/?person=e77fd3c5-9c20-40e1-a1d4-377a4a409a97"
+        aspect_ratio: "1024x600"

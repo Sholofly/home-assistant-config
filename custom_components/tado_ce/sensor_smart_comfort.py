@@ -52,7 +52,6 @@ class TadoScheduleDeviationSensor(TadoZoneSensor):
     def __init__(
         self, coordinator: TadoDataUpdateCoordinator, zone_id: str, zone_name: str, zone_type: str = "HEATING",
     ) -> None:
-        """Initialize the Schedule Deviation Sensor."""
         super().__init__(coordinator, zone_id, zone_name, zone_type)
         _meta = ENTITY_REGISTRY["sensor_schedule_deviation"]
         self._attr_translation_key = _meta.translation_key
@@ -167,7 +166,6 @@ class TadoNextScheduleTimeSensor(TadoZoneSensor):
     def __init__(
         self, coordinator: TadoDataUpdateCoordinator, zone_id: str, zone_name: str, zone_type: str = "HEATING",
     ) -> None:
-        """Initialize the Next Schedule Time Sensor."""
         super().__init__(coordinator, zone_id, zone_name, zone_type)
         _meta = ENTITY_REGISTRY["sensor_next_schedule"]
         self._attr_translation_key = _meta.translation_key
@@ -252,7 +250,6 @@ class TadoNextScheduleTempSensor(TadoZoneSensor):
     def __init__(
         self, coordinator: TadoDataUpdateCoordinator, zone_id: str, zone_name: str, zone_type: str = "HEATING",
     ) -> None:
-        """Initialize the Next Schedule Temp Sensor."""
         super().__init__(coordinator, zone_id, zone_name, zone_type)
         _meta = ENTITY_REGISTRY["sensor_next_sched_temp"]
         self._attr_translation_key = _meta.translation_key
@@ -361,7 +358,6 @@ class TadoPreheatAdvisorSensor(TadoZoneSensor):
     def __init__(
         self, coordinator: TadoDataUpdateCoordinator, zone_id: str, zone_name: str, zone_type: str = "HEATING",
     ) -> None:
-        """Initialize the Preheat Advisor Sensor."""
         super().__init__(coordinator, zone_id, zone_name, zone_type)
         _meta = ENTITY_REGISTRY["sensor_preheat_advisor"]
         self._attr_translation_key = _meta.translation_key
@@ -676,7 +672,7 @@ class TadoPreheatAdvisorSensor(TadoZoneSensor):
             )
             self._data_present = False
         finally:
-            # (used by TadoPreheatNowSensor and insight collector)
+            # (read by TadoPreheatNowSensor and AdaptivePreheatManager)
             if self._data_present:
                 self.coordinator.publish_entity_data(
                     self._zone_id,
@@ -693,6 +689,10 @@ class TadoPreheatAdvisorSensor(TadoZoneSensor):
                         "predicted_crossover_time": self._predicted_crossover_time,
                         "is_cooling_prediction": self._is_cooling_prediction,
                     },
+                )
+            else:
+                self.coordinator.publish_entity_data(
+                    self._zone_id, ENTITY_DATA_PREHEAT_ADVISOR, {"state": "unavailable"},
                 )
 
 
@@ -821,7 +821,6 @@ class TadoSmartComfortTargetSensor(TadoZoneSensor):
     def __init__(
         self, coordinator: TadoDataUpdateCoordinator, zone_id: str, zone_name: str, zone_type: str = "HEATING",
     ) -> None:
-        """Initialize the Smart Comfort Target Sensor."""
         super().__init__(coordinator, zone_id, zone_name, zone_type)
         _meta = ENTITY_REGISTRY["sensor_comfort_target"]
         self._attr_translation_key = _meta.translation_key
@@ -943,6 +942,6 @@ class TadoSmartComfortTargetSensor(TadoZoneSensor):
         if self.hass and hasattr(self.hass.config, "latitude"):
             latitude = self.hass.config.latitude or 51.5
 
-        month = dt_util.now().month
+        day_of_year = dt_util.now().timetuple().tm_yday
 
-        return calculate_seasonal_comfort_target(latitude, month)
+        return calculate_seasonal_comfort_target(latitude, day_of_year)

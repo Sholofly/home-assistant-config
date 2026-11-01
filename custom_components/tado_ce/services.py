@@ -13,7 +13,12 @@ import voluptuous as vol
 
 from . import ratelimit as _ratelimit
 from .const import (
+    DEVICE_OFFSET_MAX,
+    DEVICE_OFFSET_MIN,
     DOMAIN,
+    FORCEABLE_FETCH_HOME_STATE,
+    FORCEABLE_FETCH_MOBILE,
+    FORCEABLE_FETCH_ZONE_STATES,
     OPEN_WINDOW_DEFAULT_TEMP,
     OPEN_WINDOW_DEFAULT_TIMEOUT,
     SERVICE_ACTIVATE_OPEN_WINDOW,
@@ -21,6 +26,7 @@ from .const import (
     SERVICE_DEACTIVATE_OPEN_WINDOW,
     SERVICE_GET_TEMP_OFFSET,
     SERVICE_IDENTIFY_DEVICE,
+    SERVICE_REFRESH,
     SERVICE_RESTORE_PREVIOUS_STATE,
     SERVICE_RESUME_SCHEDULE,
     SERVICE_SET_AWAY_CONFIG,
@@ -32,7 +38,7 @@ from .const import (
     SERVICE_TURN_OFF_ALL_ZONES,
     is_climate_zone,
 )
-from .helpers import async_trigger_immediate_refresh, build_timer_termination, mask_serial
+from .helpers import async_trigger_immediate_refresh, build_timer_termination, live_zones, mask_serial
 from .services_helpers import run_service_call
 from .write_optimizer import ResumeGuard
 
@@ -252,7 +258,7 @@ def _resolve_coordinator_for_device(hass: HomeAssistant, device_serial: str) -> 
 
     from .helpers import mask_home_id
 
-    for device in device_registry.devices.values():
+    for device in device_registry.devices:
         for domain, identifier in device.identifiers:
             if domain == DOMAIN and identifier == device_serial:
                 for config_entry_id in device.config_entries:
@@ -406,7 +412,7 @@ def _sanitize_termination_for_request(
             try:
                 sanitized["durationInSeconds"] = int(duration)
             except (TypeError, ValueError):
-                pass
+                _LOGGER.debug("services: non-numeric captured termination duration %r, dropping", duration)
 
     return sanitized
 
@@ -520,7 +526,7 @@ async def _execute_timer_on_entity(
     duration_minutes: int | None,
     overlay: str | None,
 ) -> bool:
-    """Run `async_set_timer` for one entity, capturing state first.
+    """Run `async_set_timer` for one entity; the entity captures state itself on success.
 
     Returns False when the entity lookup fails or when the API
     write failed (the entity swallowed a timeout / HTTP error).
@@ -530,10 +536,6 @@ async def _execute_timer_on_entity(
     ent = _find_entity_by_id(hass, domain, entity_id)
     if not ent or not hasattr(ent, "async_set_timer"):
         return False
-    zone_id = ent.zone_id  # type: ignore[attr-defined]
-    entity_type = ent.entity_type  # type: ignore[attr-defined]
-    if zone_id and coord:
-        await coord.async_capture_state(zone_id, entity_type, "set_timer")
     success = await ent.async_set_timer(temperature, duration_minutes, overlay)
     if success:
         if duration_minutes:
@@ -743,17 +745,6 @@ async def handle_set_water_heater_timer(hass: HomeAssistant, call: ServiceCall) 
             continue
         total += 1
         try:
-            zone_id = ent.zone_id  # type: ignore[attr-defined]
-            if zone_id:
-                try:
-                    wh_coord = _resolve_coordinator(hass, entity_id)
-                    await wh_coord.async_capture_state(zone_id, "water_heater", "set_timer")
-                except HomeAssistantError:
-                    _LOGGER.debug(
-                        "Services: state capture skipped for %s "
-                        "(coordinator could not be resolved)",
-                        entity_id,
-                    )
             success = await ent.async_set_timer(duration_minutes, temperature)
             if success:
                 _LOGGER.debug(
@@ -823,7 +814,7 @@ async def handle_turn_off_all_zones(hass: HomeAssistant, call: ServiceCall) -> N
 
     target_zones: list[tuple[str, str]] = [
         (str(zone["id"]), zone["type"])
-        for zone in zones_info
+        for zone in live_zones(zones_info, coord.data)
         if is_climate_zone(zone.get("type") or "")
     ]
     if not target_zones:
@@ -1127,6 +1118,37 @@ async def handle_add_meter_reading(hass: HomeAssistant, call: ServiceCall) -> No
             "the cloud rejected the submission, please retry",
             reading,
         )
+
+
+async def handle_refresh(hass: HomeAssistant, call: ServiceCall) -> None:
+    """Service handler for `refresh`: force an immediate fetch of one floored data type."""
+    fetch_type = str(call.data["data"])
+    coord = _resolve_single_coordinator(hass)
+    cm = coord.config_manager
+
+    if fetch_type == FORCEABLE_FETCH_ZONE_STATES:
+        # Zone states are core polling data, not an optional feature, so
+        # there's no toggle to gate on here.
+        coord.request_forced_zone_fetch()
+        await coord.async_request_refresh()
+        return
+
+    if fetch_type == FORCEABLE_FETCH_MOBILE:
+        enabled = cm.get_mobile_devices_enabled() and cm.get_mobile_devices_frequent_sync()
+    elif fetch_type == FORCEABLE_FETCH_HOME_STATE:
+        enabled = cm.get_home_state_sync_enabled()
+    else:
+        enabled = False
+
+    if not enabled:
+        _LOGGER.warning(
+            "Services: refresh(%s) requested but the feature is off, ignoring",
+            fetch_type,
+        )
+        return
+
+    coord.request_forced_fetch(fetch_type)
+    await coord.async_request_refresh()
 
 
 async def handle_identify_device(hass: HomeAssistant, call: ServiceCall) -> None:
@@ -1687,7 +1709,9 @@ async def _async_register_services(hass: HomeAssistant) -> None:
         schema=vol.Schema(
             {
                 vol.Required("entity_id"): cv.entity_id,
-                vol.Required("offset"): vol.All(vol.Coerce(float), vol.Range(min=-10.0, max=10.0)),
+                vol.Required("offset"): vol.All(
+                    vol.Coerce(float), vol.Range(min=DEVICE_OFFSET_MIN, max=DEVICE_OFFSET_MAX),
+                ),
             },
         ),
     )
@@ -1700,6 +1724,19 @@ async def _async_register_services(hass: HomeAssistant) -> None:
             {
                 vol.Required("reading"): vol.Coerce(int),
                 vol.Optional("date"): cv.string,
+            },
+        ),
+    )
+
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_REFRESH,
+        functools.partial(handle_refresh, hass),
+        schema=vol.Schema(
+            {
+                vol.Required("data"): vol.In(
+                    [FORCEABLE_FETCH_MOBILE, FORCEABLE_FETCH_HOME_STATE, FORCEABLE_FETCH_ZONE_STATES],
+                ),
             },
         ),
     )

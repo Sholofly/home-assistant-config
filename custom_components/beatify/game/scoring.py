@@ -13,8 +13,10 @@ from typing import TYPE_CHECKING, Any
 from .types import RoundAnalytics, _get_decade_label
 
 from custom_components.beatify.const import (
-    ARTIST_BONUS_POINTS,
     DIFFICULTY_DEFAULT,
+    DIFFICULTY_EASY,
+    DIFFICULTY_HARD,
+    DIFFICULTY_NORMAL,
     DIFFICULTY_SCORING,
     INTRO_BONUS_TIERS,
     INTRO_DURATION_SECONDS,
@@ -32,6 +34,8 @@ from custom_components.beatify.const import (
     MIN_ROUNDS_FOR_COMEBACK,
     MIN_STREAK_FOR_AWARD,
     MIN_SUBMISSIONS_FOR_SPEED,
+    POINTS_EXACT,
+    POINTS_WRONG,
     STEAL_UNLOCK_STREAK,
     STREAK_MILESTONES,
 )
@@ -43,12 +47,58 @@ from custom_components.beatify.game.text_match import (
     STATUS_NEAR_MISS,
 )
 
-# Points awarded
-POINTS_EXACT = 10
-POINTS_WRONG = 0
+# Points awarded. Re-exported from const.py (#2625) so the whole year-guess
+# payout — the two flat tiers and the per-difficulty bands — is defined in one
+# file. Callers keep importing them from here.
+
+# #1722: the speed bonus holds at its maximum for an initial grace window so a
+# player isn't punished for actually listening to the song before committing to
+# a year. After the grace it decays linearly to 1.0x at the deadline.
+SPEED_MULTIPLIER_MAX = 2.0
+SPEED_GRACE_FRACTION = 1.0 / 3.0
 
 # A won bet (exact year) multiplies the round score by this (#1004).
+# This is the flat, difficulty-agnostic payout — the default that applies when
+# difficulty-aware bet scaling is OFF (byte-for-byte the pre-#1727 behaviour).
 BET_WIN_MULTIPLIER = 3
+
+# #1727: difficulty-aware bet payout. The exact-year probability is exactly what
+# difficulty modulates, so a flat 3x makes betting strictly bad play on Hard
+# (rare exact guess, whole round forfeited on a miss) — Risk Taker + bet_tracking
+# go dead. When the opt-in ``difficulty_bet_scaling_enabled`` setting is on, the
+# payout scales with how hard an exact guess is: easy 2x / normal 3x / hard 5x.
+# Unknown difficulties fall back to the flat BET_WIN_MULTIPLIER.
+BET_WIN_MULTIPLIER_BY_DIFFICULTY: dict[str, int] = {
+    DIFFICULTY_EASY: 2,
+    DIFFICULTY_NORMAL: 3,
+    DIFFICULTY_HARD: 5,
+}
+
+
+def bet_win_multiplier(
+    difficulty: str = DIFFICULTY_DEFAULT,
+    *,
+    scaling_enabled: bool = False,
+) -> int:
+    """Return the active bet-win payout multiplier (#1727).
+
+    When ``scaling_enabled`` is False the flat ``BET_WIN_MULTIPLIER`` (3x)
+    applies on every difficulty — identical to the pre-#1727 behaviour. When
+    True the payout is read from ``BET_WIN_MULTIPLIER_BY_DIFFICULTY`` (easy 2x /
+    normal 3x / hard 5x), falling back to the flat value for an unknown
+    difficulty.
+
+    Args:
+        difficulty: Difficulty level (easy/normal/hard).
+        scaling_enabled: Whether difficulty-aware bet scaling is opted in.
+
+    Returns:
+        The multiplier a won (exact-year) bet applies to the round score.
+
+    """
+    if not scaling_enabled:
+        return BET_WIN_MULTIPLIER
+    return BET_WIN_MULTIPLIER_BY_DIFFICULTY.get(difficulty, BET_WIN_MULTIPLIER)
 
 
 def calculate_accuracy_score(
@@ -95,13 +145,15 @@ def calculate_speed_multiplier(elapsed_time: float, round_duration: float) -> fl
     """
     Calculate speed bonus multiplier based on submission timing.
 
-    Formula: speed_multiplier = 2.0 - (1.0 * submission_time_ratio)
-    - Instant submission (0s): 2.0x multiplier (double points!)
-    - At deadline (30s): 1.0x multiplier (no bonus)
+    #1722: a grace window keeps the multiplier at its maximum for the first
+    third of the round, so listening to recognise the song isn't penalised.
+    - Instant .. grace edge (round_duration / 3): 2.0x (double points!)
+    - Grace edge .. deadline: linear decay 2.0x → 1.0x
+    - At / past the deadline: 1.0x (no bonus)
 
     Args:
         elapsed_time: Seconds elapsed since round started when player submitted
-        round_duration: Total round duration in seconds (default 30)
+        round_duration: Total round duration in seconds
 
     Returns:
         Multiplier between 1.0 and 2.0
@@ -110,14 +162,16 @@ def calculate_speed_multiplier(elapsed_time: float, round_duration: float) -> fl
     if round_duration <= 0:
         return 1.0
 
-    # Calculate ratio (0.0 = instant, 1.0 = at deadline)
-    submission_time_ratio = elapsed_time / round_duration
+    grace = round_duration * SPEED_GRACE_FRACTION
 
-    # Clamp to valid range [0.0, 1.0]
-    submission_time_ratio = max(0.0, min(1.0, submission_time_ratio))
+    # Full multiplier during the grace window (and for any early / negative time).
+    if elapsed_time <= grace:
+        return SPEED_MULTIPLIER_MAX
 
-    # Formula: 2.0x at instant, 1.0x at deadline (linear)
-    return 2.0 - (1.0 * submission_time_ratio)
+    # Linear decay from the max at the grace edge to 1.0x at the deadline.
+    decay_ratio = (elapsed_time - grace) / (round_duration - grace)
+    decay_ratio = max(0.0, min(1.0, decay_ratio))
+    return SPEED_MULTIPLIER_MAX - ((SPEED_MULTIPLIER_MAX - 1.0) * decay_ratio)
 
 
 def calculate_round_score(
@@ -143,20 +197,64 @@ def calculate_round_score(
     """
     base_score = calculate_accuracy_score(guess, actual, difficulty)
     speed_multiplier = calculate_speed_multiplier(elapsed_time, round_duration)
-    final_score = int(base_score * speed_multiplier)
+    # #1722: round rather than truncate — int() dropped the speed bonus entirely
+    # for the 1-point accuracy tier (int(1 * 1.9) == 1) and shaved fractional
+    # bonuses off every other tier.
+    final_score = round(base_score * speed_multiplier)
     return final_score, base_score, speed_multiplier
+
+
+def score_ghost_round(
+    player: Any,
+    correct_year: int | None,
+    round_start_time: float | None,
+    round_duration: float,
+    difficulty: str = DIFFICULTY_DEFAULT,
+) -> int:
+    """Bank a ghost's guess in their OWN bucket (#2559). Returns the points.
+
+    The Ghost League lets an eliminated player keep guessing. Their points must
+    provably reach none of the 45 ``player.score`` sites, so this is a separate
+    function rather than a branch inside ``score_player_round``: it touches
+    ``ghost_score`` and ``ghost_rounds`` and nothing else. No streak, no bet, no
+    ``round_scores``, no ``closest_players``, no bonuses — the TTS and the
+    leaderboard read those, and a ghost must not appear in either.
+
+    The accuracy and speed formula is the living game's, deliberately: a ghost
+    ranking computed on a different curve would not be comparable to what the
+    room just watched, and the ghosts are sitting in the same room.
+
+    A ghost who does not submit scores nothing and — this is the part the
+    Best-Ghost award depends on — does **not** count a round. Somebody who put
+    their phone away for five rounds should not be diluted against somebody who
+    played all five.
+    """
+    if correct_year is None or not player.submitted or player.current_guess is None:
+        return 0
+    elapsed = (
+        player.submission_time - round_start_time
+        if player.submission_time is not None and round_start_time is not None
+        else round_duration
+    )
+    points, _base, _mult = calculate_round_score(
+        player.current_guess, correct_year, elapsed, round_duration, difficulty
+    )
+    player.ghost_score += points
+    player.ghost_rounds += 1
+    return points
 
 
 def apply_bet_multiplier(
     round_score: int,
     bet: bool,  # noqa: FBT001
     is_exact: bool,  # noqa: FBT001
+    multiplier: int = BET_WIN_MULTIPLIER,
 ) -> tuple[int, str | None]:
     """
     Apply bet multiplier to round score (Story 5.3, redesigned #1004).
 
     Betting is a real "exact or nothing" gamble:
-    - If bet and the guess is the EXACT year: round_score x BET_WIN_MULTIPLIER,
+    - If bet and the guess is the EXACT year: round_score x multiplier,
       outcome="won".
     - If bet and the guess is not exact: score becomes 0, outcome="lost" —
       the player forfeits the points a close guess would otherwise have
@@ -167,6 +265,10 @@ def apply_bet_multiplier(
         round_score: Points earned before bet (accuracy x speed)
         bet: Whether player placed a bet
         is_exact: Whether the guess matched the correct year exactly
+        multiplier: Payout multiplier for a won bet. Defaults to the flat
+            ``BET_WIN_MULTIPLIER`` (3x). #1727: the caller passes a
+            difficulty-scaled value via :func:`bet_win_multiplier` when the
+            opt-in ``difficulty_bet_scaling_enabled`` setting is on.
 
     Returns:
         Tuple of (final_score, bet_outcome)
@@ -177,7 +279,7 @@ def apply_bet_multiplier(
         return round_score, None
 
     if is_exact:
-        return round_score * BET_WIN_MULTIPLIER, "won"
+        return round_score * multiplier, "won"
     return 0, "lost"
 
 
@@ -228,6 +330,26 @@ def _apply_streak(
         player.streak_bonus = calculate_streak_bonus(player.streak)
         if player.streak == STEAL_UNLOCK_STREAK:
             player.unlock_steal()
+        # #1666: reaching a milestone hands out a shield. Reuses the same
+        # STREAK_MILESTONES table the bonus reads, so "milestone" means one
+        # thing in the game and the two cannot drift apart. At most one shield
+        # is held — a player who reaches 5 while still carrying the shield from
+        # 3 keeps one, not two.
+        if player.streak in STREAK_MILESTONES:
+            player.streak_shield = True
+    elif player.streak_shield:
+        # #1666: spend the shield instead of resetting. The streak COUNTER
+        # survives so the next correct answer continues the run; no streak
+        # bonus is paid for this round, because the answer was still wrong —
+        # `reset_round` already zeroed `streak_bonus` and we leave it there.
+        # The shield protects the run, not the points.
+        #
+        # Applies to every wrong answer, sabotage-induced ones included
+        # (Markus, 2026-07-22): a shield that silently fails against the one
+        # mechanic built to cause misses would be worse than no shield.
+        player.streak_shield = False
+        player.streak_shield_used_this_round = True
+        player.previous_streak = 0
     else:
         player.previous_streak = player.streak
         player.streak = 0
@@ -238,11 +360,13 @@ def _score_artist_challenge(
     player: PlayerSession,
     artist_challenge: Any | None,
 ) -> int:
-    """Return artist bonus points and set player.artist_bonus. Mutates player."""
+    """Return artist bonus points and set player.artist_bonus. Mutates player.
+
+    Winner-takes-all (Issue #1723): delegates to the challenge's shared
+    ``get_player_bonus`` so the artist and movie challenges award identically.
+    """
     player.artist_bonus = (
-        ARTIST_BONUS_POINTS
-        if artist_challenge and artist_challenge.winner == player.name
-        else 0
+        artist_challenge.get_player_bonus(player.name) if artist_challenge else 0
     )
     return player.artist_bonus
 
@@ -321,26 +445,82 @@ def _score_movie_challenge(
     return player.movie_bonus
 
 
+def _intro_qualified(
+    player: PlayerSession,
+    *,
+    cutoff: float,
+    correct_year: int | None,
+    difficulty: str,
+    title_artist_manager: Any | None,
+) -> bool:
+    """Whether ``player`` qualifies for the intro speed bonus (#1720).
+
+    A submission must be both *in time* (before the 15s cutoff) and
+    *accuracy-positive*. Accuracy is recomputed from stable submit-time inputs
+    (``current_guess`` / the title-artist manager) rather than read off
+    ``player.base_score``: the per-player scoring loop runs sequentially, so a
+    not-yet-scored player's ``base_score`` may still hold a previous round's
+    value. Recomputing keeps the speed ranking order-independent.
+
+    Year mode: accuracy score (== ``base_score``) must be > 0.
+    Title/artist mode: title + artist points (== ``base_score``) must be > 0.
+    """
+    if player.submission_time is None or player.submission_time >= cutoff:
+        return False
+    if title_artist_manager is not None:
+        title_pts, artist_pts = title_artist_manager.title_artist_points(player.name)
+        return (title_pts + artist_pts) > 0
+    if correct_year is None or player.current_guess is None:
+        return False
+    return calculate_accuracy_score(player.current_guess, correct_year, difficulty) > 0
+
+
 def _score_intro_round(
     player: PlayerSession,
     *,
     is_intro_round: bool,
     intro_round_start_time: float | None,
     all_players: list[PlayerSession],
+    correct_year: int | None,
+    difficulty: str,
+    title_artist_manager: Any | None,
 ) -> int:
-    """Return intro bonus points. Mutates player.intro_bonus and player.intro_speed_bonuses."""
+    """Return intro bonus points. Mutates player.intro_bonus and player.intro_speed_bonuses.
+
+    #1720: only accuracy-qualified submitters compete for (and receive) the
+    tiered 5/3/1 intro bonus. A fast-but-wrong tap no longer farms guaranteed
+    points nor displaces a slower-but-correct recognizer in the speed ranking.
+    """
     player.intro_bonus = 0
     if not (is_intro_round and intro_round_start_time and player.submission_time):
         return 0
     cutoff = intro_round_start_time + INTRO_DURATION_SECONDS
-    if player.submission_time >= cutoff:
+    if not _intro_qualified(
+        player,
+        cutoff=cutoff,
+        correct_year=correct_year,
+        difficulty=difficulty,
+        title_artist_manager=title_artist_manager,
+    ):
         return 0
     player.intro_speed_bonuses += 1
     rank = sum(
         1
         for p in all_players
-        if p.submission_time is not None
-        and p.submission_time < cutoff
+        if p is not player
+        # #1748: an eliminated player (Sudden Death) is out of the game and must
+        # not occupy a slot in the intro speed ranking that survivors compete for.
+        # #2578: dasselbe gilt fuer einen Zuschauer im Finale-Stechen — er
+        # spielt die Runde nicht mit, ist aber nicht ausgeschieden.
+        and not p.out_of_play
+        and _intro_qualified(
+            p,
+            cutoff=cutoff,
+            correct_year=correct_year,
+            difficulty=difficulty,
+            title_artist_manager=title_artist_manager,
+        )
+        and p.submission_time is not None
         and p.submission_time < player.submission_time
     )
     if rank < len(INTRO_BONUS_TIERS):
@@ -380,6 +560,38 @@ def _award(
     }
 
 
+#: #2559: unter so vielen Geisterrunden ist ein Schnitt kein Ergebnis, sondern
+#: ein Zufall. Wer in der vorletzten Runde ausschied und einmal richtig lag,
+#: haette sonst den perfekten Schnitt und den Award.
+MIN_GHOST_ROUNDS_FOR_AWARD = 2
+
+
+def _superlative_best_ghost(players: list[PlayerSession]) -> dict[str, Any] | None:
+    """Der beste Geist — gewertet PRO gespielter Geisterrunde (#2559).
+
+    Der gezeichnete Entwurf nennt die Ungerechtigkeit selbst: wer in Runde 2
+    ausscheidet, spielt fuenf Geisterrunden, wer in Runde 6 geht, eine. Eine
+    rohe Summe praemiert deshalb frueh sterben — und ein Award, den man durch
+    frueheres Ausscheiden gewinnt, ist genau der falsche Anreiz in einem Spiel,
+    dessen Sudden Death schon fuers Ueberleben belohnt.
+
+    Gewertet wird darum ``ghost_score / ghost_rounds``, mit einer Mindestzahl
+    gespielter Runden. Beide Zahlen sind mechanisch und pruefbar; keine wiegt
+    ab, wie gut jemand „eigentlich" war.
+    """
+    candidates = [
+        (p, p.ghost_score / p.ghost_rounds)
+        for p in players
+        if p.ghost_rounds >= MIN_GHOST_ROUNDS_FOR_AWARD and p.ghost_score > 0
+    ]
+    if not candidates:
+        return None
+    # Bei Gleichstand im Schnitt gewinnt die groessere Summe: gleicher Schnitt
+    # ueber mehr Runden ist die haerter erarbeitete Zahl.
+    best = max(candidates, key=lambda x: (x[1], x[0].ghost_score))
+    return _award("best_ghost", "👻", best[0].name, round(best[1], 1), "ghost_avg")
+
+
 def _superlative_speed_demon(players: list[PlayerSession]) -> dict[str, Any] | None:
     candidates = [
         (p, p.avg_submission_time)
@@ -413,6 +625,24 @@ def _superlative_risk_taker(players: list[PlayerSession]) -> dict[str, Any] | No
         return None
     most = max(candidates, key=lambda x: x[1])
     return _award("risk_taker", "🎲", most[0].name, most[1], "bets")
+
+
+def _superlative_last_one_standing(
+    players: list[PlayerSession],
+) -> dict[str, Any] | None:
+    """Issue #827: the sole survivor of a Sudden Death game.
+
+    Awarded only when exactly one player was never eliminated while at least
+    one other player was — i.e. a Sudden Death game that actually ran to its
+    1v1 conclusion.
+    """
+    survivors = [p for p in players if not p.eliminated]
+    eliminated = [p for p in players if p.eliminated]
+    if len(survivors) != 1 or not eliminated:
+        return None
+    return _award(
+        "last_one_standing", "💀", survivors[0].name, len(eliminated), "eliminated"
+    )
 
 
 def _superlative_clutch_player(
@@ -579,7 +809,15 @@ class ScoringService:
         milestone counter cannot be decremented (callers that don't track
         achievements may pass ``None``).
         """
-        submitted = [p for p in players if p.submitted and p.current_guess is not None]
+        # #1748: an eliminated player (Sudden Death) must not enter the
+        # closest-distance calculation — a stale-client submission from someone
+        # already OUT could otherwise become "closest" and zero every survivor.
+        # #2578: gilt genauso fuer Zuschauer im Finale-Stechen.
+        submitted = [
+            p
+            for p in players
+            if p.submitted and p.current_guess is not None and not p.out_of_play
+        ]
         if not submitted:
             return
 
@@ -608,7 +846,14 @@ class ScoringService:
                 # set streak=0 and saved the real previous_streak for players
                 # who scored 0 — overwriting previous_streak with the now-0
                 # streak here would wipe their "lost X-streak" reveal display.
-                if lost > 0:
+                # #1721: additionally keep the streak (and its steal/milestone/
+                # best_streak side-effects) alive when the player was ACCURATE
+                # this round (base_score > 0). Closest-Wins still voids their
+                # round POINTS above, but an accurate guess must not break a
+                # streak just because someone else landed closer — otherwise
+                # streaks, the Steal unlock, milestone bonuses and the 🔥
+                # highlight become dead content in this mode.
+                if lost > 0 and p.base_score <= 0:
                     # _apply_streak incremented streak for this scoring round,
                     # so the pre-round streak is (streak - 1). Roll back the
                     # side-effects that the now-voided round produced:
@@ -646,6 +891,7 @@ class ScoringService:
         movie_quiz_enabled: bool = False,
         intro_mode_enabled: bool = False,
         title_artist_mode_enabled: bool = False,
+        sudden_death_mode_enabled: bool = False,
     ) -> list[dict[str, Any]]:
         """Calculate fun awards based on game performance (Story 15.2)."""
         if not players:
@@ -655,6 +901,17 @@ class ScoringService:
         # never qualify (their counters aren't tracked), so the TA-native
         # awards take their slots near the top of the priority order.
         builders = [
+            # Issue #827: the marquee award for a Sudden Death game leads the reel.
+            (
+                _superlative_last_one_standing(players)
+                if sudden_death_mode_enabled
+                else None
+            ),
+            # #2559: direkt hinter „Last one standing" — beide gehoeren zum
+            # Sudden Death, und der Geist ist die Gegengeschichte zum
+            # Ueberlebenden. Ohne Sudden Death gibt es keine Geister, also
+            # entsteht die Karte gar nicht.
+            (_superlative_best_ghost(players) if sudden_death_mode_enabled else None),
             _superlative_speed_demon(players),
             _superlative_lucky_streak(players),
             _superlative_perfect_pair(players) if title_artist_mode_enabled else None,
@@ -685,7 +942,14 @@ class ScoringService:
         if correct_year is None:
             return RoundAnalytics()
 
-        submitted = [p for p in players if p.submitted and p.current_guess is not None]
+        # #3028: a Sudden Death ghost (#2559) keeps guessing with years_off None;
+        # the `or 0` below would make it "Closest · Exact!". Same guard as
+        # apply_closest_wins — out_of_play players are not part of the round.
+        submitted = [
+            p
+            for p in players
+            if p.submitted and p.current_guess is not None and not p.out_of_play
+        ]
         if not submitted:
             return RoundAnalytics(correct_decade=_get_decade_label(correct_year))
 
@@ -748,6 +1012,20 @@ class ScoringService:
         )
 
     @staticmethod
+    def score_ghost_round(
+        player: Any,
+        correct_year: int | None,
+        round_start_time: float | None,
+        round_duration: float,
+        difficulty: str = DIFFICULTY_DEFAULT,
+    ) -> int:
+        """Delegiert an :func:`score_ghost_round` — gleiche Aufrufform wie
+        ``score_player_round``, damit der Rundenlauf nicht zwei Stile mischt."""
+        return score_ghost_round(
+            player, correct_year, round_start_time, round_duration, difficulty
+        )
+
+    @staticmethod
     def score_player_round(
         player: PlayerSession,
         *,
@@ -763,12 +1041,17 @@ class ScoringService:
         streak_achievements: dict[str, int],
         bet_tracking: dict[str, int],
         title_artist_manager: Any | None = None,
+        difficulty_bet_scaling_enabled: bool = False,
     ) -> None:
         """Score a single player for the current round. Mutates player in-place.
 
         When ``title_artist_manager`` is provided (title/artist mode, #1180),
         the round score is title points + artist points and the year-based
         scoring path is bypassed entirely.
+
+        #1727: when ``difficulty_bet_scaling_enabled`` is True the won-bet payout
+        scales with difficulty (easy 2x / normal 3x / hard 5x); when False the
+        flat 3x applies on every difficulty (unchanged).
         """
         if title_artist_manager is not None:
             if player.submitted:
@@ -785,6 +1068,9 @@ class ScoringService:
                     is_intro_round=is_intro_round,
                     intro_round_start_time=intro_round_start_time,
                     all_players=all_players,
+                    correct_year=correct_year,
+                    difficulty=difficulty,
+                    title_artist_manager=title_artist_manager,
                 )
                 player.score += player.movie_bonus + player.intro_bonus
             else:
@@ -829,7 +1115,12 @@ class ScoringService:
             player.years_off = abs(player.current_guess - correct_year)
             player.missed_round = False
             player.round_score, player.bet_outcome = apply_bet_multiplier(
-                speed_score, player.bet, player.years_off == 0
+                speed_score,
+                player.bet,
+                player.years_off == 0,
+                bet_win_multiplier(
+                    difficulty, scaling_enabled=difficulty_bet_scaling_enabled
+                ),
             )
 
             _apply_streak(player, speed_score, streak_achievements)
@@ -840,6 +1131,9 @@ class ScoringService:
                 is_intro_round=is_intro_round,
                 intro_round_start_time=intro_round_start_time,
                 all_players=all_players,
+                correct_year=correct_year,
+                difficulty=difficulty,
+                title_artist_manager=None,
             )
 
             player.score += (

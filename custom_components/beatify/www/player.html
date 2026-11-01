@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" href="/beatify/static/img/icon-256.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <!-- #824: cache-bust i18n JSON fetches. See admin.html for rationale. -->
     <meta name="beatify-version" content="{{VERSION}}">
@@ -35,11 +36,20 @@
     <!-- Preconnect for faster font loading (Story 9.8) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700;900&display=swap" rel="stylesheet">
+    <!-- #2641: the font stylesheet is fetched non-blocking. A cross-origin
+         <link rel=stylesheet> in the head stops rendering until the CDN answers
+         or times out, and on party wifi with no working internet that is 5-30
+         seconds of blank screen before anything appears. media="print" makes
+         the browser fetch it at low priority without blocking the render; the
+         onload swap applies it the moment it arrives. The page is fully
+         readable in the fallback stack until then. -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700;900&display=swap" rel="stylesheet"></noscript>
     <!-- Story 18.4: Use minified CSS in production -->
     <link rel="stylesheet" href="/beatify/static/css/styles.min.css?v={{ASSET_VER}}">
-    <!-- Confetti library for celebrations (Story 14.5) -->
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <!-- #2698: canvas-confetti no longer comes from jsdelivr. It moved to
+         /beatify/static/js/vendor/ and is loaded next to qrcode.min.js and
+         no-sleep.min.js at the end of the body — see the script block there. -->
 </head>
 <body class="theme-dark">
     <header class="player-header">
@@ -112,14 +122,35 @@
             <div class="join-form">
                 <p data-i18n="join.enterName">Enter your name to play</p>
                 <div class="form-group">
+                    <!-- #2627: no maxlength attribute on purpose. The cap is set
+                    from MAX_NAME_LENGTH (the mirror of const.py) in JS, so a
+                    server-side change reaches the field instead of leaving a
+                    stale literal behind. -->
                     <input type="text" id="name-input" class="name-input"
                            data-i18n-placeholder="join.namePlaceholder"
-                           placeholder="Your name" maxlength="20"
+                           placeholder="Your name"
                            autocomplete="off" autocapitalize="words"
                            aria-describedby="name-validation-msg">
                     <p id="name-validation-msg" class="validation-msg hidden"></p>
                 </div>
                 <button id="join-btn" class="btn btn-primary btn-glow join-btn" disabled data-i18n="join.joinButton">Join Game</button>
+                <!-- #2585: the phone states the language it is going to speak
+                and offers to be contradicted. Not a question: a Dutch phone at
+                a German host's party simply reads Dutch, and the link is there
+                for the guest the guess got wrong. Filled in by
+                player-language.js, which also hides the row when i18n failed to
+                load — a row that cannot name a language is worse than none. -->
+                <div id="join-language" class="join-language hidden">
+                    <p class="join-language-line">
+                        <span id="join-language-current" class="join-language-current"></span>
+                        <span class="join-language-sep" aria-hidden="true">&middot;</span>
+                        <button type="button" id="join-language-toggle" class="join-language-toggle"
+                                aria-expanded="false" aria-controls="join-language-chips"
+                                data-i18n="join.otherLanguage">other language</button>
+                    </p>
+                    <div id="join-language-chips" class="join-language-chips hidden" role="group"
+                         aria-label="Choose your language" data-i18n-aria-label="join.chooseLanguage"></div>
+                </div>
             </div>
         </div>
 
@@ -131,7 +162,8 @@
                         <span>
                             <span data-i18n="onboarding.stepLabel">Step</span>
                             <span id="tour-step-num">1</span>
-                            <span class="of" data-i18n="onboarding.stepOf">of 4</span>
+                            <span class="of" data-i18n="onboarding.stepOf">of</span>
+                            <span id="tour-step-total">5</span>
                         </span>
                         <button type="button" id="tour-skip-link" class="tour-skip-link" data-i18n="onboarding.skip">Skip tour</button>
                     </div>
@@ -158,7 +190,7 @@
                         <div class="tour-preview-slider" aria-hidden="true">
                             <span class="tour-slider-label">1950</span>
                             <div class="tour-slider-track"><div class="tour-slider-thumb"></div></div>
-                            <span class="tour-slider-label">2025</span>
+                            <span class="tour-slider-label" id="tour-slider-max">2025</span>
                         </div>
                     </div>
                 </section>
@@ -281,6 +313,13 @@
                     </div>
                 </div>
 
+                <!-- #2647: the same sentence the TV shows, word for word. What
+                     the room gets read out, every guest also has in his hand.
+                     Filled by player-lobby.js (renderLobbyBriefLine) via
+                     BeatifyUtils.renderLobbyBrief; hidden when there is nothing
+                     trustworthy to say. -->
+                <p id="lobby-brief" class="lobby-brief hidden" role="status"></p>
+
                 <!-- Replay tour link (post-QR onboarding v2) — replaces the old How-to-Play accordion -->
                 <button type="button" id="replay-tour-link" class="replay-tour-link">
                     <span aria-hidden="true">↺</span>
@@ -372,25 +411,81 @@
                         <span class="arc-round-label" data-i18n="game.roundLabel">Round</span>
                         <span class="arc-round-big">
                             <span id="current-round">1</span>
-                            <span class="arc-round-sep" aria-hidden="true">/</span>
-                            <span id="total-rounds">10</span>
+                            <span class="arc-round-sep round-total-part" aria-hidden="true">/</span>
+                            <span id="total-rounds" class="round-total-part">10</span>
                         </span>
                         <span id="round-indicator" class="sr-only">
                             <span data-i18n="game.roundLabel">Round</span>
                             <span data-i18n="game.ofLabel">of</span>
                         </span>
                     </div>
-                    <div id="timer-neon" class="timer-neon" role="timer" aria-live="polite" aria-label="Time remaining">
+                    <!-- #1714: role=timer WITHOUT aria-live — a polite live region
+                         re-announced "30..29..28.." every second, burying submission
+                         acks / score updates for screen-reader users. Milestone-only
+                         announcements go through #timer-announcer below instead. -->
+                    <div id="timer-neon" class="timer-neon" role="timer" aria-label="Time remaining">
+                        <!-- #1663 item 4 (Depleting Ring-Countdown): SVG ring drains
+                             cyan→red as the round runs out, mirroring the reveal
+                             auto-advance ring. Driven from player-game/timer.js. -->
+                        <svg class="timer-neon-ring" viewBox="0 0 72 72" aria-hidden="true">
+                            <circle class="timer-neon-ring-bg" cx="36" cy="36" r="33"></circle>
+                            <circle class="timer-neon-ring-fg" cx="36" cy="36" r="33"></circle>
+                        </svg>
                         <span id="timer" class="timer">30</span>
                     </div>
+                    <!-- #1714: milestone-only assertive announcements (10s / 5s / time up). -->
+                    <div id="timer-announcer" class="sr-only" aria-live="assertive" aria-atomic="true"></div>
                 </header>
+
+                <!-- Issue #827: Sudden Death — eliminated player view (S2-A "Stark Blackout").
+                     Shown in place of the normal play UI when the current player is out.
+                     Hidden by default; player-game.js toggles it. -->
+                <div id="eliminated-view" class="eliminated-view hidden" aria-live="polite">
+                    <div class="eliminated-orb" aria-hidden="true">
+                        <img id="eliminated-album-cover"
+                             src="/beatify/static/img/no-artwork.svg"
+                             alt="">
+                        <span class="eliminated-skull" aria-hidden="true">💀</span>
+                    </div>
+                    <div class="eliminated-title" id="eliminated-title" data-i18n="game.youreOut">You're out</div>
+                    <div class="eliminated-sub" id="eliminated-sub"></div>
+                    <div class="eliminated-hint" id="eliminated-hint" data-i18n="game.watchingSidelines">Watching from the sidelines</div>
+                    <!-- #2746: the way back, on the guest's own phone. The host
+                         removes, the guest returns — the session survives the
+                         removal, so this needs nothing the phone does not
+                         already hold. Hidden for eliminations and playoff
+                         spectators; renderRejoinControl owns that. -->
+                    <div id="rejoin-control" class="rejoin-control hidden">
+                        <button id="rejoin-btn" type="button" class="btn btn-primary" data-i18n="player.imBack">I'm back</button>
+                        <p id="rejoin-pending" class="rejoin-pending hidden"></p>
+                    </div>
+                </div>
+
+                <!-- #2649: what the party lights are doing. The host does not
+                     find out that lights are running until the hallway flashes;
+                     this says which rooms, and is itself the way in. Host-only,
+                     hidden for guests. -->
+                <button type="button" id="party-lights-line" class="party-lights-line hidden">
+                    <span class="party-lights-line__glow" aria-hidden="true"></span>
+                    <span class="party-lights-line__text" id="party-lights-line-text"></span>
+                    <span class="party-lights-line__chev" aria-hidden="true">›</span>
+                </button>
 
                 <!-- Chip row: steal unlocked · closest-wins · intro · final round (conditional) -->
                 <div id="arc-chip-row" class="arc-chip-row hidden" aria-live="polite">
                     <span id="game-difficulty-badge" class="stat-badge stat-badge--difficulty hidden"></span>
+                    <!-- #2721: the label carries an id because a Comeback
+                         Token retargets it. Same chip, different sentence: a
+                         gifted steal that reads "Steal Available!" is exactly
+                         what makes the streak counter look broken. -->
                     <span id="steal-indicator" class="arc-chip arc-chip--steal hidden">
                         <span aria-hidden="true">🥷</span>
-                        <span data-i18n="steal.available">Steal Available!</span>
+                        <span id="steal-indicator-label" data-i18n="steal.available">Steal Available!</span>
+                    </span>
+                    <!-- #1665: sabotage token available, twin of steal-indicator -->
+                    <span id="sabotage-indicator" class="arc-chip arc-chip--sabotage hidden">
+                        <span aria-hidden="true">💣</span>
+                        <span data-i18n="sabotage.available">Sabotage Ready!</span>
                     </span>
                     <span id="closest-wins-badge" class="arc-chip arc-chip--closest-wins hidden">
                         <span aria-hidden="true">🎯</span>
@@ -401,6 +496,18 @@
                         <span data-i18n="game.introRound">INTRO ROUND</span>
                     </span>
                     <span id="last-round-banner" class="arc-chip arc-chip--final hidden" data-i18n="game.finalRound">Final Round!</span>
+                    <!-- #2559: „GEIST 1 / 3" — der Rang in der eigenen Liga,
+                         dort wo sonst der Rundenstand steht. Ein Geist soll auf
+                         einen Blick sehen, dass er noch um etwas spielt. -->
+                    <span id="ghost-badge" class="arc-chip arc-chip--ghost hidden"></span>
+                    <!-- #2554: the host can stop the song mid-round. Until now
+                         only the host's own button changed; to everyone else the
+                         music just cut out while the timer kept running, which
+                         reads as a failure. -->
+                    <span id="song-stopped-chip" class="arc-chip arc-chip--stopped hidden">
+                        <span aria-hidden="true">⏹</span>
+                        <span data-i18n="game.songStoppedChip">Song stopped — keep guessing</span>
+                    </span>
                 </div>
 
                 <!-- Year XXL display — turns green + gets "locked" class after submit -->
@@ -423,24 +530,29 @@
                     </div>
                 </div>
 
-                <!-- Closest Wins ephemeral splash badge (unchanged from rc30) -->
-                <div id="closest-wins-splash" class="closest-wins-splash hidden" aria-hidden="true">
-                    <span aria-hidden="true">🎯</span>
-                    <span data-i18n="game.closestWins">CLOSEST WINS</span>
-                </div>
-
                 <!-- Year slider (−5 · − · track · + · +5) — #851 -->
                 <div id="year-selector-container" class="slider-arcade-wrap">
                     <div id="year-selector" class="slider-arcade">
                         <button type="button" id="year-decrement-5" class="slider-btn-year slider-btn-year--coarse" aria-label="Decrease year by 5">&minus;5</button>
                         <button type="button" id="year-decrement" class="slider-btn-year" aria-label="Decrease year">&minus;</button>
                         <div class="slider-arcade-track">
+                            <!-- #2337: these are the fallback bounds only.
+                                 applyYearRange() replaces them from the
+                                 server's year_range on the first state
+                                 update, so a playlist reaching past them is
+                                 still answerable. -->
                             <input type="range"
                                    id="year-slider"
                                    min="1950"
                                    max="2025"
                                    value="1990"
                                    class="year-slider year-slider-arcade">
+                            <!-- #2344: decade marks, built by renderYearScale()
+                                 from the same span applyYearRange() applies.
+                                 Empty here on purpose — pinning them to fixed
+                                 percentages would go wrong the moment the
+                                 bounds move, which they now do. -->
+                            <div id="year-scale" class="year-scale" aria-hidden="true"></div>
                         </div>
                         <button type="button" id="year-increment" class="slider-btn-year" aria-label="Increase year">+</button>
                         <button type="button" id="year-increment-5" class="slider-btn-year slider-btn-year--coarse" aria-label="Increase year by 5">+5</button>
@@ -499,6 +611,17 @@
                     </button>
                 </div>
 
+                <!-- #2559 Ghost League — nur fuer einen Ausgeschiedenen, der
+                     weiterraet. Steht UNTER dem Absenden: erst spielen, dann
+                     nachsehen, wo man steht. Drei Zeilen reichen; die volle
+                     Tabelle laeuft auf dem Fernseher. -->
+                <section id="ghost-panel" class="ghost-panel hidden" aria-live="polite">
+                    <div class="ghost-panel-head">
+                        <span data-i18n="superlatives.ghostLeague">Ghost League</span>
+                    </div>
+                    <div id="ghost-panel-rows"></div>
+                </section>
+
                 <!-- Artist Challenge — arcade tiles (Story 20.5) -->
                 <section id="artist-challenge-container" class="arc-tiles artist-challenge hidden">
                     <div class="arc-tiles-header">
@@ -535,11 +658,20 @@
                     <span data-i18n="game.noBonusThisRound">No bonus this round — nail the year</span>
                 </div>
 
-                <!-- Steal power-up button (full width, only when steal available) -->
-                <button id="steal-btn" class="steal-btn-full hidden" type="button">
-                    <span class="steal-btn-icon" aria-hidden="true">🥷</span>
-                    <span class="steal-btn-label" data-i18n="steal.button">Steal Answer</span>
-                </button>
+                <!-- Power-up buttons: Steal + Sabotage twins (#1665). Each shows
+                     only when its token is in hand; the flex row keeps a lone
+                     button full-width and puts them side-by-side when both are up. -->
+                <div class="powerup-btn-row">
+                    <button id="steal-btn" class="steal-btn-full hidden" type="button">
+                        <span class="steal-btn-icon" aria-hidden="true">🥷</span>
+                        <span class="steal-btn-label" data-i18n="steal.button">Steal Answer</span>
+                    </button>
+                    <!-- #1665: Sabotage twin. Picks only the target; effect is random. -->
+                    <button id="sabotage-btn" class="sabotage-btn-full hidden" type="button">
+                        <span class="sabotage-btn-icon" aria-hidden="true">💣</span>
+                        <span class="sabotage-btn-label" data-i18n="sabotage.button">Sabotage</span>
+                    </button>
+                </div>
 
                 <!-- Legacy node kept for existing JS paths (was the inline "Submitted!" stamp) -->
                 <div id="submitted-confirmation" class="submitted-confirmation hidden" aria-hidden="true">
@@ -585,7 +717,18 @@
                      ended with zero guesses and the game is holding here. -->
                 <div id="reveal-idle-halt" class="idle-halt-banner hidden" role="status">
                     <span class="idle-halt-icon" aria-hidden="true">⏸️</span>
-                    <span data-i18n="reveal.idleHaltBanner">Game idle — no one played this round. Tap Next round to keep going.</span>
+                    <!-- #2622: the sentence swaps for guests (renderIdleHalt in
+                         player-reveal.js) — "Tap Next round" points at a button
+                         that only the host has. -->
+                    <span id="reveal-idle-halt-text" data-i18n="reveal.idleHaltBanner">Game idle — no one played this round. Tap Next round to keep going.</span>
+                </div>
+
+                <!-- #2646: the host dropped this round instead of scoring it.
+                     Without this the screen shows a reveal and a leaderboard
+                     that did not move, which reads as a scoring bug. -->
+                <div id="reveal-voided" class="idle-halt-banner hidden" role="status">
+                    <span class="idle-halt-icon" aria-hidden="true">🚫</span>
+                    <span data-i18n="reveal.roundVoidedBanner">This round does not count — no points, no broken streaks.</span>
                 </div>
 
                 <!-- Header: round count + difficulty badge + round-stats ⓘ -->
@@ -593,8 +736,8 @@
                     <div class="round-count">
                         <span data-i18n="game.roundLabel">Round</span>
                         <span id="reveal-round">1</span>
-                        <span data-i18n="game.ofLabel">of</span>
-                        <span id="reveal-total">10</span>
+                        <span class="round-total-part" data-i18n="game.ofLabel">of</span>
+                        <span id="reveal-total" class="round-total-part">10</span>
                     </div>
                     <div class="header-right">
                         <!-- Auto-advance countdown ring (hidden when reveal_auto_advance==0 or idle_halt) -->
@@ -606,7 +749,6 @@
                             </svg>
                             <span class="reveal-advance-num" id="player-reveal-countdown-num">0</span>
                         </span>
-                        <span id="reveal-difficulty-badge" class="stat-badge stat-badge--difficulty"></span>
                         <button type="button" id="round-stats-btn" class="info-btn"
                                 aria-label="Round stats"
                                 data-i18n-aria-label="reveal.stats.title">ⓘ</button>
@@ -638,10 +780,16 @@
                 <!-- Chip row: bet / streak / other mode indicators (conditional) -->
                 <div id="reveal-chip-row" class="chip-row hidden"></div>
 
+                <!-- #2723: Sudden Death standing line. The reveal is the
+                     loudest second of the game — a one-off sentence is read by
+                     nobody. This sits in the same place every round and answers
+                     the question a guest actually has: am I still in it? -->
+                <div id="reveal-sd-standing" class="sd-standing hidden"></div>
+
                 <!-- Duel: your guess vs. correct year as two facing tickets,
                      with the gap as a delta pill overlapping their base and the
                      emotion headline above. -->
-                <div class="duel">
+                <div class="duel" id="reveal-duel">
                     <div id="reveal-emotion" class="duel-emotion hidden" aria-live="polite" aria-atomic="true"></div>
                     <div class="duel-tickets">
                         <div class="duel-ticket duel-ticket--you">
@@ -660,9 +808,6 @@
                     </div>
                 </div>
 
-                <!-- Confetti Canvas (Story 9.4) -->
-                <canvas id="confetti-canvas" class="confetti-canvas"></canvas>
-
                 <!-- Score row: big final points + breakdown ⓘ -->
                 <div class="score-row">
                     <div class="score-row-left">
@@ -676,6 +821,38 @@
                                 data-i18n-aria-label="reveal.breakdown.title">ⓘ</button>
                     </div>
                 </div>
+
+                <!-- Streak shield (#1666, rewired #2601): the line that says why
+                     a zero-point round left the streak standing. Under the score
+                     row because that is where the question arises. -->
+                <div id="reveal-streak-shield" class="streak-shield-used hidden" role="status"></div>
+
+                <!-- #2702 beat two: who got it right this round. Hidden until
+                     the second beat is due (data-stage), and hidden outright
+                     when nobody scored. -->
+                <section id="reveal-whogot" class="card-section whogot-section hidden" data-stage="2">
+                    <h2 class="section-header">
+                        <span class="section-icon" aria-hidden="true">&#127919;</span>
+                        <span data-i18n="dashboard.topGuesses">Top Guesses This Round</span>
+                    </h2>
+                    <div class="section-content-padded">
+                        <div id="reveal-whogot-list" class="whogot-list"></div>
+                    </div>
+                </section>
+
+                <!-- Your collection (#2324): every song you placed close
+                     enough to keep, oldest year first. The row a score cannot
+                     be — it is still there when the game is over. -->
+                <section id="collection-section" class="card-section collection-section hidden">
+                    <h2 class="section-header">
+                        <span class="section-icon" aria-hidden="true">🗂️</span>
+                        <span data-i18n="reveal.collection.title">Your collection</span>
+                        <span id="collection-count" class="collection-count"></span>
+                    </h2>
+                    <div class="section-content-padded">
+                        <div id="collection-row" class="collection-row" role="list"></div>
+                    </div>
+                </section>
 
                 <!-- Title & Artist Reveal + Voting (#1180) -->
                 <section id="ta-reveal-section" class="card-section ta-reveal-section hidden">
@@ -719,12 +896,16 @@
                         <div id="song-rich-info" class="song-rich-info">
                             <!-- Populated by JavaScript: chart info, certifications, awards -->
                         </div>
+                        <!-- #2588: steht VOR dem Fun Fact — die Erklaerung muss
+                             vor dem Widerspruch kommen, nicht danach. -->
+                        <div id="cover-hint" class="cover-hint hidden"></div>
                         <div id="fun-fact" class="fun-fact-text"></div>
                     </div>
                 </section>
 
                 <!-- Standings (compact list, kept with existing leaderboard-list id for renderer) -->
-                <section id="reveal-leaderboard" class="card-section standings-section">
+                <!-- #2702 beat three: the standings land last. -->
+                <section id="reveal-leaderboard" class="card-section standings-section" data-stage="3">
                     <h2 class="section-header">
                         <span class="section-icon" aria-hidden="true">🏆</span>
                         <span data-i18n="leaderboard.standings">Standings</span>
@@ -767,13 +948,47 @@
         <!-- Paused View (Story 7-1) -->
         <div id="paused-view" class="view hidden">
             <div class="paused-container">
-                <div class="paused-icon">⏸️</div>
-                <h1 data-i18n="game.paused">Game Paused</h1>
+                <!-- #2645: the icon and the heading are written by
+                     updatePausedView, because on a host pause they carry the
+                     *announcement* — 🍕 and "Pizza is here" — and only fall
+                     back to ⏸️ / "Game Paused" when nobody named a reason.
+                     They deliberately carry no data-i18n: a later
+                     initPageTranslations pass would put the generic heading
+                     back over the announcement. -->
+                <div id="pause-icon" class="paused-icon">⏸️</div>
+                <h1 id="paused-title">Game Paused</h1>
+                <!-- The word the announcement replaces, kept small underneath
+                     it so the *state* is still readable when the headline is
+                     about pizza. Hidden unless a reason was named. -->
+                <p id="pause-state-label" class="paused-state-label hidden"></p>
                 <p id="pause-message" data-i18n="game.waitingForHost">Waiting for host to reconnect...</p>
                 <div class="paused-spinner">
                     <div class="spinner"></div>
                 </div>
-                <p class="paused-hint" data-i18n="game.pausedHint">The game will resume when the host returns</p>
+                <p id="pause-hint" class="paused-hint" data-i18n="game.pausedHint">The game will resume when the host returns</p>
+                <!-- #2551: the host playing along on their phone used to have no
+                     way out of PAUSED. resume_game and end_game both accept it
+                     server-side; the controls only ever existed on /beatify/admin,
+                     and nothing on this screen linked there. -->
+                <div id="paused-admin-actions" class="paused-admin-actions hidden">
+                    <!-- #2645: the announcement list. The tiles do not open the
+                         pause — the tap already did that — they name it, and
+                         the fourth one is the old Stop standing next to them
+                         with its consequence written out, so the difference
+                         between "clock stopped" and "clock running" is read at
+                         the moment of choosing rather than learned afterwards.
+                         Rendered by player-game.js; empty here on purpose. -->
+                    <div id="paused-announce-block" class="pause-announce hidden">
+                        <div class="pause-announce-label" data-i18n="admin.pauseAnnouncement">Change the announcement</div>
+                        <div id="paused-reason-tiles" class="pause-reasons"></div>
+                    </div>
+                    <button id="paused-resume-btn" class="btn btn-primary btn-large btn-full-width" type="button">
+                        <span class="btn-icon" aria-hidden="true">▶</span>
+                        <span data-i18n="admin.resumeGame">Resume Game</span>
+                    </button>
+                    <button id="paused-end-btn" class="btn btn-secondary btn-full-width" type="button" data-i18n="admin.endGame">End Game</button>
+                    <a class="paused-admin-link" href="/beatify/admin" data-i18n="admin.openAdminPage">Open the admin page</a>
+                </div>
             </div>
         </div>
 
@@ -836,7 +1051,7 @@
 
                 <!-- Highlights Reel (Issue #75) -->
                 <div id="highlights-container" class="highlights-container hidden">
-                    <div class="highlights-header" data-i18n="highlights.highlightsTab">🎬 Highlights</div>
+                    <div class="highlights-header"><span aria-hidden="true">🎬</span> <span data-i18n="highlights.highlightsTab">Highlights</span></div>
                     <div id="highlights-list" class="highlights-list">
                         <!-- Populated by JavaScript -->
                     </div>
@@ -850,11 +1065,24 @@
                     </div>
                 </div>
 
-                <!-- Admin controls -->
+                <!-- Admin controls — #2648: the end screen IS the start screen.
+                     Not a menu with two doors, but the choice itself: a grid of
+                     playlists, one primary button naming what it will start, and
+                     a quiet way back to the admin page that is no longer a
+                     co-equal exit. -->
                 <div id="end-admin-controls" class="end-admin-controls hidden">
+                    <div class="next-playlist-title" data-i18n="leaderboard.nextTitle">What's next?</div>
+                    <div id="next-playlist-grid" class="next-playlist-grid"></div>
+                    <div id="next-playlist-search" class="next-playlist-search hidden">
+                        <input id="next-playlist-search-input" type="search" class="next-search-input"
+                               autocomplete="off" data-i18n-placeholder="leaderboard.nextSearchPlaceholder"
+                               placeholder="Search playlists">
+                        <div id="next-playlist-results" class="next-playlist-results"></div>
+                    </div>
                     <button id="player-rematch-btn" class="btn btn-primary btn-large btn-full-width" data-i18n="admin.rematch">Revanche</button>
-                    <button id="new-game-btn" class="new-game-btn" data-i18n="admin.startNewGame">
-                        Start New Game
+                    <div class="next-playlist-stay" data-i18n="leaderboard.nextEveryoneStays">Everyone stays connected</div>
+                    <button id="new-game-btn" class="next-playlist-admin-link" type="button" data-i18n="admin.openAdminPage">
+                        Open the admin page
                     </button>
                 </div>
 
@@ -889,6 +1117,8 @@
                 <span class="control-icon">🔉</span>
                 <span class="control-label" data-i18n="admin.volDown">Down</span>
             </button>
+            <!-- #2557: the actual level, so the host is not adjusting blind. -->
+            <span id="volume-readout" class="control-volume-readout" aria-live="polite">--</span>
             <button id="volume-up-btn" class="control-btn" type="button">
                 <span class="control-icon">🔊</span>
                 <span class="control-label" data-i18n="admin.volUp">Up</span>
@@ -903,20 +1133,55 @@
             </button>
         </div>
 
-        <!-- Reaction Bar (Story 18.9) - visible during REVEAL only -->
+        <!-- #2723: host drawer. The control bar carries what is needed every
+             second (transport + volume); anything that changes the *course* of
+             the game lives one grip below it. Built as a container, not as a
+             Sudden Death control — #2649 (party lights) and #2646 (drop a song)
+             are meant to land here as further rows. -->
+        <div id="host-drawer" class="host-drawer hidden">
+            <button id="host-drawer-grip" class="host-drawer__grip" type="button"
+                    aria-expanded="false" aria-controls="host-drawer-body">
+                <span class="host-drawer__grip-bar"></span>
+                <span class="host-drawer__grip-label" data-i18n="admin.drawerTitle">Game flow</span>
+            </button>
+            <div id="host-drawer-body" class="host-drawer__body" hidden></div>
+        </div>
+
+        <!-- Reaction Bar (Story 18.9) — at the reveal for everyone, and during
+             the round for anyone already done with it (#2562: submitted,
+             eliminated, or sitting out a finale playoff). -->
         <div id="reaction-bar" class="reaction-bar hidden">
             <div class="reaction-bar-container">
-                <button class="reaction-btn" data-emoji="🔥" data-i18n-aria-label="reaction.fire" aria-label="Fire reaction">🔥</button>
-                <button class="reaction-btn" data-emoji="😂" data-i18n-aria-label="reaction.laugh" aria-label="Laugh reaction">😂</button>
-                <button class="reaction-btn" data-emoji="😱" data-i18n-aria-label="reaction.shocked" aria-label="Shocked reaction">😱</button>
-                <button class="reaction-btn" data-emoji="👏" data-i18n-aria-label="reaction.applause" aria-label="Applause reaction">👏</button>
-                <button class="reaction-btn" data-emoji="🤔" data-i18n-aria-label="reaction.thinking" aria-label="Thinking reaction">🤔</button>
+                <div class="reaction-bar-buttons">
+                    <button class="reaction-btn" data-emoji="🔥" data-i18n-aria-label="reaction.fire" aria-label="Fire reaction">🔥</button>
+                    <button class="reaction-btn" data-emoji="😂" data-i18n-aria-label="reaction.laugh" aria-label="Laugh reaction">😂</button>
+                    <button class="reaction-btn" data-emoji="😱" data-i18n-aria-label="reaction.shocked" aria-label="Shocked reaction">😱</button>
+                    <button class="reaction-btn" data-emoji="👏" data-i18n-aria-label="reaction.applause" aria-label="Applause reaction">👏</button>
+                    <button class="reaction-btn" data-emoji="🤔" data-i18n-aria-label="reaction.thinking" aria-label="Thinking reaction">🤔</button>
+                </div>
+                <!-- #2562: the cooldown the server is enforcing, drawn as a
+                     draining line. A tap swallowed in silence reads as a broken
+                     button; a visible wait reads as a rule. -->
+                <div id="reaction-cooldown" class="reaction-cooldown hidden" role="progressbar"
+                     data-i18n-aria-label="reaction.cooldown" aria-label="Reaction cooldown">
+                    <div id="reaction-cooldown-fill" class="reaction-cooldown-fill"></div>
+                </div>
             </div>
         </div>
 
         <!-- Floating Reactions Display (Story 18.9) -->
         <div id="reaction-container" class="reaction-container"></div>
     </main>
+
+    <!-- #2721: halftime takeover. The phone gets the same beat as the TV so
+         there is nothing one screen knows and the other does not. It auto-
+         hides; nothing on a party phone waits for a tap. -->
+    <div id="comeback-overlay" class="comeback-overlay comeback-overlay--phone">
+        <div class="comeback__word" id="comeback-word">HALFTIME</div>
+        <div class="comeback__line" id="comeback-line"></div>
+        <div class="comeback__names" id="comeback-names"></div>
+        <div class="comeback__why" id="comeback-why"></div>
+    </div>
 
     <!-- Intro Splash Modal (Issue #292) -->
     <div id="intro-splash-modal" class="intro-splash-modal hidden" role="dialog" aria-modal="true">
@@ -948,6 +1213,19 @@
             <p data-i18n="errors.connectionLostHint">We couldn't reconnect to the game server.</p>
             <button id="retry-connection-btn" class="btn btn-primary btn-glow" data-i18n="common.retry">Try Again</button>
             <p class="connection-lost-hint" data-i18n="errors.checkNetwork">Make sure you're connected to the network</p>
+        </div>
+    </div>
+
+    <!-- Session Takeover View (#1718) — shown when this session is claimed by
+         another device/tab. Distinct from Connection Lost: it is NOT a network
+         failure, so it carries no "check your network" hint and no blind retry
+         (retrying just races the takeover again). Offers a fresh join instead. -->
+    <div id="session-takeover-view" class="view hidden">
+        <div class="connection-lost-container">
+            <div class="connection-lost-icon">📱</div>
+            <h1 data-i18n="errors.sessionTakeoverTitle">You joined on another device</h1>
+            <p data-i18n="errors.sessionTakeoverHint">This screen is now inactive because you opened the game on another device or tab.</p>
+            <button id="session-rejoin-btn" class="btn btn-primary btn-glow" data-i18n="errors.sessionTakeoverJoin">Join here again</button>
         </div>
     </div>
 
@@ -984,7 +1262,7 @@
                     <span class="invite-copy-icon">📋</span>
                 </button>
             </div>
-            <p id="invite-copy-feedback" class="invite-copy-feedback hidden">Copied!</p>
+            <p id="invite-copy-feedback" class="invite-copy-feedback hidden" data-i18n="share.share_copied">Copied!</p>
             <button id="invite-modal-close" class="btn btn-secondary invite-modal-close"
                     aria-label="Close invite popup" data-i18n="common.close">Close</button>
         </div>
@@ -1009,6 +1287,34 @@
     <div id="steal-confirmation" class="steal-confirmation hidden">
         <span class="steal-confirmation-icon">🥷</span>
         <span id="steal-confirmation-text" class="steal-confirmation-text"></span>
+    </div>
+
+    <!-- Sabotage Target Modal (#1665) — twin of the steal modal. Reuses the
+         .steal-modal styling; the subtitle makes clear the effect is random. -->
+    <div id="sabotage-modal" class="steal-modal sabotage-modal hidden" role="dialog" aria-modal="true"
+         aria-labelledby="sabotage-modal-title">
+        <div class="steal-modal-backdrop"></div>
+        <div class="steal-modal-content">
+            <h2 id="sabotage-modal-title" class="steal-modal-title" data-i18n="sabotage.selectTarget">Pick who to sabotage</h2>
+            <p class="steal-modal-subtitle" data-i18n="sabotage.selectTargetHint">The effect is random — timer cut, forced bet or freeze.</p>
+            <div id="sabotage-target-list" class="steal-target-list">
+                <!-- Populated by JavaScript -->
+            </div>
+            <button id="sabotage-modal-close" class="btn btn-secondary steal-modal-cancel"
+                    aria-label="Cancel sabotage" data-i18n="common.cancel">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Sabotage Confirmation Toast (#1665) — shown to the saboteur -->
+    <div id="sabotage-confirmation" class="steal-confirmation sabotage-confirmation hidden">
+        <span class="steal-confirmation-icon">💣</span>
+        <span id="sabotage-confirmation-text" class="steal-confirmation-text"></span>
+    </div>
+
+    <!-- "You've been sabotaged" banner (#1665) — shown to the target -->
+    <div id="sabotaged-banner" class="steal-confirmation sabotaged-banner hidden">
+        <span class="steal-confirmation-icon">💥</span>
+        <span id="sabotaged-banner-text" class="steal-confirmation-text"></span>
     </div>
 
     <!-- Points Breakdown Bottom Sheet (Round reveal v2) -->
@@ -1060,8 +1366,53 @@
         </div>
     </div>
 
+
+    <!-- #2646: "End round N" — the question Next asks when it is pressed while
+         the round is still running. Three exits: score it (what Next always
+         did), drop it without scoring, or close this and let the song play on.
+         The subtitles are filled in from the server's `admin_round_end_preview`
+         at open time, so the consequences are named with real numbers before
+         they happen. The reason chips are optional and record only. -->
+    <div id="round-end-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="round-end-title">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content round-end-card">
+            <h2 id="round-end-title" data-i18n="admin.roundEndTitleBare">End round</h2>
+            <p id="round-end-sub" class="round-end-sub"></p>
+            <button id="round-end-score" class="round-end-choice round-end-choice--score" type="button">
+                <span class="round-end-choice-label" data-i18n="admin.roundEndScore">Score it as usual</span>
+                <span id="round-end-score-sub" class="round-end-choice-sub" hidden></span>
+            </button>
+            <button id="round-end-void" class="round-end-choice round-end-choice--void" type="button">
+                <span class="round-end-choice-label" data-i18n="admin.roundEndVoid">Do not score it</span>
+                <span class="round-end-choice-sub" data-i18n="admin.roundEndVoidSub">No points, no broken streaks, nobody is eliminated</span>
+            </button>
+            <div class="round-end-reasons">
+                <span class="round-end-reasons-label" data-i18n="admin.voidReasonPrompt">Why? Optional.</span>
+                <!-- Chips are painted from VOID_ROUND_REASONS in
+                     js/round-end-choice.js, not written out here. -->
+                <div id="round-end-reasons" class="round-end-chips"></div>
+            </div>
+            <button id="round-end-keep" class="round-end-choice round-end-choice--keep" type="button">
+                <span class="round-end-choice-label" data-i18n="admin.roundEndKeepPlaying">Let it keep playing</span>
+            </button>
+        </div>
+    </div>
+
     <script src="/beatify/static/js/vendor/qrcode.min.js?v={{ASSET_VER}}"></script>
     <script src="/beatify/static/js/vendor/no-sleep.min.js?v={{ASSET_VER}}"></script>
+    <!-- canvas-confetti for celebrations (Story 14.5), vendored in #2698.
+         It used to hang off cdn.jsdelivr.net: the one runtime dependency
+         fetched from someone else's server, with no integrity= to check it
+         against — and no way to add one, because jsDelivr generates that
+         `.min.js` on the fly and says so in the file's own header. Local also
+         means the service worker precaches it (sw.js), so on party wifi with
+         no working internet confetti is simply there instead of waiting out a
+         CDN timeout. #2641's `async` is no longer needed or wanted: this is a
+         same-origin file next to the other vendored libraries, and a plain
+         script here runs before the deferred module bundle, so window.confetti
+         exists by the time any call site looks for it. The guards in
+         player-utils.js and dashboard.js stay as they are. -->
+    <script src="/beatify/static/js/vendor/confetti.browser.js?v={{ASSET_VER}}"></script>
     <!-- Story 18.4: Use minified JS in production with fallback to source -->
     <!-- Version query strings prevent browser caching issues -->
     <!-- #998: HA OAuth client — only used when a host claims the admin role -->

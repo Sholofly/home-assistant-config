@@ -7,7 +7,7 @@ import requests
 
 from ..base import WasteCollector
 from ...models import WasteCollection
-from ...const import WASTE_TYPE_GREEN, WASTE_TYPE_GREY
+from ...const import WASTE_TYPE_GREEN, WASTE_TYPE_GREY, DEFAULT_REQUEST_TIMEOUT
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -29,7 +29,7 @@ class CleanprofsCollector(WasteCollector):
         _LOGGER.debug("Fetching data from Cleanprofs")
         get_url = '{}api/get-plannings-address?zipcode={}&house_number={}'.format(
                 self.main_url, self.postcode, self.street_number)
-        return requests.get(get_url)
+        return requests.get(get_url, timeout=DEFAULT_REQUEST_TIMEOUT)
 
     async def update(self):
         _LOGGER.debug("Updating Waste collection dates using Cleanprofs API")
@@ -48,14 +48,20 @@ class CleanprofsCollector(WasteCollector):
                 if not item['full_date']:
                     continue
 
-                waste_type = self.map_waste_type(item['product_name'])
-                if not waste_type:
+                product_name = str(item['product_name']).strip()
+                mapped_container = self.map_waste_type(product_name)
+                if not mapped_container:
                     continue
+
+                slug = f"reiniging_{product_name.lower().replace('/', '_')}"
+                waste_type = f"Reiniging {mapped_container}"
+                if self.custom_mapping and waste_type in self.custom_mapping:
+                    waste_type = self.custom_mapping[waste_type]
 
                 collection = WasteCollection.create(
                     date=datetime.strptime(item['full_date'], '%Y-%m-%d').replace(tzinfo=None),
                     waste_type=waste_type,
-                    waste_type_slug=item['product_name']
+                    waste_type_slug=slug
                 )
                 if collection not in self.collections:
                     self.collections.add(collection)

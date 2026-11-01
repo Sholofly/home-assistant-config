@@ -85,8 +85,17 @@ function scheduleAutoAdvance() {
 
 /**
  * Render the progress segments for the current step.
+ *
+ * #2500: the total comes from the DOM here, it is no longer baked into the
+ * translated string. The tour read "Step 5 of 4" because the fifth card
+ * arrived with Title & Artist mode and the six ``stepOf`` strings did not.
+ * ``stepOf`` is now the connecting word alone — "of", "von", "de" — and every
+ * number on this header is written from ``totalCards()``, so the count cannot
+ * disagree with the cards again.
+ *
+ * Exported for the #2500 tests.
  */
-function renderProgress() {
+export function renderProgress() {
     var segs = document.querySelectorAll('.tour-wiz-seg');
     for (var i = 0; i < segs.length; i++) {
         segs[i].classList.remove('filled', 'active');
@@ -106,17 +115,39 @@ function renderProgress() {
     if (stepCountEl) {
         stepCountEl.textContent = String(tour.currentIdx + 1);
     }
+    var stepTotalEl = document.getElementById('tour-step-total');
+    if (stepTotalEl) {
+        stepTotalEl.textContent = String(totalCards());
+    }
     // A11y: progress bar value must update so screen readers announce each step
     var progressBar = document.querySelector('.tour-wiz-progress');
     if (progressBar) {
         progressBar.setAttribute('aria-valuenow', String(tour.currentIdx + 1));
+        progressBar.setAttribute('aria-valuemax', String(totalCards()));
     }
+}
+
+/**
+ * #3269: the preview slider's right-hand label must read what the real
+ * slider's maximum is. The real one is the clock year at least (the server's
+ * default, see year_range() in serializers.py), widened by the playlist, and
+ * the markup's own max="2025" is only a placeholder. Derive, never hardcode.
+ */
+export function tourYearMax(sliderMax, now) {
+    var markup = parseInt(sliderMax, 10);
+    var year = (now || new Date()).getFullYear();
+    return isFinite(markup) ? Math.max(markup, year) : year;
 }
 
 /**
  * Show the card at the given index; hide others.
  */
 function renderCard(idx) {
+    var maxLabel = document.getElementById('tour-slider-max');
+    if (maxLabel) {
+        var slider = document.getElementById('year-slider');
+        maxLabel.textContent = String(tourYearMax(slider && slider.max));
+    }
     var cards = document.querySelectorAll('.tour-card');
     for (var i = 0; i < cards.length; i++) {
         cards[i].classList.toggle('hidden', i !== idx);

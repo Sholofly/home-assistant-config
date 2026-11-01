@@ -91,9 +91,18 @@ SERVICE_DEACTIVATE_OPEN_WINDOW = "deactivate_open_window"
 SERVICE_SET_OPEN_WINDOW_MODE = "set_open_window_mode"
 SERVICE_RESTORE_PREVIOUS_STATE = "restore_previous_state"
 SERVICE_TURN_OFF_ALL_ZONES = "turn_off_all_zones"
+SERVICE_REFRESH = "refresh"
+
+# Fetch types forceable via tado_ce.refresh (single source: gate, service enum,
+# and request_forced_fetch all use these tokens).
+FORCEABLE_FETCH_MOBILE = "mobile_devices"
+FORCEABLE_FETCH_HOME_STATE = "home_state"
+FORCEABLE_FETCH_WEATHER = "weather"
+FORCEABLE_FETCH_ZONE_STATES = "zone_states"
 
 # API Base URLs
 TADO_API_BASE = "https://my.tado.com/api/v2"
+TADO_GRAPHQL_API = "https://ext.api.tado.com/apps/graphql"
 TADO_AUTH_URL = "https://login.tado.com/oauth2"
 CLIENT_ID = "1bb50063-6b0c-4d11-bd99-387f4a91cc46"
 
@@ -134,6 +143,9 @@ DEFAULT_NIGHT_INTERVAL = 120  # minutes (default night polling interval)
 MAX_POLLING_INTERVAL = 120  # minutes (ensure reasonable updates even with low quota)
 MAX_CUSTOM_INTERVAL = 1440  # minutes (24 hours, maximum custom polling interval)
 POLLING_SAFETY_BUFFER = 0.90  # Reserve 10% quota for manual calls and unexpected usage
+# A rise this close to the predicted reset counts as the reset: the recorded time is when the sync saw it, up to one poll gap late.
+# This is the floor; the window widens to the lag stored with the last recorded reset.
+QUOTA_RESET_EARLY_WINDOW_MINUTES: Final = MAX_POLLING_INTERVAL
 
 # Quota Reserve Protection Constants
 # When remaining quota falls below threshold, pause polling to reserve for manual operations
@@ -157,6 +169,25 @@ LOW_QUOTA_RESERVE_FLOOR = 100      # Floor (one full day's worth on a 100-call b
 
 # Backwards-compat alias, scheduled for removal in v5.0.0.
 LOW_QUOTA_THRESHOLD = LOW_QUOTA_RESERVE_FLOOR
+
+# Day-type mapping, shared by calendar.py's setup-time fetch and
+# api_client.py's SVC-driven full-sync fetch, so both read one definition.
+DAY_TYPES: Final[dict[str, list[str]]] = {
+    "ONE_DAY": ["MONDAY_TO_SUNDAY"],
+    "THREE_DAY": ["MONDAY_TO_FRIDAY", "SATURDAY", "SUNDAY"],
+    "SEVEN_DAY": ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"],
+}
+
+# Worst-case cost of fetching one zone's schedule: the activeTimetable call
+# plus one blocks/{day_type} call per day type in the largest timetable.
+MAX_SCHEDULE_FETCH_CALLS: Final[int] = 1 + max(len(days) for days in DAY_TYPES.values())
+
+# Schedule Calendar's cache fill. One zone costs 1 + len(day_types) calls (8
+# for SEVEN_DAY), so a 9-zone home is 72, most of a free-tier day. Zones the
+# budget doesn't reach fill on a later setup run.
+SCHEDULE_FILL_MAX_QUOTA_FRACTION = 0.25
+# Assumed daily limit before the first rate-limit header lands.
+ASSUMED_DAILY_LIMIT_UNKNOWN_TIER = 100
 
 # Per-data-type minimum refresh intervals (minutes). Slow-changing cloud data
 # gates on its own floor independent of the zone-state cycle, so a fast zone
@@ -307,14 +338,20 @@ WINDOW_DETECTION_MODE_REVERSE_MAP = {v: k for k, v in WINDOW_DETECTION_MODE_MAP.
 WINDOW_DETECTION_MODE_DEFAULT = "auto"
 
 # Device offset sanity bounds, reject values outside this range.
-# Tado devices support roughly -10 to +10°C offsets; anything beyond
-# that is almost certainly a bad API response or automation feedback loop.
-DEVICE_OFFSET_MIN: float = -10.0
+# Tado's API rejects exactly -10.0 (real floor is -9.99); -9.9 keeps clear of
+# it after this integration's 1-decimal rounding.
+DEVICE_OFFSET_MIN: float = -9.9
 DEVICE_OFFSET_MAX: float = 10.0
 
 
 # Insight runtime state (coordinator anomaly + humidity history persistence)
 INSIGHT_RUNTIME_STATE_KEY = "insight_runtime_state"
+
+# Zone identity baseline (per-zone dateCreated, for zone-reassignment detection)
+ZONE_IDENTITY_KEY = "zone_identity"
+
+# Zone type baseline (per-zone type, for HEATING-to-AC transition detection)
+ZONE_TYPE_BASELINE_KEY = "zone_type_baseline"
 
 
 def is_valid_device_offset(value: float | None) -> bool:
@@ -341,6 +378,8 @@ SMART_VALVE_CLOUD_RATE_LIMIT: Final[float] = 300.0  # seconds (5 minutes)
 SMART_VALVE_DEBOUNCE_WINDOW: Final[float] = 3.0  # seconds (ActionDebouncer window)
 ABSOLUTE_MAX_VALVE_TARGET: Final[float] = 30.0   # °C absolute upper bound for valve target
 HOMEKIT_WRITE_GRACE_SECONDS: Final[float] = 60.0  # suppress manual override detection after write
+SVC_RESUME_RETRY_SECONDS: Final[float] = 300.0  # minimum gap between retries of a failed hand-back to Tado
+SVC_RESUME_RETRY_MAX_SECONDS: Final[float] = 21600.0  # cap on the doubling retry gap (6 hours)
 
 # SVC operating mode (per-zone select, mutually exclusive)
 SVC_MODE_OFF: Final[str] = "off"
@@ -352,6 +391,14 @@ SVC_OFFSET_MIN_CHANGE: Final[float] = 0.5  # °C (default)
 SVC_OFFSET_MIN_CHANGE_MIN: Final[float] = 0.5  # °C, lower bound for config
 SVC_OFFSET_MIN_CHANGE_MAX: Final[float] = 3.0  # °C, upper bound for config
 SVC_OFFSET_MIN_CHANGE_STEP: Final[float] = 0.5  # °C, step size in UI
+
+# Offset Sync: maximum offset movement allowed in a single write, since
+# inside_temperature can be momentarily unreliable while a zone is off.
+SVC_OFFSET_MAX_STEP: Final[float] = 1.0  # °C
+
+# Offset Sync: readings within this of each other count as unchanged (API
+# precision is 0.1°C).
+SVC_OFFSET_TRV_EPSILON: Final[float] = 0.05  # °C
 
 # =============================================================================
 # API Write Optimization Constants
@@ -373,6 +420,8 @@ DEVICE_SYNC_QUEUE_MAX_DEPTH = 20
 # =============================================================================
 
 MAX_RETRY_ATTEMPTS: Final = 3
+# Empty zone replies needed before an empty list replaces stored zones (2 is a cautious guess, no captured blip confirms it).
+ZONE_STATES_EMPTY_CONFIRMATIONS: Final = 2
 RETRY_BASE_DELAY: Final = 2  # seconds, exponential: 2s, 4s, 8s
 MAX_RETRY_DELAY: Final = 30  # seconds, cap to prevent runaway delays
 
@@ -398,6 +447,11 @@ _RATE_LIMIT_DEFAULT_S: Final = 60  # default when no signal available
 # HomeKit cache older than this falls back to cloud
 HOMEKIT_STALENESS_THRESHOLD: Final[timedelta] = timedelta(minutes=5)
 
+# Hide a device-fed cloud reading once its device has been offline this long; healthy readings lag up to ~65 min and HomeKit cloud sync adds up to 120 min, so less would hide live ones.
+CLOUD_READING_STALE_AFTER: Final[timedelta] = timedelta(hours=4)
+# A device that came back reports a fresh reading, so one stamped later than last-seen plus this is trusted; 2 h rests on a single observed sample and is not yet verified.
+CLOUD_READING_REPORT_SLACK: Final[timedelta] = timedelta(hours=2)
+
 # Periodic poll to keep cache fresh, must be < staleness threshold
 HOMEKIT_CACHE_REFRESH_SECONDS: Final[float] = HOMEKIT_STALENESS_THRESHOLD.total_seconds() * 0.4  # 120s (2 min)
 
@@ -422,12 +476,6 @@ CACHE_REFRESH_FAILURE_THRESHOLD: Final[int] = 3
 # HomeKit mapping retry: stop retrying after this many polls with no newly
 # mapped zone (the remaining zones have no matching bridge accessory)
 MAPPING_RETRY_STALL_LIMIT: Final[int] = 3
-
-# HomeKit savings: detect API quota reset by observing a significant jump
-# in remaining calls. The jump must exceed both an absolute minimum and
-# a percentage of the total limit to avoid false positives from normal usage.
-HOMEKIT_SAVINGS_RESET_MIN_JUMP: Final[int] = 20
-HOMEKIT_SAVINGS_RESET_RATIO: Final[float] = 0.05
 
 # Former weather-skip floor when HomeKit connected; v4.0.2 replaced it with
 # the per-type WEATHER_MIN_REFRESH_MINUTES floor (applied in all cadence
@@ -482,11 +530,25 @@ INSIGHT_ESCALATION_DAYS: Final[int] = 14
 # Insight temperature reading throttle, minimum seconds between readings
 INSIGHT_READING_THROTTLE_SECONDS: Final[int] = 25
 
+# Comfort deviation thresholds (°C from comfort target)
+_COMFORT_FREEZING_THRESHOLD: Final[int] = -6
+_COMFORT_COLD_THRESHOLD: Final[int] = -4
+_COMFORT_COOL_THRESHOLD: Final[int] = -2
+_COMFORT_WARM_THRESHOLD: Final[int] = 2
+_COMFORT_HOT_THRESHOLD: Final[int] = 4
+_COMFORT_SWELTERING_THRESHOLD: Final[int] = 6
+
+# Humidity thresholds for comfort suffix
+_HUMIDITY_DRY_THRESHOLD: Final[int] = 35  # %: below this is "Dry"
+_HUMIDITY_HUMID_THRESHOLD: Final[int] = 70  # %: above this is "Humid"
+
 # =============================================================================
 # Entity Data Keys: cross-component data sharing via coordinator.entity_data
 # =============================================================================
 
 ENTITY_DATA_CONDENSATION_RISK: Final[str] = "condensation_risk"
+# Removed with Air Comfort (C2): still read by sensor_environment's Air Comfort
+# sensor until that batch; the window producer is already gone so it reads empty.
 ENTITY_DATA_WINDOW_PREDICTED: Final[str] = "window_predicted"
 ENTITY_DATA_PREHEAT_NOW: Final[str] = "preheat_now"
 ENTITY_DATA_PREHEAT_ADVISOR: Final[str] = "preheat_advisor"

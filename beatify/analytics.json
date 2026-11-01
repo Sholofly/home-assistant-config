@@ -285,6 +285,139 @@
       "streak_10_count": 0,
       "total_bets": 0,
       "bets_won": 0
+    },
+    {
+      "game_id": "bf5f93b3",
+      "started_at": 1788541236,
+      "ended_at": 1788541680,
+      "duration_seconds": 444,
+      "player_count": 2,
+      "playlist_names": [
+        "gen-z-anthems"
+      ],
+      "rounds_played": 1,
+      "average_score": 0.0,
+      "difficulty": "normal",
+      "error_count": 0,
+      "streak_3_count": 0,
+      "streak_5_count": 0,
+      "streak_10_count": 0,
+      "total_bets": 0,
+      "bets_won": 0
+    },
+    {
+      "game_id": "53a018b3",
+      "started_at": 1788541801,
+      "ended_at": 1788541801,
+      "duration_seconds": 0,
+      "player_count": 2,
+      "playlist_names": [
+        "gen-z-anthems"
+      ],
+      "rounds_played": 1,
+      "average_score": 0.0,
+      "difficulty": "normal",
+      "error_count": 0,
+      "streak_3_count": 0,
+      "streak_5_count": 0,
+      "streak_10_count": 0,
+      "total_bets": 0,
+      "bets_won": 0
+    },
+    {
+      "game_id": "1961bc1b",
+      "started_at": 1788544329,
+      "ended_at": 1788544329,
+      "duration_seconds": 0,
+      "player_count": 3,
+      "playlist_names": [
+        "gen-z-anthems"
+      ],
+      "rounds_played": 50,
+      "average_score": 4.17,
+      "difficulty": "normal",
+      "error_count": 0,
+      "streak_3_count": 3,
+      "streak_5_count": 1,
+      "streak_10_count": 0,
+      "total_bets": 0,
+      "bets_won": 0
+    },
+    {
+      "game_id": "ad93cf4f",
+      "started_at": 1789921933,
+      "ended_at": 1789922409,
+      "duration_seconds": 476,
+      "player_count": 2,
+      "playlist_names": [
+        "gen-z-anthems"
+      ],
+      "rounds_played": 1,
+      "average_score": 0.0,
+      "difficulty": "normal",
+      "error_count": 0,
+      "streak_3_count": 0,
+      "streak_5_count": 0,
+      "streak_10_count": 0,
+      "total_bets": 0,
+      "bets_won": 0
+    },
+    {
+      "game_id": "9adaf64b",
+      "started_at": 1789922441,
+      "ended_at": 1789923387,
+      "duration_seconds": 946,
+      "player_count": 2,
+      "playlist_names": [
+        "top100-allertijden-nederlandstalig"
+      ],
+      "rounds_played": 20,
+      "average_score": 4.12,
+      "difficulty": "normal",
+      "error_count": 0,
+      "streak_3_count": 0,
+      "streak_5_count": 0,
+      "streak_10_count": 0,
+      "total_bets": 0,
+      "bets_won": 0
+    },
+    {
+      "game_id": "d1feb1ce",
+      "started_at": 1789923690,
+      "ended_at": 1789923690,
+      "duration_seconds": 0,
+      "player_count": 2,
+      "playlist_names": [
+        "top100-allertijden-nederlandstalig"
+      ],
+      "rounds_played": 6,
+      "average_score": 9.17,
+      "difficulty": "normal",
+      "error_count": 0,
+      "streak_3_count": 1,
+      "streak_5_count": 0,
+      "streak_10_count": 0,
+      "total_bets": 0,
+      "bets_won": 0
+    },
+    {
+      "game_id": "2014715d",
+      "started_at": 1789997893,
+      "ended_at": 1789998052,
+      "duration_seconds": 159,
+      "player_count": 1,
+      "playlist_names": [
+        "__mix__-339a46c7"
+      ],
+      "rounds_played": 0,
+      "average_score": 0.0,
+      "difficulty": "normal",
+      "error_count": 0,
+      "streak_3_count": 0,
+      "streak_5_count": 0,
+      "streak_10_count": 0,
+      "total_bets": 0,
+      "bets_won": 0
     }
   ],
   "errors": [],

@@ -5,8 +5,12 @@
  * local to this cluster.
  *
  * #1273 AC#3 — FE holds no authoritative timer state. The countdown is derived
- * purely from the server's `deadline` (epoch-ms wall clock, serialized in every
- * state_update). When a fresh state_update carries a DIFFERENT deadline mid-round
+ * from the server's authoritative timer. #1662: to stay immune to a wrong client
+ * clock, it anchors to the server's *relative* `seconds_remaining` (re-anchored
+ * to the client's own Date.now() on each state_update) rather than subtracting
+ * the server wall-clock `deadline` from the client clock; the absolute `deadline`
+ * is retained as a back-compat fallback and for the smooth-correct ease below.
+ * When a fresh state_update carries a DIFFERENT deadline mid-round
  * (network jitter, reconnect, tab refresh, pre-round-TTS deadline shift), the
  * displayed seconds would otherwise hard-jump. "V1 Smooth Correct": instead of
  * snapping, the effective deadline EASES from the old value to the authoritative
@@ -16,6 +20,11 @@
  */
 
 import { state } from '../player-utils.js';
+
+// #1756: localize the screen-reader countdown cues (time-up + Ns-remaining)
+// instead of hardcoding English. Matches the window.BeatifyUtils access pattern
+// used across the player-game modules (e.g. movie-challenge.js).
+var utils = (typeof window !== 'undefined' && window.BeatifyUtils) || {};
 
 // ============================================
 // Countdown Timer (Story 4.2)
@@ -27,6 +36,33 @@ var countdownInterval = null;
 // re-pushed state_update can detect drift against what's on screen and decide
 // between a silent no-op, a smooth ease, or a normal (re)start.
 var activeDeadline = null;
+
+// #1663 item 4 (Depleting Ring-Countdown): the full round length in seconds,
+// captured on a FRESH countdown start so the SVG ring can render the drained
+// fraction (remaining / total). Reset on stopCountdown. The FE holds no
+// authoritative timer state (#1273) — this is a display-only estimate derived
+// from the first painted remaining, exactly like the reveal auto-advance ring
+// derives its fraction from the server's duration.
+var roundTotalSeconds = null;
+
+// SVG ring geometry: circle r=33 in the 72×72 viewBox → circumference 2·π·33.
+var RING_CIRCUMFERENCE = 2 * Math.PI * 33;
+
+// #1663 item 4: paint the depleting ring for `remaining` seconds and escalate its
+// colour cyan → amber (≤10s) → red (≤5s), mirroring the number's warning/critical
+// thresholds. No-op when the ring markup is absent (older cached player.html).
+function _paintRing(remaining) {
+    var ring = document.getElementById('timer-neon');
+    if (!ring) return;
+    var fg = ring.querySelector('.timer-neon-ring-fg');
+    if (!fg) return;
+    var total = roundTotalSeconds || remaining || 1;
+    var frac = Math.max(0, Math.min(1, remaining / total));
+    fg.style.strokeDasharray = RING_CIRCUMFERENCE;
+    fg.style.strokeDashoffset = String(RING_CIRCUMFERENCE * (1 - frac));
+    ring.classList.toggle('timer-neon-ring--warn', remaining <= 10 && remaining > 5);
+    ring.classList.toggle('timer-neon-ring--critical', remaining <= 5);
+}
 
 // #1273: smooth-correct tuning.
 // - DRIFT_THRESHOLD_MS: below this the new deadline is within clock-jitter noise;
@@ -54,8 +90,23 @@ function _easeOutCubic(t) {
 /**
  * Start countdown timer
  * @param {number} deadline - Server deadline timestamp in milliseconds
+ * @param {number} [secondsRemaining] - Server-computed *relative* seconds left
+ *   (skew-immune). #1662: when present, the countdown re-anchors to the CLIENT's
+ *   own clock (deadline := Date.now() + secondsRemaining·1000) instead of
+ *   comparing the server wall-clock `deadline` to a possibly-wrong client
+ *   `Date.now()`. Mirrors the TA-vote timer (player-reveal.js). Absent → fall
+ *   back to the raw server `deadline` (older server / unit tests).
  */
-export function startCountdown(deadline) {
+export function startCountdown(deadline, secondsRemaining) {
+    // #1662: derive a CLIENT-LOCAL deadline from the server's relative remaining
+    // seconds so a wrong client clock can't skew the countdown. Everything below
+    // (drift-compare, smooth-correct ease, watchdog) then operates on a deadline
+    // that lives entirely in the client's own Date.now() frame.
+    var effectiveDeadline =
+        (typeof secondsRemaining === 'number' && isFinite(secondsRemaining))
+            ? Date.now() + secondsRemaining * 1000
+            : deadline;
+
     // #1273: smooth-correct path. If a countdown is already live and this push
     // carries a *different* authoritative deadline, glide to it instead of the
     // hard stop+restart below — but only when the drift is real (> threshold)
@@ -65,13 +116,13 @@ export function startCountdown(deadline) {
         activeDeadline !== null &&
         typeof requestAnimationFrame === 'function'
     ) {
-        var drift = Math.abs(deadline - activeDeadline);
+        var drift = Math.abs(effectiveDeadline - activeDeadline);
         if (drift <= DRIFT_THRESHOLD_MS) {
             // Within jitter noise — adopt the server value silently, keep ticking.
-            activeDeadline = deadline;
+            activeDeadline = effectiveDeadline;
             return;
         }
-        if (_smoothCorrectTo(deadline)) return;
+        if (_smoothCorrectTo(effectiveDeadline)) return;
         // _smoothCorrectTo returned false (DOM gone) → fall through to a clean restart.
     }
 
@@ -86,8 +137,13 @@ export function startCountdown(deadline) {
     var timerFloatNum = document.getElementById('timer-float-num');
 
     timerElement.classList.remove('timer--warning', 'timer--critical');
-    if (timerNeon) timerNeon.classList.remove('timer-neon--warn');
+    if (timerNeon) timerNeon.classList.remove('timer-neon--warn', 'timer-neon-ring--warn', 'timer-neon-ring--critical');
     if (timerFloat) timerFloat.classList.remove('timer-float--warn');
+
+    // #1663 item 4: capture the full round length once, at the fresh start, so the
+    // depleting ring can render remaining/total. Derived from the first remaining
+    // (display-only, matches the reveal ring's duration-based fraction).
+    roundTotalSeconds = Math.max(1, Math.ceil((effectiveDeadline - Date.now()) / 1000));
 
     // #817: arm the IntersectionObserver once per countdown. Shows the
     // floating mini-timer when the main neon timer is NOT in viewport
@@ -98,7 +154,7 @@ export function startCountdown(deadline) {
     // #1273: this is now the deadline the screen renders toward. updateCountdown
     // reads activeDeadline (not the captured param) so the smooth-correct ease
     // can retarget it live without tearing down the interval.
-    activeDeadline = deadline;
+    activeDeadline = effectiveDeadline;
 
     // Watchdog tick counter — counts updateCountdown ticks spent past the
     // deadline so the round_timeout nudge can retry instead of firing once.
@@ -128,16 +184,29 @@ export function startCountdown(deadline) {
         if (timerFloat) {
             timerFloat.classList.toggle('timer-float--warn', remaining <= 10);
         }
+        // #1663 item 4: drain the depleting ring in lock-step with the number.
+        _paintRing(remaining);
 
-        // ARIA announcements at key moments (Story 9.7)
-        if (remaining === 10) {
-            timerElement.setAttribute('aria-label', '10 seconds remaining');
-        } else if (remaining === 5) {
-            timerElement.setAttribute('aria-label', '5 seconds!');
-        } else if (remaining === 0) {
-            timerElement.setAttribute('aria-label', 'Time is up!');
-        } else {
-            timerElement.setAttribute('aria-label', 'Time remaining: ' + remaining + ' seconds');
+        // #1714: milestone-only screen-reader cues. The timer is no longer an
+        // aria-live region (a polite region rewritten every second made a screen
+        // reader speak "30..29..28.." continuously, drowning out submission acks,
+        // emotion results and score updates). Announce ONLY at 10s / 5s / time-up
+        // via the dedicated assertive #timer-announcer node — one utterance each,
+        // since aria-live only speaks on a text change.
+        if (remaining === 10 || remaining === 5 || remaining === 0) {
+            var announcer = document.getElementById('timer-announcer');
+            if (announcer) {
+                // #1756: localized via utils.t (with EN fallbacks), so de/es/fr/nl
+                // screen-reader users hear the cue in their language.
+                var t = utils.t ? utils.t.bind(utils) : function (k, p) {
+                    return (p && typeof p.count !== 'undefined')
+                        ? p.count + ' seconds remaining'
+                        : "Time's up!";
+                };
+                announcer.textContent = remaining === 0
+                    ? t('errors.timesUp', "Time's up!")
+                    : t('errors.secondsRemaining', { count: remaining });
+            }
         }
 
         if (remaining <= 0) {
@@ -189,6 +258,8 @@ function _paintRemaining(remaining) {
     }
     if (timerNeon) timerNeon.classList.toggle('timer-neon--warn', remaining <= 10);
     if (timerFloat) timerFloat.classList.toggle('timer-float--warn', remaining <= 10);
+    // #1663 item 4: keep the depleting ring in step during smooth-correct eases.
+    _paintRing(remaining);
     return true;
 }
 
@@ -287,8 +358,14 @@ export function stopCountdown() {
     // the next round starts clean (no stale deadline, no lingering ghost-ring).
     _cancelEase();
     activeDeadline = null;
+    // #1663 item 4: reset the depleting-ring state so the next round starts full.
+    roundTotalSeconds = null;
     var timerNeonStop = document.getElementById('timer-neon');
-    if (timerNeonStop) timerNeonStop.classList.remove('timer-neon--catchup');
+    if (timerNeonStop) {
+        timerNeonStop.classList.remove('timer-neon--catchup', 'timer-neon-ring--warn', 'timer-neon-ring--critical');
+        var fgStop = timerNeonStop.querySelector('.timer-neon-ring-fg');
+        if (fgStop) fgStop.style.strokeDashoffset = '0';
+    }
     // #817: hide the floating mini-timer between rounds. The main timer
     // node may also be torn down by view transitions; safe to leave the
     // observer in place — re-arming on the next startCountdown is cheap.

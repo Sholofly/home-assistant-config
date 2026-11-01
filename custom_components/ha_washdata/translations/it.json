@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Configurazione WashData",
-        "description": "Configura la tua lavatrice o altro elettrodomestico.\n\nÈ richiesto il sensore di potenza.\n\n**Successivamente ti verrà chiesto se desideri creare il tuo primo profilo.**",
+        "description": "Configura una lavatrice o un altro elettrodomestico. È richiesto un sensore di potenza.\n\nDopo la configurazione, apri il pannello WashData dalla barra laterale ([/ha-washdata](/ha-washdata)) per vedere cicli, profili e tutte le impostazioni.",
         "data": {
           "name": "Nome dispositivo",
           "device_type": "Tipo di dispositivo",
@@ -12,51 +12,42 @@
         },
         "data_description": {
           "name": "Un nome descrittivo per questo dispositivo (ad esempio \"Lavatrice\", \"Lavastoviglie\").",
-          "device_type": "Che tipo di elettrodomestico è questo? Aiuta a personalizzare il rilevamento e l'etichettatura.",
-          "power_sensor": "L'entità sensore che segnala il consumo energetico in tempo reale (in watt) dalla tua presa intelligente.",
-          "min_power": "Le letture di potenza superiori a questa soglia (in watt) indicano che l'elettrodomestico è in funzione. Inizia con 2 W per la maggior parte dei dispositivi."
-        }
-      },
-      "first_profile": {
-        "title": "Crea il primo profilo",
-        "description": "Un **Ciclo** è un'esecuzione completa dell'elettrodomestico (ad esempio, un carico di bucato). Un **Profilo** raggruppa questi cicli per tipo (ad esempio, \"Cotone\", \"Lavaggio rapido\"). La creazione di un profilo ora consente all'integrazione di stimare subito la durata.\n\nPuoi selezionare manualmente questo profilo nei controlli del dispositivo se non viene rilevato automaticamente.\n\n**Lascia vuoto il campo \"Nome profilo\" per saltare questo passaggio.**",
-        "data": {
-          "profile_name": "Nome profilo (facoltativo)",
-          "manual_duration": "Durata stimata (minuti)"
+          "device_type": "Imposta i valori di rilevamento predefiniti per questo tipo di elettrodomestico.",
+          "power_sensor": "Il sensore di potenza della presa intelligente (W o kW), non il suo contatore di energia (kWh).",
+          "min_power": "Letture sopra questo valore (in watt) indicano che l'elettrodomestico è in funzione. 2 W va bene per la maggior parte dei dispositivi."
         }
       },
       "reconfigure": {
-        "title": "Reconfigure WashData",
-        "description": "Update the device name, appliance type, or power sensor.",
+        "title": "Riconfigura WashData",
+        "description": "Cambia il nome del dispositivo, il tipo di elettrodomestico o il sensore di potenza.\n\nTutto il resto è nel pannello WashData (barra laterale, o [/ha-washdata](/ha-washdata)).",
         "data": {
-          "name": "Device Name",
-          "device_type": "Device Type",
-          "power_sensor": "Power Sensor",
-          "min_power": "Minimum Power Threshold (W)"
+          "name": "Nome dispositivo",
+          "device_type": "Tipo di dispositivo",
+          "power_sensor": "Sensore di potenza",
+          "min_power": "Soglia di potenza minima (W)"
         }
       }
     },
     "error": {
-      "cannot_connect": "Connessione non riuscita",
-      "invalid_auth": "Autenticazione non valida",
       "unknown": "Errore imprevisto",
-      "invalid_power": "Power threshold must be greater than 0"
+      "invalid_power": "La soglia di potenza deve essere maggiore di 0",
+      "power_sensor_energy": "Questo è un contatore di energia (kWh), non un sensore di potenza. Scegli il sensore di potenza della presa (W o kW). Se la presa non ne ha uno, un helper Sensore derivata può crearlo dal contatore."
     },
     "abort": {
       "already_configured": "Il dispositivo è già configurato",
-      "reconfigure_successful": "Reconfiguration was successful"
+      "reconfigure_successful": "La riconfigurazione è avvenuta con successo"
     }
   },
   "options": {
     "step": {
       "init": {
-        "title": "WashData Settings",
-        "description": "All settings -- detection, matching, timing, notifications, profiles, and cycles -- are available in the WashData panel. Use this form only to change the power sensor, device type, or standby threshold.",
+        "title": "Impostazioni WashData",
+        "description": "Rinomina il dispositivo o modifica le sue impostazioni principali. Tutto il resto è nel [pannello WashData](/ha-washdata) nella barra laterale.",
         "data": {
           "name": "Nome del dispositivo",
-          "device_type": "Device Type",
-          "power_sensor": "Power Sensor",
-          "min_power": "Minimum Power Threshold (W)"
+          "device_type": "Tipo di dispositivo",
+          "power_sensor": "Sensore di potenza",
+          "min_power": "Soglia di potenza minima (W)"
         }
       }
     },
@@ -64,10 +55,12 @@
       "timer_default_message": "{device}: timer di {minutes} min",
       "timer_pause_action_title": "Riprendi ciclo",
       "timer_pause_body_suffix": "Il ciclo è in pausa. Apri il pannello WashData per riprendere.",
+      "unload_dismiss_action_title": "Interrompi promemoria",
       "notify_live_waiting_message": "{device}: nessun profilo ancora riconosciuto.",
       "vs_typical_longer": "{pct}% più lungo del solito",
       "vs_typical_shorter": "{pct}% più corto del solito",
-      "invalid_power": "Power threshold must be greater than 0"
+      "invalid_power": "La soglia di potenza deve essere maggiore di 0",
+      "power_sensor_energy": "Questo è un contatore di energia (kWh), non un sensore di potenza. Scegli il sensore di potenza della presa (W o kW). Se la presa non ne ha uno, un helper Sensore derivata può crearlo dal contatore."
     }
   },
   "selector": {
@@ -77,11 +70,35 @@
         "dryer": "Asciugatrice",
         "washer_dryer": "Combinazione lavatrice-asciugatrice",
         "dishwasher": "Lavastoviglie",
-        "air_fryer": "Friggitrice ad aria",
-        "bread_maker": "Macchina per il pane",
         "pump": "Pompa / Pompa di raccolta",
         "generic": "Altro (Avanzato)",
         "other": "Dispositivo di soglia"
+      }
+    },
+    "trigger_cycle_status": {
+      "options": {
+        "any": "Qualsiasi",
+        "completed": "Completato",
+        "force_stopped": "Fermato forzatamente",
+        "interrupted": "Interrotto"
+      }
+    },
+    "trigger_state": {
+      "options": {
+        "off": "Spento",
+        "idle": "In attesa",
+        "starting": "In avvio",
+        "running": "In esecuzione",
+        "paused": "In pausa",
+        "user_paused": "In pausa dall'utente",
+        "ending": "In chiusura",
+        "finished": "Completato",
+        "anti_wrinkle": "Antirughe",
+        "delay_wait": "In attesa di iniziare",
+        "interrupted": "Interrotto",
+        "force_stopped": "Fermato forzatamente",
+        "unknown": "Sconosciuto",
+        "clean": "Pulito"
       }
     }
   },
@@ -100,7 +117,7 @@
         },
         "profile_name": {
           "name": "Nome profilo",
-          "description": "Il nome di un profilo esistente (crea profili nel menu Gestisci profili). Lascia vuoto per rimuovere l'etichetta."
+          "description": "Nome di un profilo esistente (crea i profili nel pannello WashData). Lascia vuoto per rimuovere l'etichetta."
         }
       }
     },
@@ -150,13 +167,13 @@
         },
         "confidence_threshold": {
           "name": "Soglia di confidenza",
-          "description": "Confidenza di corrispondenza minima (0,50-0,95) per applicare le etichette."
+          "description": "Confidenza di corrispondenza minima (0,50-0,95) per applicare le etichette. Lascia vuoto per usare l'impostazione Confidenza etichettatura automatica del dispositivo."
         }
       }
     },
     "export_config": {
       "name": "Esporta configurazione",
-      "description": "Esporta profili, cicli e impostazioni di questo dispositivo in un file JSON (per dispositivo).",
+      "description": "Esporta profili, cicli e impostazioni di questo dispositivo in un file JSON.",
       "fields": {
         "device_id": {
           "name": "Dispositivo",
@@ -184,7 +201,7 @@
     },
     "submit_cycle_feedback": {
       "name": "Invia feedback sul ciclo",
-      "description": "Conferma o correggi un programma rilevato automaticamente dopo un ciclo completato. Fornisci `entry_id` (avanzato) o `device_id` (consigliato).",
+      "description": "Conferma o correggi il programma rilevato di un ciclo terminato. Indica `device_id` (consigliato) o `entry_id`.",
       "fields": {
         "device_id": {
           "name": "Dispositivo",
@@ -287,6 +304,16 @@
           "description": "Il dispositivo WashData di cui riaddestrare i modelli."
         }
       }
+    },
+    "mark_unloaded": {
+      "name": "Segna come scaricato",
+      "description": "Conferma che il carico terminato è stato tolto. Azzera lo stato Pulito e ogni promemoria di scarico.",
+      "fields": {
+        "device_id": {
+          "name": "Dispositivo",
+          "description": "Il dispositivo WashData da cui è stato tolto il carico terminato."
+        }
+      }
     }
   },
   "entity": {
@@ -296,6 +323,32 @@
       },
       "match_ambiguity": {
         "name": "Ambiguità corrispondenza"
+      },
+      "maintenance_due": {
+        "name": "Manutenzione in scadenza",
+        "state": {
+          "on": "In scadenza",
+          "off": "Non in scadenza"
+        },
+        "state_attributes": {
+          "due_task_ids": {
+            "name": "ID attività in scadenza"
+          },
+          "due_tasks": {
+            "name": "Attività in scadenza",
+            "state": {
+              "descale": "Decalcifica",
+              "filter_clean": "Pulisci filtro",
+              "drum_clean": "Pulisci cestello",
+              "bearing_service": "Manutenzione cuscinetti",
+              "other": "Altro",
+              "salt": "Ricarica sale",
+              "rinse_aid": "Ricarica brillantante",
+              "lint_filter": "Pulisci filtro lanugine",
+              "condenser_clean": "Pulisci condensatore"
+            }
+          }
+        }
       }
     },
     "sensor": {
@@ -313,10 +366,18 @@
           "anti_wrinkle": "Antirughe",
           "interrupted": "Interrotto",
           "force_stopped": "Fermato forzatamente",
-          "rinse": "Risciacquo",
           "unknown": "Sconosciuto",
           "clean": "Pulito",
           "delay_wait": "In attesa di iniziare"
+        },
+        "state_attributes": {
+          "cycle_anomaly": {
+            "name": "Anomalia del ciclo",
+            "state": {
+              "overrun": "In ritardo",
+              "stalled": "Bloccato"
+            }
+          }
         }
       },
       "washer_program": {
@@ -395,6 +456,9 @@
       },
       "record_stop": {
         "name": "Interrompi registrazione ciclo"
+      },
+      "mark_unloaded": {
+        "name": "Segna come scaricato"
       }
     }
   },
@@ -443,6 +507,194 @@
     },
     "assign_profile_failed": {
       "message": "Impossibile assegnare il profilo: {error}"
+    }
+  },
+  "device_automation": {
+    "trigger_type": {
+      "cycle_started": "Ciclo avviato",
+      "cycle_finished": "Ciclo terminato",
+      "cycle_ended": "Ciclo concluso (qualsiasi motivo)",
+      "anti_wrinkle_started": "Antirughe avviato",
+      "cycle_stalled": "Ciclo bloccato",
+      "unload_pending": "Scarico in attesa",
+      "program_recognised": "Programma riconosciuto",
+      "phase_started": "Fase avviata",
+      "finishing_soon": "In fase di completamento",
+      "cycle_overrun": "Ciclo in ritardo",
+      "cycle_paused": "Ciclo in pausa",
+      "cycle_resumed": "Ciclo ripreso",
+      "still_tumbling": "Ancora in rotazione dopo il ciclo",
+      "unloaded": "Scaricato",
+      "state_changed": "Stato cambiato",
+      "maintenance_due": "Manutenzione in scadenza",
+      "milestone_reached": "Traguardo cicli raggiunto",
+      "pump_stuck": "Pompa bloccata"
+    },
+    "extra_fields": {
+      "program": "Programma",
+      "phase": "Fase",
+      "minutes": "Minuti",
+      "percent": "In eccesso (%)",
+      "include_detected": "Includi pause rilevate",
+      "status": "Terminato come",
+      "from": "Da",
+      "to": "A",
+      "task": "Attività"
+    },
+    "extra_fields_descriptions": {
+      "program": "Solo questo programma, per nome esatto. Lascia vuoto per qualsiasi programma.",
+      "phase": "Solo questa fase, per nome. Lascia vuoto per qualsiasi fase.",
+      "minutes": "In fase di completamento: minuti rimasti. Ancora in rotazione: minuti dopo la fine.",
+      "percent": "Percentuale oltre la durata normale del programma.",
+      "include_detected": "Attiva anche sulle pause che WashData rileva nel consumo, come un ammollo o uno stallo.",
+      "status": "Solo i cicli terminati in questo modo.",
+      "from": "Solo cambi da questo stato. Lascia vuoto per qualsiasi.",
+      "to": "Solo cambi verso questo stato. Lascia vuoto per qualsiasi.",
+      "task": "Solo questa attività, per nome o id. Lascia vuoto per qualsiasi attività."
+    }
+  },
+  "triggers": {
+    "cycle_started": {
+      "name": "Ciclo avviato",
+      "description": "Si attiva quando l'elettrodomestico avvia un ciclo."
+    },
+    "program_recognised": {
+      "name": "Programma riconosciuto",
+      "description": "Si attiva quando WashData riconosce il programma del ciclo in corso o lo cambia con un altro.",
+      "fields": {
+        "program": {
+          "name": "Programma",
+          "description": "Solo questo programma, per nome esatto. Lascia vuoto per qualsiasi programma."
+        }
+      }
+    },
+    "phase_started": {
+      "name": "Fase avviata",
+      "description": "Si attiva quando il ciclo in corso entra in una nuova fase del suo programma.",
+      "fields": {
+        "phase": {
+          "name": "Fase",
+          "description": "Solo questa fase, per nome. Lascia vuoto per qualsiasi fase."
+        }
+      }
+    },
+    "finishing_soon": {
+      "name": "In fase di completamento",
+      "description": "Si attiva una volta per ciclo, quando il tempo rimanente scende per la prima volta a questo numero di minuti.",
+      "fields": {
+        "minutes": {
+          "name": "Minuti rimasti",
+          "description": "Si attiva quando rimangono questo numero di minuti o meno."
+        }
+      }
+    },
+    "cycle_overrun": {
+      "name": "Ciclo in ritardo",
+      "description": "Si attiva una volta per ciclo, quando dura molto più del solito per questo programma.",
+      "fields": {
+        "percent": {
+          "name": "In eccesso di",
+          "description": "Percentuale oltre la durata normale del programma."
+        }
+      }
+    },
+    "cycle_paused": {
+      "name": "Ciclo in pausa",
+      "description": "Si attiva quando metti in pausa un ciclo e, opzionalmente, quando l'elettrodomestico si mette in pausa da solo.",
+      "fields": {
+        "include_detected": {
+          "name": "Includi pause rilevate",
+          "description": "Si attiva anche sulle pause che WashData rileva nel consumo, come un ammollo o uno stallo, non solo su quelle che avvii tu."
+        }
+      }
+    },
+    "cycle_resumed": {
+      "name": "Ciclo ripreso",
+      "description": "Si attiva quando un ciclo in pausa continua.",
+      "fields": {
+        "include_detected": {
+          "name": "Includi pause rilevate",
+          "description": "Si attiva anche sulle pause che WashData rileva nel consumo, come un ammollo o uno stallo, non solo su quelle che avvii tu."
+        }
+      }
+    },
+    "cycle_stalled": {
+      "name": "Ciclo bloccato",
+      "description": "Si attiva quando un ciclo in esecuzione si ferma a un livello di consumo basso e stabile."
+    },
+    "cycle_finished": {
+      "name": "Ciclo terminato",
+      "description": "Si attiva quando un ciclo termina, anche se lo fermi tu. Non per un falso avvio.",
+      "fields": {
+        "program": {
+          "name": "Programma",
+          "description": "Solo questo programma, per nome esatto. Lascia vuoto per qualsiasi programma."
+        }
+      }
+    },
+    "cycle_ended": {
+      "name": "Ciclo concluso (qualsiasi motivo)",
+      "description": "Si attiva quando un ciclo finisce per qualsiasi motivo, inclusi i falsi avvii.",
+      "fields": {
+        "status": {
+          "name": "Terminato come",
+          "description": "Solo i cicli terminati in questo modo."
+        }
+      }
+    },
+    "anti_wrinkle_started": {
+      "name": "Antirughe avviato",
+      "description": "Si attiva quando l'elettrodomestico inizia a far girare il bucato terminato per ridurre le grinze."
+    },
+    "still_tumbling": {
+      "name": "Ancora in rotazione dopo il ciclo",
+      "description": "Si attiva una volta quando l'elettrodomestico è ancora in rotazione per brevi impulsi a questo numero di minuti dopo la fine del ciclo. Si ferma con un nuovo ciclo o 4 ore dopo la fine.",
+      "fields": {
+        "minutes": {
+          "name": "Minuti dopo la fine",
+          "description": "Si attiva alla prima rotazione almeno questo tempo dopo la fine."
+        }
+      }
+    },
+    "unload_pending": {
+      "name": "Scarico in attesa",
+      "description": "Si attiva quando un ciclo è terminato e il carico è ancora dentro."
+    },
+    "unloaded": {
+      "name": "Scaricato",
+      "description": "Si attiva quando il carico viene rimosso dopo un ciclo: la porta è stata aperta o lo scarico è stato confermato."
+    },
+    "state_changed": {
+      "name": "Stato cambiato",
+      "description": "Si attiva quando lo stato di WashData cambia.",
+      "fields": {
+        "from": {
+          "name": "Da",
+          "description": "Solo cambi da questo stato. Lascia vuoto per qualsiasi."
+        },
+        "to": {
+          "name": "A",
+          "description": "Solo cambi verso questo stato. Lascia vuoto per qualsiasi."
+        }
+      }
+    },
+    "maintenance_due": {
+      "name": "Manutenzione in scadenza",
+      "description": "Si attiva quando un'attività di manutenzione diventa imminente.",
+      "fields": {
+        "task": {
+          "name": "Attività",
+          "description": "Solo questa attività, per nome o id. Lascia vuoto per qualsiasi attività."
+        }
+      }
+    },
+    "milestone_reached": {
+      "name": "Traguardo cicli raggiunto",
+      "description": "Si attiva quando il contatore dei cicli totali raggiunge uno dei traguardi impostati per le notifiche."
+    },
+    "pump_stuck": {
+      "name": "Pompa bloccata",
+      "description": "Si attiva quando una pompa funziona più a lungo del suo limite di blocco."
     }
   }
 }

@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" href="/beatify/static/img/icon-256.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <!-- #1098: drives the footer version string + cache-busts i18n JSON.
          Bumped each rc alongside manifest.json + sw.js CACHE_VERSION. -->
@@ -39,9 +40,17 @@
     <!-- Preconnect for faster font loading -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700;900&display=swap" rel="stylesheet">
+    <!-- #2641: the font stylesheet is fetched non-blocking. A cross-origin
+         <link rel=stylesheet> in the head stops rendering until the CDN answers
+         or times out, and on party wifi with no working internet that is 5-30
+         seconds of blank screen before anything appears. media="print" makes
+         the browser fetch it at low priority without blocking the render; the
+         onload swap applies it the moment it arrives. The page is fully
+         readable in the fallback stack until then. -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700;900&display=swap" rel="stylesheet"></noscript>
     <!-- Stylesheets -->
-    <link rel="stylesheet" href="/beatify/static/css/styles.css?v={{ASSET_VER}}">
+    <link rel="stylesheet" href="/beatify/static/css/styles.min.css?v={{ASSET_VER}}">
     <link rel="stylesheet" href="/beatify/static/css/analytics.min.css?v={{ASSET_VER}}">
 </head>
 <body class="theme-dark">
@@ -179,8 +188,11 @@
                         <span class="song-row-stat accuracy-high">--</span>
                     </div>
                 </div>
-                <!-- Playlist Details - Hidden by default, view button -->
-                <button type="button" class="btn btn-secondary btn-full-width" id="view-all-songs-btn">
+                <!-- Playlist Details - Hidden by default, view button.
+                     #2697: starts disabled and is enabled once the song-stats
+                     API reports at least one playlist, so it can never be a
+                     button that opens nothing. -->
+                <button type="button" class="btn btn-secondary btn-full-width" id="view-all-songs-btn" disabled>
                     <span data-i18n="analyticsDashboard.viewAllSongs">View All Songs</span>
                 </button>
             </div>

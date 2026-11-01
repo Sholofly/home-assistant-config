@@ -14,7 +14,7 @@ binary_sensor:
   - platform: gpio
     pin:
       number: GPIO5
-    name: "${name}"
+    name: None
     on_state:
       - switch.toggle: "${id}_relay"
     internal: true
@@ -24,7 +24,7 @@ switch:
     pin:
       number: 4
     id: "${id}_relay"
-    name: "${name}"
+    name: None
     restore_mode: $restore_mode
     on_turn_on:
       - delay: 6h

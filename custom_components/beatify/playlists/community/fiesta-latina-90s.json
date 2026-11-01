@@ -1,6 +1,6 @@
 {
   "name": "Fiesta Latina 90s 🇲🇽",
-  "version": "1.5",
+  "version": "1.10",
   "tags": [
     "1990s",
     "latin",
@@ -165,13 +165,22 @@
       "fun_fact_de": "Gilt als Auslöser der 'Latin-Pop-Explosion' der späten 1990er. Gleichzeitig auf Englisch und Spanisch aufgenommen, war es der erste Song eines lateinamerikanischen Künstlers, der auf Platz 1 der Billboard Hot 100 debütierte.",
       "fun_fact_es": "Considerada como la canción que inició la 'Explosión del Pop Latino' de los años 90. Grabada simultáneamente en inglés y español, fue la primera canción de un artista latino en debutar en el #1 del Billboard Hot 100.",
       "fun_fact_fr": "Considérée comme le déclencheur de la « Latin Pop Explosion » de la fin des années 1990, cette chanson a été enregistrée simultanément en anglais et en espagnol. Premier titre d'un artiste latino à débuter directement n°1 au Billboard Hot 100, il a également atteint la première place dans plus de 20 pays.",
-      "uri_apple_music": "",
+      "uri_apple_music": "applemusic://track/192821659",
       "uri_youtube_music": "https://music.youtube.com/watch?v=q8D9oiOs-DI",
       "uri_tidal": "tidal://track/11337248",
       "uri_deezer": "deezer://track/13704591",
       "fun_fact_nl": "Dit nummer wordt gezien als de lancering van de 'Latin Pop Explosion' van de late jaren '90. Het werd tegelijkertijd in het Engels en Spaans opgenomen en was het eerste nummer van een Latin-artiest dat op nummer 1 debuteerde in de Billboard Hot 100. Het bereikte de eerste plaats in meer dan 20 landen.",
       "awards_nl": [
         "Grammy-nominatie voor Opname van het Jaar"
+      ],
+      "awards_it": [
+        "Candidatura al Grammy per il disco dell'anno"
+      ],
+      "awards_de": [
+        "Grammy-Nominierung - Aufnahme des Jahres"
+      ],
+      "awards_es": [
+        "Nominación al Grammy - Grabación del Año"
       ]
     },
     {
@@ -372,6 +381,15 @@
       "awards_nl": [
         "Grammy Award voor Beste Tropisch Latijns Album (Bachata Rosa)"
       ],
+      "awards_it": [
+        "Grammy per il miglior album latino tropicale (Bachata Rosa)"
+      ],
+      "awards_de": [
+        "Grammy - Bestes tropisches Latin-Album (Bachata Rosa)"
+      ],
+      "awards_es": [
+        "Grammy - Mejor Álbum Tropical Latino (Bachata Rosa)"
+      ],
       "isrc": "USKP10400046",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/19468966",
@@ -416,13 +434,13 @@
       "awards_nl": [],
       "isrc": "DEH259900010",
       "uri_apple_music_by_region": {
-        "us": null,
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
+        "us": "applemusic://track/1322068804",
+        "de": "applemusic://track/1318383098",
+        "gb": "applemusic://track/1322068804",
+        "fr": "applemusic://track/1322068804",
+        "es": "applemusic://track/1322068804",
         "nl": "applemusic://track/1656111119",
-        "it": null
+        "it": "applemusic://track/1322068804"
       }
     },
     {
@@ -584,6 +602,15 @@
       "fun_fact_nl": "Werd het meest gedraaide merengue-nummer op de Amerikaanse radio en won de Grammy voor Best Tropical Latin Performance. De Puerto Ricaanse zanger Elvis Crespo was voorheen lid van Grupo Mania voordat hij zijn solocarrière lanceerde met deze enorme debuuthit.",
       "awards_nl": [
         "Grammy Award voor Beste Tropisch Latijnse Prestatie"
+      ],
+      "awards_it": [
+        "Grammy per la migliore interpretazione latina tropicale"
+      ],
+      "awards_de": [
+        "Grammy - Beste tropische Latin-Darbietung"
+      ],
+      "awards_es": [
+        "Grammy - Mejor Interpretación Tropical Latina"
       ],
       "isrc": "USSD19700576",
       "uri_apple_music_by_region": {
@@ -1183,6 +1210,15 @@
       "awards_nl": [
         "Grammy-nominatie voor Beste Merengue-album"
       ],
+      "awards_it": [
+        "Candidatura al Grammy per il miglior album merengue"
+      ],
+      "awards_de": [
+        "Grammy-Nominierung - Bestes Merengue-Album"
+      ],
+      "awards_es": [
+        "Nominación al Grammy - Mejor Álbum de Merengue"
+      ],
       "isrc": "USWL19400004",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/25454718",
@@ -1743,13 +1779,13 @@
       "awards_nl": [],
       "isrc": "MXF110001337",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/1710987023",
-        "de": "applemusic://track/1710987023",
-        "gb": "applemusic://track/1710987023",
-        "fr": "applemusic://track/1710987023",
-        "es": "applemusic://track/1710987023",
-        "nl": "applemusic://track/1710987023",
-        "it": "applemusic://track/1710987023"
+        "us": "applemusic://track/1444066543",
+        "de": "applemusic://track/1444066543",
+        "gb": "applemusic://track/1444066543",
+        "fr": "applemusic://track/1444066543",
+        "es": "applemusic://track/1444066543",
+        "nl": "applemusic://track/1444066543",
+        "it": "applemusic://track/1444066543"
       }
     },
     {
@@ -1912,6 +1948,18 @@
         "Latin Grammy voor Opname van het Jaar",
         "Latin Grammy voor Album van het Jaar"
       ],
+      "awards_it": [
+        "Latin Grammy per il disco dell'anno",
+        "Latin Grammy per l'album dell'anno"
+      ],
+      "awards_de": [
+        "Latin Grammy - Aufnahme des Jahres",
+        "Latin Grammy - Album des Jahres"
+      ],
+      "awards_es": [
+        "Latin Grammy - Grabación del Año",
+        "Latin Grammy - Álbum del Año"
+      ],
       "isrc": "ES5150306001",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1437911775",
@@ -2025,7 +2073,7 @@
       "fun_fact_de": "Tochter der legendären mexikanischen Filmschauspielerin Silvia Pinal und des Sängers Enrique Guzmán, wurde Alejandra selbst zur Rock- und Pop-Ikone. Als 'La Reina de Corazones' bekannt, inspirierte ihr rebellisches Image eine Generation mexikanischer Frauen.",
       "fun_fact_es": "Hija de la legendaria actriz mexicana Silvia Pinal y el cantante Enrique Guzmán, Alejandra se convirtió en ícono del rock y pop por derecho propio. Conocida como 'La Reina de Corazones', su imagen rebelde inspiró a una generación de mujeres mexicanas.",
       "fun_fact_fr": "Fille de la légendaire actrice de cinéma mexicaine Silvia Pinal et du chanteur Enrique Guzmán, Alejandra est devenue une icône du rock et de la pop à part entière. Surnommée « La Reina de Corazones » (la Reine de coeur), son image rebelle a inspiré toute une génération de femmes mexicaines.",
-      "uri_apple_music": "",
+      "uri_apple_music": "applemusic://track/1443545257",
       "uri_youtube_music": "https://music.youtube.com/watch?v=ucjXW_F__nk",
       "uri_tidal": "tidal://track/67046483",
       "uri_deezer": "deezer://track/78573546",

@@ -7,5 +7,5 @@
 #
 id: "${id}_button_restart"
 platform: restart
-name: "${name} Restart"
+name: "Restart"
 #device_id: "${id}_device"

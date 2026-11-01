@@ -3,20 +3,26 @@
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import json
 import logging
 import re
 import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from aiohttp import ClientError, web
 from homeassistant.components.http import HomeAssistantView
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
+from custom_components.beatify.const import DOMAIN
 from custom_components.beatify.game.playlist import (
+    async_discover_playlists,
+    build_next_playlist_tiles,
     get_playlist_directory,
+    playlist_rel_path,
+    summarize_rejected_songs,
     validate_playlist,
 )
 from custom_components.beatify.server.base import (
@@ -309,6 +315,40 @@ def _slugify_playlist_name(name: str) -> str:
     return s[:60] or "untitled-playlist"
 
 
+def write_user_playlist(hass: HomeAssistant, playlist: dict[str, Any]) -> Any:
+    """Return an executor job writing a playlist to the ``user/`` subfolder.
+
+    Extracted from ``SavePlaylistView`` (behaviour unchanged) so every
+    user-playlist write follows the same rules — slugged filename,
+    non-clobbering ``-2``/``-3`` suffixes, pretty-printed JSON — no matter
+    which endpoint produced it. Crate Digger's generate and AI-curate endpoints
+    save through this same helper rather than duplicating the logic.
+    Callers ``await`` the returned job and receive the written :class:`Path`.
+    """
+    slug = _slugify_playlist_name(playlist.get("name", ""))
+    playlist_dir = get_playlist_directory(hass)
+    user_dir = playlist_dir / "user"
+
+    def _write() -> Path:
+        user_dir.mkdir(parents=True, exist_ok=True)
+        target = user_dir / f"{slug}.json"
+        # Pick a non-clobbering name if a saved playlist with the same slug
+        # already exists — two playlists with similar names should not
+        # silently overwrite each other.
+        final = target
+        counter = 2
+        while final.exists():
+            final = user_dir / f"{slug}-{counter}.json"
+            counter += 1
+        final.write_text(
+            json.dumps(playlist, indent=2, ensure_ascii=False),
+            encoding="utf-8",
+        )
+        return final
+
+    return hass.async_add_executor_job(_write)
+
+
 class SavePlaylistView(RateLimitMixin, HomeAssistantView):
     """Write a generator-produced playlist into the user-playlist subfolder.
 
@@ -368,37 +408,28 @@ class SavePlaylistView(RateLimitMixin, HomeAssistantView):
                 f"Too many songs (max {self.MAX_SONGS})", 400, code="TOO_LARGE"
             )
 
-        is_valid, errors = validate_playlist(playlist)
+        rejected_songs: list[dict[str, Any]] = []
+        is_valid, errors = validate_playlist(playlist, rejected_songs=rejected_songs)
         if not is_valid:
+            # #1576: surface *which* tracks dropped and *why* to the host —
+            # both as a human-readable summary in the message and as structured
+            # ``rejected_songs`` the admin UI can render per track.
+            if rejected_songs:
+                _LOGGER.info(
+                    "Playlist import '%s' rejected: %d song(s) failed validation: %s",
+                    playlist.get("name", "?"),
+                    len(rejected_songs),
+                    summarize_rejected_songs(rejected_songs),
+                )
             return _json_error(
                 "Playlist validation failed: " + "; ".join(errors[:5]),
                 400,
                 code="INVALID_PLAYLIST",
+                details={"errors": errors, "rejected_songs": rejected_songs},
             )
-
-        slug = _slugify_playlist_name(playlist.get("name", ""))
-        playlist_dir = get_playlist_directory(self.hass)
-        user_dir = playlist_dir / "user"
-
-        def _write() -> Path:
-            user_dir.mkdir(parents=True, exist_ok=True)
-            target = user_dir / f"{slug}.json"
-            # Pick a non-clobbering name if a saved playlist with the same
-            # slug already exists — two users with similar names should not
-            # silently overwrite each other.
-            final = target
-            counter = 2
-            while final.exists():
-                final = user_dir / f"{slug}-{counter}.json"
-                counter += 1
-            final.write_text(
-                json.dumps(playlist, indent=2, ensure_ascii=False),
-                encoding="utf-8",
-            )
-            return final
 
         try:
-            written = await self.hass.async_add_executor_job(_write)
+            written = await write_user_playlist(self.hass, playlist)
         except OSError as err:
             _LOGGER.error("Failed to save user playlist: %s", err)
             return _json_error("Failed to save playlist", 500, code="SAVE_FAILED")
@@ -408,5 +439,76 @@ class SavePlaylistView(RateLimitMixin, HomeAssistantView):
                 "success": True,
                 "path": str(written),
                 "filename": written.name,
+            }
+        )
+
+
+class NextPlaylistsView(HomeAssistantView):
+    """What the end screen offers after the podium (#2648).
+
+    Variant B of the design gate turns the end screen into the start screen: a
+    small grid of playlists plus a way into the whole catalogue, instead of a
+    menu whose only two doors were "the same again" and "throw everyone out".
+    This view answers what goes in that grid.
+
+    Unauthenticated on purpose, exactly like ``StatusView``: it is served to
+    the host's phone, which is a player page with no HA token, and the payload
+    is playlist names and song counts — the same list ``/beatify/api/status``
+    has always handed to the wizard and the playlist hub. Nothing here reveals
+    a running game's answers.
+    """
+
+    url = "/beatify/api/next-playlists"
+    name = "beatify:api:next-playlists"
+    requires_auth = False
+
+    def __init__(self, hass: HomeAssistant) -> None:
+        """Initialize view."""
+        self.hass = hass
+
+    async def get(self, request: web.Request) -> web.Response:
+        """Return the suggested tiles plus the full catalogue for search."""
+        metas = await async_discover_playlists(self.hass)
+        playlist_dir = get_playlist_directory(self.hass)
+
+        domain_data = self.hass.data.get(DOMAIN, {})
+        game_state = domain_data.get("game")
+        current_paths = list(getattr(game_state, "playlists", None) or [])
+
+        # The local game log records the FIRST playlist of each game as a file
+        # stem (see game/state_serialization.py), which is exactly the key the
+        # tiles need. Analytics is optional — a host who never played a game,
+        # or one running without it, simply gets the catalogue-order fallback.
+        recent_stems: list[str] = []
+        analytics = domain_data.get("analytics")
+        if analytics is not None:
+            with contextlib.suppress(Exception):
+                recent_stems = [
+                    str(item.get("name", ""))
+                    for item in analytics.get_recent_playlists(limit=24)
+                    if item.get("name")
+                ]
+
+        tiles = build_next_playlist_tiles(
+            metas, playlist_dir, current_paths, recent_stems
+        )
+
+        catalogue = [
+            {
+                "path": rel,
+                "name": str(meta.get("name") or Path(rel).stem),
+                "song_count": int(meta.get("song_count") or 0),
+                "source": meta.get("source"),
+            }
+            for meta, rel in ((m, playlist_rel_path(playlist_dir, m)) for m in metas)
+            if rel and meta.get("song_count")
+        ]
+
+        return web.json_response(
+            {
+                "current": current_paths,
+                "suggested": tiles,
+                "all": catalogue,
+                "total": len(catalogue),
             }
         )

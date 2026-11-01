@@ -1,0 +1,20 @@
+{
+  "last_player": "media_player.keuken_nest_hub_mass",
+  "game_settings": {
+    "provider": "spotify",
+    "difficulty": "normal",
+    "duration": 45,
+    "revealAutoAdvance": 0,
+    "language": "nl",
+    "artistChallenge": true,
+    "movieQuiz": true,
+    "introMode": false,
+    "closestWinsMode": false,
+    "titleArtistMode": false,
+    "selectedPlaylists": [
+      {
+        "path": "/config/beatify/playlists/community/gen-z-anthems.json"
+      }
+    ]
+  }
+}

@@ -70,6 +70,7 @@
         'uri', 'uri_apple_music', 'uri_apple_music_by_region',
         'uri_youtube_music', 'uri_tidal', 'uri_deezer',
         'fun_fact', 'fun_fact_de', 'fun_fact_es', 'fun_fact_fr', 'fun_fact_nl',
+        'fun_fact_it',
     ];
 
     function currentYear() {
@@ -120,6 +121,7 @@
             fun_fact_es: 'Un clásico del trance y la pista de baile (1991).',
             fun_fact_fr: 'Un classique de la trance et du dancefloor (1991).',
             fun_fact_nl: 'Een trance- en dancefloorklassieker (1991).',
+            fun_fact_it: 'Un classico della trance e delle piste da ballo (1991).',
         }, null, 2);
         const todayIso = new Date().toISOString().slice(0, 10);
         const yMax = currentYear();
@@ -160,12 +162,13 @@ Each song MUST have ALL of these fields (${fieldList}):
 - fun_fact_es: same fact translated to Spanish.
 - fun_fact_fr: same fact translated to French.
 - fun_fact_nl: same fact translated to Dutch.
+- fun_fact_it: same fact translated to Italian.
 
 GOLD STANDARD EXAMPLE (one song from Trance Classics):
 ${goldStandard}
 
 RULES
-- Every song must contain all 15 fields. uri_tidal may be null. Everything else must be populated.
+- Every song must contain all 15 required fields, plus fun_fact_it where you can supply it. uri_tidal may be null. Everything else must be populated.
 - Do NOT invent ISRC or Apple Music IDs you are not sure of. If unsure, still fill the field but mark the playlist's description with "(LLM-generated identifiers — verify with the Beatify URI resolver)".
 - Output ONLY JSON. No preamble, no closing remarks, no markdown code fences.`;
     }
@@ -407,11 +410,21 @@ RULES
             result.fields.uri_deezer = ok;
             if (!ok) result.errors.push({ field: 'uri_deezer', message: 'uri_deezer must be null or deezer://track/<digits>.' + _echo(song.uri_deezer) });
         }
-        // fun_facts (all required)
+        // fun_facts (the five original locales are required)
         for (const f of ['fun_fact', 'fun_fact_de', 'fun_fact_es', 'fun_fact_fr', 'fun_fact_nl']) {
             const ok = typeof song[f] === 'string' && song[f].trim().length > 0;
             result.fields[f] = ok;
             if (!ok) result.errors.push({ field: f, message: `${f} must be a non-empty string` });
+        }
+        // fun_fact_it is OPTIONAL on purpose (#2234/#2253): the schema keeps it
+        // optional so the 6000+ songs that predate Italian are not invalidated,
+        // and a validator that demanded it here would reject submissions the CI
+        // gate happily accepts. Present-but-empty is still an error — that is a
+        // mistake, not an omission.
+        if ('fun_fact_it' in song && song.fun_fact_it !== null && song.fun_fact_it !== undefined) {
+            const okIt = typeof song.fun_fact_it === 'string' && song.fun_fact_it.trim().length > 0;
+            result.fields.fun_fact_it = okIt;
+            if (!okIt) result.errors.push({ field: 'fun_fact_it', message: 'fun_fact_it must be a non-empty string when present' });
         }
         return result;
     }
@@ -991,7 +1004,7 @@ __JSON__
                 _setHint('Could not parse JSON for save: ' + err.message);
                 return;
             }
-            _saveLocally(data).catch((err) => {
+            _runActionButton('save-local', () => _saveLocally(data)).catch((err) => {
                 _setHint(_t(
                     'playlistGenerator.saveLocal.error',
                     'Save failed: {error}',
@@ -1001,7 +1014,7 @@ __JSON__
             return;
         }
         if (action === 'capture-issue') {
-            _captureIssueSubmission().catch((err) => {
+            _runActionButton('capture-issue', () => _captureIssueSubmission()).catch((err) => {
                 _setFollowupHint(_t(
                     'playlistGenerator.submit.captureError',
                     'Could not record submission: {error}',
@@ -1063,6 +1076,65 @@ __JSON__
     }
 
     // -----------------------------------------------------------------
+    // Auth-aware fetch (#1513)
+    //
+    // The backend endpoints this module talks to — /playlists/save (#1368)
+    // and /playlist-requests (#1367) — are guarded by is_authorized_http(),
+    // which needs an HA Bearer token (or the Companion trust fallback). A
+    // bare fetch() sends no Authorization header, so a normal browser (e.g.
+    // via the Nabu Casa remote URL) gets 401 "Unauthorized" — the bug in
+    // discussion #1513. Route every call through window.BeatifyAuth.fetch,
+    // which attaches the Bearer token (and skips it in Companion bypass
+    // mode). Mirrors the admin mix.js pattern; falls back to window.fetch
+    // if BeatifyAuth is somehow unavailable.
+    //
+    // NOTE (#1655 review): on an *unauthenticated* session BeatifyAuth.fetch
+    // kicks off a login() redirect and returns a promise that never settles
+    // (by design — the redirect is the intended outcome). So `await _authFetch`
+    // in a caller may never resolve; its `.catch` error path is only reached
+    // for genuine errors (network / validation / a rejection *after* auth). The
+    // action-button busy state below therefore uses a watchdog so it can never
+    // stay stuck on that never-resolving path.
+    // -----------------------------------------------------------------
+
+    function _authFetch(url, opts) {
+        const auth = window.BeatifyAuth;
+        const fetcher = (auth && typeof auth.fetch === 'function')
+            ? auth.fetch.bind(auth)
+            : window.fetch.bind(window);
+        return fetcher(url, opts);
+    }
+
+    // Run an async action tied to a toolbar button: disable + relabel the
+    // button while it runs, restore it when the promise settles, and — as a
+    // watchdog for the never-resolving login-redirect path (see _authFetch) —
+    // restore it after a timeout too, so it can never get permanently stuck.
+    // Returns the underlying promise so callers keep their `.catch`.
+    function _runActionButton(action, work) {
+        const btn = state.rootEl
+            && state.rootEl.querySelector('[data-plg-action="' + action + '"]');
+        const orig = btn ? btn.textContent : '';
+        let restored = false;
+        const restore = () => {
+            if (restored) return;
+            restored = true;
+            if (btn) {
+                btn.disabled = false;
+                btn.textContent = orig;
+            }
+        };
+        if (btn) {
+            btn.disabled = true;
+            btn.textContent = _t('playlistGenerator.actions.working', 'Working…');
+        }
+        const watchdog = setTimeout(restore, 12000);
+        return work().finally(() => {
+            clearTimeout(watchdog);
+            restore();
+        });
+    }
+
+    // -----------------------------------------------------------------
     // Save locally (#1057)
     //
     // POST the validated playlist to /beatify/api/playlists/save. The
@@ -1072,7 +1144,7 @@ __JSON__
     // -----------------------------------------------------------------
 
     async function _saveLocally(playlist) {
-        const resp = await fetch('/beatify/api/playlists/save', {
+        const resp = await _authFetch('/beatify/api/playlists/save', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ playlist }),
@@ -1129,7 +1201,7 @@ __JSON__
         // append/merge-by-issue_number endpoint (out of scope for a frontend-
         // only batch); a client-side lock/retry would be fragile. Tracked under
         // #1402 finding 7 as SKIPPED — needs a backend endpoint.
-        const getResp = await fetch('/beatify/api/playlist-requests');
+        const getResp = await _authFetch('/beatify/api/playlist-requests');
         let store = { requests: [], last_poll: null };
         if (getResp.ok) {
             try { store = await getResp.json(); } catch (e) { /* keep default */ }
@@ -1157,7 +1229,7 @@ __JSON__
             store.requests.push(record);
         }
 
-        const postResp = await fetch('/beatify/api/playlist-requests', {
+        const postResp = await _authFetch('/beatify/api/playlist-requests', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(store),
@@ -1254,6 +1326,13 @@ __JSON__
             slugify,
             _t,
             _resetSessionState,
+            _authFetch,
+            _saveLocally,
+            _captureIssueSubmission,
+            _runActionButton,
+            // Live internal state object — test seam only (set pendingSubmission
+            // / rootEl before exercising the async action handlers).
+            get _state() { return state; },
         },
     };
 })();

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime
 import logging
 from typing import TYPE_CHECKING, Any
@@ -10,13 +10,21 @@ from typing import TYPE_CHECKING, Any
 from homeassistant.util import dt as dt_util
 
 from .calculations import (
+    calculate_absolute_humidity,
     calculate_heat_index,
     classify_comfort_level,
     classify_heat_risk_level,
     classify_mold_risk_level,
 )
 from .const import ENTITY_DATA_CONDENSATION_RISK, ENTITY_DATA_WINDOW_PREDICTED
-from .helpers import get_zone_states, merge_homekit_into_zone_data, parse_iso_datetime
+from .helpers import (
+    connection_value_to_bool,
+    get_zone_states,
+    merge_homekit_into_zone_data,
+    offline_since_date,
+    parse_iso_datetime,
+    resolve_boiler_flow_temperature,
+)
 from .insights_api import (
     calculate_api_quota_planning_insight,
     calculate_api_usage_spike_insight,
@@ -52,10 +60,12 @@ from .insights_misc import (
     calculate_frost_risk_insight,
     calculate_home_all_off_insight,
     calculate_schedule_gap_insight,
+    calculate_ventilation_opportunity_insight,
     calculate_weather_impact_insight,
 )
 from .insights_models import Insight
 from .insights_presenter import get_insight_priority
+from .sensor_helpers import get_outdoor_humidity, get_outdoor_temperature
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
@@ -66,6 +76,7 @@ _LOGGER = logging.getLogger(__name__)
 
 # Insight collection thresholds
 _HUMIDITY_HISTORY_MAX_SAMPLES = 48  # max humidity readings to keep per zone
+_VENTILATION_DIFF_HISTORY_MAX_SAMPLES = 48  # max differential readings to keep, whole-home
 _HEATING_ANOMALY_POWER_PCT = 80  # %: high power threshold for anomaly detection
 _HEATING_ANOMALY_TEMP_DELTA = 0.5  # °C: near-target threshold for anomaly detection
 _OUTDOOR_TEMP_MIN_SAMPLES = 48  # minimum outdoor temp readings for 7-day average
@@ -98,6 +109,10 @@ class InsightContext:
     presence_enabled: bool
     geofencing_active: bool
     comfort_heat_vulnerable_group: bool = False
+    # False in a keep-live refresh: held power may clear the anomaly timer but never start it.
+    advance_anomaly_timer: bool = True
+    # False for saved or held data: history is read to judge the trend but never appended to.
+    sample_history: bool = True
 
     @classmethod
     def from_coordinator(cls, coordinator: TadoDataUpdateCoordinator) -> InsightContext:
@@ -207,40 +222,25 @@ def _collect_comfort_insight(
     )
 
 
-def _collect_boiler_flow_insight(
-    zone_data: dict[str, Any], zone_name: str, insights: list[Any],
-) -> None:
-    """Collect boiler flow anomaly insight."""
-    activity = zone_data.get("activityDataPoints") or {}
-    flow_data = activity.get("boilerFlowTemperature") or {}
-    flow_temp = flow_data.get("celsius")
-    if flow_temp is not None:
-        hp_pct = (activity.get("heatingPower") or {}).get("percentage")
-        insight = calculate_boiler_flow_anomaly_insight(
-            flow_temp=flow_temp,
-            heating_power_pct=hp_pct,
-            zone_name=zone_name,
-        )
-        if insight:
-            insights.append(insight)
-
-
 def _collect_humidity_trend_insight(
     zone_id: str,
     zone_name: str,
     humidity: float,
     humidity_histories: dict[str, list[Any]],
     insights: list[Any],
+    *,
+    sample: bool = True,
 ) -> None:
-    """Collect humidity trend insight, maintaining per-zone history."""
-    if zone_id not in humidity_histories:
-        humidity_histories[zone_id] = []
-    humidity_histories[zone_id].append(humidity)
-    if len(humidity_histories[zone_id]) > _HUMIDITY_HISTORY_MAX_SAMPLES:
-        humidity_histories[zone_id] = humidity_histories[zone_id][-_HUMIDITY_HISTORY_MAX_SAMPLES:]
+    """Collect humidity trend insight, appending to the per-zone history only when `sample` is set."""
+    if sample:
+        if zone_id not in humidity_histories:
+            humidity_histories[zone_id] = []
+        humidity_histories[zone_id].append(humidity)
+        if len(humidity_histories[zone_id]) > _HUMIDITY_HISTORY_MAX_SAMPLES:
+            humidity_histories[zone_id] = humidity_histories[zone_id][-_HUMIDITY_HISTORY_MAX_SAMPLES:]
     insight = calculate_humidity_trend_insight(
         current_humidity=humidity,
-        humidity_history=humidity_histories[zone_id],
+        humidity_history=humidity_histories.get(zone_id),
         zone_name=zone_name,
     )
     if insight:
@@ -264,7 +264,6 @@ def _collect_optional_zone_insights(
         insight = _check_thermal_efficiency(coordinator, zone_id, zone_name)
         if insight:
             insights.append(insight)
-        _collect_boiler_flow_insight(zone_data, zone_name, insights)
 
     if ctx.schedule_enabled and schedules and inside_temp is not None:
         insight = _check_schedule_gap(schedules, zone_id, zone_data, inside_temp, zone_name)
@@ -272,7 +271,9 @@ def _collect_optional_zone_insights(
             insights.append(insight)
 
     if ctx.environment_enabled and humidity_histories is not None and humidity is not None:
-        _collect_humidity_trend_insight(zone_id, zone_name, humidity, humidity_histories, insights)
+        _collect_humidity_trend_insight(
+            zone_id, zone_name, humidity, humidity_histories, insights, sample=ctx.sample_history,
+        )
 
 
 def collect_single_zone_insights(
@@ -356,17 +357,56 @@ def collect_single_zone_insights(
     return insights
 
 
+def _zone_name_map(zones_info: list[Any] | None) -> dict[str, str]:
+    """Map zone ids to names from the zones_info list."""
+    return {str(z.get("id")): z.get("name", f"Zone {z.get('id')}") for z in zones_info or []}
+
+
+def _collect_zone_entry(
+    hass: HomeAssistant,
+    coordinator: TadoDataUpdateCoordinator,
+    zone_id: str,
+    zone_data: dict[str, Any],
+    zones_info: list[Any] | None,
+    zone_name_map: dict[str, str],
+    anomaly_start_times: dict[str, datetime],
+    humidity_histories: dict[str, list[Any]] | None,
+    schedules: dict[str, Any] | None,
+    ctx: InsightContext,
+) -> list[Any]:
+    """Build one zone's insight list, with HomeKit readings merged in."""
+    zone_name = zone_name_map.get(zone_id, f"Zone {zone_id}")
+    # Merge HomeKit data so insights use the freshest readings
+    merged_zone_data = merge_homekit_into_zone_data(zone_data, zone_id, coordinator)
+    return collect_single_zone_insights(
+        hass=hass,
+        coordinator=coordinator,
+        zone_id=zone_id,
+        zone_name=zone_name,
+        zone_data=merged_zone_data,
+        zones_info=zones_info,
+        anomaly_start_times=anomaly_start_times,
+        humidity_histories=humidity_histories,
+        schedules=schedules,
+        ctx=ctx,
+    )
+
+
 def collect_zone_insights(
     hass: HomeAssistant,
     coordinator: TadoDataUpdateCoordinator,
     anomaly_start_times: dict[str, datetime],
     humidity_histories: dict[str, list[Any]],
+    *,
+    sample_history: bool = True,
 ) -> dict[str, list[Any]]:
-    """Collect insights from all zones using the coordinator's cached zone data."""
+    """Collect insights from all zones using the coordinator's cached zone data; saved data passes sample_history False."""
     zone_insights: dict[str, list[Any]] = {}
 
     try:
         ctx = InsightContext.from_coordinator(coordinator)
+        if not sample_history:
+            ctx = replace(ctx, sample_history=False, advance_anomaly_timer=False)
         coord_data = coordinator.data or {}
         zones_info = coord_data.get("zones_info")
         zone_states = get_zone_states(coord_data)
@@ -374,30 +414,15 @@ def collect_zone_insights(
             return zone_insights
 
         schedules = coord_data.get("schedules")
-
-        zone_name_map: dict[str, str] = {}
-        if zones_info:
-            for z in zones_info:
-                zone_name_map[str(z.get("id"))] = z.get("name", f"Zone {z.get('id')}")
+        zone_name_map = _zone_name_map(zones_info)
 
         for zone_id, zone_data in zone_states.items():
-            zone_name = zone_name_map.get(zone_id, f"Zone {zone_id}")
-            # Merge HomeKit data so insights use the freshest readings
-            merged_zone_data = merge_homekit_into_zone_data(zone_data, zone_id, coordinator)
-            insights = collect_single_zone_insights(
-                hass=hass,
-                coordinator=coordinator,
-                zone_id=zone_id,
-                zone_name=zone_name,
-                zone_data=merged_zone_data,
-                zones_info=zones_info,
-                anomaly_start_times=anomaly_start_times,
-                humidity_histories=humidity_histories,
-                schedules=schedules,
-                ctx=ctx,
+            insights = _collect_zone_entry(
+                hass, coordinator, zone_id, zone_data, zones_info, zone_name_map,
+                anomaly_start_times, humidity_histories, schedules, ctx,
             )
             if insights:
-                zone_insights[zone_name] = insights
+                zone_insights[zone_name_map.get(zone_id, f"Zone {zone_id}")] = insights
 
     except Exception as e:
         _LOGGER.debug(
@@ -407,6 +432,44 @@ def collect_zone_insights(
         )
 
     return zone_insights
+
+
+def refresh_zone_insights(
+    hass: HomeAssistant,
+    coordinator: TadoDataUpdateCoordinator,
+    zone_insights: dict[str, list[Any]],
+    zone_ids: set[str],
+    anomaly_start_times: dict[str, datetime],
+    humidity_histories: dict[str, list[Any]] | None = None,
+) -> dict[str, list[Any]]:
+    """Return a copy of zone_insights with the given zones rebuilt from coordinator.data, reading the humidity history without sampling it."""
+    try:
+        ctx = replace(InsightContext.from_coordinator(coordinator), advance_anomaly_timer=False, sample_history=False)
+        coord_data = coordinator.data or {}
+        zones_info = coord_data.get("zones_info")
+        zone_states = get_zone_states(coord_data)
+        schedules = coord_data.get("schedules")
+        zone_name_map = _zone_name_map(zones_info)
+        refreshed = dict(zone_insights)
+        for zone_id in sorted(zone_ids):
+            zone_name = zone_name_map.get(zone_id, f"Zone {zone_id}")
+            zone_data = zone_states.get(zone_id)
+            insights = (
+                _collect_zone_entry(
+                    hass, coordinator, zone_id, zone_data, zones_info, zone_name_map,
+                    anomaly_start_times, humidity_histories, schedules, ctx,
+                )
+                if isinstance(zone_data, dict) else []
+            )
+            if insights:
+                refreshed[zone_name] = insights
+            else:
+                refreshed.pop(zone_name, None)
+    except Exception as e:
+        # Optional recompute: on any failure the held insights stay, as before.
+        _LOGGER.debug("Insight Collector: zone insight refresh failed (%s), keeping the held insights", e)
+        return zone_insights
+    return refreshed
 
 
 def _collect_condensation_insight(
@@ -495,22 +558,29 @@ def _collect_heating_anomaly_insight(
     inside_temp: float | None,
     anomaly_start_times: dict[str, datetime],
     insights: list[Any],
+    *,
+    start_timer: bool = True,
 ) -> None:
     """Collect heating anomaly insight for a zone."""
     activity = zone_data.get("activityDataPoints") or {}
     heating_power = activity.get("heatingPower") or {}
     power_pct = heating_power.get("percentage")
+    # Missing evidence restarts the duration, so a hidden spell is not counted as anomaly time.
     if power_pct is None:
+        anomaly_start_times.pop(zone_id, None)
         return
     try:
         power_pct = float(power_pct)
         setting = zone_data.get("setting") or {}
         target = (setting.get("temperature") or {}).get("celsius")
         if inside_temp is None or target is None:
+            anomaly_start_times.pop(zone_id, None)
             return
         temp_delta = abs(inside_temp - target)
         if power_pct >= _HEATING_ANOMALY_POWER_PCT and temp_delta < _HEATING_ANOMALY_TEMP_DELTA:
             if zone_id not in anomaly_start_times:
+                if not start_timer:
+                    return
                 anomaly_start_times[zone_id] = dt_util.utcnow()
             elapsed = (dt_util.utcnow() - anomaly_start_times[zone_id]).total_seconds() / 60
             ha_insight = calculate_heating_anomaly_insight(
@@ -524,7 +594,8 @@ def _collect_heating_anomaly_insight(
         else:
             anomaly_start_times.pop(zone_id, None)
     except (ValueError, TypeError):
-        pass
+        anomaly_start_times.pop(zone_id, None)
+        _LOGGER.debug("sensor_insight_collector: malformed activity data for zone %s, skipping anomaly check", zone_id)
 
 
 def _collect_ha_entity_insights(
@@ -546,7 +617,10 @@ def _collect_ha_entity_insights(
         _collect_preheat_insight(coordinator, zone_id, zone_name, zone_data, insights)
 
     if ctx.thermal_enabled:
-        _collect_heating_anomaly_insight(zone_data, zone_id, zone_name, inside_temp, anomaly_start_times, insights)
+        _collect_heating_anomaly_insight(
+            zone_data, zone_id, zone_name, inside_temp, anomaly_start_times, insights,
+            start_timer=ctx.advance_anomaly_timer,
+        )
 
 
 def _check_thermal_efficiency(
@@ -610,7 +684,7 @@ def _check_schedule_gap(
                             dur += 24 * 60
                         off_durations.append(dur / 60.0)
                     except (ValueError, IndexError):
-                        pass
+                        _LOGGER.debug("sensor_insight_collector: malformed schedule block %r-%r, skipping", start_str, end_str)
         if off_durations:
             longest_off = max(off_durations)
 
@@ -646,6 +720,7 @@ def _collect_single_zone_device_insights(
                 battery_state=battery,
                 zone_name=zone_name,
                 device_type=device_type,
+                offline_since=offline_since_date(device.get("connectionState")),
             )
             severity = "critical" if battery.upper() == "CRITICAL" else "low"
             insights.append(
@@ -657,9 +732,7 @@ def _collect_single_zone_device_insights(
                 ),
             )
 
-        conn = device.get("connectionState") or {}
-        conn_value = conn.get("value")
-        if conn_value is not None and not conn_value:
+        if connection_value_to_bool(device.get("connectionState")) is False:
             rec = calculate_connection_recommendation(
                 connection_state="Offline",
                 zone_name=zone_name,
@@ -896,6 +969,109 @@ def _collect_weather_insights(
         hub_insights.append(frost_insight)
 
 
+def _collect_boiler_flow_insight(
+    coordinator: TadoDataUpdateCoordinator, hub_insights: list[Any],
+) -> None:
+    """Collect boiler-flow-anomaly insight, home-level: one boiler-wide flow reading vs the highest zone demand."""
+    flow_temp, source = resolve_boiler_flow_temperature(coordinator)
+    if source is None:
+        return
+
+    zone_states = get_zone_states(coordinator.data or {})
+    hp_pct: float | None = None
+    hot_water_on = False
+    for zone_data in zone_states.values():
+        setting = zone_data.get("setting") or {}
+        if setting.get("type") == "HOT_WATER" and setting.get("power") == "ON":
+            hot_water_on = True
+        activity = zone_data.get("activityDataPoints") or {}
+        pct = (activity.get("heatingPower") or {}).get("percentage")
+        if pct is not None and (hp_pct is None or pct > hp_pct):
+            hp_pct = pct
+
+    insight = calculate_boiler_flow_anomaly_insight(
+        flow_temp=flow_temp,
+        heating_power_pct=hp_pct,
+        zone_name="",
+        hot_water_on=hot_water_on,
+    )
+    if insight:
+        hub_insights.append(insight)
+
+
+def _compute_ventilation_differential(
+    coordinator: TadoDataUpdateCoordinator,
+) -> tuple[float, str] | None:
+    """Return (wettest zone's indoor AH minus outdoor AH, that zone's name), or None when inputs are missing."""
+    outdoor_entity = coordinator.config_manager.get_outdoor_temp_entity()
+    if not outdoor_entity:
+        return None
+
+    outdoor_temp = get_outdoor_temperature(coordinator.hass, outdoor_entity)
+    outdoor_humidity = get_outdoor_humidity(coordinator.hass, outdoor_entity)
+    if outdoor_temp is None or outdoor_humidity is None:
+        return None
+    outdoor_ah = calculate_absolute_humidity(outdoor_temp, outdoor_humidity)
+
+    coord_data = coordinator.data or {}
+    zones_info = coord_data.get("zones_info") or []
+    zone_name_map = {str(z.get("id")): z.get("name", f"Zone {z.get('id')}") for z in zones_info}
+
+    zone_states = get_zone_states(coord_data)
+    wettest_zone_name: str | None = None
+    wettest_indoor_ah: float | None = None
+    for zid, zdata in zone_states.items():
+        merged = merge_homekit_into_zone_data(zdata, zid, coordinator)
+        sensor_data = merged.get("sensorDataPoints") or {}
+        temp = (sensor_data.get("insideTemperature") or {}).get("celsius")
+        humidity = (sensor_data.get("humidity") or {}).get("percentage")
+        if temp is None or humidity is None:
+            continue
+        indoor_ah = calculate_absolute_humidity(temp, humidity)
+        if wettest_indoor_ah is None or indoor_ah > wettest_indoor_ah:
+            wettest_indoor_ah = indoor_ah
+            wettest_zone_name = zone_name_map.get(zid, f"Zone {zid}")
+
+    if wettest_indoor_ah is None or wettest_zone_name is None:
+        return None
+
+    return wettest_indoor_ah - outdoor_ah, wettest_zone_name
+
+
+def advance_ventilation_diff_history(coordinator: TadoDataUpdateCoordinator) -> None:
+    """Append one differential sample per poll, so the baseline spans polls, not listener fires."""
+    try:
+        reading = _compute_ventilation_differential(coordinator)
+    except Exception as e:  # broad: raising here would fail every poll, not just this sample
+        _LOGGER.debug("Insight Collector: ventilation sample skipped (%s)", e)
+        return
+    if reading is None:
+        return
+
+    history = coordinator._insight_ventilation_diff_history
+    history.append(reading[0])
+    if len(history) > _VENTILATION_DIFF_HISTORY_MAX_SAMPLES:
+        del history[:-_VENTILATION_DIFF_HISTORY_MAX_SAMPLES]
+
+
+def _collect_ventilation_opportunity_insight(
+    coordinator: TadoDataUpdateCoordinator, hub_insights: list[Any],
+) -> None:
+    """Collect ventilation-opportunity insight against the per-poll history, which this only reads."""
+    reading = _compute_ventilation_differential(coordinator)
+    if reading is None:
+        return
+
+    current_differential, wettest_zone_name = reading
+    insight = calculate_ventilation_opportunity_insight(
+        current_differential=current_differential,
+        differential_history=coordinator._insight_ventilation_diff_history,
+        zone_name=wettest_zone_name,
+    )
+    if insight:
+        hub_insights.append(insight)
+
+
 def get_hub_insights(
     hass: HomeAssistant,
     coordinator: TadoDataUpdateCoordinator,
@@ -911,6 +1087,8 @@ def get_hub_insights(
         coord_data = coordinator.data or {}
 
         _collect_api_quota_insight(coord_data, hub_insights)
+        _collect_boiler_flow_insight(coordinator, hub_insights)
+        _collect_ventilation_opportunity_insight(coordinator, hub_insights)
 
         if ctx.weather_enabled:
             _collect_weather_insights(coordinator, coord_data, hub_insights)
@@ -968,7 +1146,7 @@ def _scan_zone_presence_data(
             pct = hp.get("percentage", 0)
             if pct > 0:
                 active_zones.append(
-                    {"zone_name": z_name, "power_pct": pct, "zone_type": s.get("type", "HEATING")},
+                    {"zone_name": z_name, "power_pct": pct, "zone_type": s.get("type") or ""},
                 )
         sd = zd.get("sensorDataPoints") or {}
         t = (sd.get("insideTemperature") or {}).get("celsius")
@@ -1043,7 +1221,7 @@ def _collect_api_spike_insight(coord_data: dict[str, Any], hub_insights: list[An
                 if call_time.hour == now.hour:
                     current_hour_calls += 1
             except (ValueError, TypeError):
-                pass
+                _LOGGER.debug("sensor_insight_collector: malformed API-call timestamp %r, skipping", ts)
 
     if cph is not None and current_hour_calls > 0:
         spike_insight = calculate_api_usage_spike_insight(

@@ -5,10 +5,16 @@
 
 import {
     state, escapeHtml, virtualPlayerList,
-    initVirtualPlayerList, setVirtualPlayerListItems
+    initVirtualPlayerList, setVirtualPlayerListItems,
+    createModalFocusTrap, specificErrorText
 } from './player-utils.js';
+import { showToast } from './notify.js';
 
 var utils = window.BeatifyUtils || {};
+
+// #1760: focus traps for the QR + invite dialogs (lazily created once each).
+var _qrTrap = null;
+var _inviteTrap = null;
 
 // ============================================
 // Player List Rendering (Story 3.3)
@@ -22,7 +28,6 @@ var previousPlayers = [];
  */
 export function renderPlayerList(players) {
     var listEl = document.getElementById('player-list');
-    var countEl = document.getElementById('player-count');
     var countBadgeEl = document.getElementById('player-count-badge');
     var playersSummaryEl = document.getElementById('players-summary');
     var playersEmptyEl = document.getElementById('players-empty');
@@ -32,12 +37,6 @@ export function renderPlayerList(players) {
     }
 
     var count = players.length;
-
-    if (countEl) {
-        countEl.textContent = count === 1
-            ? utils.t('lobby.playerJoined')
-            : utils.t('lobby.playersJoined', { count: count });
-    }
 
     if (countBadgeEl) {
         countBadgeEl.textContent = count;
@@ -107,8 +106,15 @@ export function renderPlayerList(players) {
                 escapeHtml(utils.t('leaderboard.you')) + '">YOU</span>';
         }
 
+        // #1663 item 3 (A11y — Icon+Text Status): the "away" state now pairs a
+        // pause glyph with the word (⏸ + "away") and carries an aria-label, so a
+        // disconnected player isn't signalled by the greyed-out border colour
+        // alone.
         var awayBadge = isDisconnected
-            ? '<span class="player-tile-away" aria-hidden="true">' + utils.t('lobby.away') + '</span>'
+            ? '<span class="player-tile-away" role="img" aria-label="' + escapeHtml(utils.t('lobby.away')) + '">' +
+                  '<span class="player-tile-away-glyph" aria-hidden="true">⏸</span>' +
+                  escapeHtml(utils.t('lobby.away')) +
+              '</span>'
             : '';
 
         return '<div class="' + classes.join(' ') + '" data-player="' + escapeHtml(raw) + '">' +
@@ -131,6 +137,24 @@ export function renderPlayerList(players) {
     }, 2000);
 
     previousPlayers = players.slice();
+}
+
+// ============================================
+// Lobby brief (#2647)
+// ============================================
+
+/**
+ * The one sentence that says what game this is, on the guest's phone.
+ *
+ * Same builder, same words, same colours as the TV (`dashboard.js`) — the
+ * wording lives in `utils.js` precisely so the two surfaces cannot drift into
+ * telling the room two different things about the same game.
+ *
+ * @param {Object} data - LOBBY state payload
+ */
+export function renderLobbyBriefLine(data) {
+    if (!utils.renderLobbyBrief) return;
+    utils.renderLobbyBrief(document.getElementById('lobby-brief'), data);
 }
 
 // ============================================
@@ -186,10 +210,19 @@ var currentJoinUrl = null;
  */
 export function renderQRCode(joinUrl) {
     if (!joinUrl) return;
-    currentJoinUrl = joinUrl;
 
     var container = document.getElementById('player-qr-code');
     if (!container) return;
+
+    // #1764: renderQRCode fires on EVERY state broadcast (player-core:660),
+    // outside the #1706/#1707 coalescers. Without a guard a 20-player
+    // submission burst = 20 full Reed-Solomon encodes + DOM rebuilds per phone
+    // per round for a URL that never changes. Skip when the URL is unchanged
+    // and a QR is already in the DOM. A new game_id yields a different join_url
+    // (so the guard falls through and re-renders); container.firstChild being
+    // null (DOM rebuilt/cleared) also forces a re-render.
+    if (joinUrl === currentJoinUrl && container.firstChild) return;
+    currentJoinUrl = joinUrl;
 
     container.innerHTML = '';
 
@@ -240,8 +273,12 @@ function openQRModal() {
     modal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
 
+    // #1760: trap focus in the dialog, Escape closes, focus restores on close.
     var closeBtn = document.getElementById('qr-modal-close');
-    if (closeBtn) closeBtn.focus();
+    _qrTrap = _qrTrap || createModalFocusTrap(modal, {
+        contentSelector: '.qr-modal-content'
+    });
+    _qrTrap.activate({ initialFocus: closeBtn, onEscape: closeQRModal });
 }
 
 function closeQRModal() {
@@ -250,6 +287,7 @@ function closeQRModal() {
         modal.classList.add('hidden');
         document.body.style.overflow = '';
     }
+    if (_qrTrap) _qrTrap.deactivate(); // #1760
 }
 
 /**
@@ -308,8 +346,12 @@ export function openInviteModal() {
     modal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
 
+    // #1760: trap focus in the dialog, Escape closes, focus restores on close.
     var closeBtn = document.getElementById('invite-modal-close');
-    if (closeBtn) closeBtn.focus();
+    _inviteTrap = _inviteTrap || createModalFocusTrap(modal, {
+        contentSelector: '.invite-modal-content'
+    });
+    _inviteTrap.activate({ initialFocus: closeBtn, onEscape: closeInviteModal });
 }
 
 export function closeInviteModal() {
@@ -320,6 +362,7 @@ export function closeInviteModal() {
     }
     var feedback = document.getElementById('invite-copy-feedback');
     if (feedback) feedback.classList.add('hidden');
+    if (_inviteTrap) _inviteTrap.deactivate(); // #1760
 }
 
 function copyJoinUrl() {
@@ -432,6 +475,49 @@ export function setupAdminControls() {
             action: 'start_game'
         }));
     });
+}
+
+/**
+ * Surface a failed game start in the lobby (#2551).
+ *
+ * A start that the server refuses — no media player, no playable songs, no
+ * playlist — used to be routed to the in-game submit-error handler, which
+ * wrote the message onto the HIDDEN #submit-btn. On screen the Start button
+ * simply sat on "Starting…" forever with no explanation.
+ *
+ * Returns true when the error belonged to the lobby and has been handled.
+ */
+export function handleStartFailure(data) {
+    var lobby = document.getElementById('lobby-view');
+    if (!lobby || lobby.classList.contains('hidden')) return false;
+
+    var startBtn = document.getElementById('start-game-btn');
+    if (!startBtn) return false;
+
+    // The click handler flattened the button to a text node, so rebuild the
+    // icon + label it ships with rather than leaving a bare string.
+    startBtn.disabled = false;
+    startBtn.textContent = '';
+    var icon = document.createElement('span');
+    icon.className = 'btn-icon';
+    icon.setAttribute('aria-hidden', 'true');
+    icon.textContent = '🎉';
+    var label = document.createElement('span');
+    label.setAttribute('data-i18n', 'lobby.startGame');
+    label.textContent = utils.t('lobby.startGame', 'Start Game');
+    startBtn.appendChild(icon);
+    startBtn.appendChild(label);
+
+    var code = data && data.code;
+    // #3076: the specific message ("Need at least 2 players to start") before
+    // the generic errors.<CODE> ("Game has not started").
+    var message = specificErrorText(data, utils.t)
+        || (code ? utils.t('errors.' + code) : null);
+    if (!message || message === 'errors.' + code) {
+        message = (data && data.message) || utils.t('errors.startNotPossible');
+    }
+    showToast(message);
+    return true;
 }
 
 // ============================================

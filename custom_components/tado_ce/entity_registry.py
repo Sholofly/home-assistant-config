@@ -165,6 +165,7 @@ ENTITY_REGISTRY: dict[str, EntityMeta] = {
         unique_id_suffix="boiler_flow_temp",  # hub-level, no zone_id
         entity_category="diagnostic",
         icon="mdi:water-boiler",
+        feature_group="boiler_flow",
     ),
     "sensor_target": EntityMeta(
         translation_key="target",
@@ -252,6 +253,13 @@ ENTITY_REGISTRY: dict[str, EntityMeta] = {
         unique_id_suffix="zone_{zone_id}_dew_point",
         entity_category="diagnostic",
         icon="mdi:water-thermometer",
+        feature_group="environment",
+    ),
+    "sensor_absolute_humidity": EntityMeta(
+        translation_key="absolute_humidity",
+        unique_id_suffix="zone_{zone_id}_absolute_humidity",
+        entity_category="diagnostic",
+        icon="mdi:water",
         feature_group="environment",
     ),
     "sensor_comfort_level": EntityMeta(
@@ -456,7 +464,6 @@ ENTITY_REGISTRY: dict[str, EntityMeta] = {
         unique_id_suffix="zone_{zone_id}_refresh_schedule",
         entity_category=None,
         icon="mdi:calendar-refresh",
-        feature_group="schedule_calendar",
     ),
     "button_boost": EntityMeta(
         translation_key="boost",

@@ -50,6 +50,7 @@ class RefreshHandler:
         self._pending_refresh: bool = False
         self._pending_zone_only: bool = False
         self._pending_force_zone_fetch: bool = False
+        self._pending_forced_fetch: set[str] = set()
         self._debounce_task: asyncio.Task[None] | None = None
         self._debounce_delay = 15.0
 
@@ -71,19 +72,29 @@ class RefreshHandler:
             self._debounce_task.cancel()
             self._debounce_task = None
 
-    def consume_pending_flags(self) -> tuple[bool, bool]:
-        """Atomically read and reset the pending zone-only / force-fetch flags.
+    def request_forced_fetch(self, fetch_type: str) -> None:
+        """Queue a floored data type to bypass its floor on the next poll."""
+        self._pending_forced_fetch.add(fetch_type)
 
-        Called once per poll so the coordinator knows whether the
-        upcoming fetch was triggered by a write (zone data only) or a
-        general refresh, and resets the flags so the next poll starts
-        clean.
+    def request_forced_zone_fetch(self) -> None:
+        """Force the next poll to fetch zone states even inside the HomeKit skip window."""
+        self._pending_force_zone_fetch = True
+
+    def consume_pending_flags(self) -> tuple[bool, bool, set[str]]:
+        """Atomically read and reset the pending zone-only / force-fetch / forced-type flags.
+
+        Called once per poll so the coordinator knows whether the upcoming
+        fetch was triggered by a write (zone data only) or a general refresh,
+        and which slow-data types to force past their floor; resets so the
+        next poll starts clean.
         """
         zone_only = self._pending_zone_only
         force_zone_fetch = self._pending_force_zone_fetch
+        forced_fetch = self._pending_forced_fetch
         self._pending_zone_only = False
         self._pending_force_zone_fetch = False
-        return zone_only, force_zone_fetch
+        self._pending_forced_fetch = set()
+        return zone_only, force_zone_fetch, forced_fetch
 
     async def _get_rate_limit_info(self) -> dict[str, Any]:
         """Read the latest rate-limit snapshot from the data loader cache."""

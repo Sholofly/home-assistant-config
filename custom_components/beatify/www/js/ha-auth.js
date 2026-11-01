@@ -267,6 +267,83 @@
     return true;
   }
 
+  // -- HA frontend token for the Companion iframe (#3275) -------------------
+  //
+  // On Android Companion the launcher navigates the sidebar iframe itself to
+  // /beatify/admin, so the admin page runs same-origin inside the HA frontend
+  // that the Companion app has already authenticated (via its external auth).
+  // The parent window exposes that session as `window.hassConnection`
+  // (a promise of {auth, conn}). Reading the user's real access token from
+  // there gives the admin page a proper Bearer token without any OAuth
+  // redirect and without the server-side UA+LAN bypass — which is opt-in and
+  // off by default (#1357), and refused behind proxies / HA Cloud (#3202).
+  // Before this, bypass mode sent no token at all, so every host action
+  // returned 401 unless the bypass option was enabled.
+  //
+  // Cross-origin parents throw on property access and resolve null, as does a
+  // top-level page with no parent; callers then keep the tokenless bypass
+  // behaviour, so nothing changes for setups where this path is unavailable.
+  var HA_FRONTEND_TOKEN_TIMEOUT_MS = 5000;
+  // Set once hassConnection failed to answer in time, so a parent that never
+  // settles costs one timeout per page load, not one per request.
+  var _haFrontendTimedOut = false;
+
+  function _haFrontendAuth() {
+    try {
+      var p = window.parent;
+      if (!p || p === window) return null;
+      var hc = p.hassConnection; // SecurityError when cross-origin
+      if (!hc || typeof hc.then !== 'function') return null;
+      return hc;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function getHaFrontendToken(force) {
+    var hc = _haFrontendTimedOut ? null : _haFrontendAuth();
+    if (!hc) return Promise.resolve(null);
+    var timer = null;
+    var timeout = new Promise(function (resolve) {
+      timer = setTimeout(function () {
+        _haFrontendTimedOut = true;
+        resolve(null);
+      }, HA_FRONTEND_TOKEN_TIMEOUT_MS);
+    });
+    var lookup = Promise.resolve(hc)
+      .then(function (conn) {
+        var auth = conn && conn.auth;
+        if (!auth) return null;
+        var needsRefresh = force || auth.expired;
+        var ready =
+          needsRefresh && typeof auth.refreshAccessToken === 'function'
+            ? Promise.resolve(auth.refreshAccessToken(true))
+            : Promise.resolve();
+        return ready.then(function () {
+          var data = auth.data || {};
+          var token = auth.accessToken || data.access_token || null;
+          if (!token) return null;
+          var expiresIn =
+            typeof data.expires === 'number'
+              ? Math.floor((data.expires - Date.now()) / 1000)
+              : 0;
+          _setSession(token, expiresIn > 0 ? expiresIn : 1800);
+          return token;
+        });
+      })
+      .catch(function (err) {
+        console.warn(
+          '[BeatifyAuth] HA frontend token unavailable:',
+          err && err.message ? err.message : err
+        );
+        return null;
+      });
+    return Promise.race([lookup, timeout]).then(function (token) {
+      clearTimeout(timer);
+      return token;
+    });
+  }
+
   // -- multiplexed callback receiver ---------------------------------------
 
   var _authCbQueue = []; // FIFO of {resolve, reject, timeoutId}
@@ -448,6 +525,15 @@
 
   function refreshAccess() {
     if (refreshInFlight) return refreshInFlight;
+    if (isCompanionBypassMode()) {
+      // #3275: no OAuth cookie and no reliable bridge here — ask the
+      // surrounding HA frontend for a fresh token instead.
+      refreshInFlight = getHaFrontendToken(true).then(function (token) {
+        refreshInFlight = null;
+        return token;
+      });
+      return refreshInFlight;
+    }
     if (isAndroidCompanion() && _hasCompanionAuthBridge()) {
       // Skip the /beatify/auth/refresh round-trip entirely. The HttpOnly
       // refresh cookie was set by the server-side OAuth callback view,
@@ -547,10 +633,36 @@
   }
 
   /**
+   * Translate a key with an English literal as the fallback (#1933).
+   *
+   * `BeatifyI18n.t()` returns the KEY itself when a translation is missing, and
+   * on this screen it may not be loaded at all — the auth error can render
+   * before the locale fetch resolves, and ha-auth.js is deliberately loaded
+   * ahead of the rest of the admin bundle. Both cases must degrade to readable
+   * English, never to a raw key like `auth.errorTitle`.
+   */
+  function _t(key, fallback) {
+    try {
+      if (typeof window === 'undefined' || !window.BeatifyI18n) return fallback;
+      var value = window.BeatifyI18n.t(key);
+      return !value || value === key ? fallback : value;
+    } catch (e) {
+      return fallback;
+    }
+  }
+
+  /**
    * Render a terminal auth-error state into the page instead of redirecting
    * again. Called once the bounded retry budget is exhausted (#1394) so a
    * persistently-failing server-side OAuth exchange stops the redirect loop
    * and shows the user what happened.
+   *
+   * #1933: the strings used to be hardcoded German. This is the one screen a
+   * user in a broken auth state is guaranteed to reach, it covers the whole
+   * viewport, and a reporter who cannot read it describes the symptom in their
+   * own words instead of quoting it — which is exactly what made #1931 hard to
+   * triage. Built with textContent rather than innerHTML so a translation can
+   * never inject markup.
    */
   function _renderAuthError() {
     try {
@@ -570,23 +682,37 @@
         'align-items:center;justify-content:center;padding:24px;' +
         'background:#1c1c1e;color:#fff;font:16px/1.5 system-ui,sans-serif;' +
         'text-align:center;';
-      box.innerHTML =
-        '<div style="max-width:420px">' +
-        '<h2 style="margin:0 0 12px">Anmeldung fehlgeschlagen</h2>' +
-        '<p style="margin:0 0 20px;opacity:.85">Die Verbindung zu Home ' +
-        'Assistant konnte nicht hergestellt werden. Bitte pr&uuml;fe die ' +
-        'Beatify-Konfiguration (interne URL / SSL) und versuche es erneut.</p>' +
-        '<button type="button" style="padding:10px 20px;border:0;' +
-        'border-radius:8px;background:#0a84ff;color:#fff;font-size:16px;' +
-        'cursor:pointer">Erneut versuchen</button>' +
-        '</div>';
-      var btn = box.querySelector('button');
-      if (btn) {
-        btn.addEventListener('click', function () {
-          _clearLoginAttempts();
-          login();
-        });
-      }
+
+      var inner = document.createElement('div');
+      inner.style.cssText = 'max-width:420px';
+
+      var heading = document.createElement('h2');
+      heading.style.cssText = 'margin:0 0 12px';
+      heading.textContent = _t('auth.errorTitle', 'Sign-in failed');
+
+      var body = document.createElement('p');
+      body.style.cssText = 'margin:0 0 20px;opacity:.85';
+      body.textContent = _t(
+        'auth.errorBody',
+        'Beatify could not connect to Home Assistant. Please check the ' +
+          'Beatify configuration (internal URL / SSL) and try again.'
+      );
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.style.cssText =
+        'padding:10px 20px;border:0;border-radius:8px;background:#0a84ff;' +
+        'color:#fff;font-size:16px;cursor:pointer';
+      btn.textContent = _t('auth.errorRetry', 'Try again');
+      btn.addEventListener('click', function () {
+        _clearLoginAttempts();
+        login();
+      });
+
+      inner.appendChild(heading);
+      inner.appendChild(body);
+      inner.appendChild(btn);
+      box.appendChild(inner);
       document.body.appendChild(box);
     } catch (e) {
       /* ignore — error UI is best-effort */
@@ -722,10 +848,18 @@
    * exhausts, and the user sees the "unauthorized message". Return null
    * immediately so connectAdminWebSocket() sends ha_token: null and the server
    * falls through to is_companion_trusted_meta (UA+RFC1918 accept).
+   *
+   * #3275: bypass mode still skips the bridge, but first asks the same-origin
+   * HA frontend (the Companion iframe's parent) for its token. Only when that
+   * is unavailable does it resolve null as described above.
    */
   function getAccessToken() {
-    if (isCompanionBypassMode()) return Promise.resolve(null);
     if (accessFresh()) return Promise.resolve(storedAccess());
+    if (isCompanionBypassMode()) {
+      // #3275: use the HA frontend's token when Beatify runs inside the
+      // Companion iframe; resolves null (tokenless bypass) otherwise.
+      return getHaFrontendToken(false);
+    }
     return refreshAccess();
   }
 
@@ -755,7 +889,9 @@
    */
   function ensureAuthenticated() {
     if (isCompanionBypassMode()) {
-      return Promise.resolve(null);
+      // Never redirect inside the Companion WebView; null keeps the
+      // tokenless bypass path for callers.
+      return getAccessToken();
     }
     return getAccessToken().then(function (token) {
       if (token) return token;
@@ -781,13 +917,14 @@
     // "Invalid redirect URI" / #1153 unauthorized screen with no recovery.
     // Resolve null and let the caller surface an actionable local-network hint.
     if (isCompanionBypassMode()) {
-      console.warn(
-        '[BeatifyAuth] server rejected a Companion bypass-mode connection — ' +
-          'likely reached Beatify over a non-local address; skipping OAuth ' +
-          'redirect (would land on the Invalid-redirect-URI screen). ' +
-          'Resolving null so the caller can surface a local-network hint.'
-      );
-      return Promise.resolve(null);
+      // #3275: first try a fresh token from the HA frontend; only when that
+      // is unavailable fall back to the local-network hint below.
+      _clearSession();
+      return refreshAccess().then(function (token) {
+        if (token) return token;
+        _warnBypassRejected();
+        return null;
+      });
     }
     _clearSession();
     return refreshAccess().then(function (token) {
@@ -795,6 +932,15 @@
       login();
       return new Promise(function () {});
     });
+  }
+
+  function _warnBypassRejected() {
+    console.warn(
+      '[BeatifyAuth] server rejected a Companion bypass-mode connection — ' +
+        'likely reached Beatify over a non-local address; skipping OAuth ' +
+        'redirect (would land on the Invalid-redirect-URI screen). ' +
+        'Resolving null so the caller can surface a local-network hint.'
+    );
   }
 
   /**
@@ -805,11 +951,13 @@
   function authedFetch(url, opts) {
     opts = opts || {};
     if (isCompanionBypassMode()) {
-      // Server authorizes via UA + RFC1918; sending a Bearer token would just
-      // hit Path 1 of is_authorized_http (which would 401 since we have no
-      // token to send) before falling through to the Companion path. Cleaner
-      // to skip the header entirely.
-      return fetch(url, opts);
+      // #3275: send the HA frontend's token when we can get one. Without it,
+      // fall back to a header-less request so the opt-in server-side
+      // UA + RFC1918 bypass (companion_auth.py) can still authorize it.
+      return getAccessToken().then(function (token) {
+        if (!token) return fetch(url, opts);
+        return doFetch(url, opts, token, true);
+      });
     }
     return getAccessToken().then(function (token) {
       if (!token) {
@@ -838,6 +986,8 @@
       // or been revoked server-side — refresh once and retry.
       return refreshAccess().then(function (fresh) {
         if (!fresh) {
+          // Companion bypass mode: no redirect possible, surface the 401.
+          if (isCompanionBypassMode()) return resp;
           login();
           return new Promise(function () {});
         }

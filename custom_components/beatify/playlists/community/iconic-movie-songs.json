@@ -1,6 +1,6 @@
 {
   "name": "ICONIC movie songs 🎬",
-  "version": "0.4",
+  "version": "0.16",
   "tags": [
     "movies",
     "soundtracks",
@@ -14,7 +14,7 @@
   "description": "The songs that defined the movies — from Over the Rainbow and Moon River to Eye of the Tiger, My Heart Will Go On, Let It Go and Shallow. Musicals, soundtracks and the anthems you can't watch a film without.",
   "songs": [
     {
-      "year": 2011,
+      "year": 2008,
       "uri": "spotify:track:4hjuUelurEBKlqpJPJ77Iw",
       "artist": "Natasha Bedingfield",
       "alt_artists": [
@@ -23,7 +23,6 @@
         "Kate Nash"
       ],
       "title": "Pocketful of Sunshine",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Natasha Bedingfield's sunny pop anthem became closely tied to the 2010 teen comedy Easy A.",
@@ -32,7 +31,7 @@
       "fun_fact_fr": "Le tube pop ensoleillé de Natasha Bedingfield est resté lié à la comédie ado Easy A (2010).",
       "uri_apple_music": "applemusic://track/1429194116",
       "uri_youtube_music": "https://music.youtube.com/watch?v=gte3BoXKwP0",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/33747024",
       "uri_deezer": "deezer://track/12270014",
       "fun_fact_nl": "Natasha Bedingfields zonnige pophit raakte verbonden met de tienerkomedie Easy A (2010).",
       "awards_nl": [],
@@ -54,7 +53,7 @@
       ]
     },
     {
-      "year": 2008,
+      "year": 1985,
       "uri": "spotify:track:4K21nchEz8gMXTuW5vAd1c",
       "artist": "Simple Minds",
       "alt_artists": [
@@ -63,7 +62,6 @@
         "Ultravox"
       ],
       "title": "Don't You Forget About Me",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Simple Minds' song closed The Breakfast Club (1985) and became the band's signature hit.",
@@ -72,7 +70,7 @@
       "fun_fact_fr": "Le morceau de Simple Minds clôturait The Breakfast Club (1985) et devint leur tube emblématique.",
       "uri_apple_music": "applemusic://track/1443234020",
       "uri_youtube_music": "https://music.youtube.com/watch?v=CdqoNKCCt7A",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/7196915",
       "uri_deezer": "deezer://track/3158150",
       "fun_fact_nl": "Het nummer van Simple Minds sloot The Breakfast Club (1985) af en werd hun kenmerkende hit.",
       "awards_nl": [],
@@ -94,7 +92,7 @@
       ]
     },
     {
-      "year": 2006,
+      "year": 1982,
       "uri": "spotify:track:2KH16WveTQWT6KOG9Rg6e2",
       "artist": "Survivor",
       "alt_artists": [
@@ -103,7 +101,6 @@
         "Kenny Loggins"
       ],
       "title": "Eye of the Tiger",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Written for Rocky III (1982), Eye of the Tiger hit number one and won a Grammy.",
@@ -112,7 +109,7 @@
       "fun_fact_fr": "Écrite pour Rocky III (1982), Eye of the Tiger atteignit la première place et remporta un Grammy.",
       "uri_apple_music": "applemusic://track/254685026",
       "uri_youtube_music": "https://music.youtube.com/watch?v=XxxfQ7-aMrE",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/40940",
       "uri_deezer": "deezer://track/576431",
       "fun_fact_nl": "Geschreven voor Rocky III (1982) werd Eye of the Tiger nummer één en won een Grammy.",
       "awards_nl": [],
@@ -143,7 +140,6 @@
         "Patrick Swayze"
       ],
       "title": "(I've Had) The Time Of My Life - From \"Dirty Dancing\" Soundtrack",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "The climactic duet from Dirty Dancing (1987) won both an Oscar and a Grammy.",
@@ -151,8 +147,8 @@
       "fun_fact_es": "El dúo culminante de Dirty Dancing (1987) ganó un Óscar y un Grammy.",
       "fun_fact_fr": "Le duo final de Dirty Dancing (1987) a remporté un Oscar et un Grammy.",
       "uri_apple_music": "applemusic://track/254938549",
-      "uri_youtube_music": "https://music.youtube.com/watch?v=E7DU70UTI3Q",
-      "uri_tidal": null,
+      "uri_youtube_music": "https://music.youtube.com/watch?v=_zScSltbfGo",
+      "uri_tidal": "tidal://track/11337404",
       "uri_deezer": "deezer://track/13128250",
       "fun_fact_nl": "Het slotduet uit Dirty Dancing (1987) won zowel een Oscar als een Grammy.",
       "awards_nl": [],
@@ -174,7 +170,7 @@
       ]
     },
     {
-      "year": 2008,
+      "year": 1997,
       "uri": "spotify:track:7F1yVPuJ4xRdrDvf8OL0HF",
       "artist": "Céline Dion, James Horner",
       "alt_artists": [
@@ -183,7 +179,6 @@
         "Shania Twain"
       ],
       "title": "My Heart Will Go On - Love Theme from \"Titanic\"",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Céline Dion's Titanic (1997) theme topped charts worldwide and won the Oscar for Best Original Song.",
@@ -192,7 +187,7 @@
       "fun_fact_fr": "Le thème de Titanic (1997) de Céline Dion domina les charts et remporta l'Oscar de la meilleure chanson.",
       "uri_apple_music": "applemusic://track/479204873",
       "uri_youtube_music": "https://music.youtube.com/watch?v=9bFHsd3o1w0",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/35140",
       "uri_deezer": "deezer://track/14552280",
       "fun_fact_nl": "Céline Dions Titanic-thema (1997) stond wereldwijd bovenaan en won de Oscar voor beste nummer.",
       "awards_nl": [],
@@ -223,7 +218,6 @@
         "Shalamar"
       ],
       "title": "Footloose - From \"Footloose\" Soundtrack",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Kenny Loggins' title track for Footloose (1984) became a number-one dancefloor staple.",
@@ -232,7 +226,7 @@
       "fun_fact_fr": "La chanson-titre de Footloose (1984) par Kenny Loggins devint un n°1 incontournable des pistes.",
       "uri_apple_music": "applemusic://track/1164757333",
       "uri_youtube_music": "https://music.youtube.com/watch?v=bjQ9vTsMQ4I",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/11337287",
       "uri_deezer": "deezer://track/134012978",
       "fun_fact_nl": "Kenny Loggins' titelnummer voor Footloose (1984) werd een nummer-één dansvloerklassieker.",
       "awards_nl": [],
@@ -254,7 +248,7 @@
       ]
     },
     {
-      "year": 2024,
+      "year": 1961,
       "uri": "spotify:track:1XwAKjAZ1xDZOcuyZoqce4",
       "artist": "Audrey Hepburn",
       "alt_artists": [
@@ -263,7 +257,6 @@
         "Henry Mancini"
       ],
       "title": "Moon River (From Breakfast at Tiffany's) [Remastered]",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Audrey Hepburn sang Moon River on a windowsill in Breakfast at Tiffany's (1961); it won the Oscar.",
@@ -272,7 +265,7 @@
       "fun_fact_fr": "Audrey Hepburn chanta Moon River à sa fenêtre dans Diamants sur canapé (1961) ; la chanson eut l'Oscar.",
       "uri_apple_music": "applemusic://track/921956098",
       "uri_youtube_music": "https://music.youtube.com/watch?v=4zVF_6HW5d0",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/32294098",
       "uri_deezer": "deezer://track/3141854111",
       "fun_fact_nl": "Audrey Hepburn zong Moon River op een vensterbank in Breakfast at Tiffany's (1961); het won de Oscar.",
       "awards_nl": [],
@@ -303,7 +296,6 @@
         "Sam Smith"
       ],
       "title": "Shallow",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "The duet from A Star Is Born (2018) won the Academy Award for Best Original Song.",
@@ -312,7 +304,7 @@
       "fun_fact_fr": "Le duo de A Star Is Born (2018) remporta l'Oscar de la meilleure chanson originale.",
       "uri_apple_music": "applemusic://track/1434371887",
       "uri_youtube_music": "https://music.youtube.com/watch?v=JPJjwHAIny4",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/96098345",
       "uri_deezer": "deezer://track/561856742",
       "fun_fact_nl": "Het duet uit A Star Is Born (2018) won de Oscar voor beste originele nummer.",
       "awards_nl": [],
@@ -334,7 +326,7 @@
       ]
     },
     {
-      "year": 2009,
+      "year": 1939,
       "uri": "spotify:track:3wAIcORchxdSkWv6v5AkaU",
       "artist": "Judy Garland",
       "alt_artists": [
@@ -343,7 +335,6 @@
         "Harold Arlen"
       ],
       "title": "Over The Rainbow",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Judy Garland's Over the Rainbow from The Wizard of Oz (1939) won the Oscar and became her signature.",
@@ -352,7 +343,7 @@
       "fun_fact_fr": "Over the Rainbow de Judy Garland dans Le Magicien d'Oz (1939) gagna l'Oscar et devint sa signature.",
       "uri_apple_music": "applemusic://track/1455918432",
       "uri_youtube_music": "https://music.youtube.com/watch?v=C14m0mX717E",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/104867691",
       "uri_deezer": "deezer://track/5283333",
       "fun_fact_nl": "Judy Garlands Over the Rainbow uit The Wizard of Oz (1939) won de Oscar en werd haar kenmerk.",
       "awards_nl": [],
@@ -374,7 +365,7 @@
       ]
     },
     {
-      "year": 2006,
+      "year": 1991,
       "uri": "spotify:track:2rJFFUEl1LURkV0b0OARXx",
       "artist": "Angela Lansbury, Disney",
       "alt_artists": [
@@ -383,7 +374,6 @@
         "Alan Menken"
       ],
       "title": "Beauty and the Beast",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Angela Lansbury voiced Mrs. Potts singing the Oscar-winning title song of Beauty and the Beast (1991).",
@@ -392,7 +382,7 @@
       "fun_fact_fr": "Angela Lansbury, en Mme Samovar, chanta la chanson oscarisée de La Belle et la Bête (1991).",
       "uri_apple_music": "applemusic://track/1699102831",
       "uri_youtube_music": "https://music.youtube.com/watch?v=mYjAZHRhi4c",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/34187030",
       "uri_deezer": "deezer://track/3211012",
       "fun_fact_nl": "Angela Lansbury zong als Mevrouw Tuit het Oscar-winnende titelnummer van Beauty and the Beast (1991).",
       "awards_nl": [],
@@ -414,7 +404,7 @@
       ]
     },
     {
-      "year": 2019,
+      "year": 1978,
       "uri": "spotify:track:5BUq9bdtsm3LWw5laJeJ4R",
       "artist": "Olivia Newton-John",
       "alt_artists": [
@@ -423,7 +413,6 @@
         "Stockard Channing"
       ],
       "title": "Hopelessly Devoted To You - From “Grease”",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Olivia Newton-John's ballad was added for the Grease (1978) film and earned a Grammy nomination.",
@@ -432,7 +421,7 @@
       "fun_fact_fr": "La ballade d'Olivia Newton-John fut ajoutée pour le film Grease (1978) et nommée aux Grammy.",
       "uri_apple_music": "applemusic://track/1440844697",
       "uri_youtube_music": "https://music.youtube.com/watch?v=r-3NvDp28U4",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/77625024",
       "uri_deezer": "deezer://track/781563052",
       "fun_fact_nl": "Olivia Newton-Johns ballad werd toegevoegd voor de film Grease (1978) en kreeg een Grammy-nominatie.",
       "awards_nl": [],
@@ -454,7 +443,7 @@
       ]
     },
     {
-      "year": 2025,
+      "year": 1940,
       "uri": "spotify:track:1WrPa4lrIddctGWAIYYfP9",
       "artist": "Cliff Edwards, Disney Studio Chorus",
       "alt_artists": [
@@ -463,7 +452,6 @@
         "Gene Kelly"
       ],
       "title": "When You Wish Upon a Star",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Jiminy Cricket's song from Pinocchio (1940) won the Oscar and became Disney's anthem.",
@@ -472,7 +460,7 @@
       "fun_fact_fr": "La chanson de Jiminy Cricket dans Pinocchio (1940) gagna l'Oscar et devint l'hymne de Disney.",
       "uri_apple_music": "applemusic://track/1452851094",
       "uri_youtube_music": "https://music.youtube.com/watch?v=wEWowjC2dSk",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/37081267",
       "uri_deezer": "deezer://track/3262889031",
       "fun_fact_nl": "Jiminy Krekels lied uit Pinokkio (1940) won de Oscar en werd Disneys herkenningsmelodie.",
       "awards_nl": [],
@@ -494,7 +482,7 @@
       ]
     },
     {
-      "year": 2021,
+      "year": 1965,
       "uri": "spotify:track:702fAWRsLomCKFROeMfKZd",
       "artist": "Julie Andrews, Charmian Carr, Heather Menzies, Nicholas Hammond, Duane Chase, Angela Cartwright, Debbie Turner, Kym Karath",
       "alt_artists": [
@@ -503,7 +491,6 @@
         "Disney"
       ],
       "title": "My Favorite Things",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "From The Sound of Music (1965), Maria sings it to calm the children during a storm.",
@@ -512,7 +499,7 @@
       "fun_fact_fr": "Dans La Mélodie du bonheur (1965), Maria le chante pour rassurer les enfants pendant l'orage.",
       "uri_apple_music": "applemusic://track/1550188248",
       "uri_youtube_music": "https://music.youtube.com/watch?v=bACiODIbf84",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/170474923",
       "uri_deezer": "deezer://track/1217345822",
       "fun_fact_nl": "Uit The Sound of Music (1965): Maria zingt het om de kinderen tijdens een storm te kalmeren.",
       "awards_nl": [],
@@ -534,7 +521,7 @@
       ]
     },
     {
-      "year": 2006,
+      "year": 1985,
       "uri": "spotify:track:2olVm1lHicpveMAo4AUDRB",
       "artist": "Huey Lewis & The News",
       "alt_artists": [
@@ -543,7 +530,6 @@
         "Glenn Frey"
       ],
       "title": "The Power Of Love",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Huey Lewis & The News wrote this for Back to the Future (1985); it reached number one.",
@@ -552,19 +538,19 @@
       "fun_fact_fr": "Huey Lewis & The News l'écrivirent pour Retour vers le futur (1985) ; n°1 des charts.",
       "uri_apple_music": "applemusic://track/725785116",
       "uri_youtube_music": "https://music.youtube.com/watch?v=VBWGqXgZytw",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/126213",
       "uri_deezer": "deezer://track/3116046",
       "fun_fact_nl": "Huey Lewis & The News schreven het voor Back to the Future (1985); het werd nummer één.",
       "awards_nl": [],
       "isrc": "USCA20600519",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/725785116",
-        "de": null,
+        "de": "applemusic://track/725785116",
         "gb": "applemusic://track/1644388797",
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
+        "fr": "applemusic://track/725785116",
+        "es": "applemusic://track/725785116",
+        "nl": "applemusic://track/725785116",
+        "it": "applemusic://track/725785116"
       },
       "movie": "Back to the Future",
       "movie_choices": [
@@ -583,7 +569,6 @@
         "Nathan Lane"
       ],
       "title": "Hakuna Matata",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Timon and Pumbaa's carefree motto from The Lion King, here in the 2019 remake.",
@@ -592,19 +577,19 @@
       "fun_fact_fr": "La devise insouciante de Timon et Pumbaa du Roi Lion, ici dans le remake de 2019.",
       "uri_apple_music": "applemusic://track/1472083402",
       "uri_youtube_music": "https://music.youtube.com/watch?v=0MxulhivCvI",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/112868760",
       "uri_deezer": "deezer://track/709612512",
       "fun_fact_nl": "Timon en Pumbaa's zorgeloze motto uit The Lion King, hier in de remake van 2019.",
       "awards_nl": [],
       "isrc": "USWD11993792",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1472083402",
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
+        "de": "applemusic://track/1472083402",
+        "gb": "applemusic://track/1472083402",
+        "fr": "applemusic://track/1472083402",
+        "es": "applemusic://track/1472083402",
+        "nl": "applemusic://track/1472083402",
+        "it": "applemusic://track/1472083402"
       },
       "movie": "The Lion King",
       "movie_choices": [
@@ -614,7 +599,7 @@
       ]
     },
     {
-      "year": 2021,
+      "year": 1965,
       "uri": "spotify:track:6aNMGfwdGyELNGCuqs5ldU",
       "artist": "Julie Andrews, Nicholas Hammond, Debbie Turner, Duane Chase, Heather Menzies, Angela Cartwright, Kym Karath, Charmian Carr",
       "alt_artists": [
@@ -623,7 +608,6 @@
         "Disney"
       ],
       "title": "Do-Re-Mi",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Maria teaches the von Trapp children the musical scale in The Sound of Music (1965).",
@@ -632,7 +616,7 @@
       "fun_fact_fr": "Maria apprend la gamme aux enfants von Trapp dans La Mélodie du bonheur (1965).",
       "uri_apple_music": "applemusic://track/1550188252",
       "uri_youtube_music": "https://music.youtube.com/watch?v=Opzsew5Xtto",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/170474924",
       "uri_deezer": "deezer://track/1217345832",
       "fun_fact_nl": "Maria leert de von Trapp-kinderen de toonladder in The Sound of Music (1965).",
       "awards_nl": [],
@@ -663,7 +647,6 @@
         "Stockard Channing"
       ],
       "title": "Summer Nights - From “Grease”",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Danny and Sandy recount their romance in this Grease (1978) singalong.",
@@ -672,7 +655,7 @@
       "fun_fact_fr": "Danny et Sandy racontent leur idylle dans ce duo de Grease (1978).",
       "uri_apple_music": "applemusic://track/1440844694",
       "uri_youtube_music": "https://music.youtube.com/watch?v=A_J2bcNx3Gw",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/77625023",
       "uri_deezer": "deezer://track/781563042",
       "fun_fact_nl": "Danny en Sandy vertellen hun romance in deze meezinger uit Grease (1978).",
       "awards_nl": [],
@@ -703,7 +686,6 @@
         "Celine Dion"
       ],
       "title": "I Will Always Love You",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Whitney Houston's The Bodyguard (1992) version is one of the best-selling singles ever.",
@@ -712,7 +694,7 @@
       "fun_fact_fr": "La version de Whitney Houston dans Bodyguard (1992) est l'un des singles les plus vendus.",
       "uri_apple_music": "applemusic://track/388151901",
       "uri_youtube_music": "https://music.youtube.com/watch?v=tP0zj220CbQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/5120355",
       "uri_deezer": "deezer://track/7675403",
       "fun_fact_nl": "Whitney Houstons versie uit The Bodyguard (1992) is een van de best verkochte singles ooit.",
       "awards_nl": [],
@@ -734,7 +716,7 @@
       ]
     },
     {
-      "year": 2010,
+      "year": 1957,
       "uri": "spotify:track:4gphxUgq0JSFv2BCLhNDiE",
       "artist": "Elvis Presley",
       "alt_artists": [
@@ -743,7 +725,6 @@
         "Little Richard"
       ],
       "title": "Jailhouse Rock",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "The title song of Elvis Presley's 1957 film Jailhouse Rock.",
@@ -752,7 +733,7 @@
       "fun_fact_fr": "La chanson-titre du film d'Elvis Presley Le Rock du bagne (1957).",
       "uri_apple_music": "applemusic://track/217634327",
       "uri_youtube_music": "https://music.youtube.com/watch?v=PpsUOOfb-vE",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/515077",
       "uri_deezer": "deezer://track/6596867",
       "fun_fact_nl": "Het titelnummer van Elvis Presleys film Jailhouse Rock (1957).",
       "awards_nl": [],
@@ -783,7 +764,6 @@
         "Barbra Streisand"
       ],
       "title": "Someday My Prince Will Come",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Snow White's wish from Snow White and the Seven Dwarfs (1937), Disney's first feature.",
@@ -792,7 +772,7 @@
       "fun_fact_fr": "Le vœu de Blanche-Neige dans Blanche-Neige et les Sept Nains (1937), premier long-métrage Disney.",
       "uri_apple_music": "applemusic://track/263384617",
       "uri_youtube_music": "https://music.youtube.com/watch?v=261pp4AsOTQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/43213753",
       "uri_deezer": "deezer://track/9682769",
       "fun_fact_nl": "Sneeuwwitjes wens uit Sneeuwwitje (1937), Disney's eerste lange film.",
       "awards_nl": [],
@@ -814,7 +794,7 @@
       ]
     },
     {
-      "year": 2010,
+      "year": 1953,
       "uri": "spotify:track:4GKpEXCbrjJRH6K3M5B662",
       "artist": "Marilyn Monroe",
       "alt_artists": [
@@ -823,7 +803,6 @@
         "Carol Channing"
       ],
       "title": "Diamonds Are a Girl's Best Friend - From \"Gentlemen Prefer Blondes\"",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Marilyn Monroe performed it in Gentlemen Prefer Blondes (1953) in an iconic pink gown.",
@@ -832,7 +811,7 @@
       "fun_fact_fr": "Marilyn Monroe l'interpréta dans Les hommes préfèrent les blondes (1953) dans sa robe rose iconique.",
       "uri_apple_music": "applemusic://track/1448886260",
       "uri_youtube_music": "https://music.youtube.com/watch?v=KsRqhCWYfsQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/283026344",
       "uri_deezer": "deezer://track/5531981",
       "fun_fact_nl": "Marilyn Monroe zong het in Gentlemen Prefer Blondes (1953) in haar iconische roze jurk.",
       "awards_nl": [],
@@ -854,7 +833,7 @@
       ]
     },
     {
-      "year": 2016,
+      "year": 1977,
       "uri": "spotify:track:3mRM4NM8iO7UBqrSigCQFH",
       "artist": "Bee Gees",
       "alt_artists": [
@@ -863,7 +842,6 @@
         "Chic"
       ],
       "title": "Stayin' Alive - From \"Saturday Night Fever\" Soundtrack",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "The Bee Gees' anthem opened Saturday Night Fever (1977) and defined the disco era.",
@@ -872,7 +850,7 @@
       "fun_fact_fr": "L'hymne des Bee Gees ouvrait La Fièvre du samedi soir (1977) et définit l'ère disco.",
       "uri_apple_music": "applemusic://track/1440900114",
       "uri_youtube_music": "https://music.youtube.com/watch?v=GbsFCYEJGZ0",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/198637817",
       "uri_deezer": "deezer://track/139138743",
       "fun_fact_nl": "De hymne van de Bee Gees opende Saturday Night Fever (1977) en bepaalde het discotijdperk.",
       "awards_nl": [],
@@ -894,7 +872,7 @@
       ]
     },
     {
-      "year": 2021,
+      "year": 1965,
       "uri": "spotify:track:1O6e8ewSwx8ijeMoVUrW5I",
       "artist": "Charmian Carr, Heather Menzies, Nicholas Hammond, Duane Chase, Angela Cartwright, Debbie Turner, Kym Karath, Bill Lee",
       "alt_artists": [
@@ -903,7 +881,6 @@
         "Disney"
       ],
       "title": "The Sound Of Music",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "The title song of The Sound of Music (1965), sung on an Alpine meadow.",
@@ -912,7 +889,7 @@
       "fun_fact_fr": "La chanson-titre de La Mélodie du bonheur (1965), chantée sur un alpage.",
       "uri_apple_music": "applemusic://track/1715961579",
       "uri_youtube_music": "https://music.youtube.com/watch?v=jE3-vYA08C4",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/170474925",
       "uri_deezer": "deezer://track/1217345842",
       "fun_fact_nl": "Het titelnummer van The Sound of Music (1965), gezongen op een alpenweide.",
       "awards_nl": [],
@@ -934,7 +911,7 @@
       ]
     },
     {
-      "year": 2012,
+      "year": 2011,
       "uri": "spotify:track:0z9UVN8VBHJ9HdfYsOuuNf",
       "artist": "Taylor Swift, The Civil Wars",
       "alt_artists": [
@@ -943,7 +920,6 @@
         "Imagine Dragons"
       ],
       "title": "Safe & Sound - from The Hunger Games Soundtrack",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Taylor Swift and The Civil Wars wrote this for The Hunger Games (2012).",
@@ -952,7 +928,7 @@
       "fun_fact_fr": "Taylor Swift et The Civil Wars l'écrivirent pour Hunger Games (2012).",
       "uri_apple_music": "applemusic://track/1440795596",
       "uri_youtube_music": "https://music.youtube.com/watch?v=RzhAS_GnJIc",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/13806943",
       "uri_deezer": "deezer://track/16657365",
       "fun_fact_nl": "Taylor Swift en The Civil Wars schreven dit voor The Hunger Games (2012).",
       "awards_nl": [],
@@ -960,7 +936,7 @@
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1440795596",
         "de": "applemusic://track/1445870931",
-        "gb": null,
+        "gb": "applemusic://track/1440795596",
         "fr": "applemusic://track/1445870931",
         "es": "applemusic://track/1445870931",
         "nl": "applemusic://track/1445870931",
@@ -983,7 +959,6 @@
         "John Legend"
       ],
       "title": "A Lovely Night",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Mia and Sebastian dance at twilight in La La Land (2016).",
@@ -992,7 +967,7 @@
       "fun_fact_fr": "Mia et Sebastian dansent au crépuscule dans La La Land (2016).",
       "uri_apple_music": "applemusic://track/1440863825",
       "uri_youtube_music": "https://music.youtube.com/watch?v=trrH4sVZ0dQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/67782569",
       "uri_deezer": "deezer://track/137727917",
       "fun_fact_nl": "Mia en Sebastian dansen in de schemering in La La Land (2016).",
       "awards_nl": [],
@@ -1023,7 +998,6 @@
         "Randy Newman"
       ],
       "title": "Mia & Sebastian’s Theme",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Justin Hurwitz's piano theme from La La Land (2016) won the Oscar for Best Score.",
@@ -1032,7 +1006,7 @@
       "fun_fact_fr": "Le thème au piano de Justin Hurwitz dans La La Land (2016) remporta l'Oscar de la meilleure musique.",
       "uri_apple_music": "applemusic://track/1440863816",
       "uri_youtube_music": "https://music.youtube.com/watch?v=Wk7RrtEGDyo",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/67782568",
       "uri_deezer": "deezer://track/137727915",
       "fun_fact_nl": "Justin Hurwitz' pianothema uit La La Land (2016) won de Oscar voor beste filmmuziek.",
       "awards_nl": [],
@@ -1063,7 +1037,6 @@
         "The All-American Rejects"
       ],
       "title": "Vindicated",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Dashboard Confessional wrote Vindicated for Spider-Man 2 (2004).",
@@ -1072,7 +1045,7 @@
       "fun_fact_fr": "Dashboard Confessional écrivit Vindicated pour Spider-Man 2 (2004).",
       "uri_apple_music": "applemusic://track/1440798047",
       "uri_youtube_music": "https://music.youtube.com/watch?v=A94dmLthBHA",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/3963086",
       "uri_deezer": "deezer://track/2536858",
       "fun_fact_nl": "Dashboard Confessional schreef Vindicated voor Spider-Man 2 (2004).",
       "awards_nl": [],
@@ -1103,7 +1076,6 @@
         "Jason Mraz"
       ],
       "title": "It Will Rain",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Bruno Mars' ballad featured in The Twilight Saga: Breaking Dawn (2011).",
@@ -1112,7 +1084,7 @@
       "fun_fact_fr": "La ballade de Bruno Mars figurait dans Twilight : Révélation (2011).",
       "uri_apple_music": "applemusic://track/467967161",
       "uri_youtube_music": "https://music.youtube.com/watch?v=W-w3WfgpcGg",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/9979808",
       "uri_deezer": "deezer://track/13978270",
       "fun_fact_nl": "Bruno Mars' ballad was te horen in The Twilight Saga: Breaking Dawn (2011).",
       "awards_nl": [],
@@ -1134,7 +1106,7 @@
       ]
     },
     {
-      "year": 2017,
+      "year": 2004,
       "uri": "spotify:track:7FQSD5JjWqGtS1BaQQiT6V",
       "artist": "Counting Crows",
       "alt_artists": [
@@ -1143,7 +1115,6 @@
         "Five for Fighting"
       ],
       "title": "Accidentally In Love - From \"Shrek 2\" Soundtrack",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Counting Crows recorded this for Shrek 2 (2004); it earned an Oscar nomination.",
@@ -1152,7 +1123,7 @@
       "fun_fact_fr": "Counting Crows l'enregistra pour Shrek 2 (2004) ; nommée aux Oscars.",
       "uri_apple_music": "applemusic://track/1444195172",
       "uri_youtube_music": "https://music.youtube.com/watch?v=GEo7W-uJNkc",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/14342612",
       "uri_deezer": "deezer://track/145425722",
       "fun_fact_nl": "Counting Crows nam dit op voor Shrek 2 (2004); het kreeg een Oscarnominatie.",
       "awards_nl": [],
@@ -1183,7 +1154,6 @@
         "John Legend"
       ],
       "title": "City Of Stars - From \"La La Land\" Soundtrack",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "The Oscar-nominated duet from La La Land (2016).",
@@ -1192,7 +1162,7 @@
       "fun_fact_fr": "Le duo nommé aux Oscars de La La Land (2016).",
       "uri_apple_music": "applemusic://track/1440864172",
       "uri_youtube_music": "https://music.youtube.com/watch?v=xkqfm3muuhM",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/67782574",
       "uri_deezer": "deezer://track/137727927",
       "fun_fact_nl": "Het voor een Oscar genomineerde duet uit La La Land (2016).",
       "awards_nl": [],
@@ -1214,7 +1184,7 @@
       ]
     },
     {
-      "year": 2014,
+      "year": 2013,
       "uri": "spotify:track:60nZcImufyMA1MKQY3dcCH",
       "artist": "Pharrell Williams",
       "alt_artists": [
@@ -1223,7 +1193,6 @@
         "Mark Ronson"
       ],
       "title": "Happy - From \"Despicable Me 2\"",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Pharrell's Happy from Despicable Me 2 (2013) topped charts in dozens of countries.",
@@ -1232,7 +1201,7 @@
       "fun_fact_fr": "Happy de Pharrell, de Moi, moche et méchant 2 (2013), fut n°1 dans des dizaines de pays.",
       "uri_apple_music": "applemusic://track/863835363",
       "uri_youtube_music": "https://music.youtube.com/watch?v=C7dPqrmDWxs",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/111977766",
       "uri_deezer": "deezer://track/701326562",
       "fun_fact_nl": "Pharrells Happy uit Despicable Me 2 (2013) stond in tientallen landen bovenaan.",
       "awards_nl": [],
@@ -1263,7 +1232,6 @@
         "Kristen Bell"
       ],
       "title": "Let It Go - From \"Frozen\"/Soundtrack Version",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Idina Menzel's Let It Go from Frozen (2013) won the Oscar for Best Original Song.",
@@ -1272,19 +1240,19 @@
       "fun_fact_fr": "Let It Go d'Idina Menzel, de La Reine des neiges (2013), remporta l'Oscar de la meilleure chanson.",
       "uri_apple_music": "applemusic://track/1440618281",
       "uri_youtube_music": "https://music.youtube.com/watch?v=YVVTZgwYwVo",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/36771690",
       "uri_deezer": "deezer://track/72371930",
       "fun_fact_nl": "Idina Menzels Let It Go uit Frozen (2013) won de Oscar voor beste nummer.",
       "awards_nl": [],
       "isrc": "USWD11366376",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1440618281",
-        "de": null,
+        "de": "applemusic://track/1477388275",
         "gb": "applemusic://track/1772699739",
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
+        "fr": "applemusic://track/1477388275",
+        "es": "applemusic://track/1477388275",
+        "nl": "applemusic://track/1477388275",
+        "it": "applemusic://track/1477388275"
       },
       "movie": "Frozen",
       "movie_choices": [
@@ -1303,7 +1271,6 @@
         "KT Tunstall"
       ],
       "title": "Unwritten",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Natasha Bedingfield's empowerment anthem became a graduation and ad favorite.",
@@ -1312,7 +1279,7 @@
       "fun_fact_fr": "L'hymne galvanisant de Natasha Bedingfield devint un favori des remises de diplômes et des pubs.",
       "uri_apple_music": "applemusic://track/430514893",
       "uri_youtube_music": "https://music.youtube.com/watch?v=iKejQrGq04w",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/173121496",
       "uri_deezer": "deezer://track/1240000812",
       "fun_fact_nl": "Natasha Bedingfields motivatiehymne werd een favoriet bij diploma-uitreikingen en reclames.",
       "awards_nl": [],
@@ -1343,7 +1310,6 @@
         "Rick James"
       ],
       "title": "Thriller",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Michael Jackson's Thriller (1982) anchors the best-selling album of all time.",
@@ -1352,7 +1318,7 @@
       "fun_fact_fr": "Thriller de Michael Jackson (1982) porte l'album le plus vendu de tous les temps.",
       "uri_apple_music": "applemusic://track/269573303",
       "uri_youtube_music": "https://music.youtube.com/watch?v=sO4vI8P88NM",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/1781892",
       "uri_deezer": "deezer://track/555639",
       "fun_fact_nl": "Michael Jacksons Thriller (1982) draagt het best verkochte album aller tijden.",
       "awards_nl": [],
@@ -1383,7 +1349,6 @@
         "Alessia Cara"
       ],
       "title": "How Far I'll Go",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Moana's ocean-bound anthem from Moana (2016), written by Lin-Manuel Miranda.",
@@ -1392,7 +1357,7 @@
       "fun_fact_fr": "L'hymne de Vaiana (2016), écrit par Lin-Manuel Miranda.",
       "uri_apple_music": "applemusic://track/1440639381",
       "uri_youtube_music": "https://music.youtube.com/watch?v=cPAbx5kgCJo",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/67177683",
       "uri_deezer": "deezer://track/136349848",
       "fun_fact_nl": "Moana's oceaanhymne uit Moana (2016), geschreven door Lin-Manuel Miranda.",
       "awards_nl": [],
@@ -1414,7 +1379,7 @@
       ]
     },
     {
-      "year": 2023,
+      "year": 1989,
       "uri": "spotify:track:7tUSJY4nsDBJTjd1UXKRsT",
       "artist": "Alan Menken, Howard Ashman, Jodi Benson, Disney, J.A.C. Redford",
       "alt_artists": [
@@ -1423,7 +1388,6 @@
         "Alan Menken"
       ],
       "title": "Part of Your World",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Ariel's wish to live on land, from The Little Mermaid (1989).",
@@ -1432,7 +1396,7 @@
       "fun_fact_fr": "Le souhait d'Ariel de vivre sur terre, dans La Petite Sirène (1989).",
       "uri_apple_music": "applemusic://track/1440661298",
       "uri_youtube_music": "https://music.youtube.com/watch?v=sg1Y6Vxl6Nk",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/47941603",
       "uri_deezer": "deezer://track/2131884517",
       "fun_fact_nl": "Ariels wens om op het land te leven, uit De Kleine Zeemeermin (1989).",
       "awards_nl": [],
@@ -1440,7 +1404,7 @@
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1440661298",
         "de": null,
-        "gb": null,
+        "gb": "applemusic://track/1437517043",
         "fr": null,
         "es": null,
         "nl": null,
@@ -1463,7 +1427,6 @@
         "Pasek and Paul"
       ],
       "title": "A Million Dreams",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "The dreamers' duet from The Greatest Showman (2017).",
@@ -1472,7 +1435,7 @@
       "fun_fact_fr": "Le duo des rêveurs de The Greatest Showman (2017).",
       "uri_apple_music": "applemusic://track/1299856905",
       "uri_youtube_music": "https://music.youtube.com/watch?v=6-2j4cM3pV0",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/81836186",
       "uri_deezer": "deezer://track/435175462",
       "fun_fact_nl": "Het dromersduet uit The Greatest Showman (2017).",
       "awards_nl": [],
@@ -1503,7 +1466,6 @@
         "Hugh Jackman"
       ],
       "title": "Rewrite The Stars",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Zac Efron and Zendaya's trapeze duet from The Greatest Showman (2017).",
@@ -1512,7 +1474,7 @@
       "fun_fact_fr": "Le duo au trapèze de Zac Efron et Zendaya dans The Greatest Showman (2017).",
       "uri_apple_music": "applemusic://track/1299856917",
       "uri_youtube_music": "https://music.youtube.com/watch?v=gdjR2lvIfJ4",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/81836207",
       "uri_deezer": "deezer://track/435175522",
       "fun_fact_nl": "Zac Efron en Zendaya's trapezeduet uit The Greatest Showman (2017).",
       "awards_nl": [],
@@ -1543,7 +1505,6 @@
         "Michael Bublé"
       ],
       "title": "You've Got a Friend in Me",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Randy Newman's Toy Story (1995) theme, here in a newer cover.",
@@ -1552,7 +1513,7 @@
       "fun_fact_fr": "Le thème de Toy Story (1995) de Randy Newman, ici dans une reprise plus récente.",
       "uri_apple_music": "applemusic://track/1370566744",
       "uri_youtube_music": "https://music.youtube.com/watch?v=aMZ3p-ZMs9o",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/87352633",
       "uri_deezer": "deezer://track/487068622",
       "fun_fact_nl": "Randy Newmans Toy Story-thema (1995), hier in een nieuwere cover.",
       "awards_nl": [],
@@ -1583,7 +1544,6 @@
         "TV Themes"
       ],
       "title": "Everywhere You Look (From \"Full House\")",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "The cheerful theme to the sitcom Full House (1987-1995).",
@@ -1592,7 +1552,7 @@
       "fun_fact_fr": "Le générique enjoué de la sitcom La Fête à la maison (1987-1995).",
       "uri_apple_music": "applemusic://track/1483957730",
       "uri_youtube_music": "https://music.youtube.com/watch?v=q9WZIOwR-G4",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/218725987",
       "uri_deezer": "deezer://track/779257612",
       "fun_fact_nl": "De vrolijke tune van de sitcom Full House (1987-1995).",
       "awards_nl": [],
@@ -1623,7 +1583,6 @@
         "Selena Gomez"
       ],
       "title": "Ordinary Girl",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "From the Hannah Montana franchise, Miley Cyrus' double-life pop persona.",
@@ -1632,7 +1591,7 @@
       "fun_fact_fr": "De la franchise Hannah Montana, le personnage à double vie de Miley Cyrus.",
       "uri_apple_music": "applemusic://track/1440618684",
       "uri_youtube_music": "https://music.youtube.com/watch?v=-vHKfwuCrQM",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/34916419",
       "uri_deezer": "deezer://track/7226756",
       "fun_fact_nl": "Uit de Hannah Montana-franchise, Miley Cyrus' dubbelleven-popfiguur.",
       "awards_nl": [],
@@ -1663,7 +1622,6 @@
         "Regina Belle"
       ],
       "title": "A Whole New World",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Aladdin and Jasmine's magic-carpet duet, from the 2019 live-action Aladdin.",
@@ -1672,7 +1630,7 @@
       "fun_fact_fr": "Le duo du tapis volant d'Aladdin et Jasmine, dans Aladdin en prises de vues réelles (2019).",
       "uri_apple_music": "applemusic://track/1462702463",
       "uri_youtube_music": "https://music.youtube.com/watch?v=eitDnP0_83k",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/109909665",
       "uri_deezer": "deezer://track/682608592",
       "fun_fact_nl": "Aladdin en Jasmine's vliegend-tapijtduet, uit de live-action Aladdin (2019).",
       "awards_nl": [],
@@ -1703,7 +1661,6 @@
         "Robin Williams"
       ],
       "title": "Arabian Nights (2019)",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Will Smith opens the 2019 Aladdin as the Genie with this number.",
@@ -1712,7 +1669,7 @@
       "fun_fact_fr": "Will Smith ouvre Aladdin (2019) en Génie avec ce morceau.",
       "uri_apple_music": "applemusic://track/1462702453",
       "uri_youtube_music": "https://music.youtube.com/watch?v=T9GmO_WFhjQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/109687283",
       "uri_deezer": "deezer://track/682608532",
       "fun_fact_nl": "Will Smith opent Aladdin (2019) als de Geest met dit nummer.",
       "awards_nl": [],
@@ -1743,7 +1700,6 @@
         "Disney"
       ],
       "title": "Friend Like Me",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "The Genie's showstopper, reimagined by Will Smith in Aladdin (2019).",
@@ -1752,7 +1708,7 @@
       "fun_fact_fr": "Le grand numéro du Génie, réinventé par Will Smith dans Aladdin (2019).",
       "uri_apple_music": "applemusic://track/1462702461",
       "uri_youtube_music": "https://music.youtube.com/watch?v=1at7kKzBYxI",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/109909663",
       "uri_deezer": "deezer://track/682608572",
       "fun_fact_nl": "De showstopper van de Geest, opnieuw vertolkt door Will Smith in Aladdin (2019).",
       "awards_nl": [],
@@ -1783,7 +1739,6 @@
         "Gael García Bernal"
       ],
       "title": "Un Poco Loco",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "A lively duet from Pixar's Coco (2017), winner of the Best Animated Feature Oscar.",
@@ -1792,19 +1747,19 @@
       "fun_fact_fr": "Un duo enlevé de Coco (2017) de Pixar, Oscar du meilleur film d'animation.",
       "uri_apple_music": "applemusic://track/1442277221",
       "uri_youtube_music": "https://music.youtube.com/watch?v=MalsRkzmnWU",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/80718539",
       "uri_deezer": "deezer://track/424600042",
       "fun_fact_nl": "Een levendig duet uit Pixars Coco (2017), Oscarwinnaar beste animatiefilm.",
       "awards_nl": [],
       "isrc": "USWD11783639",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1442277221",
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
+        "de": "applemusic://track/1439151612",
+        "gb": "applemusic://track/1439151612",
+        "fr": "applemusic://track/1708455796",
+        "es": "applemusic://track/1439151612",
+        "nl": "applemusic://track/1439151612",
+        "it": "applemusic://track/1708455796"
       },
       "movie": "Coco",
       "movie_choices": [
@@ -1823,7 +1778,6 @@
         "Alan Menken"
       ],
       "title": "When Will My Life Begin? - From \"Tangled\" / Soundtrack Version",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Rapunzel's daily routine from Tangled (2010).",
@@ -1832,7 +1786,7 @@
       "fun_fact_fr": "La routine quotidienne de Raiponce dans Raiponce (2010).",
       "uri_apple_music": "applemusic://track/1440639066",
       "uri_youtube_music": "https://music.youtube.com/watch?v=kRXmAIHYQR4",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/34916434",
       "uri_deezer": "deezer://track/7599979",
       "fun_fact_nl": "Rapunzels dagelijkse routine uit Tangled (2010).",
       "awards_nl": [],
@@ -1863,7 +1817,6 @@
         "Idina Menzel"
       ],
       "title": "Love Is an Open Door - From \"Frozen\"/Soundtrack Version",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Anna and Hans' instant-romance duet from Frozen (2013).",
@@ -1872,7 +1825,7 @@
       "fun_fact_fr": "Le duo coup de foudre d'Anna et Hans dans La Reine des neiges (2013).",
       "uri_apple_music": "applemusic://track/1440618188",
       "uri_youtube_music": "https://music.youtube.com/watch?v=kQDw88hEr2c",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/36771689",
       "uri_deezer": "deezer://track/72371928",
       "fun_fact_nl": "Anna en Hans' meteen-verliefd-duet uit Frozen (2013).",
       "awards_nl": [],
@@ -1903,7 +1856,6 @@
         "The Lumineers"
       ],
       "title": "The Hanging Tree - From \"The Hunger Games: Mockingjay\" Soundtrack",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "The haunting folk song from The Hunger Games: Mockingjay (2014).",
@@ -1912,19 +1864,19 @@
       "fun_fact_fr": "La chanson folk envoutante de Hunger Games : La Révolte (2014).",
       "uri_apple_music": "applemusic://track/1440859825",
       "uri_youtube_music": "https://music.youtube.com/watch?v=F3hTW9e20d8",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/37977811",
       "uri_deezer": "deezer://track/90379179",
       "fun_fact_nl": "Het beklemmende folklied uit The Hunger Games: Mockingjay (2014).",
       "awards_nl": [],
       "isrc": "USUG11401803",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1440859825",
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
+        "de": "applemusic://track/1443157265",
+        "gb": "applemusic://track/1443130507",
+        "fr": "applemusic://track/1443130507",
+        "es": "applemusic://track/1443130507",
+        "nl": "applemusic://track/1443130507",
+        "it": "applemusic://track/1443130507"
       },
       "movie": "The Hunger Games: Mockingjay",
       "movie_choices": [
@@ -1934,7 +1886,7 @@
       ]
     },
     {
-      "year": 2008,
+      "year": 1985,
       "uri": "spotify:track:6yEAAIEHu4GcUFptg5W9kI",
       "artist": "Simple Minds",
       "alt_artists": [
@@ -1943,7 +1895,6 @@
         "Ultravox"
       ],
       "title": "Don't You (Forget About Me)",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Simple Minds' enduring hit, forever linked to The Breakfast Club (1985).",
@@ -1952,7 +1903,7 @@
       "fun_fact_fr": "Le tube intemporel de Simple Minds, à jamais lié à The Breakfast Club (1985).",
       "uri_apple_music": "applemusic://track/1440773100",
       "uri_youtube_music": "https://music.youtube.com/watch?v=CdqoNKCCt7A",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/7196915",
       "uri_deezer": "deezer://track/3158150",
       "fun_fact_nl": "Simple Minds' blijvende hit, voor altijd verbonden met The Breakfast Club (1985).",
       "awards_nl": [],
@@ -1983,7 +1934,6 @@
         "Cher"
       ],
       "title": "Gimme! Gimme! Gimme! (A Man After Midnight) - From 'Mamma Mia!' Original Motion Picture Soundtrack",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "An ABBA classic reborn in the jukebox musical Mamma Mia! (2008).",
@@ -2023,7 +1973,6 @@
         "Cher"
       ],
       "title": "Honey, Honey - From 'Mamma Mia!' Original Motion Picture Soundtrack",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "An ABBA singalong from the film Mamma Mia! (2008).",
@@ -2032,7 +1981,7 @@
       "fun_fact_fr": "Un titre d'ABBA à reprendre en chœur, du film Mamma Mia! (2008).",
       "uri_apple_music": "applemusic://track/1440768321",
       "uri_youtube_music": "https://music.youtube.com/watch?v=b6Zh-sD3Wg0",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/3955632",
       "uri_deezer": "deezer://track/1578990",
       "fun_fact_nl": "Een ABBA-meezinger uit de film Mamma Mia! (2008).",
       "awards_nl": [],
@@ -2063,7 +2012,6 @@
         "Cher"
       ],
       "title": "Money, Money, Money - From 'Mamma Mia!' Original Motion Picture Soundtrack",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "ABBA's ode to wealth, performed in Mamma Mia! (2008).",
@@ -2072,7 +2020,7 @@
       "fun_fact_fr": "L'ode d'ABBA à la richesse, interprétée dans Mamma Mia! (2008).",
       "uri_apple_music": "applemusic://track/1440768337",
       "uri_youtube_music": "https://music.youtube.com/watch?v=y6h5BUSo9Vw",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/1832352",
       "uri_deezer": "deezer://track/1578991",
       "fun_fact_nl": "ABBA's ode aan rijkdom, vertolkt in Mamma Mia! (2008).",
       "awards_nl": [],
@@ -2103,7 +2051,6 @@
         "Amanda Seyfried"
       ],
       "title": "Dancing Queen - From 'Mamma Mia!' Original Motion Picture Soundtrack",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "ABBA's disco anthem became the centerpiece of Mamma Mia! (2008).",
@@ -2112,7 +2059,7 @@
       "fun_fact_fr": "L'hymne disco d'ABBA devint la pièce maîtresse de Mamma Mia! (2008).",
       "uri_apple_music": "applemusic://track/1440768615",
       "uri_youtube_music": "https://music.youtube.com/watch?v=Do8oqR2TR1M",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/1832354",
       "uri_deezer": "deezer://track/1578993",
       "fun_fact_nl": "ABBA's discohymne werd het middelpunt van Mamma Mia! (2008).",
       "awards_nl": [],
@@ -2143,7 +2090,6 @@
         "Dominic Cooper"
       ],
       "title": "Lay All Your Love On Me - From 'Mamma Mia!' Original Motion Picture Soundtrack",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "A passionate ABBA number from Mamma Mia! (2008).",
@@ -2152,7 +2098,7 @@
       "fun_fact_fr": "Un morceau passionné d'ABBA, de Mamma Mia! (2008).",
       "uri_apple_music": "applemusic://track/1440768626",
       "uri_youtube_music": "https://music.youtube.com/watch?v=YT-wSm18JXM",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/3955637",
       "uri_deezer": "deezer://track/1578995",
       "fun_fact_nl": "Een hartstochtelijk ABBA-nummer uit Mamma Mia! (2008).",
       "awards_nl": [],
@@ -2183,7 +2129,6 @@
         "Cher"
       ],
       "title": "The Winner Takes It All - From \"Mamma Mia!\"",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Meryl Streep's emotional ABBA solo, a highlight of Mamma Mia! (2008).",
@@ -2192,7 +2137,7 @@
       "fun_fact_fr": "Le solo émouvant d'ABBA par Meryl Streep, sommet de Mamma Mia! (2008).",
       "uri_apple_music": "applemusic://track/1422648844",
       "uri_youtube_music": "https://music.youtube.com/watch?v=0d3wxfS4Dtw",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/3955645",
       "uri_deezer": "deezer://track/1579003",
       "fun_fact_nl": "Meryl Streeps emotionele ABBA-solo, een hoogtepunt van Mamma Mia! (2008).",
       "awards_nl": [],
@@ -2203,8 +2148,8 @@
         "gb": "applemusic://track/1680987071",
         "fr": "applemusic://track/1680987071",
         "es": "applemusic://track/1680987071",
-        "nl": null,
-        "it": null
+        "nl": "applemusic://track/1440769121",
+        "it": "applemusic://track/1440769121"
       },
       "movie": "Mamma Mia!",
       "movie_choices": [
@@ -2214,7 +2159,7 @@
       ]
     },
     {
-      "year": 2007,
+      "year": 1964,
       "uri": "spotify:track:05miM6U3bpqzG5BRr0C8FF",
       "artist": "Julie Andrews, Dick Van Dyke, The Pearlie Chorus",
       "alt_artists": [
@@ -2223,7 +2168,6 @@
         "Dick Van Dyke"
       ],
       "title": "Supercalifragilisticexpialidocious - From \"Mary Poppins\" Soundtrack",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "The famous tongue-twister from Mary Poppins (1964).",
@@ -2232,7 +2176,7 @@
       "fun_fact_fr": "Le célèbre virelangue de Mary Poppins (1964).",
       "uri_apple_music": "applemusic://track/1440796668",
       "uri_youtube_music": "https://music.youtube.com/watch?v=XH-dPy9JJMY",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/45655011",
       "uri_deezer": "deezer://track/3118718",
       "fun_fact_nl": "De beroemde tongbreker uit Mary Poppins (1964).",
       "awards_nl": [],
@@ -2254,7 +2198,7 @@
       ]
     },
     {
-      "year": 2019,
+      "year": 1978,
       "uri": "spotify:track:5CyZPkmTBmq61SunRDysna",
       "artist": "John Travolta, Olivia Newton-John",
       "alt_artists": [
@@ -2263,7 +2207,6 @@
         "Frankie Valli"
       ],
       "title": "We Go Together - From “Grease”",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "The exuberant finale of Grease (1978).",
@@ -2271,8 +2214,8 @@
       "fun_fact_es": "El eufórico final de Grease (1978).",
       "fun_fact_fr": "Le final exubérant de Grease (1978).",
       "uri_apple_music": "applemusic://track/1440844889",
-      "uri_youtube_music": null,
-      "uri_tidal": null,
+      "uri_youtube_music": "https://music.youtube.com/watch?v=b-D8CQPpzqU",
+      "uri_tidal": "tidal://track/77625043",
       "uri_deezer": "deezer://track/781563242",
       "fun_fact_nl": "De uitbundige finale van Grease (1978).",
       "awards_nl": [],
@@ -2303,7 +2246,6 @@
         "Zac Efron"
       ],
       "title": "You Can't Stop The Beat",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "The high-energy closing number of Hairspray (2007).",
@@ -2312,19 +2254,19 @@
       "fun_fact_fr": "Le numéro final survolté de Hairspray (2007).",
       "uri_apple_music": "applemusic://track/1454446955",
       "uri_youtube_music": "https://music.youtube.com/watch?v=H2KQGAiVec0",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/104870545",
       "uri_deezer": "deezer://track/647341092",
       "fun_fact_nl": "Het energieke slotnummer van Hairspray (2007).",
       "awards_nl": [],
       "isrc": "USNLR0700062",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1454446955",
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
+        "de": "applemusic://track/1454446955",
+        "gb": "applemusic://track/1454449556",
+        "fr": "applemusic://track/1454446955",
+        "es": "applemusic://track/1454446955",
+        "nl": "applemusic://track/1454446955",
+        "it": "applemusic://track/1454446955"
       },
       "movie": "Hairspray",
       "movie_choices": [
@@ -2343,7 +2285,6 @@
         "Pitch Perfect"
       ],
       "title": "Since U Been Gone",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "The Barden Bellas cover Kelly Clarkson's hit in Pitch Perfect (2012).",
@@ -2352,7 +2293,7 @@
       "fun_fact_fr": "Les Barden Bellas reprennent le tube de Kelly Clarkson dans Pitch Perfect (2012).",
       "uri_apple_music": "applemusic://track/1440796417",
       "uri_youtube_music": "https://music.youtube.com/watch?v=RSf2FuA03dk",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/17262629",
       "uri_deezer": "deezer://track/60833047",
       "fun_fact_nl": "De Barden Bellas coveren Kelly Clarksons hit in Pitch Perfect (2012).",
       "awards_nl": [],
@@ -2383,7 +2324,6 @@
         "Greg Wise"
       ],
       "title": "Walking on Sunshine",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "The Katrina and the Waves classic, used in the film Walking on Sunshine (2014).",
@@ -2392,19 +2332,19 @@
       "fun_fact_fr": "Le classique de Katrina and the Waves, utilisé dans le film Walking on Sunshine (2014).",
       "uri_apple_music": "applemusic://track/880756174",
       "uri_youtube_music": "https://music.youtube.com/watch?v=7wSzBGZwWD4",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/29970140",
       "uri_deezer": "deezer://track/78657183",
       "fun_fact_nl": "De Katrina and the Waves-klassieker, gebruikt in de film Walking on Sunshine (2014).",
       "awards_nl": [],
       "isrc": "USSM11403054",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/880756174",
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
+        "de": "applemusic://track/880756174",
+        "gb": "applemusic://track/880756174",
+        "fr": "applemusic://track/881910296",
+        "es": "applemusic://track/880756174",
+        "nl": "applemusic://track/881910296",
+        "it": "applemusic://track/880756174"
       },
       "movie": "Walking on Sunshine",
       "movie_choices": [
@@ -2414,7 +2354,7 @@
       ]
     },
     {
-      "year": 2006,
+      "year": 1995,
       "uri": "spotify:track:15tHagkk8z306XkyOHqiip",
       "artist": "The Rembrandts",
       "alt_artists": [
@@ -2423,7 +2363,6 @@
         "Hootie & the Blowfish"
       ],
       "title": "I'll Be There for You - Theme From \"Friends\"",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "The Rembrandts' theme to the sitcom Friends (1994-2004).",
@@ -2432,7 +2371,7 @@
       "fun_fact_fr": "Le générique des Rembrandts pour la sitcom Friends (1994-2004).",
       "uri_apple_music": "applemusic://track/373221221",
       "uri_youtube_music": "https://music.youtube.com/watch?v=RIjTq_OdFvo",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/3936587",
       "uri_deezer": "deezer://track/769477",
       "fun_fact_nl": "The Rembrandts' tune voor de sitcom Friends (1994-2004).",
       "awards_nl": [],
@@ -2463,7 +2402,6 @@
         "Pat Benatar"
       ],
       "title": "Girls Just Want to Have Fun",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Cyndi Lauper's 1983 anthem of female fun and independence.",
@@ -2472,7 +2410,7 @@
       "fun_fact_fr": "L'hymne de 1983 de Cyndi Lauper à la liberté et au plaisir au féminin.",
       "uri_apple_music": "applemusic://track/400603693",
       "uri_youtube_music": "https://music.youtube.com/watch?v=jRr5EasAq84",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/1317402",
       "uri_deezer": "deezer://track/72194071",
       "fun_fact_nl": "Cyndi Laupers hymne uit 1983 over vrouwelijk plezier en onafhankelijkheid.",
       "awards_nl": [],
@@ -2503,7 +2441,6 @@
         "Meryl Streep"
       ],
       "title": "Super Trouper",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "An ABBA classic revived in Mamma Mia! Here We Go Again (2018).",
@@ -2512,7 +2449,7 @@
       "fun_fact_fr": "Un classique d'ABBA ressuscité dans Mamma Mia! Here We Go Again (2018).",
       "uri_apple_music": "applemusic://track/1380467120",
       "uri_youtube_music": "https://music.youtube.com/watch?v=QTmEFtGeYqQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/91802562",
       "uri_deezer": "deezer://track/526033302",
       "fun_fact_nl": "Een ABBA-klassieker nieuw leven ingeblazen in Mamma Mia! Here We Go Again (2018).",
       "awards_nl": [],
@@ -2543,7 +2480,6 @@
         "Amanda Seyfried"
       ],
       "title": "When I Kissed The Teacher",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Young Donna's number from Mamma Mia! Here We Go Again (2018).",
@@ -2552,7 +2488,7 @@
       "fun_fact_fr": "Le numéro de la jeune Donna dans Mamma Mia! Here We Go Again (2018).",
       "uri_apple_music": "applemusic://track/1380465244",
       "uri_youtube_music": "https://music.youtube.com/watch?v=MkENJUuNW7c",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/91802546",
       "uri_deezer": "deezer://track/526033142",
       "fun_fact_nl": "Het nummer van de jonge Donna uit Mamma Mia! Here We Go Again (2018).",
       "awards_nl": [],
@@ -2574,7 +2510,7 @@
       ]
     },
     {
-      "year": 2021,
+      "year": 1982,
       "uri": "spotify:track:6vBMTR37tnbCE0lApwor1d",
       "artist": "Aileen Quinn, ORPHANS",
       "alt_artists": [
@@ -2583,7 +2519,6 @@
         "Jamie Foxx"
       ],
       "title": "Tomorrow",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Little orphan Annie's hopeful anthem from the musical Annie.",
@@ -2592,7 +2527,7 @@
       "fun_fact_fr": "L'hymne plein d'espoir de la petite orpheline Annie, du musical Annie.",
       "uri_apple_music": "applemusic://track/1595966585",
       "uri_youtube_music": "https://music.youtube.com/watch?v=vECTQYde84k",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/205431033",
       "uri_deezer": "deezer://track/1556007012",
       "fun_fact_nl": "Het hoopvolle lied van weeskind Annie uit de musical Annie.",
       "awards_nl": [],
@@ -2614,7 +2549,7 @@
       ]
     },
     {
-      "year": 2021,
+      "year": 1982,
       "uri": "spotify:track:3UvRjs5eyTkqB9MYWBqbuZ",
       "artist": "Aileen Quinn, Toni Ann Gisondi",
       "alt_artists": [
@@ -2623,7 +2558,6 @@
         "Quvenzhané Wallis"
       ],
       "title": "It's the Hard-Knock Life",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "The orphans' lament from the musical Annie.",
@@ -2632,7 +2566,7 @@
       "fun_fact_fr": "La complainte des orphelines du musical Annie.",
       "uri_apple_music": "applemusic://track/1595966734",
       "uri_youtube_music": "https://music.youtube.com/watch?v=8iKGtHB8Gdw",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/205431038",
       "uri_deezer": "deezer://track/1556007022",
       "fun_fact_nl": "De klaagzang van de wezen uit de musical Annie.",
       "awards_nl": [],
@@ -2663,7 +2597,6 @@
         "Zac Efron"
       ],
       "title": "The Greatest Show",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "The rousing opener of The Greatest Showman (2017).",
@@ -2672,7 +2605,7 @@
       "fun_fact_fr": "L'ouverture entraînante de The Greatest Showman (2017).",
       "uri_apple_music": "applemusic://track/1299856904",
       "uri_youtube_music": "https://music.youtube.com/watch?v=NyVYXRD1Ans",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/81836185",
       "uri_deezer": "deezer://track/435175452",
       "fun_fact_nl": "De meeslepende opening van The Greatest Showman (2017).",
       "awards_nl": [],
@@ -2703,7 +2636,6 @@
         "Anna Kendrick"
       ],
       "title": "Cups (Pitch Perfect’s “When I’m Gone”) - Pop Version",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Anna Kendrick's Cups went viral after her Pitch Perfect (2012) audition scene.",
@@ -2712,7 +2644,7 @@
       "fun_fact_fr": "Cups d'Anna Kendrick devint viral après sa scène d'audition dans Pitch Perfect (2012).",
       "uri_apple_music": "applemusic://track/1440796148",
       "uri_youtube_music": "https://music.youtube.com/watch?v=cmSbXsFE3l8",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/19591758",
       "uri_deezer": "deezer://track/65759926",
       "fun_fact_nl": "Anna Kendricks Cups ging viraal na haar auditiescène in Pitch Perfect (2012).",
       "awards_nl": [],
@@ -2743,7 +2675,6 @@
         "Zac Efron"
       ],
       "title": "From Now On",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Barnum's reflective anthem from The Greatest Showman (2017).",
@@ -2752,7 +2683,7 @@
       "fun_fact_fr": "L'hymne réflexif de Barnum dans The Greatest Showman (2017).",
       "uri_apple_music": "applemusic://track/1299857585",
       "uri_youtube_music": "https://music.youtube.com/watch?v=iW2FUY3N-n0",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/81836210",
       "uri_deezer": "deezer://track/435175552",
       "fun_fact_nl": "Barnums beschouwende hymne uit The Greatest Showman (2017).",
       "awards_nl": [],
@@ -2783,7 +2714,6 @@
         "Pasek and Paul"
       ],
       "title": "This Is Me",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Keala Settle's This Is Me from The Greatest Showman (2017) won a Golden Globe.",
@@ -2792,7 +2722,7 @@
       "fun_fact_fr": "This Is Me de Keala Settle, de The Greatest Showman (2017), remporta un Golden Globe.",
       "uri_apple_music": "applemusic://track/1299856916",
       "uri_youtube_music": "https://music.youtube.com/watch?v=CjxugyZCfuw",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/81836206",
       "uri_deezer": "deezer://track/435175512",
       "fun_fact_nl": "Keala Settles This Is Me uit The Greatest Showman (2017) won een Golden Globe.",
       "awards_nl": [],
@@ -2814,7 +2744,7 @@
       ]
     },
     {
-      "year": 2006,
+      "year": 1998,
       "uri": "spotify:track:28UMEtwyUUy5u0UWOVHwiI",
       "artist": "Donny Osmond, Chorus - Mulan, Disney",
       "alt_artists": [
@@ -2823,7 +2753,6 @@
         "Lea Salonga"
       ],
       "title": "I'll Make a Man Out of You",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "The training montage anthem from Disney's Mulan (1998).",
@@ -2832,7 +2761,7 @@
       "fun_fact_fr": "L'hymne du montage d'entraînement de Mulan (1998) de Disney.",
       "uri_apple_music": "applemusic://track/1440662805",
       "uri_youtube_music": "https://music.youtube.com/watch?v=elBKil5zE2g",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/47940552",
       "uri_deezer": "deezer://track/1377537512",
       "fun_fact_nl": "De trainingsmontage-hymne uit Disneys Mulan (1998).",
       "awards_nl": [],
@@ -2863,7 +2792,6 @@
         "Disney"
       ],
       "title": "Breaking Free",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Troy and Gabriella's breakthrough duet from High School Musical (2006).",
@@ -2872,7 +2800,7 @@
       "fun_fact_fr": "Le duo révélation de Troy et Gabriella dans High School Musical (2006).",
       "uri_apple_music": "applemusic://track/1440747342",
       "uri_youtube_music": "https://music.youtube.com/watch?v=0qj67KE5VXI",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/34307865",
       "uri_deezer": "deezer://track/4242713",
       "fun_fact_nl": "Troy en Gabriella's doorbraakduet uit High School Musical (2006).",
       "awards_nl": [],

@@ -72,11 +72,8 @@ vi.mock('../player-utils.js', () => {
         showConfirmModal: async () => true,
         prefersReducedMotion: () => true,
         animateValue: () => {},
-        animateScoreChange: () => {},
-        showPointsPopup: () => {},
         previousState: {},
         isPreviousStateInitialized: () => false,
-        isStreakMilestone: () => false,
         detectRankChanges: () => ({}),
         updatePreviousState: () => {},
         AnimationUtils: {},
@@ -103,7 +100,15 @@ const {
     resetSongStoppedState,
     handleNextRound,
     resetNextRoundPending,
+    setupReactionBar,
+    resetReactionButtons,
+    handleReactionAck,
+    mayReactNow,
+    syncInRoundReactionBar,
+    waitingLine,
 } = await import('../player-game.js');
+
+const { REACTION_THROTTLE_SECONDS } = await import('../game-constants.js');
 
 // helper: build a control button with a nested .control-label (+ optional icon)
 function makeControlBtn(id, withIcon) {
@@ -191,6 +196,31 @@ describe('startCountdown / stopCountdown', () => {
     it('is a no-op (no throw) when the timer node is absent', () => {
         delete els.timer;
         expect(() => startCountdown(Date.now() + 5000)).not.toThrow();
+    });
+
+    // #1662 — clock-skew immunity. The countdown must derive remaining time from
+    // the server's *relative* secondsRemaining anchored to the CLIENT's own
+    // clock, NOT from subtracting the server wall-clock `deadline` from a
+    // possibly-wrong client Date.now(). We simulate a badly skewed client: the
+    // server's absolute deadline, if used directly, reads as long expired — yet
+    // the server also reports 30s remaining, so the timer must show 30.
+    it('derives remaining from server secondsRemaining, immune to a wrong client clock (#1662)', () => {
+        // Client clock is 5 minutes AHEAD of the server: the server's real
+        // deadline is 30s out, but expressed in the client's skewed frame it
+        // looks 4.5 min in the PAST. Old code (deadline − Date.now()) → 0.
+        const skewedServerDeadline = Date.now() - 5 * 60_000;
+        startCountdown(skewedServerDeadline, 30);
+        // Anchored to the relative 30s, not the bogus absolute deadline.
+        expect(els.timer.textContent).toBe(30);
+        // …and it still ticks down normally from the anchored value.
+        vi.advanceTimersByTime(3000);
+        expect(els.timer.textContent).toBe(27);
+    });
+
+    it('without secondsRemaining still honours the absolute deadline (back-compat)', () => {
+        // No relative field → fall back to the server wall-clock deadline.
+        startCountdown(Date.now() + 20_000);
+        expect(els.timer.textContent).toBe(20);
     });
 });
 
@@ -305,10 +335,11 @@ describe('updateControlBarState', () => {
         expect(next.classList.contains('is-disabled')).toBe(true);
     });
 
-    it('PLAYING resets a previously stopped song back to active', () => {
+    it('PLAYING of a NEW round resets a previously stopped song back to active', () => {
+        // #3053: only a round change resets — a same-round frame must not.
         handleSongStopped();
         expect(els['stop-song-btn'].disabled).toBe(true);
-        updateControlBarState('PLAYING');
+        updateControlBarState('PLAYING', { round: 9001, song_stopped: false });
         expect(els['stop-song-btn'].disabled).toBe(false);
         expect(els['stop-song-btn'].classList.contains('is-stopped')).toBe(false);
     });
@@ -391,5 +422,246 @@ describe('handleNextRound / resetNextRoundPending debounce (#534)', () => {
     it('does nothing when the socket is not open', () => {
         utilsMod.state.ws = { readyState: WebSocket.CLOSED, send: () => { throw new Error('no send'); } };
         expect(() => handleNextRound()).not.toThrow();
+    });
+});
+
+// ---------------------------------------------------------------------------
+// #1757 / #2562: reaction bar.
+//
+// #1757 established that a tap counts as spent only when it actually leaves the
+// socket. #2562 replaced the one-per-reveal-phase budget with a time throttle,
+// so what is asserted below is the cooldown: a burst reaches the wire once, the
+// server's ack decides how long the bar stays dead, and the bar re-arms itself.
+// ---------------------------------------------------------------------------
+
+function makeReactionBtn(emoji) {
+    const classes = new Set();
+    let clickHandler = null;
+    return {
+        disabled: false,
+        _attrs: { 'data-emoji': emoji },
+        classList: {
+            add: (c) => classes.add(c),
+            remove: (c) => classes.delete(c),
+            contains: (c) => classes.has(c),
+            toggle: (c, on) => { if (on) classes.add(c); else classes.delete(c); return classes.has(c); },
+        },
+        getAttribute: function (k) { return this._attrs[k]; },
+        setAttribute: function (k, v) { this._attrs[k] = v; },
+        addEventListener: (type, fn) => { if (type === 'click') clickHandler = fn; },
+        click: () => { if (clickHandler) clickHandler(); },
+    };
+}
+
+describe('reaction bar (#1757 / #2562)', () => {
+    let buttons;
+    let sent;
+
+    beforeEach(() => {
+        buttons = [makeReactionBtn('🔥'), makeReactionBtn('😂')];
+        els['reaction-bar'] = { querySelectorAll: () => buttons };
+        els['reaction-cooldown'] = makeEl('reaction-cooldown');
+        els['reaction-cooldown-fill'] = makeEl('reaction-cooldown-fill');
+        els['reaction-cooldown-fill'].style = {};
+        sent = [];
+        utilsMod.state.reactionCooldownUntil = 0;
+    });
+
+    function openSocket() {
+        utilsMod.state.ws = { readyState: WebSocket.OPEN, send: (m) => sent.push(JSON.parse(m)) };
+        setupReactionBar();
+    }
+
+    it('does NOT start a cooldown or disable buttons when the socket is closed', () => {
+        utilsMod.state.ws = { readyState: WebSocket.CLOSED, send: () => { throw new Error('no send'); } };
+        setupReactionBar();
+        buttons[0].click();
+        expect(utilsMod.state.reactionCooldownUntil).toBe(0); // still allowed
+        expect(buttons[0].disabled).toBe(false);
+        expect(buttons[0].classList.contains('is-used')).toBe(false);
+    });
+
+    it('sends the reaction, lights the tapped emoji and goes on cooldown', () => {
+        openSocket();
+        buttons[0].click();
+
+        expect(sent).toEqual([{ type: 'reaction', emoji: '🔥' }]);
+        // whole bar disabled; chosen emoji lit + aria-pressed
+        expect(buttons[0].disabled).toBe(true);
+        expect(buttons[1].disabled).toBe(true);
+        expect(buttons[0].classList.contains('is-used')).toBe(true);
+        expect(buttons[0].getAttribute('aria-pressed')).toBe('true');
+        expect(buttons[1].getAttribute('aria-pressed')).toBe('false');
+    });
+
+    it('swallows a burst — only the first tap reaches the wire', () => {
+        openSocket();
+        for (let i = 0; i < 10; i++) buttons[i % 2].click();
+        expect(sent).toHaveLength(1);
+    });
+
+    it('re-arms itself once the throttle interval has passed', () => {
+        openSocket();
+        buttons[0].click();
+
+        vi.advanceTimersByTime(REACTION_THROTTLE_SECONDS * 1000 - 1);
+        buttons[1].click();
+        expect(sent).toHaveLength(1);
+        expect(buttons[0].disabled).toBe(true);
+
+        vi.advanceTimersByTime(1);
+        expect(buttons[0].disabled).toBe(false);
+        expect(buttons[0].classList.contains('is-used')).toBe(false);
+        buttons[1].click();
+        expect(sent).toHaveLength(2);
+    });
+
+    it('shows the cooldown line while the bar is dead and hides it after', () => {
+        // A tap that vanishes with no visible reason reads as a broken button.
+        openSocket();
+        buttons[0].click();
+        expect(els['reaction-cooldown'].classList.contains('hidden')).toBe(false);
+
+        vi.advanceTimersByTime(REACTION_THROTTLE_SECONDS * 1000);
+        expect(els['reaction-cooldown'].classList.contains('hidden')).toBe(true);
+    });
+
+    it("re-anchors the cooldown on the server's remaining time", () => {
+        // The server is the one enforcing the throttle; a throttled ack carries
+        // what is actually left, which may be more than the client assumed.
+        openSocket();
+        buttons[0].click();
+        handleReactionAck({ retry_after: REACTION_THROTTLE_SECONDS + 4, throttled: true });
+
+        vi.advanceTimersByTime(REACTION_THROTTLE_SECONDS * 1000);
+        expect(buttons[0].disabled).toBe(true);
+        vi.advanceTimersByTime(4000);
+        expect(buttons[0].disabled).toBe(false);
+    });
+
+    it('an ack with no time left re-arms the bar immediately', () => {
+        openSocket();
+        buttons[0].click();
+        handleReactionAck({ retry_after: 0, throttled: false });
+        expect(buttons[0].disabled).toBe(false);
+        expect(els['reaction-cooldown'].classList.contains('hidden')).toBe(true);
+    });
+
+    it('resetReactionButtons re-enables the bar', () => {
+        openSocket();
+        buttons[0].click();
+        expect(buttons[0].disabled).toBe(true);
+
+        resetReactionButtons();
+        expect(buttons[0].disabled).toBe(false);
+        expect(buttons[0].classList.contains('is-used')).toBe(false);
+        expect(buttons[0].getAttribute('aria-pressed')).toBe('false');
+    });
+});
+
+// ---------------------------------------------------------------------------
+// #2562: who may react, and when the bar is on screen.
+// ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// #2562: the waiting line — who the room is still waiting for, not how many.
+// ---------------------------------------------------------------------------
+
+describe('waitingLine (#2562)', () => {
+    /** Swap in a translator that actually renders the placeholders. */
+    function withCopy(fn) {
+        const original = global.window.BeatifyUtils.t;
+        global.window.BeatifyUtils.t = (key, vars) => {
+            const copy = {
+                'game.lockedInAllSubmitted': 'Locked in \u00b7 everyone submitted',
+                'game.lockedInWaitingOne': 'Locked in \u00b7 {name} is still thinking',
+                'game.lockedInWaitingTwo': 'Locked in \u00b7 {first} and {second} are thinking',
+                'game.lockedInWaitingCount': 'Locked in \u00b7 waiting for {count} more',
+            }[key];
+            if (!copy) return key;
+            return copy.replace(/\{(\w+)\}/g, (_, name) => String((vars || {})[name]));
+        };
+        try {
+            return fn();
+        } finally {
+            global.window.BeatifyUtils.t = original;
+        }
+    }
+
+    const p = (name, submitted) => ({ name, submitted });
+
+    it('names the one player still thinking', () => {
+        withCopy(() => {
+            expect(waitingLine([p('Markus', false), p('Lena', true)]))
+                .toBe('Locked in \u00b7 Markus is still thinking');
+        });
+    });
+
+    it('names both when two are left', () => {
+        withCopy(() => {
+            expect(waitingLine([p('Markus', false), p('Lena', false), p('Jan', true)]))
+                .toBe('Locked in \u00b7 Markus and Lena are thinking');
+        });
+    });
+
+    it('falls back to the count from three on', () => {
+        // Three names is longer than the banner has room for, and listing them
+        // properly would need per-locale list grammar.
+        withCopy(() => {
+            expect(waitingLine([p('A', false), p('B', false), p('C', false)]))
+                .toBe('Locked in \u00b7 waiting for 3 more');
+        });
+    });
+
+    it('says everyone is in when nobody is left', () => {
+        withCopy(() => {
+            expect(waitingLine([p('Markus', true), p('Lena', true)]))
+                .toBe('Locked in \u00b7 everyone submitted');
+        });
+    });
+});
+
+describe('mayReactNow (#2562)', () => {
+    it('lets everyone react at the reveal', () => {
+        expect(mayReactNow('REVEAL', { submitted: false })).toBe(true);
+        expect(mayReactNow('REVEAL', null)).toBe(true);
+    });
+
+    it('keeps a player who is still guessing out of it', () => {
+        expect(mayReactNow('PLAYING', { submitted: false })).toBe(false);
+    });
+
+    it('opens up once the player has submitted', () => {
+        expect(mayReactNow('PLAYING', { submitted: true })).toBe(true);
+    });
+
+    it('opens up for players who are out of the round', () => {
+        // #827 already showed them the bar; the server used to drop the taps.
+        expect(mayReactNow('PLAYING', { eliminated: true })).toBe(true);
+        expect(mayReactNow('PLAYING', { playoff_spectator: true })).toBe(true);
+    });
+
+    it('stays shut in every other phase', () => {
+        for (const phase of ['LOBBY', 'PAUSED', 'END']) {
+            expect(mayReactNow(phase, { submitted: true })).toBe(false);
+        }
+    });
+});
+
+describe('syncInRoundReactionBar (#2562)', () => {
+    beforeEach(() => {
+        els['reaction-bar'] = makeEl('reaction-bar');
+        els['reaction-bar'].querySelectorAll = () => [];
+        utilsMod.state.playerName = 'Alice';
+    });
+
+    it('hides the bar while the player is still guessing', () => {
+        syncInRoundReactionBar({ players: [{ name: 'Alice', submitted: false }] });
+        expect(els['reaction-bar'].classList.contains('hidden')).toBe(true);
+    });
+
+    it('shows the bar once the player has submitted', () => {
+        syncInRoundReactionBar({ players: [{ name: 'Alice', submitted: true }] });
+        expect(els['reaction-bar'].classList.contains('hidden')).toBe(false);
     });
 });

@@ -1,0 +1,17 @@
+################################################
+## Integrations / Timer
+## Pauze na een voice-onderbreking van de Immich kiosk op de Nest Hubs
+################################################
+timer:
+  kiosk_pauze_keuken:
+    name: Kiosk pauze keuken
+    duration: "00:02:00"
+    icon: mdi:image-off
+  kiosk_pauze_noa:
+    name: Kiosk pauze Noa
+    duration: "00:02:00"
+    icon: mdi:image-off
+  kiosk_pauze_mika:
+    name: Kiosk pauze Mika
+    duration: "00:02:00"
+    icon: mdi:image-off

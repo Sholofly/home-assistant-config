@@ -1,6 +1,6 @@
 {
   "name": "100% en Español 🇪🇸",
-  "version": "1.8",
+  "version": "1.16",
   "tags": [
     "spanish",
     "spain",
@@ -22,11 +22,6 @@
         "Víctor Manuel"
       ],
       "title": "Una Dos Y Tres",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Patxi Andión was a protest singer-songwriter icon during Spain's Franco era, using music for social commentary.",
@@ -47,7 +42,8 @@
         "es": "applemusic://track/1438759692",
         "nl": "applemusic://track/1438759692",
         "it": "applemusic://track/1438759692"
-      }
+      },
+      "uri_deezer": "deezer://track/1075883212"
     },
     {
       "year": 2012,
@@ -59,11 +55,6 @@
         "Maldita Nerea"
       ],
       "title": "No importa que llueva",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "This Canarian band from Las Palmas became Spain's feel-good summer anthem kings — this track dominated Spanish radio in 2012.",
@@ -84,7 +75,8 @@
         "es": "applemusic://track/1808388180",
         "nl": "applemusic://track/1808388180",
         "it": "applemusic://track/1808388180"
-      }
+      },
+      "uri_deezer": "deezer://track/438648342"
     },
     {
       "year": 2012,
@@ -96,11 +88,6 @@
         "OBK"
       ],
       "title": "Me encanta - I Love It",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Nancys Rubias is the project of Mario Vaquerizo, one of Spain's most colorful TV personalities and husband of Alaska from Fangoria.",
@@ -121,7 +108,8 @@
         "es": "applemusic://track/1824185070",
         "nl": "applemusic://track/1824185070",
         "it": "applemusic://track/1824185070"
-      }
+      },
+      "uri_deezer": "deezer://track/68350527"
     },
     {
       "year": 2017,
@@ -134,11 +122,6 @@
         "Shakira"
       ],
       "title": "Despacito",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "First Spanish-language song to reach #1 on the Billboard Hot 100 in 20+ years, with over 8 billion YouTube views — the most-viewed music video ever at its peak.",
@@ -159,7 +142,8 @@
         "es": "applemusic://track/1586664786",
         "nl": "applemusic://track/1586664786",
         "it": "applemusic://track/1586664786"
-      }
+      },
+      "uri_deezer": "deezer://track/623698142"
     },
     {
       "year": 1978,
@@ -172,11 +156,6 @@
         "Peret"
       ],
       "title": "Ay Que Dolor",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Twin brothers from Madrid's Vallecas district who pioneered 'rumba urbana' (flamenco-pop fusion), selling over 15 million records in Spain.",
@@ -197,7 +176,8 @@
         "es": "applemusic://track/958452370",
         "nl": "applemusic://track/958452370",
         "it": "applemusic://track/958452370"
-      }
+      },
+      "uri_deezer": "deezer://track/1289057"
     },
     {
       "year": 1996,
@@ -210,11 +190,6 @@
         "Malú"
       ],
       "title": "Entre mis recuerdos",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Luz Casal gained international fame when Pedro Almodóvar featured 'Piensa en mí' in 'High Heels' (1991), making her one of Spain's most celebrated female voices.",
@@ -235,7 +210,8 @@
         "es": "applemusic://track/694098076",
         "nl": "applemusic://track/694098076",
         "it": "applemusic://track/694098076"
-      }
+      },
+      "uri_deezer": "deezer://track/3355299"
     },
     {
       "year": 1978,
@@ -248,11 +224,6 @@
         "Tito Puente"
       ],
       "title": "Pedro Navaja",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Considered the greatest salsa song ever — a 7-minute crime narrative inspired by 'Mack the Knife', from 'Siembra', the best-selling salsa album of all time.",
@@ -273,7 +244,8 @@
         "es": "applemusic://track/1464957419",
         "nl": "applemusic://track/1464957419",
         "it": "applemusic://track/1464957419"
-      }
+      },
+      "uri_deezer": "deezer://track/686098802"
     },
     {
       "year": 1970,
@@ -286,11 +258,6 @@
         "José Luis Perales"
       ],
       "title": "Help, áyudame",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Dutch-born Tony Ronald became one of Spain's biggest pop stars. This Spanish adaptation of The Beatles' 'Help!' became a karaoke classic in Spain.",
@@ -311,7 +278,8 @@
         "es": "applemusic://track/930074779",
         "nl": "applemusic://track/168365130",
         "it": "applemusic://track/168365130"
-      }
+      },
+      "uri_deezer": "deezer://track/3915849"
     },
     {
       "year": 2019,
@@ -324,11 +292,6 @@
         "La Bien Querida"
       ],
       "title": "Eres un Temazo",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Catalan indie-pop artist who went viral with this self-referential bop — a song about wanting to write a hit, which ironically became exactly that.",
@@ -349,7 +312,8 @@
         "es": "applemusic://track/1804701192",
         "nl": "applemusic://track/1804701192",
         "it": "applemusic://track/1804701192"
-      }
+      },
+      "uri_deezer": "deezer://track/3250706351"
     },
     {
       "year": 1982,
@@ -362,11 +326,6 @@
         "Raffaella Carrà"
       ],
       "title": "Felicidad",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Italy's golden couple of pop (married 1970-1999). 'Felicidad' became the unofficial anthem of Spanish summer holidays in the 80s.",
@@ -387,7 +346,8 @@
         "es": "applemusic://track/1726909970",
         "nl": "applemusic://track/1726909970",
         "it": "applemusic://track/1726909970"
-      }
+      },
+      "uri_deezer": "deezer://track/2630207302"
     },
     {
       "year": 1981,
@@ -400,11 +360,6 @@
         "Raimundo Amador"
       ],
       "title": "La Quiero A Morir",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "A Spanish flamenco-rumba cover of Francis Cabrel's 'Je l'aime à mourir' that became even more famous in Spain than the French original.",
@@ -425,7 +380,8 @@
         "es": "applemusic://track/1591593239",
         "nl": "applemusic://track/1591593239",
         "it": "applemusic://track/1591593239"
-      }
+      },
+      "uri_deezer": "deezer://track/70498562"
     },
     {
       "year": 2002,
@@ -438,11 +394,6 @@
         "Manuel Carrasco"
       ],
       "title": "Feliz",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Rose to fame on 'Operación Triunfo' season 1 (2001), the most-watched TV show in Spanish history with 12+ million viewers at the finale.",
@@ -463,7 +414,8 @@
         "es": "applemusic://track/1442884591",
         "nl": "applemusic://track/1711311377",
         "it": "applemusic://track/1711311377"
-      }
+      },
+      "uri_deezer": "deezer://track/84841555"
     },
     {
       "year": 2021,
@@ -476,11 +428,6 @@
         "Marc Anthony"
       ],
       "title": "Canción Bonita",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "A collaboration uniting Colombia's Vives with Puerto Rico's Ricky Martin — two Latin legends with 70+ combined years of career. A love letter to positivity during the pandemic.",
@@ -501,7 +448,8 @@
         "es": "applemusic://track/1562714028",
         "nl": "applemusic://track/1562714028",
         "it": "applemusic://track/1562714028"
-      }
+      },
+      "uri_deezer": "deezer://track/1324559202"
     },
     {
       "year": 1981,
@@ -513,11 +461,6 @@
         "Toto Cutugno"
       ],
       "title": "Sera Porque Te Amo",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Originally 'Sarà perché ti amo' in Italian, the Spanish version became a staple at Spanish weddings and verbenas for decades.",
@@ -538,7 +481,8 @@
         "es": "applemusic://track/353035476",
         "nl": "applemusic://track/353035476",
         "it": "applemusic://track/353035476"
-      }
+      },
+      "uri_deezer": "deezer://track/29672911"
     },
     {
       "year": 2022,
@@ -551,11 +495,6 @@
         "Ozuna"
       ],
       "title": "La Bachata",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Despite its title, not traditional bachata but pop-urbano. Became the most-streamed Spanish-language song on Spotify in 2022 with 2+ billion streams.",
@@ -576,7 +515,8 @@
         "es": "applemusic://track/1624563284",
         "nl": "applemusic://track/1624563284",
         "it": "applemusic://track/1624563284"
-      }
+      },
+      "uri_deezer": "deezer://track/1753549417"
     },
     {
       "year": 2023,
@@ -589,11 +529,6 @@
         "Álvaro de Luna"
       ],
       "title": "Quién Diría",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Went viral on TikTok — became one of Spain's biggest hits of 2023 despite DePol being virtually unknown months before release.",
@@ -614,7 +549,8 @@
         "es": "applemusic://track/1831063985",
         "nl": "applemusic://track/1831063985",
         "it": "applemusic://track/1831063985"
-      }
+      },
+      "uri_deezer": "deezer://track/3261131981"
     },
     {
       "year": 2004,
@@ -627,11 +563,6 @@
         "Antonio Orozco"
       ],
       "title": "Bulería",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Operación Triunfo alumnus from Almería fused flamenco with pop. The title refers to bulería, the fastest and most passionate form of flamenco.",
@@ -645,14 +576,15 @@
       "awards_nl": [],
       "isrc": "ES6010400020",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/1698229459",
-        "de": "applemusic://track/1698229459",
-        "gb": "applemusic://track/1698229459",
-        "fr": "applemusic://track/1698229459",
-        "es": "applemusic://track/1698229459",
-        "nl": "applemusic://track/1698229459",
-        "it": "applemusic://track/1698229459"
-      }
+        "us": "applemusic://track/1443232792",
+        "de": "applemusic://track/1443232792",
+        "gb": "applemusic://track/1443232792",
+        "fr": "applemusic://track/1443232792",
+        "es": "applemusic://track/1443232792",
+        "nl": "applemusic://track/1443232792",
+        "it": "applemusic://track/1443232792"
+      },
+      "uri_deezer": "deezer://track/2192572"
     },
     {
       "year": 2003,
@@ -665,11 +597,6 @@
         "Rosario"
       ],
       "title": "Quiereme",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "El Barrio from Cádiz pioneered a unique blend of flamenco, copla and pop — filling stadiums in Spain while remaining virtually unknown internationally.",
@@ -690,7 +617,8 @@
         "es": "applemusic://track/1574359692",
         "nl": "applemusic://track/1574359692",
         "it": "applemusic://track/1574359692"
-      }
+      },
+      "uri_deezer": "deezer://track/4695167"
     },
     {
       "year": 1997,
@@ -703,11 +631,6 @@
         "Extremoduro"
       ],
       "title": "Promesas que no valen nada",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Los Piratas from Vigo were key figures in Spanish 90s indie rock. This was their crossover hit that brought alternative Spanish rock to mainstream radio.",
@@ -728,7 +651,8 @@
         "es": "applemusic://track/1743406074",
         "nl": "applemusic://track/1743406074",
         "it": "applemusic://track/1743406074"
-      }
+      },
+      "uri_deezer": "deezer://track/43815051"
     },
     {
       "year": 1974,
@@ -740,11 +664,6 @@
         "Lole y Manuel"
       ],
       "title": "Te Estoy Amando Locamente",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Las Grecas were two Romani sisters from Madrid who fused flamenco with psychedelic rock in the 70s — decades ahead of their time. This was a #1 hit in Spain.",
@@ -765,7 +684,8 @@
         "es": "applemusic://track/1049532476",
         "nl": "applemusic://track/1049532476",
         "it": "applemusic://track/1049532476"
-      }
+      },
+      "uri_deezer": "deezer://track/603842"
     },
     {
       "year": 1981,
@@ -777,11 +697,6 @@
         "Umberto Tozzi"
       ],
       "title": "Caliente, caliente",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Italian queen of European pop TV who became a cultural icon in Spain. Her songs and dance moves defined an era of television entertainment across Southern Europe.",
@@ -802,7 +717,8 @@
         "es": "applemusic://track/1139910002",
         "nl": "applemusic://track/1139910002",
         "it": "applemusic://track/1139910002"
-      }
+      },
+      "uri_deezer": "deezer://track/5151173"
     },
     {
       "year": 1967,
@@ -815,11 +731,6 @@
         "Compay Segundo"
       ],
       "title": "Cuando Salí De Cuba",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "The 'Queen of Salsa' left Cuba in 1960 and never returned. This deeply personal song about exile became an anthem for the Cuban diaspora worldwide.",
@@ -840,7 +751,8 @@
         "es": "applemusic://track/1712210818",
         "nl": "applemusic://track/1712210818",
         "it": "applemusic://track/1712210818"
-      }
+      },
+      "uri_deezer": "deezer://track/686101102"
     },
     {
       "year": 1947,
@@ -852,11 +764,6 @@
         "Nat King Cole"
       ],
       "title": "Toda una Vida",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Cuban-born Machín settled in Spain in 1939 and became one of the most popular singers in the country. 'Toda una Vida' remains one of the most-played boleros at Spanish celebrations.",
@@ -877,7 +784,8 @@
         "es": "applemusic://track/950732841",
         "nl": "applemusic://track/950732841",
         "it": "applemusic://track/950732841"
-      }
+      },
+      "uri_deezer": "deezer://track/92408868"
     },
     {
       "year": 1953,
@@ -890,11 +798,6 @@
         "Tito Puente"
       ],
       "title": "Bonito y sabroso",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Known as 'El Bárbaro del Ritmo', Beny Moré is considered the greatest Cuban musician of all time. He never learned to read music but could conduct a full orchestra by ear.",
@@ -915,7 +818,8 @@
         "es": "applemusic://track/288069714",
         "nl": "applemusic://track/288069714",
         "it": "applemusic://track/288069714"
-      }
+      },
+      "uri_deezer": "deezer://track/63630127"
     },
     {
       "year": 1978,
@@ -927,11 +831,6 @@
         "Isabel Pantoja"
       ],
       "title": "Se acabó",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "María Jiménez was one of Spain's most passionate copla and pop singers, known for her powerful voice and dramatic stage presence rivaling Rocío Jurado.",
@@ -952,7 +851,8 @@
         "es": "applemusic://track/874164902",
         "nl": "applemusic://track/874164902",
         "it": "applemusic://track/874164902"
-      }
+      },
+      "uri_deezer": "deezer://track/3906928"
     },
     {
       "year": 1977,
@@ -965,11 +865,6 @@
         "Nino Bravo"
       ],
       "title": "Súper Supermán",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Son of bullfighter Luis Miguel Dominguín and Italian actress Lucia Bosè. Miguel Bosé transcended Spanish pop to become a bilingual icon across Latin America and Europe.",
@@ -990,7 +885,8 @@
         "es": "applemusic://track/555735457",
         "nl": "applemusic://track/654758721",
         "it": "applemusic://track/654758721"
-      }
+      },
+      "uri_deezer": "deezer://track/981538"
     },
     {
       "year": 1981,
@@ -1003,11 +899,6 @@
         "José Luis Perales"
       ],
       "title": "Hey",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Julio Iglesias holds a Guinness World Record as the best-selling Latin artist of all time with 300+ million records sold. He was also a professional footballer for Real Madrid's youth team before a car crash changed his path.",
@@ -1028,7 +919,8 @@
         "es": "applemusic://track/250996960",
         "nl": "applemusic://track/250996960",
         "it": "applemusic://track/250996960"
-      }
+      },
+      "uri_deezer": "deezer://track/15215536"
     },
     {
       "year": 1986,
@@ -1041,11 +933,6 @@
         "Alaska y Dinarama"
       ],
       "title": "El ataque de las chicas cocodrilo",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Hombres G were Spain's answer to the British new wave movement. Led by David Summers (son of a famous guitarist), they filled stadiums with their catchy pop-rock and humorous lyrics.",
@@ -1066,7 +953,8 @@
         "es": "applemusic://track/131367922",
         "nl": "applemusic://track/131367922",
         "it": "applemusic://track/131367922"
-      }
+      },
+      "uri_deezer": "deezer://track/814667"
     },
     {
       "year": 2007,
@@ -1079,11 +967,6 @@
         "La Bien Querida"
       ],
       "title": "Puede Ser",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Conchita (from OT 2007) crafted a unique indie-pop sound distinct from typical OT alumni, earning critical acclaim and a loyal cult following in Spain.",
@@ -1104,7 +987,8 @@
         "es": "applemusic://track/1523866781",
         "nl": "applemusic://track/1523866781",
         "it": "applemusic://track/1523866781"
-      }
+      },
+      "uri_deezer": "deezer://track/3228252151"
     },
     {
       "year": 1979,
@@ -1117,11 +1001,6 @@
         "Nino Bravo"
       ],
       "title": "Me Llamas",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "One of Spain's most prolific songwriters with 700+ compositions. Perales wrote hits for Julio Iglesias and Rocío Dúrcal while maintaining his own hugely successful career.",
@@ -1142,7 +1021,8 @@
         "es": "applemusic://track/1784911935",
         "nl": "applemusic://track/1784911935",
         "it": "applemusic://track/1784911935"
-      }
+      },
+      "uri_deezer": "deezer://track/80134632"
     },
     {
       "year": 1984,
@@ -1155,11 +1035,6 @@
         "Nacha Pop"
       ],
       "title": "Malos Tiempos para la Lírica",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "One of the defining songs of 'La Movida Madrileña', Spain's explosive cultural movement after Franco's death. Golpes Bajos from Vigo brought Galician art-rock to the national stage.",
@@ -1180,7 +1055,8 @@
         "es": "applemusic://track/873529482",
         "nl": "applemusic://track/873529482",
         "it": "applemusic://track/873529482"
-      }
+      },
+      "uri_deezer": "deezer://track/78163226"
     },
     {
       "year": 2004,
@@ -1193,11 +1069,6 @@
         "Bebe"
       ],
       "title": "Siempre me quedará",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Bebe (María Nieves Rebolledo) from Extremadura won a Latin Grammy for this track. Her raw, raspy voice and socially conscious lyrics made her a voice of her generation.",
@@ -1218,7 +1089,8 @@
         "es": "applemusic://track/1837698661",
         "nl": "applemusic://track/1837698661",
         "it": "applemusic://track/1837698661"
-      }
+      },
+      "uri_deezer": "deezer://track/3122562"
     },
     {
       "year": 2015,
@@ -1231,11 +1103,6 @@
         "Daddy Yankee"
       ],
       "title": "Picky",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Panamanian reggaeton artist whose 'Picky' became an inescapable summer hit across Latin America and Spain, with a dance challenge that went viral before TikTok existed.",
@@ -1256,7 +1123,8 @@
         "es": "applemusic://track/1708431097",
         "nl": "applemusic://track/1708431097",
         "it": "applemusic://track/1708431097"
-      }
+      },
+      "uri_deezer": "deezer://track/102351900"
     },
     {
       "year": 2022,
@@ -1269,11 +1137,6 @@
         "Ms Nina"
       ],
       "title": "SAOKO",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "ROSALÍA from Barcelona revolutionized Spanish music by fusing flamenco with electronic and urban sounds. Her album 'Motomami' won Album of the Year at the 2023 Latin Grammys.",
@@ -1294,7 +1157,8 @@
         "es": "applemusic://track/1654013499",
         "nl": "applemusic://track/1654013499",
         "it": "applemusic://track/1654013499"
-      }
+      },
+      "uri_deezer": "deezer://track/2010117817"
     },
     {
       "year": 2021,
@@ -1307,11 +1171,6 @@
         "Carlos Vives"
       ],
       "title": "KESI",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Colombian Camilo Echeverry went from 'Factor X' contestant to global star. Married to Evaluna Montaner (daughter of Ricardo Montaner), their love story drives much of his music.",
@@ -1332,7 +1191,8 @@
         "es": "applemusic://track/1554206953",
         "nl": "applemusic://track/1554206953",
         "it": "applemusic://track/1554206953"
-      }
+      },
+      "uri_deezer": "deezer://track/1260566292"
     },
     {
       "year": 2022,
@@ -1345,11 +1205,6 @@
         "Becky G"
       ],
       "title": "1000COSAS",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Lola Indigo (Mimi Doblas) finished second on OT 2017 but became arguably its biggest success — reinventing herself as Spain's leading urban-pop artist.",
@@ -1370,7 +1225,8 @@
         "es": "applemusic://track/1746808718",
         "nl": "applemusic://track/1746808718",
         "it": "applemusic://track/1746808718"
-      }
+      },
+      "uri_deezer": "deezer://track/2683558882"
     },
     {
       "year": 1975,
@@ -1383,11 +1239,6 @@
         "Silvio Rodríguez"
       ],
       "title": "Pasaba por Aqui",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Aute was a Renaissance man — singer-songwriter, painter, sculptor, and filmmaker. He was one of Spain's most intellectual and poetic voices in popular music.",
@@ -1408,7 +1259,8 @@
         "es": "applemusic://track/286589993",
         "nl": "applemusic://track/286589993",
         "it": "applemusic://track/286589993"
-      }
+      },
+      "uri_deezer": "deezer://track/2311558"
     },
     {
       "year": 1984,
@@ -1421,11 +1273,6 @@
         "Andrés Calamaro"
       ],
       "title": "Por el Bulevar de los Sueños Rotos",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Spain's greatest living songwriter — a chain-smoking bohemian poet who lived in exile in London during the Franco era and whose lyrics are studied in Spanish literature courses.",
@@ -1446,7 +1293,8 @@
         "es": "applemusic://track/1478351808",
         "nl": "applemusic://track/1478351808",
         "it": "applemusic://track/1478351808"
-      }
+      },
+      "uri_deezer": "deezer://track/1043670"
     },
     {
       "year": 1988,
@@ -1459,11 +1307,6 @@
         "Pastora Soler"
       ],
       "title": "Cántame",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "María del Monte shot to fame singing this at the 1988 Seville Spring Fair. She became one of Spain's most beloved sevillanas singers and a fixture of Andalusian culture.",
@@ -1484,7 +1327,8 @@
         "es": "applemusic://track/362776156",
         "nl": "applemusic://track/362776156",
         "it": "applemusic://track/362776156"
-      }
+      },
+      "uri_deezer": "deezer://track/5709146"
     },
     {
       "year": 1992,
@@ -1497,11 +1341,6 @@
         "Cristian Castro"
       ],
       "title": "Otro Día Más Sin Verte",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Cuban-American Jon Secada wrote and sang backing vocals for Gloria Estefan before launching a solo career. This Spanish version of 'Just Another Day' hit #1 in 30 countries.",
@@ -1522,7 +1361,8 @@
         "es": "applemusic://track/1699078486",
         "nl": "applemusic://track/1699078486",
         "it": "applemusic://track/1699078486"
-      }
+      },
+      "uri_deezer": "deezer://track/3359669"
     },
     {
       "year": 1965,
@@ -1534,11 +1374,6 @@
         "Adriano Celentano"
       ],
       "title": "El Mundo",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Italian singer whose 'Il Mondo' became a global hit. The Spanish version became a karaoke staple across the Spanish-speaking world, covered by countless artists.",
@@ -1559,7 +1394,8 @@
         "es": "applemusic://track/1837691887",
         "nl": "applemusic://track/1837691887",
         "it": "applemusic://track/1837691887"
-      }
+      },
+      "uri_deezer": "deezer://track/3540661741"
     },
     {
       "year": 2006,
@@ -1572,11 +1408,6 @@
         "Manu Chao"
       ],
       "title": "Un violinista en tu tejado",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Asturian singer who blends rumba, pop and singer-songwriter traditions. Known for his witty, often humorous lyrics about everyday life and love gone wrong.",
@@ -1597,7 +1428,8 @@
         "es": "applemusic://track/1735282442",
         "nl": "applemusic://track/1735282442",
         "it": "applemusic://track/1735282442"
-      }
+      },
+      "uri_deezer": "deezer://track/3159861"
     },
     {
       "year": 1975,
@@ -1610,11 +1442,6 @@
         "José Luis Perales"
       ],
       "title": "Para que no me olvides",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Lorenzo Santamaría from Barcelona was one of Spain's biggest 70s pop stars. This romantic ballad became a wedding classic and is still one of the most-requested songs at Spanish celebrations.",
@@ -1635,7 +1462,8 @@
         "es": "applemusic://track/1757835018",
         "nl": "applemusic://track/1757835018",
         "it": "applemusic://track/1757835018"
-      }
+      },
+      "uri_deezer": "deezer://track/93818118"
     },
     {
       "year": 1977,
@@ -1648,11 +1476,6 @@
         "Marisol"
       ],
       "title": "El Cristo de Palacagüina",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "A Spanish-language cover of a Nicaraguan revolutionary song by Carlos Mejía Godoy. Elsa Baeza's version brought Central American protest music to Spanish pop audiences.",
@@ -1673,7 +1496,8 @@
         "es": "applemusic://track/1838122505",
         "nl": "applemusic://track/1838122505",
         "it": "applemusic://track/1838122505"
-      }
+      },
+      "uri_deezer": "deezer://track/63258456"
     },
     {
       "year": 1989,
@@ -1686,11 +1510,6 @@
         "Loquillo"
       ],
       "title": "Espiando a mi vecina",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "One of the quirkiest bands from Spain's post-Movida era in the Basque Country. Their absurdist humor and catchy melodies made them indie legends in Spain.",
@@ -1711,7 +1530,8 @@
         "es": "applemusic://track/1573213551",
         "nl": "applemusic://track/1573213551",
         "it": "applemusic://track/1573213551"
-      }
+      },
+      "uri_deezer": "deezer://track/13557588"
     },
     {
       "year": 2016,
@@ -1724,11 +1544,6 @@
         "Antonio José"
       ],
       "title": "Él no soy yo",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Blas Cantó went from boyband (Auryn) to solo career and was chosen to represent Spain at Eurovision 2020 and 2021. This ballad showcased his powerful voice.",
@@ -1749,7 +1564,8 @@
         "es": "applemusic://track/1405563778",
         "nl": "applemusic://track/1405563778",
         "it": "applemusic://track/1405563778"
-      }
+      },
+      "uri_deezer": "deezer://track/465930422"
     },
     {
       "year": 2004,
@@ -1762,11 +1578,6 @@
         "Dover"
       ],
       "title": "El universo sobre mí",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Duo from Zaragoza (Eva Amaral + Juan Aguirre) who became Spain's most successful indie-rock band, filling arenas across the country. This track was a #1 hit.",
@@ -1787,7 +1598,8 @@
         "es": "applemusic://track/695590633",
         "nl": "applemusic://track/1821444438",
         "it": "applemusic://track/1821444438"
-      }
+      },
+      "uri_deezer": "deezer://track/3138141"
     },
     {
       "year": 1966,
@@ -1800,11 +1612,6 @@
         "Miguel Bosé"
       ],
       "title": "Yo soy aquél",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Spain's Eurovision entry in 1966 (7th place). Raphael went on to become one of the greatest Spanish-language artists ever, with 60+ years of career and 50+ million records sold.",
@@ -1825,7 +1632,8 @@
         "es": "applemusic://track/1268544137",
         "nl": "applemusic://track/1268544137",
         "it": "applemusic://track/1268544137"
-      }
+      },
+      "uri_deezer": "deezer://track/3090777"
     },
     {
       "year": 1978,
@@ -1838,11 +1646,6 @@
         "Los Calis"
       ],
       "title": "Son Ilusiones",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Los Chichos from Vallecas are the undisputed kings of 'rumba flamenca'. Their raw, street-level sound became the soundtrack of working-class Spain in the late 70s and 80s.",
@@ -1863,7 +1666,8 @@
         "es": "applemusic://track/1838124095",
         "nl": "applemusic://track/1838124095",
         "it": "applemusic://track/1838124095"
-      }
+      },
+      "uri_deezer": "deezer://track/63128345"
     },
     {
       "year": 2021,
@@ -1876,11 +1680,6 @@
         "Rauw Alejandro"
       ],
       "title": "Pareja Del Año",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Colombian Yatra and Puerto Rican Myke Towers created a romantic reggaeton hit that blurred the line between Latin pop and urban music, hitting #1 across Latin America.",
@@ -1901,7 +1700,8 @@
         "es": "applemusic://track/1710031988",
         "nl": "applemusic://track/1710031988",
         "it": "applemusic://track/1710031988"
-      }
+      },
+      "uri_deezer": "deezer://track/1331984152"
     },
     {
       "year": 1987,
@@ -1914,11 +1714,6 @@
         "Mecano"
       ],
       "title": "Entre Tu y Yo",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Part of Spain's 80s 'techno-pop' wave alongside Mecano and Duncan Dhu. El Norte from Salamanca had a brief but intense career that produced several Spanish pop classics.",
@@ -1939,7 +1734,8 @@
         "es": "applemusic://track/1643712664",
         "nl": "applemusic://track/1643712664",
         "it": "applemusic://track/1643712664"
-      }
+      },
+      "uri_deezer": "deezer://track/403845192"
     },
     {
       "year": 1985,
@@ -1952,11 +1748,6 @@
         "Platero y Tú"
       ],
       "title": "Agradecido",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Rosendo Mercado is the godfather of Spanish rock. Former frontman of Leño, he pioneered hard rock in Spain and maintained a 40+ year career as a solo artist.",
@@ -1977,7 +1768,8 @@
         "es": "applemusic://track/106258156",
         "nl": "applemusic://track/106258156",
         "it": "applemusic://track/106258156"
-      }
+      },
+      "uri_deezer": "deezer://track/1005172"
     },
     {
       "year": 1995,
@@ -1990,11 +1782,6 @@
         "Tomatito"
       ],
       "title": "Ay Que Gustito Pa Mis Orejas",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Raimundo Amador from Seville (ex-Pata Negra) is one of the most brilliant flamenco-blues guitarists ever, fusing flamenco with BB King-style blues like nobody else.",
@@ -2015,7 +1802,8 @@
         "es": "applemusic://track/1537431985",
         "nl": "applemusic://track/1537431985",
         "it": "applemusic://track/1537431985"
-      }
+      },
+      "uri_deezer": "deezer://track/2437627"
     },
     {
       "year": 2008,
@@ -2028,11 +1816,6 @@
         "Manuel Carrasco"
       ],
       "title": "Lo Que no Ves",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Pol 3.14 from Barcelona is a singer-songwriter who built his career through YouTube and live performances, representing a generation of Spanish artists who bypassed traditional labels.",
@@ -2053,7 +1836,8 @@
         "es": "applemusic://track/1840394612",
         "nl": "applemusic://track/1840394612",
         "it": "applemusic://track/1840394612"
-      }
+      },
+      "uri_deezer": "deezer://track/6098176"
     },
     {
       "year": 1982,
@@ -2066,11 +1850,6 @@
         "Peret"
       ],
       "title": "Una paloma blanca",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Not to be confused with the George Baker hit — Los Calis' version is a rumba flamenca classic from Madrid's Romani music scene that became a summer anthem in 80s Spain.",
@@ -2091,7 +1870,8 @@
         "es": "applemusic://track/874164908",
         "nl": "applemusic://track/874164908",
         "it": "applemusic://track/874164908"
-      }
+      },
+      "uri_deezer": "deezer://track/3912230"
     },
     {
       "year": 1985,
@@ -2104,11 +1884,6 @@
         "Parálisis Permanente"
       ],
       "title": "Champú de huevo",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Tino Casal was the most flamboyant figure of 'La Movida Madrileña' — an Asturian glam-pop artist who died tragically in a car accident in 1991 at age 41.",
@@ -2129,7 +1904,8 @@
         "es": "applemusic://track/1236796106",
         "nl": "applemusic://track/1236796106",
         "it": "applemusic://track/1236796106"
-      }
+      },
+      "uri_deezer": "deezer://track/68446549"
     },
     {
       "year": 1992,
@@ -2142,11 +1918,6 @@
         "Los Del Río"
       ],
       "title": "Tractor Amarillo",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "One of Spain's most iconic novelty songs — 'Yellow Tractor' became an inescapable one-hit wonder that still fills dance floors at Spanish village fiestas 30 years later.",
@@ -2167,7 +1938,8 @@
         "es": "applemusic://track/1315218782",
         "nl": "applemusic://track/1315218782",
         "it": "applemusic://track/1315218782"
-      }
+      },
+      "uri_deezer": "deezer://track/2071874767"
     },
     {
       "year": 1995,
@@ -2180,11 +1952,6 @@
         "Soda Stereo"
       ],
       "title": "Iberia sumergida",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Zaragoza's Heroes del Silencio were Spain's biggest international rock band, selling 6+ million records globally. Led by Enrique Bunbury, they were massive in Latin America and Germany.",
@@ -2205,7 +1972,8 @@
         "es": "applemusic://track/699670267",
         "nl": "applemusic://track/699670267",
         "it": "applemusic://track/699670267"
-      }
+      },
+      "uri_deezer": "deezer://track/3113253"
     },
     {
       "year": 2023,
@@ -2218,11 +1986,6 @@
         "Becky G"
       ],
       "title": "Música Ligera",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Ana Mena from Málaga became a crossover star in Italy before breaking through in Spain. She holds the record for most weeks at #1 on Spain's Los40 chart by a female artist in recent years.",
@@ -2243,7 +2006,8 @@
         "es": "applemusic://track/1658144918",
         "nl": "applemusic://track/1658144918",
         "it": "applemusic://track/1658144918"
-      }
+      },
+      "uri_deezer": "deezer://track/1566422042"
     },
     {
       "year": 1986,
@@ -2256,11 +2020,6 @@
         "Alaska y Dinarama"
       ],
       "title": "Mi Agüita Amarilla",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "One of the most irreverent bands of the Movida era. 'Mi Agüita Amarilla' (My Little Yellow Water) is exactly what you think it's about — and it was a massive hit anyway.",
@@ -2281,7 +2040,8 @@
         "es": "applemusic://track/1643712675",
         "nl": "applemusic://track/1643712675",
         "it": "applemusic://track/1643712675"
-      }
+      },
+      "uri_deezer": "deezer://track/93888296"
     },
     {
       "year": 1935,
@@ -2294,11 +2054,6 @@
         "Roberto Goyeneche"
       ],
       "title": "Volver",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "The greatest tango singer of all time, Gardel died in a plane crash in 1935 at the peak of his fame. 'Volver' is Argentina's unofficial national anthem and his masterpiece.",
@@ -2319,7 +2074,8 @@
         "es": "applemusic://track/689435154",
         "nl": "applemusic://track/689435154",
         "it": "applemusic://track/689435154"
-      }
+      },
+      "uri_deezer": "deezer://track/13307838"
     },
     {
       "year": 1965,
@@ -2332,11 +2088,6 @@
         "Rocío Dúrcal"
       ],
       "title": "Chica Ye Ye",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Conchita Velasco became a symbol of the youthful Spanish pop revolution of the 60s. 'Chica Ye-Yé' from the film 'Historias de la televisión' defined a generation of young Spaniards.",
@@ -2357,7 +2108,8 @@
         "es": "applemusic://track/1838218765",
         "nl": "applemusic://track/1838218765",
         "it": "applemusic://track/1838218765"
-      }
+      },
+      "uri_deezer": "deezer://track/63258570"
     },
     {
       "year": 2011,
@@ -2370,11 +2122,6 @@
         "Maldita Nerea"
       ],
       "title": "La Niña Que Llora en Tus Fiestas",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "LODVG from San Sebastián have been Spain's most consistent pop band for 25+ years. Originally fronted by Amaia Montero (now Leire Martínez), they've sold 10+ million records.",
@@ -2395,7 +2142,8 @@
         "es": "applemusic://track/486086746",
         "nl": "applemusic://track/486086746",
         "it": "applemusic://track/486086746"
-      }
+      },
+      "uri_deezer": "deezer://track/13020165"
     },
     {
       "year": 1984,
@@ -2408,11 +2156,6 @@
         "Rosendo"
       ],
       "title": "Una Noche Sin Ti",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Burning are the godfathers of Madrid rock — active since 1975, they're one of the longest-running rock bands in Spanish history with 40+ years of continuous touring.",
@@ -2433,7 +2176,8 @@
         "es": "applemusic://track/1838209598",
         "nl": "applemusic://track/1838209598",
         "it": "applemusic://track/1838209598"
-      }
+      },
+      "uri_deezer": "deezer://track/3540558561"
     },
     {
       "year": 2014,
@@ -2446,11 +2190,6 @@
         "Wisin y Yandel"
       ],
       "title": "El Taxi",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Cuban reggaeton track that became a global viral phenomenon. The Pitbull remix made it inescapable on European dance floors in 2014-2015.",
@@ -2471,7 +2210,8 @@
         "es": "applemusic://track/844380593",
         "nl": "applemusic://track/844380593",
         "it": "applemusic://track/844380593"
-      }
+      },
+      "uri_deezer": "deezer://track/76295709"
     },
     {
       "year": 2014,
@@ -2484,11 +2224,6 @@
         "Enrique Iglesias"
       ],
       "title": "La La La (Brasil 2014)",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "The official song of the 2014 FIFA World Cup in Brazil. Shakira became the only artist to perform at three consecutive World Cup ceremonies (2006, 2010, 2014).",
@@ -2509,7 +2244,8 @@
         "es": "applemusic://track/1771099307",
         "nl": "applemusic://track/1771099307",
         "it": "applemusic://track/1771099307"
-      }
+      },
+      "uri_deezer": "deezer://track/76066881"
     },
     {
       "year": 1987,
@@ -2522,11 +2258,6 @@
         "Rosendo"
       ],
       "title": "Vamos Muy Bien",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Obús were pioneers of Spanish heavy metal in the 80s. Part of the 'Rock Radikal Vasco' adjacent scene, they proved heavy metal could be sung effectively in Spanish.",
@@ -2547,7 +2278,8 @@
         "es": "applemusic://track/1807146809",
         "nl": "applemusic://track/1807146809",
         "it": "applemusic://track/1807146809"
-      }
+      },
+      "uri_deezer": "deezer://track/1021301"
     },
     {
       "year": 2003,
@@ -2560,11 +2292,6 @@
         "Maldita Nerea"
       ],
       "title": "En la Casa de Inés",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Guaraná from Valencia scored one of Spain's catchiest pop-rock hits of the 2000s. The song became a ubiquitous radio staple and a sing-along anthem at live shows.",
@@ -2585,7 +2312,8 @@
         "es": "applemusic://track/1317694740",
         "nl": "applemusic://track/1317694740",
         "it": "applemusic://track/1317694740"
-      }
+      },
+      "uri_deezer": "deezer://track/70555283"
     },
     {
       "year": 1993,
@@ -2598,11 +2326,6 @@
         "Thalía"
       ],
       "title": "Con los Años Que Me Quedan",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Cuban-American Gloria Estefan survived a devastating tour bus accident in 1990 that nearly left her paralyzed. Her comeback was one of music's greatest stories of resilience.",
@@ -2623,7 +2346,8 @@
         "es": "applemusic://track/792605907",
         "nl": "applemusic://track/196407804",
         "it": "applemusic://track/196407804"
-      }
+      },
+      "uri_deezer": "deezer://track/565097"
     },
     {
       "year": 1996,
@@ -2636,11 +2360,6 @@
         "Marea"
       ],
       "title": "La vereda de la puerta de atrás",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Robe Iniesta's Extremoduro from Plasencia (Extremadura) became Spain's most beloved underground rock band — selling out stadiums while never appearing on mainstream TV.",
@@ -2661,7 +2380,8 @@
         "es": "applemusic://track/1737191374",
         "nl": "applemusic://track/1737191374",
         "it": "applemusic://track/1737191374"
-      }
+      },
+      "uri_deezer": "deezer://track/707777"
     },
     {
       "year": 2013,
@@ -2674,11 +2394,6 @@
         "Beret"
       ],
       "title": "Canela en Rama",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "El Kanka from Málaga built his career through social media and word-of-mouth, becoming one of Spain's most loved singer-songwriters without major label support.",
@@ -2699,7 +2414,8 @@
         "es": "applemusic://track/1411538212",
         "nl": "applemusic://track/1411538212",
         "it": "applemusic://track/1411538212"
-      }
+      },
+      "uri_deezer": "deezer://track/3221029021"
     },
     {
       "year": 1980,
@@ -2712,11 +2428,6 @@
         "Burning"
       ],
       "title": "El ritmo del garaje",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Loquillo (José María Sanz) is Barcelona's rockabilly king — Spain's answer to Elvis meets The Clash. With Los Trogloditas, he's been a rock institution for 40+ years.",
@@ -2737,7 +2448,8 @@
         "es": "applemusic://track/1279768387",
         "nl": "applemusic://track/1279768387",
         "it": "applemusic://track/1279768387"
-      }
+      },
+      "uri_deezer": "deezer://track/3868133"
     },
     {
       "year": 1988,
@@ -2750,11 +2462,6 @@
         "Niña Pastori"
       ],
       "title": "Esta Cobardía",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Chiquetete from Seville was one of the great voices of flamenco-pop, known for his powerful vibrato and emotional intensity. A staple of Spanish variety TV shows in the 80s-90s.",
@@ -2775,7 +2482,8 @@
         "es": "applemusic://track/1449551728",
         "nl": "applemusic://track/1449551728",
         "it": "applemusic://track/1449551728"
-      }
+      },
+      "uri_deezer": "deezer://track/617765502"
     },
     {
       "year": 1970,
@@ -2788,11 +2496,6 @@
         "José Luis Perales"
       ],
       "title": "Te Quiero, Te Quiero",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Nino Bravo from Valencia died in a car crash at just 28 (1973), but his powerful tenor voice made him one of Spain's most legendary singers. His songs are still covered constantly.",
@@ -2806,14 +2509,15 @@
       "awards_nl": [],
       "isrc": "ES6009500072",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/1746172959",
-        "de": "applemusic://track/1746172959",
-        "gb": "applemusic://track/1746172959",
-        "fr": "applemusic://track/1746172959",
-        "es": "applemusic://track/1746172959",
-        "nl": "applemusic://track/1746172959",
-        "it": "applemusic://track/1746172959"
-      }
+        "us": "applemusic://track/1442457085",
+        "de": "applemusic://track/1443188222",
+        "gb": "applemusic://track/1443188222",
+        "fr": "applemusic://track/1443188222",
+        "es": "applemusic://track/1443188222",
+        "nl": "applemusic://track/1443188222",
+        "it": "applemusic://track/1443188222"
+      },
+      "uri_deezer": "deezer://track/2270578"
     },
     {
       "year": 2005,
@@ -2826,18 +2530,13 @@
         "Guaraná"
       ],
       "title": "Nada que perder",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Named after a card game (pig nose), this Madrid pop-punk trio became one of Spain's most successful bands of the 2000s. Frontman Álvaro Benito is a former Real Madrid youth player.",
       "fun_fact_de": "Nach einem Kartenspiel benannt, wurde dieses Madrider Pop-Punk-Trio eine der erfolgreichsten Bands Spaniens. Frontmann Álvaro Benito spielte in Real Madrids Jugend.",
       "fun_fact_es": "Nombrados por un juego de cartas, este trío pop-punk madrileño fue una de las bandas más exitosas de los 2000. Álvaro Benito jugó en la cantera del Real Madrid.",
       "fun_fact_fr": "Nommés d'après un jeu de cartes, ce trio pop-punk madrilène fut l'un des plus grands groupes des années 2000. Álvaro Benito jouait au Real Madrid.",
-      "uri_apple_music": "applemusic://track/151630092",
+      "uri_apple_music": "applemusic://track/1519029259",
       "uri_youtube_music": "https://music.youtube.com/watch?v=b4YVijo8UFA",
       "uri_tidal": "tidal://track/340902",
       "fun_fact_nl": "Dit Madrileense pop-punk trio, vernoemd naar een kaartspel (varkensneus), werd een van de succesvolste Spaanse bands van de jaren 2000. Frontman Álvaro Benito is een voormalig jeugdspeler van Real Madrid.",
@@ -2851,7 +2550,8 @@
         "es": "applemusic://track/1519029259",
         "nl": "applemusic://track/1519029259",
         "it": "applemusic://track/1519029259"
-      }
+      },
+      "uri_deezer": "deezer://track/1000398652"
     },
     {
       "year": 1950,
@@ -2864,11 +2564,6 @@
         "Celia Cruz"
       ],
       "title": "Se Va El Caimán",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "This Venezuelan-Dominican big band turned a Colombian folk song into a Latin dance standard. 'Se Va El Caimán' has been played at every Latin party for 70+ years.",
@@ -2889,7 +2584,8 @@
         "es": "applemusic://track/530174656",
         "nl": "applemusic://track/530174656",
         "it": "applemusic://track/530174656"
-      }
+      },
+      "uri_deezer": "deezer://track/99701314"
     },
     {
       "year": 1989,
@@ -2902,11 +2598,6 @@
         "Ketama"
       ],
       "title": "Soy Gitano",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Camarón de la Isla is universally considered the greatest flamenco singer of all time. 'Soy Gitano' with the Royal Philharmonic Orchestra was a groundbreaking fusion of flamenco and symphonic music.",
@@ -2926,8 +2617,9 @@
         "fr": "applemusic://track/1443635392",
         "es": "applemusic://track/1443635392",
         "nl": "applemusic://track/1443635392",
-        "it": null
-      }
+        "it": "applemusic://track/1442623293"
+      },
+      "uri_deezer": "deezer://track/2487187"
     },
     {
       "year": 2021,
@@ -2940,11 +2632,6 @@
         "Dellafuente"
       ],
       "title": "Ateo",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "C. Tangana (Antón Álvarez) reinvented Spanish pop with 'El Madrileño' — mixing reggaeton, flamenco, and bossa nova. The 'Ateo' video in a cathedral caused national controversy.",
@@ -2965,7 +2652,8 @@
         "es": "applemusic://track/1658144922",
         "nl": "applemusic://track/1658144922",
         "it": "applemusic://track/1658144922"
-      }
+      },
+      "uri_deezer": "deezer://track/1507773472"
     },
     {
       "year": 2002,
@@ -2978,11 +2666,6 @@
         "Belinda"
       ],
       "title": "Causa Y Efecto",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Mexico's 'Queen of Latin Pop' (ex-Timbiriche). Paulina Rubio was one of the first Latin artists to successfully cross over to the US pop market in the early 2000s.",
@@ -3003,7 +2686,8 @@
         "es": "applemusic://track/1705322815",
         "nl": "applemusic://track/1705322815",
         "it": "applemusic://track/1705322815"
-      }
+      },
+      "uri_deezer": "deezer://track/4232762"
     },
     {
       "year": 2000,
@@ -3016,11 +2700,6 @@
         "Niña de la Puebla"
       ],
       "title": "Cartita de Amor",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Niña Pastori from Cádiz was discovered by Camarón de la Isla himself at age 5 and blessed by the maestro. She became one of the greatest female flamenco voices of her generation.",
@@ -3041,7 +2720,8 @@
         "es": "applemusic://track/276078076",
         "nl": "applemusic://track/276078076",
         "it": "applemusic://track/276078076"
-      }
+      },
+      "uri_deezer": "deezer://track/971022"
     },
     {
       "year": 2021,
@@ -3054,11 +2734,6 @@
         "Carlos Vives"
       ],
       "title": "A Dónde Vamos",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Colombian band that became Spain's adopted sons — more popular in Spain than in Colombia. Their acoustic Latin pop sound resonated deeply with Spanish millennial audiences.",
@@ -3072,14 +2747,15 @@
       "awards_nl": [],
       "isrc": "ES5701900845",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/1811167390",
-        "de": "applemusic://track/1811167390",
-        "gb": "applemusic://track/1811167390",
-        "fr": "applemusic://track/1811167390",
-        "es": "applemusic://track/1811167390",
-        "nl": "applemusic://track/1811167390",
-        "it": "applemusic://track/1811167390"
-      }
+        "us": "applemusic://track/1574879730",
+        "de": "applemusic://track/1574879730",
+        "gb": "applemusic://track/1574879730",
+        "fr": "applemusic://track/1574879730",
+        "es": "applemusic://track/1574879730",
+        "nl": "applemusic://track/1574879730",
+        "it": "applemusic://track/1574879730"
+      },
+      "uri_deezer": "deezer://track/788448742"
     },
     {
       "year": 1996,
@@ -3092,11 +2768,6 @@
         "Antonio Flores"
       ],
       "title": "Que Bonito",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Rosario Flores — daughter of legends Lola Flores and El Pescaílla, sister of the late Antonio Flores. She merged flamenco with pop and became one of Spain's most iconic female artists.",
@@ -3117,7 +2788,8 @@
         "es": "applemusic://track/1489854458",
         "nl": "applemusic://track/268499369",
         "it": "applemusic://track/268499369"
-      }
+      },
+      "uri_deezer": "deezer://track/2455309"
     },
     {
       "year": 1958,
@@ -3129,11 +2801,6 @@
         "Concha Piquer"
       ],
       "title": "Fumando Espero",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Sara Montiel was Spain's first international film star, working in Hollywood alongside Gary Cooper and Burt Lancaster. 'Fumando Espero' became her iconic number, still imitated today.",
@@ -3154,7 +2821,8 @@
         "es": "applemusic://track/437565070",
         "nl": "applemusic://track/437565070",
         "it": "applemusic://track/437565070"
-      }
+      },
+      "uri_deezer": "deezer://track/11543608"
     },
     {
       "year": 1984,
@@ -3167,11 +2835,6 @@
         "Parálisis Permanente"
       ],
       "title": "El imperio contraataca",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Los Nikis were Spain's Ramones — pioneers of Spanish punk-pop with humorous sci-fi and B-movie themed lyrics. Essential band of 'La Movida Madrileña'.",
@@ -3192,7 +2855,8 @@
         "es": "applemusic://track/110722294",
         "nl": "applemusic://track/110722294",
         "it": "applemusic://track/110722294"
-      }
+      },
+      "uri_deezer": "deezer://track/3913386"
     },
     {
       "year": 1994,
@@ -3205,11 +2869,6 @@
         "Andy y Lucas"
       ],
       "title": "Lagrimas De Amor",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Camela are Spain's best-selling techno-flamenco duo with 8+ million records sold. Dismissed by critics but adored by millions — the ultimate guilty pleasure of Spanish music.",
@@ -3230,7 +2889,8 @@
         "es": "applemusic://track/251442538",
         "nl": "applemusic://track/251442538",
         "it": "applemusic://track/251442538"
-      }
+      },
+      "uri_deezer": "deezer://track/1357116"
     },
     {
       "year": 1988,
@@ -3243,11 +2903,6 @@
         "Eskorbuto"
       ],
       "title": "Pandilleros",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Basque punk-rock band from Vitoria-Gasteiz who mixed punk energy with humor and social commentary. Part of the vibrant 'Rock Radikal Vasco' movement of the 80s.",
@@ -3268,7 +2923,8 @@
         "es": "applemusic://track/1237074598",
         "nl": "applemusic://track/1237074598",
         "it": "applemusic://track/1237074598"
-      }
+      },
+      "uri_deezer": "deezer://track/749947"
     },
     {
       "year": 1977,
@@ -3281,11 +2937,6 @@
         "Viglietti"
       ],
       "title": "Son tus Perjumenes Mujer",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Nicaraguan singer-songwriter who wrote the anthem of the Sandinista revolution. His music blends folk, protest song and Central American rhythms in a way that resonated across the Spanish-speaking world.",
@@ -3306,7 +2957,8 @@
         "es": "applemusic://track/299706392",
         "nl": "applemusic://track/299706392",
         "it": "applemusic://track/299706392"
-      }
+      },
+      "uri_deezer": "deezer://track/13144102"
     },
     {
       "year": 1985,
@@ -3319,11 +2971,6 @@
         "María Jiménez"
       ],
       "title": "Derroche",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Ana Belén is one of Spain's most celebrated singer-actresses. Married to songwriter Víctor Manuel, she was a key cultural figure in Spain's transition to democracy.",
@@ -3344,7 +2991,8 @@
         "es": "applemusic://track/280269117",
         "nl": "applemusic://track/280269117",
         "it": "applemusic://track/280269117"
-      }
+      },
+      "uri_deezer": "deezer://track/987523"
     },
     {
       "year": 2000,
@@ -3357,11 +3005,6 @@
         "El Canto del Loco"
       ],
       "title": "La taberna del Buda",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Three brothers from León who blended rumba, pop and bolero into a distinctive sound. 'La taberna del Buda' was one of Spain's biggest hits at the turn of the millennium.",
@@ -3382,7 +3025,8 @@
         "es": "applemusic://track/1805834825",
         "nl": "applemusic://track/1805834825",
         "it": "applemusic://track/1805834825"
-      }
+      },
+      "uri_deezer": "deezer://track/694579"
     },
     {
       "year": 1996,
@@ -3395,11 +3039,6 @@
         "Malú"
       ],
       "title": "Si tú no estas",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Canarian singer-songwriter from Lanzarote who became a massive star across Latin America. 'Si tú no estás' was a pan-Hispanic hit that established her as a power ballad queen.",
@@ -3420,7 +3059,8 @@
         "es": "applemusic://track/1808370247",
         "nl": "applemusic://track/1808370247",
         "it": "applemusic://track/1808370247"
-      }
+      },
+      "uri_deezer": "deezer://track/3876149"
     },
     {
       "year": 2005,
@@ -3433,11 +3073,6 @@
         "Love of Lesbian"
       ],
       "title": "Podría Ser Peor",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "La Casa Azul is the one-man-band project of Guille Milkyway from Barcelona — Spain's answer to The Postal Service, blending indie-pop with 80s synth aesthetics.",
@@ -3458,7 +3093,8 @@
         "es": "applemusic://track/1454366846",
         "nl": "applemusic://track/1454366846",
         "it": "applemusic://track/1454366846"
-      }
+      },
+      "uri_deezer": "deezer://track/3239831031"
     },
     {
       "year": 1996,
@@ -3471,11 +3107,6 @@
         "The Chieftains"
       ],
       "title": "El Pozo De Aran",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Galician bagpipe virtuoso who brought Celtic-Galician music to international audiences. His debut album 'A Brotherhood of Stars' sold over 1 million copies — unheard of for folk music.",
@@ -3496,7 +3127,8 @@
         "es": "applemusic://track/1675962320",
         "nl": "applemusic://track/1675962320",
         "it": "applemusic://track/1675962320"
-      }
+      },
+      "uri_deezer": "deezer://track/71242465"
     },
     {
       "year": 1973,
@@ -3509,11 +3141,6 @@
         "Nino Bravo"
       ],
       "title": "Tómame o Déjame",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Mocedades from Bilbao represented Spain at Eurovision 1973 with 'Eres Tú', finishing 2nd. The song reached #9 on the US Billboard Hot 100 — Spain's best-ever showing in America.",
@@ -3534,7 +3161,8 @@
         "es": "applemusic://track/1055226301",
         "nl": "applemusic://track/1055226301",
         "it": "applemusic://track/1055226301"
-      }
+      },
+      "uri_deezer": "deezer://track/3243204601"
     },
     {
       "year": 2002,
@@ -3547,11 +3175,6 @@
         "Pastora Soler"
       ],
       "title": "Si No Te Hubieras Ido",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Tamara from Pontevedra exploded onto the Spanish scene with her powerful voice. This Marco Antonio Solís cover became one of the biggest ballads in Spain in the early 2000s.",
@@ -3572,7 +3195,8 @@
         "es": "applemusic://track/1488157875",
         "nl": "applemusic://track/1488157875",
         "it": "applemusic://track/1488157875"
-      }
+      },
+      "uri_deezer": "deezer://track/805703"
     },
     {
       "year": 1984,
@@ -3585,11 +3209,6 @@
         "Loquillo"
       ],
       "title": "Corazón de neón",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Led by the theatrical Javier Gurruchaga, Orquesta Mondragón brought cabaret-rock showmanship to 'La Movida'. Their live shows were legendary multimedia spectacles.",
@@ -3610,7 +3229,8 @@
         "es": "applemusic://track/1382199358",
         "nl": "applemusic://track/1382199358",
         "it": "applemusic://track/1382199358"
-      }
+      },
+      "uri_deezer": "deezer://track/497194492"
     },
     {
       "year": 2007,
@@ -3623,11 +3243,6 @@
         "Enrique Iglesias"
       ],
       "title": "Te regalo",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Venezuelan heartthrob who became a massive star in Spain. Baute holds Spanish citizenship and is considered as much a Spanish artist as a Venezuelan one.",
@@ -3648,7 +3263,8 @@
         "es": "applemusic://track/1677370156",
         "nl": "applemusic://track/1677370156",
         "it": "applemusic://track/1677370156"
-      }
+      },
+      "uri_deezer": "deezer://track/686588"
     },
     {
       "year": 1991,
@@ -3661,11 +3277,6 @@
         "Camarón"
       ],
       "title": "Alegría de Vivir",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Ray Heredia was a Romani musical genius from Madrid who fused flamenco, jazz and soul. He died of a drug overdose at just 24, leaving behind one brilliant album — 'Quien No Corre, Vuela'.",
@@ -3686,7 +3297,8 @@
         "es": "applemusic://track/1793347154",
         "nl": "applemusic://track/1793347154",
         "it": "applemusic://track/1793347154"
-      }
+      },
+      "uri_deezer": "deezer://track/513317392"
     },
     {
       "year": 1993,
@@ -3698,11 +3310,6 @@
         "Georgie Dann"
       ],
       "title": "El Toro Guapo",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "El Fary was beloved for his handlebar mustache and working-class Madrid humor. A folk singer and actor who became a national treasure.",
@@ -3723,7 +3330,8 @@
         "es": "applemusic://track/455667265",
         "nl": "applemusic://track/455667265",
         "it": "applemusic://track/455667265"
-      }
+      },
+      "uri_deezer": "deezer://track/13111732"
     },
     {
       "year": 1991,
@@ -3735,11 +3343,6 @@
         "DJ Sergio"
       ],
       "title": "Asi Me Gusta a Mi",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Chimo Bayo was the king of 'bakalao', the Valencian rave scene that dominated Spanish nightlife in the early 90s.",
@@ -3760,7 +3363,8 @@
         "es": "applemusic://track/891670017",
         "nl": "applemusic://track/891670017",
         "it": "applemusic://track/891670017"
-      }
+      },
+      "uri_deezer": "deezer://track/76848477"
     },
     {
       "year": 1988,
@@ -3773,11 +3377,6 @@
         "Las Ketchup"
       ],
       "title": "La Barbacoa",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "French-born Georgie Dann became the undisputed king of Spanish summer songs, releasing a new seasonal hit every year for decades.",
@@ -3798,7 +3397,8 @@
         "es": "applemusic://track/255678856",
         "nl": "applemusic://track/255678856",
         "it": "applemusic://track/255678856"
-      }
+      },
+      "uri_deezer": "deezer://track/1008764"
     },
     {
       "year": 1992,
@@ -3811,11 +3411,6 @@
         "Niña Pastori"
       ],
       "title": "Mi Gato",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Different side of Rosario Flores — this playful, funky track showed her versatility beyond the flamenco-pop she's known for, becoming a radio staple in early 90s Spain.",
@@ -3836,7 +3431,8 @@
         "es": "applemusic://track/287519136",
         "nl": "applemusic://track/680288788",
         "it": "applemusic://track/287519136"
-      }
+      },
+      "uri_deezer": "deezer://track/2485412"
     },
     {
       "year": 2017,
@@ -3849,11 +3445,6 @@
         "Maldita Nerea"
       ],
       "title": "Solo Si Es Contigo",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Bombai is a Spanish indie-pop duo who teamed up with Bebe for this summer anthem that became one of Spain's most-played songs of 2017.",
@@ -3874,7 +3465,8 @@
         "es": "applemusic://track/1442200377",
         "nl": "applemusic://track/1442200377",
         "it": "applemusic://track/1442200377"
-      }
+      },
+      "uri_deezer": "deezer://track/3240818781"
     },
     {
       "year": 2006,
@@ -3887,11 +3479,6 @@
         "Belinda"
       ],
       "title": "Me Voy",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Mexican singer-songwriter who won the Latin Grammy for Record of the Year with this track in 2006. It became one of the most iconic Spanish-language pop songs of the 2000s.",
@@ -3912,7 +3499,8 @@
         "es": "applemusic://track/341527003",
         "nl": "applemusic://track/341527003",
         "it": "applemusic://track/341527003"
-      }
+      },
+      "uri_deezer": "deezer://track/5278062"
     },
     {
       "year": 2013,
@@ -3925,11 +3513,6 @@
         "Maldita Nerea"
       ],
       "title": "Pan y mantequilla",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Second Efecto Pasillo hit in this playlist — the Canarian band became synonymous with Spanish summer pop, filling festivals across the country.",
@@ -3950,7 +3533,8 @@
         "es": "applemusic://track/1806098423",
         "nl": "applemusic://track/1806098423",
         "it": "applemusic://track/1806098423"
-      }
+      },
+      "uri_deezer": "deezer://track/438648322"
     },
     {
       "year": 2003,
@@ -3963,11 +3547,6 @@
         "Barricada"
       ],
       "title": "Soldadito marinero",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Fito Cabrales from Bilbao is one of Spain's most beloved rock singer-songwriters. This tender ballad became a generational anthem and is sung at every Spanish gathering.",
@@ -3988,7 +3567,8 @@
         "es": "applemusic://track/1686946543",
         "nl": "applemusic://track/1686946543",
         "it": "applemusic://track/1686946543"
-      }
+      },
+      "uri_deezer": "deezer://track/3864858"
     },
     {
       "year": 2002,
@@ -4001,11 +3581,6 @@
         "Manuel Carrasco"
       ],
       "title": "Europe's Living A Celebration",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Rosa won Operación Triunfo 1 and represented Spain at Eurovision 2002. The OT phenomenon drew 12+ million viewers and launched an entire generation of Spanish pop stars.",
@@ -4026,7 +3601,8 @@
         "es": "applemusic://track/1577412714",
         "nl": "applemusic://track/1577412714",
         "it": "applemusic://track/1577412714"
-      }
+      },
+      "uri_deezer": "deezer://track/891171052"
     },
     {
       "year": 2022,
@@ -4039,11 +3615,6 @@
         "Lola Indigo"
       ],
       "title": "DESPECHÁ",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "ROSALÍA's most viral hit — leaked months before official release, it still topped charts everywhere. The dance became a TikTok phenomenon with over 2 billion views.",
@@ -4064,7 +3635,8 @@
         "es": "applemusic://track/1660334835",
         "nl": "applemusic://track/1660334835",
         "it": "applemusic://track/1660334835"
-      }
+      },
+      "uri_deezer": "deezer://track/1841999507"
     },
     {
       "year": 2005,
@@ -4077,11 +3649,6 @@
         "Ricky Martin"
       ],
       "title": "La Tortura",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "The first Spanish-language song to crack the US Billboard Hot 100 top 25 in decades. The collaboration between Colombia's Shakira and Spain's Sanz bridged two continents.",
@@ -4102,7 +3669,8 @@
         "es": "applemusic://track/1487072929",
         "nl": "applemusic://track/1487072929",
         "it": "applemusic://track/1487072929"
-      }
+      },
+      "uri_deezer": "deezer://track/799664922"
     },
     {
       "year": 1986,
@@ -4115,11 +3683,6 @@
         "Gabinete Caligari"
       ],
       "title": "A quién le importa",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "THE anthem of 'La Movida Madrileña' and Spain's LGBTQ+ community. Alaska (Olvido Gara) is a Mexican-born Spanish icon who defined counterculture in post-Franco Spain.",
@@ -4140,7 +3703,8 @@
         "es": "applemusic://track/1772134228",
         "nl": "applemusic://track/1704164844",
         "it": "applemusic://track/1704164844"
-      }
+      },
+      "uri_deezer": "deezer://track/3109287"
     },
     {
       "year": 1972,
@@ -4153,11 +3717,6 @@
         "Nino Bravo"
       ],
       "title": "El Gato Que Está Triste y Azul",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Brazilian legend Roberto Carlos is the best-selling Latin artist from Brazil with 120+ million records. This Spanish-language hit made him equally massive in the Hispanic world.",
@@ -4178,7 +3737,8 @@
         "es": "applemusic://track/1394221956",
         "nl": "applemusic://track/1394221956",
         "it": "applemusic://track/1394221956"
-      }
+      },
+      "uri_deezer": "deezer://track/71017859"
     },
     {
       "year": 2003,
@@ -4191,11 +3751,6 @@
         "David DeMaría"
       ],
       "title": "Son de Amores",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "This Cádiz duo's debut single became one of Spain's biggest hits of 2003. Their flamenco-pop sound and romantic lyrics made them instant stars across the Spanish-speaking world.",
@@ -4216,7 +3771,8 @@
         "es": "applemusic://track/1317695349",
         "nl": "applemusic://track/1317695349",
         "it": "applemusic://track/1317695349"
-      }
+      },
+      "uri_deezer": "deezer://track/630311"
     },
     {
       "year": 2015,
@@ -4229,11 +3785,6 @@
         "Carlos Vives"
       ],
       "title": "Soy Yo",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Colombian electro-tropical band whose music video featuring a confident little girl dancing became a viral symbol of self-empowerment and Latina pride.",
@@ -4254,7 +3805,8 @@
         "es": "applemusic://track/993274903",
         "nl": "applemusic://track/993274903",
         "it": "applemusic://track/993274903"
-      }
+      },
+      "uri_deezer": "deezer://track/100115954"
     },
     {
       "year": 1969,
@@ -4267,11 +3819,6 @@
         "Peret"
       ],
       "title": "Achilipú",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Romani singer Dolores Vargas 'La Terremoto' recorded this flamenco-pop gem that became a timeless party classic in Spain — still played at every verbena 55 years later.",
@@ -4292,7 +3839,8 @@
         "es": "applemusic://track/1838226434",
         "nl": "applemusic://track/1838226434",
         "it": "applemusic://track/1838226434"
-      }
+      },
+      "uri_deezer": "deezer://track/113445748"
     },
     {
       "year": 2002,
@@ -4305,11 +3853,6 @@
         "Natalia"
       ],
       "title": "Cuando Tú Vas",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Argentine-born Chenoa was the breakout star of Operación Triunfo 1 alongside Bisbal and Bustamante. This debut hit showed her powerful voice and became a pop anthem.",
@@ -4323,14 +3866,15 @@
       "awards_nl": [],
       "isrc": "ES6010200167",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/1698228736",
-        "de": "applemusic://track/1698228736",
-        "gb": "applemusic://track/1698228736",
-        "fr": "applemusic://track/1698228736",
-        "es": "applemusic://track/1698228736",
-        "nl": "applemusic://track/1698228736",
-        "it": "applemusic://track/1698228736"
-      }
+        "us": "applemusic://track/1577413066",
+        "de": "applemusic://track/1577413066",
+        "gb": "applemusic://track/1577413066",
+        "fr": "applemusic://track/1577413066",
+        "es": "applemusic://track/1577413066",
+        "nl": "applemusic://track/1577413066",
+        "it": "applemusic://track/1577413066"
+      },
+      "uri_deezer": "deezer://track/1145755432"
     },
     {
       "year": 2000,
@@ -4343,11 +3887,6 @@
         "El Arrebato"
       ],
       "title": "Cuando zarpa el amor",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Different Camela hit — this techno-flamenco ballad is considered their masterpiece and one of the most iconic Spanish guilty pleasure songs ever recorded.",
@@ -4368,7 +3907,8 @@
         "es": "applemusic://track/1800442770",
         "nl": "applemusic://track/1800442770",
         "it": "applemusic://track/1800442770"
-      }
+      },
+      "uri_deezer": "deezer://track/3365352"
     },
     {
       "year": 1979,
@@ -4381,11 +3921,6 @@
         "Nino Bravo"
       ],
       "title": "Háblame de Ti",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Teen idol brothers from Madrid who caused 'Pecosmania' in late 70s Spain — the Spanish Beatlemania. Girls fainted at their concerts and they sold millions of records.",
@@ -4406,7 +3941,8 @@
         "es": "applemusic://track/1591592211",
         "nl": "applemusic://track/1591592211",
         "it": "applemusic://track/1591592211"
-      }
+      },
+      "uri_deezer": "deezer://track/2312869"
     },
     {
       "year": 2011,
@@ -4419,11 +3955,6 @@
         "Joey Montana"
       ],
       "title": "Rayos de Sol",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "This reggaeton-pop crossover became THE Spanish summer anthem of 2011, inescapable on every beach, club and radio station across Spain.",
@@ -4444,7 +3975,8 @@
         "es": "applemusic://track/636454225",
         "nl": "applemusic://track/945394223",
         "it": "applemusic://track/945394223"
-      }
+      },
+      "uri_deezer": "deezer://track/66764418"
     },
     {
       "year": 1999,
@@ -4457,11 +3989,6 @@
         "Alejandro Sanz"
       ],
       "title": "19 Dias y 500 Noches",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Considered Sabina's greatest song — a bittersweet breakup masterpiece. The album of the same name is one of the best-selling Spanish-language albums ever in Spain.",
@@ -4482,7 +4009,8 @@
         "es": "applemusic://track/1478351788",
         "nl": "applemusic://track/1478351788",
         "it": "applemusic://track/1478351788"
-      }
+      },
+      "uri_deezer": "deezer://track/78909954"
     },
     {
       "year": 1981,
@@ -4495,11 +4023,6 @@
         "Ramoncín"
       ],
       "title": "Las Chicas Son Guerreras",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Proto-punk anthem from the early Movida Madrileña. COZ were one of the first bands of the movement, and this feminist-tinged track became a generational rallying cry.",
@@ -4520,7 +4043,8 @@
         "es": "applemusic://track/1643710176",
         "nl": "applemusic://track/1643710176",
         "it": "applemusic://track/1643710176"
-      }
+      },
+      "uri_deezer": "deezer://track/1345818772"
     },
     {
       "year": 1986,
@@ -4533,11 +4057,6 @@
         "Duncan Dhu"
       ],
       "title": "Suéltate el pelo",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Another Hombres G classic — David Summers and crew dominated Spanish pop in the 80s with their catchy, Beatlesque melodies and humorous lyrics about young love.",
@@ -4558,7 +4077,8 @@
         "es": "applemusic://track/80836759",
         "nl": "applemusic://track/80836759",
         "it": "applemusic://track/80836759"
-      }
+      },
+      "uri_deezer": "deezer://track/3918204"
     },
     {
       "year": 1990,
@@ -4571,11 +4091,6 @@
         "Bongo Beat"
       ],
       "title": "El Canario",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "One of Spain's most absurdist comedy-rock bands from Sevilla. Their name means 'Don't Step on Me I'm Wearing Flip-Flops' — and the music is exactly as unhinged as you'd expect.",
@@ -4596,7 +4111,8 @@
         "es": "applemusic://track/1405339817",
         "nl": "applemusic://track/1405339817",
         "it": "applemusic://track/1405339817"
-      }
+      },
+      "uri_deezer": "deezer://track/520640722"
     },
     {
       "year": 1986,
@@ -4609,11 +4125,6 @@
         "El Norte"
       ],
       "title": "Sola (Con un desconocido)",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Ole Ole featuring a young Vicky Larraz (later Marta Sánchez) was one of the defining pop acts of 80s Spain. This synth-pop hit captured the carefree spirit of the era.",
@@ -4634,7 +4145,8 @@
         "es": "applemusic://track/1573213378",
         "nl": "applemusic://track/1573213378",
         "it": "applemusic://track/1573213378"
-      }
+      },
+      "uri_deezer": "deezer://track/10028291"
     },
     {
       "year": 1988,
@@ -4647,11 +4159,6 @@
         "La Frontera"
       ],
       "title": "Mediterraneo",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Barcelona rockabilly band who brought the greaser aesthetic to Spain. Fronted by Carlos Segarra, they were the louder, wilder cousins of Loquillo in the Spanish rock scene.",
@@ -4672,7 +4179,8 @@
         "es": "applemusic://track/942842288",
         "nl": "applemusic://track/942842288",
         "it": "applemusic://track/942842288"
-      }
+      },
+      "uri_deezer": "deezer://track/90579569"
     },
     {
       "year": 2001,
@@ -4685,11 +4193,6 @@
         "Zapato Veloz"
       ],
       "title": "El Baile del Gorila",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Melody was just 11 years old when this novelty dance track became Spain's biggest hit of 2001. Every Spanish person born in the 90s knows this choreography by heart.",
@@ -4710,11 +4213,12 @@
         "es": "applemusic://track/1642779769",
         "nl": "applemusic://track/1642779769",
         "it": "applemusic://track/1642779769"
-      }
+      },
+      "uri_deezer": "deezer://track/70715513"
     },
     {
       "year": 1989,
-      "uri": "spotify:track:7iN1s7xHE4ifF5povM6A48",
+      "uri": "spotify:track:6FG8TkQCTo5TfOQ6bG5Fxf",
       "artist": "Isabel Pantoja",
       "alt_artists": [
         "Rocío Jurado",
@@ -4723,11 +4227,6 @@
         "Lola Flores"
       ],
       "title": "Se Me Enamora el Alma",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Isabel Pantoja — the most famous copla singer alive and Spain's most tabloid-covered celebrity. Widow of bullfighter Paquirri, her dramatic life has been a national obsession for 40 years.",
@@ -4748,7 +4247,8 @@
         "es": "applemusic://track/1719221990",
         "nl": "applemusic://track/1719221990",
         "it": "applemusic://track/1719221990"
-      }
+      },
+      "uri_deezer": "deezer://track/429470642"
     },
     {
       "year": 2016,
@@ -4761,11 +4261,6 @@
         "Dorian"
       ],
       "title": "Fantastic Shine",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Barcelona indie-rock band who became Spain's biggest independent act. Known for hosting a 5,000-person COVID-safe concert in 2021 that made international headlines.",
@@ -4786,7 +4281,8 @@
         "es": "applemusic://track/655700766",
         "nl": "applemusic://track/655700766",
         "it": "applemusic://track/655700766"
-      }
+      },
+      "uri_deezer": "deezer://track/67781657"
     },
     {
       "year": 2018,
@@ -4799,11 +4295,6 @@
         "Love of Lesbian"
       ],
       "title": "Sincericidio",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Leiva (ex-Pereza) is one of Spain's most respected rock songwriters. After his band broke up, his solo career became even bigger — filling stadiums across Spain.",
@@ -4824,7 +4315,8 @@
         "es": "applemusic://track/1123044441",
         "nl": "applemusic://track/1123044441",
         "it": "applemusic://track/1123044441"
-      }
+      },
+      "uri_deezer": "deezer://track/130850060"
     }
   ]
 }

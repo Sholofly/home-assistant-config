@@ -1,0 +1,2448 @@
+/**
+ * Flightradar24 Lovelace card.
+ * Map viewport from sensor `bounds`, with aircraft markers from
+ * the `flights` attribute (latitude / longitude).
+ */
+const LEAFLET_CSS = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+const LEAFLET_JS = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+
+/** Basemap presets — all free, no API key required. */
+const MAP_STYLES = {
+  osm: {
+    label: "OpenStreetMap",
+    url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+    attribution:
+      '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    maxZoom: 19,
+  },
+  satellite: {
+    label: "Satellite (Esri)",
+    url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+    attribution:
+      "Tiles © Esri — Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community",
+    maxZoom: 19,
+  },
+  topo: {
+    label: "Topographic",
+    url: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+    attribution:
+      'Map data: © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: © <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
+    maxZoom: 17,
+    subdomains: "abc",
+  },
+};
+const DEFAULT_MAP_STYLE = "osm";
+
+const DISPLAY_UNITS = {
+  altitude_unit: {
+    label: "Altitude units",
+    default: "both",
+    options: { both: "Meters and feet", m: "Meters", ft: "Feet" },
+  },
+  distance_unit: {
+    label: "Distance units",
+    default: "m",
+    options: { m: "Meters", km: "Kilometers", mi: "Miles", nmi: "Nautical miles" },
+  },
+  speed_unit: {
+    label: "Speed units",
+    default: "both",
+    options: { both: "km/h and knots", "km/h": "km/h", mph: "mph", kts: "Knots" },
+  },
+};
+const DEFAULT_DISPLAY_UNITS = Object.fromEntries(
+  Object.entries(DISPLAY_UNITS).map(([key, units]) => [key, units.default])
+);
+
+const DISPLAY_UNIT_ALIASES = {
+  altitude_unit: { meters: "m", metre: "m", metres: "m", feet: "ft", foot: "ft" },
+  distance_unit: {
+    meters: "m",
+    metre: "m",
+    metres: "m",
+    kilometers: "km",
+    kilometres: "km",
+    kilometer: "km",
+    kilometre: "km",
+    miles: "mi",
+    mile: "mi",
+    nm: "nmi",
+    nautical: "nmi",
+  },
+  speed_unit: {
+    kmh: "km/h",
+    kmph: "km/h",
+    kph: "km/h",
+    knots: "kts",
+    knot: "kts",
+    kt: "kts",
+  },
+};
+
+function resolveDisplayUnit(key, value) {
+  const raw = typeof value === "string" ? value.trim().toLowerCase() : "";
+  const unit = DISPLAY_UNIT_ALIASES[key]?.[raw] || raw;
+  return Object.keys(DISPLAY_UNITS[key].options).includes(unit)
+    ? unit
+    : DISPLAY_UNITS[key].default;
+}
+
+function resolveMapStyle(value) {
+  const key = typeof value === "string" ? value.trim().toLowerCase() : "";
+  return MAP_STYLES[key] ? key : DEFAULT_MAP_STYLE;
+}
+
+let leafletLoader = null;
+
+function loadLeaflet() {
+  if (window.L) {
+    return Promise.resolve(window.L);
+  }
+  if (leafletLoader) {
+    return leafletLoader;
+  }
+  leafletLoader = new Promise((resolve, reject) => {
+    if (!document.querySelector(`link[href="${LEAFLET_CSS}"]`)) {
+      const link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.href = LEAFLET_CSS;
+      document.head.appendChild(link);
+    }
+    const existing = document.querySelector(`script[src="${LEAFLET_JS}"]`);
+    if (existing) {
+      existing.addEventListener("load", () => resolve(window.L));
+      existing.addEventListener("error", reject);
+      if (window.L) {
+        resolve(window.L);
+      }
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = LEAFLET_JS;
+    script.onload = () => resolve(window.L);
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
+  return leafletLoader;
+}
+
+class Flightradar24Card extends HTMLElement {
+  static getStubConfig(hass, entities, entitiesFallback) {
+    const candidates = [
+      ...(entities || []),
+      ...(entitiesFallback || []),
+    ];
+    const entity =
+      candidates.find((entityId) => {
+        const state = hass?.states?.[entityId];
+        return (
+          state &&
+          Array.isArray(state.attributes?.flights) &&
+          typeof state.attributes?.bounds === "string"
+        );
+      }) ||
+      candidates.find((entityId) => entityId.includes("flightradar24")) ||
+      "";
+    return {
+      entity,
+      show_header: true,
+      show_flights: true,
+      show_tracks: true,
+      show_area_center: true,
+      show_area: true,
+      interactive_map: false,
+      map_style: DEFAULT_MAP_STYLE,
+      ...DEFAULT_DISPLAY_UNITS,
+    };
+  }
+
+  static getConfigElement() {
+    return document.createElement("flightradar24-card-editor");
+  }
+
+  constructor() {
+    super();
+    this._map = null;
+    this._mapInitPromise = null;
+    this._resizeObserver = null;
+    this._tileLayer = null;
+    this._markers = null;
+    this._tracks = null;
+    this._areaRect = null;
+    this._areaCenterMarker = null;
+    this._areaCenterMarkerPos = null;
+    this._markerById = new Map();
+    this._selectedFlightId = null;
+    this._openPopupFlightId = null;
+    this._rebuildingMarkers = false;
+    this._areaBounds = null;
+    this._areaMaxBounds = null;
+    this._maxBoundsSuspended = false;
+    this._lastBoundsKey = null;
+    this._lastViewportKey = null;
+    this._lastFlightsKey = null;
+    this._flightRowById = new Map();
+    this._flightSnapshotById = new Map();
+    this._lastEntity = null;
+  }
+
+  setConfig(config) {
+    if (!config || !config.entity) {
+      throw new Error("Please define an entity");
+    }
+    const prev = this._config;
+    const next = {
+      show_header: true,
+      show_flights: true,
+      show_tracks: true,
+      show_area_center: true,
+      show_area: true,
+      interactive_map: false,
+      map_style: DEFAULT_MAP_STYLE,
+      ...DEFAULT_DISPLAY_UNITS,
+      ...config,
+    };
+    next.map_style = resolveMapStyle(next.map_style);
+    for (const key of Object.keys(DISPLAY_UNITS)) {
+      next[key] = resolveDisplayUnit(key, next[key]);
+    }
+    const unitsChanged = prev && Object.keys(DISPLAY_UNITS).some(
+      (key) => prev[key] !== next[key]
+    );
+    if (next.zoom != null && next.zoom !== "") {
+      const zoom = Number(next.zoom);
+      if (Number.isNaN(zoom)) {
+        delete next.zoom;
+      } else {
+        next.zoom = Math.min(19, Math.max(1, Math.round(zoom)));
+      }
+    } else {
+      delete next.zoom;
+    }
+    if (next.icon_size != null && next.icon_size !== "") {
+      const iconSize = Number(next.icon_size);
+      if (Number.isNaN(iconSize)) {
+        delete next.icon_size;
+      } else {
+        next.icon_size = Math.min(64, Math.max(12, Math.round(iconSize)));
+      }
+    } else {
+      delete next.icon_size;
+    }
+    this._config = next;
+    if (prev && prev.entity !== this._config.entity) {
+      this._lastBoundsKey = null;
+      this._lastViewportKey = null;
+      this._lastFlightsKey = null;
+      this._clearFlightRows();
+      this._lastEntity = null;
+      this._openPopupFlightId = null;
+      this._selectedFlightId = null;
+      this._markerById = new Map();
+      this._removeAreaCenterMarker();
+    } else if (prev && prev.show_tracks !== this._config.show_tracks) {
+      // Force marker/track redraw when the option changes.
+      this._lastFlightsKey = null;
+    } else if (prev && prev.zoom !== this._config.zoom) {
+      this._lastViewportKey = null;
+    } else if (prev && prev.icon_size !== this._config.icon_size) {
+      this._lastFlightsKey = null;
+    }
+    this._renderShell();
+    if (prev && prev.interactive_map !== next.interactive_map) {
+      this._configureMapInteraction();
+    }
+    if (
+      prev &&
+      (prev.interactive_map !== this._config.interactive_map ||
+        prev.show_header !== this._config.show_header ||
+        prev.show_flights !== this._config.show_flights ||
+        prev.show_area_center !== this._config.show_area_center ||
+        prev.show_area !== this._config.show_area ||
+        prev.show_tracks !== this._config.show_tracks ||
+        prev.zoom !== this._config.zoom ||
+        prev.icon_size !== this._config.icon_size ||
+        prev.map_style !== this._config.map_style ||
+        unitsChanged)
+    ) {
+      if (prev.map_style !== this._config.map_style) {
+        this._syncTileLayer();
+      }
+      this._update();
+    }
+  }
+
+  set hass(hass) {
+    this._hass = hass;
+    this._update();
+  }
+
+  getCardSize() {
+    const header = this._config?.show_header !== false ? 1 : 0;
+    const flights = this._config?.show_flights !== false ? 2 : 0;
+    return 3 + header + flights;
+  }
+
+  getGridOptions() {
+    return {
+      columns: 12,
+      min_columns: 6,
+      rows: this.getCardSize(),
+    };
+  }
+
+  connectedCallback() {
+    if (!this.shadowRoot) {
+      this.attachShadow({ mode: "open" });
+    }
+    this._renderShell();
+    this._update();
+  }
+
+  disconnectedCallback() {
+    this._destroyMap();
+  }
+
+  _destroyMap() {
+    this._resizeObserver?.disconnect();
+    this._resizeObserver = null;
+    if (this._map) {
+      try {
+        this._map.remove();
+      } catch (_error) {
+        // ignore — container may already be gone on refresh
+      }
+      this._map = null;
+    }
+    this._mapInitPromise = null;
+    this._tileLayer = null;
+    const mapEl = this.shadowRoot?.getElementById("map");
+    if (mapEl) {
+      // Leaflet leaves _leaflet_id on the node; clear so re-init works.
+      if (mapEl._leaflet_id) {
+        delete mapEl._leaflet_id;
+      }
+      mapEl.innerHTML = "";
+    }
+    this._markers = null;
+    this._tracks = null;
+    this._areaRect = null;
+    this._areaCenterMarker = null;
+    this._areaCenterMarkerPos = null;
+    this._markerById = new Map();
+    this._selectedFlightId = null;
+    this._openPopupFlightId = null;
+    this._rebuildingMarkers = false;
+    this._areaBounds = null;
+    this._areaMaxBounds = null;
+    this._maxBoundsSuspended = false;
+    this._lastBoundsKey = null;
+    this._lastViewportKey = null;
+    this._lastFlightsKey = null;
+    this._clearFlightRows();
+  }
+
+  _clearFlightRows() {
+    this._flightRowById = new Map();
+    this._flightSnapshotById = new Map();
+  }
+
+  _parseBounds(bounds) {
+    if (!bounds || typeof bounds !== "string") {
+      return null;
+    }
+    const parts = bounds.split(",").map((value) => Number(value.trim()));
+    if (parts.length !== 4 || parts.some((value) => Number.isNaN(value))) {
+      return null;
+    }
+    const [north, south, west, east] = parts;
+    return {
+      north,
+      south,
+      west,
+      east,
+      lat: (north + south) / 2,
+      lon: (west + east) / 2,
+    };
+  }
+
+  _escape(value) {
+    return String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  _flightLabel(flight) {
+    return (
+      flight.flight_number ||
+      flight.callsign ||
+      flight.aircraft_registration ||
+      "—"
+    );
+  }
+
+  /**
+   * Backend sets aircraft_category via is_helicopter() (callsign / model / ICAO).
+   */
+  _isHelicopter(flight) {
+    return String(flight?.aircraft_category || "").toLowerCase() === "helicopter";
+  }
+
+  /**
+   * List icon: helicopters use mdi:helicopter; airplanes use flight phase.
+   * on_ground: 0 in air, 1 on ground. vertical_speed in ft/min.
+   */
+  _flightIcon(flight) {
+    if (this._isHelicopter(flight)) {
+      return "mdi:helicopter";
+    }
+    if (Number(flight.on_ground) === 1 || flight.on_ground === true) {
+      return "mdi:airplane-check";
+    }
+    const vs = Number(flight.vertical_speed);
+    if (!Number.isNaN(vs)) {
+      if (vs > 0) {
+        return "mdi:airplane-takeoff";
+      }
+      if (vs < 0) {
+        return "mdi:airplane-landing";
+      }
+    }
+    return "mdi:airplane";
+  }
+
+  _formatNumber(value, digits = 0) {
+    if (value == null || value === "") {
+      return null;
+    }
+    const number = Number(value);
+    if (Number.isNaN(number)) {
+      return String(value);
+    }
+    return number.toFixed(digits);
+  }
+
+  /** Ground speed. Source unit is knots. */
+  _formatSpeed(knots) {
+    if (knots == null || knots === "") {
+      return null;
+    }
+    const kts = Number(knots);
+    if (!Number.isFinite(kts)) {
+      return null;
+    }
+    const kmh = Math.round(kts * 1.852);
+    switch (this._config?.speed_unit) {
+      case "km/h":
+        return `${kmh} km/h`;
+      case "mph":
+        return `${Math.round(kts * 1.852 / 1.609344)} mph`;
+      case "kts":
+        return `${Math.round(kts)} kts`;
+      default:
+        return `${kmh} km/h (${Math.round(kts)} kts)`;
+    }
+  }
+
+  /** Altitude. Source unit is feet. */
+  _formatAltitude(feet) {
+    if (feet == null || feet === "") {
+      return null;
+    }
+    const ft = Number(feet);
+    if (!Number.isFinite(ft)) {
+      return null;
+    }
+    const meters = Math.round(ft * 0.3048);
+    switch (this._config?.altitude_unit) {
+      case "m":
+        return `${meters} m`;
+      case "ft":
+        return `${Math.round(ft)} ft`;
+      default:
+        return `${meters} m (${Math.round(ft)} ft)`;
+    }
+  }
+
+  /** Distance. Source unit is kilometers. */
+  _formatDistance(kilometers) {
+    if (kilometers == null || kilometers === "") {
+      return null;
+    }
+    const km = Number(kilometers);
+    if (!Number.isFinite(km)) {
+      return null;
+    }
+    switch (this._config?.distance_unit) {
+      case "km":
+        return `${km.toFixed(2)} km`;
+      case "mi":
+        return `${(km / 1.609344).toFixed(2)} mi`;
+      case "nmi":
+        return `${(km / 1.852).toFixed(2)} nmi`;
+      default:
+        return `${Math.round(km * 1000)} m`;
+    }
+  }
+
+  /** Display snapshot used to patch flight rows without rebuilding the list. */
+  _flightRowSnapshot(flight) {
+    const originCode = flight.airport_origin_country_code || "";
+    const destCode = flight.airport_destination_country_code || "";
+    return {
+      id: this._flightId(flight),
+      label: this._flightLabel(flight),
+      fr24Url: this._flightFr24Url(flight) || "",
+      icon: this._flightIcon(flight),
+      aircraft: flight.aircraft_model || flight.aircraft_code || "",
+      airline: flight.airline_short || flight.airline || "",
+      originCity: flight.airport_origin_city || "",
+      originCode: String(originCode).length === 2 ? String(originCode).toUpperCase() : "",
+      originName:
+        flight.airport_origin_country_name || flight.airport_origin_country_code || "",
+      destCity: flight.airport_destination_city || "",
+      destCode: String(destCode).length === 2 ? String(destCode).toUpperCase() : "",
+      destName:
+        flight.airport_destination_country_name ||
+        flight.airport_destination_country_code ||
+        "",
+      depTime: this._flightLegTime(flight, "departure") || "",
+      arrTime: this._flightLegTime(flight, "arrival") || "",
+      distance: this._formatDistance(flight.distance),
+      closest: this._formatDistance(flight.closest_distance),
+      speed: this._formatSpeed(flight.ground_speed),
+      altitude: this._formatAltitude(flight.altitude),
+      selected: this._selectedFlightId === this._flightId(flight),
+    };
+  }
+
+  _formatTimestamp(value) {
+    if (value == null || value === "") {
+      return null;
+    }
+    const seconds = Number(value);
+    if (Number.isNaN(seconds) || seconds <= 0) {
+      return null;
+    }
+    const date = new Date(seconds * 1000);
+    if (Number.isNaN(date.getTime())) {
+      return null;
+    }
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    return `${hours}:${minutes}`;
+  }
+
+  _flightLegTime(flight, leg) {
+    const fields =
+      leg === "departure"
+        ? [
+            "time_real_departure",
+            "time_estimated_departure",
+            "time_scheduled_departure",
+          ]
+        : [
+            "time_real_arrival",
+            "time_estimated_arrival",
+            "time_scheduled_arrival",
+          ];
+    for (const field of fields) {
+      const formatted = this._formatTimestamp(flight[field]);
+      if (formatted) {
+        return formatted;
+      }
+    }
+    return null;
+  }
+
+  _flightFr24Url(flight) {
+    if (!flight) {
+      return null;
+    }
+    const id =
+      flight.id != null && flight.id !== "" ? String(flight.id).trim() : "";
+    const slug = String(
+      flight.callsign || flight.flight_number || flight.aircraft_registration || ""
+    ).trim();
+    if (id && slug) {
+      return `https://fr24.com/${encodeURIComponent(slug)}/${encodeURIComponent(id)}`;
+    }
+    if (slug) {
+      return `https://www.flightradar24.com/${encodeURIComponent(slug)}`;
+    }
+    if (id) {
+      return `https://www.flightradar24.com/${encodeURIComponent(id)}`;
+    }
+    return null;
+  }
+
+  _flightFr24IconLink(url) {
+    if (!url) {
+      return "";
+    }
+    return (
+      `<a class="popup-fr24-link" href="${this._escape(url)}" target="_blank" ` +
+      `rel="noopener noreferrer" title="Open on Flightradar24" ` +
+      `onclick="event.stopPropagation();" aria-label="Open on Flightradar24">↗</a>`
+    );
+  }
+
+  _routeEndpointText(city, time) {
+    const parts = [];
+    if (city) {
+      parts.push(city);
+    }
+    if (time) {
+      parts.push(time);
+    }
+    return parts.join(" ");
+  }
+
+  _ensureFlagImg(container, countryCode, title) {
+    if (!countryCode || String(countryCode).length !== 2) {
+      const existing = container.querySelector(":scope > img.flag");
+      if (existing) {
+        existing.remove();
+      }
+      return;
+    }
+    const code = String(countryCode).toUpperCase();
+    const lower = code.toLowerCase();
+    const label = title || code;
+    const src = `/flightradar24/flags/${lower}.svg`;
+    let img = container.querySelector(":scope > img.flag");
+    if (!img) {
+      img = document.createElement("img");
+      img.className = "flag";
+      img.width = 16;
+      img.height = 12;
+      img.decoding = "sync";
+      img.onerror = () => {
+        img.style.display = "none";
+      };
+      container.insertBefore(img, container.firstChild);
+    }
+    if (img.getAttribute("src") !== src) {
+      img.style.display = "";
+      img.src = src;
+    }
+    if (img.alt !== code) {
+      img.alt = code;
+    }
+    if (img.title !== label) {
+      img.title = label;
+    }
+  }
+
+  _setOptionalText(parent, className, value) {
+    let el = parent.querySelector(`:scope > .${className}`);
+    if (!value) {
+      if (el) {
+        el.remove();
+      }
+      return;
+    }
+    if (!el) {
+      el = document.createElement("span");
+      el.className = className;
+      if (className === "flight-type") {
+        const airline = parent.querySelector(":scope > .muted");
+        if (airline) {
+          parent.insertBefore(el, airline);
+        } else {
+          parent.appendChild(el);
+        }
+      } else {
+        parent.appendChild(el);
+      }
+    }
+    if (el.textContent !== value) {
+      el.textContent = value;
+    }
+  }
+
+  _setFlightLabel(mainEl, label, fr24Url) {
+    let link = mainEl.querySelector(":scope > a.flight-link");
+    let strong = mainEl.querySelector(":scope > strong");
+    if (fr24Url) {
+      if (strong) {
+        strong.remove();
+        strong = null;
+      }
+      if (!link) {
+        link = document.createElement("a");
+        link.className = "flight-link";
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.title = "Open on Flightradar24";
+        link.addEventListener("click", (event) => event.stopPropagation());
+        const icon = mainEl.querySelector("ha-icon");
+        if (icon && icon.nextSibling) {
+          mainEl.insertBefore(link, icon.nextSibling);
+        } else if (icon) {
+          mainEl.appendChild(link);
+        } else {
+          mainEl.insertBefore(link, mainEl.firstChild);
+        }
+      }
+      if (link.href !== fr24Url) {
+        link.href = fr24Url;
+      }
+      if (link.textContent !== label) {
+        link.textContent = label;
+      }
+      return;
+    }
+    if (link) {
+      link.remove();
+      link = null;
+    }
+    if (!strong) {
+      strong = document.createElement("strong");
+      const icon = mainEl.querySelector("ha-icon");
+      if (icon && icon.nextSibling) {
+        mainEl.insertBefore(strong, icon.nextSibling);
+      } else if (icon) {
+        mainEl.appendChild(strong);
+      } else {
+        mainEl.insertBefore(strong, mainEl.firstChild);
+      }
+    }
+    if (strong.textContent !== label) {
+      strong.textContent = label;
+    }
+  }
+
+  _setRouteEndpoint(routeEl, side, snap) {
+    const isOrigin = side === "origin";
+    const city = isOrigin ? snap.originCity : snap.destCity;
+    const time = isOrigin ? snap.depTime : snap.arrTime;
+    const code = isOrigin ? snap.originCode : snap.destCode;
+    const name = isOrigin ? snap.originName : snap.destName;
+    const text = this._routeEndpointText(city, time);
+    const selector = `:scope > [data-endpoint="${side}"]`;
+    let endpoint = routeEl.querySelector(selector);
+
+    if (!text) {
+      if (endpoint) {
+        endpoint.remove();
+      }
+      return;
+    }
+
+    if (!endpoint) {
+      endpoint = document.createElement("span");
+      endpoint.dataset.endpoint = side;
+      endpoint.className = "route-endpoint";
+      const sep = routeEl.querySelector(":scope > .route-sep");
+      if (isOrigin) {
+        routeEl.insertBefore(endpoint, routeEl.firstChild);
+      } else if (sep && sep.nextSibling) {
+        routeEl.insertBefore(endpoint, sep.nextSibling);
+      } else {
+        routeEl.appendChild(endpoint);
+      }
+    }
+
+    this._ensureFlagImg(endpoint, code, name);
+
+    let textEl = endpoint.querySelector(":scope > span.endpoint-text");
+    if (!textEl) {
+      textEl = document.createElement("span");
+      textEl.className = "endpoint-text";
+      endpoint.appendChild(textEl);
+    }
+    if (textEl.textContent !== text) {
+      textEl.textContent = text;
+    }
+  }
+
+  _syncRouteSep(routeEl) {
+    const origin = routeEl.querySelector(':scope > [data-endpoint="origin"]');
+    const dest = routeEl.querySelector(':scope > [data-endpoint="dest"]');
+    let sep = routeEl.querySelector(":scope > .route-sep");
+    if (origin && dest) {
+      if (!sep) {
+        sep = document.createElement("span");
+        sep.className = "route-sep";
+        sep.textContent = "→";
+      }
+      if (origin.nextSibling !== sep) {
+        routeEl.insertBefore(sep, origin.nextSibling);
+      }
+    } else if (sep) {
+      sep.remove();
+    }
+  }
+
+  _setMeta(row, snap) {
+    const stats = [
+      snap.distance != null ? `Dist ${snap.distance}` : "",
+      snap.closest != null ? `Closest ${snap.closest}` : "",
+      snap.speed || "",
+      snap.altitude || "",
+    ].filter(Boolean);
+
+    let meta = row.querySelector(":scope > .flight-meta");
+    if (!stats.length) {
+      if (meta) {
+        meta.remove();
+      }
+      return;
+    }
+    if (!meta) {
+      meta = document.createElement("div");
+      meta.className = "flight-meta";
+      row.appendChild(meta);
+    }
+
+    const existing = [...meta.children];
+    stats.forEach((text, index) => {
+      let span = existing[index];
+      if (!span) {
+        span = document.createElement("span");
+        meta.appendChild(span);
+      }
+      if (span.textContent !== text) {
+        span.textContent = text;
+      }
+    });
+    for (let i = stats.length; i < existing.length; i++) {
+      existing[i].remove();
+    }
+  }
+
+  _createFlightRow(snap) {
+    const row = document.createElement("div");
+    row.className = `flight${snap.selected ? " selected" : ""}`;
+    row.dataset.flightId = snap.id;
+
+    const main = document.createElement("div");
+    main.className = "flight-main";
+
+    const icon = document.createElement("ha-icon");
+    icon.setAttribute("icon", snap.icon);
+    main.appendChild(icon);
+
+    row.appendChild(main);
+
+    const route = document.createElement("div");
+    route.className = "flight-route";
+    row.appendChild(route);
+
+    this._patchFlightRow(row, snap, null);
+    return row;
+  }
+
+  _patchFlightRow(row, snap, prev) {
+    row.classList.toggle("selected", !!snap.selected);
+
+    const main = row.querySelector(":scope > .flight-main");
+    if (!main) {
+      return;
+    }
+
+    const icon = main.querySelector("ha-icon");
+    if (icon && (!prev || prev.icon !== snap.icon)) {
+      icon.setAttribute("icon", snap.icon);
+    }
+
+    if (
+      !prev ||
+      prev.label !== snap.label ||
+      prev.fr24Url !== snap.fr24Url
+    ) {
+      this._setFlightLabel(main, snap.label, snap.fr24Url);
+    }
+
+    if (!prev || prev.aircraft !== snap.aircraft) {
+      this._setOptionalText(main, "flight-type", snap.aircraft);
+    }
+    if (!prev || prev.airline !== snap.airline) {
+      this._setOptionalText(main, "muted", snap.airline);
+    }
+
+    const hasRoute =
+      !!(snap.originCity || snap.depTime || snap.destCity || snap.arrTime);
+    let route = row.querySelector(":scope > .flight-route");
+    if (!hasRoute) {
+      if (route) {
+        route.remove();
+      }
+    } else {
+      if (!route) {
+        route = document.createElement("div");
+        route.className = "flight-route";
+        const meta = row.querySelector(":scope > .flight-meta");
+        if (meta) {
+          row.insertBefore(route, meta);
+        } else {
+          row.appendChild(route);
+        }
+      }
+      if (
+        !prev ||
+        prev.originCity !== snap.originCity ||
+        prev.depTime !== snap.depTime ||
+        prev.originCode !== snap.originCode ||
+        prev.originName !== snap.originName
+      ) {
+        this._setRouteEndpoint(route, "origin", snap);
+      }
+      if (
+        !prev ||
+        prev.destCity !== snap.destCity ||
+        prev.arrTime !== snap.arrTime ||
+        prev.destCode !== snap.destCode ||
+        prev.destName !== snap.destName
+      ) {
+        this._setRouteEndpoint(route, "dest", snap);
+      }
+      this._syncRouteSep(route);
+    }
+
+    if (
+      !prev ||
+      prev.distance !== snap.distance ||
+      prev.closest !== snap.closest ||
+      prev.speed !== snap.speed ||
+      prev.altitude !== snap.altitude
+    ) {
+      this._setMeta(row, snap);
+    }
+  }
+
+  _bindFlightsList(flightsEl) {
+    if (!flightsEl || flightsEl._frClickBound) {
+      return;
+    }
+    flightsEl._frClickBound = true;
+    flightsEl.addEventListener("click", (event) => {
+      if (event.target.closest("a")) {
+        return;
+      }
+      const row = event.target.closest(".flight[data-flight-id]");
+      if (!row) {
+        return;
+      }
+      const flightId = row.dataset.flightId;
+      if (!flightId) {
+        return;
+      }
+      this._selectFlight(flightId, { openPopup: true });
+    });
+  }
+
+  _syncFlightListSelection({ scrollToSelected = false } = {}) {
+    for (const [id, row] of this._flightRowById) {
+      row.classList.toggle("selected", id === this._selectedFlightId);
+      const snap = this._flightSnapshotById.get(id);
+      if (snap) {
+        snap.selected = id === this._selectedFlightId;
+      }
+    }
+    if (!scrollToSelected || !this._selectedFlightId) {
+      return;
+    }
+    const selectedRow = this._flightRowById.get(this._selectedFlightId);
+    if (selectedRow) {
+      selectedRow.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }
+  }
+
+  async _selectFlight(flightId, { scrollList = false, openPopup = false } = {}) {
+    this._selectedFlightId = flightId;
+    this._syncFlightListSelection({ scrollToSelected: scrollList });
+
+    if (!this._map) {
+      return;
+    }
+    const L = await loadLeaflet();
+    this._drawTracks(L, this._positionedFlights || []);
+
+    if (!openPopup) {
+      return;
+    }
+    const marker = this._markerById?.get(flightId);
+    if (!marker) {
+      return;
+    }
+    this._unlockMapForPopup(this._map);
+    marker.openPopup();
+    const popup = marker.getPopup();
+    if (popup) {
+      this._keepPopupInView(this._map, marker, popup);
+    }
+  }
+
+  /**
+   * Reconcile the flights list in place: patch changed fields, append new
+   * rows, remove rows that left the sensor. Never replaces the whole list
+   * via innerHTML — that destroyed flag <img> nodes and caused #306 flicker.
+   */
+  _renderFlightsList(flights, { scrollToSelected = false } = {}) {
+    const flightsEl = this.shadowRoot?.getElementById("flights");
+    if (!flightsEl || this._config?.show_flights === false) {
+      return;
+    }
+    this._bindFlightsList(flightsEl);
+    flightsEl.style.display = "flex";
+
+    // Shell rebuild leaves detached nodes in the maps — drop them.
+    if (this._flightRowById.size) {
+      const sample = this._flightRowById.values().next().value;
+      if (sample && sample.parentElement !== flightsEl) {
+        this._clearFlightRows();
+      }
+    }
+
+    const list = Array.isArray(flights) ? flights : [];
+
+    if (!list.length) {
+      for (const row of this._flightRowById.values()) {
+        row.remove();
+      }
+      this._clearFlightRows();
+      if (!flightsEl.querySelector(":scope > .empty")) {
+        flightsEl.replaceChildren();
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        empty.textContent = "No flights in area";
+        flightsEl.appendChild(empty);
+      }
+      return;
+    }
+
+    const emptyEl = flightsEl.querySelector(":scope > .empty");
+    if (emptyEl) {
+      emptyEl.remove();
+    }
+
+    const nextIds = new Set();
+    const orderedRows = [];
+
+    for (const flight of list) {
+      const snap = this._flightRowSnapshot(flight);
+      const id = snap.id;
+      nextIds.add(id);
+
+      let row = this._flightRowById.get(id);
+      const prev = this._flightSnapshotById.get(id);
+      if (!row) {
+        row = this._createFlightRow(snap);
+        this._flightRowById.set(id, row);
+      } else {
+        this._patchFlightRow(row, snap, prev);
+      }
+      this._flightSnapshotById.set(id, snap);
+      orderedRows.push(row);
+    }
+
+    for (const [id, row] of [...this._flightRowById.entries()]) {
+      if (!nextIds.has(id)) {
+        row.remove();
+        this._flightRowById.delete(id);
+        this._flightSnapshotById.delete(id);
+      }
+    }
+
+    // Keep DOM order aligned with the sensor without recreating nodes.
+    let previous = null;
+    for (const row of orderedRows) {
+      if (previous === null) {
+        if (flightsEl.firstChild !== row) {
+          flightsEl.insertBefore(row, flightsEl.firstChild);
+        }
+      } else if (previous.nextSibling !== row) {
+        flightsEl.insertBefore(row, previous.nextSibling);
+      }
+      previous = row;
+    }
+
+    if (scrollToSelected && this._selectedFlightId) {
+      const selectedRow = this._flightRowById.get(this._selectedFlightId);
+      if (selectedRow) {
+        selectedRow.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      }
+    }
+  }
+
+  _styles() {
+    return `
+      :host { display: block; }
+      ha-card { overflow: hidden; }
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        padding: 12px 16px 8px;
+        gap: 8px;
+      }
+      .header h2 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: var(--primary-text-color);
+      }
+      .count {
+        color: var(--secondary-text-color);
+        font-size: 0.9rem;
+      }
+      .map-wrap {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 16 / 10;
+        background: var(--divider-color);
+        z-index: 0;
+      }
+      .map-actions {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 1000;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        max-width: calc(100% - 64px);
+      }
+      .map-actions[hidden], .map-actions button[hidden] { display: none; }
+      .map-actions button {
+        min-height: 44px;
+        padding: 8px 12px;
+        border: 1px solid var(--divider-color);
+        border-radius: 4px;
+        background: var(--card-background-color, white);
+        color: var(--primary-text-color, black);
+        cursor: pointer;
+        font: inherit;
+      }
+      #map {
+        width: 100%;
+        height: 100%;
+      }
+      /* HA dark themes inherit light text; force readable OSM credit. */
+      .leaflet-control-attribution {
+        background: rgba(255, 255, 255, 0.9);
+        color: #333;
+        font-size: 11px;
+        line-height: 1.3;
+        max-width: calc(100% - 10px);
+        margin: 0;
+        padding: 2px 6px;
+        box-sizing: border-box;
+      }
+      .leaflet-control-attribution a {
+        color: #0078a8;
+      }
+      .warning, .empty {
+        padding: 16px;
+        color: var(--secondary-text-color);
+      }
+      .flights {
+        padding: 8px 16px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        max-height: 280px;
+        overflow: auto;
+      }
+      .flight {
+        border-top: 1px solid var(--divider-color);
+        padding: 8px 8px 0;
+        margin: 0 -8px;
+        cursor: pointer;
+      }
+      .flight.selected {
+        background: color-mix(in srgb, var(--primary-color, #03a9f4) 14%, transparent);
+        border-radius: 8px;
+        box-shadow: inset 0 0 0 2px var(--primary-color, #03a9f4);
+      }
+      .flight.selected + .flight {
+        border-top-color: transparent;
+      }
+      .flight-main {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        color: var(--primary-text-color);
+      }
+      .flight-main ha-icon {
+        --mdc-icon-size: 18px;
+        color: var(--state-icon-color, var(--primary-color));
+        flex-shrink: 0;
+      }
+      .flight-main .flight-type {
+        color: var(--secondary-text-color);
+      }
+      .flight-link {
+        font-weight: 600;
+        color: var(--primary-color, #03a9f4);
+        text-decoration: none;
+      }
+      .flight-link:hover {
+        text-decoration: underline;
+      }
+      .flight-route,
+      .flight-meta {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px 10px;
+        margin-top: 4px;
+        margin-left: 26px;
+        color: var(--secondary-text-color);
+        font-size: 0.85rem;
+      }
+      .flight-route .route-endpoint {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .flight-route .flag {
+        width: 16px;
+        height: 12px;
+        vertical-align: middle;
+        border-radius: 2px;
+        object-fit: cover;
+        flex-shrink: 0;
+        background: transparent;
+        filter: none !important;
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15);
+      }
+      .route-sep {
+        opacity: 0.7;
+      }
+      .muted { color: var(--secondary-text-color); font-weight: 400; }
+      .ac-icon {
+        background: transparent;
+        border: none;
+      }
+      .ac-marker {
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary-color, #03a9f4);
+        filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.45));
+        transform-origin: center center;
+      }
+      .ac-marker svg {
+        width: 26px;
+        height: 26px;
+        fill: currentColor;
+      }
+      .area-center-icon {
+        background: transparent;
+        border: none;
+      }
+      .area-center-marker {
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--accent-color, #ff5722);
+        filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.45));
+      }
+      .area-center-marker svg {
+        width: 22px;
+        height: 22px;
+        fill: currentColor;
+      }
+      .leaflet-popup-content-wrapper,
+      .leaflet-popup-tip {
+        /* Leaflet's bubble is white; HA dark/glass themes still inject light
+           --*-text-color into the popup, so aircraft details vanished on
+           themes like Frosted glass dark lite (#310). Keep an opaque light
+           surface with dark type — same approach as the OSM attribution. */
+        background: #fff;
+        color: #212121;
+        box-shadow: 0 3px 14px rgba(0, 0, 0, 0.35);
+      }
+      .leaflet-popup-content-wrapper {
+        width: 200px;
+        min-width: 200px;
+        max-width: 200px;
+        padding: 0;
+        overflow: hidden;
+        box-sizing: border-box;
+      }
+      .leaflet-container .leaflet-popup-content {
+        margin: 0 !important;
+        padding: 6px 8px !important;
+        font-size: 0.8rem;
+        line-height: 1.2;
+        width: 200px !important;
+        max-width: 200px !important;
+        min-height: 0;
+        box-sizing: border-box;
+        overflow: hidden;
+        text-align: left;
+        color: #212121;
+      }
+      .leaflet-popup-content .popup-photo,
+      .popup-photo {
+        display: block;
+        width: 100%;
+        max-width: 100%;
+        max-height: 110px;
+        height: auto;
+        border-radius: 6px;
+        margin: 0 0 6px;
+        object-fit: cover;
+        box-sizing: border-box;
+      }
+      .fr-popup {
+        color: #212121;
+        width: 100%;
+        max-width: 100%;
+        overflow: hidden;
+        box-sizing: border-box;
+      }
+      .popup-body {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+      }
+      .popup-title {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        line-height: 1.2;
+        color: #212121;
+      }
+      .popup-fr24-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0;
+        color: var(--primary-color, #0277bd);
+        text-decoration: none;
+        font-size: 0.85rem;
+        line-height: 1;
+      }
+      .popup-fr24-link:hover {
+        text-decoration: none;
+        opacity: 0.8;
+      }
+      .popup-line {
+        margin-top: 2px;
+        line-height: 1.2;
+      }
+      .popup-meta,
+      .popup-route,
+      .popup-stats {
+        color: #5c5c5c;
+        font-size: 0.75rem;
+      }
+      .popup-stats span + span::before {
+        content: "·";
+        margin: 0 5px;
+        opacity: 0.55;
+      }
+    `;
+  }
+
+  _renderShell() {
+    if (!this.shadowRoot || !this._config) {
+      return;
+    }
+    // Healthy: DOM + Leaflet instance both present.
+    if (this.shadowRoot.getElementById("map") && this._map) {
+      return;
+    }
+    // Rebuild after refresh / partial teardown.
+    this._destroyMap();
+    this.shadowRoot.innerHTML = `
+      <style>${this._styles()}</style>
+      <link rel="stylesheet" href="${LEAFLET_CSS}">
+      <ha-card>
+        <div class="header">
+          <h2 id="title"></h2>
+          <div class="count" id="count"></div>
+        </div>
+        <div class="map-wrap">
+          <div id="map"></div>
+          <div class="map-actions" id="map-actions" hidden>
+            <button id="close-details" type="button" hidden>Close details</button>
+            <button id="reset-view" type="button">Reset view</button>
+          </div>
+        </div>
+        <div class="warning" id="warning" style="display:none;"></div>
+        <div class="flights" id="flights"></div>
+      </ha-card>
+    `;
+    this.shadowRoot.getElementById("close-details").addEventListener("click", () => {
+      this._map?.closePopup();
+    });
+    this.shadowRoot.getElementById("reset-view").addEventListener("click", () => {
+      this._resetMapView();
+    });
+    this._syncMapControls();
+  }
+
+  _syncMapControls() {
+    const actions = this.shadowRoot?.getElementById("map-actions");
+    const close = this.shadowRoot?.getElementById("close-details");
+    if (actions) actions.hidden = this._config?.interactive_map !== true;
+    if (close) close.hidden = !this._openPopupFlightId;
+  }
+
+  _configureMapInteraction() {
+    const map = this._map;
+    const interactive = this._config?.interactive_map === true;
+    if (map) {
+      for (const handler of [map.dragging, map.touchZoom]) {
+        if (interactive) handler.enable();
+        else handler.disable();
+      }
+      map.setMaxBounds(interactive ? null : this._areaMaxBounds);
+      if (!interactive) this._lockMapToArea(map);
+    }
+    this._syncMapControls();
+  }
+
+  _resetMapView() {
+    const map = this._map;
+    if (!map || !this._areaBounds) return;
+    map.closePopup();
+    map.invalidateSize();
+    const zoom = this._configuredZoom();
+    if (zoom != null) map.setView(this._areaBounds.getCenter(), zoom);
+    else map.fitBounds(this._areaBounds, { padding: [0, 0] });
+  }
+
+  async _ensureMap() {
+    const mapEl = this.shadowRoot?.getElementById("map");
+    if (!mapEl) {
+      return null;
+    }
+    if (this._map) {
+      return this._map;
+    }
+    // Serialize concurrent inits (hass + connectedCallback on refresh).
+    if (this._mapInitPromise) {
+      return this._mapInitPromise;
+    }
+    this._mapInitPromise = this._initMap(mapEl);
+    try {
+      return await this._mapInitPromise;
+    } finally {
+      this._mapInitPromise = null;
+    }
+  }
+
+  async _initMap(mapEl) {
+    const L = await loadLeaflet();
+    if (this._map) {
+      return this._map;
+    }
+    // DOM may have been rebuilt while we awaited Leaflet.
+    const currentEl = this.shadowRoot?.getElementById("map");
+    if (!this.isConnected || !currentEl) {
+      return null;
+    }
+    mapEl = currentEl;
+    // Element may still carry Leaflet state after a partial teardown.
+    if (mapEl._leaflet_id) {
+      delete mapEl._leaflet_id;
+      mapEl.innerHTML = "";
+    }
+    this._map = L.map(mapEl, {
+      zoomControl: true,
+      attributionControl: false,
+      dragging: this._config?.interactive_map === true,
+      scrollWheelZoom: true,
+      doubleClickZoom: false,
+      boxZoom: false,
+      keyboard: false,
+      touchZoom: this._config?.interactive_map === true,
+    });
+    this._syncMapControls();
+    L.control
+      .attribution({
+        prefix: false,
+        position: "bottomright",
+      })
+      .addTo(this._map);
+    this._syncTileLayer();
+    this._markers = L.layerGroup().addTo(this._map);
+    this._tracks = L.layerGroup().addTo(this._map);
+    this._markerById = new Map();
+    // Observe #map (fills .map-wrap): section layout and aspect-ratio changes
+    // resize the map node itself, so wrap-level observation is unnecessary.
+    this._resizeObserver?.disconnect();
+    this._resizeObserver = new ResizeObserver(() => {
+      this._map?.invalidateSize({ debounceMoveend: true });
+    });
+    this._resizeObserver.observe(mapEl);
+    // Leaflet needs a tick after being inserted into shadow DOM.
+    requestAnimationFrame(() => this._map?.invalidateSize());
+    return this._map;
+  }
+
+  _syncTileLayer() {
+    if (!this._map || !window.L) {
+      return;
+    }
+    const L = window.L;
+    const styleKey = resolveMapStyle(this._config?.map_style);
+    const style = MAP_STYLES[styleKey];
+    if (this._tileLayer) {
+      try {
+        this._map.removeLayer(this._tileLayer);
+      } catch (_error) {
+        // ignore — layer may already be detached
+      }
+      this._tileLayer = null;
+    }
+    // OSM tile usage: https://wiki.openstreetmap.org/wiki/Referer
+    // HA often sets Referrer-Policy: no-referrer/same-origin, which OSM rejects.
+    // Leaflet < May 2026 needs an explicit tile referrerPolicy.
+    const options = {
+      maxZoom: style.maxZoom,
+      attribution: style.attribution,
+      referrerPolicy: "strict-origin-when-cross-origin",
+    };
+    if (style.subdomains) {
+      options.subdomains = style.subdomains;
+    }
+    this._tileLayer = L.tileLayer(style.url, options).addTo(this._map);
+  }
+
+  /**
+   * Map marker SVG. Airplane art points up (north); MDI helicopter points
+   * right (east), so helicopters get a -90° bias to match heading.
+   */
+  _planeIcon(L, flight) {
+    const heading = flight?.heading;
+    const helicopter = this._isHelicopter(flight);
+    let rotation =
+      heading == null || Number.isNaN(Number(heading)) ? 0 : Number(heading);
+    if (helicopter) {
+      rotation -= 90;
+    }
+    const size = this._configuredIconSize();
+    const svgSize = Math.max(8, size - 2);
+    const anchor = size / 2;
+    // Airplane: Material airplane. Helicopter: mdi-helicopter path.
+    const path = helicopter
+      ? "M3,3H17V5H3V3M23,6V10.5L14.75,12.2C14.91,12.6 15,13.04 15,13.5C15,14.9 14.18,16.1 13,16.66V17L13,19H16V21H4A3,3 0 0,1 1,18V17H3V18A1,1 0 0,0 4,19H5V16.74C3.25,16.13 2,14.46 2,12.5C2,10 4,8 6.5,8H9V6H11V8H21V6H23M11,19V17H7V19H11M7.5,10C6.12,10 5,10.9 5,12C5,13.1 6.12,14 7.5,14C8.88,14 10,13.1 10,12C10,10.9 8.88,10 7.5,10Z"
+      : "M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z";
+    return L.divIcon({
+      className: "ac-icon",
+      iconSize: [size, size],
+      iconAnchor: [anchor, anchor],
+      html: `
+        <div class="ac-marker" style="width:${size}px;height:${size}px;transform: rotate(${rotation}deg)">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="width:${svgSize}px;height:${svgSize}px">
+            <path d="${path}"/>
+          </svg>
+        </div>
+      `,
+    });
+  }
+
+  _markerIconKey(flight) {
+    const heli = this._isHelicopter(flight) ? "1" : "0";
+    return `${heli}:${String(flight?.heading ?? "")}`;
+  }
+
+  _removeAreaCenterMarker(map = this._map) {
+    if (this._areaCenterMarker && map) {
+      map.removeLayer(this._areaCenterMarker);
+    }
+    this._areaCenterMarker = null;
+    this._areaCenterMarkerPos = null;
+  }
+
+  _removeAreaRect(map = this._map) {
+    if (this._areaRect && map) {
+      map.removeLayer(this._areaRect);
+    }
+    this._areaRect = null;
+  }
+
+  _areaCenterIcon(L) {
+    return L.divIcon({
+      className: "area-center-icon",
+      iconSize: [24, 24],
+      iconAnchor: [12, 12],
+      html: `
+        <div class="area-center-marker">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+          </svg>
+        </div>
+      `,
+    });
+  }
+
+  /**
+   * Marker at the centre of the observed area - the latitude/longitude this
+   * device is configured with. Deliberately not zone.home: with several
+   * Flightradar24 devices watching different points, only the bounds centre
+   * is correct for the device this card is showing.
+   */
+  _syncAreaCenterMarker(L, map, parsed) {
+    if (this._config.show_area_center === false) {
+      this._removeAreaCenterMarker(map);
+      return;
+    }
+    // parsed is non-null and numeric here: _parseBounds rejects both, and
+    // _syncMap is not reached otherwise.
+    const posKey = `${parsed.lat},${parsed.lon}`;
+    if (this._areaCenterMarker) {
+      if (posKey !== this._areaCenterMarkerPos) {
+        this._areaCenterMarker.setLatLng([parsed.lat, parsed.lon]);
+        this._areaCenterMarkerPos = posKey;
+      }
+      return;
+    }
+    this._areaCenterMarker = L.marker([parsed.lat, parsed.lon], {
+      icon: this._areaCenterIcon(L),
+      keyboard: false,
+      // Above aircraft: a fixed reference point should stay findable inside
+      // a dense cluster of markers.
+      zIndexOffset: 1000,
+    }).addTo(map);
+    this._areaCenterMarkerPos = posKey;
+  }
+
+  /**
+   * Optional blue outline/tint for the monitored area. Geographic bounds and
+   * the viewport still update when this overlay is hidden.
+   */
+  _syncAreaOverlay(L, map, areaBounds, boundsKey) {
+    if (this._config.show_area === false) {
+      this._removeAreaRect(map);
+      return;
+    }
+    if (this._areaRect && boundsKey === this._lastBoundsKey) {
+      return;
+    }
+    this._removeAreaRect(map);
+    this._areaRect = L.rectangle(areaBounds, {
+      color: "#03a9f4",
+      weight: 2,
+      fillOpacity: 0.06,
+    }).addTo(map);
+  }
+
+  _flightId(flight) {
+    return flight?.id || this._flightLabel(flight);
+  }
+
+  _normalizeTrack(coordinates) {
+    if (!Array.isArray(coordinates)) {
+      return [];
+    }
+    return coordinates
+      .filter((point) => Array.isArray(point) && point.length >= 2)
+      .map((point) => [Number(point[0]), Number(point[1])])
+      .filter(
+        (point) => !Number.isNaN(point[0]) && !Number.isNaN(point[1])
+      );
+  }
+
+  _clearTracks() {
+    if (this._tracks) {
+      this._tracks.clearLayers();
+    }
+  }
+
+  _drawTracks(L, flights) {
+    this._clearTracks();
+    if (!this._tracks) {
+      return;
+    }
+
+    const showAll = this._config.show_tracks !== false;
+    const selectedId = this._selectedFlightId;
+    let selectedPolyline = null;
+
+    for (const flight of flights) {
+      const track = this._normalizeTrack(flight?.coordinates);
+      if (track.length < 2) {
+        continue;
+      }
+      const flightId = this._flightId(flight);
+      const selected = selectedId != null && flightId === selectedId;
+      if (!showAll && !selected) {
+        continue;
+      }
+      const polyline = L.polyline(track, {
+        color: selected ? "#e53935" : "#ff9800",
+        weight: selected ? 5 : 3,
+        opacity: selected ? 1 : 0.85,
+        lineJoin: "round",
+        lineCap: "round",
+      }).addTo(this._tracks);
+      if (selected) {
+        selectedPolyline = polyline;
+      }
+    }
+
+    // Keep the highlighted route above the others.
+    if (selectedPolyline) {
+      selectedPolyline.bringToFront();
+    }
+  }
+
+  _popupHtml(flight) {
+    const number = this._flightLabel(flight);
+    const fr24Url = this._flightFr24Url(flight);
+    const aircraft = flight.aircraft_model || flight.aircraft_code || "";
+    const airline = flight.airline_short || flight.airline || "";
+    const origin =
+      flight.airport_origin_city || flight.airport_origin_code_iata || "";
+    const dest =
+      flight.airport_destination_city ||
+      flight.airport_destination_code_iata ||
+      "";
+    const route = [origin, dest].filter(Boolean).join(" → ");
+    const headMeta = [aircraft, airline]
+      .filter(Boolean)
+      .map((value) => this._escape(value))
+      .join(" · ");
+    const photo =
+      flight.aircraft_photo_medium ||
+      flight.aircraft_photo_large ||
+      flight.aircraft_photo_small;
+    const photoHtml = photo
+      ? `<img class="popup-photo" src="${this._escape(photo)}" alt="${this._escape(number)}" loading="lazy" />`
+      : "";
+    const altitude = this._formatAltitude(flight.altitude);
+    const speed = this._formatSpeed(flight.ground_speed);
+    const distance = this._formatDistance(flight.distance);
+    const closest = this._formatDistance(flight.closest_distance);
+    const motionStats = [
+      altitude ? this._escape(altitude) : "",
+      speed ? this._escape(speed) : "",
+    ].filter(Boolean);
+    const distanceStats = [
+      distance ? `Dist ${this._escape(distance)}` : "",
+      closest ? `Min ${this._escape(closest)}` : "",
+    ].filter(Boolean);
+    const statsLine = (items) =>
+      items.map((item) => `<span>${item}</span>`).join("");
+
+    return `
+      <div class="fr-popup">
+        ${photoHtml}
+        <div class="popup-body">
+          <div class="popup-title">
+            <span>${this._escape(number)}</span>
+            ${this._flightFr24IconLink(fr24Url)}
+          </div>
+          ${headMeta ? `<div class="popup-line popup-meta">${headMeta}</div>` : ""}
+          ${route ? `<div class="popup-line popup-route">${this._escape(route)}</div>` : ""}
+          ${
+            motionStats.length
+              ? `<div class="popup-line popup-stats">${statsLine(motionStats)}</div>`
+              : ""
+          }
+          ${
+            distanceStats.length
+              ? `<div class="popup-line popup-stats">${statsLine(distanceStats)}</div>`
+              : ""
+          }
+        </div>
+      </div>
+    `;
+  }
+
+  _unlockMapForPopup(map) {
+    if (!map || this._maxBoundsSuspended) {
+      return;
+    }
+    this._maxBoundsSuspended = true;
+    map.setMaxBounds(null);
+  }
+
+  _configuredZoom() {
+    const zoom = this._config?.zoom;
+    if (zoom == null || zoom === "") {
+      return null;
+    }
+    const value = Number(zoom);
+    if (Number.isNaN(value)) {
+      return null;
+    }
+    return Math.min(19, Math.max(1, Math.round(value)));
+  }
+
+  _configuredIconSize() {
+    const iconSize = this._config?.icon_size;
+    if (iconSize == null || iconSize === "") {
+      return 28;
+    }
+    const value = Number(iconSize);
+    if (Number.isNaN(value)) {
+      return 28;
+    }
+    return Math.min(64, Math.max(12, Math.round(value)));
+  }
+
+  _applyAreaViewport(map, parsed, areaBounds, { animate = false } = {}) {
+    if (!map || this._openPopupFlightId) {
+      return;
+    }
+    map.invalidateSize();
+    const zoom = this._configuredZoom();
+    if (zoom != null) {
+      map.setView([parsed.lat, parsed.lon], zoom, { animate });
+      return;
+    }
+    map.fitBounds(areaBounds, { padding: [0, 0], animate });
+  }
+
+  _lockMapToArea(map, { animate = false } = {}) {
+    this._syncMapControls();
+    // Interactive navigation survives popup close and flight updates.
+    if (!map || this._config?.interactive_map === true) {
+      return;
+    }
+    this._maxBoundsSuspended = false;
+    if (this._areaBounds) {
+      const zoom = this._configuredZoom();
+      if (zoom != null) {
+        const center = this._areaBounds.getCenter();
+        map.setView(center, zoom, { animate });
+      } else {
+        map.fitBounds(this._areaBounds, { padding: [0, 0], animate });
+      }
+    }
+    if (this._areaMaxBounds) {
+      map.setMaxBounds(this._areaMaxBounds);
+      map.options.maxBoundsViscosity = 1.0;
+    }
+  }
+
+  _keepPopupInView(map, marker, popup) {
+    if (!map || !popup || !marker) {
+      return;
+    }
+    // Interactive mode keeps the user's camera; Close details / Reset view recover.
+    if (this._config?.interactive_map === true) {
+      return;
+    }
+    const adjust = () => {
+      if (!popup.isOpen()) {
+        return;
+      }
+      // Must unlock before pan, otherwise maxBounds eats the adjustment.
+      this._unlockMapForPopup(map);
+      popup.update();
+
+      // Prefer Leaflet's own auto-pan math (correct pixel signs).
+      if (typeof popup._adjustPan === "function") {
+        const prev = popup.options.autoPan;
+        popup.options.autoPan = true;
+        popup.options.autoPanPadding = [12, 12];
+        popup._adjustPan();
+        popup.options.autoPan = prev;
+        return;
+      }
+
+      // Fallback: same sign convention as Leaflet Popup._adjustPan.
+      const el = popup.getElement();
+      if (!el) {
+        return;
+      }
+      const size = map.getSize();
+      const tip = map.latLngToContainerPoint(marker.getLatLng());
+      const w = el.offsetWidth;
+      const h = el.offsetHeight;
+      const tipH = 12;
+      const left = tip.x - w / 2;
+      const right = tip.x + w / 2;
+      const top = tip.y - h - tipH;
+      const bottom = tip.y;
+      const pad = 12;
+      let dx = 0;
+      let dy = 0;
+      if (right > size.x - pad) {
+        dx = right - (size.x - pad);
+      }
+      if (left + dx < pad) {
+        dx = left - pad;
+      }
+      if (bottom > size.y - pad) {
+        dy = bottom - (size.y - pad);
+      }
+      if (top + dy < pad) {
+        dy = top - pad;
+      }
+      if (dx !== 0 || dy !== 0) {
+        map.panBy([dx, dy], { animate: false });
+      }
+    };
+
+    // One layout pass after open — avoid repeated pans on sensor ticks.
+    requestAnimationFrame(() => requestAnimationFrame(adjust));
+    const img = popup.getElement()?.querySelector("img");
+    if (img && !img.complete) {
+      img.addEventListener("load", adjust, { once: true });
+    }
+  }
+
+  async _syncMap(parsed, flights) {
+    const L = await loadLeaflet();
+    const map = await this._ensureMap();
+    if (!map || !this._markers) {
+      return;
+    }
+
+    const mapWrap = this.shadowRoot?.querySelector(".map-wrap");
+    const areaBounds = L.latLngBounds(
+      [parsed.south, parsed.west],
+      [parsed.north, parsed.east]
+    );
+
+    this._syncAreaCenterMarker(L, map, parsed);
+
+    const boundsKey = `${parsed.south},${parsed.west},${parsed.north},${parsed.east}`;
+    this._syncAreaOverlay(L, map, areaBounds, boundsKey);
+
+    const configuredZoom = this._configuredZoom();
+    const viewportKey = `${boundsKey}|zoom:${configuredZoom ?? "auto"}`;
+    if (viewportKey !== this._lastViewportKey) {
+      this._lastViewportKey = viewportKey;
+
+      if (boundsKey !== this._lastBoundsKey) {
+        this._lastBoundsKey = boundsKey;
+
+        // Match map viewport aspect ratio to the geographic bounds so fitBounds
+        // can pin the zone flush to all four edges (no letterboxing).
+        if (mapWrap) {
+          const latSpan = Math.max(Math.abs(parsed.north - parsed.south), 1e-6);
+          const lonSpan = Math.max(Math.abs(parsed.east - parsed.west), 1e-6);
+          const widthFactor = lonSpan * Math.cos((parsed.lat * Math.PI) / 180);
+          mapWrap.style.aspectRatio = `${widthFactor} / ${latSpan}`;
+        }
+
+        this._areaBounds = areaBounds;
+        this._areaMaxBounds = areaBounds.pad(0.02);
+        if (!this._openPopupFlightId && this._config?.interactive_map !== true) {
+          map.setMaxBounds(this._areaMaxBounds);
+          map.options.maxBoundsViscosity = 1.0;
+        }
+      }
+
+      // Size must be correct before fitting, otherwise zoom is wrong.
+      // Never refit while a popup is open — that causes a visible jump.
+      this._applyAreaViewport(map, parsed, areaBounds, { animate: false });
+      requestAnimationFrame(() => {
+        if (viewportKey !== this._lastViewportKey) {
+          return;
+        }
+        this._applyAreaViewport(map, parsed, areaBounds, { animate: false });
+      });
+    }
+
+    const positioned = flights.filter(
+      (flight) =>
+        flight &&
+        flight.latitude != null &&
+        flight.longitude != null &&
+        !Number.isNaN(Number(flight.latitude)) &&
+        !Number.isNaN(Number(flight.longitude))
+    );
+    this._positionedFlights = positioned;
+
+    const flightsKey = [
+      this._config.show_tracks !== false ? "tracks:1" : "tracks:0",
+      `icon:${this._configuredIconSize()}`,
+      `units:${this._config.altitude_unit}|${this._config.distance_unit}|${this._config.speed_unit}`,
+      `selected:${this._selectedFlightId || ""}`,
+      ...positioned.map((flight) => {
+        const trackLen = Array.isArray(flight.coordinates)
+          ? flight.coordinates.length
+          : 0;
+        const heli = this._isHelicopter(flight) ? "1" : "0";
+        return `${this._flightId(flight)}:${flight.latitude}:${flight.longitude}:${flight.heading ?? ""}:${trackLen}:heli:${heli}`;
+      }),
+    ].join("|");
+    if (flightsKey === this._lastFlightsKey) {
+      return;
+    }
+    this._lastFlightsKey = flightsKey;
+
+    if (this._selectedFlightId) {
+      const stillThere = positioned.some(
+        (flight) => this._flightId(flight) === this._selectedFlightId
+      );
+      if (!stillThere) {
+        this._selectedFlightId = null;
+      }
+    }
+
+    if (this._openPopupFlightId) {
+      const stillOpen = positioned.some(
+        (flight) => this._flightId(flight) === this._openPopupFlightId
+      );
+      if (!stillOpen) {
+        this._openPopupFlightId = null;
+        this._lockMapToArea(map, { animate: true });
+      }
+    }
+
+    if (!this._markerById) {
+      this._markerById = new Map();
+    }
+
+    const nextIds = new Set(positioned.map((flight) => this._flightId(flight)));
+    for (const [flightId, marker] of [...this._markerById.entries()]) {
+      if (!nextIds.has(flightId)) {
+        this._rebuildingMarkers = true;
+        this._markers.removeLayer(marker);
+        this._rebuildingMarkers = false;
+        this._markerById.delete(flightId);
+      }
+    }
+
+    for (const flight of positioned) {
+      const flightId = this._flightId(flight);
+      const latLng = [Number(flight.latitude), Number(flight.longitude)];
+      const popupHtml = this._popupHtml(flight);
+      let marker = this._markerById.get(flightId);
+
+      if (!marker) {
+        marker = L.marker(latLng, {
+          icon: this._planeIcon(L, flight),
+          title: this._flightLabel(flight),
+        });
+        marker.bindPopup(popupHtml, {
+          autoPan: false,
+          maxWidth: 200,
+          maxHeight: 220,
+          closeButton: true,
+          closeOnClick: true,
+        });
+        marker.on("popupopen", (event) => {
+          this._openPopupFlightId = flightId;
+          this._syncMapControls();
+          this._selectedFlightId = flightId;
+          this._syncFlightListSelection({
+            scrollToSelected: this._config?.interactive_map !== true,
+          });
+          // Unlock immediately so Leaflet auto-pan is not clamped.
+          this._unlockMapForPopup(map);
+          this._keepPopupInView(map, marker, event.popup);
+        });
+        marker.on("popupclose", () => {
+          if (this._rebuildingMarkers) {
+            return;
+          }
+          if (this._openPopupFlightId === flightId) {
+            this._openPopupFlightId = null;
+          }
+          this._lockMapToArea(map, { animate: true });
+        });
+        marker.on("click", (event) => {
+          L.DomEvent.stopPropagation(event);
+          this._selectFlight(flightId, {
+            scrollList: this._config?.interactive_map !== true,
+          });
+        });
+        marker._frIconKey = this._markerIconKey(flight);
+        marker._frPopupHtml = popupHtml;
+        this._markers.addLayer(marker);
+        this._markerById.set(flightId, marker);
+      } else {
+        marker.setLatLng(latLng);
+        const iconKey = this._markerIconKey(flight);
+        if (marker._frIconKey !== iconKey) {
+          marker._frIconKey = iconKey;
+          marker.setIcon(this._planeIcon(L, flight));
+        }
+        // Update content without tearing down an open popup.
+        if (marker._frPopupHtml !== popupHtml) {
+          marker._frPopupHtml = popupHtml;
+          const popup = marker.getPopup();
+          if (popup) {
+            popup.setContent(popupHtml);
+          }
+        }
+        // Do not re-pan on every sensor tick — that fights the open popup view.
+      }
+    }
+
+    this._drawTracks(L, positioned);
+  }
+
+  async _update() {
+    this._renderShell();
+    if (!this.shadowRoot || !this._config || !this._hass) {
+      return;
+    }
+
+    const headerEl = this.shadowRoot.querySelector(".header");
+    const titleEl = this.shadowRoot.getElementById("title");
+    const countEl = this.shadowRoot.getElementById("count");
+    const warningEl = this.shadowRoot.getElementById("warning");
+    const flightsEl = this.shadowRoot.getElementById("flights");
+    const mapWrap = this.shadowRoot.querySelector(".map-wrap");
+
+    if (headerEl) {
+      headerEl.style.display =
+        this._config.show_header === false ? "none" : "flex";
+    }
+
+    const state = this._hass.states[this._config.entity];
+    if (this._lastEntity !== this._config.entity) {
+      this._lastEntity = this._config.entity;
+      this._lastBoundsKey = null;
+      this._lastViewportKey = null;
+      this._lastFlightsKey = null;
+      this._clearFlightRows();
+      this._openPopupFlightId = null;
+      this._selectedFlightId = null;
+      this._markerById = new Map();
+      if (this._markers) {
+        this._rebuildingMarkers = true;
+        this._markers.clearLayers();
+        this._rebuildingMarkers = false;
+      }
+    }
+    if (!state) {
+      if (mapWrap) mapWrap.style.display = "none";
+      if (flightsEl) flightsEl.style.display = "none";
+      if (warningEl) {
+        warningEl.style.display = "block";
+        warningEl.textContent = `Entity not found: ${this._config.entity}`;
+      }
+      if (titleEl) titleEl.textContent = "Flightradar24";
+      if (countEl) countEl.textContent = "";
+      return;
+    }
+
+    const name =
+      this._config.title ||
+      state.attributes.friendly_name ||
+      this._config.entity;
+    if (titleEl) titleEl.textContent = name;
+    if (countEl) countEl.textContent = `${state.state} in area`;
+
+    const bounds = state.attributes.bounds;
+    const parsed = this._parseBounds(bounds);
+    const flights = Array.isArray(state.attributes.flights)
+      ? state.attributes.flights
+      : [];
+
+    if (!parsed) {
+      if (mapWrap) mapWrap.style.display = "none";
+      if (warningEl) {
+        warningEl.style.display = "block";
+        warningEl.textContent =
+          "No valid bounds attribute on this entity yet.";
+      }
+    } else {
+      if (mapWrap) mapWrap.style.display = "block";
+      if (warningEl) warningEl.style.display = "none";
+      try {
+        await this._syncMap(parsed, flights);
+      } catch (error) {
+        if (warningEl) {
+          warningEl.style.display = "block";
+          warningEl.textContent = `Map failed to load: ${error}`;
+        }
+      }
+    }
+
+    if (flightsEl) {
+      if (this._config.show_flights === false) {
+        flightsEl.style.display = "none";
+        flightsEl.replaceChildren();
+        this._clearFlightRows();
+      } else {
+        this._renderFlightsList(flights);
+      }
+    }
+  }
+}
+
+class Flightradar24CardEditor extends HTMLElement {
+  setConfig(config) {
+    this._config = { ...config };
+    this._render();
+  }
+
+  set hass(hass) {
+    this._hass = hass;
+    // Keep picker in sync without rebuilding the whole form on every hass tick.
+    const picker = this.shadowRoot?.querySelector("ha-entity-picker");
+    if (picker) {
+      picker.hass = hass;
+    } else {
+      this._render();
+    }
+  }
+
+  _fireConfigChanged(newConfig) {
+    this._config = newConfig;
+    this.dispatchEvent(
+      new CustomEvent("config-changed", {
+        detail: { config: newConfig },
+        bubbles: true,
+        composed: true,
+      })
+    );
+  }
+
+  _render() {
+    if (!this._config) {
+      return;
+    }
+    if (!this.shadowRoot) {
+      this.attachShadow({ mode: "open" });
+    }
+
+    this.shadowRoot.innerHTML = `
+      <style>
+        .row { display: block; padding: 8px 0; }
+        label { display: block; font-size: 0.85rem; color: var(--secondary-text-color); margin-bottom: 4px; }
+        input {
+          width: 100%;
+          box-sizing: border-box;
+          padding: 8px;
+          border-radius: 4px;
+          border: 1px solid var(--divider-color);
+          background: var(--card-background-color);
+          color: var(--primary-text-color);
+        }
+        select {
+          width: 100%;
+          box-sizing: border-box;
+          padding: 8px;
+          border-radius: 4px;
+          border: 1px solid var(--divider-color);
+          background: var(--card-background-color);
+          color: var(--primary-text-color);
+        }
+        .check { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+        .check input { width: auto; }
+        ha-entity-picker { display: block; width: 100%; }
+      </style>
+      <div class="row">
+        <label>Entity</label>
+        <div id="entity-picker"></div>
+      </div>
+      <div class="row">
+        <label>Title (optional)</label>
+        <input type="text" id="title" value="${this._escape(this._config.title || "")}" />
+      </div>
+      <div class="row check">
+        <input type="checkbox" id="show_header" ${this._config.show_header !== false ? "checked" : ""} />
+        <span>Show header</span>
+      </div>
+      <div class="row check">
+        <input type="checkbox" id="show_flights" ${this._config.show_flights !== false ? "checked" : ""} />
+        <span>Show flights list</span>
+      </div>
+      <div class="row check">
+        <input type="checkbox" id="show_tracks" ${this._config.show_tracks !== false ? "checked" : ""} />
+        <span>Show flight tracks</span>
+      </div>
+      <div class="row check">
+        <input type="checkbox" id="show_area" ${this._config.show_area !== false ? "checked" : ""} />
+        <span>Show monitored area outline</span>
+      </div>
+      <div class="row check">
+        <input type="checkbox" id="show_area_center" ${this._config.show_area_center !== false ? "checked" : ""} />
+        <span>Show area centre marker</span>
+      </div>
+      <div class="row check">
+        <input type="checkbox" id="interactive_map" ${this._config.interactive_map === true ? "checked" : ""} />
+        <span>Enable map dragging and pinch zoom</span>
+      </div>
+      <div class="row">
+        <label>Map style</label>
+        <select id="map_style">
+          ${Object.entries(MAP_STYLES)
+            .map(([key, style]) => {
+              const selected =
+                resolveMapStyle(this._config.map_style) === key ? "selected" : "";
+              return `<option value="${key}" ${selected}>${style.label}</option>`;
+            })
+            .join("")}
+        </select>
+      </div>
+      <div class="row">
+        <label>Zoom (optional, 1–19)</label>
+        <input
+          type="number"
+          id="zoom"
+          min="1"
+          max="19"
+          step="1"
+          placeholder="Auto"
+          value="${this._config.zoom != null ? this._escape(String(this._config.zoom)) : ""}"
+        />
+      </div>
+      <div class="row">
+        <label>Aircraft icon size (optional, 12–64 px)</label>
+        <input
+          type="number"
+          id="icon_size"
+          min="12"
+          max="64"
+          step="1"
+          placeholder="28"
+          value="${this._config.icon_size != null ? this._escape(String(this._config.icon_size)) : ""}"
+        />
+      </div>
+      ${Object.entries(DISPLAY_UNITS)
+        .map(([key, units]) => `
+          <div class="row">
+            <label for="${key}">${units.label}</label>
+            <select id="${key}">
+              ${Object.entries(units.options)
+                .map(([unit, label]) => {
+                  const selected = resolveDisplayUnit(key, this._config[key]) === unit ? "selected" : "";
+                  return `<option value="${unit}" ${selected}>${label}</option>`;
+                })
+                .join("")}
+            </select>
+          </div>
+        `)
+        .join("")}
+    `;
+
+    const mount = this.shadowRoot.getElementById("entity-picker");
+    const picker = document.createElement("ha-entity-picker");
+    picker.hass = this._hass;
+    picker.value = this._config.entity || "";
+    picker.label = "Sensor";
+    picker.allowCustomEntity = true;
+    // Prefer sensors; still allow typing any entity id.
+    picker.includeDomains = ["sensor"];
+    picker.addEventListener("value-changed", (event) => {
+      const value = event.detail?.value || "";
+      this._fireConfigChanged({
+        ...this._config,
+        entity: value,
+      });
+    });
+    mount.appendChild(picker);
+
+    this.shadowRoot.getElementById("title").addEventListener("input", (event) => {
+      const newConfig = { ...this._config };
+      if (event.target.value) {
+        newConfig.title = event.target.value;
+      } else {
+        delete newConfig.title;
+      }
+      this._fireConfigChanged(newConfig);
+    });
+
+    this.shadowRoot.getElementById("show_header").addEventListener("change", (event) => {
+      this._fireConfigChanged({
+        ...this._config,
+        show_header: event.target.checked,
+      });
+    });
+
+    this.shadowRoot.getElementById("show_flights").addEventListener("change", (event) => {
+      this._fireConfigChanged({
+        ...this._config,
+        show_flights: event.target.checked,
+      });
+    });
+
+    this.shadowRoot.getElementById("show_tracks").addEventListener("change", (event) => {
+      this._fireConfigChanged({
+        ...this._config,
+        show_tracks: event.target.checked,
+      });
+    });
+
+    this.shadowRoot.getElementById("show_area").addEventListener("change", (event) => {
+      this._fireConfigChanged({ ...this._config, show_area: event.target.checked });
+    });
+
+    this.shadowRoot.getElementById("show_area_center").addEventListener("change", (event) => {
+      this._fireConfigChanged({
+        ...this._config,
+        show_area_center: event.target.checked,
+      });
+    });
+
+    this.shadowRoot.getElementById("interactive_map").addEventListener("change", (event) => {
+      this._fireConfigChanged({ ...this._config, interactive_map: event.target.checked });
+    });
+
+    this.shadowRoot.getElementById("map_style").addEventListener("change", (event) => {
+      this._fireConfigChanged({
+        ...this._config,
+        map_style: resolveMapStyle(event.target.value),
+      });
+    });
+
+    for (const key of Object.keys(DISPLAY_UNITS)) {
+      this.shadowRoot.getElementById(key).addEventListener("change", (event) => {
+        this._fireConfigChanged({
+          ...this._config,
+          [key]: resolveDisplayUnit(key, event.target.value),
+        });
+      });
+    }
+
+    this.shadowRoot.getElementById("zoom").addEventListener("change", (event) => {
+      const newConfig = { ...this._config };
+      const raw = event.target.value.trim();
+      if (raw === "") {
+        delete newConfig.zoom;
+      } else {
+        const zoom = Number(raw);
+        if (!Number.isNaN(zoom)) {
+          newConfig.zoom = Math.min(19, Math.max(1, Math.round(zoom)));
+        }
+      }
+      this._fireConfigChanged(newConfig);
+    });
+
+    this.shadowRoot.getElementById("icon_size").addEventListener("change", (event) => {
+      const newConfig = { ...this._config };
+      const raw = event.target.value.trim();
+      if (raw === "") {
+        delete newConfig.icon_size;
+      } else {
+        const iconSize = Number(raw);
+        if (!Number.isNaN(iconSize)) {
+          newConfig.icon_size = Math.min(64, Math.max(12, Math.round(iconSize)));
+        }
+      }
+      this._fireConfigChanged(newConfig);
+    });
+  }
+
+  _escape(value) {
+    return String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/"/g, "&quot;");
+  }
+}
+
+customElements.define("flightradar24-card", Flightradar24Card);
+customElements.define("flightradar24-card-editor", Flightradar24CardEditor);
+
+window.customCards = window.customCards || [];
+window.customCards.push({
+  type: "flightradar24-card",
+  name: "Flightradar24 Card",
+  description:
+    "Map of the monitored area with aircraft markers, optional flight tracks, and an optional area centre marker",
+  preview: true,
+  documentationURL:
+    "https://github.com/AlexandrErohin/home-assistant-flightradar24",
+});

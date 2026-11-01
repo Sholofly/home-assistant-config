@@ -1,0 +1,969 @@
+{
+  "name": "Smart Mix · 2000s, Dutch, International, Pop, Rock",
+  "version": "1.0",
+  "tags": [
+    "2000s",
+    "dutch",
+    "international",
+    "pop",
+    "rock"
+  ],
+  "author": "Smart Playlist Mixer",
+  "added_date": "2026-09-21",
+  "description": "Auto-assembled mix · 30 songs from 47 playlist(s), de-duplicated by URI.",
+  "songs": [
+    {
+      "artist": "Lexy & K-Paul",
+      "title": "You're the One",
+      "year": 2000,
+      "isrc": "DEN061500100",
+      "uri": "spotify:track:2C1EoDl72entP59LSfYIBl",
+      "uri_apple_music": "applemusic://track/1000697876",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1000697876",
+        "de": "applemusic://track/1000697876",
+        "gb": "applemusic://track/1000697876",
+        "fr": "applemusic://track/1000697876",
+        "es": "applemusic://track/1000697876",
+        "nl": "applemusic://track/1000697876",
+        "it": "applemusic://track/1000697876"
+      },
+      "uri_youtube_music": "https://music.youtube.com/watch?v=g3oml70ktKs",
+      "uri_tidal": "tidal://track/46733723",
+      "uri_deezer": "deezer://track/101575806",
+      "fun_fact": "A trance and dance-floor classic (2000).",
+      "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2000).",
+      "fun_fact_es": "Un clásico del trance y la pista de baile (2000).",
+      "fun_fact_fr": "Un classique de la trance et du dancefloor (2000).",
+      "fun_fact_nl": "Een trance- en dancefloorklassieker (2000)."
+    },
+    {
+      "year": 1982,
+      "uri": "spotify:track:7tpaWAbF0FuEqJPUqqu7GH",
+      "artist": "Kenny Loggins",
+      "alt_artists": [
+        "Michael McDonald",
+        "Christopher Cross",
+        "Jim Messina"
+      ],
+      "title": "Heart to Heart",
+      "chart_info": {
+        "billboard_peak": 15,
+        "uk_peak": null,
+        "weeks_on_chart": 16
+      },
+      "certifications": [
+        "Gold (US)"
+      ],
+      "awards": [],
+      "fun_fact": "Kenny Loggins' smooth ballad showcased his ability to shift from uptempo hits to tender love songs within the same album.",
+      "fun_fact_de": "Kenny Loggins' sanfte Ballade zeigte seine Fähigkeit, auf demselben Album von Uptempo-Hits zu zarten Liebesliedern zu wechseln.",
+      "fun_fact_es": "La suave balada de Kenny Loggins mostró su habilidad para cambiar de éxitos uptempo a tiernas canciones de amor en el mismo álbum.",
+      "fun_fact_fr": "La douce ballade de Kenny Loggins a démontré sa capacité à passer des tubes rythmés à des chansons d'amour tendres sur un même album.",
+      "uri_apple_music": "applemusic://track/900209117",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=Yn2G8GmkhrU",
+      "uri_tidal": "tidal://track/62712130",
+      "uri_deezer": "deezer://track/15526164",
+      "fun_fact_nl": "Kenny Loggins' vloeiende ballade liet zijn vermogen zien om binnen hetzelfde album te schakelen van uptempo hits naar tedere liefdesliedjes.",
+      "awards_nl": [],
+      "isrc": "USSM18200128",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/900209117",
+        "de": "applemusic://track/201424411",
+        "gb": "applemusic://track/201424411",
+        "fr": "applemusic://track/201424411",
+        "es": "applemusic://track/201424411",
+        "nl": "applemusic://track/201424411",
+        "it": "applemusic://track/201424411"
+      }
+    },
+    {
+      "artist": "Styx",
+      "title": "Renegade",
+      "year": 1978,
+      "isrc": "USAM17800365",
+      "uri": "spotify:track:1CQqupcyMg7176PPmIVmSj",
+      "uri_apple_music": "applemusic://track/1440911577",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/6767662926",
+        "de": "applemusic://track/6767662926",
+        "gb": "applemusic://track/6767662926",
+        "fr": "applemusic://track/6767662926",
+        "es": "applemusic://track/6767662926",
+        "nl": "applemusic://track/6767662926",
+        "it": "applemusic://track/6767662926"
+      },
+      "uri_youtube_music": "https://music.youtube.com/watch?v=E9eLz4DrwF8",
+      "uri_tidal": "tidal://track/16154848",
+      "uri_deezer": "deezer://track/2289262",
+      "fun_fact": "A 70s classic (1978).",
+      "fun_fact_de": "Ein 70er-Klassiker (1978).",
+      "fun_fact_es": "Un clásico de los 70 (1978).",
+      "fun_fact_fr": "Un classique des années 70 (1978).",
+      "fun_fact_nl": "Een 70's-klassieker (1978)."
+    },
+    {
+      "year": 2001,
+      "uri": "spotify:track:4DoLXcmKky3tWmRKu188p9",
+      "artist": "Republika",
+      "title": "Śmierć W Bikini",
+      "isrc": "PLC100700006",
+      "uri_apple_music": "applemusic://track/697065413",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/697065413",
+        "de": "applemusic://track/697065413",
+        "gb": "applemusic://track/697065413",
+        "fr": "applemusic://track/697065413",
+        "es": "applemusic://track/697065413",
+        "nl": "applemusic://track/697065413",
+        "it": "applemusic://track/697065413"
+      },
+      "uri_youtube_music": "https://music.youtube.com/watch?v=JZ1h5gFhlsg",
+      "uri_tidal": "tidal://track/10827898",
+      "uri_deezer": "deezer://track/3295214",
+      "alt_artists": [],
+      "fun_fact": "Republika is a Polish new wave and rock band formed in Torun in 1981 and led by Grzegorz Ciechowski, and 'Śmierć W Bikini' (2001) features on this Polish rock playlist.",
+      "fun_fact_de": "Republika ist eine polnische New-Wave- und Rockband, 1981 in Torun gegruendet und von Grzegorz Ciechowski angefuehrt, und 'Śmierć W Bikini' (2001) ist auf dieser Polish-Rock-Playlist vertreten.",
+      "fun_fact_es": "Republika es una banda polaca de new wave y rock formada en Torun en 1981 y liderada por Grzegorz Ciechowski, y 'Śmierć W Bikini' (2001) aparece en esta lista de rock polaco.",
+      "fun_fact_fr": "Republika est un groupe polonais de new wave et de rock forme a Torun en 1981 et mene par Grzegorz Ciechowski, et 'Śmierć W Bikini' (2001) figure sur cette playlist de rock polonais.",
+      "fun_fact_nl": "Republika is een Poolse new wave- en rockband opgericht in Torun in 1981 en geleid door Grzegorz Ciechowski, en 'Śmierć W Bikini' (2001) staat op deze Poolse rock-playlist."
+    },
+    {
+      "year": 2013,
+      "uri": "spotify:track:5FVd6KXrgO9B3JPmC8OPst",
+      "artist": "Arctic Monkeys",
+      "alt_artists": [
+        "The Strokes",
+        "The Black Keys",
+        "Tame Impala"
+      ],
+      "title": "Do I Wanna Know?",
+      "certifications": [],
+      "awards": [],
+      "fun_fact": "Alex Turner wrote the iconic riff on a hotel-room ukulele before transposing it to guitar — the slow tempo was deliberate after AM's faster early style.",
+      "fun_fact_de": "Alex Turner schrieb das ikonische Riff auf einer Hotel-Ukulele — das langsame Tempo war ein bewusster Bruch mit AMs früherem Stil.",
+      "fun_fact_es": "Alex Turner compuso el riff icónico en un ukelele de hotel — el tempo lento fue una ruptura deliberada con el estilo veloz inicial de AM.",
+      "fun_fact_fr": "Alex Turner a écrit le riff iconique sur un ukulélé d'hôtel — le tempo lent rompait volontairement avec le style rapide des débuts d'AM.",
+      "uri_apple_music": "applemusic://track/663097965",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=pqrUQrAcfo4",
+      "uri_tidal": "tidal://track/22248418",
+      "uri_deezer": "deezer://track/70322130",
+      "fun_fact_nl": "Alex Turner schreef de iconische riff op een hotel-ukelele — het trage tempo was een bewuste breuk met AM's snellere beginstijl.",
+      "awards_nl": [],
+      "isrc": "GBCEL1300362",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/663097965",
+        "de": "applemusic://track/663097965",
+        "gb": "applemusic://track/663097965",
+        "fr": "applemusic://track/663097965",
+        "es": "applemusic://track/663097965",
+        "nl": "applemusic://track/663097965",
+        "it": "applemusic://track/663097965"
+      }
+    },
+    {
+      "year": 1979,
+      "uri": "spotify:track:5dAxeuDkIkpa6wZpMOuG9i",
+      "artist": "The Clash",
+      "alt_artists": [],
+      "title": "I Fought the Law",
+      "certifications": [],
+      "awards": [],
+      "fun_fact": "The Clash were one of the defining bands of British punk, later broadening into reggae, dub and rockabilly.",
+      "fun_fact_de": "The Clash waren eine der prägenden Bands des britischen Punk und öffneten sich später Reggae, Dub und Rockabilly.",
+      "fun_fact_es": "The Clash fueron una de las bandas clave del punk británico, ampliándose luego al reggae, el dub y el rockabilly.",
+      "fun_fact_fr": "The Clash furent l'un des groupes phares du punk britannique, s'ouvrant ensuite au reggae, au dub et au rockabilly.",
+      "uri_apple_music": "applemusic://track/647246433",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=AL8chWFuM-s",
+      "uri_tidal": "tidal://track/21536235",
+      "fun_fact_nl": "The Clash waren een van de bepalende bands van de Britse punk, later verbreed met reggae, dub en rockabilly.",
+      "awards_nl": [],
+      "isrc": "GBARL1201017",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/647246433",
+        "de": "applemusic://track/647981479",
+        "gb": "applemusic://track/647981479",
+        "fr": "applemusic://track/647246433",
+        "es": "applemusic://track/647246433",
+        "nl": "applemusic://track/647246433",
+        "it": "applemusic://track/647246433"
+      },
+      "uri_deezer": "deezer://track/69505564"
+    },
+    {
+      "year": 2007,
+      "uri": "spotify:track:0wVluBsVAVzBKrqspuCcwR",
+      "artist": "We The Kings",
+      "alt_artists": [
+        "All Time Low",
+        "Mayday Parade",
+        "Boys Like Girls"
+      ],
+      "title": "Check Yes, Juliet",
+      "certifications": [
+        "Platinum (US)"
+      ],
+      "awards": [],
+      "fun_fact": "We The Kings' debut single became a sleeper hit, eventually reaching platinum status through steady streaming and radio play.",
+      "fun_fact_de": "Die Debütsingle von We The Kings wurde ein Sleeper-Hit und erreichte durch stetiges Streaming Platin-Status.",
+      "fun_fact_es": "El sencillo debut de We The Kings se convirtió en un éxito durmiente, alcanzando platino a través del streaming constante.",
+      "fun_fact_fr": "Le premier single de We The Kings est devenu un succès inattendu, atteignant finalement le disque de platine grâce au streaming régulier et au passage en radio.",
+      "uri_apple_music": "applemusic://track/1437557562",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=5CUyWJ7UINM",
+      "uri_tidal": "tidal://track/72187910",
+      "uri_deezer": "deezer://track/3814347422",
+      "fun_fact_nl": "De debuutsingle van We The Kings werd een slaaphit en bereikte uiteindelijk de platina status door gestage streaming en radio play.",
+      "awards_nl": []
+    },
+    {
+      "artist": "Daft Punk",
+      "title": "One More Time - Radio Edit",
+      "year": 2002,
+      "isrc": null,
+      "uri": "spotify:track:2Uy6EhQXAYkXA6MohPgjpV",
+      "uri_apple_music": "applemusic://track/697402070",
+      "uri_apple_music_by_region": {},
+      "uri_youtube_music": "https://music.youtube.com/watch?v=wU26xVT_vBU",
+      "uri_tidal": "tidal://track/124215",
+      "uri_deezer": "deezer://track/3135553",
+      "fun_fact": "A chart hit by Daft Punk (2002).",
+      "fun_fact_de": "Ein Chart-Hit von Daft Punk (2002).",
+      "fun_fact_es": "Un éxito de Daft Punk (2002).",
+      "fun_fact_fr": "Un tube de Daft Punk (2002).",
+      "fun_fact_nl": "Een chart-hit van Daft Punk (2002).",
+      "fun_fact_it": "Un successo in classifica di Daft Punk (2002)."
+    },
+    {
+      "year": 2006,
+      "uri": "spotify:track:1vBopf5gcLKOczY4Oswuu1",
+      "artist": "Luisito Ayala Y La Puerto Rican Power, Tito Rojas",
+      "title": "Solo Con Un Beso",
+      "isrc": "USMP60960144",
+      "fun_fact": "\"Solo Con Un Beso\" by Luisito Ayala Y La Puerto Rican Power, Tito Rojas, first released in 2006 on the album \"Canta Tito Rojas\".",
+      "fun_fact_de": "„Solo Con Un Beso\" von Luisito Ayala Y La Puerto Rican Power, Tito Rojas, erstmals 2006 auf dem Album „Canta Tito Rojas\" erschienen.",
+      "fun_fact_es": "\"Solo Con Un Beso\" de Luisito Ayala Y La Puerto Rican Power, Tito Rojas, publicada por primera vez en 2006 en el álbum \"Canta Tito Rojas\".",
+      "fun_fact_fr": "« Solo Con Un Beso » de Luisito Ayala Y La Puerto Rican Power, Tito Rojas, parue pour la première fois en 2006 sur l'album « Canta Tito Rojas ».",
+      "fun_fact_nl": "\"Solo Con Un Beso\" van Luisito Ayala Y La Puerto Rican Power, Tito Rojas, voor het eerst uitgebracht in 2006 op het album \"Canta Tito Rojas\".",
+      "uri_deezer": "deezer://track/64118622",
+      "uri_apple_music": "applemusic://track/498336880",
+      "fun_fact_it": "«Solo Con Un Beso» di Luisito Ayala Y La Puerto Rican Power, Tito Rojas, pubblicata per la prima volta nel 2006 nell'album «Canta Tito Rojas».",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=77qXQnu0EM0"
+    },
+    {
+      "year": 1999,
+      "artist": "John Williams, London Symphony Orchestra",
+      "title": "Duel of the Fates",
+      "uri": "spotify:track:1ghlpxVfPbFH2jenrv9vVw",
+      "alt_artists": [
+        "Hans Zimmer",
+        "John Williams"
+      ],
+      "fun_fact": "John Williams' Duel of the Fates introduced choral elements to Star Wars. The Sanskrit-inspired text was written for the score.",
+      "fun_fact_de": "John Williams' Duel of the Fates führte Chorelemente in Star Wars ein. Der vom Sanskrit inspirierte Text wurde speziell für die Filmmusik geschrieben.",
+      "fun_fact_es": "Duel of the Fates de John Williams introdujo elementos corales en Star Wars. El texto inspirado en el sánscrito fue escrito para la banda sonora.",
+      "fun_fact_fr": "Duel of the Fates de John Williams a introduit des elements choraux dans Star Wars. Le texte d'inspiration sanskrite a ete ecrit specialement pour la partition.",
+      "chart_info": {
+        "billboard_peak": 63
+      },
+      "certifications": [],
+      "awards": [],
+      "uri_apple_music": "applemusic://track/1375814326",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=D_2bluVPsb0",
+      "movie": "Star Wars: Episode I – The Phantom Menace",
+      "movie_choices": [
+        "Star Wars: Revenge of the Sith",
+        "Star Wars: A New Hope",
+        "Star Wars: Episode I – The Phantom Menace"
+      ],
+      "uri_tidal": "tidal://track/88078827",
+      "uri_deezer": "deezer://track/493896182",
+      "fun_fact_nl": "John Williams' Duel of the Fates introduceerde koorelementen in Star Wars. De Sanskriet-geïnspireerde tekst werd geschreven voor de partituur.",
+      "awards_nl": [],
+      "isrc": "USWD11785380",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1375814326",
+        "de": "applemusic://track/1376601337",
+        "gb": "applemusic://track/1375814326",
+        "fr": "applemusic://track/1376598370",
+        "es": "applemusic://track/1376604929",
+        "nl": "applemusic://track/1375814326",
+        "it": "applemusic://track/1376604746"
+      },
+      "fun_fact_it": "Duel of the Fates di John Williams portò il coro nell'universo di Guerre stellari. Il testo, ispirato al sanscrito, fu scritto apposta per la partitura."
+    },
+    {
+      "year": 1992,
+      "uri": "spotify:track:4eHbdreAnSOrDDsFfc4Fpm",
+      "artist": "Whitney Houston",
+      "alt_artists": [
+        "Dolly Parton",
+        "Mariah Carey",
+        "Celine Dion"
+      ],
+      "title": "I Will Always Love You",
+      "certifications": [],
+      "awards": [],
+      "fun_fact": "Whitney Houston's The Bodyguard (1992) version is one of the best-selling singles ever.",
+      "fun_fact_de": "Whitney Houstons Version aus Bodyguard (1992) zählt zu den meistverkauften Singles aller Zeiten.",
+      "fun_fact_es": "La versión de Whitney Houston en El guardaespaldas (1992) es de los sencillos más vendidos.",
+      "fun_fact_fr": "La version de Whitney Houston dans Bodyguard (1992) est l'un des singles les plus vendus.",
+      "uri_apple_music": "applemusic://track/388151901",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=tP0zj220CbQ",
+      "uri_tidal": "tidal://track/5120355",
+      "uri_deezer": "deezer://track/7675403",
+      "fun_fact_nl": "Whitney Houstons versie uit The Bodyguard (1992) is een van de best verkochte singles ooit.",
+      "awards_nl": [],
+      "isrc": "USAR19200110",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/388151901",
+        "de": "applemusic://track/388151901",
+        "gb": "applemusic://track/388151901",
+        "fr": "applemusic://track/388151901",
+        "es": "applemusic://track/388151901",
+        "nl": "applemusic://track/388151901",
+        "it": "applemusic://track/388151901"
+      },
+      "movie": "The Bodyguard",
+      "movie_choices": [
+        "The Bodyguard",
+        "Pitch Perfect",
+        "La La Land"
+      ]
+    },
+    {
+      "artist": "The J. Geils Band",
+      "title": "Freeze-Frame",
+      "year": 1981,
+      "isrc": "USEM38800164",
+      "uri": "spotify:track:6QqK6a1CmV4L504uMQaGDH",
+      "uri_apple_music": "applemusic://track/1445835892",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1445835892",
+        "de": "applemusic://track/1445835892",
+        "gb": "applemusic://track/1445835892",
+        "fr": "applemusic://track/1445835892",
+        "es": "applemusic://track/1445835892",
+        "nl": "applemusic://track/1445835892",
+        "it": "applemusic://track/1445835892"
+      },
+      "uri_youtube_music": "https://music.youtube.com/watch?v=Y9mPp5IZbrY",
+      "uri_tidal": "tidal://track/1127288",
+      "uri_deezer": "deezer://track/3168234",
+      "fun_fact": "A chart hit by The J. Geils Band (1981).",
+      "fun_fact_de": "Ein Chart-Hit von The J. Geils Band (1981).",
+      "fun_fact_es": "Un éxito de The J. Geils Band (1981).",
+      "fun_fact_fr": "Un tube de The J. Geils Band (1981).",
+      "fun_fact_nl": "Een chart-hit van The J. Geils Band (1981).",
+      "fun_fact_it": "Un successo in classifica di The J. Geils Band (1981)."
+    },
+    {
+      "year": 2005,
+      "uri": "spotify:track:3850dYVgOFIXJh5U4BFEWH",
+      "artist": "Madonna",
+      "alt_artists": [
+        "Kylie Minogue",
+        "Cher",
+        "Gwen Stefani",
+        "Shakira"
+      ],
+      "title": "Hung Up",
+      "chart_info": {
+        "billboard_peak": 7,
+        "uk_peak": 1,
+        "weeks_on_chart": 20
+      },
+      "certifications": [
+        "Platinum (US)",
+        "Platinum (UK)"
+      ],
+      "awards": [],
+      "fun_fact": "The song samples ABBA's 'Gimme! Gimme! Gimme!' — ABBA had only ever granted sampling permission once before in their career.",
+      "fun_fact_de": "Der Song sampelt ABBAs 'Gimme! Gimme! Gimme!' — ABBA hatte zuvor in ihrer gesamten Karriere nur einmal eine Sample-Genehmigung erteilt.",
+      "fun_fact_es": "La canción usa un sample de 'Gimme! Gimme! Gimme!' de ABBA — el grupo solo había concedido permiso de sampleo una vez antes en su carrera.",
+      "fun_fact_fr": "Le morceau sample 'Gimme! Gimme! Gimme!' d'ABBA — le groupe n'avait accordé qu'une seule fois l'autorisation de sampler leurs titres au cours de toute leur carrière.",
+      "uri_apple_music": "applemusic://track/91989806",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=EDwb9jOVRtU",
+      "uri_tidal": "tidal://track/1669834",
+      "uri_deezer": "deezer://track/679217",
+      "fun_fact_nl": "Het nummer bevat een sample van ABBA's 'Gimme! Gimme! Gimme!' — ABBA had in hun hele carrière pas één keer eerder toestemming gegeven voor een sample.",
+      "awards_nl": [],
+      "isrc": "USWB10504319",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1825106048",
+        "de": "applemusic://track/1821454177",
+        "gb": "applemusic://track/1825106048",
+        "fr": "applemusic://track/1825106048",
+        "es": "applemusic://track/1825106048",
+        "nl": "applemusic://track/1821454177",
+        "it": "applemusic://track/1825106048"
+      }
+    },
+    {
+      "year": 2004,
+      "uri": "spotify:track:3xrn9i8zhNZsTtcoWgQEAd",
+      "artist": "Kelly Clarkson",
+      "alt_artists": [
+        "Carrie Underwood",
+        "Avril Lavigne",
+        "Pink",
+        "Ashlee Simpson"
+      ],
+      "title": "Since U Been Gone",
+      "chart_info": {
+        "billboard_peak": 2,
+        "uk_peak": 5,
+        "weeks_on_chart": 37
+      },
+      "certifications": [
+        "3x Platinum (US)",
+        "Silver (UK)"
+      ],
+      "awards": [
+        "Grammy Award - Best Female Pop Vocal Performance"
+      ],
+      "awards_fr": [
+        "Grammy Award - Meilleure performance vocale pop féminine"
+      ],
+      "fun_fact": "The song was originally written for Pink and Hilary Duff before Kelly Clarkson recorded it, making it one of the biggest pop-rock crossovers of the decade.",
+      "fun_fact_de": "Der Song wurde ursprünglich für Pink und Hilary Duff geschrieben, bevor Kelly Clarkson ihn aufnahm und zu einem der größten Pop-Rock-Crossover des Jahrzehnts machte.",
+      "fun_fact_es": "La canción fue escrita originalmente para Pink y Hilary Duff antes de que Kelly Clarkson la grabara, convirtiéndola en uno de los mayores crossovers pop-rock de la década.",
+      "fun_fact_fr": "Le titre avait été écrit à l'origine pour Pink et Hilary Duff avant que Kelly Clarkson ne l'enregistre, en faisant l'un des plus grands crossovers pop-rock de la décennie.",
+      "uri_apple_music": "applemusic://track/275765380",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=R7UrFYvl5TE",
+      "uri_tidal": "tidal://track/33747188",
+      "uri_deezer": "deezer://track/62118993",
+      "fun_fact_nl": "Het nummer was oorspronkelijk geschreven voor Pink en Hilary Duff voordat Kelly Clarkson het opnam, waardoor het een van de grootste pop-rock crossovers van het decennium werd.",
+      "awards_nl": [
+        "Grammy Award – Beste Vrouwelijke Pop Zangprestatie"
+      ],
+      "awards_it": [
+        "Grammy per la migliore interpretazione vocale pop femminile"
+      ],
+      "awards_de": [
+        "Grammy - Beste weibliche Pop-Gesangsdarbietung"
+      ],
+      "awards_es": [
+        "Grammy - Mejor Interpretación Vocal Pop Femenina"
+      ],
+      "isrc": "GBCTA0400231",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1687386491",
+        "de": "applemusic://track/592462983",
+        "gb": "applemusic://track/592462983",
+        "fr": "applemusic://track/592462983",
+        "es": "applemusic://track/592462983",
+        "nl": "applemusic://track/592462983",
+        "it": "applemusic://track/592462983"
+      }
+    },
+    {
+      "year": 2020,
+      "uri": "spotify:track:129CbVvwf8w8NvPjHEJ3Ob",
+      "artist": "BRDIGUNG",
+      "title": "Dreh die Musik auf",
+      "isrc": "DES371900232",
+      "uri_apple_music": null,
+      "uri_apple_music_by_region": {
+        "us": null,
+        "de": null,
+        "gb": null,
+        "fr": null,
+        "es": null,
+        "nl": null,
+        "it": null
+      },
+      "uri_youtube_music": "https://music.youtube.com/watch?v=peRjk-zy8Xc",
+      "uri_tidal": "tidal://track/408183190",
+      "uri_deezer": "deezer://track/3160832981",
+      "alt_artists": [],
+      "fun_fact": "BRDIGUNG is part of the German rock (Deutschrock) scene; \"Dreh die Musik auf\" (2020) features on this Deutschrock best-of.",
+      "fun_fact_de": "BRDIGUNG gehoert zur Deutschrock-Szene; \"Dreh die Musik auf\" (2020) ist auf dieser Deutschrock-Best-of-Playlist vertreten.",
+      "fun_fact_es": "BRDIGUNG forma parte de la escena del rock aleman (Deutschrock); \"Dreh die Musik auf\" (2020) aparece en esta lista de lo mejor del Deutschrock.",
+      "fun_fact_fr": "BRDIGUNG fait partie de la scene rock allemande (Deutschrock); \"Dreh die Musik auf\" (2020) figure dans ce best-of Deutschrock.",
+      "fun_fact_nl": "BRDIGUNG maakt deel uit van de Duitse rockscene (Deutschrock); \"Dreh die Musik auf\" (2020) staat op deze Deutschrock best-of."
+    },
+    {
+      "artist": "Steps",
+      "title": "5, 6, 7, 8",
+      "year": 2001,
+      "isrc": "GBAHK9700239",
+      "uri": "spotify:track:3oWZwdnnwsCwMukQbPsEiy",
+      "uri_apple_music": "applemusic://track/1500305422",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1500305422",
+        "de": "applemusic://track/1308728510",
+        "gb": "applemusic://track/1308728510",
+        "fr": "applemusic://track/1308728510",
+        "es": "applemusic://track/1308728510",
+        "nl": "applemusic://track/1308728510",
+        "it": "applemusic://track/1308728510"
+      },
+      "uri_youtube_music": "https://music.youtube.com/watch?v=cn3HqvVkFj4",
+      "uri_tidal": "tidal://track/9063123",
+      "uri_deezer": "deezer://track/886889672",
+      "fun_fact": "A chart hit by Steps (2001).",
+      "fun_fact_de": "Ein Chart-Hit von Steps (2001).",
+      "fun_fact_es": "Un éxito de Steps (2001).",
+      "fun_fact_fr": "Un tube de Steps (2001).",
+      "fun_fact_nl": "Een chart-hit van Steps (2001).",
+      "fun_fact_it": "Un successo in classifica di Steps (2001)."
+    },
+    {
+      "year": 2006,
+      "uri": "spotify:track:64lK0SB7dpDam6m5innovk",
+      "artist": "Furacão 2000",
+      "alt_artists": [
+        "Menor do Chapa",
+        "MC Marcinho",
+        "DJ Marlboro",
+        "Bob Rum"
+      ],
+      "title": "Cheio de Ódio - Ao Vivo",
+      "certifications": [],
+      "awards": [],
+      "awards_nl": [],
+      "fun_fact": "Funk carioca like this track from 2006 was at the center of a major Brazilian media debate about music censorship and social stigma, with politicians attempting to ban certain funk styles from public events while the genre's popularity only grew.",
+      "fun_fact_de": "Funk Carioca wie dieser Track von 2006 stand im Mittelpunkt einer großen brasilianischen Mediendebatte über Musikzensur und soziale Stigmatisierung. Politiker versuchten, bestimmte Funk-Stile bei öffentlichen Veranstaltungen zu verbieten, während die Popularität des Genres nur wuchs.",
+      "fun_fact_es": "El funk carioca como esta pista de 2006 estuvo en el centro de un gran debate brasileño sobre la censura musical y el estigma social, con políticos que intentaban prohibir ciertos estilos de funk en eventos públicos mientras la popularidad del género solo crecía.",
+      "fun_fact_fr": "Le funk carioca, comme ce titre de 2006, était au cœur d'un grand débat médiatique brésilien sur la censure musicale et la stigmatisation sociale, avec des politiciens tentant d'interdire certains styles funk lors d'événements publics, tandis que la popularité du genre ne faisait que croître.",
+      "fun_fact_nl": "Funk carioca zoals dit nummer uit 2006 stond centraal in een groot Braziliaans mediameeningsverschil over muziekcensuur en sociale stigma, waarbij politici probeerden bepaalde funk-stijlen te verbieden op openbare evenementen, terwijl de populariteit van het genre alleen maar groeide.",
+      "isrc": "BRFUP0500066",
+      "uri_apple_music": "applemusic://track/1576391845",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1567243828",
+        "de": "applemusic://track/1567243828",
+        "gb": "applemusic://track/1567243828",
+        "fr": "applemusic://track/1567243828",
+        "es": "applemusic://track/1567243828",
+        "nl": "applemusic://track/1567243828",
+        "it": "applemusic://track/1567243828"
+      },
+      "uri_deezer": "deezer://track/1352106772",
+      "uri_tidal": "tidal://track/184586924",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=GNUdfyclDzw"
+    },
+    {
+      "year": 1998,
+      "uri": "spotify:track:087OBLtoeS3Q6j0k6tMNAI",
+      "artist": "Semisonic",
+      "alt_artists": [
+        "EMF",
+        "Jesus Jones"
+      ],
+      "title": "Closing Time",
+      "chart_info": {
+        "billboard_peak": 11,
+        "weeks_on_chart": 39
+      },
+      "fun_fact": "Actually written about the birth of lead singer's child, not a bar closing. It became the ultimate last-call song despite its hidden meaning.",
+      "fun_fact_de": "Eigentlich über die Geburt des Kindes des Leadsängers geschrieben, nicht über eine Bar, die schließt. Es wurde trotz seiner versteckten Bedeutung zum ultimativen Last-Call-Song.",
+      "fun_fact_es": "En realidad escrita sobre el nacimiento del hijo del cantante principal, no sobre un bar cerrando. Se convirtió en la canción definitiva de última ronda a pesar de su significado oculto.",
+      "fun_fact_fr": "En réalité écrite sur la naissance de l'enfant du chanteur, et non sur la fermeture d'un bar. Elle est devenue la chanson de dernière tournée par excellence malgré son sens caché.",
+      "certifications": [
+        "Platinum (US)"
+      ],
+      "awards": [],
+      "uri_apple_music": "applemusic://track/1443912092",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=xGytDsqkQY8",
+      "uri_tidal": "tidal://track/94760881",
+      "uri_deezer": "deezer://track/546248912",
+      "fun_fact_nl": "Eigenlijk geschreven over de geboorte van het kind van de leadzanger, niet over een cafésluiting. Het werd het ultieme afscheidsliedje ondanks de verborgen betekenis.",
+      "awards_nl": [],
+      "isrc": "USMC19800013",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1779813571",
+        "de": "applemusic://track/1779813571",
+        "gb": "applemusic://track/1779813571",
+        "fr": "applemusic://track/1779813571",
+        "es": "applemusic://track/1779813571",
+        "nl": "applemusic://track/1779813571",
+        "it": "applemusic://track/1779813571"
+      }
+    },
+    {
+      "year": 1988,
+      "uri": "spotify:track:6uVGkBiE3ABDdJPn2Q4bLu",
+      "artist": "Cinderella",
+      "alt_artists": [
+        "Poison",
+        "Warrant"
+      ],
+      "title": "Don't Know What You Got (Till It's Gone)",
+      "chart_info": {
+        "billboard_peak": 12,
+        "uk_peak": 54,
+        "weeks_on_chart": 15
+      },
+      "certifications": [
+        "Gold (US)"
+      ],
+      "awards": [],
+      "fun_fact": "Tom Keifer wrote this about a past relationship. The piano-driven ballad showed a different side of the glam metal band and became their signature song.",
+      "fun_fact_de": "[DE] Tom Keifer wrote this about a past relationship. The piano-driven ballad showed ...",
+      "fun_fact_es": "[ES] Tom Keifer wrote this about a past relationship. The piano-driven ballad showed ...",
+      "fun_fact_fr": "Tom Keifer a écrit ce titre sur une ancienne relation. Cette ballade portée par le piano a révélé une autre facette du groupe de glam metal et est devenue leur chanson signature.",
+      "uri_apple_music": "applemusic://track/1434883426",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=i28UEoLXVFQ",
+      "uri_tidal": "tidal://track/661020",
+      "uri_deezer": "deezer://track/548729192",
+      "fun_fact_nl": "Tom Keifer schreef dit over een vroegere relatie. De pianogedreven ballade liet een andere kant van de glam metal-band zien en werd hun signatuurlied.",
+      "awards_nl": [],
+      "isrc": "USMR18886884",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1435808378",
+        "de": "applemusic://track/1440665848",
+        "gb": "applemusic://track/1435808378",
+        "fr": "applemusic://track/1435808378",
+        "es": "applemusic://track/1435808378",
+        "nl": "applemusic://track/1435808378",
+        "it": "applemusic://track/1435808378"
+      }
+    },
+    {
+      "year": 1999,
+      "uri": "spotify:track:3v0uXfyMEZ1lGvBOv1Y4ar",
+      "artist": "S Club 7",
+      "alt_artists": [
+        "Steps",
+        "B*Witched",
+        "Five"
+      ],
+      "title": "Bring It All Back",
+      "isrc": "GBCVL9900001",
+      "uri_apple_music": "applemusic://track/1440920784",
+      "uri_deezer": "deezer://track/3040577",
+      "fun_fact": "The group was assembled for a television series and had to act as well as sing; the debut single went straight into the British top ten.",
+      "fun_fact_de": "Die Gruppe wurde für eine Fernsehserie zusammengestellt und musste auch schauspielern; die Debütsingle ging direkt in die britischen Top zehn.",
+      "fun_fact_es": "El grupo se formó para una serie de televisión y tenía que actuar además de cantar; el primer sencillo entró directo al top diez británico.",
+      "fun_fact_fr": "Le groupe a été monté pour une série télévisée et devait jouer autant que chanter ; le premier single est entré directement au top dix britannique.",
+      "fun_fact_nl": "De groep werd samengesteld voor een televisieserie en moest ook acteren; de debuutsingle ging rechtstreeks de Britse top tien in.",
+      "fun_fact_it": "Il gruppo fu messo insieme per una serie televisiva e doveva recitare oltre che cantare; il singolo d'esordio entrò dritto nella top ten britannica.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=GLQ0biK-ZgA"
+    },
+    {
+      "year": 2006,
+      "uri": "spotify:track:10Nmj3JCNoMeBQ87uw5j8k",
+      "artist": "Red Hot Chili Peppers",
+      "alt_artists": [
+        "Foo Fighters",
+        "Pearl Jam",
+        "Audioslave",
+        "Incubus"
+      ],
+      "title": "Dani California",
+      "chart_info": {
+        "billboard_peak": 6,
+        "uk_peak": 2,
+        "weeks_on_chart": 20
+      },
+      "certifications": [
+        "2x Platinum (US)",
+        "Silver (UK)"
+      ],
+      "awards": [],
+      "fun_fact": "The music video pays homage to rock history, showing the band performing as different rock acts through the decades, from Elvis to punk to grunge to their own style.",
+      "fun_fact_de": "Das Musikvideo ist eine Hommage an die Rockgeschichte und zeigt die Band als verschiedene Rock-Acts durch die Jahrzehnte, von Elvis über Punk und Grunge bis zu ihrem eigenen Stil.",
+      "fun_fact_es": "El video musical rinde homenaje a la historia del rock, mostrando a la banda interpretando diferentes actos de rock a través de las décadas, desde Elvis hasta el punk, el grunge y su propio estilo.",
+      "fun_fact_fr": "Le clip rend hommage à l'histoire du rock en montrant le groupe incarnant différents courants musicaux à travers les décennies, d'Elvis au punk en passant par le grunge jusqu'à leur propre style.",
+      "uri_apple_music": "applemusic://track/208036515",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=Sb5aq5HcS1A",
+      "uri_tidal": "tidal://track/309896",
+      "uri_deezer": "deezer://track/680516",
+      "fun_fact_nl": "De videoclip brengt een eerbetoon aan de rockgeschiedenis en toont de band optredend als verschillende rockacts door de decennia heen, van Elvis tot punk tot grunge tot hun eigen stijl.",
+      "awards_nl": [],
+      "isrc": "USWB10600700",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1703790529",
+        "de": "applemusic://track/1703790529",
+        "gb": "applemusic://track/1703790529",
+        "fr": "applemusic://track/1703790529",
+        "es": "applemusic://track/1703790529",
+        "nl": "applemusic://track/1703790529",
+        "it": "applemusic://track/1703790529"
+      }
+    },
+    {
+      "year": 1963,
+      "uri": "spotify:track:7fqB6ldBQXivBtIcXCCqGF",
+      "artist": "The Shadows",
+      "title": "Foot Tapper",
+      "alt_artists": [
+        "The Tornados",
+        "Joe Brown and the Bruvvers",
+        "Johnny Kidd & The Pirates"
+      ],
+      "chart_info": {
+        "billboard_peak": null,
+        "uk_peak": 1,
+        "weeks_on_chart": 15
+      },
+      "certifications": [],
+      "awards": [],
+      "awards_de": [],
+      "awards_es": [],
+      "fun_fact": "This instrumental was composed for the Cliff Richard film Summer Holiday and topped the UK charts. It was one of the few Shadows hits composed by the band themselves rather than being an outside composition.",
+      "fun_fact_de": "Dieses Instrumental wurde für den Cliff-Richard-Film Summer Holiday komponiert und erreichte Platz 1 der britischen Charts. Es war einer der wenigen Shadows-Hits, die von der Band selbst komponiert wurden, statt von externen Songwritern zu stammen.",
+      "fun_fact_es": "Este instrumental fue compuesto para la película de Cliff Richard Summer Holiday y llegó al número uno en las listas británicas. Fue uno de los pocos éxitos de The Shadows compuestos por la propia banda en lugar de ser una composición externa.",
+      "uri_apple_music": "applemusic://track/692090975",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=fqNCc4wIYOQ",
+      "uri_tidal": "tidal://track/1472868",
+      "fun_fact_fr": "Cet instrumental a été composé pour le film de Cliff Richard Summer Holiday et a atteint la première place des charts britanniques. C'était l'un des rares hits des Shadows composé par le groupe lui-même plutôt que par des auteurs externes.",
+      "uri_deezer": "deezer://track/3102733",
+      "fun_fact_nl": "Dit instrumentale nummer werd gecomponeerd voor de Cliff Richard-film Summer Holiday en bereikte de eerste plaats in de Britse hitlijsten. Het was een van de weinige Shadows-hits die door de band zelf was gecomponeerd in plaats van door een externe schrijver.",
+      "awards_nl": [],
+      "isrc": "GBAYE9500748",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/692090975",
+        "de": "applemusic://track/692090975",
+        "gb": "applemusic://track/692090975",
+        "fr": "applemusic://track/692090975",
+        "es": "applemusic://track/692090975",
+        "nl": "applemusic://track/692090975",
+        "it": "applemusic://track/692090975"
+      }
+    },
+    {
+      "artist": "Lexy & K-Paul",
+      "title": "Vicious Love",
+      "year": 2004,
+      "isrc": "DEN061500089",
+      "uri": "spotify:track:786DL4KlEwKt01F5cpJ71s",
+      "uri_apple_music": "applemusic://track/1000699030",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1000699030",
+        "de": "applemusic://track/1000699030",
+        "gb": "applemusic://track/1000699030",
+        "fr": "applemusic://track/1000699030",
+        "es": "applemusic://track/1000699030",
+        "nl": "applemusic://track/1000699030",
+        "it": "applemusic://track/1000699030"
+      },
+      "uri_youtube_music": "https://music.youtube.com/watch?v=zMpm_CuEI-M",
+      "uri_tidal": "tidal://track/46733735",
+      "uri_deezer": "deezer://track/101575830",
+      "fun_fact": "A trance and dance-floor classic (2004).",
+      "fun_fact_de": "Ein Trance- und Dancefloor-Klassiker (2004).",
+      "fun_fact_es": "Un clásico del trance y la pista de baile (2004).",
+      "fun_fact_fr": "Un classique de la trance et du dancefloor (2004).",
+      "fun_fact_nl": "Een trance- en dancefloorklassieker (2004)."
+    },
+    {
+      "year": 2007,
+      "uri": "spotify:track:2PPOeYi28CtjMWBIYR3zVh",
+      "artist": "Lady Pank",
+      "title": "Na Co Komu Dziś",
+      "isrc": "PLB170702761",
+      "uri_apple_music": "applemusic://track/1481862811",
+      "uri_apple_music_by_region": {
+        "pl": "applemusic://track/1481862811"
+      },
+      "uri_youtube_music": "https://music.youtube.com/watch?v=l_AS1FWcLYI",
+      "uri_tidal": "tidal://track/121029299",
+      "uri_deezer": "deezer://track/786028382",
+      "alt_artists": [],
+      "fun_fact": "Lady Pank belongs to the Polish pop and rock canon; \"Na Co Komu Dziś\" (2007) features on this Polskie hity lat 90' 00' selection.",
+      "fun_fact_de": "Lady Pank gehoert zum polnischen Pop- und Rock-Kanon; \"Na Co Komu Dziś\" (2007) ist auf dieser Auswahl polnischer Hits der 90er und 2000er vertreten.",
+      "fun_fact_es": "Lady Pank forma parte del canon del pop y el rock polacos; \"Na Co Komu Dziś\" (2007) aparece en esta seleccion de exitos polacos de los 90 y 2000.",
+      "fun_fact_fr": "Lady Pank fait partie du canon pop et rock polonais; \"Na Co Komu Dziś\" (2007) figure dans cette selection de tubes polonais des annees 90 et 2000.",
+      "fun_fact_nl": "Lady Pank hoort tot de Poolse pop- en rockcanon; \"Na Co Komu Dziś\" (2007) staat op deze selectie Poolse hits uit de jaren 90 en 2000."
+    },
+    {
+      "artist": "Juju",
+      "title": "Hi Babe",
+      "year": 2019,
+      "isrc": "DEVX51900050",
+      "uri": "spotify:track:6erIvryBSsAdebNU4a7Mrs",
+      "uri_apple_music": "applemusic://track/6762663536",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/6762663536",
+        "de": "applemusic://track/6762663536",
+        "gb": "applemusic://track/6762663536",
+        "fr": "applemusic://track/6762663536",
+        "es": "applemusic://track/6762663536",
+        "nl": "applemusic://track/6762663536",
+        "it": "applemusic://track/6762663536"
+      },
+      "uri_deezer": "deezer://track/693420742",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=vj2b3ct9Kmw",
+      "uri_tidal": "tidal://track/110752056",
+      "alt_artists": [
+        "Loredana",
+        "Shirin David",
+        "SXTN"
+      ],
+      "fun_fact": "From debut solo album 'Bling Bling' (2019). The former SXTN-half's standalone debut reached #2 in Germany.",
+      "fun_fact_de": "Vom Solo-Debütalbum 'Bling Bling' (2019). Das eigenständige Debüt der ehemaligen SXTN-Hälfte erreichte Platz 2 in Deutschland.",
+      "fun_fact_es": "Del álbum solista debut 'Bling Bling' (2019). El debut en solitario de la ex mitad de SXTN llegó al #2 en Alemania.",
+      "fun_fact_fr": "Issu du premier album solo 'Bling Bling' (2019). Le début en solo de l'ex-moitié de SXTN a atteint la 2e place en Allemagne.",
+      "fun_fact_nl": "Van het solodebuut 'Bling Bling' (2019). Het zelfstandige debuut van de voormalige SXTN-helft haalde #2 in Duitsland.",
+      "awards": [],
+      "awards_nl": [],
+      "certifications": [
+        "Gold (DE)"
+      ],
+      "chart_info": {
+        "german_peak": 16
+      }
+    },
+    {
+      "year": 1985,
+      "uri": "spotify:track:1CdLweA1brUOAoYEvzTt8M",
+      "artist": "Sting",
+      "title": "Russians",
+      "alt_artists": [
+        "Peter Gabriel",
+        "U2"
+      ],
+      "certifications": [],
+      "fun_fact": "Written during the Cold War, the song samples Prokofiev's 'Lieutenant Kijé' suite. Sting was inspired after watching Soviet television via a satellite dish.",
+      "fun_fact_de": "Während des Kalten Krieges geschrieben, sampelt der Song Prokofjews 'Leutnant Kijé'-Suite. Sting wurde inspiriert, nachdem er sowjetisches Fernsehen via Satellit gesehen hatte.",
+      "fun_fact_es": "Escrita durante la Guerra Fría, la canción samplea la suite 'Teniente Kijé' de Prokofiev. Sting se inspiró viendo televisión soviética vía satélite.",
+      "fun_fact_fr": "Écrite pendant la Guerre froide, la chanson échantillonne la suite 'Lieutenant Kijé' de Prokofiev. Sting a été inspiré en regardant la télévision soviétique via satellite.",
+      "awards": [],
+      "uri_apple_music": "applemusic://track/1650884609",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=wHylQRVN2Qs",
+      "uri_tidal": "tidal://track/35687909",
+      "uri_deezer": "deezer://track/1140665",
+      "fun_fact_nl": "Geschreven tijdens de Koude Oorlog bevat het nummer een sample van Prokofjevs 'Luitenant Kijé'-suite. Sting raakte geïnspireerd na het kijken van Sovjet-televisie via een satellietschotel.",
+      "awards_nl": [],
+      "isrc": "USAM18500044",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1455400379",
+        "de": "applemusic://track/1440922956",
+        "gb": "applemusic://track/1440922956",
+        "fr": "applemusic://track/1440922956",
+        "es": "applemusic://track/1440922956",
+        "nl": "applemusic://track/1440922956",
+        "it": "applemusic://track/1440922956"
+      }
+    },
+    {
+      "year": 2015,
+      "uri": "spotify:track:5lRjxxda233kGka28F02Aa",
+      "artist": "Kasia Cerekwicka",
+      "title": "Miedzy Slowami",
+      "isrc": "PLB381500165",
+      "uri_apple_music": "applemusic://track/996187325",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/996187325",
+        "de": "applemusic://track/996187325",
+        "gb": "applemusic://track/996187325",
+        "fr": "applemusic://track/996187325",
+        "es": "applemusic://track/996187325",
+        "nl": "applemusic://track/996187325",
+        "it": "applemusic://track/996187325",
+        "pl": "applemusic://track/996187325"
+      },
+      "uri_youtube_music": "https://music.youtube.com/watch?v=HPmH_WoWMcw",
+      "uri_tidal": "tidal://track/45513786",
+      "uri_deezer": "deezer://track/100618300",
+      "alt_artists": [],
+      "fun_fact": "Kasia Cerekwicka belongs to the Polish pop and rock canon; \"Miedzy Slowami\" (2015) features on this Polskie hity lat 90' 00' selection.",
+      "fun_fact_de": "Kasia Cerekwicka gehoert zum polnischen Pop- und Rock-Kanon; \"Miedzy Slowami\" (2015) ist auf dieser Auswahl polnischer Hits der 90er und 2000er vertreten.",
+      "fun_fact_es": "Kasia Cerekwicka forma parte del canon del pop y el rock polacos; \"Miedzy Slowami\" (2015) aparece en esta seleccion de exitos polacos de los 90 y 2000.",
+      "fun_fact_fr": "Kasia Cerekwicka fait partie du canon pop et rock polonais; \"Miedzy Slowami\" (2015) figure dans cette selection de tubes polonais des annees 90 et 2000.",
+      "fun_fact_nl": "Kasia Cerekwicka hoort tot de Poolse pop- en rockcanon; \"Miedzy Slowami\" (2015) staat op deze selectie Poolse hits uit de jaren 90 en 2000."
+    },
+    {
+      "year": 2017,
+      "artist": "Dynoro,Gigi D'Agostino",
+      "title": "In My Mind",
+      "uri": "spotify:track:0E9ZjEAyAwOXZ7wJC0PD33",
+      "alt_artists": [],
+      "fun_fact": "In My Mind combines Gigi D'Agostino's classic early 2000s Eurodance sound with modern production by Dynoro.",
+      "fun_fact_de": "In My Mind verbindet Gigi D'Agostinos klassischen Eurodance-Sound der frühen 2000er Jahre mit moderner Produktion von Dynoro.",
+      "fun_fact_es": "In My Mind combina el clásico sonido eurodance de principios de los 2000 de Gigi D'Agostino con la producción moderna de Dynoro.",
+      "fun_fact_fr": "In My Mind combine le son eurodance classique du début des années 2000 de Gigi D'Agostino avec la production moderne de Dynoro.",
+      "fun_fact_nl": "In My Mind combineert Gigi D'Agostino's klassieke eurodancesound uit de vroege jaren 2000 met de moderne productie van Dynoro.",
+      "certifications": [],
+      "awards": [],
+      "isrc": "QZ22B1859046",
+      "uri_apple_music": "applemusic://track/1390113209",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1390113209",
+        "de": "applemusic://track/1390113209",
+        "gb": "applemusic://track/1390113209",
+        "fr": "applemusic://track/1390113209",
+        "es": "applemusic://track/1594464128",
+        "nl": "applemusic://track/1390113209",
+        "it": "applemusic://track/1390113209"
+      },
+      "uri_youtube_music": "https://music.youtube.com/watch?v=5gga8E43clk",
+      "uri_tidal": "tidal://track/89457165",
+      "uri_deezer": "deezer://track/505204262",
+      "awards_nl": []
+    },
+    {
+      "year": 2003,
+      "uri": "spotify:track:2CtCwQhY0ZLvr8L2l8Bo6e",
+      "artist": "Ludacris",
+      "alt_artists": [
+        "Nelly",
+        "T.I.",
+        "Lil Jon",
+        "Chingy"
+      ],
+      "title": "Stand Up",
+      "chart_info": {
+        "billboard_peak": 4,
+        "uk_peak": 14,
+        "weeks_on_chart": 21
+      },
+      "certifications": [
+        "2x Platinum (US)"
+      ],
+      "awards": [
+        "Grammy Award - Best Rap Song (nominated)"
+      ],
+      "awards_fr": [
+        "Grammy Award - Meilleure chanson rap (nomine)"
+      ],
+      "fun_fact": "The song was produced by Kanye West before he became a major solo artist. The collaboration helped put Kanye on the map as a top-tier producer in hip hop.",
+      "fun_fact_de": "Der Song wurde von Kanye West produziert, bevor er ein grosser Solokuenstler wurde. Die Zusammenarbeit half, Kanye als erstklassigen Produzenten im Hip-Hop auf die Landkarte zu setzen.",
+      "fun_fact_es": "La cancion fue producida por Kanye West antes de que se convirtiera en un gran artista solista. La colaboracion ayudo a posicionar a Kanye como un productor de primer nivel en el hip hop.",
+      "fun_fact_fr": "La chanson a ete produite par Kanye West avant qu'il ne devienne un artiste solo majeur. Cette collaboration a contribue a faire de Kanye un producteur de premier plan dans le hip-hop.",
+      "uri_apple_music": "applemusic://track/1440761103",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=pZG7IK99OvI",
+      "uri_tidal": "tidal://track/614610",
+      "uri_deezer": "deezer://track/2231861",
+      "fun_fact_nl": "Het nummer werd geproduceerd door Kanye West voordat hij een grote soloartiest werd. De samenwerking hielp Kanye op de kaart te zetten als een topproducent in de hiphop.",
+      "awards_nl": [
+        "Grammy Award – Beste Rapnummer (genomineerd)"
+      ],
+      "awards_it": [
+        "Candidatura al Grammy per la migliore canzone rap"
+      ],
+      "awards_de": [
+        "Grammy-Nominierung - Bester Rap-Song"
+      ],
+      "awards_es": [
+        "Nominación al Grammy - Mejor Canción de Rap"
+      ],
+      "isrc": "USDJ20300765",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/1791859224",
+        "de": "applemusic://track/1469576003",
+        "gb": "applemusic://track/1469576003",
+        "fr": "applemusic://track/1469576003",
+        "es": "applemusic://track/1469576003",
+        "nl": "applemusic://track/1469576003",
+        "it": "applemusic://track/1469576003"
+      }
+    },
+    {
+      "year": 1992,
+      "uri": "spotify:track:1Wzt0dNLjAqN3OzGwWeGH5",
+      "artist": "Galy Galiano",
+      "title": "La Cita",
+      "isrc": "COFC19378801",
+      "fun_fact": "\"La Cita\" by Galy Galiano, first released in 1992.",
+      "fun_fact_de": "„La Cita\" von Galy Galiano, erstmals 1992 erschienen.",
+      "fun_fact_es": "\"La Cita\" de Galy Galiano, publicada por primera vez en 1992.",
+      "fun_fact_fr": "« La Cita » de Galy Galiano, parue pour la première fois en 1992.",
+      "fun_fact_nl": "\"La Cita\" van Galy Galiano, voor het eerst uitgebracht in 1992.",
+      "uri_deezer": "deezer://track/2758471701",
+      "uri_apple_music": "applemusic://track/1684882289",
+      "fun_fact_it": "«La Cita» di Galy Galiano, pubblicata per la prima volta nel 1992."
+    }
+  ]
+}

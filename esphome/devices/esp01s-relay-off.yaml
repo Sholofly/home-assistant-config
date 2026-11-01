@@ -12,7 +12,7 @@ switch:
 
 button:
   - platform: template
-    name: "${name}"
+    name: None
     id: "${id}_button"
     on_press:
       - switch.turn_on: "${id}_relay"

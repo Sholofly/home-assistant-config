@@ -1,6 +1,6 @@
 {
   "name": "Eurodance 90s 💥",
-  "version": "1.7",
+  "version": "1.21",
   "tags": [
     "1990s",
     "eurodance",
@@ -60,11 +60,6 @@
       "artist": "A Touch Of Class, Pete Konemann",
       "alt_artists": [],
       "title": "Around the World (La La La La La)",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "ATC's 'Around the World' became a massive international hit in 2000, reaching the top 10 in over 20 countries. The infectious 'La La La La La' hook made it one of the most recognizable Eurodance tracks of its era.",
@@ -85,7 +80,8 @@
         "es": "applemusic://track/1673414298",
         "nl": "applemusic://track/1673414298",
         "it": "applemusic://track/1673414298"
-      }
+      },
+      "uri_deezer": "deezer://track/13185277"
     },
     {
       "year": 1994,
@@ -196,7 +192,8 @@
       "uri_youtube_music": "https://music.youtube.com/watch?v=NrVqLGQlieA",
       "uri_deezer": "deezer://track/89629717",
       "fun_fact_nl": "Eiffel 65's 'Blue' stond bovenaan de hitlijsten in 17 landen. De zwaar met autotune bewerkte zang en de repetitieve hook maakten het zowel geliefd als bespot, en het werd een bepalend geluid voor de Eurodance van de late jaren '90.",
-      "awards_nl": []
+      "awards_nl": [],
+      "uri_tidal": "tidal://track/539111445"
     },
     {
       "year": 1995,
@@ -271,12 +268,12 @@
       "isrc": "DEC739400365",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/402631143",
-        "de": "applemusic://track/1682989430",
-        "gb": "applemusic://track/1682989430",
-        "fr": "applemusic://track/1682989430",
-        "es": "applemusic://track/1682989430",
-        "nl": "applemusic://track/1682989430",
-        "it": "applemusic://track/1682989430"
+        "de": "applemusic://track/402631143",
+        "gb": "applemusic://track/1712497703",
+        "fr": "applemusic://track/1712497703",
+        "es": "applemusic://track/258585696",
+        "nl": "applemusic://track/402631143",
+        "it": "applemusic://track/402631143"
       }
     },
     {
@@ -313,7 +310,7 @@
       "uri_apple_music_by_region": {
         "us": "applemusic://track/17769882",
         "de": "applemusic://track/1831927967",
-        "gb": null,
+        "gb": "applemusic://track/676082863",
         "fr": "applemusic://track/1831927967",
         "es": "applemusic://track/1831927967",
         "nl": "applemusic://track/1831927967",
@@ -330,11 +327,6 @@
         "Tiësto"
       ],
       "title": "L'amour Toujours (Small Mix)",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [
         "Gold (Italy)"
       ],
@@ -436,7 +428,8 @@
         "es": "applemusic://track/1673414696",
         "nl": "applemusic://track/1673414696",
         "it": "applemusic://track/1673414696"
-      }
+      },
+      "uri_deezer": "deezer://track/13185278"
     },
     {
       "year": 1993,
@@ -466,7 +459,8 @@
       "uri_tidal": "tidal://track/14237868",
       "uri_deezer": "deezer://track/17347911",
       "fun_fact_nl": "Culture Beats 'Mr. Vain' stond 4 weken bovenaan de Britse hitlijsten en verkocht wereldwijd meer dan 9 miljoen exemplaren. Het blijft een van de grootste Eurodance-hits van de jaren '90.",
-      "awards_nl": []
+      "awards_nl": [],
+      "uri_apple_music": "applemusic://track/505475126"
     },
     {
       "year": 1998,
@@ -770,7 +764,10 @@
       "fun_fact_fr": "La participation de Gina G à l'Eurovision pour le Royaume-Uni s'est transformée en tube numéro 1, illustrant une rare passerelle entre le succès à l'Eurovision et l'Eurodance.",
       "uri_deezer": "deezer://track/7537488",
       "fun_fact_nl": "De inzending van Gina G voor het Eurovisie Songfestival namens het VK werd een nummer 1-hit en was een zeldzaam crossover-succes tussen het Songfestival en Eurodance.",
-      "awards_nl": []
+      "awards_nl": [],
+      "uri_tidal": "tidal://track/4343025",
+      "uri_apple_music": "applemusic://track/401123583",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=ge_U6zw0gLo"
     },
     {
       "year": 1994,
@@ -946,11 +943,6 @@
         "DJ Tiësto"
       ],
       "title": "Feel the Beat",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Darude's follow-up to 'Sandstorm' continued his signature trance sound with driving beats and melodic synths.",
@@ -1016,7 +1008,7 @@
       }
     },
     {
-      "year": 1999,
+      "year": 1998,
       "uri": "spotify:track:0pMUR7Uvp6vxlbG0qBFvgM",
       "artist": "Alice Deejay",
       "alt_artists": [
@@ -1066,11 +1058,6 @@
         "Toy-Box"
       ],
       "title": "Daddy DJ - Chico & Tonio Radio Edit / Remastered 2025",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Daddy DJ's quirky French Eurodance track became a hit across Europe with its playful lyrics and bouncy beats.",
@@ -1081,7 +1068,8 @@
       "uri_tidal": "tidal://track/111279010",
       "uri_deezer": "deezer://track/696667752",
       "fun_fact_nl": "De eigenzinnige Franse Eurodance-track van Daddy DJ werd een hit in heel Europa met zijn speelse teksten en vrolijke beats.",
-      "awards_nl": []
+      "awards_nl": [],
+      "uri_apple_music": "applemusic://track/1841918964"
     },
     {
       "year": 1998,
@@ -1275,7 +1263,8 @@
       "uri_tidal": "tidal://track/281797602",
       "uri_deezer": "deezer://track/91348522",
       "fun_fact_nl": "Robert Miles' 'Children' wordt toegeschreven aan het populair maken van dream trance/dream house. De Italiaanse producent zei dat hij het schreef als protest tegen rijden onder invloed, nadat hij clubbezoekers dronken naar huis had zien rijden.",
-      "awards_nl": []
+      "awards_nl": [],
+      "uri_apple_music": "applemusic://track/1499501875"
     },
     {
       "year": 1995,
@@ -1327,11 +1316,6 @@
         "Bad Boys Blue"
       ],
       "title": "You're My Heart, You're My Soul '98",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [
         "Gold (Germany)"
       ],
@@ -1488,11 +1472,6 @@
         "Enrique Iglesias"
       ],
       "title": "My Heart Goes Boom - Radio Version 'Reloaded'",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "French Affair's follow-up to 'Sexy' continued their Latin-infused Eurodance sound with sultry French vocals.",
@@ -1604,11 +1583,6 @@
         "Fun Factory"
       ],
       "title": "Toy Boy",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Daze's playful Eurodance track featured catchy hooks and the signature high-energy production of the mid-90s.",
@@ -1680,11 +1654,6 @@
         "Bad Boys Blue"
       ],
       "title": "Cheri Cheri Lady - New Version",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [
         "Platinum (Germany)"
       ],
@@ -1737,7 +1706,8 @@
       "uri_tidal": "tidal://track/65545333",
       "uri_deezer": "deezer://track/133204794",
       "fun_fact_nl": "De opvolger van Sash! op 'Encore Une Fois' zette hun door trance beïnvloede Eurodance-geluid voort met panfluit-samples die een exotische sfeer creëerden.",
-      "awards_nl": []
+      "awards_nl": [],
+      "uri_apple_music": "applemusic://track/1160359227"
     },
     {
       "year": 1995,
@@ -1749,11 +1719,6 @@
         "Alexia"
       ],
       "title": "Superhero",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Daze's energetic Eurodance track showcased the classic 90s sound with powerful vocals and driving beats.",
@@ -1838,7 +1803,7 @@
       "fun_fact_de": "Guru Joshs Trance-Hymne erlebte 2008 ein Revival, als der 'Klaas Remix' weltweit die Charts anführte.",
       "fun_fact_es": "El himno trance de Guru Josh experimentó un renacimiento masivo en 2008.",
       "fun_fact_fr": "L'hymne trance de Guru Josh a connu un renouveau spectaculaire en 2008 lorsque le 'Klaas Remix' a dominé les classements mondiaux, faisant découvrir le morceau à une nouvelle génération.",
-      "uri_apple_music": "applemusic://track/943232484",
+      "uri_apple_music": "applemusic://track/338322430",
       "uri_youtube_music": "https://music.youtube.com/watch?v=tGBlIJPYWqA",
       "uri_tidal": "tidal://track/564885",
       "uri_deezer": "deezer://track/61686264",
@@ -1846,13 +1811,13 @@
       "awards_nl": [],
       "isrc": "GBARL9100115",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/943232484",
-        "de": "applemusic://track/852614431",
-        "gb": "applemusic://track/852614431",
-        "fr": "applemusic://track/852614431",
-        "es": "applemusic://track/852614431",
-        "nl": "applemusic://track/852614431",
-        "it": "applemusic://track/852614431"
+        "us": "applemusic://track/338322430",
+        "de": "applemusic://track/338322430",
+        "gb": "applemusic://track/338322430",
+        "fr": "applemusic://track/338322430",
+        "es": "applemusic://track/338322430",
+        "nl": "applemusic://track/338322430",
+        "it": "applemusic://track/338322430"
       }
     },
     {
@@ -1890,7 +1855,8 @@
         "es": "applemusic://track/302980631",
         "nl": "applemusic://track/302980631",
         "it": "applemusic://track/302980631"
-      }
+      },
+      "uri_tidal": "tidal://track/1772251"
     },
     {
       "year": 1995,
@@ -1943,11 +1909,6 @@
         "Smile.dk"
       ],
       "title": "Oh, Baby All",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Sonic Dream Collective's upbeat Eurodance track brought bubblegum pop elements to the dance floor.",
@@ -1981,11 +1942,6 @@
         "Ian Van Dahl"
       ],
       "title": "Believe",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Antiloop's trance-influenced Eurodance track became a Swedish hit with its uplifting melody and driving beats.",
@@ -2019,11 +1975,6 @@
         "Fun Factory"
       ],
       "title": "Right Type of Mood",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "HERBIE's groovy Eurodance track blended funk elements with classic 90s dance production for a unique sound.",
@@ -2097,11 +2048,6 @@
         "Ian Van Dahl"
       ],
       "title": "Do You Really Want Me",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Da Buzz's infectious Eurodance track became a Swedish chart hit with its memorable hook and energetic production.",
@@ -2173,11 +2119,6 @@
         "Masterboy"
       ],
       "title": "Naked in the Rain",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Infinity's Eurodance track combined emotional vocals with energetic beats, creating a memorable dance floor moment.",
@@ -2290,11 +2231,6 @@
         "Twenty 4 Seven"
       ],
       "title": "Heut' Ist Mein Tag - Radio Mix",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [
         "Gold (Germany)"
       ],
@@ -2348,7 +2284,8 @@
       "uri_tidal": "tidal://track/34588804",
       "uri_deezer": "deezer://track/1538974072",
       "fun_fact_nl": "De virale hit van O-Zone werd een wereldwijd internetfenomeen door de 'Numa Numa'-video. De aanstekelijke Roemeense tekst van de Moldavische popgroep maakte het tot een van de meest herkende nummers ter wereld.",
-      "awards_nl": []
+      "awards_nl": [],
+      "uri_apple_music": "applemusic://track/1593081404"
     },
     {
       "year": 1995,
@@ -2423,7 +2360,8 @@
         "es": "applemusic://track/1874296691",
         "nl": "applemusic://track/1790923405",
         "it": "applemusic://track/1874296691"
-      }
+      },
+      "uri_deezer": "deezer://track/604175"
     },
     {
       "year": 1995,
@@ -2435,11 +2373,6 @@
         "Toy-Box"
       ],
       "title": "Oh La La La",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "2 Eivissa's catchy Eurodance track featured tropical vibes and an unforgettable 'Oh la la la' hook that defined summer party playlists.",
@@ -2496,12 +2429,12 @@
       "isrc": "GBAHK9400110",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1540698084",
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
+        "de": "applemusic://track/1690701916",
+        "gb": "applemusic://track/1236689934",
+        "fr": "applemusic://track/1297392650",
+        "es": "applemusic://track/1297392650",
+        "nl": "applemusic://track/1297392650",
+        "it": "applemusic://track/1297392650"
       }
     },
     {
@@ -2586,7 +2519,7 @@
       }
     },
     {
-      "year": 1995,
+      "year": 1994,
       "uri": "spotify:track:3wtPKPHAi8xi6P4bCN0eGi",
       "artist": "Whigfield",
       "alt_artists": [
@@ -2613,7 +2546,8 @@
       "uri_tidal": "tidal://track/181883955",
       "uri_deezer": "deezer://track/6907036",
       "fun_fact_nl": "De debuutsingle van Whigfield stond bovenaan de hitlijsten in 17 landen en veroorzaakte een dansrage. Het nummer werd oorspronkelijk uitgebracht in Italië, waar het een zomerhit werd voordat het zich wereldwijd verspreidde.",
-      "awards_nl": []
+      "awards_nl": [],
+      "uri_apple_music": "applemusic://track/79145702"
     },
     {
       "year": 1995,
@@ -2625,11 +2559,6 @@
         "Culture Beat"
       ],
       "title": "This Is How We Do It",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Solid Base's high-energy Eurodance track became a Swedish club anthem with its relentless beats and catchy hooks.",
@@ -2689,7 +2618,9 @@
         "es": "applemusic://track/1674650427",
         "nl": "applemusic://track/1674650427",
         "it": "applemusic://track/1674650427"
-      }
+      },
+      "uri_tidal": "tidal://track/279180978",
+      "uri_deezer": "deezer://track/2168800397"
     },
     {
       "year": 1995,
@@ -2701,11 +2632,6 @@
         "Toy-Box"
       ],
       "title": "Jabba Jabba",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Bobby Summer's playful Eurodance track featured nonsensical but catchy lyrics that became a guilty pleasure on 90s dance floors.",
@@ -2739,11 +2665,6 @@
         "Culture Beat"
       ],
       "title": "Colours of Your Dream",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Solid Base's uplifting Eurodance track combined powerful vocals with driving beats to create a Swedish dance classic.",
@@ -2793,7 +2714,9 @@
       "fun_fact_fr": "L'hymne trance de Sash! est devenu l'un des morceaux phares de la musique dance européenne de la fin des années 90, sublimé par des voix françaises envoûtantes.",
       "uri_deezer": "deezer://track/133204792",
       "fun_fact_nl": "Het trance-anthem van Sash! werd een van de bepalende nummers van de Europese dansmuziek van eind jaren 90, met beklijvende Franse vocalen.",
-      "awards_nl": []
+      "awards_nl": [],
+      "uri_apple_music": "applemusic://track/1164431858",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=frhVSxCxUGE"
     },
     {
       "year": 1995,
@@ -2843,11 +2766,6 @@
         "Masterboy"
       ],
       "title": "One Love",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Tess's uplifting Eurodance track spread a message of unity with its positive lyrics and energetic production.",
@@ -2855,7 +2773,7 @@
       "fun_fact_es": "La edificante pista Eurodance de Tess difundió un mensaje de unidad.",
       "fun_fact_fr": "Le titre Eurodance fédérateur de Tess diffusait un message d'unité porté par des paroles positives et une production pleine d'énergie.",
       "uri_youtube_music": "https://music.youtube.com/watch?v=CaptYZ8FCvk",
-      "uri_deezer": "",
+      "uri_deezer": null,
       "fun_fact_nl": "Tess's opzwepende Eurodance track verspreidt een boodschap van eenheid met zijn positieve teksten en energieke productie.",
       "awards_nl": []
     },
@@ -2869,11 +2787,6 @@
         "Masterboy"
       ],
       "title": "More of the Hot Stuff",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Dance 4 Color brought high-energy Eurodance to the dance floor with pulsating beats and catchy vocal hooks.",
@@ -2907,11 +2820,6 @@
         "Culture Beat"
       ],
       "title": "Omen III - Single Edit",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Magic Affair's dark-themed Eurodance track featured eerie samples and driving beats, creating an atmospheric dance experience.",
@@ -2945,11 +2853,6 @@
         "E-Type"
       ],
       "title": "Don't Leave Me",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Fourteen 14's emotional Eurodance track blended heartfelt vocals with upbeat production for a bittersweet dance experience.",
@@ -2983,11 +2886,6 @@
         "Masterboy"
       ],
       "title": "Smile",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "New Limit's uplifting Eurodance anthem encouraged listeners to smile with its positive message and infectious energy.",
@@ -3008,7 +2906,8 @@
         "es": "applemusic://track/1662396340",
         "nl": "applemusic://track/1662396340",
         "it": "applemusic://track/1662396340"
-      }
+      },
+      "uri_tidal": "tidal://track/9788495"
     },
     {
       "year": 1995,
@@ -3058,11 +2957,6 @@
         "Masterboy"
       ],
       "title": "Sea Of Love",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Daze's romantic Eurodance track combined lush production with heartfelt vocals for a dreamy dance floor experience.",
@@ -3151,7 +3045,9 @@
       "uri_youtube_music": "https://music.youtube.com/watch?v=G5EEIy9hLyY",
       "uri_tidal": "tidal://track/3551603",
       "fun_fact_nl": "De grootste hit van 2 Unlimited stond bovenaan de hitlijsten in heel Europa en er werden meer dan 2,8 miljoen exemplaren van verkocht. De meedogenloze energie en 'No no limits!'-hook maakten het een typische Eurodance-track.",
-      "awards_nl": []
+      "awards_nl": [],
+      "uri_apple_music": "applemusic://track/1541663058",
+      "uri_deezer": "deezer://track/134706074"
     },
     {
       "year": 1995,
@@ -3163,11 +3059,6 @@
         "E-Type"
       ],
       "title": "The Promise Man",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Basic Element's energetic Eurodance track became a Swedish hit with its memorable hooks and driving production.",
@@ -3201,11 +3092,6 @@
         "Culture Beat"
       ],
       "title": "Run To You",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Rage's high-energy Eurodance track featured powerful vocals and relentless beats perfect for the dance floor.",
@@ -3239,11 +3125,6 @@
         "Masterboy"
       ],
       "title": "You",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "La Cream's romantic Eurodance track focused on heartfelt lyrics and emotional delivery over pulsating beats.",
@@ -3277,11 +3158,6 @@
         "Masterboy"
       ],
       "title": "You Got (What I Want)",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "La Cream's romantic Eurodance track focused on heartfelt lyrics and emotional delivery over pulsating beats.",
@@ -3302,7 +3178,8 @@
         "es": "applemusic://track/345069329",
         "nl": "applemusic://track/345069329",
         "it": "applemusic://track/345069329"
-      }
+      },
+      "uri_youtube_music": "https://music.youtube.com/watch?v=ogMRSwk2LpI"
     },
     {
       "year": 1995,
@@ -3331,7 +3208,8 @@
       "uri_tidal": "tidal://track/65545336",
       "uri_deezer": "deezer://track/133204800",
       "fun_fact_nl": "Tina Cousins' samenwerking met Sash! werd een enorme trance-Eurodance crossover hit met haar etherische vocalen en stuwende productie.",
-      "awards_nl": []
+      "awards_nl": [],
+      "uri_apple_music": "applemusic://track/1171882165"
     },
     {
       "year": 1995,
@@ -3397,7 +3275,9 @@
       "uri_youtube_music": "https://music.youtube.com/watch?v=R0u7TpMFC2o",
       "uri_tidal": "tidal://track/3551601",
       "fun_fact_nl": "De stadionhymne van 2 Unlimited werd een vaste waarde tijdens sportevenementen en wordt tientallen jaren later nog steeds gedraaid tijdens wedstrijden over de hele wereld. De agressieve energie van het nummer maakte het perfect voor oppepmomenten.",
-      "awards_nl": []
+      "awards_nl": [],
+      "uri_apple_music": "applemusic://track/389498081",
+      "uri_deezer": "deezer://track/131708882"
     },
     {
       "year": 1995,
@@ -3438,7 +3318,7 @@
       }
     },
     {
-      "year": 1995,
+      "year": 2000,
       "uri": "spotify:track:4oNGIP8ivrEI9rGzfJp8eQ",
       "artist": "Brooklyn Bounce",
       "alt_artists": [
@@ -3447,11 +3327,6 @@
         "DJ Quicksilver"
       ],
       "title": "Bass, Beats & Melody",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Brooklyn Bounce's hard trance track defined late 90s German rave culture with its minimal vocals and maximum energy.",
@@ -3485,11 +3360,6 @@
         "Lasgo"
       ],
       "title": "Move That Body 2010 - Radio Edit",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Look Twice's 2010 remake brought modern electro-house production to classic Eurodance energy.",
@@ -3510,7 +3380,8 @@
         "es": "applemusic://track/395663450",
         "nl": "applemusic://track/395663450",
         "it": "applemusic://track/395663450"
-      }
+      },
+      "uri_deezer": "deezer://track/51734121"
     },
     {
       "year": 1995,
@@ -3600,11 +3471,6 @@
         "Masterboy"
       ],
       "title": "Move It Now",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Night Rhythm's high-energy Eurodance track commanded dancers to move with its driving beats and commanding vocals.",
@@ -3625,7 +3491,8 @@
         "es": "applemusic://track/423251106",
         "nl": "applemusic://track/423251106",
         "it": "applemusic://track/423251106"
-      }
+      },
+      "uri_tidal": "tidal://track/17285247"
     },
     {
       "year": 1995,
@@ -3675,11 +3542,6 @@
         "E-Type"
       ],
       "title": "Scream",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "New Limit's intense Eurodance track built energy with its powerful vocals and relentless production.",
@@ -3729,7 +3591,8 @@
       "uri_youtube_music": "https://music.youtube.com/watch?v=TmphqZVyGsI",
       "uri_tidal": "tidal://track/3551604",
       "fun_fact_nl": "2 Unlimited's opvolger van 'No Limit' zette hun energieke Eurodance-formule voort met op tribals geïnspireerde beats.",
-      "awards_nl": []
+      "awards_nl": [],
+      "uri_deezer": null
     },
     {
       "year": 1995,

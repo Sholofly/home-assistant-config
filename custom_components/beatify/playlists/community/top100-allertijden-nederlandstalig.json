@@ -1,6 +1,6 @@
 {
   "name": "Top 100 Dutch Classics 🇳🇱",
-  "version": "1.11",
+  "version": "1.23",
   "tags": [
     "nederlandstalig",
     "dutch",
@@ -19,11 +19,6 @@
         "Goldband"
       ],
       "title": "Stiekem",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Stiekem was a massive 2022 hit for Maan, reaching the top of the Dutch charts with its catchy bittersweet pop sound about secret feelings. Maan de Steenwinkel is one of the most successful Dutch female pop artists of her generation, known for her warm voice and relatable lyrics. The song accumulated tens of millions of streams within weeks of release.",
@@ -44,7 +39,8 @@
         "es": "applemusic://track/1822755934",
         "nl": "applemusic://track/1822755934",
         "it": "applemusic://track/1822755934"
-      }
+      },
+      "uri_deezer": "deezer://track/1986415707"
     },
     {
       "year": 2011,
@@ -57,11 +53,6 @@
         "Brainpower"
       ],
       "title": "Ik Neem Je Mee",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Ik Neem Je Mee became one of the biggest Dutch hits of 2011, blending hip-hop with an emotional pop hook that stayed on the charts for months. Gers Pardoel's warm delivery and heartfelt lyrics made it an instant classic. It remains one of the most-played Dutch tracks of the decade.",
@@ -82,7 +73,8 @@
         "es": "applemusic://track/1442705463",
         "nl": "applemusic://track/1442705463",
         "it": "applemusic://track/1442705463"
-      }
+      },
+      "uri_deezer": "deezer://track/14031261"
     },
     {
       "year": 2019,
@@ -93,11 +85,6 @@
         "Davina Michelle"
       ],
       "title": "Hoe Het Danst",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Hoe Het Danst is a reflective 2019 ballad from Marco Borsato that poetically explores themes of life passing by and cherishing the moment. It became one of his most-streamed tracks of the decade. Borsato is widely regarded as the biggest Dutch pop star of the 1990s and 2000s.",
@@ -118,7 +105,8 @@
         "es": "applemusic://track/1469081352",
         "nl": "applemusic://track/1469081352",
         "it": "applemusic://track/1469081352"
-      }
+      },
+      "uri_deezer": "deezer://track/700721012"
     },
     {
       "year": 2022,
@@ -131,11 +119,6 @@
         "Maan"
       ],
       "title": "Ladada (Mon Dernier Mot)",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Ladada was a viral sensation in 2022, blending French and Dutch lyrics in a nostalgic retro-pop style that swept the Dutch-speaking world. Belgian artist Claude captured the feel of a carefree summer with this infectious track. It became one of the most-streamed Dutch-language songs of the year.",
@@ -156,7 +139,8 @@
         "es": "applemusic://track/1842435082",
         "nl": "applemusic://track/1842435082",
         "it": "applemusic://track/1842435082"
-      }
+      },
+      "uri_deezer": "deezer://track/1943685037"
     },
     {
       "year": 2018,
@@ -168,11 +152,6 @@
         "Gers Pardoel"
       ],
       "title": "IJskoud",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "IJskoud showcases Nielson's gift for blending smooth R&B with heartfelt Dutch lyrics, creating an atmosphere of emotional coolness. Released in 2018, it became a defining moment in modern Dutch pop. Nielson is one of the most consistent hit-makers in the Netherlands.",
@@ -193,7 +172,8 @@
         "es": "applemusic://track/1435143697",
         "nl": "applemusic://track/1435143697",
         "it": "applemusic://track/1435143697"
-      }
+      },
+      "uri_deezer": "deezer://track/558757062"
     },
     {
       "year": 1970,
@@ -203,11 +183,6 @@
         "Corry Konings"
       ],
       "title": "Huilen Is Voor Jou Te Laat",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Huilen Is Voor Jou Te Laat is a timeless classic from 1970 that helped define Dutch-language pop music. Corry en de Rekels were one of the most beloved Nederlandstalig groups of their era, bringing raw emotion to every performance. The song remains a favourite at Dutch retro nights.",
@@ -228,7 +203,8 @@
         "es": "applemusic://track/1842922620",
         "nl": "applemusic://track/1842922620",
         "it": "applemusic://track/1842922620"
-      }
+      },
+      "uri_deezer": "deezer://track/504507162"
     },
     {
       "year": 1994,
@@ -240,11 +216,6 @@
         "Rob de Nijs"
       ],
       "title": "Dromen Zijn Bedrog",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Dromen Zijn Bedrog was Marco Borsato's breakthrough hit in 1994, catapulting him to national stardom overnight. The song topped the Dutch charts and became one of the best-selling Dutch singles in history. It established Borsato as the undisputed king of Dutch-language pop.",
@@ -265,7 +236,8 @@
         "es": "applemusic://track/1893151548",
         "nl": "applemusic://track/1893151548",
         "it": "applemusic://track/1893151548"
-      }
+      },
+      "uri_deezer": "deezer://track/469441932"
     },
     {
       "year": 2017,
@@ -275,11 +247,6 @@
         "Geike"
       ],
       "title": "Zoutelande (feat. Geike)",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Zoutelande is arguably the most beloved Dutch song of the 21st century, a dreamy ode to the Zeeland coastal village of the same name. The collaboration between BLØF and Belgian singer Geike Arnaert created a magical summer anthem now played at every beach bar in the Netherlands. It has been streamed hundreds of millions of times.",
@@ -300,7 +267,8 @@
         "es": "applemusic://track/1441166227",
         "nl": "applemusic://track/1695722712",
         "it": "applemusic://track/1441166227"
-      }
+      },
+      "uri_deezer": "deezer://track/579396782"
     },
     {
       "year": 2005,
@@ -312,11 +280,6 @@
         "Jan Smit"
       ],
       "title": "Geef Mij Je Angst",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Geef Mij Je Angst is one of Guus Meeuwis's most tender ballads, a heartfelt promise to stand by someone through their deepest fears. Meeuwis is celebrated for writing songs that feel intensely personal yet universally relatable. It became a favourite at Dutch weddings and emotional occasions.",
@@ -337,7 +300,8 @@
         "es": "applemusic://track/1875258669",
         "nl": "applemusic://track/1875258669",
         "it": "applemusic://track/1875258669"
-      }
+      },
+      "uri_deezer": "deezer://track/7494855"
     },
     {
       "year": 1995,
@@ -347,11 +311,6 @@
         "Vagant"
       ],
       "title": "Het Is Een Nacht... (Levensecht)",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Het Is Een Nacht became a massive hit in 1995, launching Guus Meeuwis to national fame with a feel-good party anthem about living life to the fullest. The song is still a staple at Dutch parties and festivals over 30 years later. Meeuwis later broke attendance records with sold-out summer shows at Eindhoven's Philips Stadion.",
@@ -372,7 +331,8 @@
         "es": "applemusic://track/1875258698",
         "nl": "applemusic://track/1875258698",
         "it": "applemusic://track/1875258698"
-      }
+      },
+      "uri_deezer": "deezer://track/75480694"
     },
     {
       "year": 2012,
@@ -384,11 +344,6 @@
         "Ronnie Flex"
       ],
       "title": "Beauty & De Brains",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Beauty & De Brains put Nielson firmly on the Dutch pop map in 2012 with clever wordplay and an irresistible hook. The concept became a cultural reference point in the Netherlands. It showcased Nielson's unique ability to craft witty, memorable pop.",
@@ -409,7 +364,8 @@
         "es": "applemusic://track/1781628171",
         "nl": "applemusic://track/1781628171",
         "it": "applemusic://track/1781628171"
-      }
+      },
+      "uri_deezer": "deezer://track/62461178"
     },
     {
       "year": 2018,
@@ -419,11 +375,6 @@
         "Beste Zangers"
       ],
       "title": "Duurt Te Lang",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Duurt Te Lang established Davina Michelle as a major force in Dutch pop in 2018, showcasing her powerhouse vocals on a deeply emotional breakup anthem. The song rocketed to the top of the charts and has been streamed tens of millions of times. She is considered one of the most talented vocalists in Dutch pop history.",
@@ -444,7 +395,8 @@
         "es": "applemusic://track/1440725466",
         "nl": "applemusic://track/1440725466",
         "it": "applemusic://track/1440725466"
-      }
+      },
+      "uri_deezer": "deezer://track/558804602"
     },
     {
       "year": 2007,
@@ -456,11 +408,6 @@
         "Jan Smit"
       ],
       "title": "Jij Bent Zo",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Jij Bent Zo became Jeroen van der Boom's signature hit in 2007, winning over audiences across the Dutch-speaking world with its charming, feel-good energy. The Flemish singer's catchy style made him a beloved cross-border pop act. The song remains one of the most recognisable Dutch-language pop tracks of the 2000s.",
@@ -481,7 +428,8 @@
         "es": "applemusic://track/276466510",
         "nl": "applemusic://track/276466510",
         "it": "applemusic://track/276466510"
-      }
+      },
+      "uri_deezer": "deezer://track/117176578"
     },
     {
       "year": 2018,
@@ -493,11 +441,6 @@
         "Jaap Reesema"
       ],
       "title": "Als Het Avond Is",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Als Het Avond Is is one of Suzan & Freek's most beloved songs, a tender and intimate track perfect for quiet evenings and romantic moments. The duo consistently top Dutch charts with effortless harmonies. They have redefined romantic pop music in the Netherlands.",
@@ -518,7 +461,8 @@
         "es": "applemusic://track/1440301993",
         "nl": "applemusic://track/1656111114",
         "it": "applemusic://track/1440301993"
-      }
+      },
+      "uri_deezer": "deezer://track/575006832"
     },
     {
       "year": 1998,
@@ -530,11 +474,6 @@
         "Rob de Nijs"
       ],
       "title": "Zelfs Je Naam Is Mooi",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Zelfs Je Naam Is Mooi is one of the most beautiful Dutch-language love songs ever written, penned by Henk Westbroek of the band Klein Orkest. With its simple yet profound message, the song has been sung at countless Dutch weddings. It is considered a timeless standard of Dutch sentimental pop.",
@@ -555,7 +494,8 @@
         "es": "applemusic://track/1441967328",
         "nl": "applemusic://track/1650311770",
         "it": "applemusic://track/1441967328"
-      }
+      },
+      "uri_deezer": "deezer://track/588241392"
     },
     {
       "year": 2006,
@@ -563,11 +503,6 @@
       "artist": "Marco Borsato",
       "alt_artists": [],
       "title": "Rood",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Rood is widely considered Marco Borsato's greatest ballad and one of the finest Dutch-language pop songs ever recorded. Released in 2006, the song's raw emotional power about lost love topped the Dutch charts for weeks. It has since become a true Dutch pop standard.",
@@ -588,7 +523,8 @@
         "es": "applemusic://track/1444279973",
         "nl": "applemusic://track/1444279973",
         "it": "applemusic://track/1353767419"
-      }
+      },
+      "uri_deezer": "deezer://track/2460129"
     },
     {
       "year": 2021,
@@ -601,11 +537,6 @@
         "FLEMMING"
       ],
       "title": "Dat heb jij gedaan",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Dat heb jij gedaan announced MEAU as a major new talent in Dutch pop when it became a chart hit in 2021. The song's upbeat retro-pop feel and MEAU's playful delivery made it an instant earworm. It earned MEAU widespread recognition and multiple award nominations.",
@@ -626,7 +557,8 @@
         "es": "applemusic://track/1713386244",
         "nl": "applemusic://track/1713386244",
         "it": "applemusic://track/1713386244"
-      }
+      },
+      "uri_deezer": "deezer://track/1465896812"
     },
     {
       "year": 2021,
@@ -637,11 +569,6 @@
         "Sigourney K"
       ],
       "title": "Vluchtstrook",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Vluchtstrook became a feel-good summer anthem in 2021 with an irresistible groove and carefree lyrics about escaping everyday life. The Dutch DJ trio consistently delivers breezy, danceable hits that dominate Dutch radio. It is one of their most-streamed tracks to date.",
@@ -662,7 +589,8 @@
         "es": "applemusic://track/1841541370",
         "nl": "applemusic://track/1841541370",
         "it": "applemusic://track/1841541370"
-      }
+      },
+      "uri_deezer": "deezer://track/1554133242"
     },
     {
       "year": 2018,
@@ -674,11 +602,6 @@
         "Bizzey"
       ],
       "title": "Hij Is Van Mij (feat. Bizzey)",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Hij Is Van Mij became a massive 2018 club and radio hit, combining Dutch-language lyrics with a modern trap-influenced beat. The track showed that Dutch pop could sound fresh and contemporary. It became one of the anthems of Dutch festival summer 2018.",
@@ -699,7 +622,8 @@
         "es": "applemusic://track/1445929048",
         "nl": "applemusic://track/1445929048",
         "it": "applemusic://track/1445929048"
-      }
+      },
+      "uri_deezer": "deezer://track/606880172"
     },
     {
       "year": 2007,
@@ -709,11 +633,6 @@
         "Gerard Joling"
       ],
       "title": "Blijf Bij Mij",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Blijf Bij Mij honours the spirit of André Hazes Sr., one of the most iconic figures in Dutch music history. The song captures the emotional directness that made the Hazes name synonymous with Dutch soul. It became a massive hit and a tribute to an enduring musical legacy.",
@@ -734,7 +653,8 @@
         "es": "applemusic://track/714370809",
         "nl": "applemusic://track/714370809",
         "it": "applemusic://track/714370809"
-      }
+      },
+      "uri_deezer": "deezer://track/3379879"
     },
     {
       "year": 1996,
@@ -744,11 +664,6 @@
         "Ellert Driessen"
       ],
       "title": "Banger Hart - Radio Mix",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Banger Hart is one of Rob de Nijs's most beloved songs, a tender ballad about a heart aching with longing. De Nijs is one of the true legends of Dutch pop with a career spanning five decades and countless number-one hits. The song showcases his timeless vocal warmth at its finest.",
@@ -769,7 +684,8 @@
         "es": "applemusic://track/1643061994",
         "nl": "applemusic://track/1650311926",
         "it": "applemusic://track/1643061994"
-      }
+      },
+      "uri_deezer": "deezer://track/1906417847"
     },
     {
       "year": 2022,
@@ -782,11 +698,6 @@
         "S10"
       ],
       "title": "Automatisch",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Automatisch is a dreamy, synth-infused pop song that became one of the most distinctive Dutch pop releases of 2022. FLEMMING's ethereal voice and atmospheric production set her apart in the Dutch pop landscape. The song cemented her reputation as one of the most original voices in Dutch music.",
@@ -807,7 +718,8 @@
         "es": "applemusic://track/1620891643",
         "nl": "applemusic://track/1620891643",
         "it": "applemusic://track/1620891643"
-      }
+      },
+      "uri_deezer": "deezer://track/1730701157"
     },
     {
       "year": 2015,
@@ -819,11 +731,6 @@
         "Ronnie Flex"
       ],
       "title": "Parijs",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Parijs became an unexpected mega-hit in 2015 when Kenny B reimagined his father's 1982 Surinamese hit with a modern twist. The nostalgic, summery track topped the Dutch charts for weeks and is one of the most heartwarming chart-toppers in recent Dutch music history.",
@@ -844,7 +751,8 @@
         "es": "applemusic://track/1560863314",
         "nl": "applemusic://track/1560863314",
         "it": "applemusic://track/1560863314"
-      }
+      },
+      "uri_deezer": "deezer://track/99127252"
     },
     {
       "year": 2020,
@@ -854,11 +762,6 @@
         "Beste Zangers"
       ],
       "title": "Door De Wind",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Door De Wind became one of the most emotional Dutch hits of 2020, showcasing Miss Montreal's incredible vocal range on a song about being swept away by life. She has established herself as one of the most powerful female voices in Dutch pop. The song resonated deeply during a turbulent year.",
@@ -879,7 +782,8 @@
         "es": "applemusic://track/1565158283",
         "nl": "applemusic://track/1565158283",
         "it": "applemusic://track/1565158283"
-      }
+      },
+      "uri_deezer": "deezer://track/1060023052"
     },
     {
       "year": 2022,
@@ -891,11 +795,6 @@
         "Snelle"
       ],
       "title": "Engelbewaarder",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Engelbewaarder is a beautiful 2022 ballad by Marco Schuitmaker that reflects the Dutch taste for emotionally sincere, melodic pop. Schuitmaker is known for his warm voice and deeply personal songwriting. The song became a favourite on Dutch radio and streaming platforms.",
@@ -916,7 +815,8 @@
         "es": "applemusic://track/1819917156",
         "nl": "applemusic://track/1819917156",
         "it": "applemusic://track/1819917156"
-      }
+      },
+      "uri_deezer": "deezer://track/3412342941"
     },
     {
       "year": 2021,
@@ -926,11 +826,6 @@
         "Maan"
       ],
       "title": "Blijven Slapen",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Blijven Slapen is one of Snelle's most beloved tracks, a gentle and intimate song about wanting to stay with someone you love. Snelle is one of the most successful Dutch artists of the early 2020s, known for mixing heartfelt lyrics with accessible pop-folk. It accumulated tens of millions of streams.",
@@ -951,7 +846,8 @@
         "es": "applemusic://track/1841967748",
         "nl": "applemusic://track/1842615775",
         "it": "applemusic://track/1841967748"
-      }
+      },
+      "uri_deezer": "deezer://track/3571500871"
     },
     {
       "year": 2019,
@@ -959,11 +855,6 @@
       "artist": "Suzan & Freek",
       "alt_artists": [],
       "title": "Blauwe Dag",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Blauwe Dag is a tender, melancholic pop song that shows the deeper emotional range of Suzan & Freek. The song about a blue, sad day resonated with listeners for its honest vulnerability. It became one of their most-streamed ballads.",
@@ -984,7 +875,8 @@
         "es": "applemusic://track/1468914247",
         "nl": "applemusic://track/1468914247",
         "it": "applemusic://track/1468914247"
-      }
+      },
+      "uri_deezer": "deezer://track/697644602"
     },
     {
       "year": 2013,
@@ -994,11 +886,6 @@
         "Miss Montreal"
       ],
       "title": "Hoe",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Hoe is a contemplative track where Nielson explores the confusion and pain of heartbreak with his signature understated style. Released in 2013, it helped establish him as a genuine songwriter with emotional depth beyond pop formulas. The song remains a fan favourite for its raw honesty.",
@@ -1019,7 +906,8 @@
         "es": "applemusic://track/1781781692",
         "nl": "applemusic://track/1781781692",
         "it": "applemusic://track/1781781692"
-      }
+      },
+      "uri_deezer": "deezer://track/3110939381"
     },
     {
       "year": 2012,
@@ -1029,11 +917,6 @@
         "Sef"
       ],
       "title": "Bagagedrager",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Bagagedrager is a romantic and nostalgic hip-hop song about riding on the back of a bike with someone you love — a quintessentially Dutch image. Released in 2012, it became a massive hit and one of the most charming Dutch love songs of the decade. The bicycle metaphor resonated perfectly with Dutch culture.",
@@ -1054,7 +937,8 @@
         "es": "applemusic://track/1442705659",
         "nl": "applemusic://track/1442705659",
         "it": "applemusic://track/1442705659"
-      }
+      },
+      "uri_deezer": "deezer://track/14031267"
     },
     {
       "year": 2020,
@@ -1064,11 +948,6 @@
         "Pommelien Thijs"
       ],
       "title": "Nu Wij Niet Meer Praten",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Nu Wij Niet Meer Praten went viral in 2020 with heartbreaking lyrics about the silence after a relationship ends. Jaap Reesema is part of the new generation redefining Dutch pop alongside Snelle and Suzan & Freek. The song accumulated over 100 million streams and became one of the defining Dutch pop songs of the pandemic era.",
@@ -1089,7 +968,8 @@
         "es": "applemusic://track/1842496598",
         "nl": "applemusic://track/1842496598",
         "it": "applemusic://track/1842496598"
-      }
+      },
+      "uri_deezer": "deezer://track/2183649167"
     },
     {
       "year": 2022,
@@ -1099,11 +979,6 @@
         "Hannah Mae"
       ],
       "title": "Wat Wil Je Van Mij",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Wat Wil Je Van Mij brought Metejoor to the top of the Dutch and Belgian charts in 2022 with infectious energy and a catchy chorus. Metejoor is one of the most exciting Flemish pop artists of his generation, beloved for his authentic and youthful style. The song became an anthem for modern love.",
@@ -1124,7 +999,8 @@
         "es": "applemusic://track/1703024489",
         "nl": "applemusic://track/1689665217",
         "it": "applemusic://track/1703024489"
-      }
+      },
+      "uri_deezer": "deezer://track/1982020487"
     },
     {
       "year": 1993,
@@ -1136,11 +1012,6 @@
         "Henk Westbroek"
       ],
       "title": "Ik Wil Niet Dat Je Liegt",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Ik Wil Niet Dat Je Liegt is a deeply emotional ballad from Paul de Leeuw, showing the serious musical side of a beloved Dutch entertainer primarily known for comedy. Released in 1993, it became one of his most treasured recordings. De Leeuw's extraordinary voice elevates this sentimental classic.",
@@ -1161,7 +1032,8 @@
         "es": "applemusic://track/1650366247",
         "nl": "applemusic://track/1650366247",
         "it": "applemusic://track/1650366247"
-      }
+      },
+      "uri_deezer": "deezer://track/1486887502"
     },
     {
       "year": 1998,
@@ -1173,11 +1045,6 @@
         "Volumia!"
       ],
       "title": "Niet Of Nooit Geweest",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Niet Of Nooit Geweest is one of the most enchanting Dutch pop songs of the late 1990s, a wistful look at youthful love and memories. Acda en de Munnik had a knack for combining melancholy with warm, singalong melodies. The song is still regularly played on Dutch radio.",
@@ -1198,7 +1065,8 @@
         "es": "applemusic://track/272537132",
         "nl": "applemusic://track/272537132",
         "it": "applemusic://track/272537132"
-      }
+      },
+      "uri_deezer": "deezer://track/576509"
     },
     {
       "year": 1971,
@@ -1211,11 +1079,6 @@
         "D.C. Lewis"
       ],
       "title": "Manuela",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Manuela was one of the biggest Dutch-language pop songs of 1971, capturing Mediterranean romance in a distinctly Dutch-language package. Jacques Herb was a popular Dutch entertainer of the early 1970s. The song became a timeless classic that multiple generations of Dutch music lovers grew up with.",
@@ -1236,7 +1099,8 @@
         "es": "applemusic://track/1378614864",
         "nl": "applemusic://track/479859326",
         "it": "applemusic://track/1378614864"
-      }
+      },
+      "uri_deezer": "deezer://track/495719762"
     },
     {
       "year": 1973,
@@ -1248,11 +1112,6 @@
         "Tony Bass"
       ],
       "title": "'T Is Weer Voorbij Die Mooie Zomer",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "'T Is Weer Voorbij Die Mooie Zomer perfectly captures the bittersweet feeling of summer's end and has become a perennial Dutch radio favourite every autumn since its 1973 release. Gerard Cox was one of the most popular Dutch entertainers of the 1970s, blending comedy with genuinely heartfelt music.",
@@ -1273,7 +1132,8 @@
         "es": "applemusic://track/1843745073",
         "nl": "applemusic://track/1843745073",
         "it": "applemusic://track/1843745073"
-      }
+      },
+      "uri_deezer": "deezer://track/3571755231"
     },
     {
       "year": 1971,
@@ -1285,11 +1145,6 @@
         "Boudewijn de Groot"
       ],
       "title": "Waarheen, Waarvoor",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Waarheen, Waarvoor was the Dutch entry at Eurovision 1969, representing a generation's questioning of life's direction during turbulent times. Mieke Telkamp was one of the most famous Dutch singers of the 1960s. The song became a lasting Dutch classic far beyond its Eurovision context.",
@@ -1310,7 +1165,8 @@
         "es": "applemusic://track/366419129",
         "nl": "applemusic://track/366419129",
         "it": "applemusic://track/366419129"
-      }
+      },
+      "uri_deezer": "deezer://track/10628902"
     },
     {
       "year": 2007,
@@ -1322,11 +1178,6 @@
         "Marco Borsato"
       ],
       "title": "Alles Is Liefde",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Alles Is Liefde was the title track of a hugely successful Dutch Christmas film in 2007 and became one of BLØF's most iconic songs. Its message of universal love captured the film's holiday spirit and resonated with millions of Dutch viewers. It has since become a beloved Dutch holiday standard.",
@@ -1347,7 +1198,8 @@
         "es": "applemusic://track/806255921",
         "nl": "applemusic://track/806255921",
         "it": "applemusic://track/806255921"
-      }
+      },
+      "uri_deezer": "deezer://track/3401205"
     },
     {
       "year": 1967,
@@ -1360,11 +1212,6 @@
         "Corry en de Rekels"
       ],
       "title": "Waarom Heb Jij Me Laten Staan?",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Waarom Heb Jij Me Laten Staan? is a beloved Dutch classic from 1967 about abandonment and heartbreak, delivered with the emotional directness typical of 1960s Nederlandstalig pop. Wim van Gennip en De Heikrekels were one of the most popular Dutch vocal groups of their era.",
@@ -1385,7 +1232,8 @@
         "es": "applemusic://track/315429273",
         "nl": "applemusic://track/315429273",
         "it": "applemusic://track/315429273"
-      }
+      },
+      "uri_deezer": "deezer://track/74823518"
     },
     {
       "year": 2020,
@@ -1397,11 +1245,6 @@
         "Acda en de Munnik"
       ],
       "title": "Het Is Al Laat Toch",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Het Is Al Laat Toch is a bittersweet indie-pop song that captures the feeling of staying up late and not wanting a good moment to end. Racoon is one of the most beloved Dutch rock bands, known for their heartfelt blend of Dutch lyrics and rock sensibility. The song became a staple of Dutch indie radio.",
@@ -1422,7 +1265,8 @@
         "es": "applemusic://track/1494108727",
         "nl": "applemusic://track/1494108727",
         "it": "applemusic://track/1494108727"
-      }
+      },
+      "uri_deezer": "deezer://track/848739132"
     },
     {
       "year": 1965,
@@ -1435,11 +1279,6 @@
         "D.C. Lewis"
       ],
       "title": "Sophietje",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Sophietje is a classic Dutch-language chanson from 1965 that captured the nation's heart with its charming story of a beloved character named Sophie. Johnny Lion was one of the most beloved Dutch entertainers of the 1960s. The song has been covered many times and remains a staple of Dutch nostalgic playlists.",
@@ -1456,11 +1295,6 @@
       "artist": "Marco Borsato",
       "alt_artists": [],
       "title": "Afscheid Nemen Bestaat Niet - Single Version",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Afscheid Nemen Bestaat Niet is one of the most emotionally powerful songs in Marco Borsato's catalogue, a song about the impossibility of truly letting go that became a massive hit in 2003. It remains one of the most-played Dutch pop songs of all time and a favourite for those dealing with loss.",
@@ -1481,7 +1315,8 @@
         "es": "applemusic://track/1353767373",
         "nl": "applemusic://track/1444394295",
         "it": "applemusic://track/1353767373"
-      }
+      },
+      "uri_deezer": "deezer://track/469441982"
     },
     {
       "year": 2021,
@@ -1489,11 +1324,6 @@
       "artist": "Suzan & Freek",
       "alt_artists": [],
       "title": "Goud",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Goud is a joyful celebration of enduring love from Suzan & Freek, released in 2021. It became one of their biggest commercial successes and a go-to wedding anthem across the Netherlands. The duo's gorgeous harmonies shine especially bright on this uplifting track.",
@@ -1514,7 +1344,8 @@
         "es": "applemusic://track/1586787695",
         "nl": "applemusic://track/1591459079",
         "it": "applemusic://track/1586787695"
-      }
+      },
+      "uri_deezer": "deezer://track/1248904202"
     },
     {
       "year": 2019,
@@ -1526,11 +1357,6 @@
         "Nielson"
       ],
       "title": "Reünie",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Reünie tells the story of an unexpected encounter with an ex at a school reunion — a deeply relatable theme that made it a viral hit in 2019. Snelle's cinematic storytelling style gives the song a vivid, film-like quality. It became one of the standout Dutch songs of the year.",
@@ -1551,7 +1377,8 @@
         "es": "applemusic://track/1842616935",
         "nl": "applemusic://track/1843178313",
         "it": "applemusic://track/1842616935"
-      }
+      },
+      "uri_deezer": "deezer://track/3575580271"
     },
     {
       "year": 2022,
@@ -1559,11 +1386,6 @@
       "artist": "FLEMMING",
       "alt_artists": [],
       "title": "Paracetamollen",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Paracetamollen became one of the most talked-about Dutch pop songs of 2022 with its witty, darkly humorous take on heartbreak as a physical illness. FLEMMING's sharp wit combined with her atmospheric sound made it an instant standout. The song kept FLEMMING at the top of the Dutch charts.",
@@ -1584,7 +1406,8 @@
         "es": "applemusic://track/1822761579",
         "nl": "applemusic://track/1822761579",
         "it": "applemusic://track/1822761579"
-      }
+      },
+      "uri_deezer": "deezer://track/3606655232"
     },
     {
       "year": 1997,
@@ -1596,11 +1419,6 @@
         "Henk Westbroek"
       ],
       "title": "Toen Ik Je Zag - Single Version",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Toen Ik Je Zag is a romantic Dutch pop classic from 1997 that captured the feeling of love at first sight with a simple, timeless melody. Hero was one of the notable Dutch pop acts of the late 1990s. The song has remained a sentimental favourite on Dutch radio.",
@@ -1610,7 +1428,8 @@
       "uri_tidal": "tidal://track/15755985",
       "fun_fact_fr": "Toen Ik Je Zag est un classique pop romantique néerlandais de 1997 qui a capturé le sentiment du coup de foudre.",
       "fun_fact_nl": "Toen Ik Je Zag is een romantische Nederlandse popklassieker uit 1997 die het gevoel van liefde op het eerste gezicht vastlegde met een eenvoudige, tijdloze melodie. Hero was een van de opvallende Nederlandse popacts van eind jaren negentig. Het nummer is een sentimentele favoriet gebleven op de Nederlandse radio.",
-      "awards_nl": []
+      "awards_nl": [],
+      "uri_deezer": "deezer://track/7588391"
     },
     {
       "year": 1966,
@@ -1622,11 +1441,6 @@
         "Johnny"
       ],
       "title": "Sammy",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Sammy is a theatrical and deeply moving song by Ramses Shaffy, one of the most unique and eccentric figures in Dutch music history. Released in 1966, it tells the story of a lonely drifter with extraordinary compassion. Shaffy is considered a true legend and visionary of Dutch chanson.",
@@ -1647,7 +1461,8 @@
         "es": "applemusic://track/1374383613",
         "nl": "applemusic://track/1442427329",
         "it": "applemusic://track/1374383613"
-      }
+      },
+      "uri_deezer": "deezer://track/490387332"
     },
     {
       "year": 2012,
@@ -1659,11 +1474,6 @@
         "Acda en de Munnik"
       ],
       "title": "Oceaan",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Oceaan is Racoon's most epic and sweeping song, a powerful rock ballad that builds from intimate whispers to crashing waves of sound. Released in 2012, it became their signature song and one of the biggest Dutch rock anthems of the decade. It remains one of the most-played Dutch rock tracks on radio.",
@@ -1684,7 +1494,8 @@
         "es": "applemusic://track/1803362903",
         "nl": "applemusic://track/603584774",
         "it": "applemusic://track/1803362903"
-      }
+      },
+      "uri_deezer": "deezer://track/3286643911"
     },
     {
       "year": 2004,
@@ -1694,11 +1505,6 @@
         "Ali B"
       ],
       "title": "Wat Zou Je Doen / Nooit Meer Een Morgen - Live",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "This live recording captures Marco Borsato combining two beloved songs in an unforgettable concert moment. Borsato's live performances were legendary in the Netherlands, consistently selling out massive arenas. The raw emotion of his live voice has moved audiences to tears.",
@@ -1719,7 +1525,8 @@
         "es": "applemusic://track/1442951099",
         "nl": "applemusic://track/1442951099",
         "it": "applemusic://track/1442951099"
-      }
+      },
+      "uri_deezer": "deezer://track/914421"
     },
     {
       "year": 2004,
@@ -1729,11 +1536,6 @@
         "Brace"
       ],
       "title": "Ik Ben Je Zat",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Ik Ben Je Zat was one of the most successful Dutch hip-hop songs of the 2000s, with Ali B delivering sharp, witty lyrics about a tired relationship. Ali B was one of the pioneers who proved Dutch-language hip-hop could reach mainstream audiences. The song became a cultural touchstone for a generation.",
@@ -1754,7 +1556,8 @@
         "es": "applemusic://track/1515258396",
         "nl": "applemusic://track/1515258396",
         "it": "applemusic://track/1515258396"
-      }
+      },
+      "uri_deezer": "deezer://track/107262138"
     },
     {
       "year": 2019,
@@ -1765,11 +1568,6 @@
         "Tabitha"
       ],
       "title": "Moment",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Moment is a summery, feel-good track that exemplifies the Kris Kross Amsterdam sound — warm, breezy and instantly danceable. Released in 2019, it became one of their most-streamed songs and a radio staple capturing the feeling of living in a perfect moment.",
@@ -1790,7 +1588,8 @@
         "es": "applemusic://track/1463382212",
         "nl": "applemusic://track/1463382212",
         "it": "applemusic://track/1463382212"
-      }
+      },
+      "uri_deezer": "deezer://track/679070322"
     },
     {
       "year": 1977,
@@ -1802,11 +1601,6 @@
         "De Jeugd Van Tegenwoordig"
       ],
       "title": "Smurfenlied",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Smurfenlied is possibly the most internationally famous Dutch-language song ever recorded, going number one across Europe in 1977. Vader Abraham's novelty hit has been translated into dozens of languages and introduced generations of children worldwide to The Smurfs. It remains one of the best-selling Dutch singles of all time.",
@@ -1827,7 +1621,8 @@
         "es": "applemusic://track/1563716072",
         "nl": "applemusic://track/488387973",
         "it": "applemusic://track/1563716072"
-      }
+      },
+      "uri_deezer": "deezer://track/436411682"
     },
     {
       "year": 1997,
@@ -1839,11 +1634,6 @@
         "Rob de Nijs"
       ],
       "title": "'k Heb Je Lief",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "'k Heb Je Lief is Paul de Leeuw's most tender love song, a heartfelt declaration of love that became one of the most-played Dutch ballads of the 1990s. De Leeuw's ability to move between comedy and genuine emotion is on full display here. The song has been played at countless Dutch weddings.",
@@ -1864,7 +1654,8 @@
         "es": "applemusic://track/1585392337",
         "nl": "applemusic://track/1585392337",
         "it": "applemusic://track/1585392337"
-      }
+      },
+      "uri_deezer": "deezer://track/1486887682"
     },
     {
       "year": 1995,
@@ -1876,11 +1667,6 @@
         "Corry Konings"
       ],
       "title": "Ademnood",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Ademnood was a surprising 1995 hit by the mother-daughter duo Linda Roos & Jessica, combining pop with a distinctly Dutch sentimental touch. The song resonated for its emotional rawness and the unique chemistry between the two singers. It remains one of the most charming Dutch pop collaborations of the decade.",
@@ -1901,7 +1687,8 @@
         "es": "applemusic://track/1548680688",
         "nl": "applemusic://track/1548680688",
         "it": "applemusic://track/1548680688"
-      }
+      },
+      "uri_deezer": "deezer://track/1208931962"
     },
     {
       "year": 2001,
@@ -1913,11 +1700,6 @@
         "Jeroen Van Der Boom"
       ],
       "title": "Zij Maakt Het Verschil",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Zij Maakt Het Verschil is a touching tribute to an important woman in one's life, released in 2001 by De Poema's. Its warm, singalong quality made it a staple of Dutch radio and a favourite at family gatherings. De Poema's were known for their approachable, feel-good Dutch pop style.",
@@ -1938,7 +1720,8 @@
         "es": "applemusic://track/698746471",
         "nl": "applemusic://track/698746471",
         "it": "applemusic://track/698746471"
-      }
+      },
+      "uri_deezer": "deezer://track/115031640"
     },
     {
       "year": 2006,
@@ -1950,11 +1733,6 @@
         "Marco Borsato"
       ],
       "title": "Als De Morgen Is Gekomen",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Als De Morgen Is Gekomen is one of Jan Smit's most beloved ballads, a song of hope and new beginnings that became a fixture on Dutch radio after its 2006 release. Jan Smit is one of the most successful Dutch pop acts of his generation. The song showcases his warm, powerful voice at its best.",
@@ -1975,7 +1753,8 @@
         "es": "applemusic://track/1303580026",
         "nl": "applemusic://track/1303580026",
         "it": "applemusic://track/1303580026"
-      }
+      },
+      "uri_deezer": "deezer://track/422529862"
     },
     {
       "year": 1995,
@@ -1987,11 +1766,6 @@
         "Will Tura"
       ],
       "title": "Passie",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Passie is the signature song of Clouseau, the legendary Flemish pop duo of brothers Koen and Arne Wauters. Released in 1995, it became one of the biggest Flemish pop hits of all time and a cross-border favourite across the Dutch-speaking world. It remains an impassioned declaration of love that still moves audiences.",
@@ -2012,7 +1786,8 @@
         "es": "applemusic://track/1794283425",
         "nl": "applemusic://track/1794283425",
         "it": "applemusic://track/1794283425"
-      }
+      },
+      "uri_deezer": "deezer://track/396080622"
     },
     {
       "year": 2017,
@@ -2022,11 +1797,6 @@
         "Maan"
       ],
       "title": "Blijf Bij Mij",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Blijf Bij Mij became a major hit in 2017, showing Ronnie Flex's softer, more romantic side. One of the most successful Dutch hip-hop/R&B artists, Flex helped bring the genre to mainstream Dutch audiences. The song's heartfelt sentiment made it one of his most beloved tracks.",
@@ -2037,7 +1807,8 @@
       "uri_tidal": "tidal://track/82158348",
       "fun_fact_fr": "Blijf Bij Mij est devenu un grand succès en 2017, montrant le côté plus doux et romantique de Ronnie Flex.",
       "fun_fact_nl": "Blijf Bij Mij werd een grote hit in 2017 en liet de zachtere, meer romantische kant van Ronnie Flex zien. Als een van de meest succesvolle Nederlandse hiphop/R&B-artiesten hielp Flex het genre naar een mainstream Nederlands publiek te brengen. Het oprechte sentiment van het nummer maakte het een van zijn meest geliefde nummers.",
-      "awards_nl": []
+      "awards_nl": [],
+      "uri_deezer": "deezer://track/438142772"
     },
     {
       "year": 2000,
@@ -2049,11 +1820,6 @@
         "Snelle"
       ],
       "title": "Onderweg",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Onderweg is a beloved Dutch pop song from 2000 that captured a moment of youthful wandering and self-discovery. Abel was one of the notable Dutch singer-songwriters of the early 2000s, combining personal storytelling with accessible pop melodies. The song became a radio favourite for a generation finding their way.",
@@ -2074,7 +1840,8 @@
         "es": "applemusic://track/61185070",
         "nl": "applemusic://track/61185070",
         "it": "applemusic://track/61185070"
-      }
+      },
+      "uri_deezer": "deezer://track/3758347"
     },
     {
       "year": 1997,
@@ -2084,11 +1851,6 @@
         "Trijntje Oosterhuis"
       ],
       "title": "Wereld Zonder Jou",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Wereld Zonder Jou is a classic 1997 Borsato ballad about the unimaginable emptiness of life without a loved one. Released during his peak commercial period, it became one of his most cherished songs. The emotional power is quintessential Marco Borsato.",
@@ -2109,7 +1871,8 @@
         "es": "applemusic://track/1444144379",
         "nl": "applemusic://track/1444144379",
         "it": "applemusic://track/1444144379"
-      }
+      },
+      "uri_deezer": "deezer://track/918676"
     },
     {
       "year": 1995,
@@ -2119,11 +1882,6 @@
         "de Nachraove"
       ],
       "title": "Sjeng aon de geng",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Sjeng aon de geng is a beloved regional dialect song from Limburg, sung in the local Limburgs dialect and released in 1995. It became a hit far beyond Limburg and celebrated the unique character of southern Dutch culture. The song is a testament to how regional music can capture a wider audience.",
@@ -2144,7 +1902,8 @@
         "es": "applemusic://track/1535250660",
         "nl": "applemusic://track/1535250660",
         "it": "applemusic://track/1535250660"
-      }
+      },
+      "uri_deezer": "deezer://track/1176661122"
     },
     {
       "year": 2002,
@@ -2156,11 +1915,6 @@
         "Gordon"
       ],
       "title": "Heb Je Even Voor Mij",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Heb Je Even Voor Mij is one of Frans Bauer's most popular songs, combining Dutch Schlager with an irresistibly catchy chorus. Frans Bauer is one of the biggest stars of Dutch and Flemish popular music, known for his warm personality and ability to fill stadiums. The song became an instant singalong classic.",
@@ -2181,7 +1935,8 @@
         "es": "applemusic://track/408756716",
         "nl": "applemusic://track/1790923391",
         "it": "applemusic://track/408756716"
-      }
+      },
+      "uri_deezer": "deezer://track/13250217"
     },
     {
       "year": 1991,
@@ -2193,11 +1948,6 @@
         "Guillermo"
       ],
       "title": "Mooi Man",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Mooi Man is a feel-good ode to the working man performed with great warmth and humour by the male choir Karrespoor. Released in 1991, it became a beloved Dutch classic and is regularly played at family gatherings and parties. The song's cheerful, communal spirit made it a uniquely Dutch cultural phenomenon.",
@@ -2218,7 +1968,8 @@
         "es": "applemusic://track/1371756545",
         "nl": "applemusic://track/1557623605",
         "it": "applemusic://track/1371756545"
-      }
+      },
+      "uri_deezer": "deezer://track/25580331"
     },
     {
       "year": 2022,
@@ -2230,11 +1981,6 @@
         "Davina Michelle"
       ],
       "title": "De Diepte",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "De Diepte represented the Netherlands at Eurovision 2022 and became one of the most critically acclaimed Dutch Eurovision entries in decades. S10's haunting, minimal electronic ballad about mental health marked a new artistic chapter for Dutch music internationally. The raw vocal performance and artistic vision earned widespread admiration.",
@@ -2255,7 +2001,8 @@
         "es": "applemusic://track/1612026523",
         "nl": "applemusic://track/1677174948",
         "it": "applemusic://track/1612026523"
-      }
+      },
+      "uri_deezer": "deezer://track/1669976682"
     },
     {
       "year": 1967,
@@ -2267,11 +2014,6 @@
         "Johnny"
       ],
       "title": "Het Land Van Maas En Waal",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Het Land Van Maas En Waal is one of the most iconic Dutch folk-pop songs of the 1960s, evoking the flat, watery Dutch landscape with poetic precision. Boudewijn de Groot was the most important Dutch singer-songwriter of the 1960s, often called the Dutch Bob Dylan. The song remains a timeless classic that captures the Dutch soul.",
@@ -2292,7 +2034,8 @@
         "es": "applemusic://track/1638372855",
         "nl": "applemusic://track/1638372855",
         "it": "applemusic://track/1638372855"
-      }
+      },
+      "uri_deezer": "deezer://track/1855006257"
     },
     {
       "year": 1998,
@@ -2304,11 +2047,6 @@
         "Acda en de Munnik"
       ],
       "title": "Hou me vast",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Hou me vast was the breakthrough hit for Volumia!, one of the most beloved Dutch rock-pop bands of the late 1990s. The song's powerful chorus and emotional plea for connection made it an instant anthem. Volumia! became one of the defining Dutch acts of their era before disbanding in 2001.",
@@ -2329,7 +2067,8 @@
         "es": "applemusic://track/1309033441",
         "nl": "applemusic://track/1309033441",
         "it": "applemusic://track/1309033441"
-      }
+      },
+      "uri_deezer": "deezer://track/637597"
     },
     {
       "year": 2019,
@@ -2337,11 +2076,6 @@
       "artist": "Maan",
       "alt_artists": [],
       "title": "Ze Huilt Maar Ze Lacht",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Ze Huilt Maar Ze Lacht captures one of Maan's most emotionally complex themes — the brave face we put on through sadness. Released in 2019, the song showed Maan's growing maturity as a songwriter. It became one of her most-streamed tracks.",
@@ -2362,7 +2096,8 @@
         "es": "applemusic://track/1822754446",
         "nl": "applemusic://track/1822754446",
         "it": "applemusic://track/1822754446"
-      }
+      },
+      "uri_deezer": "deezer://track/3606701852"
     },
     {
       "year": 2003,
@@ -2374,11 +2109,6 @@
         "Gordon"
       ],
       "title": "Ik Wou Dat Ik Jou Was",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Ik Wou Dat Ik Jou Was is the signature song of the Veldhuis & Kemper comedy duo, who brilliantly combined cabaret humour with genuinely catchy pop songwriting. Released in 2003, the playful song about jealousy and admiration became one of the most recognisable Dutch songs of the 2000s.",
@@ -2399,7 +2129,8 @@
         "es": "applemusic://track/724338357",
         "nl": "applemusic://track/724338357",
         "it": "applemusic://track/724338357"
-      }
+      },
+      "uri_deezer": "deezer://track/3212428"
     },
     {
       "year": 2008,
@@ -2407,11 +2138,6 @@
       "artist": "Marco Borsato",
       "alt_artists": [],
       "title": "Dochters",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Dochters is widely considered one of the most moving songs Marco Borsato ever recorded — a tender tribute to his daughters and the bittersweet experience of watching them grow up. Released in 2008, it resonated deeply with parents across the Netherlands and became one of his biggest hits of the late 2000s.",
@@ -2432,7 +2158,8 @@
         "es": "applemusic://track/1442904624",
         "nl": "applemusic://track/1444290997",
         "it": "applemusic://track/1442904624"
-      }
+      },
+      "uri_deezer": "deezer://track/7274084"
     },
     {
       "year": 2016,
@@ -2442,11 +2169,6 @@
         "Frenna"
       ],
       "title": "Energie",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Energie was one of the tracks that established Ronnie Flex as a major force in Dutch hip-hop and R&B in 2016. The upbeat, positive vibe contrasted with his more introspective work and became a party anthem and radio favourite. It introduced him to a mainstream Dutch audience.",
@@ -2467,7 +2189,8 @@
         "es": "applemusic://track/1440899681",
         "nl": "applemusic://track/1440717999",
         "it": "applemusic://track/1440899681"
-      }
+      },
+      "uri_deezer": "deezer://track/377153411"
     },
     {
       "year": 2006,
@@ -2477,11 +2200,6 @@
         "Tropical Danny"
       ],
       "title": "Toppertje! - Original Mix",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Toppertje! became the unofficial anthem of the Dutch Toppers concerts, wildly popular entertainment spectacles featuring Gordon, Gerard Joling and Jan Smit. The upbeat, campy track perfectly captured the over-the-top spirit of the Toppers brand. It became one of the most recognisable Dutch party tracks of the mid-2000s.",
@@ -2489,7 +2207,8 @@
       "fun_fact_es": "Toppertje! se convirtió en el himno no oficial de los conciertos Toppers holandeses con Gordon, Gerard Joling y Jan Smit.",
       "fun_fact_fr": "Toppertje! est devenu l'hymne non officiel des concerts Toppers néerlandais avec Gordon, Gerard Joling et Jan Smit.",
       "fun_fact_nl": "Toppertje! werd het officieuze volkslied van de Nederlandse Toppers-concerten, razend populaire entertainmentspektakels met Gordon, Gerard Joling en Jan Smit. Het upbeat, campy nummer vatte perfect de over-the-top spirit van het merk Toppers. Het werd een van de meest herkenbare Nederlandse feestnummers van midden jaren 2000.",
-      "awards_nl": []
+      "awards_nl": [],
+      "uri_youtube_music": "https://music.youtube.com/watch?v=Ktk1Lj5e18Y"
     },
     {
       "year": 1994,
@@ -2497,11 +2216,6 @@
       "artist": "Marco Borsato",
       "alt_artists": [],
       "title": "Waarom Nou Jij - Radio Edit",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Waarom Nou Jij was one of Marco Borsato's early hits from 1994, establishing the template of heartfelt Dutch ballads that would define his career. The song's vulnerable questioning resonated with a wide Dutch audience and helped launch him to national stardom.",
@@ -2521,7 +2235,9 @@
         "es": "applemusic://track/1444144375",
         "nl": "applemusic://track/1444144375",
         "it": "applemusic://track/1444144375"
-      }
+      },
+      "uri_tidal": "tidal://track/85371261",
+      "uri_deezer": "deezer://track/918661"
     },
     {
       "year": 2020,
@@ -2533,11 +2249,6 @@
         "Gers Pardoel"
       ],
       "title": "Smoorverliefd",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Smoorverliefd is one of Snelle's most joyful tracks, a celebration of the dizzy, all-consuming feeling of new love released in 2020. It became a streaming hit and feel-good anthem for a generation. Snelle's ability to make Dutch-language pop feel fresh and authentic shines throughout.",
@@ -2546,7 +2257,10 @@
       "fun_fact_fr": "Smoorverliefd est l'un des titres les plus joyeux de Snelle, une célébration du sentiment vertigineux du nouvel amour, sorti en 2020.",
       "fun_fact_nl": "Smoorverliefd is een van Snelle's meest vrolijke tracks, een viering van het duizelingwekkende, alles verterende gevoel van een nieuwe liefde, uitgebracht in 2020. Het werd een streaminghit en een feelgood anthem voor een generatie. Snelle's vermogen om Nederlandstalige pop fris en authentiek te laten aanvoelen, spat er vanaf.",
       "awards_nl": [],
-      "uri_youtube_music": "https://music.youtube.com/watch?v=LDDy4m_TiVk"
+      "uri_youtube_music": "https://music.youtube.com/watch?v=LDDy4m_TiVk",
+      "uri_tidal": "tidal://track/463294300",
+      "uri_apple_music": "applemusic://track/1842499184",
+      "uri_deezer": "deezer://track/3575624831"
     },
     {
       "year": 2023,
@@ -2558,11 +2272,6 @@
         "Davina Michelle"
       ],
       "title": "Slapeloosheid",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Slapeloosheid explores the restless nights and looping thoughts of anxiety and longing with beautiful intimacy. Released in 2023, Suzan & Freek continued to push the boundaries of Dutch intimate pop. It quickly became a fan favourite proving their enduring appeal.",
@@ -2582,7 +2291,9 @@
         "es": "applemusic://track/1659415213",
         "nl": "applemusic://track/1659415213",
         "it": "applemusic://track/1659415213"
-      }
+      },
+      "uri_tidal": "tidal://track/266265065",
+      "uri_deezer": "deezer://track/2066554477"
     },
     {
       "year": 1991,
@@ -2594,11 +2305,6 @@
         "Guus Meeuwis"
       ],
       "title": "Kon Ik Maar Even Bij Je Zijn",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Kon Ik Maar Even Bij Je Zijn was one of Gordon's early hits showing his talent for emotionally direct, sentimental Dutch pop. Gordon is a hugely popular Dutch entertainer who has been a mainstay of Dutch popular culture for decades. The song became a favourite for anyone longing for a loved one far away.",
@@ -2618,7 +2324,8 @@
         "es": "applemusic://track/151364731",
         "nl": "applemusic://track/151364731",
         "it": "applemusic://track/151364731"
-      }
+      },
+      "uri_deezer": "deezer://track/25553641"
     },
     {
       "year": 1990,
@@ -2630,11 +2337,6 @@
         "Gordon"
       ],
       "title": "Mooi Was Die Tijd",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Mooi Was Die Tijd is a nostalgic ballad looking back on beautiful days gone by and one of Corry Konings's most beloved songs. Corry Konings is one of the true queens of Dutch-language popular music with a career spanning more than five decades. The song resonates with anyone who has looked back on a golden chapter of their life.",
@@ -2653,7 +2355,9 @@
         "es": "applemusic://track/1371915839",
         "nl": "applemusic://track/1371915839",
         "it": "applemusic://track/1371915839"
-      }
+      },
+      "uri_deezer": "deezer://track/485661192",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=pZpqZq1nNJs"
     },
     {
       "year": 2018,
@@ -2665,11 +2369,6 @@
         "Ali B"
       ],
       "title": "Lil Craney",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Lil Craney is a playful, self-referential hip-hop track that became a viral hit in 2018, showcasing Kraantje Pappie's humorous and confident style. He is one of the most entertaining and distinctive voices in Dutch hip-hop. The song became an anthem for his growing fanbase.",
@@ -2689,7 +2388,9 @@
         "es": "applemusic://track/1357036661",
         "nl": "applemusic://track/1357036661",
         "it": "applemusic://track/1357036661"
-      }
+      },
+      "uri_tidal": "tidal://track/85678569",
+      "uri_deezer": "deezer://track/471588142"
     },
     {
       "year": 1995,
@@ -2701,11 +2402,6 @@
         "Guus Meeuwis"
       ],
       "title": "Omdat Ik Zo Van Je Hou (Pour Que Tu M'Aimes Encore)",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "This Dutch-language version of Céline Dion's Pour Que Tu M'Aimes Encore became a massive hit for Gordon in 1995, combining the power of the original with Gordon's warm delivery. It became one of the best-selling Dutch singles of the year. The song demonstrated the cross-linguistic appeal of great pop music.",
@@ -2725,7 +2421,8 @@
         "es": "applemusic://track/485881394",
         "nl": "applemusic://track/485881394",
         "it": "applemusic://track/485881394"
-      }
+      },
+      "uri_deezer": "deezer://track/25573781"
     },
     {
       "year": 1970,
@@ -2737,11 +2434,6 @@
         "Mieke Telkamp"
       ],
       "title": "Mijn Gebed",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Mijn Gebed is a gospel-inflected Dutch pop song from 1970 that showcased D.C. Lewis's powerful, soulful voice. The song became a beloved classic of Dutch-language pop with its spiritual theme of prayer and faith. It remains one of the most distinctive Dutch pop recordings of the early 1970s.",
@@ -2749,7 +2441,10 @@
       "fun_fact_es": "Mijn Gebed es una canción pop holandesa con influencia gospel de 1970 que mostró la poderosa voz de D.C. Lewis.",
       "fun_fact_fr": "Mijn Gebed est une chanson pop néerlandaise aux accents gospel de 1970 qui a mis en valeur la voix puissante de D.C. Lewis.",
       "fun_fact_nl": "Mijn Gebed is een gospel-achtig Nederlandstalig popliedje uit 1970 dat de krachtige, soulvolle stem van D.C. Lewis liet horen. Het nummer werd een geliefde klassieker in de Nederlandstalige pop met zijn spirituele thema van gebed en geloof. Het blijft een van de meest kenmerkende Nederlandstalige popopnames van de vroege jaren 1970.",
-      "awards_nl": []
+      "awards_nl": [],
+      "uri_apple_music": "applemusic://track/259313534",
+      "uri_deezer": "deezer://track/134543785",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=rqg_kNRvWNQ"
     },
     {
       "year": 2020,
@@ -2759,11 +2454,6 @@
         "Snelle"
       ],
       "title": "De Overkant",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "De Overkant is a metaphorical song about the distance between two people who still feel close despite everything, one of the most poetic songs in Suzan & Freek's catalogue. Released in 2020, it showed the duo's growing emotional sophistication. The song became a fan favourite for its thoughtful lyrics.",
@@ -2783,7 +2473,9 @@
         "es": "applemusic://track/1525342810",
         "nl": "applemusic://track/1525342810",
         "it": "applemusic://track/1525342810"
-      }
+      },
+      "uri_tidal": "tidal://track/150797412",
+      "uri_deezer": "deezer://track/1035446462"
     },
     {
       "year": 1971,
@@ -2793,11 +2485,6 @@
         "Vader Abraham"
       ],
       "title": "Zou Het Erg Zijn, Lieve Opa",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Zou Het Erg Zijn, Lieve Opa is a touching 1971 song addressed to a grandfather figure, reflecting on questions about life and its end with innocent wonder. Wilma was a notable Dutch pop singer of the early 1970s. The song became a memorable classic for its gentle approach to an unusual subject.",
@@ -2817,7 +2504,9 @@
         "es": "applemusic://track/1842921739",
         "nl": "applemusic://track/1842921739",
         "it": "applemusic://track/1842921739"
-      }
+      },
+      "uri_tidal": "tidal://track/463394988",
+      "uri_deezer": "deezer://track/33799671"
     },
     {
       "year": 2001,
@@ -2829,11 +2518,6 @@
         "Kraantje Pappie"
       ],
       "title": "Schudden",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Schudden was one of the most energetic Dutch hip-hop tracks of 2001, establishing Def Rhymz as a major force in Dutch urban music. The irresistible call to dance made it a club and radio favourite. Def Rhymz went on to become one of the most respected figures in Dutch hip-hop history.",
@@ -2852,7 +2536,10 @@
         "es": "applemusic://track/1442289020",
         "nl": "applemusic://track/1442289020",
         "it": "applemusic://track/1442289020"
-      }
+      },
+      "uri_tidal": "tidal://track/29536632",
+      "uri_deezer": "deezer://track/78256158",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=fDlUYTysLk8"
     },
     {
       "year": 1969,
@@ -2864,11 +2551,6 @@
         "Gerard Cox"
       ],
       "title": "Gina Lollobrigida",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Gina Lollobrigida is a charming, tongue-in-cheek Dutch pop song from 1969 that playfully referenced the famous Italian actress. Tony Bass had a knack for crafting catchy, lighthearted Dutch-language hits. The song became a beloved novelty classic in the Netherlands.",
@@ -2888,7 +2570,9 @@
         "es": "applemusic://track/315688170",
         "nl": "applemusic://track/315688170",
         "it": "applemusic://track/315688170"
-      }
+      },
+      "uri_tidal": "tidal://track/56079927",
+      "uri_deezer": "deezer://track/111939438"
     },
     {
       "year": 1998,
@@ -2896,11 +2580,6 @@
       "artist": "Volumia!",
       "alt_artists": [],
       "title": "Afscheid",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Afscheid is one of Volumia!'s most emotional songs, a raw and cathartic exploration of goodbye and loss released in 1998. It became one of the signature songs of the band's most celebrated period. Volumia! was one of the most important Dutch rock-pop acts of the late 1990s.",
@@ -2920,7 +2599,9 @@
         "es": "applemusic://track/268228952",
         "nl": "applemusic://track/1449978485",
         "it": "applemusic://track/268228952"
-      }
+      },
+      "uri_tidal": "tidal://track/14368044",
+      "uri_deezer": "deezer://track/637589"
     },
     {
       "year": 2021,
@@ -2932,11 +2613,6 @@
         "S10"
       ],
       "title": "Zij Wil Mij",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Zij Wil Mij is a confident, empowering track from FLEMMING exploring themes of desire and self-assurance. Released in 2021, it showed her ability to craft atmospheric pop with a strong point of view. The song became one of her most celebrated tracks.",
@@ -2945,7 +2621,10 @@
       "fun_fact_fr": "Zij Wil Mij est un morceau confiant et autonomisant de FLEMMING explorant les thèmes du désir.",
       "fun_fact_nl": "Zij Wil Mij is een zelfverzekerd, krachtig nummer van FLEMMING dat thema's als verlangen en zelfverzekerdheid verkent. Het werd uitgebracht in 2021 en liet zien dat ze in staat is om sfeervolle pop te maken met een sterk standpunt. Het nummer werd een van haar meest gevierde nummers.",
       "awards_nl": [],
-      "uri_youtube_music": "https://music.youtube.com/watch?v=-mABxYPPqYc"
+      "uri_youtube_music": "https://music.youtube.com/watch?v=-mABxYPPqYc",
+      "uri_tidal": "tidal://track/211497323",
+      "uri_apple_music": "applemusic://track/1603656634",
+      "uri_deezer": "deezer://track/1613100472"
     },
     {
       "year": 2004,
@@ -2956,11 +2635,6 @@
         "Ninthe"
       ],
       "title": "Zinloos",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Zinloos was Lange Frans's most successful and socially conscious track, a powerful commentary on violence and its senseless impact on communities. Released in 2004, it became one of the most talked-about Dutch hip-hop records of the decade. Lange Frans was one of the most important political voices in Dutch hip-hop.",
@@ -2980,7 +2654,9 @@
         "es": "applemusic://track/359159887",
         "nl": "applemusic://track/359159887",
         "it": "applemusic://track/359159887"
-      }
+      },
+      "uri_tidal": "tidal://track/189932482",
+      "uri_deezer": "deezer://track/1419102352"
     },
     {
       "year": 2005,
@@ -2993,11 +2669,6 @@
         "Kraantje Pappie"
       ],
       "title": "Watskeburt?!",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Watskeburt?! is the most iconic Dutch hip-hop novelty track ever made — chaotic, funny and brilliantly self-aware. Released in 2005, it captured the spirit of mid-2000s Dutch internet culture and became a cultural phenomenon. De Jeugd Van Tegenwoordig's anarchic approach made them legends of Dutch hip-hop.",
@@ -3012,12 +2683,14 @@
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1442539933",
         "de": "applemusic://track/1442539933",
-        "gb": null,
+        "gb": "applemusic://track/394259119",
         "fr": "applemusic://track/1442539933",
         "es": "applemusic://track/1442539933",
         "nl": "applemusic://track/1442539933",
         "it": "applemusic://track/1442539933"
-      }
+      },
+      "uri_tidal": "tidal://track/299388876",
+      "uri_deezer": "deezer://track/982834"
     },
     {
       "year": 2023,
@@ -3027,11 +2700,6 @@
         "Claude"
       ],
       "title": "Vas-y (Ga Maar)",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Vas-y is one of Suzan & Freek's most emotionally raw songs, a painful farewell blending French and Dutch in its title to express the complexity of letting go. Released in 2023, it showed the duo at their most mature. The song resonated deeply with anyone who has faced a difficult goodbye.",
@@ -3051,7 +2719,9 @@
         "es": "applemusic://track/1842435015",
         "nl": "applemusic://track/1842435015",
         "it": "applemusic://track/1842435015"
-      }
+      },
+      "uri_tidal": "tidal://track/311940585",
+      "uri_deezer": "deezer://track/2368080695"
     },
     {
       "year": 1984,
@@ -3063,11 +2733,6 @@
         "Frans Bauer"
       ],
       "title": "Waarom Fluister Ik Je Naam Nog",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Waarom Fluister Ik Je Naam Nog is one of the most poignant Dutch love ballads of the 1980s, capturing the lingering ache of a lost love. Benny Neyman was one of the most beloved Dutch-Flemish Schlager singers of his era. The song remains a classic of Dutch sentimental pop.",
@@ -3087,7 +2752,8 @@
         "es": "applemusic://track/145530931",
         "nl": "applemusic://track/145530931",
         "it": "applemusic://track/145530931"
-      }
+      },
+      "uri_deezer": "deezer://track/25555141"
     },
     {
       "year": 1996,
@@ -3097,11 +2763,6 @@
         "Vagant"
       ],
       "title": "Per Spoor (Kedeng Kedeng) - Radio Versie",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Per Spoor is one of the most joyful Dutch songs of the 1990s, an ode to travelling by train through the Dutch countryside. The onomatopoeic 'kedeng kedeng' mimicking train wheels became one of the most recognisable sounds in Dutch pop. The song made Guus Meeuwis a household name alongside Het Is Een Nacht.",
@@ -3121,7 +2782,9 @@
         "es": "applemusic://track/1822269633",
         "nl": "applemusic://track/1822269633",
         "it": "applemusic://track/1822269633"
-      }
+      },
+      "uri_tidal": "tidal://track/444052593",
+      "uri_deezer": "deezer://track/3606676562"
     },
     {
       "year": 1995,
@@ -3131,11 +2794,6 @@
         "Simone Kleinsma"
       ],
       "title": "Zonder Jou",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Zonder Jou is one of Paul de Leeuw's most emotional recordings, a powerful ballad about the emptiness of life without a beloved person. De Leeuw consistently surprised audiences with the depth of his vocal and emotional performances. The track became one of his most-played recordings.",
@@ -3155,7 +2813,9 @@
         "es": "applemusic://track/1585392334",
         "nl": "applemusic://track/1585392334",
         "it": "applemusic://track/1585392334"
-      }
+      },
+      "uri_tidal": "tidal://track/196779565",
+      "uri_deezer": "deezer://track/1486887652"
     },
     {
       "year": 2011,
@@ -3167,11 +2827,6 @@
         "Miss Montreal"
       ],
       "title": "Afscheid",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Glennis Grace's Afscheid is a stunning power ballad that showcases one of the most remarkable voices in Dutch pop history. Grace is widely considered one of the greatest Dutch vocalists of her generation, with a range and emotional depth few can match. The song became a showcase for her extraordinary talent.",
@@ -3181,7 +2836,7 @@
       "fun_fact_nl": "Afscheid van Glennis Grace is een verbluffende powerballad die een van de meest opmerkelijke stemmen uit de Nederlandse popgeschiedenis laat horen. Grace wordt algemeen beschouwd als een van de grootste Nederlandse vocalisten van haar generatie, met een bereik en emotionele diepte die weinigen kunnen evenaren. Het nummer werd een showcase voor haar buitengewone talent.",
       "awards_nl": [],
       "uri_apple_music": "applemusic://track/1224914189",
-      "uri_youtube_music": "https://music.youtube.com/watch?v=3Qa1UM9C9l4",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=HHayHI22ZtE",
       "isrc": "NLK070900236",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1523444661",
@@ -3191,7 +2846,9 @@
         "es": "applemusic://track/1523444661",
         "nl": "applemusic://track/1523444661",
         "it": "applemusic://track/1523444661"
-      }
+      },
+      "uri_tidal": "tidal://track/53318682",
+      "uri_deezer": "deezer://track/118225294"
     },
     {
       "year": 2015,
@@ -3201,11 +2858,6 @@
         "Mr. Polska"
       ],
       "title": "Niemand",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Niemand is one of Ronnie Flex's most introspective tracks, exploring feelings of isolation and loneliness that can exist even in a crowd. Released in 2015, it became a breakthrough moment and demonstrated his emotional depth beyond upbeat party tracks. The song resonated widely with Dutch youth.",
@@ -3215,7 +2867,9 @@
       "fun_fact_nl": "Niemand is een van Ronnie Flex' meest introspectieve tracks, waarin hij gevoelens van isolatie en eenzaamheid onderzoekt die zelfs in een menigte kunnen bestaan. Het werd uitgebracht in 2015 en werd een doorbraak en toonde zijn emotionele diepgang die verder gaat dan upbeat feestnummers. Het nummer sloeg aan bij de Nederlandse jeugd.",
       "awards_nl": [],
       "uri_apple_music": "applemusic://track/1444579291",
-      "uri_youtube_music": "https://music.youtube.com/watch?v=4vZ_SBbeURs"
+      "uri_youtube_music": "https://music.youtube.com/watch?v=4vZ_SBbeURs",
+      "uri_tidal": "tidal://track/51693783",
+      "uri_deezer": "deezer://track/108125620"
     },
     {
       "year": 2002,
@@ -3227,11 +2881,6 @@
         "De Jeugd Van Tegenwoordig"
       ],
       "title": "Dansplaat",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Dansplaat is an infectiously energetic hip-hop track from 2002 by Brainpower, one of the most inventive and literate Dutch MCs. The song's irresistible danceable groove made it a massive hit and cemented Brainpower's status in the Dutch hip-hop scene. It remains one of the definitive Dutch hip-hop party tracks.",
@@ -3251,7 +2900,9 @@
         "es": "applemusic://track/343666377",
         "nl": "applemusic://track/343666377",
         "it": "applemusic://track/343666377"
-      }
+      },
+      "uri_tidal": "tidal://track/99095634",
+      "uri_deezer": "deezer://track/4778505"
     },
     {
       "year": 1965,
@@ -3263,11 +2914,6 @@
         "Johnny Lion"
       ],
       "title": "Het Spel kaarten",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Het Spel Kaarten is a beloved Dutch classic from 1965 by Gerard de Vries that uses a card game as a clever metaphor for life's uncertainties and loves. The song's warmth and folksy charm made it a timeless favourite. De Vries was a cherished figure in Dutch folk-pop of the 1960s.",
@@ -3287,7 +2933,9 @@
         "es": "applemusic://track/1750745021",
         "nl": "applemusic://track/1750745021",
         "it": "applemusic://track/1750745021"
-      }
+      },
+      "uri_tidal": "tidal://track/82651145",
+      "uri_deezer": "deezer://track/442557842"
     },
     {
       "year": 1997,
@@ -3299,11 +2947,6 @@
         "Jeroen Van Der Boom"
       ],
       "title": "Ik Zing Dit Lied Voor Jou Alleen",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Ik Zing Dit Lied Voor Jou Alleen was Jan Smit's debut hit in 1997, recorded when he was just twelve years old, making him one of the youngest Dutch chart-toppers in history. The song's charming innocence and catchy melody made it an immediate classic. Jan Smit went on to become one of the biggest Dutch pop stars of his generation.",
@@ -3323,7 +2966,9 @@
         "es": "applemusic://track/1364474697",
         "nl": "applemusic://track/1364474697",
         "it": "applemusic://track/1364474697"
-      }
+      },
+      "uri_tidal": "tidal://track/86440979",
+      "uri_deezer": "deezer://track/140899371"
     },
     {
       "year": 2024,
@@ -3334,11 +2979,6 @@
         "Ronnie Flex"
       ],
       "title": "Alles Op Gevoel",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Alles Op Gevoel is one of FLEMMING's most recent hits from 2024, showing her continuous artistic growth and her ability to capture complex emotions with deceptively simple pop arrangements. The song became an immediate fan favourite and reinforced her status as one of the leading voices in contemporary Dutch pop.",
@@ -3358,7 +2998,9 @@
         "es": "applemusic://track/1723046101",
         "nl": "applemusic://track/1723046101",
         "it": "applemusic://track/1723046101"
-      }
+      },
+      "uri_tidal": "tidal://track/336703585",
+      "uri_deezer": "deezer://track/2596182062"
     },
     {
       "year": 2022,
@@ -3371,11 +3013,6 @@
         "FLEMMING"
       ],
       "title": "Hallo",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Hallo became a massive viral hit for Antoon in 2022, topping the Dutch charts with its warm, nostalgic ode to reaching out to someone from the past. Antoon is one of the most successful young Dutch pop artists, known for his catchy melodies and relatable lyrics. The song became one of the most-streamed Dutch tracks of the year.",
@@ -3384,7 +3021,10 @@
       "fun_fact_fr": "Hallo est devenu un énorme hit viral pour Antoon en 2022, dominant les charts néerlandais avec son ode nostalgique et chaleureuse.",
       "fun_fact_nl": "Hallo werd in 2022 een enorme viral hit voor Antoon, die de Nederlandse hitlijsten aanvoerde met zijn warme, nostalgische ode aan iemand uit het verleden. Antoon is een van de meest succesvolle jonge Nederlandse popartiesten, bekend om zijn pakkende melodieën en relativerende teksten. Het nummer werd een van de meest gestreamde Nederlandse tracks van het jaar.",
       "awards_nl": [],
-      "uri_youtube_music": "https://music.youtube.com/watch?v=8EAUAGtTclo"
+      "uri_youtube_music": "https://music.youtube.com/watch?v=8EAUAGtTclo",
+      "uri_tidal": "tidal://track/462805468",
+      "uri_apple_music": "applemusic://track/1842004262",
+      "uri_deezer": "deezer://track/3568133801"
     },
     {
       "year": 1967,
@@ -3394,11 +3034,6 @@
         "Rijk"
       ],
       "title": "De Bostella",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "De Bostella is a lively, danceable Dutch classic from 1967 with an irresistible Latin-influenced rhythm. Johnny was one of the popular Dutch entertainers of the 1960s who brought an upbeat, international flavour to Dutch-language pop. The song remains a beloved fixture of Dutch nostalgic party playlists.",
@@ -3417,11 +3052,6 @@
         "Do"
       ],
       "title": "Voorbij",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Voorbij is a beautifully understated Marco Borsato ballad from 2004 about something precious that has passed and can never return. The quiet emotional power of the song made it a fan favourite from a period when Borsato was at the absolute peak of his popularity in the Netherlands.",
@@ -3441,7 +3071,9 @@
         "es": "applemusic://track/1442951442",
         "nl": "applemusic://track/1442951442",
         "it": "applemusic://track/1442951442"
-      }
+      },
+      "uri_tidal": "tidal://track/15752418",
+      "uri_deezer": "deezer://track/1568266"
     },
     {
       "year": 1984,
@@ -3453,11 +3085,6 @@
         "Rob de Nijs"
       ],
       "title": "Ik Voel Me Zo Verdomd Alleen",
-      "chart_info": {
-        "billboard_peak": null,
-        "uk_peak": null,
-        "weeks_on_chart": null
-      },
       "certifications": [],
       "awards": [],
       "fun_fact": "Ik Voel Me Zo Verdomd Alleen is a raw, heartbreaking confession of loneliness by Danny de Munk, one of the most popular Dutch entertainers of the 1980s. Released in 1984, the song resonated with anyone who has felt profoundly alone. It became one of the most memorable and emotionally honest Dutch pop records of the decade.",
@@ -3477,7 +3104,9 @@
         "es": "applemusic://track/1705235721",
         "nl": "applemusic://track/1705235721",
         "it": "applemusic://track/1705235721"
-      }
+      },
+      "uri_tidal": "tidal://track/56826819",
+      "uri_deezer": "deezer://track/2432282785"
     },
     {
       "year": 2025,
@@ -3485,7 +3114,6 @@
       "artist": "Yves Berendse",
       "alt_artists": [],
       "title": "Terug In De Tijd",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Yves Berendse is a Dutch singer in the Dutch-language feest and schlager tradition.",
@@ -3493,7 +3121,7 @@
       "fun_fact_es": "Yves Berendse es un cantante neerlandés de la tradición feest y schlager en lengua neerlandesa.",
       "uri_apple_music": "applemusic://track/1822743009",
       "uri_youtube_music": "https://music.youtube.com/watch?v=ERSCR2cuqAU",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/444237000",
       "fun_fact_fr": "Yves Berendse est un chanteur néerlandais de la tradition feest et schlager en langue néerlandaise.",
       "fun_fact_nl": "Yves Berendse is een Nederlandse zanger in de Nederlandstalige feest- en schlagertraditie.",
       "awards_nl": [],
@@ -3506,7 +3134,8 @@
         "es": "applemusic://track/1822743192",
         "nl": "applemusic://track/1822743009",
         "it": "applemusic://track/1822743009"
-      }
+      },
+      "uri_deezer": "deezer://track/3606656722"
     },
     {
       "year": 2025,
@@ -3514,7 +3143,6 @@
       "artist": "Zoë Livay, Snelle",
       "alt_artists": [],
       "title": "Ik Zing (feat. Snelle)",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Snelle is one of the most popular Dutch-language pop artists of recent years; here joined by Zoë Livay.",
@@ -3522,7 +3150,7 @@
       "fun_fact_es": "Snelle es uno de los artistas de pop en neerlandés más populares de los últimos años, aquí con Zoë Livay.",
       "uri_apple_music": "applemusic://track/1801780608",
       "uri_youtube_music": "https://music.youtube.com/watch?v=nbV3wWY-JFk",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/423555096",
       "fun_fact_fr": "Snelle est l'un des artistes pop néerlandophones les plus populaires de ces dernières années, ici avec Zoë Livay.",
       "fun_fact_nl": "Snelle is een van de populairste Nederlandstalige popartiesten van de laatste jaren, hier met Zoë Livay.",
       "awards_nl": [],
@@ -3535,7 +3163,8 @@
         "es": "applemusic://track/1801780608",
         "nl": "applemusic://track/1801780608",
         "it": "applemusic://track/1801780608"
-      }
+      },
+      "uri_deezer": "deezer://track/3275483961"
     },
     {
       "year": 2025,
@@ -3543,7 +3172,6 @@
       "artist": "Lustrum U.V.S.V./N.V.V.S.U., Jopke, Roeland Beelen",
       "alt_artists": [],
       "title": "Lotje",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "A Dutch-language song rooted in Utrecht student-association tradition.",
@@ -3551,7 +3179,7 @@
       "fun_fact_es": "Una canción en neerlandés arraigada en la tradición estudiantil de Utrecht.",
       "uri_apple_music": "applemusic://track/1807093937",
       "uri_youtube_music": "https://music.youtube.com/watch?v=RhKm8YE_W0M",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/428630429",
       "fun_fact_fr": "Une chanson en néerlandais ancrée dans la tradition étudiante d'Utrecht.",
       "fun_fact_nl": "Een Nederlandstalig lied geworteld in de Utrechtse studententraditie.",
       "awards_nl": [],
@@ -3560,11 +3188,12 @@
         "us": "applemusic://track/1807093937",
         "de": "applemusic://track/1807093937",
         "gb": "applemusic://track/1807093937",
-        "fr": "applemusic://track/1294890829",
-        "es": "applemusic://track/1581435584",
-        "nl": "applemusic://track/1294890829",
-        "it": "applemusic://track/1791220442"
-      }
+        "fr": "applemusic://track/1807093937",
+        "es": "applemusic://track/1807093937",
+        "nl": "applemusic://track/1807093937",
+        "it": "applemusic://track/1807093937"
+      },
+      "uri_deezer": "deezer://track/3402563781"
     },
     {
       "year": 2011,
@@ -3572,7 +3201,6 @@
       "artist": "Damaru, Jan Smit",
       "alt_artists": [],
       "title": "Mi Rowsu (Tuintje In Mijn Hart)",
-      "chart_info": {},
       "certifications": [],
       "awards": [],
       "fun_fact": "Jan Smit is one of the Netherlands' best-known Dutch-language pop stars; this duet with Surinamese artist Damaru was a number-one smash.",
@@ -3580,7 +3208,7 @@
       "fun_fact_es": "Jan Smit es una de las grandes estrellas del pop neerlandés; este dúo con el surinamés Damaru fue número uno.",
       "uri_apple_music": "applemusic://track/1219059350",
       "uri_youtube_music": "https://music.youtube.com/watch?v=JGsGAJIYDRo",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/69775530",
       "fun_fact_fr": "Jan Smit est l'une des plus grandes stars de la pop néerlandophone; ce duo avec le Surinamais Damaru fut numéro un.",
       "fun_fact_nl": "Jan Smit is een van de bekendste Nederlandstalige popsterren; dit duet met de Surinaamse artiest Damaru was een nummer 1-hit.",
       "awards_nl": [],
@@ -3593,7 +3221,8 @@
         "es": "applemusic://track/1219059350",
         "nl": "applemusic://track/1444311426",
         "it": "applemusic://track/1219059350"
-      }
+      },
+      "uri_deezer": "deezer://track/140899421"
     }
   ]
 }

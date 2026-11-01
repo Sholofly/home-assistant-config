@@ -8,16 +8,20 @@ import re
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
     from typing import Any
 
     from homeassistant.config_entries import ConfigEntry
     from homeassistant.core import HomeAssistant
     from homeassistant.helpers.entity_registry import EntityRegistry
 
+    from .coordinator import TadoConfigEntry, TadoDataUpdateCoordinator
+
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 
 from .const import DOMAIN
+from .device_manager import _hub_identifier
 from .entity_registry import ENTITY_REGISTRY
 
 _LOGGER = logging.getLogger(__name__)
@@ -36,6 +40,9 @@ class FeatureGroupContext:
     feature_group: str
     label: str
     legacy_suffixes: tuple[str, ...]
+    # The options-flow toggle that gates this group's entities, or None when
+    # the group is always-on (no disable transition).
+    toggle_option: str | None = None
     match_mode: str = "suffix"  # "suffix" or "contains"
     platform_filter: str | None = None
     remove_device: str | None = None
@@ -48,6 +55,7 @@ class FeatureGroupContext:
 FEATURE_GROUP_CONTEXTS: tuple[FeatureGroupContext, ...] = (
     FeatureGroupContext(
         cleanup_flag="_cleanup_zone_config",
+        toggle_option="zone_configuration_enabled",
         feature_group="zone_config",
         label="Zone Configuration",
         legacy_suffixes=(
@@ -67,33 +75,8 @@ FEATURE_GROUP_CONTEXTS: tuple[FeatureGroupContext, ...] = (
         ),
     ),
     FeatureGroupContext(
-        cleanup_flag="_cleanup_zone_diagnostics",
-        feature_group="zone_diagnostics",
-        label="Zone Diagnostics",
-        legacy_suffixes=(),
-    ),
-    FeatureGroupContext(
-        cleanup_flag="_cleanup_device_controls",
-        feature_group="device_controls",
-        label="Device Controls",
-        legacy_suffixes=(),
-    ),
-    FeatureGroupContext(
-        cleanup_flag="_cleanup_boost_buttons",
-        feature_group="boost_buttons",
-        label="Boost Buttons",
-        legacy_suffixes=(),
-    ),
-    FeatureGroupContext(
-        cleanup_flag="_cleanup_environment_sensors",
-        feature_group="environment",
-        label="Environment Sensors",
-        legacy_suffixes=(
-            "_mold_risk_percentage", "_condensation_risk", "_surface_temperature",
-        ),
-    ),
-    FeatureGroupContext(
         cleanup_flag="_cleanup_thermal_analytics",
+        toggle_option="thermal_analytics_enabled",
         feature_group="thermal",
         label="Thermal Analytics",
         legacy_suffixes=(
@@ -102,6 +85,7 @@ FEATURE_GROUP_CONTEXTS: tuple[FeatureGroupContext, ...] = (
     ),
     FeatureGroupContext(
         cleanup_flag="_cleanup_smart_comfort",
+        toggle_option="smart_comfort_enabled",
         feature_group="smart_comfort",
         label="Smart Comfort",
         legacy_suffixes=(
@@ -111,6 +95,7 @@ FEATURE_GROUP_CONTEXTS: tuple[FeatureGroupContext, ...] = (
     ),
     FeatureGroupContext(
         cleanup_flag="_cleanup_schedule_calendar",
+        toggle_option="schedule_calendar_enabled",
         feature_group="schedule_calendar",
         label="Schedule Calendar",
         legacy_suffixes=(),
@@ -124,12 +109,14 @@ FEATURE_GROUP_CONTEXTS: tuple[FeatureGroupContext, ...] = (
     ),
     FeatureGroupContext(
         cleanup_flag="_cleanup_weather",
+        toggle_option="weather_enabled",
         feature_group="weather",
         label="Weather",
         legacy_suffixes=(),
     ),
     FeatureGroupContext(
         cleanup_flag="_cleanup_mobile_devices",
+        toggle_option="mobile_devices_enabled",
         feature_group="mobile_devices",
         label="Mobile Devices",
         legacy_suffixes=("_device_",),
@@ -138,29 +125,41 @@ FEATURE_GROUP_CONTEXTS: tuple[FeatureGroupContext, ...] = (
     ),
     FeatureGroupContext(
         cleanup_flag="_cleanup_bridge",
+        # No toggle_option: bridge_enabled's real default isn't False, so it's handled separately below.
         feature_group="bridge",
         label="Bridge",
         legacy_suffixes=("_bridge_", "_boiler_"),
         match_mode="contains",
+        exclude_suffixes=("boiler_flow_temp",),
     ),
     FeatureGroupContext(
         cleanup_flag="_cleanup_weather_compensation",
+        toggle_option="wc_enabled",
         feature_group="weather_compensation",
         label="Weather Compensation",
         legacy_suffixes=(),
     ),
     FeatureGroupContext(
         cleanup_flag="_cleanup_homekit",
+        toggle_option="homekit_enabled",
         feature_group="homekit",
         label="HomeKit",
         legacy_suffixes=(),
     ),
     FeatureGroupContext(
         cleanup_flag="_cleanup_heating_circuit",
+        toggle_option="heating_circuit_enabled",
         feature_group="heating_circuit",
         label="Heating Circuit",
         legacy_suffixes=(),
         platform_filter="select",
+    ),
+    FeatureGroupContext(
+        cleanup_flag="_cleanup_boiler_flow",
+        # No toggle_option: fired when the boiler flow entity binding is cleared, see below.
+        feature_group="boiler_flow",
+        label="Boiler Flow Temperature",
+        legacy_suffixes=(),
     ),
 )
 
@@ -221,6 +220,8 @@ def match_entity_for_cleanup(
         return False
 
     if match_mode == "contains":
+        if exclude_patterns and any(p.search(unique_id) for p in exclude_patterns):
+            return False
         return any(sub in unique_id for sub in contains_substrings)
 
     # suffix mode: check excludes first
@@ -238,20 +239,14 @@ def match_zone_only_suffix(unique_id: str, zone_only_patterns: frozenset[re.Patt
 
 
 # ---------------------------------------------------------------------------
-# Feature toggle → cleanup flag mapping
-# Used by config_flow (detect transitions) and cleanup handler (execute).
+# Feature toggle → cleanup flag mapping, derived from FEATURE_GROUP_CONTEXTS'
+# toggle_option (single source, so a toggle can't be created but not cleaned up).
 # ---------------------------------------------------------------------------
 
 FEATURE_CLEANUP_MAP: list[tuple[str, str, bool]] = [
-    ("zone_configuration_enabled", "_cleanup_zone_config", True),
-    ("thermal_analytics_enabled", "_cleanup_thermal_analytics", False),
-    ("smart_comfort_enabled", "_cleanup_smart_comfort", False),
-    ("schedule_calendar_enabled", "_cleanup_schedule_calendar", False),
-    ("weather_enabled", "_cleanup_weather", False),
-    ("mobile_devices_enabled", "_cleanup_mobile_devices", False),
-    ("wc_enabled", "_cleanup_weather_compensation", False),
-    ("homekit_enabled", "_cleanup_homekit", False),
-    ("heating_circuit_enabled", "_cleanup_heating_circuit", False),
+    (ctx.toggle_option, ctx.cleanup_flag, False)
+    for ctx in FEATURE_GROUP_CONTEXTS
+    if ctx.toggle_option is not None
 ]
 
 # ---------------------------------------------------------------------------
@@ -270,7 +265,9 @@ def cleanup_orphan_device(
 
     identifier = f"tado_ce_{home_id}_{device_suffix}" if home_id else f"tado_ce_{device_suffix}"
 
-    device_entry = device_registry.async_get_device(identifiers={(DOMAIN, identifier)})
+    device_entry = device_registry.async_get_device_by_identifier(
+        (DOMAIN, identifier), entry.entry_id,
+    )
     if device_entry:
         _LOGGER.info(
             "Entity Cleanup: removing orphan device %s (identifier %s)",
@@ -284,17 +281,17 @@ def cleanup_orphan_device(
 def cleanup_orphan_devices(
     hass: HomeAssistant,
     entry: ConfigEntry,
+    coordinator: TadoDataUpdateCoordinator,
 ) -> int:
     """Sweep every device with zero remaining entities (hub device always protected)."""
     device_registry = dr.async_get(hass)
     entity_registry = er.async_get(hass)
-    home_id = entry.data.get("home_id")
 
     # Hub device identifier: never remove
-    hub_identifier = f"tado_ce_hub_{home_id}" if home_id else "tado_ce_hub"
+    hub_identifier = _hub_identifier(str(coordinator.home_id))
 
     removed = 0
-    for device_entry in list(device_registry.devices.values()):
+    for device_entry in list(device_registry.devices):
         if entry.entry_id not in device_entry.config_entries:
             continue
 
@@ -351,7 +348,62 @@ def detect_cleanup_flags(
             "entity removal scheduled for next reload",
         )
 
+    # Bridge toggle disabled (independent of credential presence, checked above).
+    # Not in FEATURE_CLEANUP_MAP: that loop's default is always False, which is
+    # wrong for bridge_enabled (its real default is credential presence).
+    was_bridge_enabled = prev_options.get("bridge_enabled", had_bridge)
+    now_bridge_enabled = new_options.get("bridge_enabled", has_bridge)
+    if was_bridge_enabled and not now_bridge_enabled:
+        flags["_cleanup_bridge"] = True
+        _LOGGER.info(
+            "Entity Cleanup: bridge disabled, entity removal "
+            "scheduled for next reload",
+        )
+
+    # Boiler flow binding cleared. Removal is safe even when a zone still reports
+    # flow temperature: setup re-creates the sensor and HA restores its entity_id.
+    if prev_options.get("boiler_flow_temp_entity") and not new_options.get("boiler_flow_temp_entity"):
+        flags["_cleanup_boiler_flow"] = True
+        _LOGGER.info(
+            "Entity Cleanup: boiler flow temperature entity unbound, sensor "
+            "removal scheduled for next reload",
+        )
+
     return flags
+
+
+def queue_cleanup_flags(
+    entry: ConfigEntry,
+    prev_options: Mapping[str, Any],
+    new_options: dict[str, Any],
+) -> None:
+    """Queue cleanup for whatever an options save just disabled, for the next reload."""
+    cleanup_flags = detect_cleanup_flags(dict(prev_options), new_options)
+    if not cleanup_flags:
+        return
+    coordinator = getattr(entry, "runtime_data", None)
+    if coordinator is not None:
+        coordinator._pending_cleanup.setdefault(entry.entry_id, {}).update(cleanup_flags)
+        return
+    # No coordinator to queue onto; log so this doesn't fail silently.
+    _LOGGER.warning(
+        "Options: disabled feature(s) %s while the integration wasn't "
+        "ready; their entities won't clean up until this feature is "
+        "toggled off again once the integration is running normally",
+        ", ".join(sorted(cleanup_flags)),
+    )
+
+
+def _entry_entities(
+    entity_registry: EntityRegistry,
+    entry: ConfigEntry,
+) -> list[tuple[str, er.RegistryEntry]]:
+    """List this config entry's own tado_ce entities, so one home's cleanup never touches another's."""
+    return [
+        (entity_id, entity_entry)
+        for entity_id, entity_entry in entity_registry.entities.items()
+        if entity_entry.platform == DOMAIN and entity_entry.config_entry_id == entry.entry_id
+    ]
 
 
 def _apply_cleanup_context(
@@ -373,9 +425,7 @@ def _apply_cleanup_context(
             suffix_to_pattern(s) for s in ctx.exclude_suffixes
         )
 
-    for entity_id, entity_entry in list(entity_registry.entities.items()):
-        if entity_entry.platform != DOMAIN:
-            continue
+    for entity_id, entity_entry in _entry_entities(entity_registry, entry):
         unique_id = entity_entry.unique_id or ""
         if match_entity_for_cleanup(
             unique_id=unique_id,
@@ -400,9 +450,7 @@ def _apply_cleanup_context(
         zone_only_patterns = frozenset(
             suffix_to_pattern(s) for s in ctx.zone_only_suffixes
         )
-        for entity_id, entity_entry in list(entity_registry.entities.items()):
-            if entity_entry.platform != DOMAIN:
-                continue
+        for entity_id, entity_entry in _entry_entities(entity_registry, entry):
             unique_id = entity_entry.unique_id or ""
             if match_zone_only_suffix(unique_id, zone_only_patterns):
                 _LOGGER.debug(
@@ -421,7 +469,7 @@ def _apply_cleanup_context(
 
 def cleanup_disabled_feature_entities(
     hass: HomeAssistant,
-    entry: ConfigEntry,
+    entry: TadoConfigEntry,
 ) -> int:
     """Run every pending cleanup pass and sweep orphan devices afterwards."""
     entity_registry = er.async_get(hass)
@@ -448,7 +496,10 @@ def cleanup_disabled_feature_entities(
         )
 
     if total_removed > 0:
-        orphan_count = cleanup_orphan_devices(hass, entry)
+        # domain_data is only non-empty (making total_removed > 0 reachable) when
+        # `coordinator` was truthy above, so this is proven non-None here.
+        assert coordinator is not None
+        orphan_count = cleanup_orphan_devices(hass, entry, coordinator)
         if orphan_count:
             _LOGGER.info(
                 "Entity Cleanup: removed %d orphan device(s)",

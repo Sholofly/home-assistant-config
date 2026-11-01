@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "WashData 설정",
-        "description": "세탁기 또는 기타 가전제품을 구성하세요.\n\n전력 센서가 필요합니다.\n\n**다음으로 첫 번째 프로필을 만들지 여부를 묻는 메시지가 표시됩니다.**",
+        "description": "세탁기 또는 기타 가전제품을 설정합니다. 전력 센서가 필요합니다.\n\n설정 후 사이드바에서 WashData 패널([/ha-washdata](/ha-washdata))을 열면 사이클, 프로필, 모든 설정을 볼 수 있습니다.",
         "data": {
           "name": "장치 이름",
           "device_type": "장치 유형",
@@ -12,35 +12,26 @@
         },
         "data_description": {
           "name": "이 장치의 이름입니다(예: '세탁기', '식기세척기').",
-          "device_type": "이 가전제품의 종류는 무엇입니까? 감지 및 라벨링 맞춤에 도움이 됩니다.",
-          "power_sensor": "스마트 플러그에서 실시간 전력 소비(와트)를 보고하는 센서 엔터티입니다.",
-          "min_power": "이 임계값(와트)보다 높은 전력 수치는 가전제품이 작동 중임을 나타냅니다. 대부분의 장치에서는 2W로 시작하세요."
-        }
-      },
-      "first_profile": {
-        "title": "첫 번째 프로필 만들기",
-        "description": "**사이클**은 가전제품의 완전한 실행을 의미합니다(예: 세탁 한 회). **프로필**은 이러한 사이클을 유형별로 그룹화합니다(예: '면', '빠른 세탁'). 지금 프로필을 생성하면 통합이 즉시 소요 시간을 예측할 수 있습니다.\n\n프로필이 자동으로 감지되지 않는 경우 장치 컨트롤에서 수동으로 선택할 수 있습니다.\n\n**이 단계를 건너뛰려면 '프로필 이름'을 비워두세요.**",
-        "data": {
-          "profile_name": "프로필 이름 (선택사항)",
-          "manual_duration": "예상 소요 시간 (분)"
+          "device_type": "이 종류의 가전제품에 맞는 감지 기본값을 설정합니다.",
+          "power_sensor": "에너지 계량기(kWh)가 아닌 스마트 플러그의 전력 센서(W 또는 kW)입니다.",
+          "min_power": "이 값(와트)보다 높은 측정값은 가전제품이 작동 중임을 뜻합니다. 대부분의 장치에는 2 W가 적합합니다."
         }
       },
       "reconfigure": {
-        "title": "Reconfigure WashData",
-        "description": "장치 이름, 기기 유형 또는 전원 센서를 업데이트합니다.",
+        "title": "WashData 재구성",
+        "description": "장치 이름, 가전 유형 또는 전력 센서를 변경합니다.\n\n그 밖의 모든 설정은 WashData 패널(사이드바 또는 [/ha-washdata](/ha-washdata))에 있습니다.",
         "data": {
-          "name": "Device Name",
-          "device_type": "Device Type",
-          "power_sensor": "Power Sensor",
-          "min_power": "Minimum Power Threshold (W)"
+          "name": "장치 이름",
+          "device_type": "장치 유형",
+          "power_sensor": "전력 센서",
+          "min_power": "최소 전력 임계값 (W)"
         }
       }
     },
     "error": {
-      "cannot_connect": "연결하지 못했습니다",
-      "invalid_auth": "인증 실패",
       "unknown": "예기치 않은 오류",
-      "invalid_power": "전력 임계값은 0보다 커야 합니다"
+      "invalid_power": "전력 임계값은 0보다 커야 합니다",
+      "power_sensor_energy": "이것은 에너지 계량기(kWh)이며 전력 센서가 아닙니다. 플러그의 전력 센서(W 또는 kW)를 선택하세요. 플러그에 전력 센서가 없으면 도함수 센서 헬퍼로 계량기에서 만들 수 있습니다."
     },
     "abort": {
       "already_configured": "장치가 이미 구성되어 있습니다",
@@ -50,13 +41,13 @@
   "options": {
     "step": {
       "init": {
-        "title": "WashData Settings",
-        "description": "감지, 매칭, 타이밍, 알림, 프로필, 주기 등 모든 설정을 WashData 패널에서 사용할 수 있습니다. 전원 센서, 장치 유형 또는 대기 임계값을 변경하는 경우에만 이 양식을 사용하십시오.",
+        "title": "WashData 설정",
+        "description": "장치 이름이나 핵심 설정을 변경합니다. 그 밖의 모든 설정은 사이드바의 [WashData 패널](/ha-washdata)에 있습니다.",
         "data": {
           "name": "장치 이름",
-          "device_type": "Device Type",
-          "power_sensor": "Power Sensor",
-          "min_power": "Minimum Power Threshold (W)"
+          "device_type": "장치 유형",
+          "power_sensor": "전력 센서",
+          "min_power": "최소 전력 임계값 (W)"
         }
       }
     },
@@ -64,10 +55,12 @@
       "timer_default_message": "{device}: {minutes}분 타이머",
       "timer_pause_action_title": "사이클 재개",
       "timer_pause_body_suffix": "사이클이 일시 정지되었습니다. 재개하려면 WashData 패널을 여세요.",
+      "unload_dismiss_action_title": "알림 중지",
       "notify_live_waiting_message": "{device}: 아직 일치하는 프로필이 없습니다.",
       "vs_typical_longer": "평소보다 {pct}% 더 김",
       "vs_typical_shorter": "평소보다 {pct}% 더 짧음",
-      "invalid_power": "전력 임계값은 0보다 커야 합니다"
+      "invalid_power": "전력 임계값은 0보다 커야 합니다",
+      "power_sensor_energy": "이것은 에너지 계량기(kWh)이며 전력 센서가 아닙니다. 플러그의 전력 센서(W 또는 kW)를 선택하세요. 플러그에 전력 센서가 없으면 도함수 센서 헬퍼로 계량기에서 만들 수 있습니다."
     }
   },
   "selector": {
@@ -77,11 +70,35 @@
         "dryer": "건조기",
         "washer_dryer": "세탁기-건조기 콤보",
         "dishwasher": "식기세척기",
-        "air_fryer": "에어프라이어",
-        "bread_maker": "빵 제조기",
         "pump": "펌프 / 배수 펌프",
         "generic": "기타(고급)",
         "other": "임계값 장치"
+      }
+    },
+    "trigger_cycle_status": {
+      "options": {
+        "any": "모두",
+        "completed": "완료됨",
+        "force_stopped": "강제 정지됨",
+        "interrupted": "중단됨"
+      }
+    },
+    "trigger_state": {
+      "options": {
+        "off": "꺼짐",
+        "idle": "대기 중",
+        "starting": "시작 중",
+        "running": "실행 중",
+        "paused": "일시 정지됨",
+        "user_paused": "사용자가 일시 정지함",
+        "ending": "종료 중",
+        "finished": "완료됨",
+        "anti_wrinkle": "주름 방지",
+        "delay_wait": "시작을 기다리는 중",
+        "interrupted": "중단됨",
+        "force_stopped": "강제 정지됨",
+        "unknown": "알 수 없음",
+        "clean": "깨끗한"
       }
     }
   },
@@ -100,7 +117,7 @@
         },
         "profile_name": {
           "name": "프로필 이름",
-          "description": "기존 프로필의 이름입니다(프로필 관리 메뉴에서 프로필 생성). 라벨을 제거하려면 비워두세요."
+          "description": "기존 프로필 이름입니다(프로필은 WashData 패널에서 생성). 비워 두면 라벨이 제거됩니다."
         }
       }
     },
@@ -150,13 +167,13 @@
         },
         "confidence_threshold": {
           "name": "신뢰도 임계값",
-          "description": "라벨을 적용하기 위한 최소 일치 신뢰도(0.50-0.95)입니다."
+          "description": "라벨을 적용하기 위한 최소 일치 신뢰도(0.50-0.95)입니다. 비워 두면 기기의 자동 라벨 신뢰도 설정이 사용됩니다."
         }
       }
     },
     "export_config": {
       "name": "구성 내보내기",
-      "description": "이 장치의 프로필, 사이클 및 설정을 JSON 파일로 내보냅니다(장치별).",
+      "description": "이 장치의 프로필, 사이클 및 설정을 JSON 파일로 내보냅니다.",
       "fields": {
         "device_id": {
           "name": "장치",
@@ -184,7 +201,7 @@
     },
     "submit_cycle_feedback": {
       "name": "사이클 피드백 제출",
-      "description": "사이클이 완료된 후 자동 감지된 프로그램을 확인하거나 수정합니다. `entry_id`(고급) 또는 `device_id`(권장)를 제공하세요.",
+      "description": "완료된 사이클에서 감지된 프로그램을 확인하거나 수정합니다. `device_id`(권장) 또는 `entry_id`를 지정하세요.",
       "fields": {
         "device_id": {
           "name": "장치",
@@ -279,12 +296,22 @@
       }
     },
     "trigger_ml_training": {
-      "name": "Trigger ML Training",
+      "name": "ML 훈련 시작",
       "description": "이 기기의 자체 라벨이 지정된 주기에서 기기 내 ML 모델을 수동으로 재교육합니다(실험용).",
       "fields": {
         "device_id": {
-          "name": "Device",
-          "description": "The WashData device to retrain models for."
+          "name": "장치",
+          "description": "모델을 재훈련할 WashData 장치입니다."
+        }
+      }
+    },
+    "mark_unloaded": {
+      "name": "꺼냄으로 표시",
+      "description": "완료된 내용물을 꺼냈음을 확인합니다. 깨끗한 상태와 모든 꺼내기 알림을 해제합니다.",
+      "fields": {
+        "device_id": {
+          "name": "장치",
+          "description": "완료된 내용물을 꺼낸 WashData 장치입니다."
         }
       }
     }
@@ -296,6 +323,32 @@
       },
       "match_ambiguity": {
         "name": "일치 모호도"
+      },
+      "maintenance_due": {
+        "name": "유지보수 예정",
+        "state": {
+          "on": "예정",
+          "off": "예정 없음"
+        },
+        "state_attributes": {
+          "due_task_ids": {
+            "name": "예정 작업 ID"
+          },
+          "due_tasks": {
+            "name": "예정 작업",
+            "state": {
+              "descale": "석회질 제거",
+              "filter_clean": "필터 청소",
+              "drum_clean": "드럼 청소",
+              "bearing_service": "베어링 정비",
+              "other": "기타",
+              "salt": "소금 보충",
+              "rinse_aid": "린스 보충",
+              "lint_filter": "보풀 필터 청소",
+              "condenser_clean": "콘덴서 청소"
+            }
+          }
+        }
       }
     },
     "sensor": {
@@ -313,10 +366,18 @@
           "anti_wrinkle": "주름 방지",
           "interrupted": "중단됨",
           "force_stopped": "강제 정지됨",
-          "rinse": "헹굼",
           "unknown": "알 수 없음",
           "clean": "깨끗한",
           "delay_wait": "시작을 기다리는 중"
+        },
+        "state_attributes": {
+          "cycle_anomaly": {
+            "name": "사이클 이상",
+            "state": {
+              "overrun": "지연 중",
+              "stalled": "멈춤"
+            }
+          }
         }
       },
       "washer_program": {
@@ -395,6 +456,9 @@
       },
       "record_stop": {
         "name": "사이클 기록 중지"
+      },
+      "mark_unloaded": {
+        "name": "꺼냄으로 표시"
       }
     }
   },
@@ -443,6 +507,194 @@
     },
     "assign_profile_failed": {
       "message": "프로필을 할당할 수 없습니다: {error}"
+    }
+  },
+  "device_automation": {
+    "trigger_type": {
+      "cycle_started": "사이클 시작됨",
+      "cycle_finished": "사이클 완료됨",
+      "cycle_ended": "사이클 종료됨 (모든 이유)",
+      "anti_wrinkle_started": "주름 방지 시작됨",
+      "cycle_stalled": "사이클 멈춤",
+      "unload_pending": "꺼내기 대기 중",
+      "program_recognised": "프로그램이 인식됨",
+      "phase_started": "단계가 시작됨",
+      "finishing_soon": "곧 완료됨",
+      "cycle_overrun": "사이클이 너무 오래 실행 중",
+      "cycle_paused": "사이클이 일시 정지됨",
+      "cycle_resumed": "사이클이 재개됨",
+      "still_tumbling": "사이클 후에도 계속 회전 중",
+      "unloaded": "꺼냄 완료",
+      "state_changed": "상태가 변경됨",
+      "maintenance_due": "유지보수 필요",
+      "milestone_reached": "사이클 이정표에 도달함",
+      "pump_stuck": "펌프가 막힘"
+    },
+    "extra_fields": {
+      "program": "프로그램",
+      "phase": "단계",
+      "minutes": "분",
+      "percent": "더 긴 시간 (%)",
+      "include_detected": "감지된 일시 정지 포함",
+      "status": "종료 상태",
+      "from": "변경 전",
+      "to": "변경 후",
+      "task": "작업"
+    },
+    "extra_fields_descriptions": {
+      "program": "정확한 이름으로 이 프로그램만. 모든 프로그램은 비워 두세요.",
+      "phase": "이름으로 이 단계만. 모든 단계는 비워 두세요.",
+      "minutes": "곧 완료됨: 남은 분. 계속 회전 중: 완료 후 분.",
+      "percent": "프로그램의 일반적인 소요 시간을 초과한 비율.",
+      "include_detected": "담금질이나 정체 등 WashData가 전력에서 감지한 일시 정지에도 트리거합니다.",
+      "status": "이 방식으로 종료된 사이클만.",
+      "from": "이 상태에서의 변경만. 모든 상태는 비워 두세요.",
+      "to": "이 상태로의 변경만. 모든 상태는 비워 두세요.",
+      "task": "이름 또는 ID로 이 작업만. 모든 작업은 비워 두세요."
+    }
+  },
+  "triggers": {
+    "cycle_started": {
+      "name": "사이클 시작됨",
+      "description": "기기가 사이클을 시작할 때 트리거됩니다."
+    },
+    "program_recognised": {
+      "name": "프로그램이 인식됨",
+      "description": "WashData가 실행 중인 사이클의 프로그램을 인식하거나 다른 프로그램으로 전환할 때 트리거됩니다.",
+      "fields": {
+        "program": {
+          "name": "프로그램",
+          "description": "정확한 이름으로 이 프로그램만. 모든 프로그램은 비워 두세요."
+        }
+      }
+    },
+    "phase_started": {
+      "name": "단계가 시작됨",
+      "description": "실행 중인 사이클이 프로그램의 새 단계에 들어갈 때 트리거됩니다.",
+      "fields": {
+        "phase": {
+          "name": "단계",
+          "description": "이름으로 이 단계만. 모든 단계는 비워 두세요."
+        }
+      }
+    },
+    "finishing_soon": {
+      "name": "곧 완료됨",
+      "description": "남은 시간이 처음으로 이 분수에 도달하면 사이클당 한 번 트리거됩니다.",
+      "fields": {
+        "minutes": {
+          "name": "남은 분",
+          "description": "이 분 이하가 남았을 때 트리거합니다."
+        }
+      }
+    },
+    "cycle_overrun": {
+      "name": "사이클이 너무 오래 실행 중",
+      "description": "프로그램의 일반적인 소요 시간보다 이만큼 더 길어지면 사이클당 한 번 트리거됩니다.",
+      "fields": {
+        "percent": {
+          "name": "더 긴 시간",
+          "description": "프로그램의 일반적인 소요 시간을 초과한 비율."
+        }
+      }
+    },
+    "cycle_paused": {
+      "name": "사이클이 일시 정지됨",
+      "description": "사이클을 일시 정지하면 트리거되고, 선택적으로 기기가 스스로 멈출 때도 트리거됩니다.",
+      "fields": {
+        "include_detected": {
+          "name": "감지된 일시 정지 포함",
+          "description": "직접 시작한 일시 정지뿐 아니라 담금질이나 정체 등 WashData가 전력에서 감지한 일시 정지에도 트리거합니다."
+        }
+      }
+    },
+    "cycle_resumed": {
+      "name": "사이클이 재개됨",
+      "description": "일시 정지된 사이클이 계속될 때 트리거됩니다.",
+      "fields": {
+        "include_detected": {
+          "name": "감지된 일시 정지 포함",
+          "description": "직접 시작한 일시 정지뿐 아니라 담금질이나 정체 등 WashData가 전력에서 감지한 일시 정지에도 트리거합니다."
+        }
+      }
+    },
+    "cycle_stalled": {
+      "name": "사이클 멈춤",
+      "description": "실행 중인 사이클이 낮고 일정한 전력 수준에서 멈출 때 트리거됩니다."
+    },
+    "cycle_finished": {
+      "name": "사이클 완료됨",
+      "description": "사이클이 완료될 때 트리거됩니다. 직접 중지한 경우도 포함. 잘못된 시작에는 해당 없음.",
+      "fields": {
+        "program": {
+          "name": "프로그램",
+          "description": "정확한 이름으로 이 프로그램만. 모든 프로그램은 비워 두세요."
+        }
+      }
+    },
+    "cycle_ended": {
+      "name": "사이클 종료됨 (모든 이유)",
+      "description": "잘못된 시작을 포함하여 어떤 이유로든 사이클이 종료될 때 트리거됩니다.",
+      "fields": {
+        "status": {
+          "name": "종료 상태",
+          "description": "이 방식으로 종료된 사이클만."
+        }
+      }
+    },
+    "anti_wrinkle_started": {
+      "name": "주름 방지 시작됨",
+      "description": "기기가 주름을 방지하기 위해 완료된 세탁물을 회전시키기 시작할 때 트리거됩니다."
+    },
+    "still_tumbling": {
+      "name": "사이클 후에도 계속 회전 중",
+      "description": "사이클 완료 후 이 분이 지나도 기기가 짧은 간격으로 계속 회전하면 한 번 트리거됩니다. 새 사이클 시작 시 또는 완료 후 4시간이 지나면 중지됩니다.",
+      "fields": {
+        "minutes": {
+          "name": "완료 후 분",
+          "description": "완료 후 적어도 이 시간이 지난 첫 번째 회전에서 트리거합니다."
+        }
+      }
+    },
+    "unload_pending": {
+      "name": "꺼내기 대기 중",
+      "description": "사이클이 완료되었는데 세탁물이 아직 안에 있을 때 트리거됩니다."
+    },
+    "unloaded": {
+      "name": "꺼냄 완료",
+      "description": "사이클 후 세탁물을 꺼낼 때 트리거됩니다. 문이 열렸거나 꺼내기가 확인된 경우."
+    },
+    "state_changed": {
+      "name": "상태가 변경됨",
+      "description": "WashData 상태가 변경될 때 트리거됩니다.",
+      "fields": {
+        "from": {
+          "name": "변경 전",
+          "description": "이 상태에서의 변경만. 모든 상태는 비워 두세요."
+        },
+        "to": {
+          "name": "변경 후",
+          "description": "이 상태로의 변경만. 모든 상태는 비워 두세요."
+        }
+      }
+    },
+    "maintenance_due": {
+      "name": "유지보수 필요",
+      "description": "유지보수 작업이 필요해질 때 트리거됩니다.",
+      "fields": {
+        "task": {
+          "name": "작업",
+          "description": "이름 또는 ID로 이 작업만. 모든 작업은 비워 두세요."
+        }
+      }
+    },
+    "milestone_reached": {
+      "name": "사이클 이정표에 도달함",
+      "description": "평생 사이클 수가 알림을 위해 설정된 이정표 중 하나에 도달할 때 트리거됩니다."
+    },
+    "pump_stuck": {
+      "name": "펌프가 막힘",
+      "description": "펌프가 막힘 한계보다 오래 실행될 때 트리거됩니다."
     }
   }
 }

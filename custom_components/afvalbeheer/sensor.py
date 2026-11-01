@@ -1,13 +1,47 @@
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from homeassistant.components.sensor import SensorEntity, SensorDeviceClass
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import CONF_RESOURCES
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.restore_state import RestoreEntity
 
+from homeassistant.components import persistent_notification
+
 from .API import get_wastedata_from_config
-from .const import *
+from .const import (
+    ATTR_DAYS_UNTIL,
+    ATTR_HIDDEN,
+    ATTR_SORT_DATE,
+    ATTR_UPCOMING_DAY,
+    ATTR_UPCOMING_WASTE_TYPES,
+    ATTR_WASTE_COLLECTOR,
+    CONF_ALWAYS_SHOW_DAY,
+    CONF_BOLD_ICONS,
+    CONF_BUILT_IN_ICONS,
+    CONF_BUILT_IN_ICONS_NEW,
+    CONF_DATE_FORMAT,
+    CONF_DATE_OBJECT,
+    CONF_DATE_ONLY,
+    CONF_DAY_OF_WEEK,
+    CONF_DAY_OF_WEEK_ONLY,
+    CONF_DISABLE_ICONS,
+    CONF_ENTRY_ID,
+    CONF_ID,
+    CONF_NAME,
+    CONF_NAME_PREFIX,
+    CONF_POSTCODE,
+    CONF_STREET_NUMBER,
+    CONF_UPCOMING,
+    CONF_WASTE_COLLECTOR,
+    DOMAIN,
+    FRACTION_ICONS,
+    FRACTION_ICONS_NEW,
+    FRACTION_ICONS_NEW_BOLD,
+    LANGUAGE_EN,
+    NOTIFICATION_ID,
+)
 from .translation import async_prepare_translations, resolve_language, text, translate_date_text
 
 _LOGGER = logging.getLogger(__name__)
@@ -24,11 +58,43 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     """
     _LOGGER.debug("Setup of sensor platform Afvalbeheer")
 
+    if CONF_ENTRY_ID not in config:
+        _LOGGER.info(
+            "Legacy 'sensor: platform: afvalbeheer' YAML configuration detected for %s, "
+            "importing to Config Flow", config.get(CONF_WASTE_COLLECTOR)
+        )
+        hass.async_create_task(
+            hass.config_entries.flow.async_init(
+                DOMAIN,
+                context={"source": "import"},
+                data=config,
+            )
+        )
+        persistent_notification.async_create(
+            hass,
+            (
+                f"Your YAML `sensor: platform: afvalbeheer` configuration for "
+                f"**{config.get(CONF_WASTE_COLLECTOR)}** has been automatically imported to the new "
+                f"Config Flow system.\n\n"
+                f"**Next steps:**\n"
+                f"1. Go to **Settings > Devices & Services > Afvalbeheer** to manage your configuration\n"
+                f"2. Verify the imported settings are correct\n"
+                f"3. **Remove the YAML configuration from your `configuration.yaml`** to avoid duplicate sensors\n"
+                f"4. Restart Home Assistant after removing the YAML configuration"
+            ),
+            title="Afvalbeheer: YAML Import Complete",
+            notification_id=f"{NOTIFICATION_ID}_yaml_import_{config.get(CONF_WASTE_COLLECTOR, '')}".lower(),
+        )
+
     schedule_update = not (discovery_info and "config" in discovery_info)
     _LOGGER.debug("Schedule update: %s", schedule_update)
 
     config_data = discovery_info["config"] if discovery_info and "config" in discovery_info else config
-    _LOGGER.debug("Configuration data: %s", config_data)
+    _LOGGER.debug(
+        "Resolved config for waste collector: %s, resources: %s",
+        config_data.get(CONF_WASTE_COLLECTOR),
+        config_data.get(CONF_RESOURCES),
+    )
 
     await async_prepare_translations(hass, resolve_language(config_data))
 
@@ -78,6 +144,8 @@ class BaseSensor(RestoreEntity, SensorEntity):
         data: Data source for waste information.
         config: Configuration dictionary for the sensor.
     """
+    _attr_has_entity_name = True
+
     def __init__(self, data, config):
         self.data = data
         self.waste_collector = config.get(CONF_WASTE_COLLECTOR, "").lower()
@@ -87,6 +155,7 @@ class BaseSensor(RestoreEntity, SensorEntity):
         self.built_in_icons = config.get(CONF_BUILT_IN_ICONS)
         self.built_in_icons_new = config.get(CONF_BUILT_IN_ICONS_NEW)
         self.disable_icons = config.get(CONF_DISABLE_ICONS)
+        self.bold_icons = config.get(CONF_BOLD_ICONS)
         self.language = resolve_language(config)
         self.day_of_week = config.get(CONF_DAY_OF_WEEK)
         self.day_of_week_only = config.get(CONF_DAY_OF_WEEK_ONLY)
@@ -101,7 +170,6 @@ class BaseSensor(RestoreEntity, SensorEntity):
         self._entity_picture = None
         self._attr_unique_id = None
         self._config = config
-        _LOGGER.debug("BaseSensor initialized with configuration: %s", config)
 
     @property
     def state(self):
@@ -154,9 +222,20 @@ class BaseSensor(RestoreEntity, SensorEntity):
 
     def _restore_entity_picture(self, state):
         """Restore the entity picture from the previous state."""
-        if not self.disable_icons:
+        if self.built_in_icons_new and not self.disable_icons:
             self._entity_picture = state.attributes.get("entity_picture")
             _LOGGER.debug("Restored entity picture: %s", self._entity_picture)
+
+    def _classic_icon(self, icon):
+        """Return the bold variant of a classic iconset icon when bold icons are enabled."""
+        if icon and self.bold_icons:
+            return icon + "-bold"
+        return icon
+
+    @property
+    def _modern_icons(self):
+        """Return the modern icon pictures, bold when bold icons are enabled."""
+        return FRACTION_ICONS_NEW_BOLD if self.bold_icons else FRACTION_ICONS_NEW
 
     def _translate_state(self, state):
         translated = translate_date_text(self.language, state)
@@ -215,7 +294,16 @@ class WasteTypeSensor(BaseSensor):
         ).lower()
         self._days_until = None
         self._sort_date = 0
+        self._set_picture(None)
         _LOGGER.debug("WasteTypeSensor initialized: %s", self._name)
+
+    @property
+    def icon(self):
+        """Return the icon for the sensor."""
+        if self.built_in_icons and not self.built_in_icons_new and not self.disable_icons:
+            icon = self._classic_fraction_icon()
+            return icon or super().icon
+        return super().icon
 
     @property
     def name(self):
@@ -228,6 +316,15 @@ class WasteTypeSensor(BaseSensor):
         if self.date_object:
             return SensorDeviceClass.TIMESTAMP
 
+    def _restore_entity_picture(self, state):
+        """Restore the entity picture, preferring the current built-in icon."""
+        if not self.disable_icons:
+            if self.built_in_icons and not self.built_in_icons_new and self._classic_fraction_icon():
+                self._entity_picture = None
+            else:
+                self._entity_picture = self._get_entity_picture(None) or state.attributes.get("entity_picture")
+            _LOGGER.debug("Restored entity picture: %s", self._entity_picture)
+
     def update(self):
         """Update the state and attributes of the sensor."""
         _LOGGER.debug("Updating WasteTypeSensor: %s", self._name)
@@ -239,7 +336,7 @@ class WasteTypeSensor(BaseSensor):
         else:
             self._hidden = False
             self._set_state(collection)
-            self._set_picture(collection)
+        self._set_picture(collection)
         self._set_attr(collection)
         _LOGGER.debug("Updated state for %s: %s", self._name, self._state)
 
@@ -265,18 +362,34 @@ class WasteTypeSensor(BaseSensor):
 
     def _set_picture(self, collection):
         """Set the entity picture based on collection data."""
-        if (self.built_in_icons or self.built_in_icons_new) and not self.disable_icons:
-            self._entity_picture = self._get_entity_picture()
+        if not self.disable_icons:
+            self._entity_picture = self._get_entity_picture(collection)
             _LOGGER.debug("Entity picture set for %s: %s", self._name, self._entity_picture)
+        else:
+            self._entity_picture = None
 
-    def _get_entity_picture(self):
+    def _get_entity_picture(self, collection):
         """Get the appropriate entity picture for the waste type."""
-        waste_type_lower = self.waste_type.lower()
-        if self.built_in_icons_new and waste_type_lower in FRACTION_ICONS_NEW:
-            return FRACTION_ICONS_NEW[waste_type_lower]
-        elif self.built_in_icons and waste_type_lower in FRACTION_ICONS:
-            return FRACTION_ICONS[waste_type_lower]
+        if self.disable_icons:
+            return None
+        if self.built_in_icons_new:
+            key, waste_type_lower = _fraction_icon_keys(self.waste_type)
+            icon = self._modern_icons.get(key) or self._modern_icons.get(waste_type_lower)
+            if icon:
+                return icon
+            if collection and collection.icon_data:
+                return collection.icon_data
+            return None
+        if self.built_in_icons and self._classic_fraction_icon():
+            return None
+        if collection and collection.icon_data:
+            return collection.icon_data
         return None
+
+    def _classic_fraction_icon(self):
+        """Return the classic icon for this waste type, if one exists."""
+        key, waste_type_lower = _fraction_icon_keys(self.waste_type)
+        return self._classic_icon(FRACTION_ICONS.get(key) or FRACTION_ICONS.get(waste_type_lower))
 
 
 class WasteDateSensor(BaseSensor):
@@ -290,19 +403,38 @@ class WasteDateSensor(BaseSensor):
         super().__init__(data, config)
         self.date_delta = date_delta
         if self.date_delta.days == 0:
-            display_day = text(self.language, "today").lower()
+            display_day = text(self.language, "today").capitalize()
             unique_day = "vandaag"
         else:
-            display_day = text(self.language, "tomorrow").lower()
+            display_day = text(self.language, "tomorrow").capitalize()
             unique_day = "morgen"
 
         self._name = _format_sensor(config.get(CONF_NAME), config.get(CONF_NAME_PREFIX), self.waste_collector, display_day)
         self._attr_unique_id = _format_unique_id(config.get(CONF_NAME), config.get(CONF_NAME_PREFIX), self.waste_collector, unique_day, self.entry_id, config.get(CONF_POSTCODE), config.get(CONF_STREET_NUMBER)).lower()
+        self._set_picture()
 
     @property
     def name(self):
         """Return the name of the sensor."""
         return self._name
+
+    @property
+    def icon(self):
+        """Return the icon for the sensor."""
+        if self.built_in_icons and not self.built_in_icons_new and not self.disable_icons:
+            if self.date_delta.days == 0:
+                return self._classic_icon("afvalbeheer:today")
+            elif self.date_delta.days == 1:
+                return self._classic_icon("afvalbeheer:tomorrow")
+        return super().icon
+
+    def _set_picture(self):
+        """Set the entity picture based on sensor type."""
+        if self.built_in_icons_new and not self.disable_icons:
+            key = "today" if self.date_delta.days == 0 else "tomorrow"
+            self._entity_picture = self._modern_icons.get(key)
+        else:
+            self._entity_picture = None
 
     def update(self):
         """Update the state and attributes of the sensor."""
@@ -315,6 +447,7 @@ class WasteDateSensor(BaseSensor):
             self._hidden = False
             self._state = ", ".join(sorted({x.waste_type for x in collections}))
         self._set_attr()
+        self._set_picture()
 
     def _set_attr(self):
         """Set the attributes of the sensor."""
@@ -331,16 +464,31 @@ class WasteUpcomingSensor(BaseSensor):
     """
     def __init__(self, data, config):
         super().__init__(data, config)
-        self.first_upcoming = text(self.language, "first_upcoming")
+        self.first_upcoming = text(self.language, "first_upcoming").capitalize()
         self._name = _format_sensor(config.get(CONF_NAME), config.get(CONF_NAME_PREFIX), self.waste_collector, self.first_upcoming)
         self._attr_unique_id = _format_unique_id(config.get(CONF_NAME), config.get(CONF_NAME_PREFIX), self.waste_collector, "eerstvolgende", self.entry_id, config.get(CONF_POSTCODE), config.get(CONF_STREET_NUMBER)).lower()
         self.upcoming_day = None
         self.upcoming_waste_types = None
+        self._set_picture()
 
     @property
     def name(self):
         """Return the name of the sensor."""
         return self._name
+
+    @property
+    def icon(self):
+        """Return the icon for the sensor."""
+        if self.built_in_icons and not self.built_in_icons_new and not self.disable_icons:
+            return self._classic_icon("afvalbeheer:upcoming")
+        return super().icon
+
+    def _set_picture(self):
+        """Set the entity picture based on sensor type."""
+        if self.built_in_icons_new and not self.disable_icons:
+            self._entity_picture = self._modern_icons.get("upcoming")
+        else:
+            self._entity_picture = None
 
     def update(self):
         """Update the state and attributes of the sensor."""
@@ -357,6 +505,7 @@ class WasteUpcomingSensor(BaseSensor):
             self._state = f"{self.upcoming_day}: {self.upcoming_waste_types}"
 
         self._set_attr()
+        self._set_picture()
 
     def _set_attr(self):
         """Set the attributes of the sensor."""
@@ -372,18 +521,32 @@ def _format_sensor(name, name_prefix, waste_collector, sensor_type):
 
     Args:
         name: The base name of the sensor.
-        name_prefix: Whether to include the waste collector's name as a prefix.
+        name_prefix: Kept for backwards compatibility.
         waste_collector: Name of the waste collector.
         sensor_type: Type of the sensor (e.g., waste type or date).
 
     Returns:
         Formatted sensor name as a string.
     """
-    return (
-        (waste_collector.capitalize() + " " if name_prefix else "")
-        + (name + " " if name else "")
-        + sensor_type
-    )
+    prefix = ""
+    if name and name.strip().lower() != str(waste_collector).strip().lower():
+        prefix = name.strip() + " "
+    return prefix + sensor_type
+
+
+def _fraction_icon_keys(waste_type):
+    """
+    Return the lookup keys for the fraction icons of a waste type.
+
+    The 'Reiniging' prefix (used for bin cleaning by Cleanprofs and Frisse Kliko)
+    is ignored, so the icon of the underlying fraction is used.
+    """
+    waste_type_lower = waste_type.lower().strip()
+    if waste_type_lower.startswith("reiniging "):
+        waste_type_lower = waste_type_lower[len("reiniging "):].strip()
+    key = waste_type_lower.replace(" ", "-").replace("_", "-")
+    return key, waste_type_lower
+
 
 def _format_unique_id(name, name_prefix, waste_collector, sensor_type, entry_id, postcode=None, street_number=None):
     """
@@ -403,10 +566,10 @@ def _format_unique_id(name, name_prefix, waste_collector, sensor_type, entry_id,
     """
     parts = [sensor_type]
 
-    if str(waste_collector).lower() == "cleanprofs" or name_prefix:
+    if str(waste_collector).lower() in ["cleanprofs", "frissekliko"] or name_prefix:
         parts.insert(0, str(waste_collector))
-    if name:
-        parts.insert(1, name)
+    if name and name.strip().lower() != str(waste_collector).strip().lower():
+        parts.insert(1, name.strip())
     unique_id = "_".join(parts).replace(" ", "_").replace("-", "_").lower()
     return unique_id
 

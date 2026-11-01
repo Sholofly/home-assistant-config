@@ -9,7 +9,6 @@ over the adaptive value unless quota would be exhausted.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import timedelta
 import logging
 from typing import TYPE_CHECKING, Any
 
@@ -22,9 +21,8 @@ from .const import (
     MIN_POLLING_INTERVAL,
     POLLING_SAFETY_BUFFER,
     QUOTA_RESERVE_CALLS,
-    QUOTA_RESERVE_PERCENT,
 )
-from .helpers import low_quota_threshold, parse_iso_datetime
+from .helpers import full_sync_period_seconds, hard_quota_reserve, low_quota_threshold, predicted_next_reset
 
 if TYPE_CHECKING:
     from .config_manager import ConfigurationManager
@@ -49,36 +47,52 @@ class _PollingContext:
     night_duration: int
     day_duration: int
     daily_limit: int | None
+    full_syncs_reserved: float
+
+
+def quick_sync_calls(
+    *,
+    skip_zone_states: bool,
+    zone_only: bool,
+    weather_enabled: bool,
+    mobile_devices_enabled: bool,
+    mobile_devices_frequent_sync: bool,
+    home_state_sync_enabled: bool,
+) -> int:
+    """Return the cloud calls a quick sync makes for this plan (mirrors `async_sync`'s quick fetches)."""
+    calls = 0 if skip_zone_states else 1
+    if zone_only:
+        return calls
+    if weather_enabled:
+        calls += 1
+    if home_state_sync_enabled:
+        calls += 1
+    if mobile_devices_enabled and mobile_devices_frequent_sync:
+        calls += 1
+    return calls
 
 
 def _get_calls_per_sync(
     config_manager: ConfigurationManager,
     homekit_connected: bool = False,
 ) -> int:
-    """Return the number of cloud API calls one poll cycle costs.
-
-    Skips the zone-states call when HomeKit is providing live data,
-    then adds optional weather, mobile-devices, and home-state calls
-    based on the user's feature config.
-    """
-    calls = 0 if homekit_connected else 1
-
-    if config_manager.get_weather_enabled():
-        calls += 1
-
-    if config_manager.get_mobile_devices_enabled() and config_manager.get_mobile_devices_frequent_sync():
-        calls += 1
-
-    if config_manager.get_home_state_sync_enabled():
-        calls += 1
-
-    return calls
+    """Return the number of cloud API calls one poll cycle costs from the configured features."""
+    return quick_sync_calls(
+        skip_zone_states=homekit_connected,
+        zone_only=False,
+        weather_enabled=config_manager.get_weather_enabled(),
+        mobile_devices_enabled=config_manager.get_mobile_devices_enabled(),
+        mobile_devices_frequent_sync=config_manager.get_mobile_devices_frequent_sync(),
+        home_state_sync_enabled=config_manager.get_home_state_sync_enabled(),
+    )
 
 
 def _build_polling_context(
     ratelimit_data: dict[str, Any],
     config_manager: ConfigurationManager,
     homekit_connected: bool = False,
+    *,
+    full_sync_extra_calls: int,
 ) -> _PollingContext:
     """Bundle every derived value the mode-specific helpers need.
 
@@ -107,7 +121,11 @@ def _build_polling_context(
 
     calls_per_sync = max(1, _get_calls_per_sync(config_manager, homekit_connected=homekit_connected))
     effective_remaining = remaining / calls_per_sync
-    usable_quota = effective_remaining * POLLING_SAFETY_BUFFER - QUOTA_RESERVE_CALLS
+    # WHY: effective_remaining counts syncs, so the reserve (in calls) is divided by the sync cost.
+    usable_quota = effective_remaining * POLLING_SAFETY_BUFFER - QUOTA_RESERVE_CALLS / calls_per_sync
+    # WHY: full syncs run on their own clock, so the extra calls expected before the reset come off the top (in syncs).
+    full_syncs_reserved = (reset_seconds / full_sync_period_seconds(daily_limit)) * full_sync_extra_calls / calls_per_sync
+    usable_quota -= full_syncs_reserved
 
     now = dt_util.now()
     day_start = config_manager.get_day_start_hour()
@@ -134,6 +152,7 @@ def _build_polling_context(
         night_duration=night_duration,
         day_duration=day_duration,
         daily_limit=daily_limit,
+        full_syncs_reserved=full_syncs_reserved,
     )
 
 
@@ -157,8 +176,8 @@ def _calculate_uniform_interval(ctx: _PollingContext) -> int:
 
     _LOGGER.debug(
         "Polling: uniform mode → %d min "
-        "(remaining=%s, usable=%.0f, reset=%.1fh)",
-        interval_minutes, ctx.remaining, ctx.usable_quota, ctx.reset_hours,
+        "(remaining=%s, usable=%.0f, reset=%.1fh, full_syncs_reserved=%.1f)",
+        interval_minutes, ctx.remaining, ctx.usable_quota, ctx.reset_hours, ctx.full_syncs_reserved,
     )
 
     return interval_minutes
@@ -173,8 +192,7 @@ def _calculate_low_quota_interval(ctx: _PollingContext) -> int | None:
     night interval.
     """
     night_calls = (ctx.night_duration * 60) / MAX_POLLING_INTERVAL
-    usable_remaining = ctx.effective_remaining * POLLING_SAFETY_BUFFER - QUOTA_RESERVE_CALLS
-    day_calls = usable_remaining - night_calls
+    day_calls = ctx.usable_quota - night_calls
 
     if day_calls <= 0:
         if not ctx.is_day:
@@ -189,8 +207,8 @@ def _calculate_low_quota_interval(ctx: _PollingContext) -> int | None:
 
     _LOGGER.debug(
         "Polling: low-quota daytime → %d min "
-        "(remaining=%s, day_calls=%.0f, night_reserved=%.0f)",
-        day_interval, ctx.remaining, day_calls, night_calls,
+        "(remaining=%s, day_calls=%.0f, night_reserved=%.0f, full_syncs_reserved=%.1f)",
+        day_interval, ctx.remaining, day_calls, night_calls, ctx.full_syncs_reserved,
     )
 
     return day_interval
@@ -238,9 +256,9 @@ def _calculate_day_night_interval(
 
     _LOGGER.debug(
         "Polling: daytime adaptive → %d min until %s "
-        "(remaining=%s, day_quota=%.0f, night_reserved=%.0f)",
+        "(remaining=%s, day_quota=%.0f, night_reserved=%.0f, full_syncs_reserved=%.1f)",
         interval_minutes, time_boundary, ctx.remaining,
-        day_quota, night_calls_needed,
+        day_quota, night_calls_needed, ctx.full_syncs_reserved,
     )
 
     return interval_minutes
@@ -250,9 +268,14 @@ def calculate_adaptive_interval(
     ratelimit_data: dict[str, Any],
     config_manager: ConfigurationManager,
     homekit_connected: bool = False,
+    *,
+    full_sync_extra_calls: int,
 ) -> int | None:
     """Pick the right mode-specific helper and return the calculated interval."""
-    ctx = _build_polling_context(ratelimit_data, config_manager, homekit_connected=homekit_connected)
+    ctx = _build_polling_context(
+        ratelimit_data, config_manager, homekit_connected=homekit_connected,
+        full_sync_extra_calls=full_sync_extra_calls,
+    )
 
     if ctx.effective_remaining <= 0:
         _LOGGER.debug(
@@ -269,11 +292,15 @@ def calculate_adaptive_interval(
         return _calculate_low_quota_interval(ctx)
 
     return _calculate_day_night_interval(ctx, config_manager)
+
+
 def should_pause_polling(
     ratelimit_data: dict[str, Any],
     config_manager: ConfigurationManager,
     *,
+    poll_cost: int,
     was_paused: bool = False,
+    can_keep_entities_live: bool = False,
 ) -> tuple[bool, str]:
     """Return (should_pause, user_facing_reason) when quota is too low to keep polling.
 
@@ -287,31 +314,31 @@ def should_pause_polling(
     with plenty of quota). Without it, the INFO line would fire every
     cycle once the expected reset window had passed but the API
     response hadn't yet refreshed `last_reset_utc`.
+
+    `can_keep_entities_live` picks the reason text: the manual-actions
+    claim is only true when the caller's own decision keeps entities live
+    through the pause.
     """
     if not config_manager.get_quota_reserve_enabled():
         return False, ""
 
     last_reset_utc = ratelimit_data.get("last_reset_utc")
     if last_reset_utc:
-        try:
-            last_reset = parse_iso_datetime(last_reset_utc)
-            next_reset = last_reset + timedelta(hours=24)
-            now_utc = dt_util.utcnow()
-
-            if now_utc >= next_reset:
-                if was_paused:
-                    _LOGGER.info(
-                        "Polling: expected reset time %s UTC has passed, "
-                        "resuming polling to pick up the actual reset",
-                        next_reset.strftime("%H:%M"),
-                    )
-                return False, ""
-        except (ValueError, TypeError) as e:
+        next_reset = predicted_next_reset(last_reset_utc)
+        if next_reset is None:
             _LOGGER.debug(
-                "Polling: could not parse last_reset_utc (%s), "
+                "Polling: could not parse last_reset_utc (%r), "
                 "treating reset time as unknown",
-                e,
+                last_reset_utc,
             )
+        elif dt_util.utcnow() >= next_reset:
+            if was_paused:
+                _LOGGER.info(
+                    "Polling: expected reset time %s UTC has passed, "
+                    "resuming polling to pick up the actual reset",
+                    next_reset.strftime("%H:%M"),
+                )
+            return False, ""
     else:
         # No reset time known (fresh install / stale snapshot), so let
         # the next poll bootstrap rate-limit headers.
@@ -322,7 +349,8 @@ def should_pause_polling(
     _limit = ratelimit_data.get("limit")
     daily_limit = _limit if _limit is not None else 100
 
-    reserve_threshold = max(QUOTA_RESERVE_CALLS, int(daily_limit * QUOTA_RESERVE_PERCENT))
+    # WHY: the caller prices the poll about to run, so a poll never ends inside the reserve.
+    reserve_threshold = hard_quota_reserve(daily_limit) + poll_cost
 
     if remaining <= reserve_threshold:
         _rs = ratelimit_data.get("reset_seconds")
@@ -340,10 +368,13 @@ def should_pause_polling(
         else:
             reset_info = "reset time unknown, will resume after the next successful API response"
 
+        if can_keep_entities_live:
+            tail = "Manual actions (set temperature, change mode, etc.) still work."
+        else:
+            tail = "Entities are unavailable until quota resets or the next successful update."
         reason = (
             f"Quota critically low ({remaining} remaining, reserve threshold={reserve_threshold}). "
-            f"Polling paused until {reset_info}. "
-            f"Manual actions (set temperature, change mode, etc.) still work."
+            f"Polling paused until {reset_info}. {tail}"
         )
         return True, reason
 
@@ -376,6 +407,8 @@ def get_polling_interval(
     config_manager: ConfigurationManager,
     cached_ratelimit: dict[str, Any] | None = None,
     homekit_connected: bool = False,
+    *,
+    full_sync_extra_calls: int,
 ) -> int:
     """Return the polling interval in minutes for the current day / night window.
 
@@ -422,6 +455,7 @@ def get_polling_interval(
         if ratelimit_data:
             adaptive_interval = calculate_adaptive_interval(
                 ratelimit_data, config_manager, homekit_connected=homekit_connected,
+                full_sync_extra_calls=full_sync_extra_calls,
             )
 
     except (ValueError, TypeError, AttributeError) as e:

@@ -11,7 +11,7 @@ binary_sensor:
       number: 0
       mode: INPUT_PULLUP
       inverted: true
-    name: "${name} button"
+    name: button
     on_press:
       - switch.toggle: "${id}_relay"
     internal: true
@@ -25,7 +25,7 @@ switch:
     internal: true
 
   - platform: gpio
-    name: "${name}"
+    name: None
     icon: "mdi:power-plug"
     pin: GPIO14
     id: "${id}_relay"
@@ -46,22 +46,22 @@ sensor:
     current_resistor: ${current_res}
     voltage_divider: ${voltage_div}
     current:
-      name: "${name} Huidig amperage"
+      name: Current
       unit_of_measurement: A
       #device_id: "${id}_device"
     voltage:
-      name: "${name} Huidig voltage"
+      name: Voltage
       unit_of_measurement: V
       #device_id: "${id}_device"
     power:
-      name: "${name} Huidig wattage"
+      name: Power
       unit_of_measurement: W
       id: "${id}_wattage"
       #device_id: "${id}_device"
     change_mode_every: 8
     update_interval: 10s
   - platform: total_daily_energy
-    name: "${name} Verbruik vandaag"
+    name: Energy today
     power_id: "${id}_wattage"
     filters:
       # Multiplication factor from W to kW is 0.001

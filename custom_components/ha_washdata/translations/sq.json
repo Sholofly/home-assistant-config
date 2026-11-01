@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Konfigurimi WashData",
-        "description": "Konfiguro makinën larëse ose pajisje tjetër.\n\nKërkohet sensori i fuqisë.\n\n**Më pas, do të pyeteni nëse dëshironi të krijoni profilin tuaj të parë.**",
+        "description": "Konfiguro një makinë larëse ose pajisje tjetër. Kërkohet një sensor fuqie.\n\nPas konfigurimit, hap panelin WashData nga shiriti anësor ([/ha-washdata](/ha-washdata)) për të parë ciklet, profilet dhe të gjitha cilësimet.",
         "data": {
           "name": "Emri i pajisjes",
           "device_type": "Lloji i pajisjes",
@@ -12,22 +12,14 @@
         },
         "data_description": {
           "name": "Një emër miqësor për këtë pajisje (p.sh., \"Lavatriçe\", \"Pjatalarëse\").",
-          "device_type": "Çfarë lloj pajisjeje është kjo? Ndihmon në përshtatjen e zbulimit dhe etiketimit.",
-          "power_sensor": "Njësia e sensorit që raporton konsumin e energjisë në kohë reale (në vat) nga spina juaj inteligjente.",
-          "min_power": "Leximet e fuqisë mbi këtë prag (në vat) tregojnë se pajisja është në punë. Filloni me 2 W për shumicën e pajisjeve."
-        }
-      },
-      "first_profile": {
-        "title": "Krijo profilin e parë",
-        "description": "Një **Cikl** është një funksion i plotë i pajisjes suaj (p.sh., një ngarkesë rrobash). Një **Profil** i grupon këto cikle sipas llojit (p.sh. \"Pambuk\", \"Larje e shpejtë\"). Krijimi i një profili tani ndihmon në vlerësimin e kohëzgjatjes menjëherë.\n\nMund ta zgjidhni manualisht këtë profil në kontrollet e pajisjes nëse nuk zbulohet automatikisht.\n\n**Lëreni 'Emri i profilit' bosh për të kapërcyer këtë hap.**",
-        "data": {
-          "profile_name": "Emri i profilit (opsionale)",
-          "manual_duration": "Kohëzgjatja e parashikuar (minuta)"
+          "device_type": "Cakton parazgjedhjet e zbulimit për këtë lloj pajisjeje.",
+          "power_sensor": "Sensori i fuqisë i spinës inteligjente (W ose kW), jo matësi i saj i energjisë (kWh).",
+          "min_power": "Leximet mbi këtë vlerë (në vat) tregojnë se pajisja është në punë. 2 W u përshtatet shumicës së pajisjeve."
         }
       },
       "reconfigure": {
         "title": "Rikonfiguro WashData",
-        "description": "Përditëso emrin e pajisjes, llojin e pajisjes ose sensorin e fuqisë.",
+        "description": "Ndrysho emrin e pajisjes, llojin e saj ose sensorin e fuqisë.\n\nGjithçka tjetër është në panelin WashData (shiriti anësor, ose [/ha-washdata](/ha-washdata)).",
         "data": {
           "name": "Emri i pajisjes",
           "device_type": "Lloji i pajisjes",
@@ -37,10 +29,9 @@
       }
     },
     "error": {
-      "cannot_connect": "Lidhja dështoi",
-      "invalid_auth": "Vërtetim i pavlefshëm",
       "unknown": "Gabim i papritur",
-      "invalid_power": "Pragu i fuqisë duhet të jetë më i madh se 0"
+      "invalid_power": "Pragu i fuqisë duhet të jetë më i madh se 0",
+      "power_sensor_energy": "Ky është një matës energjie (kWh), jo një sensor fuqie. Zgjidhni sensorin e fuqisë të spinës (W ose kW). Nëse spina nuk ka të tillë, një ndihmës Derivative mund ta krijojë nga matësi."
     },
     "abort": {
       "already_configured": "Pajisja është konfiguruar tashmë",
@@ -51,7 +42,7 @@
     "step": {
       "init": {
         "title": "Cilësimet WashData",
-        "description": "Të gjitha cilësimet -- zbulimi, përputhja, koha, njoftimet, profilet dhe ciklet -- janë të disponueshme në panelin WashData. Përdorni këtë formular vetëm për të ndryshuar sensorin e fuqisë, llojin e pajisjes ose pragun e gatishmërisë.",
+        "description": "Riemërtoni pajisjen ose ndryshoni cilësimet e saj bazë. Gjithçka tjetër është në [panelin WashData](/ha-washdata) në shiritin anësor.",
         "data": {
           "name": "Emri i pajisjes",
           "device_type": "Lloji i pajisjes",
@@ -64,10 +55,12 @@
       "timer_default_message": "{device}: kohëmatës {minutes} min",
       "timer_pause_action_title": "Rifillo ciklin",
       "timer_pause_body_suffix": "Cikli është në pauzë. Hapni panelin WashData për të vazhduar.",
+      "unload_dismiss_action_title": "Ndalo kujtesat",
       "notify_live_waiting_message": "{device}: Ende nuk është njohur asnjë profil.",
       "vs_typical_longer": "{pct}% më gjatë se zakonisht",
       "vs_typical_shorter": "{pct}% më shkurt se zakonisht",
-      "invalid_power": "Pragu i fuqisë duhet të jetë më i madh se 0"
+      "invalid_power": "Pragu i fuqisë duhet të jetë më i madh se 0",
+      "power_sensor_energy": "Ky është një matës energjie (kWh), jo një sensor fuqie. Zgjidhni sensorin e fuqisë të spinës (W ose kW). Nëse spina nuk ka të tillë, një ndihmës Derivative mund ta krijojë nga matësi."
     }
   },
   "selector": {
@@ -77,11 +70,35 @@
         "dryer": "Tharëse",
         "washer_dryer": "Kombinim larëse-tharëse",
         "dishwasher": "Pjatalarëse",
-        "air_fryer": "Fryerja me ajër",
-        "bread_maker": "Bukëbërës",
         "pump": "Pompë / Pompë kullimi",
         "generic": "Të tjera (të avancuara)",
         "other": "Pajisja e pragut"
+      }
+    },
+    "trigger_cycle_status": {
+      "options": {
+        "any": "Çfarëdo",
+        "completed": "Përfunduar",
+        "force_stopped": "Ndaluar me forcë",
+        "interrupted": "E ndërprerë"
+      }
+    },
+    "trigger_state": {
+      "options": {
+        "off": "Fikur",
+        "idle": "Në pritje",
+        "starting": "Duke filluar",
+        "running": "Në punë",
+        "paused": "Në pauzë",
+        "user_paused": "Ndërprerë nga përdoruesi",
+        "ending": "Duke përfunduar",
+        "finished": "Përfunduar",
+        "anti_wrinkle": "Kundër rrudhave",
+        "delay_wait": "Në pritje për të filluar",
+        "interrupted": "E ndërprerë",
+        "force_stopped": "Ndaluar me forcë",
+        "unknown": "E panjohur",
+        "clean": "I pastër"
       }
     }
   },
@@ -100,7 +117,7 @@
         },
         "profile_name": {
           "name": "Emri i profilit",
-          "description": "Emri i një profili ekzistues (krijoni profile në menunë Menaxho profilet). Lëreni bosh për të hequr etiketën."
+          "description": "Emri i një profili ekzistues (krijoni profile në panelin WashData). Lëreni bosh për të hequr etiketën."
         }
       }
     },
@@ -150,13 +167,13 @@
         },
         "confidence_threshold": {
           "name": "Pragu i besueshmërisë",
-          "description": "Besueshmëria minimale e përputhjes (0,50–0,95) për të aplikuar etiketat."
+          "description": "Besueshmëria minimale e përputhjes (0,50-0,95) për të aplikuar etiketat. Lëreni bosh për të përdorur cilësimin Besueshmëria e etiketimit automatik të pajisjes."
         }
       }
     },
     "export_config": {
       "name": "Eksporto konfigurimin",
-      "description": "Eksporto profilet, ciklet dhe cilësimet e kësaj pajisjeje në një skedar JSON (për pajisje).",
+      "description": "Eksporto profilet, ciklet dhe cilësimet e kësaj pajisjeje në një skedar JSON.",
       "fields": {
         "device_id": {
           "name": "Pajisja",
@@ -184,7 +201,7 @@
     },
     "submit_cycle_feedback": {
       "name": "Dërgo komente për ciklin",
-      "description": "Konfirmo ose korrigjo një program të zbuluar automatikisht pas një cikli të përfunduar. Jep `entry_id` (i avancuar) ose `device_id` (rekomandohet).",
+      "description": "Konfirmo ose korrigjo programin e zbuluar të një cikli të përfunduar. Jep `device_id` (rekomandohet) ose `entry_id`.",
       "fields": {
         "device_id": {
           "name": "Pajisja",
@@ -287,6 +304,16 @@
           "description": "Pajisja WashData për të ritrajnuar modelet."
         }
       }
+    },
+    "mark_unloaded": {
+      "name": "Shëno si të shkarkuar",
+      "description": "Konfirmo se ngarkesa e përfunduar u hoq. Pastron gjendjen \"I pastër\" dhe çdo kujtesë për shkarkim.",
+      "fields": {
+        "device_id": {
+          "name": "Pajisja",
+          "description": "Pajisja WashData nga e cila është hequr ngarkesa e përfunduar."
+        }
+      }
     }
   },
   "entity": {
@@ -296,6 +323,32 @@
       },
       "match_ambiguity": {
         "name": "Paqartësia e përputhjes"
+      },
+      "maintenance_due": {
+        "name": "Mirëmbajtje e nevojshme",
+        "state": {
+          "on": "E nevojshme",
+          "off": "Jo e nevojshme"
+        },
+        "state_attributes": {
+          "due_task_ids": {
+            "name": "ID-të e detyrave të nevojshme"
+          },
+          "due_tasks": {
+            "name": "Detyrat e nevojshme",
+            "state": {
+              "descale": "Heqja e gurëve",
+              "filter_clean": "Pastro filtrin",
+              "drum_clean": "Pastro tamburin",
+              "bearing_service": "Servisi i kushinetave",
+              "other": "Tjetër",
+              "salt": "Rimbush kripën",
+              "rinse_aid": "Rimbush lëngun shpëlarës",
+              "lint_filter": "Pastro filtrin e pushit",
+              "condenser_clean": "Pastro kondensatorin"
+            }
+          }
+        }
       }
     },
     "sensor": {
@@ -313,10 +366,18 @@
           "anti_wrinkle": "Kundër rrudhave",
           "interrupted": "E ndërprerë",
           "force_stopped": "Ndaluar me forcë",
-          "rinse": "Shpëlarje",
           "unknown": "E panjohur",
           "clean": "I pastër",
           "delay_wait": "Në pritje për të filluar"
+        },
+        "state_attributes": {
+          "cycle_anomaly": {
+            "name": "Anomali e ciklit",
+            "state": {
+              "overrun": "Po zgjat",
+              "stalled": "I ngecur"
+            }
+          }
         }
       },
       "washer_program": {
@@ -395,6 +456,9 @@
       },
       "record_stop": {
         "name": "Ndalo regjistrimin e ciklit"
+      },
+      "mark_unloaded": {
+        "name": "Shëno si të shkarkuar"
       }
     }
   },
@@ -443,6 +507,194 @@
     },
     "assign_profile_failed": {
       "message": "Profili nuk mund të caktohej: {error}"
+    }
+  },
+  "device_automation": {
+    "trigger_type": {
+      "cycle_started": "Cikli filloi",
+      "cycle_finished": "Cikli mbaroi",
+      "cycle_ended": "Cikli përfundoi (çdo arsye)",
+      "anti_wrinkle_started": "Kundër rrudhave filloi",
+      "cycle_stalled": "Cikli u ngec",
+      "unload_pending": "Shkarkim në pritje",
+      "program_recognised": "Programi u njoh",
+      "phase_started": "Faza filloi",
+      "finishing_soon": "Po mbaron së shpejti",
+      "cycle_overrun": "Cikli po zgjat shumë",
+      "cycle_paused": "Cikli u ndërpre",
+      "cycle_resumed": "Cikli u vazhdua",
+      "still_tumbling": "Vazhdon të rrotullohet pas ciklit",
+      "unloaded": "U shkarkua",
+      "state_changed": "Gjendja ndryshoi",
+      "maintenance_due": "Mirëmbajtja është e nevojshme",
+      "milestone_reached": "Pika kyçe e ciklit u arrit",
+      "pump_stuck": "Pompa u bllokua"
+    },
+    "extra_fields": {
+      "program": "Program",
+      "phase": "Faza",
+      "minutes": "Minuta",
+      "percent": "Më i gjatë me (%)",
+      "include_detected": "Përfshi ndërprerjet e zbuluara",
+      "status": "Përfundoi si",
+      "from": "Nga",
+      "to": "Në",
+      "task": "Detyrë"
+    },
+    "extra_fields_descriptions": {
+      "program": "Vetëm ky program, me emrin e saktë. Lëreni bosh për çdo program.",
+      "phase": "Vetëm kjo fazë, me emrin e saj. Lëreni bosh për çdo fazë.",
+      "minutes": "Po mbaron: minutat e mbetura. Vazhdon të rrotullohet: minuta pas mbarimit.",
+      "percent": "Përqindja mbi kohëzgjatjen e zakonshme të programit.",
+      "include_detected": "Aktivizoni edhe për ndërprerjet që WashData i sheh në fuqi, si njomje ose ndalim.",
+      "status": "Vetëm ciklet që përfunduan kështu.",
+      "from": "Vetëm ndryshimet nga kjo gjendje. Lëreni bosh për çdo.",
+      "to": "Vetëm ndryshimet në këtë gjendje. Lëreni bosh për çdo.",
+      "task": "Vetëm kjo detyrë, me emrin ose ID-në e saj. Lëreni bosh për çdo detyrë."
+    }
+  },
+  "triggers": {
+    "cycle_started": {
+      "name": "Cikli filloi",
+      "description": "Aktivizohet kur pajisja fillon një cikël."
+    },
+    "program_recognised": {
+      "name": "Programi u njoh",
+      "description": "Aktivizohet kur WashData njeh programin e ciklit të drejtuar ose kalon në një tjetër.",
+      "fields": {
+        "program": {
+          "name": "Program",
+          "description": "Vetëm ky program, me emrin e saktë. Lëreni bosh për çdo program."
+        }
+      }
+    },
+    "phase_started": {
+      "name": "Faza filloi",
+      "description": "Aktivizohet kur cikli aktiv hyn në një fazë të re të programit të tij.",
+      "fields": {
+        "phase": {
+          "name": "Faza",
+          "description": "Vetëm kjo fazë, me emrin e saj. Lëreni bosh për çdo fazë."
+        }
+      }
+    },
+    "finishing_soon": {
+      "name": "Po mbaron së shpejti",
+      "description": "Aktivizohet një herë për cikël, kur koha e mbetur bie për herë të parë në këto minuta.",
+      "fields": {
+        "minutes": {
+          "name": "Minuta të mbetura",
+          "description": "Aktivizo kur kanë mbetur kaq ose më pak minuta."
+        }
+      }
+    },
+    "cycle_overrun": {
+      "name": "Cikli po zgjat shumë",
+      "description": "Aktivizohet një herë për cikël, kur ai zgjat kaq shumë më gjatë se sa zakonisht programi.",
+      "fields": {
+        "percent": {
+          "name": "Më i gjatë me",
+          "description": "Përqindja mbi kohëzgjatjen e zakonshme të programit."
+        }
+      }
+    },
+    "cycle_paused": {
+      "name": "Cikli u ndërpre",
+      "description": "Aktivizohet kur ndërprisni një cikël dhe, opsionalisht, kur pajisja ndalet vetë.",
+      "fields": {
+        "include_detected": {
+          "name": "Përfshi ndërprerjet e zbuluara",
+          "description": "Aktivizoni edhe për ndërprerjet që WashData i zbulon në fuqi, si njomje ose ndalim, jo vetëm ato që filloni ju."
+        }
+      }
+    },
+    "cycle_resumed": {
+      "name": "Cikli u vazhdua",
+      "description": "Aktivizohet kur një cikël i ndërprerë vazhdon.",
+      "fields": {
+        "include_detected": {
+          "name": "Përfshi ndërprerjet e zbuluara",
+          "description": "Aktivizoni edhe për ndërprerjet që WashData i zbulon në fuqi, si njomje ose ndalim, jo vetëm ato që filloni ju."
+        }
+      }
+    },
+    "cycle_stalled": {
+      "name": "Cikli u ngec",
+      "description": "Aktivizohet kur një cikël aktiv ndalon në një nivel të ulët, të qëndrueshëm të fuqisë."
+    },
+    "cycle_finished": {
+      "name": "Cikli mbaroi",
+      "description": "Aktivizohet kur një cikël mbaron, edhe kur e ndaloni ju. Jo për një startim të rremë.",
+      "fields": {
+        "program": {
+          "name": "Program",
+          "description": "Vetëm ky program, me emrin e saktë. Lëreni bosh për çdo program."
+        }
+      }
+    },
+    "cycle_ended": {
+      "name": "Cikli përfundoi (çdo arsye)",
+      "description": "Aktivizohet kur një cikël mbaron për çfarëdo arsye, duke përfshirë startimet e rreme.",
+      "fields": {
+        "status": {
+          "name": "Përfundoi si",
+          "description": "Vetëm ciklet që përfunduan kështu."
+        }
+      }
+    },
+    "anti_wrinkle_started": {
+      "name": "Kundër rrudhave filloi",
+      "description": "Aktivizohet kur pajisja fillon të rrotullojë ngarkesën e mbaruar kundër rrudhave."
+    },
+    "still_tumbling": {
+      "name": "Vazhdon të rrotullohet pas ciklit",
+      "description": "Aktivizohet një herë kur pajisja vazhdon të rrotullohet për periudha të shkurtra kaq minuta pas mbarimit të ciklit. Ndalet me një cikël të ri ose 4 orë pas mbarimit.",
+      "fields": {
+        "minutes": {
+          "name": "Minuta pas mbarimit",
+          "description": "Aktivizo në rrotullimin e parë të paktën kaq pas mbarimit."
+        }
+      }
+    },
+    "unload_pending": {
+      "name": "Shkarkim në pritje",
+      "description": "Aktivizohet kur një cikël ka mbaruar dhe ngarkesa është ende brenda."
+    },
+    "unloaded": {
+      "name": "U shkarkua",
+      "description": "Aktivizohet kur ngarkesa nxirret pas një cikli: dera u hap ose shkarkimi u konfirmua."
+    },
+    "state_changed": {
+      "name": "Gjendja ndryshoi",
+      "description": "Aktivizohet kur gjendja e WashData ndryshon.",
+      "fields": {
+        "from": {
+          "name": "Nga",
+          "description": "Vetëm ndryshimet nga kjo gjendje. Lëreni bosh për çdo."
+        },
+        "to": {
+          "name": "Në",
+          "description": "Vetëm ndryshimet në këtë gjendje. Lëreni bosh për çdo."
+        }
+      }
+    },
+    "maintenance_due": {
+      "name": "Mirëmbajtja është e nevojshme",
+      "description": "Aktivizohet kur një detyrë mirëmbajtjeje bëhet e nevojshme.",
+      "fields": {
+        "task": {
+          "name": "Detyrë",
+          "description": "Vetëm kjo detyrë, me emrin ose ID-në e saj. Lëreni bosh për çdo detyrë."
+        }
+      }
+    },
+    "milestone_reached": {
+      "name": "Pika kyçe e ciklit u arrit",
+      "description": "Aktivizohet kur numri i cikleve gjatë gjithë jetës arrin një nga pikat kyçe të caktuara për njoftimet."
+    },
+    "pump_stuck": {
+      "name": "Pompa u bllokua",
+      "description": "Aktivizohet kur një pompë punon më gjatë se kufiri i saj i bllokimit."
     }
   }
 }

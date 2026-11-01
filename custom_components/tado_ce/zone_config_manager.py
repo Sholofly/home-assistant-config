@@ -6,16 +6,27 @@ from contextlib import suppress
 import logging
 from typing import TYPE_CHECKING, Any
 
-from .const import DEFAULT_ZONE_CONFIG, OVERLAY_MODE_DEFAULT, WINDOW_U_VALUES
+from .const import DEFAULT_WINDOW_TYPE, DEFAULT_ZONE_CONFIG, OVERLAY_MODE_DEFAULT, WINDOW_U_VALUES
 
 if TYPE_CHECKING:
     from collections.abc import Callable
 
     from homeassistant.core import HomeAssistant
 
+    from .config_manager import ConfigurationManager
     from .data_loader import DataLoader
 
 _LOGGER = logging.getLogger(__name__)
+
+
+def _resolve_capability_temp_limit(zone_capabilities: dict[str, Any], limit_type: str, default: float) -> float:
+    """Read `min` / `max` temperature for the first AC mode that exposes one."""
+    for mode in ("COOL", "HEAT", "AUTO", "DRY"):
+        if mode in zone_capabilities and "temperatures" in zone_capabilities[mode]:
+            temp_caps = zone_capabilities[mode]["temperatures"].get("celsius") or {}
+            if limit_type in temp_caps:
+                return temp_caps[limit_type]  # type: ignore[no-any-return]
+    return default
 
 
 class ZoneConfigManager:
@@ -109,8 +120,25 @@ class ZoneConfigManager:
             return config.get(key, DEFAULT_ZONE_CONFIG.get(key))
         return config.get(key, default)
 
-    async def async_set_zone_value(self, zone_id: str, key: str, value: Any) -> None:
-        """Set one config key for a zone, persist, and notify listeners on change."""
+    def _notify_listeners(self, zone_id: str, key: str, value: Any) -> None:
+        """Fan out one config change to every listener, isolating exceptions per-listener."""
+        for listener in self._listeners:
+            try:
+                listener(zone_id, key, value)
+            except Exception:
+                _LOGGER.warning(
+                    "Zone Config: listener raised while handling "
+                    "zone %s key %s, continuing with the next "
+                    "listener so other consumers still get the "
+                    "update",
+                    zone_id, key,
+                    exc_info=True,
+                )
+
+    async def async_set_zone_value(
+        self, zone_id: str, key: str, value: Any, *, immediate: bool = False,
+    ) -> None:
+        """Set one config key for a zone, persist (at once if immediate), and notify listeners on change."""
         zone_id = str(zone_id)
         if zone_id not in self._config:
             self._config[zone_id] = {}
@@ -119,20 +147,35 @@ class ZoneConfigManager:
         self._config[zone_id][key] = value
 
         await self.async_save()
+        if immediate:
+            await self._data_loader.async_flush_pending_saves()
 
         if old_value != value:
-            for listener in self._listeners:
-                try:
-                    listener(zone_id, key, value)
-                except Exception:
-                    _LOGGER.warning(
-                        "Zone Config: listener raised while handling "
-                        "zone %s key %s, continuing with the next "
-                        "listener so other consumers still get the "
-                        "update",
-                        zone_id, key,
-                        exc_info=True,
-                    )
+            self._notify_listeners(zone_id, key, value)
+
+    async def async_delete_zone_value(self, zone_id: str, key: str) -> None:
+        """Remove a per-zone override so the key falls back to its default/global resolution; no-op if it was never set."""
+        zone_id = str(zone_id)
+        if zone_id not in self._config or key not in self._config[zone_id]:
+            return
+        del self._config[zone_id][key]
+        await self.async_save()
+        self._notify_listeners(zone_id, key, self.get_zone_value(zone_id, key))
+
+    async def async_prune_reassigned_zones(self, zone_ids: set[str]) -> set[str]:
+        """Delete a reused zone's settings from the live config so a later unrelated save can't resurrect them."""
+        pruned = {zone_id for zone_id in zone_ids if zone_id in self._config}
+        if not pruned:
+            return set()
+        for zone_id in pruned:
+            del self._config[zone_id]
+        await self.async_save()
+        _LOGGER.info(
+            "Zone Config: cleared settings for reassigned zone(s) %s "
+            "(the id is now a different room)",
+            sorted(pruned),
+        )
+        return pruned
 
     async def async_get_or_fetch_overlay_default(self, zone_id: str, api_client: Any) -> str:
         """Return a zone's overlay_mode, fetching the Tado-app default if unset.
@@ -171,10 +214,52 @@ class ZoneConfigManager:
 
         return _remove_listener
 
-    def get_window_u_value(self, zone_id: str) -> float:
-        """Resolve the U-value (W/m²K) for the zone's configured window type."""
-        window_type = self.get_zone_value(zone_id, "window_type", "double_pane")
-        return WINDOW_U_VALUES.get(window_type, 2.7)
+    def get_effective_window_type(self, zone_id: str, config_manager: ConfigurationManager) -> str:
+        """Resolve the zone's window type: explicit per-zone override, else the live global setting.
+
+        Never caches config_manager's value: Global Window Type is a user-editable
+        Advanced Settings option, unlike overlay_mode's fetch-once cloud default.
+        """
+        if self.has_zone_override(zone_id, "window_type"):
+            window_type = str(self.get_zone_value(zone_id, "window_type", DEFAULT_WINDOW_TYPE))
+            if window_type not in WINDOW_U_VALUES:
+                _LOGGER.warning(
+                    "Zone Config: zone %s window_type override %r is not a "
+                    "recognised window type; numeric U-value lookups will use "
+                    "the default %s",
+                    zone_id, window_type, DEFAULT_WINDOW_TYPE,
+                )
+            return window_type
+        return config_manager.get_mold_risk_window_type()
+
+    def get_window_u_value(self, zone_id: str, config_manager: ConfigurationManager) -> float:
+        """Resolve the U-value (W/m²K) for the zone's effective window type."""
+        window_type = self.get_effective_window_type(zone_id, config_manager)
+        return WINDOW_U_VALUES.get(window_type, WINDOW_U_VALUES[DEFAULT_WINDOW_TYPE])
+
+    def get_effective_min_temp(self, zone_id: str, zone_capabilities: dict[str, Any]) -> float:
+        """Resolve an AC zone's min temperature: explicit override clamped to the hardware floor, else the floor itself."""
+        caps_min = _resolve_capability_temp_limit(zone_capabilities, "min", 16.0)
+        if self.has_zone_override(zone_id, "min_temp"):
+            return max(float(self.get_zone_value(zone_id, "min_temp", caps_min)), caps_min)
+        return caps_min
+
+    def get_effective_max_temp(self, zone_id: str, zone_capabilities: dict[str, Any]) -> float:
+        """Resolve an AC zone's max temperature: explicit override clamped to the hardware ceiling, else the ceiling itself."""
+        caps_max = _resolve_capability_temp_limit(zone_capabilities, "max", 30.0)
+        if self.has_zone_override(zone_id, "max_temp"):
+            return min(float(self.get_zone_value(zone_id, "max_temp", caps_max)), caps_max)
+        return caps_max
+
+    def get_passive_detector_window_u_value(self, zone_id: str) -> float:
+        """Resolve the per-zone U-value for the passive open-window detector's threshold scaling.
+
+        Deliberately does NOT consult the global Window Type setting: that would let a
+        house-wide setting silently change detection sensitivity, an axis already ruled
+        orthogonal to this detector's U-value/threshold relationship.
+        """
+        window_type = self.get_zone_value(zone_id, "window_type", DEFAULT_WINDOW_TYPE)
+        return WINDOW_U_VALUES.get(window_type, WINDOW_U_VALUES[DEFAULT_WINDOW_TYPE])
 
     def get_surface_temp_offset(self, zone_id: str) -> float:
         """Return the user-set surface offset (°C) for mold-risk calibration."""

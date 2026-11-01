@@ -5,7 +5,7 @@ from __future__ import annotations
 import time
 import uuid
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from custom_components.beatify.const import MIN_SUBMISSIONS_FOR_SPEED
 
@@ -23,6 +23,15 @@ class PlayerSession:
     score: int = 0
     streak: int = 0
     connected: bool = True
+    # #2718: wall-clock moment ``connected`` last went False, or None while the
+    # player is connected. The host's lobby needs a *duration*, not a flag:
+    # four minutes away is the bathroom, twelve minutes away is gone, and the
+    # remove decision is only makeable with the number. It has to be a server
+    # fact — a timer the host's browser starts would restart at every reload
+    # and report "just now" for a guest who left before dinner.
+    # Always write it through ``set_connected`` rather than assigning
+    # ``connected`` directly, so the stamp cannot drift from the flag.
+    disconnected_at: float | None = None
     is_admin: bool = False
     joined_late: bool = False
     # Player onboarding v2 — true once player has completed/skipped the tour
@@ -64,6 +73,12 @@ class PlayerSession:
     # Round results tracking (Issue #120 — Shareable Result Cards)
     round_results: list[str] = field(default_factory=list)
 
+    # Collection mode (Issue #2324, shape E) - CUMULATIVE, NOT reset per round.
+    # One entry per song this player placed close enough to keep: the growing
+    # row the boxed game has and a score does not. Entries are dicts with
+    # title / artist / year / round, appended in state_scoring._append_round_results.
+    collection: list[dict[str, Any]] = field(default_factory=list)
+
     # Betting tracking (Story 5.3)
     bet: bool = False
     bet_outcome: str | None = None  # "won", "lost", or None
@@ -73,6 +88,89 @@ class PlayerSession:
 
     # Leaderboard tracking (Story 5.5)
     previous_rank: int | None = None  # Rank before last update
+
+    # Sudden Death tracking (Issue #827) - CUMULATIVE, NOT reset in reset_round()
+    eliminated: bool = False  # True once eliminated; stays out for the rest of the game
+    eliminated_round: int | None = None  # Round number the player was eliminated in
+    # #2559 Ghost League: was ein Ausgeschiedener nach seinem Aus noch
+    # zusammenraet. **Bewusst ein eigenes Feld neben `score`** und nicht dessen
+    # Fortschreibung: der #1748-Riegel existiert, damit ein veralteter Client
+    # nicht weiterpunkten kann, und `score` haengt an 45 Stellen im Code. Ein
+    # Geisterpunkt, der dort ankommt, veraendert Rangliste, Sudden-Death-Auswahl
+    # und die gesprochene Ansage — deshalb beruehrt er `score`, `round_scores`,
+    # `streak` und `closest_players` an keiner Stelle.
+    ghost_score: int = 0
+    # Wie viele Runden dieser Geist mitgeraten hat. Nicht ableitbar aus
+    # `eliminated_round`: wer eine Runde aussetzt, spielt sie nicht mit, und die
+    # Best-Ghost-Wertung teilt durch genau diese Zahl.
+    ghost_rounds: int = 0
+    # #2578: im Finale-Stechen sitzen alle Nicht-Fuehrenden eine Runde aus. Das
+    # lief bisher ueber `eliminated`, weil der Scoring-Skip daran haengt — nur
+    # sieht der Fernseher dann sechs Totenkoepfe, obwohl niemand rausgeflogen
+    # ist. Ein eigenes Feld trennt „zaehlt diese Runde nicht" von „ist raus".
+    playoff_spectator: bool = False
+    # #2746: der Gastgeber hat diesen Gast aus dem laufenden Spiel genommen.
+    # Der dritte Fall neben „ist raus" und „sitzt das Stechen aus", und der
+    # einzige, den ein Mensch entschieden hat statt die Spielregeln. Eigenes
+    # Feld, weil der Fernseher die drei unterschiedlich zeigt: kein Totenkopf
+    # fuer jemanden, der gegangen ist, sondern „sitzt aus".
+    sat_out_by_host: bool = False
+    # #2746: dieser Gast hat auf seinem eigenen Handy „wieder rein" getippt,
+    # waehrend eine Runde laeuft. Wirksam wird das erst zur naechsten Runde —
+    # ein Tipp mitten in einer laufenden Runde wuerde gegen einen Song gewertet,
+    # den er nicht von Anfang an gehoert hat.
+    rejoin_requested: bool = False
+    # #2579: die Runde, in der dieser Spieler zuletzt einen Datenfehler gemeldet
+    # hat. Ein Report je Spieler und Runde reicht — der Knopf sitzt neben der
+    # Aufloesung, und ohne Riegel oeffnet jeder weitere Tipp ein weiteres
+    # oeffentliches Issue.
+    reported_round: int | None = None
+
+    def set_connected(self, value: bool, *, now: float | None = None) -> None:
+        """Flip ``connected`` and keep ``disconnected_at`` in step (#2718).
+
+        The single writer for the pair. A going-away transition stamps the
+        clock; a coming-back transition clears it. Re-setting the flag to the
+        value it already has is a no-op for the stamp, so a second
+        ``set_connected(False)`` — the reconnect-rejection path in
+        ``_undo_admin_claim`` reverting a player who was already away — does
+        not restart the clock and hand the host a fresh "just now" for someone
+        who has been gone twenty minutes.
+
+        Args:
+            value: the new ``connected`` state.
+            now: clock override. Defaults to ``time.time`` so it matches
+                ``PlayerRegistry._now``, which reads the stamp back.
+
+        """
+        if value == self.connected:
+            return
+        self.connected = value
+        self.disconnected_at = (
+            None if value else (now if now is not None else time.time())
+        )
+
+    @property
+    def out_of_play(self) -> bool:
+        """Spielt diese Runde nicht mit — egal aus welchem Grund.
+
+        Zwei verschiedene Sachverhalte, die derselben Rechenregel folgen:
+        ``eliminated`` heisst „ist raus und bleibt raus" (Sudden Death, #827),
+        ``playoff_spectator`` heisst „sitzt dieses Stechen aus" (#2578). Fuer
+        die Punktevergabe sind beide gleich; fuer die Anzeige eben nicht, und
+        genau daran ist die alte Loesung gescheitert.
+
+        Seit #2746 kommt ``sat_out_by_host`` dazu: vom Gastgeber aus dem
+        laufenden Spiel genommen. Fuer die Punktevergabe wieder derselbe Fall —
+        die Runde wartet nicht auf ihn —, fuer die Anzeige wieder ein eigener.
+        """
+        return self.eliminated or self.playoff_spectator or self.sat_out_by_host
+
+    # #1752: round number a late joiner entered the game in. None for LOBBY joins
+    # (and after reset_for_new_game). Used to grant a mid-round joiner one grace
+    # round — they are excluded from the Sudden Death elimination candidate pool
+    # for the round they join, since they never played it.
+    joined_round: int | None = None
 
     # Final stats tracking (Story 5.6) - CUMULATIVE, NOT reset in reset_round()
     best_streak: int = 0  # Highest streak achieved during game
@@ -97,13 +195,52 @@ class PlayerSession:
     perfect_pairs: int = 0  # Rounds with both title and artist correct (Perfect Pair)
     near_misses: int = 0  # Count of debated near-miss fields, title + artist (So Close)
 
+    # Streak-Shield tracking (#1666). Granted on a streak milestone, spent by
+    # the next wrong answer INSTEAD of resetting the streak. Cumulative across
+    # rounds — deliberately NOT cleared by reset_round, or it would evaporate
+    # before the round it exists to protect.
+    streak_shield: bool = False  # True while an unspent shield is held
+    streak_shield_used_this_round: bool = False  # Per-round: shield absorbed a miss
+
     # Steal power-up tracking (Story 15.3)
     steal_available: bool = False  # True if steal unlocked and not yet used
     steal_used: bool = False  # True if steal was used this game (max 1 per game)
+    # Comeback Token tracking (Issue #1724) - CUMULATIVE, NOT reset per round.
+    # True once this player has been handed a catch-up steal after the halfway
+    # round, so the grant fires at most once per player per game even if they
+    # stay in the bottom third.
+    comeback_token_granted: bool = False
     stole_from: str | None = None  # Per-round: who was stolen from
     was_stolen_by: list[str] = field(
         default_factory=list
     )  # Per-round: who stole this player's answer
+
+    # Sabotage power-up tracking (Issue #1665) — mirrors the steal token.
+    # The saboteur picks a target; the EFFECT is rolled server-side.
+    sabotage_available: bool = False  # Token in hand, not yet spent
+    sabotage_used: bool = False  # Token spent this game (max 1 per game)
+    sabotaged: str | None = None  # Per-round: whom this player hit
+    # Per-round victim state — set on the TARGET when a sabotage lands.
+    sabotaged_by: str | None = None  # Who hit this player this round
+    sabotage_effect: str | None = None  # Which effect was rolled (SABOTAGE_EFFECTS)
+    # Timer-cut: milliseconds shaved off THIS player's effective round deadline.
+    sabotage_deadline_cut_ms: int = 0
+    # Freeze: this player may not submit until this timestamp (``_now`` units).
+    sabotage_freeze_until: float | None = None
+    # Forced bet: the server forces bet=True on this player's submission.
+    sabotage_forced_bet: bool = False
+
+    @property
+    def player_id(self) -> str:
+        """Stable identifier for this player (alias of ``session_id``).
+
+        Read-only alias introduced for the name-identity refactor (#1664,
+        PR-1). ``session_id`` is already a server-issued, stable UUID; this
+        property simply exposes it under the ``player_id`` name that will
+        become the primary key in later refactor steps. Purely additive — no
+        behaviour change, no new state.
+        """
+        return self.session_id
 
     @property
     def is_active(self) -> bool:
@@ -135,6 +272,10 @@ class PlayerSession:
         self.base_score = 0
         # Reset streak bonus (Story 5.2)
         self.streak_bonus = 0
+        # #1666: only the per-round "did it fire" flag resets. `streak_shield`
+        # itself is cumulative — clearing it here would drop the shield before
+        # the round it exists to protect.
+        self.streak_shield_used_this_round = False
         # Reset artist bonus (Story 20.4)
         self.artist_bonus = 0
         # Reset artist guess tracking (Story 20.9)
@@ -154,6 +295,15 @@ class PlayerSession:
         # Reset per-round steal fields (Story 15.3)
         self.stole_from = None
         self.was_stolen_by = []
+        # Reset per-round sabotage fields (Issue #1665). The token itself
+        # (``sabotage_available`` / ``sabotage_used``) is game-level and
+        # deliberately NOT reset here — one token per player per game.
+        self.sabotaged = None
+        self.sabotaged_by = None
+        self.sabotage_effect = None
+        self.sabotage_deadline_cut_ms = 0
+        self.sabotage_freeze_until = None
+        self.sabotage_forced_bet = False
 
     def unlock_steal(self) -> bool:
         """Unlock steal power-up if not already used. Returns True if newly unlocked."""
@@ -167,6 +317,19 @@ class PlayerSession:
         self.steal_available = False
         self.steal_used = True
         self.stole_from = target_name
+
+    def unlock_sabotage(self) -> bool:
+        """Hand this player a sabotage token (#1665). True if newly unlocked."""
+        if self.sabotage_used or self.sabotage_available:
+            return False
+        self.sabotage_available = True
+        return True
+
+    def consume_sabotage(self, target_name: str) -> None:
+        """Spend the sabotage token against ``target_name`` (#1665)."""
+        self.sabotage_available = False
+        self.sabotage_used = True
+        self.sabotaged = target_name
 
     def reset_for_new_game(self) -> None:
         """Reset all game-level stats for a new game (Story 15.2)."""
@@ -183,6 +346,10 @@ class PlayerSession:
         # Reset round results (Issue #120)
         self.round_results = []
 
+        # Reset the collected row (Issue #2324). Game-level like round_results:
+        # reset_round must NOT touch it, or the row would evaporate every round.
+        self.collection = []
+
         # Reset superlative tracking
         self.submission_times = []
         self.bets_placed = 0
@@ -195,12 +362,38 @@ class PlayerSession:
         self.perfect_pairs = 0
         self.near_misses = 0
 
+        # #1666: a shield must not survive into the next game — it is earned
+        # per game, like the steal token below.
+        self.streak_shield = False
+        self.streak_shield_used_this_round = False
+
         # Reset steal tracking
         self.steal_available = False
         self.steal_used = False
+        # Reset comeback token tracking (Issue #1724)
+        self.comeback_token_granted = False
+        # Reset sabotage tracking (Issue #1665) — the token is per game.
+        self.sabotage_available = False
+        self.sabotage_used = False
 
         # Reset intro mode cumulative tracking (Issue #23)
         self.intro_speed_bonuses = 0
+
+        # Reset Sudden Death state (Issue #827)
+        self.eliminated = False
+        self.eliminated_round = None
+        self.ghost_score = 0
+        self.ghost_rounds = 0
+        self.playoff_spectator = False
+        # #2746: ein neues Spiel holt jeden zurueck, den der Gastgeber im
+        # vorigen herausgenommen hat. Ohne diese Zeile startet er als
+        # Zuschauer in ein Spiel, das er nie gespielt hat.
+        self.sat_out_by_host = False
+        self.rejoin_requested = False
+        self.reported_round = None
+        # #1752: clear late-join grace tracking so a rematch/new game never
+        # grants a carried-over player Sudden Death grace on a stale round number.
+        self.joined_round = None
 
         # Reset movie bonus cumulative tracking (Issue #28)
         self.movie_bonus_total = 0

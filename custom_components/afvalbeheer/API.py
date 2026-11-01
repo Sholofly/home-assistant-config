@@ -5,13 +5,36 @@ from homeassistant.helpers.event import async_track_point_in_utc_time
 from homeassistant.util import dt as dt_util
 from homeassistant.components import persistent_notification
 
-from .const import *
+from .const import (
+    BURGERPORTAAL_COLLECTOR_IDS,
+    CONF_ADDRESS_ID,
+    CONF_CITY_NAME,
+    CONF_CUSTOMER_ID,
+    CONF_CUSTOM_MAPPING,
+    CONF_EMAIL,
+    CONF_PASSWORD,
+    CONF_POSTCODE,
+    CONF_PRINT_AVAILABLE_WASTE_TYPES,
+    CONF_PRINT_AVAILABLE_WASTE_TYPE_SLUGS,
+    CONF_STREET_NAME,
+    CONF_STREET_NUMBER,
+    CONF_SUFFIX,
+    CONF_UPDATE_INTERVAL,
+    CONF_WASTE_COLLECTOR,
+    DEPRECATED_AND_NEW_WASTECOLLECTORS,
+    KLIKOGROEP_COLLECTOR_IDS,
+    LANGUAGE_NL,
+    NOTIFICATION_ID,
+    OPZET_COLLECTOR_URLS,
+    SCHEDULE_UPDATE_INTERVAL,
+    XIMMIO_COLLECTOR_IDS,
+)
 from .translation import resolve_language, text
 from .models import WasteCollectionRepository
 from .collectors import (
     XimmioCollector, BurgerportaalCollector, OpzetCollector, KlikogroepCollector,
     AfvalAlertCollector, AfvalwijzerCollector, AmsterdamCollector, CirculusCollector, CleanprofsCollector,
-    DeAfvalAppCollector, LimburgNetCollector, IradoCollector, MontferlandNetCollector, OmrinCollector,
+    DeAfvalAppCollector, DemoCollector, FrisseKlikoCollector, LimburgNetCollector, IradoCollector, MontferlandNetCollector, OmrinCollector,
     RD4Collector, RecycleApp, ReinisCollector, ROVACollector, StraatbeeldCollector
 )
 
@@ -55,6 +78,7 @@ class WasteData(object):
             "afvalalert": (AfvalAlertCollector, common_args),
             "amsterdam": (AmsterdamCollector, common_args),
             "deafvalapp": (DeAfvalAppCollector, common_args),
+            "demo": (DemoCollector, common_args),
             "circulus": (CirculusCollector, common_args),
             "limburg.net": (LimburgNetCollector, common_args + [self.street_name, self.city_name]),
             "irado": (IradoCollector, common_args),
@@ -64,6 +88,7 @@ class WasteData(object):
             "reinis": (ReinisCollector, common_args),
             "rd4": (RD4Collector, common_args),
             "cleanprofs": (CleanprofsCollector, common_args),
+            "frissekliko": (FrisseKlikoCollector, common_args + [self.street_name]),
             "rova": (ROVACollector, common_args),
             "drimmelen": (StraatbeeldCollector, common_args),
             **{key: (BurgerportaalCollector, common_args) for key in BURGERPORTAAL_COLLECTOR_IDS.keys()},
@@ -90,11 +115,13 @@ class WasteData(object):
 
     async def async_update(self, *_):
         _LOGGER.debug("Performing async update")
-        await self.collector.update()
-        if self.update_interval is not None and self.update_interval != 0:
-            await self.schedule_update(timedelta(hours=self.update_interval))
-        else:
-            await self.schedule_update(SCHEDULE_UPDATE_INTERVAL)
+        try:
+            await self.collector.update()
+        finally:
+            if self.update_interval is not None and self.update_interval != 0:
+                await self.schedule_update(timedelta(hours=self.update_interval))
+            else:
+                await self.schedule_update(SCHEDULE_UPDATE_INTERVAL)
         if self.print_waste_type:
             persistent_notification.create(
                 self.hass,

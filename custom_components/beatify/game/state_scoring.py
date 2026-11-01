@@ -65,6 +65,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+from typing import TYPE_CHECKING
 
 from custom_components.beatify.const import (
     DIFFICULTY_DEFAULT,
@@ -72,12 +73,17 @@ from custom_components.beatify.const import (
     STREAK_MILESTONES,
 )
 
+from .playlist import get_playback_uri
 from .scoring import ScoringService
+from .state_contract import GameStateBase
+
+if TYPE_CHECKING:
+    from .player import PlayerSession
 
 _LOGGER = logging.getLogger(__name__)
 
 
-class RoundScoringMixin:
+class RoundScoringMixin(GameStateBase):
     """Round-scoring & round-stats behavior for :class:`GameState`.
 
     Carries the round-end scoring pass plus highlights / analytics / song-result
@@ -109,7 +115,10 @@ class RoundScoringMixin:
         # resolve) so the leaderboard reflects accepted near-misses without the
         # main loop and the rescore double-counting. With no near-misses the
         # challenge resolves immediately, so scoring here is already final.
-        defer_title_artist = self.title_artist_mode and self.has_near_misses()
+        # #1747: shared predicate with the Sudden Death elimination gate in
+        # _end_round_unlocked so the two paths never disagree on whether scores
+        # are final yet.
+        defer_title_artist = self._title_artist_scoring_deferred()
         if not defer_title_artist:
             self._score_all_players(correct_year, all_players)
 
@@ -157,26 +166,62 @@ class RoundScoringMixin:
         for player in self.players.values():
             try:
                 if title_artist_mode and manager is not None:
-                    player.round_results.append(
-                        manager.title_artist_round_result(player.name)
-                    )
+                    result = manager.title_artist_round_result(player.name)
                 elif player.submitted and player.years_off is not None:
                     if player.years_off == 0:
-                        player.round_results.append("exact")
+                        result = "exact"
                     elif close_range > 0 and player.years_off <= close_range:
-                        player.round_results.append("scored")
+                        result = "scored"
                     elif near_range > 0 and player.years_off <= near_range:
-                        player.round_results.append("close")
+                        result = "close"
                     else:
-                        player.round_results.append("missed")
+                        result = "missed"
                 else:
-                    player.round_results.append("missed")
+                    result = "missed"
+                player.round_results.append(result)
+                self._collect_song(player, result)
             except (AttributeError, TypeError) as err:
                 _LOGGER.error(
                     "round_results append failed for player %s: %s",
                     getattr(player, "name", "?"),
                     err,
                 )
+
+    def _collect_song(self, player: PlayerSession, result: str) -> None:
+        """Pin the playing song to a player's row when they placed it (#2324).
+
+        Shape E of the timeline discussion: the year guess is unchanged and the
+        currency stays points — the row grows *beside* the score instead of
+        replacing it. A song is kept exactly when the round already classified
+        as ``exact`` or ``scored``, i.e. the guess landed inside the
+        difficulty's ``close_range``. Reusing that classification rather than
+        re-deriving a threshold is deliberate: there is one rule for "close
+        enough", not two that can drift apart.
+
+        Title/artist mode never collects. Its classifier returns the same
+        ``exact``/``scored`` strings, so the result alone cannot tell the two
+        modes apart — the guard is ``years_off is not None``, which is set by
+        the year path only. That keeps the rule to one condition instead of
+        threading a mode flag down here.
+        """
+        if result not in ("exact", "scored"):
+            return
+        if player.years_off is None:
+            return
+        song = self.current_song
+        if not song:
+            return
+        year = song.get("year")
+        if not year:
+            return
+        player.collection.append(
+            {
+                "title": song.get("title", "Unknown"),
+                "artist": song.get("artist", "Unknown"),
+                "year": year,
+                "round": self.round,
+            }
+        )
 
     async def _record_round_stats(self, correct_year: int | None) -> None:
         """Record highlights, round analytics and song-result stats (#1272).
@@ -191,8 +236,8 @@ class RoundScoringMixin:
         except (KeyError, AttributeError, TypeError, ValueError) as err:
             _LOGGER.error("Failed to record round highlights: %s", err)
 
-        # Issue #23: Music continues playing through reveal for intro rounds.
-        # No resume needed — _intro_auto_stop no longer pauses playback.
+        # Issue #23 / #3199: an intro round's song is stopped after the intro
+        # by the sample stop; end_round resumes it for the reveal.
 
         # Calculate round analytics after scoring (Story 13.3)
         try:
@@ -211,9 +256,7 @@ class RoundScoringMixin:
         # Extended for song statistics (Story 19.7)
         # Wrapped in try/catch to ensure round transition completes even if stats fail
         if self._stats_service and self.current_song:
-            song_uri = self.current_song.get("_resolved_uri") or self.current_song.get(
-                "uri"
-            )
+            song_uri = get_playback_uri(self.current_song)
             if song_uri:
                 try:
                     # Build player results list for song difficulty calculation
@@ -223,6 +266,9 @@ class RoundScoringMixin:
                             "years_off": p.years_off if p.years_off is not None else 0,
                         }
                         for p in self.players.values()
+                        # #3028: a ghost's years_off is None, not 0 — it must
+                        # not count as an exact answer for the song's difficulty.
+                        if not p.out_of_play
                     ]
                     # Story 19.7: Pass song metadata and playlist info
                     song_metadata = {
@@ -259,7 +305,9 @@ class RoundScoringMixin:
         submitted_players = [
             p
             for p in self.players.values()
-            if p.submitted and p.current_guess is not None
+            # #3028: ghosts keep a frozen streak and may answer fastest — neither
+            # belongs in the highlights of a round they do not play.
+            if p.submitted and p.current_guess is not None and not p.out_of_play
         ]
 
         sorted_players = sorted(self.players.values(), key=lambda p: (-p.score, p.name))

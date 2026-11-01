@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "WashData-instellingen",
-        "description": "Configureer uw wasmachine of ander apparaat.\n\nVermogenssensor is vereist.\n\n**Vervolgens wordt u gevraagd of u uw eerste profiel wilt aanmaken.**",
+        "description": "Stel een wasmachine of ander apparaat in. Een vermogenssensor is vereist.\n\nOpen na de installatie het WashData-paneel via de zijbalk ([/ha-washdata](/ha-washdata)) voor cycli, profielen en alle instellingen.",
         "data": {
           "name": "Apparaatnaam",
           "device_type": "Apparaattype",
@@ -12,22 +12,14 @@
         },
         "data_description": {
           "name": "Een beschrijvende naam voor dit apparaat (bijvoorbeeld 'Wasmachine', 'Vaatwasser').",
-          "device_type": "Welk type apparaat is dit? Helpt bij het op maat maken van detectie en labeling.",
-          "power_sensor": "De sensorentiteit die het realtime energieverbruik (in watt) van uw slimme stekker rapporteert.",
-          "min_power": "Vermogensmetingen boven deze drempel (in watt) geven aan dat het apparaat werkt. Begin met 2W voor de meeste apparaten."
-        }
-      },
-      "first_profile": {
-        "title": "Maak het eerste profiel aan",
-        "description": "Een **Cyclus** is een volledige cyclus van uw apparaat (bijvoorbeeld een lading wasgoed). Een **Profiel** groepeert deze cycli op type (bijvoorbeeld 'Katoen', 'Snelwas'). Door nu een profiel aan te maken, kan de integratieduur direct worden ingeschat.\n\nU kunt dit profiel handmatig selecteren in de apparaatbediening als het niet automatisch wordt gedetecteerd.\n\n**Laat 'Profielnaam' leeg om deze stap over te slaan.**",
-        "data": {
-          "profile_name": "Profielnaam (optioneel)",
-          "manual_duration": "Geschatte duur (minuten)"
+          "device_type": "Stelt de detectiestandaarden in voor dit soort apparaat.",
+          "power_sensor": "De vermogenssensor van de slimme stekker (W of kW), niet de energiemeter (kWh).",
+          "min_power": "Metingen boven deze waarde (in watt) betekenen dat het apparaat draait. 2 W past bij de meeste apparaten."
         }
       },
       "reconfigure": {
         "title": "WashData opnieuw configureren",
-        "description": "Werk de apparaatnaam, het type apparaat of de vermogenssensor bij.",
+        "description": "Wijzig de apparaatnaam, het apparaattype of de vermogenssensor.\n\nAl het andere staat in het WashData-paneel (zijbalk of [/ha-washdata](/ha-washdata)).",
         "data": {
           "name": "Apparaatnaam",
           "device_type": "Apparaattype",
@@ -37,10 +29,9 @@
       }
     },
     "error": {
-      "cannot_connect": "Kan geen verbinding maken",
-      "invalid_auth": "Ongeldige authenticatie",
       "unknown": "Onverwachte fout",
-      "invalid_power": "Vermogensdrempel moet groter zijn dan 0"
+      "invalid_power": "Vermogensdrempel moet groter zijn dan 0",
+      "power_sensor_energy": "Dit is een energiemeter (kWh), geen vermogenssensor. Kies de vermogenssensor van de slimme stekker (W of kW). Heeft de stekker er geen, dan kan een Afgeleide-helper er een maken uit de meter."
     },
     "abort": {
       "already_configured": "Apparaat is al geconfigureerd",
@@ -51,7 +42,7 @@
     "step": {
       "init": {
         "title": "WashData-instellingen",
-        "description": "Alle instellingen -- detectie, overeenkomst, timing, meldingen, profielen en cycli -- zijn beschikbaar in het WashData-paneel. Gebruik dit formulier alleen om de vermogenssensor, het apparaattype of de standbydrempel te wijzigen.",
+        "description": "Geef het apparaat een nieuwe naam of wijzig de basisinstellingen. Al het andere staat in het [WashData-paneel](/ha-washdata) in de zijbalk.",
         "data": {
           "name": "Apparaatnaam",
           "device_type": "Apparaattype",
@@ -64,10 +55,12 @@
       "timer_default_message": "{device}: timer van {minutes} min.",
       "timer_pause_action_title": "Hervat cyclus",
       "timer_pause_body_suffix": "De cyclus is gepauzeerd. Open het WashData-paneel om te hervatten.",
+      "unload_dismiss_action_title": "Stop met herinneren",
       "notify_live_waiting_message": "{device}: nog geen profiel herkend.",
       "vs_typical_longer": "{pct}% langer dan gebruikelijk",
       "vs_typical_shorter": "{pct}% korter dan gebruikelijk",
-      "invalid_power": "Vermogensdrempel moet groter zijn dan 0"
+      "invalid_power": "Vermogensdrempel moet groter zijn dan 0",
+      "power_sensor_energy": "Dit is een energiemeter (kWh), geen vermogenssensor. Kies de vermogenssensor van de slimme stekker (W of kW). Heeft de stekker er geen, dan kan een Afgeleide-helper er een maken uit de meter."
     }
   },
   "selector": {
@@ -77,11 +70,35 @@
         "dryer": "Droger",
         "washer_dryer": "Was-droog combinatie",
         "dishwasher": "Afwasmachine",
-        "air_fryer": "Lucht friteuse",
-        "bread_maker": "Broodbakmachine",
         "pump": "Pomp / Sumppomp",
         "generic": "Anders (geavanceerd)",
         "other": "Drempelapparaat"
+      }
+    },
+    "trigger_cycle_status": {
+      "options": {
+        "any": "Willekeurig",
+        "completed": "Voltooid",
+        "force_stopped": "Geforceerd gestopt",
+        "interrupted": "Onderbroken"
+      }
+    },
+    "trigger_state": {
+      "options": {
+        "off": "Uit",
+        "idle": "Inactief",
+        "starting": "Opstarten",
+        "running": "Actief",
+        "paused": "Gepauzeerd",
+        "user_paused": "Gepauzeerd door gebruiker",
+        "ending": "Eindigen",
+        "finished": "Voltooid",
+        "anti_wrinkle": "Anti-kreuk",
+        "delay_wait": "Wachten om te beginnen",
+        "interrupted": "Onderbroken",
+        "force_stopped": "Geforceerd gestopt",
+        "unknown": "Onbekend",
+        "clean": "Schoon"
       }
     }
   },
@@ -100,7 +117,7 @@
         },
         "profile_name": {
           "name": "Profielnaam",
-          "description": "De naam van een bestaand profiel (maak profielen aan in het menu Profielen beheren). Laat leeg om het label te verwijderen."
+          "description": "Naam van een bestaand profiel (maak profielen aan in het WashData-paneel). Laat leeg om het label te verwijderen."
         }
       }
     },
@@ -150,13 +167,13 @@
         },
         "confidence_threshold": {
           "name": "Betrouwbaarheidsdrempel",
-          "description": "Minimale matchbetrouwbaarheid (0,50-0,95) om labels toe te passen."
+          "description": "Minimale matchbetrouwbaarheid (0,50-0,95) om labels toe te passen. Laat leeg om de instelling \"Auto-label betrouwbaarheid\" van het apparaat te gebruiken."
         }
       }
     },
     "export_config": {
       "name": "Configuratie exporteren",
-      "description": "Exporteer de profielen, cycli en instellingen van dit apparaat naar een JSON-bestand (per apparaat).",
+      "description": "Exporteer de profielen, cycli en instellingen van dit apparaat naar een JSON-bestand.",
       "fields": {
         "device_id": {
           "name": "Apparaat",
@@ -184,7 +201,7 @@
     },
     "submit_cycle_feedback": {
       "name": "Cyclusfeedback indienen",
-      "description": "Bevestig of corrigeer een automatisch gedetecteerd programma na een voltooide cyclus. Geef `entry_id` (geavanceerd) of `device_id` (aanbevolen) op.",
+      "description": "Bevestig of corrigeer het gedetecteerde programma van een voltooide cyclus. Geef `device_id` (aanbevolen) of `entry_id` op.",
       "fields": {
         "device_id": {
           "name": "Apparaat",
@@ -287,6 +304,16 @@
           "description": "Het WashData-apparaat waarvoor modellen hertraind moeten worden."
         }
       }
+    },
+    "mark_unloaded": {
+      "name": "Markeren als uitgeladen",
+      "description": "Bevestig dat de voltooide lading is uitgehaald. Wist de staat \"Schoon\" en een eventuele uitlaadherinnering.",
+      "fields": {
+        "device_id": {
+          "name": "Apparaat",
+          "description": "Het WashData-apparaat waarvan de voltooide lading is uitgehaald."
+        }
+      }
     }
   },
   "entity": {
@@ -296,6 +323,32 @@
       },
       "match_ambiguity": {
         "name": "Match-dubbelzinnigheid"
+      },
+      "maintenance_due": {
+        "name": "Onderhoud nodig",
+        "state": {
+          "on": "Nodig",
+          "off": "Niet nodig"
+        },
+        "state_attributes": {
+          "due_task_ids": {
+            "name": "ID's van openstaande taken"
+          },
+          "due_tasks": {
+            "name": "Openstaande taken",
+            "state": {
+              "descale": "Ontkalken",
+              "filter_clean": "Filter reinigen",
+              "drum_clean": "Trommel reinigen",
+              "bearing_service": "Lageronderhoud",
+              "other": "Overig",
+              "salt": "Zout bijvullen",
+              "rinse_aid": "Glansmiddel bijvullen",
+              "lint_filter": "Pluizenfilter reinigen",
+              "condenser_clean": "Condensor reinigen"
+            }
+          }
+        }
       }
     },
     "sensor": {
@@ -313,10 +366,18 @@
           "anti_wrinkle": "Anti-kreuk",
           "interrupted": "Onderbroken",
           "force_stopped": "Geforceerd gestopt",
-          "rinse": "Spoelen",
           "unknown": "Onbekend",
           "clean": "Schoon",
           "delay_wait": "Wachten om te beginnen"
+        },
+        "state_attributes": {
+          "cycle_anomaly": {
+            "name": "Cyclusafwijking",
+            "state": {
+              "overrun": "Loopt langer",
+              "stalled": "Vastgelopen"
+            }
+          }
         }
       },
       "washer_program": {
@@ -395,6 +456,9 @@
       },
       "record_stop": {
         "name": "Stop cyclusopname"
+      },
+      "mark_unloaded": {
+        "name": "Markeren als uitgeladen"
       }
     }
   },
@@ -443,6 +507,194 @@
     },
     "assign_profile_failed": {
       "message": "Kan profiel niet toewijzen: {error}"
+    }
+  },
+  "device_automation": {
+    "trigger_type": {
+      "cycle_started": "Cyclus gestart",
+      "cycle_finished": "Cyclus voltooid",
+      "cycle_ended": "Cyclus beëindigd (elke reden)",
+      "anti_wrinkle_started": "Anti-kreuk gestart",
+      "cycle_stalled": "Cyclus vastgelopen",
+      "unload_pending": "Uitladen in afwachting",
+      "program_recognised": "Programma herkend",
+      "phase_started": "Fase gestart",
+      "finishing_soon": "Bijna klaar",
+      "cycle_overrun": "Cyclus loopt te lang",
+      "cycle_paused": "Cyclus gepauzeerd",
+      "cycle_resumed": "Cyclus hervat",
+      "still_tumbling": "Trommel draait nog na de cyclus",
+      "unloaded": "Uitgeladen",
+      "state_changed": "Status gewijzigd",
+      "maintenance_due": "Onderhoud vereist",
+      "milestone_reached": "Cyclusmijlpaal bereikt",
+      "pump_stuck": "Pomp vastgelopen"
+    },
+    "extra_fields": {
+      "program": "Programma",
+      "phase": "Fase",
+      "minutes": "Minuten",
+      "percent": "Langer met (%)",
+      "include_detected": "Gedetecteerde pauzes opnemen",
+      "status": "Beëindigd als",
+      "from": "Van",
+      "to": "Naar",
+      "task": "Taak"
+    },
+    "extra_fields_descriptions": {
+      "program": "Alleen dit programma, op exacte naam. Leeg laten voor elk programma.",
+      "phase": "Alleen deze fase, op naam. Leeg laten voor elke fase.",
+      "minutes": "Bijna klaar: resterend minuten. Trommel draait nog: minuten na het einde.",
+      "percent": "Procent boven de gebruikelijke programmauur.",
+      "include_detected": "Activeer ook op pauzes die WashData in het vermogen ziet, zoals weken of vastlopen.",
+      "status": "Alleen cycli die op deze manier eindigden.",
+      "from": "Alleen wijzigingen van deze status. Leeg laten voor elke status.",
+      "to": "Alleen wijzigingen naar deze status. Leeg laten voor elke status.",
+      "task": "Alleen deze taak, op naam of ID. Leeg laten voor elke taak."
+    }
+  },
+  "triggers": {
+    "cycle_started": {
+      "name": "Cyclus gestart",
+      "description": "Wordt geactiveerd wanneer het apparaat een cyclus start."
+    },
+    "program_recognised": {
+      "name": "Programma herkend",
+      "description": "Wordt geactiveerd wanneer WashData het programma van de lopende cyclus herkent of naar een ander programma schakelt.",
+      "fields": {
+        "program": {
+          "name": "Programma",
+          "description": "Alleen dit programma, op exacte naam. Leeg laten voor elk programma."
+        }
+      }
+    },
+    "phase_started": {
+      "name": "Fase gestart",
+      "description": "Wordt geactiveerd wanneer de lopende cyclus een nieuwe fase ingaat.",
+      "fields": {
+        "phase": {
+          "name": "Fase",
+          "description": "Alleen deze fase, op naam. Leeg laten voor elke fase."
+        }
+      }
+    },
+    "finishing_soon": {
+      "name": "Bijna klaar",
+      "description": "Wordt eenmaal per cyclus geactiveerd wanneer de resterende tijd voor het eerst tot dit aantal minuten daalt.",
+      "fields": {
+        "minutes": {
+          "name": "Resterende minuten",
+          "description": "Activeer wanneer nog zoveel minuten of minder resterend zijn."
+        }
+      }
+    },
+    "cycle_overrun": {
+      "name": "Cyclus loopt te lang",
+      "description": "Wordt eenmaal per cyclus geactiveerd wanneer hij zoveel langer loopt dan het programma normaal duurt.",
+      "fields": {
+        "percent": {
+          "name": "Langer met",
+          "description": "Procent boven de gebruikelijke programmauur."
+        }
+      }
+    },
+    "cycle_paused": {
+      "name": "Cyclus gepauzeerd",
+      "description": "Wordt geactiveerd wanneer u een cyclus pauzeert, en optioneel wanneer het apparaat zelf pauzeert.",
+      "fields": {
+        "include_detected": {
+          "name": "Gedetecteerde pauzes opnemen",
+          "description": "Activeer ook op pauzes die WashData in het vermogen ziet, zoals weken of vastlopen, niet alleen op pauzes die u start."
+        }
+      }
+    },
+    "cycle_resumed": {
+      "name": "Cyclus hervat",
+      "description": "Wordt geactiveerd wanneer een gepauzeerde cyclus verdergaat.",
+      "fields": {
+        "include_detected": {
+          "name": "Gedetecteerde pauzes opnemen",
+          "description": "Activeer ook op pauzes die WashData in het vermogen ziet, zoals weken of vastlopen, niet alleen op pauzes die u start."
+        }
+      }
+    },
+    "cycle_stalled": {
+      "name": "Cyclus vastgelopen",
+      "description": "Wordt geactiveerd wanneer een lopende cyclus stilstaat op een laag, vlak vermogensniveau."
+    },
+    "cycle_finished": {
+      "name": "Cyclus voltooid",
+      "description": "Wordt geactiveerd wanneer een cyclus eindigt, ook wanneer u hem stopt. Niet bij een valse start.",
+      "fields": {
+        "program": {
+          "name": "Programma",
+          "description": "Alleen dit programma, op exacte naam. Leeg laten voor elk programma."
+        }
+      }
+    },
+    "cycle_ended": {
+      "name": "Cyclus beëindigd (elke reden)",
+      "description": "Wordt geactiveerd wanneer een cyclus om welke reden dan ook eindigt, ook valse starts.",
+      "fields": {
+        "status": {
+          "name": "Beëindigd als",
+          "description": "Alleen cycli die op deze manier eindigden."
+        }
+      }
+    },
+    "anti_wrinkle_started": {
+      "name": "Anti-kreuk gestart",
+      "description": "Wordt geactiveerd wanneer het apparaat de afgewerkte lading in de trommel beweegt tegen kreukels."
+    },
+    "still_tumbling": {
+      "name": "Trommel draait nog na de cyclus",
+      "description": "Wordt eenmaal geactiveerd wanneer de trommel van het apparaat nog in korte stoten draait, dit aantal minuten na het einde van de cyclus. Stopt bij een nieuwe cyclus of 4 uur na het einde.",
+      "fields": {
+        "minutes": {
+          "name": "Minuten na het einde",
+          "description": "Activeer bij de eerste trommelbeweging minstens zo lang na het einde."
+        }
+      }
+    },
+    "unload_pending": {
+      "name": "Uitladen in afwachting",
+      "description": "Wordt geactiveerd wanneer een cyclus klaar is en de lading nog binnen is."
+    },
+    "unloaded": {
+      "name": "Uitgeladen",
+      "description": "Wordt geactiveerd wanneer de lading na een cyclus wordt uitgehaald: de deur is geopend of het uitladen is bevestigd."
+    },
+    "state_changed": {
+      "name": "Status gewijzigd",
+      "description": "Wordt geactiveerd wanneer de WashData-status wijzigt.",
+      "fields": {
+        "from": {
+          "name": "Van",
+          "description": "Alleen wijzigingen van deze status. Leeg laten voor elke status."
+        },
+        "to": {
+          "name": "Naar",
+          "description": "Alleen wijzigingen naar deze status. Leeg laten voor elke status."
+        }
+      }
+    },
+    "maintenance_due": {
+      "name": "Onderhoud vereist",
+      "description": "Wordt geactiveerd wanneer een onderhoudstaak verschuldigd is.",
+      "fields": {
+        "task": {
+          "name": "Taak",
+          "description": "Alleen deze taak, op naam of ID. Leeg laten voor elke taak."
+        }
+      }
+    },
+    "milestone_reached": {
+      "name": "Cyclusmijlpaal bereikt",
+      "description": "Wordt geactiveerd wanneer het totale cyclustelling een van de voor meldingen ingestelde mijlpalen bereikt."
+    },
+    "pump_stuck": {
+      "name": "Pomp vastgelopen",
+      "description": "Wordt geactiveerd wanneer een pomp langer loopt dan zijn vastlooplimiet."
     }
   }
 }

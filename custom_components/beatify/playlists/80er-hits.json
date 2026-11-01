@@ -1,6 +1,6 @@
 {
   "name": "80s Hits",
-  "version": "2.8",
+  "version": "2.29",
   "tags": [
     "1980s",
     "pop",
@@ -8,176 +8,6 @@
     "international"
   ],
   "songs": [
-    {
-      "year": 1975,
-      "uri": "spotify:track:6COzABVCHQzyvc3rTMtrXn",
-      "artist": "Marianne Rosenberg",
-      "alt_artists": [
-        "Nicole",
-        "Mary Roos"
-      ],
-      "title": "Er gehört zu mir",
-      "chart_info": {},
-      "certifications": [
-        "Gold (DE)"
-      ],
-      "awards": [],
-      "fun_fact": "Marianne Rosenberg's 1975 Schlager hit experienced a major revival in the 80s and has remained a German classic. Her powerful voice and emotional delivery made her one of Germany's most beloved singers.",
-      "fun_fact_de": "Marianne Rosenbergs Schlager-Hit von 1975 erlebte in den 80ern ein großes Revival und ist ein deutscher Klassiker geblieben. Ihre kraftvolle Stimme machte sie zu einer der beliebtesten Sängerinnen Deutschlands.",
-      "fun_fact_es": "El éxito Schlager de Marianne Rosenberg de 1975 experimentó un gran renacimiento en los 80 y sigue siendo un clásico alemán. Su poderosa voz la convirtió en una de las cantantes más queridas de Alemania.",
-      "fun_fact_fr": "Le tube Schlager de Marianne Rosenberg, sorti en 1975, a connu un formidable regain de popularité dans les années 80 et reste un classique incontournable en Allemagne. Sa voix puissante et son interprétation pleine d'émotion ont fait d'elle l'une des chanteuses les plus adorées du pays.",
-      "uri_apple_music": "applemusic://track/253845195",
-      "uri_youtube_music": "https://music.youtube.com/watch?v=s3EMTAr-UBY",
-      "uri_tidal": "tidal://track/22371988",
-      "uri_deezer": "deezer://track/2312569",
-      "fun_fact_nl": "Marianne Rosenbergs Schlager-hit uit 1975 beleefde een grote revival in de jaren 80 en is een Duits klassiek nummer gebleven. Haar krachtige stem en emotionele zang maakten haar een van Duitslands meest geliefde zangeressen.",
-      "awards_nl": [],
-      "isrc": "DEC737500013",
-      "uri_apple_music_by_region": {
-        "us": "applemusic://track/1626938161",
-        "de": "applemusic://track/1308496247",
-        "gb": "applemusic://track/1308496247",
-        "fr": "applemusic://track/1308496247",
-        "es": "applemusic://track/1308496247",
-        "nl": "applemusic://track/1308496247",
-        "it": "applemusic://track/1308496247"
-      }
-    },
-    {
-      "year": 1978,
-      "uri": "spotify:track:69G2bqmdxqFxOBj4mkvYQt",
-      "artist": "Kraftwerk",
-      "title": "Die Roboter",
-      "alt_artists": [
-        "Tangerine Dream",
-        "Jean-Michel Jarre"
-      ],
-      "certifications": [],
-      "fun_fact": "Kraftwerk built actual robot replicas of themselves that could perform on stage, bringing the song's concept to life in their concerts.",
-      "fun_fact_de": "Kraftwerk bauten echte Roboter-Nachbildungen von sich selbst, die auf der Bühne auftreten konnten, und erweckten so das Konzept des Songs in ihren Konzerten zum Leben.",
-      "fun_fact_es": "Kraftwerk construyó réplicas robot reales de sí mismos que podían actuar en el escenario, dando vida al concepto de la canción en sus conciertos.",
-      "fun_fact_fr": "Kraftwerk a construit de véritables répliques robotiques d'eux-mêmes capables de se produire sur scène, donnant vie au concept de la chanson lors de leurs concerts.",
-      "chart_info": {},
-      "awards": [],
-      "uri_youtube_music": "https://music.youtube.com/watch?v=9plTe80SosA",
-      "uri_tidal": "tidal://track/11210159",
-      "uri_deezer": "deezer://track/13473869",
-      "fun_fact_nl": "Kraftwerk liet echte robotreplica's van zichzelf bouwen die op het podium konden optreden, waarmee ze het concept van het nummer tot leven brachten tijdens concerten.",
-      "awards_nl": []
-    },
-    {
-      "year": 1978,
-      "uri": "spotify:track:5xf5uP70cZB1YPHS52IMex",
-      "artist": "Kraftwerk",
-      "title": "Das Model",
-      "alt_artists": [
-        "Tangerine Dream",
-        "Depeche Mode"
-      ],
-      "certifications": [
-        "Gold (UK)"
-      ],
-      "fun_fact": "Originally released in 1978, 'Das Modell' reached #1 in the UK in 1982 when it was re-released as a B-side that became more popular than the A-side 'Computer Love'.",
-      "fun_fact_de": "'Das Modell' wurde 1978 veröffentlicht und erreichte 1982 #1 in Großbritannien, als es als B-Seite wiederveröffentlicht wurde, die populärer als die A-Seite 'Computerlove' wurde.",
-      "fun_fact_es": "Originalmente lanzada en 1978, 'Das Modell' alcanzó el #1 en el Reino Unido en 1982 cuando se relanzó como cara B que se volvió más popular que la cara A 'Computer Love'.",
-      "fun_fact_fr": "Sorti à l'origine en 1978, 'Das Modell' a atteint le #1 au Royaume-Uni en 1982 lors de sa ressortie en face B, devenue plus populaire que la face A 'Computer Love'.",
-      "chart_info": {},
-      "awards": [],
-      "uri_apple_music": "applemusic://track/693113326",
-      "uri_youtube_music": "https://music.youtube.com/watch?v=qCFIRjycV5Q",
-      "uri_tidal": "tidal://track/11210162",
-      "uri_deezer": "deezer://track/1006803652",
-      "fun_fact_nl": "Oorspronkelijk uitgebracht in 1978, bereikte 'Das Modell' de nummer 1 in het VK in 1982 toen het opnieuw werd uitgebracht als B-kant die populairder werd dan de A-kant 'Computer Love'.",
-      "awards_nl": [],
-      "isrc": "USCA20903078",
-      "uri_apple_music_by_region": {
-        "us": "applemusic://track/693113326",
-        "de": "applemusic://track/693113326",
-        "gb": "applemusic://track/693113326",
-        "fr": "applemusic://track/693113326",
-        "es": "applemusic://track/693113326",
-        "nl": "applemusic://track/693113326",
-        "it": "applemusic://track/693113326"
-      }
-    },
-    {
-      "year": 1979,
-      "uri": "spotify:track:6xdLJrVj4vIXwhuG8TMopk",
-      "artist": "Queen",
-      "alt_artists": [
-        "David Bowie",
-        "Elton John"
-      ],
-      "title": "Crazy Little Thing Called Love - Remastered 2011",
-      "chart_info": {
-        "billboard_peak": 1,
-        "uk_peak": 2,
-        "weeks_on_chart": 22
-      },
-      "certifications": [
-        "2x Platinum (US)",
-        "Gold (UK)"
-      ],
-      "awards": [],
-      "fun_fact": "Freddie Mercury wrote this rockabilly tribute to Elvis Presley in just 10 minutes while taking a bath. He deliberately played rhythm guitar on the track despite not considering himself a guitarist.",
-      "fun_fact_de": "Freddie Mercury schrieb diese Rockabilly-Hommage an Elvis Presley in nur 10 Minuten, während er badete. Er spielte absichtlich Rhythmusgitarre, obwohl er sich nicht als Gitarrist betrachtete.",
-      "fun_fact_es": "Freddie Mercury escribió este tributo rockabilly a Elvis Presley en solo 10 minutos mientras se bañaba. Deliberadamente tocó guitarra rítmica aunque no se consideraba guitarrista.",
-      "fun_fact_fr": "Freddie Mercury a composé cet hommage rockabilly à Elvis Presley en à peine 10 minutes... dans son bain ! Il a tenu à jouer la guitare rythmique sur le morceau, alors qu'il ne se considérait pas du tout comme guitariste.",
-      "uri_apple_music": "applemusic://track/1440650739",
-      "uri_youtube_music": "https://music.youtube.com/watch?v=zO6D_BAuYCI",
-      "uri_tidal": "tidal://track/21844148",
-      "uri_deezer": "deezer://track/67503800",
-      "fun_fact_nl": "Freddie Mercury schreef dit rockabilly-eerbetoon aan Elvis Presley in slechts 10 minuten tijdens het baden. Hij speelde bewust ritmegitaar op het nummer, ondanks dat hij zichzelf geen gitarist vond.",
-      "awards_nl": [],
-      "isrc": "GBUM71029612",
-      "uri_apple_music_by_region": {
-        "us": "applemusic://track/1824266111",
-        "de": "applemusic://track/1824266111",
-        "gb": "applemusic://track/1824266111",
-        "fr": "applemusic://track/1824266111",
-        "es": "applemusic://track/1824266111",
-        "nl": "applemusic://track/1824266111",
-        "it": "applemusic://track/1824266111"
-      }
-    },
-    {
-      "year": 1979,
-      "uri": "spotify:track:0C2eEsMBj78CLkHNJPjohc",
-      "artist": "The Cure",
-      "alt_artists": [
-        "The Smiths",
-        "Echo & the Bunnymen"
-      ],
-      "title": "Boys Don't Cry",
-      "chart_info": {
-        "billboard_peak": 98,
-        "uk_peak": 22
-      },
-      "certifications": [
-        "Gold (UK)"
-      ],
-      "awards": [],
-      "fun_fact": "The Cure's Robert Smith wrote this about a real breakup. Initially released as their debut single, it flopped. The re-recorded version in 1980 finally brought them attention and defined their early sound.",
-      "fun_fact_de": "The Cures Robert Smith schrieb dies über eine echte Trennung. Als Debütsingle veröffentlicht, floppte es zunächst. Die neu aufgenommene Version von 1980 brachte endlich Aufmerksamkeit.",
-      "fun_fact_es": "Robert Smith de The Cure escribió esto sobre una ruptura real. Lanzada como su sencillo debut, fracasó inicialmente. La versión regrabada de 1980 finalmente les trajo atención.",
-      "fun_fact_fr": "Robert Smith de The Cure a écrit ce titre après une vraie rupture amoureuse. Sorti comme premier single du groupe, c'est un flop total. La version réenregistrée en 1980 leur apporte enfin la reconnaissance et définit leur son des débuts.",
-      "uri_apple_music": "applemusic://track/1288102522",
-      "uri_youtube_music": "https://music.youtube.com/watch?v=9GkVhgIeGJQ",
-      "uri_tidal": "tidal://track/529738",
-      "uri_deezer": "deezer://track/1143625",
-      "fun_fact_nl": "The Cures Robert Smith schreef dit over een echte breuk. Aanvankelijk uitgebracht als hun debuutsingle was het een flop. De opnieuw opgenomen versie in 1980 bracht hen eindelijk aandacht en definieerde hun vroege geluid.",
-      "awards_nl": [],
-      "isrc": "GBALB7800001",
-      "uri_apple_music_by_region": {
-        "us": "applemusic://track/1828951986",
-        "de": "applemusic://track/1760818997",
-        "gb": "applemusic://track/1760818997",
-        "fr": "applemusic://track/1760818997",
-        "es": "applemusic://track/1760818997",
-        "nl": "applemusic://track/1760818997",
-        "it": "applemusic://track/1760818997"
-      }
-    },
     {
       "year": 1980,
       "uri": "spotify:track:3SnGymj6ijE2iuUfWxLo1q",
@@ -214,7 +44,8 @@
         "es": "applemusic://track/1581879147",
         "nl": "applemusic://track/1581879147",
         "it": "applemusic://track/1581879147"
-      }
+      },
+      "uri_tidal": "tidal://track/77637963"
     },
     {
       "year": 1980,
@@ -248,12 +79,12 @@
       "isrc": "GBUM71029605",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1440650719",
-        "de": "applemusic://track/1441571446",
-        "gb": "applemusic://track/1441571446",
-        "fr": "applemusic://track/1441571446",
-        "es": "applemusic://track/1441571446",
-        "nl": "applemusic://track/1441571446",
-        "it": "applemusic://track/1441571446"
+        "de": "applemusic://track/6781080305",
+        "gb": "applemusic://track/6781027662",
+        "fr": "applemusic://track/6781080305",
+        "es": "applemusic://track/6781027662",
+        "nl": "applemusic://track/6781075748",
+        "it": "applemusic://track/6781076397"
       }
     },
     {
@@ -272,13 +103,13 @@
       "fun_fact_de": "'Vienna' wurde vom UK-#1-Platz durch Joe Dolces 'Shaddap You Face' verdrängt und gilt oft als der größte Song, der nie die Nummer eins in Großbritannien erreichte.",
       "fun_fact_es": "Famosamente impedida de llegar al #1 del Reino Unido por 'Shaddap You Face' de Joe Dolce, 'Vienna' es citada como la mejor canción que nunca llegó al número uno.",
       "fun_fact_fr": "Célèbrement empêchée d'atteindre le #1 au Royaume-Uni par 'Shaddap You Face' de Joe Dolce, 'Vienna' est souvent citée comme la plus grande chanson à n'avoir jamais atteint la première place.",
-      "chart_info": {},
       "awards": [],
       "uri_youtube_music": "https://music.youtube.com/watch?v=2biSdr0uuo0",
       "uri_tidal": "tidal://track/234636699",
       "uri_deezer": "deezer://track/1787693427",
       "fun_fact_nl": "Beroemd van de VK nummer 1 plek gehouden door Joe Dolce's 'Shaddap You Face', wordt Vienna vaak aangehaald als het grootste nummer dat nooit de nummer 1 positie in het VK bereikte.",
-      "awards_nl": []
+      "awards_nl": [],
+      "uri_apple_music": "applemusic://track/1630208751"
     },
     {
       "year": 1981,
@@ -332,13 +163,13 @@
       "fun_fact_de": "Vom Album 'Abacab' war dies einer der ersten Genesis-Songs, die Phil Collins' Pop-Sensibilität statt der Progressive-Rock-Wurzeln der Band widerspiegelten.",
       "fun_fact_es": "Del álbum 'Abacab', esta fue una de las primeras canciones de Genesis en reflejar la sensibilidad pop de Phil Collins en lugar de las raíces de rock progresivo.",
       "fun_fact_fr": "De l'album 'Abacab', c'était l'une des premières chansons de Genesis à refléter la sensibilité pop de Phil Collins plutôt que les racines rock progressif du groupe.",
-      "chart_info": {},
       "awards": [],
       "uri_youtube_music": "https://music.youtube.com/watch?v=H5O9I7F83io",
       "uri_tidal": "tidal://track/35096249",
       "uri_deezer": "deezer://track/14640464",
       "fun_fact_nl": "Van het album 'Abacab' was dit een van de eerste Genesis-nummers die Phil Collins' popsensibiliteit weerspiegelden in plaats van de progressieve rockwortels van de band.",
-      "awards_nl": []
+      "awards_nl": [],
+      "uri_apple_music": "applemusic://track/1472171998"
     },
     {
       "year": 1981,
@@ -376,7 +207,8 @@
         "es": "applemusic://track/310527535",
         "nl": "applemusic://track/310527535",
         "it": "applemusic://track/310527535"
-      }
+      },
+      "uri_tidal": "tidal://track/2772257"
     },
     {
       "year": 1981,
@@ -394,7 +226,6 @@
       "fun_fact_de": "Von Kims Vater Marty Wilde und Bruder Ricky geschrieben, wurde der Song aufgenommen, als Kim erst 20 war und noch nie in Amerika gewesen war.",
       "fun_fact_es": "Escrita por el padre de Kim, Marty Wilde, y su hermano Ricky, la canción fue grabada cuando Kim tenía solo 20 años y nunca había estado en América.",
       "fun_fact_fr": "Écrite par le père de Kim, Marty Wilde, et son frère Ricky, la chanson a été enregistrée quand Kim avait 20 ans et n'était jamais allée en Amérique.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/1764365427",
       "uri_youtube_music": "https://music.youtube.com/watch?v=8BYKpQ_6GbM",
@@ -509,7 +340,6 @@
       "fun_fact_de": "Dies war OMDs größter internationaler Hit, der in Deutschland mehrere Wochen lang #1 war. Es war die meistverkaufte Single in Deutschland 1982.",
       "fun_fact_es": "Este fue el mayor éxito internacional de OMD, alcanzando el #1 en Alemania durante varias semanas. Fue el sencillo más vendido en Alemania en 1982.",
       "fun_fact_fr": "C'était le plus grand succès international d'OMD, atteignant le #1 en Allemagne pendant plusieurs semaines. C'était le single le plus vendu en Allemagne en 1982.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/714551834",
       "uri_youtube_music": "https://music.youtube.com/watch?v=vmwMhjbThKg",
@@ -605,7 +435,8 @@
         "es": "applemusic://track/1794229794",
         "nl": "applemusic://track/1794229794",
         "it": "applemusic://track/1794229794"
-      }
+      },
+      "uri_tidal": "tidal://track/107691286"
     },
     {
       "year": 1982,
@@ -659,7 +490,6 @@
       "fun_fact_de": "Inspiriert von der griechischen Mythologie über Charon, den Fährmann der Toten, wurde der Song ein weltweiter Hit und etablierte Chris de Burgh als internationalen Künstler.",
       "fun_fact_es": "Inspirada en la mitología griega sobre Caronte, el barquero de los muertos, la canción se convirtió en un éxito mundial y estableció a Chris de Burgh como artista internacional.",
       "fun_fact_fr": "Inspirée par la mythologie grecque sur Charon, le passeur des morts, la chanson est devenue un succès mondial et a établi Chris de Burgh comme artiste international.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/1435501318",
       "uri_youtube_music": "https://music.youtube.com/watch?v=pwEMfLjxq8M",
@@ -732,7 +562,6 @@
       "fun_fact_de": "Zunächst ein Flop, wurde der Song nach dem Erfolg von 'Sweet Dreams' wiederveröffentlicht und kletterte auf #6 in Großbritannien. Annie Lennox' androgynes Image im Video war bahnbrechend.",
       "fun_fact_es": "Inicialmente un fracaso, la canción fue relanzada después del éxito de 'Sweet Dreams' y subió al #6 en el Reino Unido. La imagen andrógina de Annie Lennox en el video fue revolucionaria.",
       "fun_fact_fr": "D'abord un flop, la chanson a été rééditée après le succès de 'Sweet Dreams' et a grimpé à la 6e place au Royaume-Uni. L'image androgyne d'Annie Lennox dans le clip était révolutionnaire.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/207056862",
       "uri_youtube_music": "https://music.youtube.com/watch?v=o6f593X6rv8",
@@ -763,7 +592,7 @@
       "chart_info": {
         "billboard_peak": 72,
         "uk_peak": 92,
-        "at_peak": 1
+        "austrian_peak": 1
       },
       "certifications": [
         "Gold (DE)",
@@ -800,7 +629,6 @@
         "Modern Talking"
       ],
       "title": "Sternenhimmel",
-      "chart_info": {},
       "certifications": [
         "Gold (DE)"
       ],
@@ -842,7 +670,6 @@
       "fun_fact_de": "Von Suggs über sein Elternhaus in Camden Town geschrieben, erreichte der Song #7 in den USA und wurde Madness' international bekanntester Track.",
       "fun_fact_es": "Escrita por Suggs sobre su hogar de infancia en Camden Town, la canción alcanzó el #7 en EE.UU. y se convirtió en la canción más reconocida internacionalmente de Madness.",
       "fun_fact_fr": "Écrite par Suggs sur sa maison d'enfance à Camden Town, la chanson a atteint la 7e place aux États-Unis et est devenue le titre le plus reconnu internationalement de Madness.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/1442866180",
       "uri_youtube_music": "https://music.youtube.com/watch?v=KwIe_sjKeAY",
@@ -853,12 +680,12 @@
       "isrc": "USGF18200301",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1442963585",
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
+        "de": "applemusic://track/1827526574",
+        "gb": "applemusic://track/1777028455",
+        "fr": "applemusic://track/1827526574",
+        "es": "applemusic://track/1780335642",
+        "nl": "applemusic://track/1827526574",
+        "it": "applemusic://track/1827526574"
       }
     },
     {
@@ -877,7 +704,6 @@
       "fun_fact_de": "Der Song war ein Protest gegen Türsteher, die Leute nicht Pogo tanzen ließen. Das mittelalterliche Video hat keinen Bezug zur eigentlichen Bedeutung des Songs.",
       "fun_fact_es": "La canción fue escrita como protesta contra los porteros que no dejaban bailar pogo en los clubs. El video de temática medieval no tiene conexión con el significado real.",
       "fun_fact_fr": "La chanson a été écrite pour protester contre les videurs qui interdisaient le pogo dans les clubs. Le clip à thème médiéval n'a aucun rapport avec le sens réel de la chanson.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/1479631804",
       "uri_youtube_music": "https://music.youtube.com/watch?v=nM4okRvCg2g",
@@ -888,12 +714,12 @@
       "isrc": "USUM71918013",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1479631804",
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
+        "de": "applemusic://track/374486510",
+        "gb": "applemusic://track/374486510",
+        "fr": "applemusic://track/374486510",
+        "es": "applemusic://track/374486510",
+        "nl": "applemusic://track/374486510",
+        "it": "applemusic://track/374486510"
       }
     },
     {
@@ -934,6 +760,18 @@
       "awards_nl": [
         "Grammy Award voor Opname van het Jaar (1984)",
         "Grammy Award voor Beste Mannelijke Rock Zangprestatie (1984)"
+      ],
+      "awards_it": [
+        "Grammy per il disco dell'anno (1984)",
+        "Grammy per la migliore interpretazione vocale rock maschile (1984)"
+      ],
+      "awards_de": [
+        "Grammy - Aufnahme des Jahres (1984)",
+        "Grammy - Beste männliche Rock-Gesangsdarbietung (1984)"
+      ],
+      "awards_es": [
+        "Grammy - Grabación del Año (1984)",
+        "Grammy - Mejor Interpretación Vocal Rock Masculina (1984)"
       ],
       "isrc": "USSM18200197",
       "uri_apple_music_by_region": {
@@ -981,6 +819,15 @@
       "fun_fact_nl": "Michael Jackson schreef dit nummer onderweg naar huis, zo verdiept dat hij niet merkte dat zijn auto vlam had gevat. De beroemde baslijn vergde 91 takes om te perfectioneren. Jackson debuteerde de moonwalk tijdens een tv-optreden van dit nummer.",
       "awards_nl": [
         "Grammy Award voor Beste Mannelijke R&B Zangprestatie (1984)"
+      ],
+      "awards_it": [
+        "Grammy per la migliore interpretazione vocale R&B maschile (1984)"
+      ],
+      "awards_de": [
+        "Grammy - Beste männliche R&B-Gesangsdarbietung (1984)"
+      ],
+      "awards_es": [
+        "Grammy - Mejor Interpretación Vocal R&B Masculina (1984)"
       ],
       "isrc": "USSM19902991",
       "uri_apple_music_by_region": {
@@ -1109,7 +956,8 @@
         "es": "applemusic://track/1084058324",
         "nl": "applemusic://track/1084058324",
         "it": "applemusic://track/1084058324"
-      }
+      },
+      "uri_tidal": "tidal://track/68665882"
     },
     {
       "year": 1982,
@@ -1164,7 +1012,6 @@
       "fun_fact_de": "Der Song wurde wieder populär, nachdem Bill Murray ihn in Sofia Coppolas 'Lost in Translation' (2003) als Karaoke gesungen hatte.",
       "fun_fact_es": "La canción ganó popularidad renovada después de que Bill Murray la cantara en karaoke en 'Lost in Translation' de Sofia Coppola (2003).",
       "fun_fact_fr": "La chanson a gagné en popularité après que Bill Murray l'a chantée en karaoké dans 'Lost in Translation' de Sofia Coppola (2003).",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/723876319",
       "uri_youtube_music": "https://music.youtube.com/watch?v=kOnde5c7OG8",
@@ -1259,6 +1106,15 @@
       "awards_nl": [
         "Grammy Award voor Beste Rockprestatie door Duo of Groep (1983)"
       ],
+      "awards_it": [
+        "Grammy per la migliore interpretazione rock di un duo o gruppo (1983)"
+      ],
+      "awards_de": [
+        "Grammy - Beste Rock-Darbietung eines Duos oder einer Gruppe (1983)"
+      ],
+      "awards_es": [
+        "Grammy - Mejor Interpretación Rock de Dúo o Grupo (1983)"
+      ],
       "isrc": "USVR19300001",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1635636757",
@@ -1324,7 +1180,6 @@
       "fun_fact_de": "Gary Jules' reduziertes Cover wurde 2003 nach 'Donnie Darko' die UK-Weihnachts-#1, aber die originale Synth-Version fängt den ängstlichen Geist der frühen 80er ein.",
       "fun_fact_es": "La versión minimalista de Gary Jules se convirtió en el #1 navideño del Reino Unido en 2003 tras 'Donnie Darko', pero la versión original de sintetizador captura el espíritu ansioso de los 80.",
       "fun_fact_fr": "La version dépouillée de Gary Jules est devenue le #1 de Noël au Royaume-Uni en 2003 après 'Donnie Darko', mais la version originale aux synthés capture l'esprit anxieux du début des années 80.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/1440912607",
       "uri_youtube_music": "https://music.youtube.com/watch?v=u1ZvPSpLxCg",
@@ -1458,6 +1313,15 @@
       "awards_nl": [
         "Grammy Award voor Opname van het Jaar (1983)"
       ],
+      "awards_it": [
+        "Grammy per il disco dell'anno (1983)"
+      ],
+      "awards_de": [
+        "Grammy - Aufnahme des Jahres (1983)"
+      ],
+      "awards_es": [
+        "Grammy - Grabación del Año (1983)"
+      ],
       "isrc": "USSM18200245",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/318675271",
@@ -1485,7 +1349,6 @@
       "fun_fact_de": "Der Titel wurde vom französischen Horrorfilm 'Les Yeux sans Visage' von 1960 inspiriert. Die französischen Texte im Refrain wurden von Perri Lister, Idols damaliger Freundin, gesungen.",
       "fun_fact_es": "El título fue inspirado por la película de terror francesa de 1960 'Les Yeux sans Visage'. Las letras en francés del coro fueron cantadas por Perri Lister, novia de Idol.",
       "fun_fact_fr": "Le titre est inspiré du film d'horreur français de 1960 'Les Yeux sans Visage'. Les paroles en français du refrain étaient chantées par Perri Lister, la petite amie d'Idol à l'époque.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/1440902027",
       "uri_youtube_music": "https://music.youtube.com/watch?v=9OFpfTd0EIs",
@@ -1718,7 +1581,6 @@
       "fun_fact_de": "Die anti-korporativen Texte über 'greifende Hände' wurden ironischerweise geschrieben, als die Band bei einem Major-Label war. Live wurde er zum Fan-Favorit mit Publikumsbeteiligung.",
       "fun_fact_es": "Las letras anti-corporativas sobre 'manos que agarran' fueron escritas irónicamente mientras la banda estaba en un sello discográfico grande. Se convirtió en favorita del público en vivo.",
       "fun_fact_fr": "Les paroles anti-corporatives sur les 'mains avides' ont été ironiquement écrites alors que le groupe était signé sur un label majeur. C'est devenu un favori du public en concert.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/1174248189",
       "uri_youtube_music": "https://music.youtube.com/watch?v=1t-gK-9EIq4",
@@ -1910,7 +1772,6 @@
       "fun_fact_de": "Phil Collins' unheimliches Lachen im Song wurde mit dem Gated-Reverb-Effekt einer Roland CR-78 Drum Machine erzeugt und wurde zu einem der bekanntesten Intros der 80er.",
       "fun_fact_es": "La risa siniestra de Phil Collins fue creada usando el efecto de reverberación del Roland CR-78, convirtiéndose en una de las intros más reconocibles de los 80.",
       "fun_fact_fr": "Le rire sinistre de Phil Collins a été créé à l'aide de l'effet de réverbération d'une boîte à rythmes Roland CR-78, devenant l'une des intros les plus reconnaissables des années 80.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/267976217",
       "uri_youtube_music": "https://music.youtube.com/watch?v=7lXH0nwirio",
@@ -1943,7 +1804,6 @@
       "fun_fact_de": "Der Song zeigt die kraftvolle Stimme von Carol Kenyon. Eine Remix-Version erreichte 1992 #4 in Großbritannien, fast ein Jahrzehnt nach der Erstveröffentlichung.",
       "fun_fact_es": "La canción presenta las poderosas voces de Carol Kenyon. Una versión remezclada alcanzó el #4 en el Reino Unido en 1992, casi una década después del lanzamiento original.",
       "fun_fact_fr": "La chanson présente les puissantes voix de Carol Kenyon. Une version remixée a atteint la 4e place au Royaume-Uni en 1992, près d'une décennie après la sortie originale.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/884131203",
       "uri_youtube_music": "https://music.youtube.com/watch?v=3sJXeLAGU38",
@@ -1976,7 +1836,6 @@
       "fun_fact_de": "Howard Jones trat bei seinen frühen Gigs mit einem Pantomimen namens Jed auf. Dieser Synth-Pop-Klassiker erreichte #2 in Großbritannien und etablierte ihn als großen 80er-Künstler.",
       "fun_fact_es": "Howard Jones actuaba en sus primeros shows con un mimo llamado Jed. Este clásico del synth-pop alcanzó el #2 en el Reino Unido y lo estableció como un artista importante de los 80.",
       "fun_fact_fr": "Howard Jones se produisait à ses débuts avec un mime appelé Jed. Ce classique de la synth-pop a atteint la 2e place au Royaume-Uni et l'a établi comme un artiste majeur des années 80.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/1765603566",
       "uri_youtube_music": "https://music.youtube.com/watch?v=Cm2s93UuIhk",
@@ -2009,7 +1868,6 @@
       "fun_fact_de": "Die australische Band ICEHOUSE (ursprünglich Flowers) hatte mit diesem Song ihren größten europäischen Hit und erreichte in mehreren Ländern #1, darunter Frankreich und Deutschland.",
       "fun_fact_es": "La banda australiana ICEHOUSE (originalmente Flowers) tuvo su mayor éxito europeo con esta canción, alcanzando el #1 en varios países incluyendo Francia y Alemania.",
       "fun_fact_fr": "Le groupe australien ICEHOUSE (à l'origine Flowers) a eu son plus grand succès européen avec cette chanson, atteignant le #1 dans plusieurs pays dont la France et l'Allemagne.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/537852245",
       "uri_youtube_music": "https://music.youtube.com/watch?v=YZQWTnrJMS0",
@@ -2066,6 +1924,18 @@
       "awards_nl": [
         "Oscar voor Beste Originele Lied (1984)",
         "Golden Globe voor Beste Originele Lied (1984)"
+      ],
+      "awards_it": [
+        "Oscar per la migliore canzone originale (1984)",
+        "Golden Globe per la migliore canzone originale (1984)"
+      ],
+      "awards_de": [
+        "Oscar - Bester Filmsong (1984)",
+        "Golden Globe - Bester Filmsong (1984)"
+      ],
+      "awards_es": [
+        "Óscar - Mejor Canción Original (1984)",
+        "Globo de Oro - Mejor Canción Original (1984)"
       ],
       "isrc": "USA560661522",
       "uri_apple_music_by_region": {
@@ -2272,7 +2142,8 @@
         "es": "applemusic://track/1641781005",
         "nl": "applemusic://track/1641781005",
         "it": "applemusic://track/1641781005"
-      }
+      },
+      "uri_tidal": "tidal://track/1781812"
     },
     {
       "year": 1983,
@@ -2329,7 +2200,6 @@
       "fun_fact_de": "Ursprünglich über einen Serienmörder geschrieben, wurden die Texte hastig umgeschrieben, um zum Film 'Flashdance' zu passen. Er wurde für den Oscar für den besten Originalsong nominiert.",
       "fun_fact_es": "Originalmente escrita sobre un asesino en serie, la letra fue reescrita apresuradamente para la película 'Flashdance'. Fue nominada al Oscar a Mejor Canción Original.",
       "fun_fact_fr": "Écrite à l'origine sur un tueur en série, les paroles ont été rapidement réécrites pour le film 'Flashdance'. Elle a été nominée pour l'Oscar de la meilleure chanson originale.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/1425259944",
       "uri_youtube_music": "https://music.youtube.com/watch?v=6GCNUeTFSbA",
@@ -2364,7 +2234,6 @@
       "fun_fact_de": "Die meistverkaufte 12-Zoll-Single aller Zeiten verlor bei jedem verkauften Exemplar Geld, weil Peter Savilles gestanztes Cover so teuer in der Herstellung war.",
       "fun_fact_es": "El sencillo de 12 pulgadas más vendido de todos los tiempos perdió dinero con cada copia vendida porque la funda troquelada de Peter Saville era muy cara de producir.",
       "fun_fact_fr": "Le maxi 45 tours le plus vendu de tous les temps, 'Blue Monday' a perdu de l'argent sur chaque copie vendue car la pochette découpée de Peter Saville était très coûteuse à produire.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/264135997",
       "uri_youtube_music": "https://music.youtube.com/watch?v=c1GxjzHm5us",
@@ -2399,7 +2268,6 @@
       "fun_fact_de": "Der Song war Pionier des narrativen Musikvideos. Das Video, in dem Benatar Frauen gegen einen schmierigen Clubbesitzer anführt, war bahnbrechend für MTV.",
       "fun_fact_es": "La canción fue pionera del concepto del video musical narrativo. Su video, con Benatar liderando mujeres contra un dueño de club, fue revolucionario para MTV.",
       "fun_fact_fr": "La chanson a été pionnière du concept de clip narratif. Son clip, où Benatar mène un groupe de femmes contre un patron de club louche, était révolutionnaire pour MTV.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/1752560164",
       "uri_youtube_music": "https://music.youtube.com/watch?v=IGVZOLV9SPo",
@@ -2472,11 +2340,13 @@
       "fun_fact_de": "Ursprünglich 1982 veröffentlicht und für 'The Hurting' neu aufgenommen, behandelt der Song emotionale Vernachlässigung in der Kindheit, inspiriert von Arthur Janovs Urschrei-Therapie.",
       "fun_fact_es": "Lanzada originalmente en 1982 y regrabada para 'The Hurting', la canción trata sobre la negligencia emocional infantil inspirada en la terapia primal de Arthur Janov.",
       "fun_fact_fr": "Sorti à l'origine en 1982 et réenregistré pour 'The Hurting', le titre aborde la négligence émotionnelle de l'enfance, inspiré par la thérapie primale d'Arthur Janov.",
-      "chart_info": {},
       "awards": [],
       "uri_deezer": "deezer://track/1090634",
       "fun_fact_nl": "Oorspronkelijk uitgebracht in 1982 en opnieuw opgenomen voor het album 'The Hurting', gaat het nummer over emotionele verwaarlozing in de kindertijd, geïnspireerd door Arthur Janovs primaire therapie.",
-      "awards_nl": []
+      "awards_nl": [],
+      "uri_tidal": "tidal://track/22936962",
+      "uri_apple_music": "applemusic://track/1440912610",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=BUfcT5OoP-8"
     },
     {
       "year": 1983,
@@ -2494,13 +2364,13 @@
       "fun_fact_de": "Trotz ihres Namens waren die Thompson Twins eigentlich ein Trio (und keine Zwillinge). Der Name stammt von den Detektiven Schulze und Schultze aus den Tim-und-Struppi-Comics.",
       "fun_fact_es": "A pesar de su nombre, los Thompson Twins eran en realidad un trío (y no gemelos). El nombre fue tomado de los detectives Hernández y Fernández de los cómics de Tintín.",
       "fun_fact_fr": "Malgré leur nom, les Thompson Twins étaient en fait un trio (et non des jumeaux). Le nom vient des détectives Dupond et Dupont des bandes dessinées de Tintin.",
-      "chart_info": {},
       "awards": [],
       "uri_youtube_music": "https://music.youtube.com/watch?v=TvzVTRK1nOY",
       "uri_tidal": "tidal://track/282489999",
       "uri_deezer": "deezer://track/3803453672",
       "fun_fact_nl": "Ondanks hun naam waren de Thompson Twins eigenlijk een trio en geen tweeling. De naam was ontleend aan de detectives Jansen en Janssen uit de Kuifje-strips.",
-      "awards_nl": []
+      "awards_nl": [],
+      "uri_apple_music": "applemusic://track/1675310468"
     },
     {
       "year": 1983,
@@ -2516,7 +2386,6 @@
       "fun_fact_de": "Obwohl es vom Blutsonntag-Massaker 1972 handelt, stellte Bono es live immer als 'keinen Rebellensong' vor, um die Anti-Gewalt-Botschaft zu betonen.",
       "fun_fact_es": "A pesar de tratar sobre la masacre del Domingo Sangriento de 1972, Bono siempre la presentó en vivo como 'no una canción rebelde' para enfatizar su mensaje anti-violencia.",
       "fun_fact_fr": "Bien qu'elle parle du massacre du Bloody Sunday de 1972, Bono la présentait toujours en concert comme 'pas une chanson rebelle' pour souligner son message anti-violence.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/1440729870",
       "uri_youtube_music": "https://music.youtube.com/watch?v=zhMD7nt1LIg",
@@ -2651,7 +2520,8 @@
         "es": "applemusic://track/1023759237",
         "nl": "applemusic://track/1023759237",
         "it": "applemusic://track/1023759237"
-      }
+      },
+      "uri_tidal": "tidal://track/38762"
     },
     {
       "year": 1983,
@@ -2667,7 +2537,6 @@
       "fun_fact_de": "Yazoo (in den USA als Yaz bekannt) war das kurzlebige aber einflussreiche Duo aus Vince Clarke und Alison Moyet. Nach der Trennung gründete Clarke Erasure.",
       "fun_fact_es": "Yazoo (conocido como Yaz en EE.UU.) fue el dúo breve pero influyente de Vince Clarke y Alison Moyet. Tras separarse, Clarke formó Erasure.",
       "fun_fact_fr": "Yazoo (connu sous le nom de Yaz aux États-Unis) était le duo éphémère mais influent de Vince Clarke et Alison Moyet. Après la séparation, Clarke a formé Erasure.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/403727753",
       "uri_youtube_music": "https://music.youtube.com/watch?v=1qq7jTPkjVg",
@@ -2677,13 +2546,13 @@
       "awards_nl": [],
       "isrc": "GBAJH9900153",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/1717063911",
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
+        "us": "applemusic://track/1528521900",
+        "de": "applemusic://track/1436832239",
+        "gb": "applemusic://track/1436832239",
+        "fr": "applemusic://track/1436832239",
+        "es": "applemusic://track/1436833570",
+        "nl": "applemusic://track/1436832239",
+        "it": "applemusic://track/1436832239"
       }
     },
     {
@@ -2740,7 +2609,6 @@
       "fun_fact_de": "Die Debütsingle des deutschen Synth-Pop-Trios wurde ein massiver europäischer Hit. Trotz des Titels war er in Japan selbst nie besonders erfolgreich.",
       "fun_fact_es": "El sencillo debut del trío alemán de synth-pop se convirtió en un éxito masivo en Europa. A pesar del título, nunca fue particularmente grande en Japón.",
       "fun_fact_fr": "Le premier single du trio allemand de synth-pop est devenu un énorme succès européen. Malgré le titre, il n'a jamais été particulièrement populaire au Japon.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/65122498",
       "uri_youtube_music": "https://music.youtube.com/watch?v=tl6u2NASUzU",
@@ -2874,7 +2742,8 @@
         "es": "applemusic://track/1692216411",
         "nl": "applemusic://track/1692216411",
         "it": "applemusic://track/1692216411"
-      }
+      },
+      "uri_tidal": "tidal://track/24385357"
     },
     {
       "year": 1984,
@@ -2970,7 +2839,6 @@
       "fun_fact_de": "Der Song handelte ursprünglich von nuklearer Paranoia, wurde aber in letzter Minute umgeschrieben und wurde zu einem ikonischen 80er-Jahre-Image.",
       "fun_fact_es": "La canción originalmente trataba sobre paranoia nuclear pero fue reescrita a último momento, convirtiéndose en una imagen icónica de los 80.",
       "fun_fact_fr": "La chanson parlait à l'origine de paranoïa nucléaire mais a été réécrite à la dernière minute, devenant une image iconique des années 80.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/724506959",
       "uri_youtube_music": "https://music.youtube.com/watch?v=X2LTL8KgKv8",
@@ -3044,7 +2912,6 @@
       "fun_fact_de": "Der Song brauchte 3 Wochen, um von den unteren Charts auf #1 in Großbritannien zu klettern, und die Produktion von Stock Aitken Waterman kostete damals enorme 70.000 Pfund.",
       "fun_fact_es": "La canción tardó 3 semanas en subir al #1 en el Reino Unido, y su producción por Stock Aitken Waterman costó las entonces enormes 70.000 libras.",
       "fun_fact_fr": "La chanson a mis 3 semaines pour grimper au #1 au Royaume-Uni, et sa production par Stock Aitken Waterman a coûté la somme alors énorme de 70 000 £.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/211418804",
       "uri_youtube_music": "https://music.youtube.com/watch?v=PGNiXGX2nLU",
@@ -3079,7 +2946,6 @@
       "fun_fact_de": "Dies war Depeche Modes erster großer internationaler Hit und erreichte #1 in Deutschland. Martin Gore äußerte sich später peinlich berührt über die simplen Texte.",
       "fun_fact_es": "Este fue el primer gran éxito internacional de Depeche Mode, alcanzando el #1 en Alemania. Martin Gore expresó luego vergüenza por las letras simplistas.",
       "fun_fact_fr": "C'était le premier grand succès international de Depeche Mode, atteignant le #1 en Allemagne. Martin Gore a plus tard exprimé sa gêne concernant les paroles simplistes.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/665414308",
       "uri_youtube_music": "https://music.youtube.com/watch?v=DTYsElEGswc",
@@ -3112,7 +2978,6 @@
       "fun_fact_de": "Der kontroverse Song über Gott mit einem 'kranken Sinn für Humor' wurde von mehreren Radiosendern verbannt. Martin Gore schrieb ihn, nachdem die Mutter einer Freundin einen Suizidversuch unternommen hatte.",
       "fun_fact_es": "La controvertida canción sobre Dios teniendo un 'sentido del humor enfermo' fue prohibida por varias estaciones de radio. Martin Gore la escribió después de que la madre de una amiga intentara suicidarse.",
       "fun_fact_fr": "La chanson controversée sur Dieu ayant un 'sens de l'humour malsain' a été interdite par plusieurs stations de radio. Martin Gore l'a écrite après la tentative de suicide de la mère d'une amie.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/665414812",
       "uri_youtube_music": "https://music.youtube.com/watch?v=o3EAzf5fDpY",
@@ -3145,7 +3010,6 @@
       "fun_fact_de": "Die S&M-Themen und Peitschenknall-Sounds des Songs sorgten für Kontroversen, wobei die BBC zunächst zögerte, ihn zu spielen. Er erreichte dennoch #9 in Großbritannien.",
       "fun_fact_es": "Los temas de S&M y sonidos de látigo causaron controversia, con la BBC inicialmente reacia a reproducirla. Aun así alcanzó el #9 en el Reino Unido.",
       "fun_fact_fr": "Les thèmes S&M et les claquements de fouet ont causé une controverse, la BBC étant initialement réticente à la diffuser. Elle a tout de même atteint la 9e place au Royaume-Uni.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/665414560",
       "uri_youtube_music": "https://music.youtube.com/watch?v=IsvfofcIE1Q",
@@ -3392,7 +3256,8 @@
         "es": "applemusic://track/1647073443",
         "nl": "applemusic://track/1647073443",
         "it": "applemusic://track/1647073443"
-      }
+      },
+      "uri_tidal": "tidal://track/3288206"
     },
     {
       "year": 1984,
@@ -3410,7 +3275,6 @@
       "fun_fact_de": "Nik Kershaw war erst 26, als dieser Song ein Riesenhit wurde. Er enthüllte später, dass 'The Riddle' tatsächlich bedeutungslos war, trotz Fan-Theorien.",
       "fun_fact_es": "Nik Kershaw tenía solo 26 años cuando esta canción se convirtió en un éxito masivo. Más tarde reveló que 'The Riddle' no tenía significado real, a pesar de las teorías.",
       "fun_fact_fr": "Nik Kershaw n'avait que 26 ans quand cette chanson est devenue un immense succès. Il a plus tard révélé que 'The Riddle' était vraiment sans signification, malgré les théories des fans.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/1442322681",
       "uri_youtube_music": "https://music.youtube.com/watch?v=cTLTG4FTNBQ",
@@ -3443,7 +3307,6 @@
       "fun_fact_de": "Vom Album 'Junk Culture' zeigte diese elegante Synth-Ballade OMDs zugänglichere Pop-Seite und erreichte die UK Top 20.",
       "fun_fact_es": "Del álbum 'Junk Culture', esta elegante balada sintetizada mostró el lado pop más accesible de OMD y alcanzó el Top 20 del Reino Unido.",
       "fun_fact_fr": "De l'album 'Junk Culture', cette élégante ballade synthétique a montré le côté pop plus accessible d'OMD et a atteint le Top 20 au Royaume-Uni.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/714551929",
       "uri_youtube_music": "https://music.youtube.com/watch?v=Ujg7xHZ-nrE",
@@ -3530,12 +3393,21 @@
         "Grammy Award de la meilleure interprétation vocale pop masculine (1985)"
       ],
       "uri_apple_music": "applemusic://track/1148701808",
-      "uri_youtube_music": "https://music.youtube.com/watch?v=slPsoYWhZAk",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=wuvtoyVi7vY",
       "uri_tidal": "tidal://track/65556726",
       "uri_deezer": "deezer://track/134036230",
       "fun_fact_nl": "Phil Collins schreef dit voor de gelijknamige film in slechts één nacht. Ondanks het enorme succes van het nummer werd Collins niet uitgenodigd om het op te voeren bij de Oscars - de producers kozen Ann Reinking.",
       "awards_nl": [
         "Grammy Award voor Beste Mannelijke Pop Zangprestatie (1985)"
+      ],
+      "awards_it": [
+        "Grammy per la migliore interpretazione vocale pop maschile (1985)"
+      ],
+      "awards_de": [
+        "Grammy - Beste männliche Pop-Gesangsdarbietung (1985)"
+      ],
+      "awards_es": [
+        "Grammy - Mejor Interpretación Vocal Pop Masculina (1985)"
       ],
       "isrc": "USRH11603951",
       "uri_apple_music_by_region": {
@@ -3562,7 +3434,6 @@
       "fun_fact_de": "Benannt nach Fritz Langs fiktivem Verbrechergeist, war der Song Propagandas Debütsingle bei ZTT Records und wurde zum Kulthit der 80er-Synth-Szene.",
       "fun_fact_es": "Nombrada por el criminal ficticio de Fritz Lang, la canción fue el primer sencillo de Propaganda en ZTT Records y se convirtió en un clásico de culto del synth de los 80.",
       "fun_fact_fr": "Nommée d'après le criminel fictif de Fritz Lang, la chanson était le premier single de Propaganda chez ZTT Records et est devenue un classique culte de la scène synth des années 80.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/1585274537",
       "uri_youtube_music": "https://music.youtube.com/watch?v=42l2F80uvLA",
@@ -3595,7 +3466,6 @@
       "fun_fact_de": "Dieser deutschsprachige Hit wurde zu einem der ikonischsten NDW-Songs. Purple Schulz (bürgerlich Claus-Jürgen Schulz) war eine Schlüsselfigur der Kölner Musikszene.",
       "fun_fact_es": "Este éxito en alemán se convirtió en una de las canciones más icónicas de la Neue Deutsche Welle. Purple Schulz fue una figura clave de la escena musical de Colonia.",
       "fun_fact_fr": "Ce tube en allemand est devenu l'une des chansons les plus iconiques de la Neue Deutsche Welle. Purple Schulz était une figure clé de la scène musicale de Cologne.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/1692882667",
       "uri_tidal": "tidal://track/63910876",
@@ -3611,7 +3481,8 @@
         "es": "applemusic://track/1692882667",
         "nl": "applemusic://track/1692882667",
         "it": "applemusic://track/1692882667"
-      }
+      },
+      "uri_youtube_music": "https://music.youtube.com/watch?v=yq-lgYe0Pz4"
     },
     {
       "year": 1984,
@@ -3643,12 +3514,12 @@
       "isrc": "GBUM71106175",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1440810742",
-        "de": "applemusic://track/1440816142",
-        "gb": "applemusic://track/1440816142",
-        "fr": "applemusic://track/1440816142",
-        "es": "applemusic://track/1440816142",
-        "nl": "applemusic://track/1440816142",
-        "it": "applemusic://track/1440816142"
+        "de": "applemusic://track/6781027665",
+        "gb": "applemusic://track/6781081110",
+        "fr": "applemusic://track/6781461224",
+        "es": "applemusic://track/6781461224",
+        "nl": "applemusic://track/6781461224",
+        "it": "applemusic://track/6781461224"
       }
     },
     {
@@ -3667,7 +3538,6 @@
       "fun_fact_de": "Huey Lewis verklagte Parker wegen Plagiats von 'I Want a New Drug'. Der Fall wurde außergerichtlich beigelegt. Der Song war 3 Wochen auf #1 der Billboard Hot 100.",
       "fun_fact_es": "Huey Lewis demandó a Parker por plagiar 'I Want a New Drug'. El caso se resolvió fuera de los tribunales. La canción pasó 3 semanas en el #1 del Billboard Hot 100.",
       "fun_fact_fr": "Huey Lewis a poursuivi Parker pour avoir plagié 'I Want a New Drug'. L'affaire a été réglée à l'amiable. La chanson a passé 3 semaines au #1 du Billboard Hot 100.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/1127014316",
       "uri_tidal": "tidal://track/3392902",
@@ -3683,7 +3553,8 @@
         "es": "applemusic://track/1127014316",
         "nl": "applemusic://track/1127014316",
         "it": "applemusic://track/1127014316"
-      }
+      },
+      "uri_youtube_music": "https://music.youtube.com/watch?v=Fe93CLbHjxQ"
     },
     {
       "year": 1984,
@@ -3763,6 +3634,18 @@
         "Oscar voor Beste Originele Lied (1985)",
         "Golden Globe voor Beste Originele Lied (1985)"
       ],
+      "awards_it": [
+        "Oscar per la migliore canzone originale (1985)",
+        "Golden Globe per la migliore canzone originale (1985)"
+      ],
+      "awards_de": [
+        "Oscar - Bester Filmsong (1985)",
+        "Golden Globe - Bester Filmsong (1985)"
+      ],
+      "awards_es": [
+        "Óscar - Mejor Canción Original (1985)",
+        "Globo de Oro - Mejor Canción Original (1985)"
+      ],
       "isrc": "USUMG9900476",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1449299049",
@@ -3790,7 +3673,6 @@
       "fun_fact_de": "No Doubts Cover von 2003 machte den Song einer neuen Generation bekannt, aber der innovative Synthesizer-Einsatz des Originals war bahnbrechend.",
       "fun_fact_es": "La versión de No Doubt en 2003 presentó esta canción a una nueva generación, pero el uso innovador de sintetizadores del original fue revolucionario.",
       "fun_fact_fr": "La reprise de No Doubt en 2003 a fait découvrir cette chanson à une nouvelle génération, mais l'utilisation innovante des synthés dans l'original était révolutionnaire.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/1763630047",
       "uri_youtube_music": "https://music.youtube.com/watch?v=cFH5JgyZK1I",
@@ -3800,7 +3682,7 @@
       "awards_nl": [],
       "isrc": "GBAYE8400109",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/1862433447",
+        "us": "applemusic://track/696670364",
         "de": "applemusic://track/1724929798",
         "gb": "applemusic://track/1724929798",
         "fr": "applemusic://track/1724929798",
@@ -3823,7 +3705,6 @@
       "fun_fact_de": "Dies war Talk Talks größter Hit in Kontinentaleuropa und erreichte #1 in Deutschland, Italien und mehreren anderen Ländern, während er in Großbritannien kaum chartete.",
       "fun_fact_es": "Este fue el mayor éxito de Talk Talk en Europa continental, alcanzando el #1 en Alemania, Italia y varios otros países mientras apenas entraba en las listas del Reino Unido.",
       "fun_fact_fr": "C'était le plus grand succès de Talk Talk en Europe continentale, atteignant le #1 en Allemagne, en Italie et dans plusieurs autres pays, tout en étant à peine classé au Royaume-Uni.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/695469002",
       "uri_youtube_music": "https://music.youtube.com/watch?v=lLdvpFIPReA",
@@ -3833,7 +3714,7 @@
       "awards_nl": [],
       "isrc": "GBAYE9700489",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/1704530128",
+        "us": "applemusic://track/696670530",
         "de": "applemusic://track/1510554531",
         "gb": "applemusic://track/1510554531",
         "fr": "applemusic://track/1510554531",
@@ -3858,7 +3739,6 @@
       "fun_fact_de": "Die Aufnahme von 'Shout' dauerte mehrere Monate, wobei die Band obsessiv Klangschichten aufbaute, um die dichte Klangwand zu erschaffen.",
       "fun_fact_es": "La grabación de 'Shout' tardó varios meses en completarse, con la banda superponiendo obsesivamente sonidos para crear el denso muro de música.",
       "fun_fact_fr": "L'enregistrement de 'Shout' a pris plusieurs mois, le groupe superposant obsessionnellement les sons pour créer un mur de musique dense.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/1440813509",
       "uri_youtube_music": "https://music.youtube.com/watch?v=Ye7FKc1JQe4",
@@ -3878,7 +3758,7 @@
       }
     },
     {
-      "year": 1984,
+      "year": 1982,
       "uri": "spotify:track:2u8MGAiS2hBVE7GZzTZLQI",
       "artist": "The Pointer Sisters",
       "alt_artists": [
@@ -3930,7 +3810,6 @@
       "fun_fact_de": "Johnny Marrs Tremolo-Gitarreneffekt wurde durch gleichzeitiges Einspeisen in vier Verstärker erzielt. Der Song wurde später das Titellied der TV-Serie 'Charmed'.",
       "fun_fact_es": "El efecto de trémolo de guitarra de Johnny Marr se logró alimentando la señal a través de cuatro amplificadores simultáneamente. La canción se convirtió en el tema de la serie 'Charmed'.",
       "fun_fact_fr": "L'effet de trémolo de guitare de Johnny Marr a été obtenu en envoyant le signal à travers quatre amplificateurs simultanément. La chanson est devenue le générique de la série 'Charmed'.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/799969782",
       "uri_youtube_music": "https://music.youtube.com/watch?v=hnpILIIo9ek",
@@ -3963,7 +3842,6 @@
       "fun_fact_de": "Der Song erreichte #3 in Großbritannien und war einer der größten Hits des Albums 'Into the Gap', das sich weltweit über 3 Millionen Mal verkaufte.",
       "fun_fact_es": "La canción alcanzó el #3 en el Reino Unido y fue uno de los mayores éxitos del álbum 'Into the Gap', que vendió más de 3 millones de copias.",
       "fun_fact_fr": "La chanson a atteint la 3e place au Royaume-Uni et était l'un des plus grands succès de l'album 'Into the Gap', vendu à plus de 3 millions d'exemplaires.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/1700433698",
       "uri_youtube_music": "https://music.youtube.com/watch?v=Pf0_Be5PPPU",
@@ -4023,6 +3901,21 @@
         "Grammy Award voor Opname van het Jaar (1985)",
         "Grammy Award voor Lied van het Jaar (1985)",
         "Grammy Award voor Beste Vrouwelijke Pop Zangprestatie (1985)"
+      ],
+      "awards_it": [
+        "Grammy per il disco dell'anno (1985)",
+        "Grammy per la canzone dell'anno (1985)",
+        "Grammy per la migliore interpretazione vocale pop femminile (1985)"
+      ],
+      "awards_de": [
+        "Grammy - Aufnahme des Jahres (1985)",
+        "Grammy - Song des Jahres (1985)",
+        "Grammy - Beste weibliche Pop-Gesangsdarbietung (1985)"
+      ],
+      "awards_es": [
+        "Grammy - Grabación del Año (1985)",
+        "Grammy - Canción del Año (1985)",
+        "Grammy - Mejor Interpretación Vocal Pop Femenina (1985)"
       ],
       "isrc": "USCA28400002",
       "uri_apple_music_by_region": {
@@ -4090,7 +3983,6 @@
       "fun_fact_de": "Über Martin Luther King Jr. geschrieben, enthält der Song einen bekannten Fehler: King wurde am 'frühen Morgen' des 4. April erschossen, nicht am 'frühen Abend', wie Bono singt.",
       "fun_fact_es": "Escrita sobre Martin Luther King Jr., la canción contiene un error famoso: King fue disparado en la 'mañana temprano' del 4 de abril, no en la 'tarde temprano' como canta Bono.",
       "fun_fact_fr": "Écrite sur Martin Luther King Jr., la chanson contient une célèbre erreur factuelle : King a été abattu 'tôt le matin' du 4 avril, et non 'tôt le soir' comme Bono le chante.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/1443184298",
       "uri_youtube_music": "https://music.youtube.com/watch?v=nIPJ0TPf3sQ",
@@ -4205,7 +4097,6 @@
       "fun_fact_de": "Dies war a-has zweite Single und erreichte #1 in Großbritannien, was bewies, dass die Band nach 'Take On Me' kein One-Hit-Wonder war.",
       "fun_fact_es": "Este fue el segundo sencillo de a-ha y alcanzó el #1 en el Reino Unido, demostrando que la banda no era un éxito de un solo tema después de 'Take On Me'.",
       "fun_fact_fr": "C'était le deuxième single d'a-ha et il a atteint la première place au Royaume-Uni, prouvant que le groupe n'était pas un one-hit wonder après 'Take On Me'.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/1035047673",
       "uri_youtube_music": "https://music.youtube.com/watch?v=a3ir9HC9vYg",
@@ -4300,7 +4191,8 @@
         "es": "applemusic://track/1802857118",
         "nl": "applemusic://track/1802857118",
         "it": "applemusic://track/1622293311"
-      }
+      },
+      "uri_tidal": "tidal://track/21651813"
     },
     {
       "year": 1985,
@@ -4311,7 +4203,6 @@
         "Udo Lindenberg"
       ],
       "title": "Dein ist mein ganzes Herz",
-      "chart_info": {},
       "certifications": [
         "Gold (DE)"
       ],
@@ -4324,7 +4215,8 @@
       "uri_tidal": "tidal://track/4087636",
       "uri_deezer": "deezer://track/699130",
       "fun_fact_nl": "Heinz Rudolf Kunze schreef deze hartverwarmende ballade die een van de grootste Duitse hits van 1985 werd. Zijn poëtische teksten leverden hem vergelijkingen op met Bob Dylan in Duitstalige landen.",
-      "awards_nl": []
+      "awards_nl": [],
+      "uri_apple_music": "applemusic://track/79280627"
     },
     {
       "year": 1985,
@@ -4343,7 +4235,6 @@
       "fun_fact_de": "Der Song erlebte 2022 ein massives Comeback, nachdem er in Netflix' 'Stranger Things' zu hören war, und erreichte 37 Jahre nach der Erstveröffentlichung #1 in Großbritannien.",
       "fun_fact_es": "La canción experimentó un resurgimiento masivo en 2022 después de aparecer en 'Stranger Things' de Netflix, alcanzando el #1 en el Reino Unido 37 años después de su lanzamiento original.",
       "fun_fact_fr": "La chanson a connu une résurgence massive en 2022 après avoir été présentée dans 'Stranger Things' de Netflix, atteignant le #1 au Royaume-Uni 37 ans après sa sortie originale.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/1675560578",
       "uri_youtube_music": "https://music.youtube.com/watch?v=wp43OdtAAkM",
@@ -4376,7 +4267,6 @@
       "fun_fact_de": "Der Song und sein ikonisches Video mit Donald Sutherland wurden von Peter Reichs Memoiren über die umstrittene Orgon-Energie-Forschung seines Vaters Wilhelm Reich inspiriert.",
       "fun_fact_es": "La canción y su icónico video protagonizado por Donald Sutherland se inspiraron en las memorias de Peter Reich sobre la controvertida investigación de energía orgónica de su padre Wilhelm Reich.",
       "fun_fact_fr": "La chanson et son clip iconique avec Donald Sutherland sont inspirés des mémoires de Peter Reich sur les recherches controversées de son père Wilhelm Reich sur l'énergie orgone.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/1675375378",
       "uri_youtube_music": "https://music.youtube.com/watch?v=pllRW9wETzw",
@@ -4449,7 +4339,6 @@
       "fun_fact_de": "Dies war Killing Jokes kommerziell erfolgreichste Single und erreichte #16 in Großbritannien. Der aggressive Post-Punk-Stil der Band beeinflusste Nirvana, Metallica und Nine Inch Nails.",
       "fun_fact_es": "Este fue el sencillo más exitoso comercialmente de Killing Joke, alcanzando el #16 en el Reino Unido. Su estilo post-punk agresivo influyó en Nirvana, Metallica y Nine Inch Nails.",
       "fun_fact_fr": "C'était le single le plus commercialement réussi de Killing Joke, atteignant la 16e place au Royaume-Uni. Le style post-punk agressif du groupe a influencé Nirvana, Metallica et Nine Inch Nails.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/1698417340",
       "uri_youtube_music": "https://music.youtube.com/watch?v=TnpwuRlXbhk",
@@ -4484,7 +4373,6 @@
       "fun_fact_de": "Dem Song wird zugeschrieben, den Mädchennamen Kayleigh in Großbritannien populär gemacht zu haben. Es war Marillions größter Hit und erreichte #2 in Großbritannien.",
       "fun_fact_es": "Se atribuye a la canción la popularización del nombre de niña Kayleigh en el Reino Unido. Fue el mayor éxito de Marillion, alcanzando el #2.",
       "fun_fact_fr": "On attribue à la chanson la popularisation du prénom féminin Kayleigh au Royaume-Uni. C'était le plus grand succès de Marillion, atteignant la 2e place.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/1227898075",
       "uri_youtube_music": "https://music.youtube.com/watch?v=zHUMw5UZnos",
@@ -4494,7 +4382,7 @@
       "awards_nl": [],
       "isrc": "GBAYE1601694",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/1755174963",
+        "us": "applemusic://track/726107942",
         "de": "applemusic://track/1755174963",
         "gb": "applemusic://track/1755174963",
         "fr": "applemusic://track/1755174963",
@@ -4513,7 +4401,7 @@
       ],
       "title": "Ohne Dich (schlaf' ich heut Nacht nicht ein)",
       "chart_info": {
-        "at_peak": 2
+        "austrian_peak": 2
       },
       "certifications": [
         "Gold (DE)"
@@ -4554,7 +4442,6 @@
       "fun_fact_de": "Vom Album 'Crush' hatte 'Secret' eine poliertere Pop-Produktion, die OMD half, auf dem amerikanischen Markt Erfolg zu haben.",
       "fun_fact_es": "Del álbum 'Crush', 'Secret' presentó una producción pop más pulida que ayudó a OMD a encontrar éxito en el mercado americano.",
       "fun_fact_fr": "De l'album 'Crush', 'Secret' présentait une production pop plus soignée qui a aidé OMD à trouver le succès sur le marché américain.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/724458035",
       "uri_youtube_music": "https://music.youtube.com/watch?v=EtYre1GABao",
@@ -4589,7 +4476,6 @@
       "fun_fact_de": "Der Titel bezieht sich auf das Durchschnittsalter der US-Kampfsoldaten in Vietnam. Die stotternden Vocal-Samples waren bahnbrechend und der Song erreichte in 13 Ländern #1.",
       "fun_fact_es": "El título se refiere a la edad promedio de los soldados de combate estadounidenses en Vietnam. Las muestras vocales tartamudeantes fueron revolucionarias y alcanzó el #1 en 13 países.",
       "fun_fact_fr": "Le titre fait référence à l'âge moyen des soldats de combat américains au Vietnam. Les échantillons vocaux bégayants étaient révolutionnaires et la chanson a atteint le #1 dans 13 pays.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/1629177761",
       "uri_youtube_music": "https://music.youtube.com/watch?v=0sajngb0W6I",
@@ -4644,7 +4530,8 @@
         "es": "applemusic://track/1088551720",
         "nl": "applemusic://track/1088551720",
         "it": "applemusic://track/1088551720"
-      }
+      },
+      "uri_tidal": "tidal://track/58929343"
     },
     {
       "year": 1985,
@@ -4682,7 +4569,8 @@
         "es": "applemusic://track/1148642435",
         "nl": "applemusic://track/1148642435",
         "it": "applemusic://track/1148642435"
-      }
+      },
+      "uri_tidal": "tidal://track/58929339"
     },
     {
       "year": 1985,
@@ -4698,7 +4586,6 @@
       "fun_fact_de": "Von Trevor Horns ZTT-Records-Team produziert, verwendete der Song bahnbrechende Fairlight-CMI-Sampling-Technologie, die für ihre Zeit revolutionär war.",
       "fun_fact_es": "Producida por el equipo de ZTT Records de Trevor Horn, la canción presentó tecnología de muestreo Fairlight CMI que era revolucionaria para su tiempo.",
       "fun_fact_fr": "Produite par l'équipe de ZTT Records de Trevor Horn, la chanson utilisait la technologie de sampling Fairlight CMI, révolutionnaire pour l'époque.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/1585274528",
       "uri_youtube_music": "https://music.youtube.com/watch?v=660ZCEhvbnw",
@@ -4733,7 +4620,6 @@
       "fun_fact_de": "Von Michael Cretu (später bekannt für Enigma) produziert, war dies eine der meistverkauften Singles 1985 in Deutschland und erreichte #1 in 21 Ländern.",
       "fun_fact_es": "Producida por Michael Cretu (luego conocido por Enigma), fue uno de los sencillos más vendidos de 1985 en Alemania y alcanzó el #1 en 21 países.",
       "fun_fact_fr": "Produit par Michael Cretu (plus tard connu pour Enigma), c'était l'un des singles les plus vendus de 1985 en Allemagne et a atteint le #1 dans 21 pays.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/723780769",
       "uri_youtube_music": "https://music.youtube.com/watch?v=qwrrpBc7xWA",
@@ -4768,9 +4654,8 @@
       "fun_fact_de": "Mick Hucknall schrieb dies mit nur 17, inspiriert von seiner abwesenden Mutter, die ging, als er drei war. Er erreichte 1986 #1 in den USA.",
       "fun_fact_es": "Mick Hucknall escribió esto con solo 17 años, inspirado por su madre ausente que se fue cuando él tenía tres. Alcanzó el #1 en EE.UU. en 1986.",
       "fun_fact_fr": "Mick Hucknall a écrit cette chanson à seulement 17 ans, inspiré par sa mère absente partie quand il avait trois ans. Elle a atteint le #1 aux États-Unis en 1986.",
-      "chart_info": {},
       "awards": [],
-      "uri_apple_music": "applemusic://track/294361564",
+      "uri_apple_music": "applemusic://track/274034224",
       "uri_youtube_music": "https://music.youtube.com/watch?v=yG07WSu7Q9w",
       "uri_tidal": "tidal://track/2060790",
       "uri_deezer": "deezer://track/2477001",
@@ -4778,13 +4663,13 @@
       "awards_nl": [],
       "isrc": "GBCRL0800119",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/1718063870",
-        "de": "applemusic://track/1802225094",
-        "gb": "applemusic://track/1802225094",
-        "fr": "applemusic://track/1802225094",
-        "es": "applemusic://track/1802225094",
-        "nl": "applemusic://track/1802225094",
-        "it": "applemusic://track/1802225094"
+        "us": "applemusic://track/274034224",
+        "de": "applemusic://track/274034224",
+        "gb": "applemusic://track/274034224",
+        "fr": "applemusic://track/274034224",
+        "es": "applemusic://track/274034224",
+        "nl": "applemusic://track/274034224",
+        "it": "applemusic://track/274034224"
       }
     },
     {
@@ -4823,7 +4708,8 @@
         "es": "applemusic://track/1631301659",
         "nl": "applemusic://track/1870541724",
         "it": "applemusic://track/1631301659"
-      }
+      },
+      "uri_tidal": "tidal://track/100577988"
     },
     {
       "year": 1985,
@@ -4839,7 +4725,6 @@
       "fun_fact_de": "Während des Kalten Krieges geschrieben, sampelt der Song Prokofjews 'Leutnant Kijé'-Suite. Sting wurde inspiriert, nachdem er sowjetisches Fernsehen via Satellit gesehen hatte.",
       "fun_fact_es": "Escrita durante la Guerra Fría, la canción samplea la suite 'Teniente Kijé' de Prokofiev. Sting se inspiró viendo televisión soviética vía satélite.",
       "fun_fact_fr": "Écrite pendant la Guerre froide, la chanson échantillonne la suite 'Lieutenant Kijé' de Prokofiev. Sting a été inspiré en regardant la télévision soviétique via satellite.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/1650884609",
       "uri_youtube_music": "https://music.youtube.com/watch?v=wHylQRVN2Qs",
@@ -4872,7 +4757,6 @@
       "fun_fact_de": "Mark Hollis bewegte Talk Talk bewusst vom Synth-Pop weg zu experimentelleren Klängen, was diesen Track zu einem Übergangsstück machte.",
       "fun_fact_es": "Mark Hollis alejó deliberadamente a Talk Talk del synth-pop hacia sonidos más experimentales, haciendo de esta una de las canciones de transición.",
       "fun_fact_fr": "Mark Hollis a délibérément éloigné Talk Talk de la synth-pop vers des sons plus expérimentaux, faisant de ce titre une chanson de transition.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/696670535",
       "uri_youtube_music": "https://music.youtube.com/watch?v=l3VqAsMXE7o",
@@ -4908,7 +4792,6 @@
       "fun_fact_de": "Dieser Song gewann 1986 den Brit Award für die beste britische Single und wäre fast nicht auf dem Album gelandet, weil die Band ihn für zu schwach hielt.",
       "fun_fact_es": "Esta canción ganó el Brit Award a Mejor Sencillo Británico en 1986 y casi queda fuera del álbum porque la banda no la consideraba suficientemente buena.",
       "fun_fact_fr": "Cette chanson a remporté le Brit Award du meilleur single britannique en 1986 et a failli ne pas figurer sur l'album car le groupe ne la trouvait pas assez forte.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/1440825289",
       "uri_youtube_music": "https://music.youtube.com/watch?v=aGCdLKXNF3w",
@@ -4941,7 +4824,6 @@
       "fun_fact_de": "Das ikonische Musikvideo wurde in einem Kleiderschrank gedreht, der von einer Klippe ins Meer fällt. Smith sagte, der Song handle von Klaustrophobie und Angst.",
       "fun_fact_es": "El icónico video musical fue filmado dentro de un armario que cae de un acantilado al mar. Smith dijo que la canción trata sobre claustrofobia y ansiedad.",
       "fun_fact_fr": "Le clip iconique a été filmé dans une armoire qui tombe d'une falaise dans la mer. Smith a dit que la chanson parle de claustrophobie et d'anxiété.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/282971472",
       "uri_youtube_music": "https://music.youtube.com/watch?v=BjvfIJstWeg",
@@ -4951,13 +4833,13 @@
       "awards_nl": [],
       "isrc": "USEE10608884",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/1704536575",
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
+        "us": "applemusic://track/282971472",
+        "de": "applemusic://track/1440932674",
+        "gb": "applemusic://track/1440932674",
+        "fr": "applemusic://track/1443833766",
+        "es": "applemusic://track/1440932674",
+        "nl": "applemusic://track/1452098215",
+        "it": "applemusic://track/1440932674"
       }
     },
     {
@@ -5052,7 +4934,6 @@
       "fun_fact_de": "Dieser umweltbewusste Track von 'Scoundrel Days' zeigte a-has künstlerische Entwicklung über Synth-Pop hinaus zu komplexeren Arrangements.",
       "fun_fact_es": "Esta canción con temática medioambiental de 'Scoundrel Days' mostró el crecimiento artístico de a-ha más allá del synth-pop.",
       "fun_fact_fr": "Ce titre à thème environnemental de 'Scoundrel Days' a montré l'évolution artistique d'a-ha au-delà de la synth-pop.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/217613173",
       "uri_youtube_music": "https://music.youtube.com/watch?v=0RfNp2RptzY",
@@ -5085,7 +4966,6 @@
       "fun_fact_de": "Das atmosphärische 'Manhattan Skyline' war der letzte Track auf 'Scoundrel Days' und wurde wegen seiner filmischen Qualität zum Fan-Favorit.",
       "fun_fact_es": "'Manhattan Skyline' fue la pista final de 'Scoundrel Days' y se convirtió en favorita de los fans por su calidad cinematográfica.",
       "fun_fact_fr": "'Manhattan Skyline' était le dernier titre de 'Scoundrel Days' et est devenu un favori des fans pour sa qualité cinématographique.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/380906541",
       "uri_youtube_music": "https://music.youtube.com/watch?v=WY2r28M1TrY",
@@ -5120,7 +5000,6 @@
       "fun_fact_de": "Ursprünglich von Shocking Blue (1969), erreichte Bananaranmas Cover, produziert von Stock Aitken Waterman, #1 in den USA und machte sie zur erfolgreichsten Frauengruppe in den US-Charts.",
       "fun_fact_es": "Originalmente de Shocking Blue en 1969, la versión de Bananarama producida por Stock Aitken Waterman alcanzó el #1 en EE.UU., convirtiéndolas en el grupo femenino más exitoso.",
       "fun_fact_fr": "À l'origine de Shocking Blue en 1969, la reprise de Bananarama produite par Stock Aitken Waterman a atteint le #1 aux États-Unis, faisant d'elles le groupe féminin le plus couronné de succès.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/1299157681",
       "uri_youtube_music": "https://music.youtube.com/watch?v=d4-1ASpdT1Y",
@@ -5194,7 +5073,6 @@
       "fun_fact_de": "Lauper reduzierte das Arrangement auf eine einfache Klavierballade, und der Song wurde zu einer kraftvollen Hymne der LGBTQ+-Community.",
       "fun_fact_es": "Lauper redujo el arreglo original a una simple balada de piano, y se convirtió en un poderoso himno para la comunidad LGBTQ+.",
       "fun_fact_fr": "Lauper a réduit l'arrangement original à une simple ballade au piano, et c'est devenu un hymne puissant pour la communauté LGBTQ+.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/193521054",
       "uri_youtube_music": "https://music.youtube.com/watch?v=LPn0KFlbqX8",
@@ -5204,13 +5082,13 @@
       "awards_nl": [],
       "isrc": "USSM18600632",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/1452434657",
-        "de": "applemusic://track/1452434657",
-        "gb": "applemusic://track/1452434657",
-        "fr": "applemusic://track/1452434657",
-        "es": "applemusic://track/1452434657",
-        "nl": "applemusic://track/1452434657",
-        "it": "applemusic://track/1452434657"
+        "us": "applemusic://track/193521054",
+        "de": "applemusic://track/193521054",
+        "gb": "applemusic://track/193521054",
+        "fr": "applemusic://track/193521054",
+        "es": "applemusic://track/193521054",
+        "nl": "applemusic://track/193521054",
+        "it": "applemusic://track/193521054"
       }
     },
     {
@@ -5266,7 +5144,6 @@
       "fun_fact_de": "Obwohl der Song in Großbritannien zunächst floppte, wurde 'Oh L'Amour' ein Riesenhit in Europa, besonders in Deutschland, und half Erasure, ihre Karriere zu etablieren.",
       "fun_fact_es": "Aunque fracasó en su lanzamiento inicial en el Reino Unido, 'Oh L'Amour' se convirtió en un gran éxito en Europa, especialmente en Alemania, ayudando a establecer la carrera de Erasure.",
       "fun_fact_fr": "Bien qu'il ait fait un flop à sa sortie au Royaume-Uni, 'Oh L'Amour' est devenu un énorme succès en Europe, surtout en Allemagne, aidant à établir la carrière d'Erasure.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/311071028",
       "uri_youtube_music": "https://music.youtube.com/watch?v=kFduy8qQIOg",
@@ -5277,12 +5154,12 @@
       "isrc": "USRHD0900075",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1389132122",
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
+        "de": "applemusic://track/1436488206",
+        "gb": "applemusic://track/1436488206",
+        "fr": "applemusic://track/1763025190",
+        "es": "applemusic://track/1763025190",
+        "nl": "applemusic://track/1528341885",
+        "it": "applemusic://track/1528341885"
       }
     },
     {
@@ -5301,7 +5178,6 @@
       "fun_fact_de": "Das Musikvideo zeigte Spitting-Image-Puppen, die Weltführer und die Band karikierten, und gewann 1987 den MTV VMA für das beste Konzeptvideo.",
       "fun_fact_es": "El video musical presentó marionetas de Spitting Image caricaturizando a líderes mundiales y la banda, y ganó el MTV VMA al Mejor Video Conceptual en 1987.",
       "fun_fact_fr": "Le clip présentait des marionnettes de Spitting Image caricaturant des dirigeants mondiaux et le groupe, et a remporté le MTV VMA du meilleur clip conceptuel en 1987.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/309747610",
       "uri_youtube_music": "https://music.youtube.com/watch?v=Yq7FKO5DlV0",
@@ -5334,7 +5210,6 @@
       "fun_fact_de": "Die volle Albumversion ist über 9 Minuten lang. Eine gekürzte Version wurde in einem Michelob-Bier-Werbespot verwendet, der dem Song half, #3 der Billboard Hot 100 zu erreichen.",
       "fun_fact_es": "La versión completa del álbum dura más de 9 minutos. Una versión acortada se usó en un comercial de cerveza Michelob, lo que ayudó a alcanzar el #3 del Billboard Hot 100.",
       "fun_fact_fr": "La version album complète dure plus de 9 minutes. Une version raccourcie a été utilisée dans une publicité de bière Michelob, ce qui l'a aidée à atteindre la 3e place du Billboard Hot 100.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/1580766757",
       "uri_youtube_music": "https://music.youtube.com/watch?v=E3xbLcTj_bs",
@@ -5373,7 +5248,7 @@
       "fun_fact_de": "Gianna Nanninis Durchbruchshit etablierte sie als Italiens führende Rock-Sängerin. Ihre raue Stimme und ihr energiegeladener Stil beeinflussten eine Generation italienischer Künstlerinnen.",
       "fun_fact_es": "El éxito revelación de Gianna Nannini la estableció como la principal cantante de rock femenina de Italia. Su voz ronca y estilo energético influyeron en una generación de artistas italianas.",
       "fun_fact_fr": "Le tube de la consécration de Gianna Nannini l'a établie comme la première rockeuse d'Italie. Sa voix rauque et son énergie scénique ont influencé toute une génération d'artistes féminines italiennes.",
-      "uri_apple_music": "applemusic://track/1048058595",
+      "uri_apple_music": "applemusic://track/6768669296",
       "uri_youtube_music": "https://music.youtube.com/watch?v=xzCO9FenHhc",
       "uri_tidal": "tidal://track/18004852",
       "uri_deezer": "deezer://track/16513318",
@@ -5381,13 +5256,13 @@
       "awards_nl": [],
       "isrc": "ITB001500273",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/1048058595",
-        "de": "applemusic://track/1048058595",
-        "gb": "applemusic://track/1048058595",
-        "fr": "applemusic://track/1048058595",
-        "es": "applemusic://track/1048058595",
-        "nl": "applemusic://track/1048058595",
-        "it": "applemusic://track/1048058595"
+        "us": "applemusic://track/6768669296",
+        "de": "applemusic://track/6768669296",
+        "gb": "applemusic://track/6768669296",
+        "fr": "applemusic://track/6768669296",
+        "es": "applemusic://track/6768669296",
+        "nl": "applemusic://track/6768669296",
+        "it": "applemusic://track/6768669296"
       }
     },
     {
@@ -5406,7 +5281,6 @@
       "fun_fact_de": "Dieser hymnische Song wurde Australiens inoffizielle Nationalhymne und erreichte #1 in mehreren Ländern, was Farnham vom Teenidol zur Rocklegende machte.",
       "fun_fact_es": "Esta canción himno se convirtió en el himno no oficial de Australia y alcanzó el #1 en varios países, transformando a Farnham de ídolo adolescente a leyenda del rock.",
       "fun_fact_fr": "Cette chanson hymne est devenue l'hymne national officieux de l'Australie et a atteint le #1 dans plusieurs pays, transformant Farnham d'idole adolescent en légende du rock.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/322416822",
       "uri_youtube_music": "https://music.youtube.com/watch?v=tbkOZTSvrHs",
@@ -5461,7 +5335,8 @@
         "es": "applemusic://track/1888548782",
         "nl": "applemusic://track/1888548782",
         "it": "applemusic://track/1888548782"
-      }
+      },
+      "uri_tidal": "tidal://track/614764"
     },
     {
       "year": 1986,
@@ -5613,6 +5488,15 @@
       "awards_nl": [
         "Grammy Award voor Album van het Jaar (1987) – Album"
       ],
+      "awards_it": [
+        "Grammy per l'album dell'anno (1987)"
+      ],
+      "awards_de": [
+        "Grammy - Album des Jahres (1987)"
+      ],
+      "awards_es": [
+        "Grammy - Álbum del Año (1987)"
+      ],
       "isrc": "USSM11002255",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1739846276",
@@ -5638,11 +5522,12 @@
       "fun_fact_de": "Ursprünglich mit Dolly Parton für den weiblichen Gesang geplant, sang schließlich Kate Bush das Duett. Der Song wurde von Dorothea Langes Fotos der Großen Depression inspiriert.",
       "fun_fact_es": "Originalmente pensada para Dolly Parton en la voz femenina, Kate Bush terminó cantando el dúo. La canción fue inspirada por fotografías de la Gran Depresión de Dorothea Lange.",
       "fun_fact_fr": "À l'origine écrite pour Dolly Parton pour la voix féminine, Kate Bush a finalement chanté le duo. La chanson a été inspirée par les photographies de Dorothea Lange de la Grande Dépression.",
-      "chart_info": {},
       "awards": [],
       "uri_deezer": "deezer://track/540503452",
       "fun_fact_nl": "Oorspronkelijk met Dolly Parton in gedachten voor de vrouwelijke zang, zong Kate Bush uiteindelijk het duet. Het nummer was geïnspireerd op Depressie-era foto's van Dorothea Lange.",
-      "awards_nl": []
+      "awards_nl": [],
+      "uri_apple_music": "applemusic://track/986800861",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=VjEq-r2agqc"
     },
     {
       "year": 1986,
@@ -5671,7 +5556,8 @@
       "uri_tidal": "tidal://track/51771426",
       "uri_deezer": "deezer://track/664178",
       "fun_fact_nl": "Prince schreef dit oorspronkelijk voor de band Mazarati maar vond de demo zo goed dat hij het hield. De sobere productie was revolutionair - alleen drums, gitaar en zang met bijna geen bas of keyboards.",
-      "awards_nl": []
+      "awards_nl": [],
+      "uri_apple_music": "applemusic://track/260336471"
     },
     {
       "year": 1986,
@@ -5703,12 +5589,12 @@
       "isrc": "GBUM71029621",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1440783385",
-        "de": "applemusic://track/1441459175",
-        "gb": "applemusic://track/1441459175",
-        "fr": "applemusic://track/1441459175",
-        "es": "applemusic://track/1441459175",
-        "nl": "applemusic://track/1441459175",
-        "it": "applemusic://track/1441459175"
+        "de": "applemusic://track/6781023986",
+        "gb": "applemusic://track/1797590896",
+        "fr": "applemusic://track/6781081103",
+        "es": "applemusic://track/6781023986",
+        "nl": "applemusic://track/6781023986",
+        "it": "applemusic://track/6781081103"
       }
     },
     {
@@ -5746,6 +5632,15 @@
       "awards_nl": [
         "Grammy Award voor Opname van het Jaar (1987)"
       ],
+      "awards_it": [
+        "Grammy per il disco dell'anno (1987)"
+      ],
+      "awards_de": [
+        "Grammy - Aufnahme des Jahres (1987)"
+      ],
+      "awards_es": [
+        "Grammy - Grabación del Año (1987)"
+      ],
       "isrc": "GBAAN0201051",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1600580801",
@@ -5773,7 +5668,6 @@
       "fun_fact_de": "Der Song wurde von Prince unter dem Pseudonym 'Christopher' geschrieben. Er erreichte #2 der Billboard Hot 100, von #1 verdrängt durch Prince' eigenen Song 'Kiss'.",
       "fun_fact_es": "La canción fue escrita por Prince bajo el seudónimo 'Christopher'. Alcanzó el #2 del Billboard Hot 100, impedida del #1 por el propio 'Kiss' de Prince.",
       "fun_fact_fr": "La chanson a été écrite par Prince sous le pseudonyme 'Christopher'. Elle a atteint la 2e place du Billboard Hot 100, empêchée d'atteindre le #1 par 'Kiss' de Prince lui-même.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/200007628",
       "uri_youtube_music": "https://music.youtube.com/watch?v=SsmVgoXDq2w",
@@ -5784,12 +5678,12 @@
       "isrc": "USSM19802604",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/200007628",
-        "de": "applemusic://track/292101153",
-        "gb": "applemusic://track/292101153",
-        "fr": "applemusic://track/292101153",
-        "es": "applemusic://track/292101153",
-        "nl": "applemusic://track/292101153",
-        "it": "applemusic://track/292101153"
+        "de": "applemusic://track/323489062",
+        "gb": "applemusic://track/270787340",
+        "fr": "applemusic://track/285529684",
+        "es": "applemusic://track/200007628",
+        "nl": "applemusic://track/397587067",
+        "it": "applemusic://track/397587067"
       }
     },
     {
@@ -5806,7 +5700,6 @@
       "fun_fact_de": "Wayne Hussey gründete The Mission nach seinem Abgang von The Sisters of Mercy, und 'Wasteland' wurde ihr Erkennungslied, das den Gothic-Rock-Sound der späten 80er definierte.",
       "fun_fact_es": "Wayne Hussey formó The Mission tras dejar The Sisters of Mercy, y 'Wasteland' se convirtió en su canción insignia, definiendo el sonido del rock gótico de los 80.",
       "fun_fact_fr": "Wayne Hussey a formé The Mission après avoir quitté The Sisters of Mercy, et 'Wasteland' est devenu leur chanson signature, définissant le son du rock gothique des années 80.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/1444094872",
       "uri_youtube_music": "https://music.youtube.com/watch?v=yAo42BFos98",
@@ -5889,7 +5782,8 @@
         "es": "applemusic://track/1294750451",
         "nl": "applemusic://track/1294750451",
         "it": "applemusic://track/1294750451"
-      }
+      },
+      "uri_tidal": "tidal://track/271200"
     },
     {
       "year": 1987,
@@ -5956,7 +5850,8 @@
       "uri_tidal": "tidal://track/4841969",
       "uri_deezer": "deezer://track/8146779",
       "fun_fact_nl": "George Michael schreef, produceerde en speelde bijna elk instrument op dit nummer. Het iconische gitaarriff aan het begin was geïnspireerd op Bo Diddley. Het gelijknamige album maakte hem de eerste blanke soloartiest die nummer 1 bereikte op de Amerikaanse R&B-hitparade.",
-      "awards_nl": []
+      "awards_nl": [],
+      "uri_apple_music": "applemusic://track/282658468"
     },
     {
       "year": 1987,
@@ -6030,7 +5925,8 @@
         "es": "applemusic://track/1469573442",
         "nl": "applemusic://track/1442921368",
         "it": "applemusic://track/1469573442"
-      }
+      },
+      "uri_tidal": "tidal://track/35716399"
     },
     {
       "year": 1987,
@@ -6049,7 +5945,6 @@
       "fun_fact_de": "Der Song handelt von der Rückgabe der Landrechte an die Pintupi im australischen Western Desert und wurde zu einer Hymne für indigene Rechte.",
       "fun_fact_es": "La canción trata sobre la devolución de derechos territoriales al pueblo Pintupi del desierto occidental australiano y se convirtió en un himno de los derechos indígenas.",
       "fun_fact_fr": "La chanson parle de la restitution des droits fonciers au peuple Pintupi du désert occidental australien et est devenue un hymne pour les droits des peuples autochtones.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/557443471",
       "uri_youtube_music": "https://music.youtube.com/watch?v=ejorQVy3m8E",
@@ -6099,7 +5994,7 @@
       "awards_nl": [],
       "isrc": "GBAYE1700799",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/1755142580",
+        "us": "applemusic://track/1645129014",
         "de": "applemusic://track/1755142580",
         "gb": "applemusic://track/1755142580",
         "fr": "applemusic://track/1755142580",
@@ -6124,7 +6019,6 @@
       "fun_fact_de": "Oft als Liebeslied missverstanden, beschrieb Michael Stipe ihn als 'brutalen Song' über das Ausnutzen einer anderen Person. Es war R.E.M.s erster US-Top-10-Hit.",
       "fun_fact_es": "A menudo confundida con una canción de amor, Michael Stipe la describió como 'una canción brutal' sobre usar a otra persona. Fue el primer Top 10 de R.E.M. en EE.UU.",
       "fun_fact_fr": "Souvent prise pour une chanson d'amour, Michael Stipe l'a décrite comme 'une chanson brutale' sur l'utilisation d'une autre personne. C'était le premier Top 10 de R.E.M. aux États-Unis.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/1440850621",
       "uri_youtube_music": "https://music.youtube.com/watch?v=j7oQEPfe-O8",
@@ -6197,7 +6091,6 @@
       "fun_fact_de": "Dies ist ein Cover von Iggy Pops Song von 1977. Siouxsies Version erreichte die UK Top 50 und machte den Song einem breiteren Publikum der Gothic-Szene der späten 80er bekannt.",
       "fun_fact_es": "Esta es una versión del tema de Iggy Pop de 1977. La versión de Siouxsie alcanzó el Top 50 del Reino Unido y presentó la canción a un público más amplio de la escena gótica.",
       "fun_fact_fr": "C'est une reprise de la chanson d'Iggy Pop de 1977. La version de Siouxsie a atteint le Top 50 au Royaume-Uni et a fait découvrir la chanson à un public plus large de la scène goth.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/1443124526",
       "uri_youtube_music": "https://music.youtube.com/watch?v=4nAON-MwUPY",
@@ -6331,7 +6224,8 @@
         "es": "applemusic://track/1329359020",
         "nl": "applemusic://track/1329359020",
         "it": "applemusic://track/1329359020"
-      }
+      },
+      "uri_tidal": "tidal://track/82842804"
     },
     {
       "year": 1987,
@@ -6347,7 +6241,6 @@
       "fun_fact_de": "Robert Smith schrieb dies über einen Ausflug nach Beachy Head mit seiner späteren Frau Mary. Er gilt als einer der größten Liebessongs der 80er und wurde von Dinosaur Jr. gecovert.",
       "fun_fact_es": "Robert Smith escribió esta canción sobre un viaje a Beachy Head con su futura esposa Mary. Es considerada una de las mejores canciones de amor de los 80.",
       "fun_fact_fr": "Robert Smith a écrit cette chanson lors d'un voyage à Beachy Head avec sa future femme Mary. Elle est considérée comme l'une des plus grandes chansons d'amour des années 80.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/31739774",
       "uri_youtube_music": "https://music.youtube.com/watch?v=n3nPiBai66M",
@@ -6358,12 +6251,12 @@
       "isrc": "USEE18700009",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1836933287",
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
+        "de": "applemusic://track/1452806384",
+        "gb": "applemusic://track/1452806384",
+        "fr": "applemusic://track/1452806384",
+        "es": "applemusic://track/1452806384",
+        "nl": "applemusic://track/1475933574",
+        "it": "applemusic://track/1452806384"
       }
     },
     {
@@ -6401,6 +6294,15 @@
       "fun_fact_nl": "Whitney Houston wilde dit nummer aanvankelijk niet opnemen, omdat ze vond dat het te vrolijk was. Producer Narada Michael Walden overtuigde haar, en het werd haar vierde opeenvolgende nummer 1-hit, waarbij ze een Grammy won voor Best Female Pop Vocal.",
       "awards_nl": [
         "Grammy Award voor Beste Vrouwelijke Pop Zangprestatie (1988)"
+      ],
+      "awards_it": [
+        "Grammy per la migliore interpretazione vocale pop femminile (1988)"
+      ],
+      "awards_de": [
+        "Grammy - Beste weibliche Pop-Gesangsdarbietung (1988)"
+      ],
+      "awards_es": [
+        "Grammy - Mejor Interpretación Vocal Pop Femenina (1988)"
       ],
       "isrc": "USAR18700121",
       "uri_apple_music_by_region": {
@@ -6449,7 +6351,8 @@
         "es": "applemusic://track/6762970661",
         "nl": "applemusic://track/6762970661",
         "it": "applemusic://track/6762970661"
-      }
+      },
+      "uri_tidal": "tidal://track/21884076"
     },
     {
       "year": 1988,
@@ -6640,9 +6543,18 @@
       "awards_nl": [
         "Golden Globe voor Beste Originele Lied (1989)"
       ],
+      "awards_it": [
+        "Golden Globe per la migliore canzone originale (1989)"
+      ],
+      "awards_de": [
+        "Golden Globe - Bester Filmsong (1989)"
+      ],
+      "awards_es": [
+        "Globo de Oro - Mejor Canción Original (1989)"
+      ],
       "isrc": "USWI19600240",
       "uri_apple_music_by_region": {
-        "us": null,
+        "us": "applemusic://track/1148642433",
         "de": "applemusic://track/110687725",
         "gb": "applemusic://track/110687725",
         "fr": "applemusic://track/110687725",
@@ -6665,7 +6577,6 @@
       "fun_fact_de": "Der eingängige 'Hot Dog, Jumping Frog, Albuquerque'-Hook war Paddy McAloons Parodie auf simplistische Pop-Texte, wurde aber ihr größter Hit.",
       "fun_fact_es": "El pegadizo 'hot dog, jumping frog, Albuquerque' era la parodia de Paddy McAloon de las letras pop simplistas, pero se convirtió en su mayor éxito.",
       "fun_fact_fr": "Le refrain accrocheur 'hot dog, jumping frog, Albuquerque' était la parodie de Paddy McAloon des paroles pop simplistes, mais c'est devenu leur plus grand succès.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/1476849933",
       "uri_youtube_music": "https://music.youtube.com/watch?v=4T6e3GJCjow",
@@ -6718,7 +6629,8 @@
         "es": "applemusic://track/1796180237",
         "nl": "applemusic://track/1796180237",
         "it": "applemusic://track/1796180237"
-      }
+      },
+      "uri_tidal": "tidal://track/1548945"
     },
     {
       "year": 1988,
@@ -6734,7 +6646,6 @@
       "fun_fact_de": "Lee Mavers war so unzufrieden mit jeder aufgenommenen Version, dass die Band sie dreimal neu aufnahm. Es wird debattiert, ob der Song von einem Mädchen oder von Heroin handelt.",
       "fun_fact_es": "Lee Mavers estaba tan insatisfecho con cada versión grabada que la banda la regrabó tres veces. Se debate si la canción es sobre una chica o sobre heroína.",
       "fun_fact_fr": "Lee Mavers était si insatisfait de chaque version enregistrée que le groupe l'a réenregistrée trois fois. On débat pour savoir si la chanson parle d'une fille ou d'héroïne.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/1443735637",
       "uri_youtube_music": "https://music.youtube.com/watch?v=CZXLLMbJdZ4",
@@ -6767,7 +6678,6 @@
       "fun_fact_de": "Am selben Tag wie die Single der Sisters of Mercy veröffentlicht, was eine Rivalität auslöste. Der Song erreichte #12 in Großbritannien und wurde zur Gothic-Rock-Hymne.",
       "fun_fact_es": "Lanzada el mismo día que el sencillo de The Sisters of Mercy, provocando una rivalidad. La canción alcanzó el #12 en el Reino Unido y se convirtió en un himno del rock gótico.",
       "fun_fact_fr": "Sorti le même jour que le single des Sisters of Mercy, déclenchant une rivalité. La chanson a atteint la 12e place au Royaume-Uni et est devenue un hymne du rock gothique.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/1443511074",
       "uri_youtube_music": "https://music.youtube.com/watch?v=yTcwMDKTP2A",
@@ -6817,8 +6727,8 @@
       "awards_nl": [],
       "isrc": "GBAYK8800055",
       "uri_apple_music_by_region": {
-        "us": "applemusic://track/1730001805",
-        "de": "applemusic://track/1730001805",
+        "us": "applemusic://track/693789044",
+        "de": "applemusic://track/693789044",
         "gb": "applemusic://track/1702790221",
         "fr": "applemusic://track/1702790221",
         "es": "applemusic://track/1702790221",
@@ -6860,7 +6770,8 @@
         "es": "applemusic://track/890507762",
         "nl": "applemusic://track/890507762",
         "it": "applemusic://track/890507762"
-      }
+      },
+      "uri_tidal": "tidal://track/1886377"
     },
     {
       "year": 1988,
@@ -6952,7 +6863,6 @@
       "fun_fact_de": "Von ihrem selbstbetitelten Debütalbum, das sich über 20 Millionen Mal verkaufte. Boyzone hatten 1997 mit ihrem Cover einen #2-UK-Hit.",
       "fun_fact_es": "De su álbum debut homónimo que vendió más de 20 millones de copias. Boyzone tuvo un éxito #2 en el Reino Unido con su versión en 1997.",
       "fun_fact_fr": "De son premier album éponyme vendu à plus de 20 millions d'exemplaires. Boyzone a eu un succès #2 au Royaume-Uni avec leur reprise en 1997.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/79565526",
       "uri_youtube_music": "https://music.youtube.com/watch?v=DqoLMGSBGYc",
@@ -7039,12 +6949,12 @@
       "isrc": "QMFME2521079",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1837530994",
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
+        "de": "applemusic://track/217503142",
+        "gb": "applemusic://track/217503142",
+        "fr": "applemusic://track/217503142",
+        "es": "applemusic://track/217503142",
+        "nl": "applemusic://track/217503142",
+        "it": "applemusic://track/217503142"
       }
     },
     {
@@ -7139,7 +7049,6 @@
       "fun_fact_de": "Dieser trockene Gesellschaftskommentar wurde Del Amitris größter UK-Hit und erreichte #11. Die zynischen Texte über moderne Apathie trafen den Nerv des Publikums der späten 80er.",
       "fun_fact_es": "Este irónico comentario social se convirtió en el mayor éxito de Del Amitri en el Reino Unido, alcanzando el #11. Sus letras cínicas sobre la apatía moderna resonaron con el público de finales de los 80.",
       "fun_fact_fr": "Ce commentaire social ironique est devenu le plus grand succès de Del Amitri au Royaume-Uni, atteignant la 11e place. Ses paroles cyniques sur l'apathie moderne ont profondément résonné avec le public de la fin des années 80.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/1440913575",
       "uri_youtube_music": "https://music.youtube.com/watch?v=c4rPYw6P8Ls",
@@ -7174,7 +7083,6 @@
       "fun_fact_de": "Dies war Elton Johns erste Solo-#1 in Großbritannien, obwohl er seit den frühen 1970ern Hits hatte. Er brauchte 20 Jahre für eine Solo-Chartspitze in seiner Heimat.",
       "fun_fact_es": "Este fue el primer #1 en solitario de Elton John en el Reino Unido, a pesar de tener éxitos desde los años 70. Le tomó 20 años lograr un #1 en solitario en su país.",
       "fun_fact_fr": "C'était le premier #1 solo d'Elton John au Royaume-Uni, malgré des tubes depuis les années 70. Il lui a fallu 20 ans pour atteindre le sommet des charts en solo dans son pays.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/1440918552",
       "uri_youtube_music": "https://music.youtube.com/watch?v=NrLkTZrPZA4",
@@ -7247,7 +7155,6 @@
       "fun_fact_de": "Dieser hymnische Song über Außenseiter und Wanderer wurde New Model Armys größter Hit und ein Festival-Favorit, der den Geist der alternativen Szene der späten 80er verkörperte.",
       "fun_fact_es": "Esta canción himno sobre forasteros y vagabundos se convirtió en el mayor éxito de New Model Army y un favorito de festivales, encarnando el espíritu de la escena alternativa de finales de los 80.",
       "fun_fact_fr": "Cette chanson hymne sur les marginaux et les vagabonds est devenue le plus grand succès de New Model Army et un favori des festivals, incarnant l'esprit de la scène alternative de la fin des années 80.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/697137511",
       "uri_youtube_music": "https://music.youtube.com/watch?v=OW-YjYESNOY",
@@ -7302,6 +7209,15 @@
       "awards_nl": [
         "Grammy Award voor Opname van het Jaar (1991)"
       ],
+      "awards_it": [
+        "Grammy per il disco dell'anno (1991)"
+      ],
+      "awards_de": [
+        "Grammy - Aufnahme des Jahres (1991)"
+      ],
+      "awards_es": [
+        "Grammy - Grabación del Año (1991)"
+      ],
       "isrc": "USRH11602405",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1148701937",
@@ -7329,7 +7245,6 @@
       "fun_fact_de": "Mit 6:39 war dies eine der längsten Singles, die #1 in Großbritannien erreichten. Inspiriert von den Unruhen in Nordirland, basiert sie auf der irischen Volksweise 'She Moved Through the Fair'.",
       "fun_fact_es": "Con 6:39, fue uno de los sencillos más largos en alcanzar el #1 en el Reino Unido. Fue inspirada por los Troubles en Irlanda del Norte y basada en la melodía folclórica irlandesa 'She Moved Through the Fair'.",
       "fun_fact_fr": "Avec 6:39, c'était l'un des plus longs singles à atteindre le #1 au Royaume-Uni. Inspiré par les Troubles en Irlande du Nord, il est basé sur l'air folklorique irlandais 'She Moved Through the Fair'.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/1494164865",
       "uri_youtube_music": "https://music.youtube.com/watch?v=7vhhTvcLoRw",
@@ -7385,7 +7300,8 @@
         "es": "applemusic://track/1714984620",
         "nl": "applemusic://track/1714984620",
         "it": "applemusic://track/1714984620"
-      }
+      },
+      "uri_tidal": "tidal://track/2060835"
     },
     {
       "year": 1989,
@@ -7401,7 +7317,6 @@
       "fun_fact_de": "Oleta Adams sang den Duett-Part, nachdem Roland Orzabal sie während einer Tour in einer Hotelbar in Kansas City entdeckt hatte.",
       "fun_fact_es": "Oleta Adams cantó la parte del dúo después de que Roland Orzabal la descubriera actuando en un bar de hotel en Kansas City durante una gira.",
       "fun_fact_fr": "Oleta Adams a chanté la partie en duo après que Roland Orzabal l'a découverte se produisant dans un bar d'hôtel à Kansas City pendant une tournée.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/1527554456",
       "uri_youtube_music": "https://music.youtube.com/watch?v=QzkK3ZtI9SU",
@@ -7452,12 +7367,12 @@
       "isrc": "USSM18700216",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/429802577",
-        "de": "applemusic://track/471197726",
-        "gb": "applemusic://track/471197726",
-        "fr": "applemusic://track/211481198",
-        "es": "applemusic://track/211481198",
-        "nl": "applemusic://track/211481198",
-        "it": "applemusic://track/471197726"
+        "de": "applemusic://track/185603176",
+        "gb": "applemusic://track/291417924",
+        "fr": "applemusic://track/1692216560",
+        "es": "applemusic://track/193605920",
+        "nl": "applemusic://track/193605920",
+        "it": "applemusic://track/390617130"
       }
     },
     {
@@ -7474,7 +7389,6 @@
       "fun_fact_de": "Der Song beschreibt, von einem 'Spiderman' gefressen zu werden, und wurde von Robert Smiths Kindheits-Albträumen inspiriert. Das von Tim Pope gedrehte Video gewann mehrere Preise.",
       "fun_fact_es": "La canción describe ser devorado por un 'hombre araña' y fue inspirada por las pesadillas infantiles de Robert Smith. El video dirigido por Tim Pope ganó múltiples premios.",
       "fun_fact_fr": "La chanson décrit le fait d'être dévoré par un 'homme-araignée' et a été inspirée par les cauchemars d'enfance de Robert Smith. Le clip réalisé par Tim Pope a remporté plusieurs prix.",
-      "chart_info": {},
       "awards": [],
       "uri_apple_music": "applemusic://track/372100077",
       "uri_youtube_music": "https://music.youtube.com/watch?v=dnn49P7vSdc",
@@ -7485,12 +7399,12 @@
       "isrc": "USEE10901457",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1720381137",
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
+        "de": "applemusic://track/1440786034",
+        "gb": "applemusic://track/1440932679",
+        "fr": "applemusic://track/1440786034",
+        "es": "applemusic://track/1440932679",
+        "nl": "applemusic://track/1440932679",
+        "it": "applemusic://track/1440786034"
       }
     },
     {
@@ -7573,114 +7487,6 @@
       }
     },
     {
-      "year": 1990,
-      "uri": "spotify:track:2QkFENeLttDT4GISXvVeFq",
-      "artist": "The Farm",
-      "title": "All Together Now",
-      "alt_artists": [
-        "The La's",
-        "The Stone Roses"
-      ],
-      "certifications": [
-        "Gold (UK)"
-      ],
-      "fun_fact": "Inspired by the 1914 Christmas Truce during WWI, the song became a football anthem and was later used for the 2004 European Championship.",
-      "fun_fact_de": "Inspiriert vom Weihnachtsfrieden 1914 im Ersten Weltkrieg wurde der Song zur Fußballhymne und wurde bei der Europameisterschaft 2004 verwendet.",
-      "fun_fact_es": "Inspirada en la Tregua de Navidad de 1914 durante la Primera Guerra Mundial, la canción se convirtió en un himno del fútbol y fue usada en la Eurocopa 2004.",
-      "fun_fact_fr": "Inspirée par la Trêve de Noël de 1914 pendant la Première Guerre mondiale, la chanson est devenue un hymne du football et a été utilisée pour le Championnat d'Europe 2004.",
-      "chart_info": {},
-      "awards": [],
-      "uri_apple_music": "applemusic://track/302229811",
-      "uri_youtube_music": "https://music.youtube.com/watch?v=iRgtzZ-mOQo",
-      "uri_tidal": "tidal://track/490869826",
-      "uri_deezer": "deezer://track/3783098662",
-      "fun_fact_nl": "Geïnspireerd op het Kerstbestand van 1914 tijdens WO I werd het nummer een voetbalhymne en werd later gebruikt voor het Europees Kampioenschap van 2004.",
-      "awards_nl": [],
-      "isrc": "USRE19901615",
-      "uri_apple_music_by_region": {
-        "us": "applemusic://track/1543366109",
-        "de": null,
-        "gb": null,
-        "fr": null,
-        "es": null,
-        "nl": null,
-        "it": null
-      }
-    },
-    {
-      "year": 1991,
-      "uri": "spotify:track:7bljdWZ5t9VqfBbGFjwZ98",
-      "artist": "Orchestral Manoeuvres In The Dark",
-      "title": "Sailing On The Seven Seas",
-      "alt_artists": [
-        "Depeche Mode",
-        "Pet Shop Boys"
-      ],
-      "certifications": [],
-      "fun_fact": "This comeback single marked OMD's return to the charts after a quiet period, reaching #3 in the UK and becoming their biggest hit since the mid-80s.",
-      "fun_fact_de": "Diese Comeback-Single markierte OMDs Rückkehr in die Charts nach einer ruhigen Phase und erreichte #3 in Großbritannien.",
-      "fun_fact_es": "Este sencillo de regreso marcó el retorno de OMD a las listas después de un período tranquilo, alcanzando el #3 en el Reino Unido.",
-      "fun_fact_fr": "Ce single de retour a marqué le retour d'OMD dans les charts après une période calme, atteignant la 3e place au Royaume-Uni.",
-      "chart_info": {},
-      "awards": [],
-      "uri_apple_music": "applemusic://track/714617957",
-      "uri_youtube_music": "https://music.youtube.com/watch?v=lMST3H69-Os",
-      "uri_tidal": "tidal://track/1577114",
-      "uri_deezer": "deezer://track/3156233",
-      "fun_fact_nl": "Deze comeback-single markeerde OMD's terugkeer naar de hitparade na een rustige periode, bereikte nummer 3 in het VK en werd hun grootste hit sinds het midden van de jaren 80.",
-      "awards_nl": [],
-      "isrc": "GBAAA9100038",
-      "uri_apple_music_by_region": {
-        "us": "applemusic://track/6762969233",
-        "de": "applemusic://track/6762969233",
-        "gb": "applemusic://track/6762969233",
-        "fr": "applemusic://track/6762969233",
-        "es": "applemusic://track/6762969233",
-        "nl": "applemusic://track/6762969233",
-        "it": "applemusic://track/6762969233"
-      }
-    },
-    {
-      "year": 1991,
-      "uri": "spotify:track:3ShEGKdskF0ke7iW2u9gjD",
-      "artist": "Zucchero",
-      "alt_artists": [
-        "Eros Ramazzotti",
-        "Vasco Rossi"
-      ],
-      "title": "Senza Una Donna",
-      "chart_info": {
-        "billboard_peak": 4,
-        "uk_peak": 4,
-        "weeks_on_chart": 15
-      },
-      "certifications": [
-        "Gold (US)",
-        "Gold (UK)"
-      ],
-      "awards": [],
-      "fun_fact": "This Italian-English duet with Paul Young became an international hit. Zucchero (meaning 'Sugar' in Italian) is one of Italy's most successful artists. The song took six years to become popular internationally.",
-      "fun_fact_de": "Dieses italienisch-englische Duett mit Paul Young wurde ein internationaler Hit. Zucchero (italienisch für 'Zucker') ist einer von Italiens erfolgreichsten Künstlern.",
-      "fun_fact_es": "Este dueto italiano-inglés con Paul Young se convirtió en un éxito internacional. Zucchero (que significa 'Azúcar' en italiano) es uno de los artistas más exitosos de Italia.",
-      "fun_fact_fr": "Ce duo italo-anglais avec Paul Young est devenu un succès international. Zucchero (qui signifie 'Sucre' en italien) est l'un des artistes les plus couronnés de succès en Italie. La chanson a mis six ans avant de percer à l'international.",
-      "uri_apple_music": "applemusic://track/98318466",
-      "uri_youtube_music": "https://music.youtube.com/watch?v=4tZ1I1eJXJs",
-      "uri_tidal": "tidal://track/37668277",
-      "uri_deezer": "deezer://track/89748761",
-      "fun_fact_nl": "Dit Italiaans-Engels duet met Paul Young werd een internationale hit. Zucchero (Italiaans voor 'Suiker') is een van Italië's meest succesvolle artiesten. Het nummer deed er zes jaar over om internationaal populair te worden.",
-      "awards_nl": [],
-      "isrc": "USBKY0509747",
-      "uri_apple_music_by_region": {
-        "us": "applemusic://track/98318466",
-        "de": "applemusic://track/98318466",
-        "gb": "applemusic://track/98318466",
-        "fr": "applemusic://track/98318466",
-        "es": "applemusic://track/98318466",
-        "nl": "applemusic://track/98318466",
-        "it": "applemusic://track/98318466"
-      }
-    },
-    {
       "artist": "The B-52's",
       "title": "Love Shack - Edit",
       "year": 1989,
@@ -7697,38 +7503,14 @@
         "it": "applemusic://track/1797543617"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=LXZFtJceQC4",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/2938882",
       "uri_deezer": "deezer://track/3929350",
       "fun_fact": "A chart hit by The B-52's (1989).",
       "fun_fact_de": "Ein Chart-Hit von The B-52's (1989).",
       "fun_fact_es": "Un éxito de The B-52's (1989).",
       "fun_fact_fr": "Un tube de The B-52's (1989).",
-      "fun_fact_nl": "Een chart-hit van The B-52's (1989)."
-    },
-    {
-      "artist": "Don McLean",
-      "title": "American Pie",
-      "year": 1971,
-      "isrc": "USEM38600088",
-      "uri": "spotify:track:1fDsrQ23eTAVFElUMaf38X",
-      "uri_apple_music": "applemusic://track/1891813116",
-      "uri_apple_music_by_region": {
-        "us": "applemusic://track/1891813116",
-        "de": "applemusic://track/1891813116",
-        "gb": "applemusic://track/1891813116",
-        "fr": "applemusic://track/1891813116",
-        "es": "applemusic://track/1891813116",
-        "nl": "applemusic://track/1891813116",
-        "it": "applemusic://track/1891813116"
-      },
-      "uri_youtube_music": "https://music.youtube.com/watch?v=iX_TFkut1PM",
-      "uri_tidal": null,
-      "uri_deezer": "deezer://track/3166505",
-      "fun_fact": "A chart hit by Don McLean (1987).",
-      "fun_fact_de": "Ein Chart-Hit von Don McLean (1987).",
-      "fun_fact_es": "Un éxito de Don McLean (1987).",
-      "fun_fact_fr": "Un tube de Don McLean (1987).",
-      "fun_fact_nl": "Een chart-hit van Don McLean (1987)."
+      "fun_fact_nl": "Een chart-hit van The B-52's (1989).",
+      "fun_fact_it": "Un successo in classifica di The B-52's (1989)."
     },
     {
       "artist": "The J. Geils Band",
@@ -7747,13 +7529,14 @@
         "it": "applemusic://track/1445835892"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=Y9mPp5IZbrY",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/1127288",
       "uri_deezer": "deezer://track/3168234",
-      "fun_fact": "A chart hit by The J. Geils Band (1989).",
-      "fun_fact_de": "Ein Chart-Hit von The J. Geils Band (1989).",
-      "fun_fact_es": "Un éxito de The J. Geils Band (1989).",
-      "fun_fact_fr": "Un tube de The J. Geils Band (1989).",
-      "fun_fact_nl": "Een chart-hit van The J. Geils Band (1989)."
+      "fun_fact": "A chart hit by The J. Geils Band (1981).",
+      "fun_fact_de": "Ein Chart-Hit von The J. Geils Band (1981).",
+      "fun_fact_es": "Un éxito de The J. Geils Band (1981).",
+      "fun_fact_fr": "Un tube de The J. Geils Band (1981).",
+      "fun_fact_nl": "Een chart-hit van The J. Geils Band (1981).",
+      "fun_fact_it": "Un successo in classifica di The J. Geils Band (1981)."
     },
     {
       "artist": "George Harrison",
@@ -7772,13 +7555,14 @@
         "it": "applemusic://track/1666655533"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=lQuln0tbgDA",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/2909308",
       "uri_deezer": "deezer://track/3164587",
       "fun_fact": "A chart hit by George Harrison (1987).",
       "fun_fact_de": "Ein Chart-Hit von George Harrison (1987).",
       "fun_fact_es": "Un éxito de George Harrison (1987).",
       "fun_fact_fr": "Un tube de George Harrison (1987).",
-      "fun_fact_nl": "Een chart-hit van George Harrison (1987)."
+      "fun_fact_nl": "Een chart-hit van George Harrison (1987).",
+      "fun_fact_it": "Un successo in classifica di George Harrison (1987)."
     },
     {
       "artist": "Gipsy Kings",
@@ -7788,7 +7572,7 @@
       "uri": "spotify:track:2Mz7HwloqFNdA6iZeZk5PJ",
       "uri_apple_music": "applemusic://track/1512944833",
       "uri_apple_music_by_region": {
-        "us": null,
+        "us": "applemusic://track/541479235",
         "de": "applemusic://track/1512944833",
         "gb": "applemusic://track/1512944833",
         "fr": "applemusic://track/1519718252",
@@ -7797,13 +7581,14 @@
         "it": "applemusic://track/1512944833"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=Sik6eDQ18WE",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/141174374",
       "uri_deezer": "deezer://track/958716392",
-      "fun_fact": "A chart hit by Gipsy Kings (2012).",
-      "fun_fact_de": "Ein Chart-Hit von Gipsy Kings (2012).",
-      "fun_fact_es": "Un éxito de Gipsy Kings (2012).",
-      "fun_fact_fr": "Un tube de Gipsy Kings (2012).",
-      "fun_fact_nl": "Een chart-hit van Gipsy Kings (2012)."
+      "fun_fact": "A chart hit by Gipsy Kings (1982).",
+      "fun_fact_de": "Ein Chart-Hit von Gipsy Kings (1982).",
+      "fun_fact_es": "Un éxito de Gipsy Kings (1982).",
+      "fun_fact_fr": "Un tube de Gipsy Kings (1982).",
+      "fun_fact_nl": "Een chart-hit van Gipsy Kings (1982).",
+      "fun_fact_it": "Un successo in classifica di Gipsy Kings (1982)."
     },
     {
       "artist": "Bandolero",
@@ -7822,13 +7607,14 @@
         "it": "applemusic://track/906486219"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=ruauz315oms",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/45973475",
       "uri_deezer": "deezer://track/14750330",
-      "fun_fact": "A chart hit by Bandolero (2011).",
-      "fun_fact_de": "Ein Chart-Hit von Bandolero (2011).",
-      "fun_fact_es": "Un éxito de Bandolero (2011).",
-      "fun_fact_fr": "Un tube de Bandolero (2011).",
-      "fun_fact_nl": "Een chart-hit van Bandolero (2011)."
+      "fun_fact": "A chart hit by Bandolero (1983).",
+      "fun_fact_de": "Ein Chart-Hit von Bandolero (1983).",
+      "fun_fact_es": "Un éxito de Bandolero (1983).",
+      "fun_fact_fr": "Un tube de Bandolero (1983).",
+      "fun_fact_nl": "Een chart-hit van Bandolero (1983).",
+      "fun_fact_it": "Un successo in classifica di Bandolero (1983)."
     },
     {
       "artist": "Eddy Grant",
@@ -7847,13 +7633,14 @@
         "it": "applemusic://track/1882033162"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=ZTGOAFXUEyI",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/503876008",
       "uri_deezer": "deezer://track/3878886741",
-      "fun_fact": "A chart hit by Eddy Grant (2026).",
-      "fun_fact_de": "Ein Chart-Hit von Eddy Grant (2026).",
-      "fun_fact_es": "Un éxito de Eddy Grant (2026).",
-      "fun_fact_fr": "Un tube de Eddy Grant (2026).",
-      "fun_fact_nl": "Een chart-hit van Eddy Grant (2026)."
+      "fun_fact": "A chart hit by Eddy Grant (1988).",
+      "fun_fact_de": "Ein Chart-Hit von Eddy Grant (1988).",
+      "fun_fact_es": "Un éxito de Eddy Grant (1988).",
+      "fun_fact_fr": "Un tube de Eddy Grant (1988).",
+      "fun_fact_nl": "Een chart-hit van Eddy Grant (1988).",
+      "fun_fact_it": "Un successo in classifica di Eddy Grant (1988)."
     },
     {
       "artist": "T.S. Monk",
@@ -7872,21 +7659,22 @@
         "it": "applemusic://track/1769118265"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=kgbxH-Ii6dM",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/37378724",
       "uri_deezer": "deezer://track/89339263",
-      "fun_fact": "A chart hit by T.S. Monk (2014).",
-      "fun_fact_de": "Ein Chart-Hit von T.S. Monk (2014).",
-      "fun_fact_es": "Un éxito de T.S. Monk (2014).",
-      "fun_fact_fr": "Un tube de T.S. Monk (2014).",
-      "fun_fact_nl": "Een chart-hit van T.S. Monk (2014)."
+      "fun_fact": "A chart hit by T.S. Monk (1980).",
+      "fun_fact_de": "Ein Chart-Hit von T.S. Monk (1980).",
+      "fun_fact_es": "Un éxito de T.S. Monk (1980).",
+      "fun_fact_fr": "Un tube de T.S. Monk (1980).",
+      "fun_fact_nl": "Een chart-hit van T.S. Monk (1980).",
+      "fun_fact_it": "Un successo in classifica di T.S. Monk (1980)."
     },
     {
       "artist": "Central Line",
       "title": "Walking Into Sunshine - Edit",
       "year": 1981,
-      "isrc": "USMR18289041",
+      "isrc": "GBF088100893",
       "uri": "spotify:track:5r2OXBrMdXIBk3BQemVUGJ",
-      "uri_apple_music": "applemusic://track/1444100932",
+      "uri_apple_music": "applemusic://track/1707476508",
       "uri_apple_music_by_region": {
         "us": "applemusic://track/1444100932",
         "de": "applemusic://track/1444173794",
@@ -7896,14 +7684,15 @@
         "nl": "applemusic://track/1444173794",
         "it": "applemusic://track/1444173794"
       },
-      "uri_youtube_music": "https://music.youtube.com/watch?v=4ERFvbvUJRE",
-      "uri_tidal": null,
-      "uri_deezer": "deezer://track/121588468",
-      "fun_fact": "A chart hit by Central Line (2015).",
-      "fun_fact_de": "Ein Chart-Hit von Central Line (2015).",
-      "fun_fact_es": "Un éxito de Central Line (2015).",
-      "fun_fact_fr": "Un tube de Central Line (2015).",
-      "fun_fact_nl": "Een chart-hit van Central Line (2015)."
+      "uri_youtube_music": "https://music.youtube.com/watch?v=VLt25_UFJ9U",
+      "uri_tidal": "tidal://track/319063690",
+      "uri_deezer": "deezer://track/2477137301",
+      "fun_fact": "A chart hit by Central Line (1981).",
+      "fun_fact_de": "Ein Chart-Hit von Central Line (1981).",
+      "fun_fact_es": "Un éxito de Central Line (1981).",
+      "fun_fact_fr": "Un tube de Central Line (1981).",
+      "fun_fact_nl": "Een chart-hit van Central Line (1981).",
+      "fun_fact_it": "Un successo in classifica di Central Line (1981)."
     },
     {
       "artist": "Peter Gabriel",
@@ -7922,13 +7711,14 @@
         "it": "applemusic://track/994361949"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=GYiIzez8LrM",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/122120386",
       "uri_deezer": "deezer://track/540503442",
-      "fun_fact": "A chart hit by Peter Gabriel (2012).",
-      "fun_fact_de": "Ein Chart-Hit von Peter Gabriel (2012).",
-      "fun_fact_es": "Un éxito de Peter Gabriel (2012).",
-      "fun_fact_fr": "Un tube de Peter Gabriel (2012).",
-      "fun_fact_nl": "Een chart-hit van Peter Gabriel (2012)."
+      "fun_fact": "A chart hit by Peter Gabriel (1986).",
+      "fun_fact_de": "Ein Chart-Hit von Peter Gabriel (1986).",
+      "fun_fact_es": "Un éxito de Peter Gabriel (1986).",
+      "fun_fact_fr": "Un tube de Peter Gabriel (1986).",
+      "fun_fact_nl": "Een chart-hit van Peter Gabriel (1986).",
+      "fun_fact_it": "Un successo in classifica di Peter Gabriel (1986)."
     },
     {
       "artist": "Michael Jackson",
@@ -7947,13 +7737,14 @@
         "it": "applemusic://track/559334751"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=-DlMoJ2V6uk",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/16951562",
       "uri_deezer": "deezer://track/59509531",
-      "fun_fact": "A chart hit by Michael Jackson (2012).",
-      "fun_fact_de": "Ein Chart-Hit von Michael Jackson (2012).",
-      "fun_fact_es": "Un éxito de Michael Jackson (2012).",
-      "fun_fact_fr": "Un tube de Michael Jackson (2012).",
-      "fun_fact_nl": "Een chart-hit van Michael Jackson (2012)."
+      "fun_fact": "A chart hit by Michael Jackson (1987).",
+      "fun_fact_de": "Ein Chart-Hit von Michael Jackson (1987).",
+      "fun_fact_es": "Un éxito de Michael Jackson (1987).",
+      "fun_fact_fr": "Un tube de Michael Jackson (1987).",
+      "fun_fact_nl": "Een chart-hit van Michael Jackson (1987).",
+      "fun_fact_it": "Un successo in classifica di Michael Jackson (1987)."
     },
     {
       "artist": "Michael McDonald",
@@ -7972,13 +7763,14 @@
         "it": "applemusic://track/1700309643"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=yvXFGUWBMHY",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/188224023",
       "uri_deezer": "deezer://track/1408780112",
-      "fun_fact": "A chart hit by Michael McDonald (2021).",
-      "fun_fact_de": "Ein Chart-Hit von Michael McDonald (2021).",
-      "fun_fact_es": "Un éxito de Michael McDonald (2021).",
-      "fun_fact_fr": "Un tube de Michael McDonald (2021).",
-      "fun_fact_nl": "Een chart-hit van Michael McDonald (2021)."
+      "fun_fact": "A chart hit by Michael McDonald (1986).",
+      "fun_fact_de": "Ein Chart-Hit von Michael McDonald (1986).",
+      "fun_fact_es": "Un éxito de Michael McDonald (1986).",
+      "fun_fact_fr": "Un tube de Michael McDonald (1986).",
+      "fun_fact_nl": "Een chart-hit van Michael McDonald (1986).",
+      "fun_fact_it": "Un successo in classifica di Michael McDonald (1986)."
     },
     {
       "artist": "Kool & The Gang",
@@ -7997,13 +7789,14 @@
         "it": "applemusic://track/1445227982"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=QsppPGDrNdg",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/93788078",
       "uri_deezer": "deezer://track/541624382",
-      "fun_fact": "A chart hit by Kool & The Gang (2018).",
-      "fun_fact_de": "Ein Chart-Hit von Kool & The Gang (2018).",
-      "fun_fact_es": "Un éxito de Kool & The Gang (2018).",
-      "fun_fact_fr": "Un tube de Kool & The Gang (2018).",
-      "fun_fact_nl": "Een chart-hit van Kool & The Gang (2018)."
+      "fun_fact": "A chart hit by Kool & The Gang (1982).",
+      "fun_fact_de": "Ein Chart-Hit von Kool & The Gang (1982).",
+      "fun_fact_es": "Un éxito de Kool & The Gang (1982).",
+      "fun_fact_fr": "Un tube de Kool & The Gang (1982).",
+      "fun_fact_nl": "Een chart-hit van Kool & The Gang (1982).",
+      "fun_fact_it": "Un successo in classifica di Kool & The Gang (1982)."
     },
     {
       "artist": "Matia Bazar",
@@ -8022,13 +7815,14 @@
         "it": "applemusic://track/712911374"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=_-zk_dWBmAg",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/14644058",
       "uri_deezer": "deezer://track/18111574",
-      "fun_fact": "A chart hit by Matia Bazar (2012).",
-      "fun_fact_de": "Ein Chart-Hit von Matia Bazar (2012).",
-      "fun_fact_es": "Un éxito de Matia Bazar (2012).",
-      "fun_fact_fr": "Un tube de Matia Bazar (2012).",
-      "fun_fact_nl": "Een chart-hit van Matia Bazar (2012)."
+      "fun_fact": "A chart hit by Matia Bazar (1985).",
+      "fun_fact_de": "Ein Chart-Hit von Matia Bazar (1985).",
+      "fun_fact_es": "Un éxito de Matia Bazar (1985).",
+      "fun_fact_fr": "Un tube de Matia Bazar (1985).",
+      "fun_fact_nl": "Een chart-hit van Matia Bazar (1985).",
+      "fun_fact_it": "Un successo in classifica di Matia Bazar (1985)."
     },
     {
       "artist": "Pino D'Angiò",
@@ -8047,13 +7841,14 @@
         "it": "applemusic://track/1760798546"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=pqlZQIsRdmQ",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/92066640",
       "uri_deezer": "deezer://track/518970902",
-      "fun_fact": "A chart hit by Pino D'Angiò (2011).",
-      "fun_fact_de": "Ein Chart-Hit von Pino D'Angiò (2011).",
-      "fun_fact_es": "Un éxito de Pino D'Angiò (2011).",
-      "fun_fact_fr": "Un tube de Pino D'Angiò (2011).",
-      "fun_fact_nl": "Een chart-hit van Pino D'Angiò (2011)."
+      "fun_fact": "A chart hit by Pino D'Angiò (1980).",
+      "fun_fact_de": "Ein Chart-Hit von Pino D'Angiò (1980).",
+      "fun_fact_es": "Un éxito de Pino D'Angiò (1980).",
+      "fun_fact_fr": "Un tube de Pino D'Angiò (1980).",
+      "fun_fact_nl": "Een chart-hit van Pino D'Angiò (1980).",
+      "fun_fact_it": "Un successo in classifica di Pino D'Angiò (1980)."
     },
     {
       "artist": "Michael Jackson",
@@ -8072,13 +7867,14 @@
         "it": "applemusic://track/559334762"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=aUD0juRwb3I",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/16953809",
       "uri_deezer": "deezer://track/59509611",
-      "fun_fact": "A chart hit by Michael Jackson (2012).",
-      "fun_fact_de": "Ein Chart-Hit von Michael Jackson (2012).",
-      "fun_fact_es": "Un éxito de Michael Jackson (2012).",
-      "fun_fact_fr": "Un tube de Michael Jackson (2012).",
-      "fun_fact_nl": "Een chart-hit van Michael Jackson (2012)."
+      "fun_fact": "A chart hit by Michael Jackson (1987).",
+      "fun_fact_de": "Ein Chart-Hit von Michael Jackson (1987).",
+      "fun_fact_es": "Un éxito de Michael Jackson (1987).",
+      "fun_fact_fr": "Un tube de Michael Jackson (1987).",
+      "fun_fact_nl": "Een chart-hit van Michael Jackson (1987).",
+      "fun_fact_it": "Un successo in classifica di Michael Jackson (1987)."
     },
     {
       "artist": "Miami Sound Machine",
@@ -8097,13 +7893,14 @@
         "it": "applemusic://track/209953751"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=DPm3qb-zDqs",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/33966386",
       "uri_deezer": "deezer://track/9437107",
-      "fun_fact": "A chart hit by Miami Sound Machine (2011).",
-      "fun_fact_de": "Ein Chart-Hit von Miami Sound Machine (2011).",
-      "fun_fact_es": "Un éxito de Miami Sound Machine (2011).",
-      "fun_fact_fr": "Un tube de Miami Sound Machine (2011).",
-      "fun_fact_nl": "Een chart-hit van Miami Sound Machine (2011)."
+      "fun_fact": "A chart hit by Miami Sound Machine (1985).",
+      "fun_fact_de": "Ein Chart-Hit von Miami Sound Machine (1985).",
+      "fun_fact_es": "Un éxito de Miami Sound Machine (1985).",
+      "fun_fact_fr": "Un tube de Miami Sound Machine (1985).",
+      "fun_fact_nl": "Een chart-hit van Miami Sound Machine (1985).",
+      "fun_fact_it": "Un successo in classifica di Miami Sound Machine (1985)."
     },
     {
       "artist": "Matthew Wilder",
@@ -8122,13 +7919,14 @@
         "it": "applemusic://track/908640278"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=UhLDA4Wr2GU",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/3493390",
       "uri_deezer": "deezer://track/5503498",
-      "fun_fact": "A chart hit by Matthew Wilder (2010).",
-      "fun_fact_de": "Ein Chart-Hit von Matthew Wilder (2010).",
-      "fun_fact_es": "Un éxito de Matthew Wilder (2010).",
-      "fun_fact_fr": "Un tube de Matthew Wilder (2010).",
-      "fun_fact_nl": "Een chart-hit van Matthew Wilder (2010)."
+      "fun_fact": "A chart hit by Matthew Wilder (1983).",
+      "fun_fact_de": "Ein Chart-Hit von Matthew Wilder (1983).",
+      "fun_fact_es": "Un éxito de Matthew Wilder (1983).",
+      "fun_fact_fr": "Un tube de Matthew Wilder (1983).",
+      "fun_fact_nl": "Een chart-hit van Matthew Wilder (1983).",
+      "fun_fact_it": "Un successo in classifica di Matthew Wilder (1983)."
     },
     {
       "artist": "Kylie Minogue",
@@ -8147,13 +7945,14 @@
         "it": "applemusic://track/1441026535"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=xLq0JpDk8po",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/491296838",
       "uri_deezer": "deezer://track/3785971252",
-      "fun_fact": "A chart hit by Kylie Minogue (2006).",
-      "fun_fact_de": "Ein Chart-Hit von Kylie Minogue (2006).",
-      "fun_fact_es": "Un éxito de Kylie Minogue (2006).",
-      "fun_fact_fr": "Un tube de Kylie Minogue (2006).",
-      "fun_fact_nl": "Een chart-hit van Kylie Minogue (2006)."
+      "fun_fact": "A chart hit by Kylie Minogue (1987).",
+      "fun_fact_de": "Ein Chart-Hit von Kylie Minogue (1987).",
+      "fun_fact_es": "Un éxito de Kylie Minogue (1987).",
+      "fun_fact_fr": "Un tube de Kylie Minogue (1987).",
+      "fun_fact_nl": "Een chart-hit van Kylie Minogue (1987).",
+      "fun_fact_it": "Un successo in classifica di Kylie Minogue (1987)."
     },
     {
       "artist": "Miami Sound Machine",
@@ -8172,16 +7971,17 @@
         "it": "applemusic://track/825319966"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=VVRHtUes7go",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/1287428",
       "uri_deezer": "deezer://track/565055",
       "alt_artists": [
         "Gloria Estefan"
       ],
-      "fun_fact": "A chart hit by Miami Sound Machine (2006).",
-      "fun_fact_de": "Ein Chart-Hit von Miami Sound Machine (2006).",
-      "fun_fact_es": "Un éxito de Miami Sound Machine (2006).",
-      "fun_fact_fr": "Un tube de Miami Sound Machine (2006).",
-      "fun_fact_nl": "Een chart-hit van Miami Sound Machine (2006)."
+      "fun_fact": "A chart hit by Miami Sound Machine (1985).",
+      "fun_fact_de": "Ein Chart-Hit von Miami Sound Machine (1985).",
+      "fun_fact_es": "Un éxito de Miami Sound Machine (1985).",
+      "fun_fact_fr": "Un tube de Miami Sound Machine (1985).",
+      "fun_fact_nl": "Een chart-hit van Miami Sound Machine (1985).",
+      "fun_fact_it": "Un successo in classifica di Miami Sound Machine (1985)."
     },
     {
       "artist": "Tom Browne",
@@ -8200,13 +8000,14 @@
         "it": "applemusic://track/1290563059"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=CfUuamLRsbE",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/5114336",
       "uri_deezer": "deezer://track/13200806",
-      "fun_fact": "A chart hit by Tom Browne (2009).",
-      "fun_fact_de": "Ein Chart-Hit von Tom Browne (2009).",
-      "fun_fact_es": "Un éxito de Tom Browne (2009).",
-      "fun_fact_fr": "Un tube de Tom Browne (2009).",
-      "fun_fact_nl": "Een chart-hit van Tom Browne (2009)."
+      "fun_fact": "A chart hit by Tom Browne (1980).",
+      "fun_fact_de": "Ein Chart-Hit von Tom Browne (1980).",
+      "fun_fact_es": "Un éxito de Tom Browne (1980).",
+      "fun_fact_fr": "Un tube de Tom Browne (1980).",
+      "fun_fact_nl": "Een chart-hit van Tom Browne (1980).",
+      "fun_fact_it": "Un successo in classifica di Tom Browne (1980)."
     },
     {
       "artist": "Huey Lewis & The News",
@@ -8225,13 +8026,14 @@
         "it": "applemusic://track/725785285"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=k-6EWSnagDM",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/126218",
       "uri_deezer": "deezer://track/3116051",
-      "fun_fact": "A chart hit by Huey Lewis & The News (2006).",
-      "fun_fact_de": "Ein Chart-Hit von Huey Lewis & The News (2006).",
-      "fun_fact_es": "Un éxito de Huey Lewis & The News (2006).",
-      "fun_fact_fr": "Un tube de Huey Lewis & The News (2006).",
-      "fun_fact_nl": "Een chart-hit van Huey Lewis & The News (2006)."
+      "fun_fact": "A chart hit by Huey Lewis & The News (1982).",
+      "fun_fact_de": "Ein Chart-Hit von Huey Lewis & The News (1982).",
+      "fun_fact_es": "Un éxito de Huey Lewis & The News (1982).",
+      "fun_fact_fr": "Un tube de Huey Lewis & The News (1982).",
+      "fun_fact_nl": "Een chart-hit van Huey Lewis & The News (1982).",
+      "fun_fact_it": "Un successo in classifica di Huey Lewis & The News (1982)."
     },
     {
       "artist": "Gloria Estefan",
@@ -8250,13 +8052,14 @@
         "it": "applemusic://track/254813986"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=-69Hhh-ez8o",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/102314",
       "uri_deezer": "deezer://track/565049",
-      "fun_fact": "A chart hit by Gloria Estefan (2006).",
-      "fun_fact_de": "Ein Chart-Hit von Gloria Estefan (2006).",
-      "fun_fact_es": "Un éxito de Gloria Estefan (2006).",
-      "fun_fact_fr": "Un tube de Gloria Estefan (2006).",
-      "fun_fact_nl": "Een chart-hit van Gloria Estefan (2006)."
+      "fun_fact": "A chart hit by Gloria Estefan (1989).",
+      "fun_fact_de": "Ein Chart-Hit von Gloria Estefan (1989).",
+      "fun_fact_es": "Un éxito de Gloria Estefan (1989).",
+      "fun_fact_fr": "Un tube de Gloria Estefan (1989).",
+      "fun_fact_nl": "Een chart-hit van Gloria Estefan (1989).",
+      "fun_fact_it": "Un successo in classifica di Gloria Estefan (1989)."
     },
     {
       "artist": "Blondie",
@@ -8275,13 +8078,14 @@
         "it": "applemusic://track/1817295288"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=tykf2xYPNdc",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/1335096",
       "uri_deezer": "deezer://track/3104486",
-      "fun_fact": "A chart hit by Blondie (2003).",
-      "fun_fact_de": "Ein Chart-Hit von Blondie (2003).",
-      "fun_fact_es": "Un éxito de Blondie (2003).",
-      "fun_fact_fr": "Un tube de Blondie (2003).",
-      "fun_fact_nl": "Een chart-hit van Blondie (2003)."
+      "fun_fact": "A chart hit by Blondie (1980).",
+      "fun_fact_de": "Ein Chart-Hit von Blondie (1980).",
+      "fun_fact_es": "Un éxito de Blondie (1980).",
+      "fun_fact_fr": "Un tube de Blondie (1980).",
+      "fun_fact_nl": "Een chart-hit van Blondie (1980).",
+      "fun_fact_it": "Un successo in classifica di Blondie (1980)."
     },
     {
       "artist": "Shakin' Stevens",
@@ -8300,13 +8104,14 @@
         "it": "applemusic://track/1692152831"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=i893TotpH0o",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/3392907",
       "uri_deezer": "deezer://track/1132667092",
-      "fun_fact": "A chart hit by Shakin' Stevens (2005).",
-      "fun_fact_de": "Ein Chart-Hit von Shakin' Stevens (2005).",
-      "fun_fact_es": "Un éxito de Shakin' Stevens (2005).",
-      "fun_fact_fr": "Un tube de Shakin' Stevens (2005).",
-      "fun_fact_nl": "Een chart-hit van Shakin' Stevens (2005)."
+      "fun_fact": "A chart hit by Shakin' Stevens (1981).",
+      "fun_fact_de": "Ein Chart-Hit von Shakin' Stevens (1981).",
+      "fun_fact_es": "Un éxito de Shakin' Stevens (1981).",
+      "fun_fact_fr": "Un tube de Shakin' Stevens (1981).",
+      "fun_fact_nl": "Een chart-hit van Shakin' Stevens (1981).",
+      "fun_fact_it": "Un successo in classifica di Shakin' Stevens (1981)."
     },
     {
       "artist": "Jaki Graham",
@@ -8325,13 +8130,14 @@
         "it": "applemusic://track/1393964798"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=O-4OQ03mU58",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/2972600",
       "uri_deezer": "deezer://track/3500793",
-      "fun_fact": "A chart hit by Jaki Graham (2009).",
-      "fun_fact_de": "Ein Chart-Hit von Jaki Graham (2009).",
-      "fun_fact_es": "Un éxito de Jaki Graham (2009).",
-      "fun_fact_fr": "Un tube de Jaki Graham (2009).",
-      "fun_fact_nl": "Een chart-hit van Jaki Graham (2009)."
+      "fun_fact": "A chart hit by Jaki Graham (1986).",
+      "fun_fact_de": "Ein Chart-Hit von Jaki Graham (1986).",
+      "fun_fact_es": "Un éxito de Jaki Graham (1986).",
+      "fun_fact_fr": "Un tube de Jaki Graham (1986).",
+      "fun_fact_nl": "Een chart-hit van Jaki Graham (1986).",
+      "fun_fact_it": "Un successo in classifica di Jaki Graham (1986)."
     },
     {
       "artist": "Madonna",
@@ -8350,13 +8156,14 @@
         "it": "applemusic://track/329064716"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=h_r620DGoiE",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/496064056",
       "uri_deezer": "deezer://track/3824997421",
-      "fun_fact": "A chart hit by Madonna (2009).",
-      "fun_fact_de": "Ein Chart-Hit von Madonna (2009).",
-      "fun_fact_es": "Un éxito de Madonna (2009).",
-      "fun_fact_fr": "Un tube de Madonna (2009).",
-      "fun_fact_nl": "Een chart-hit van Madonna (2009)."
+      "fun_fact": "A chart hit by Madonna (1989).",
+      "fun_fact_de": "Ein Chart-Hit von Madonna (1989).",
+      "fun_fact_es": "Un éxito de Madonna (1989).",
+      "fun_fact_fr": "Un tube de Madonna (1989).",
+      "fun_fact_nl": "Een chart-hit van Madonna (1989).",
+      "fun_fact_it": "Un successo in classifica di Madonna (1989)."
     },
     {
       "artist": "Billy Ocean",
@@ -8375,13 +8182,14 @@
         "it": "applemusic://track/1719041756"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=VOiZC020nl0",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/3728807",
       "uri_deezer": "deezer://track/2168095",
-      "fun_fact": "A chart hit by Billy Ocean (2005).",
-      "fun_fact_de": "Ein Chart-Hit von Billy Ocean (2005).",
-      "fun_fact_es": "Un éxito de Billy Ocean (2005).",
-      "fun_fact_fr": "Un tube de Billy Ocean (2005).",
-      "fun_fact_nl": "Een chart-hit van Billy Ocean (2005)."
+      "fun_fact": "A chart hit by Billy Ocean (1984).",
+      "fun_fact_de": "Ein Chart-Hit von Billy Ocean (1984).",
+      "fun_fact_es": "Un éxito de Billy Ocean (1984).",
+      "fun_fact_fr": "Un tube de Billy Ocean (1984).",
+      "fun_fact_nl": "Een chart-hit van Billy Ocean (1984).",
+      "fun_fact_it": "Un successo in classifica di Billy Ocean (1984)."
     },
     {
       "artist": "Paul Young",
@@ -8400,13 +8208,14 @@
         "it": "applemusic://track/580182060"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=LPM1_OvqIA0",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/1846772",
       "uri_deezer": "deezer://track/582418",
-      "fun_fact": "A chart hit by Paul Young (2003).",
-      "fun_fact_de": "Ein Chart-Hit von Paul Young (2003).",
-      "fun_fact_es": "Un éxito de Paul Young (2003).",
-      "fun_fact_fr": "Un tube de Paul Young (2003).",
-      "fun_fact_nl": "Een chart-hit van Paul Young (2003)."
+      "fun_fact": "A chart hit by Paul Young (1983).",
+      "fun_fact_de": "Ein Chart-Hit von Paul Young (1983).",
+      "fun_fact_es": "Un éxito de Paul Young (1983).",
+      "fun_fact_fr": "Un tube de Paul Young (1983).",
+      "fun_fact_nl": "Een chart-hit van Paul Young (1983).",
+      "fun_fact_it": "Un successo in classifica di Paul Young (1983)."
     },
     {
       "artist": "Glenn Frey",
@@ -8425,13 +8234,828 @@
         "it": "applemusic://track/1692882776"
       },
       "uri_youtube_music": "https://music.youtube.com/watch?v=uKWgYKa2Fh0",
-      "uri_tidal": null,
+      "uri_tidal": "tidal://track/34004256",
       "uri_deezer": "deezer://track/2233196",
-      "fun_fact": "A chart hit by Glenn Frey (2009).",
-      "fun_fact_de": "Ein Chart-Hit von Glenn Frey (2009).",
-      "fun_fact_es": "Un éxito de Glenn Frey (2009).",
-      "fun_fact_fr": "Un tube de Glenn Frey (2009).",
-      "fun_fact_nl": "Een chart-hit van Glenn Frey (2009)."
+      "fun_fact": "A chart hit by Glenn Frey (1984).",
+      "fun_fact_de": "Ein Chart-Hit von Glenn Frey (1984).",
+      "fun_fact_es": "Un éxito de Glenn Frey (1984).",
+      "fun_fact_fr": "Un tube de Glenn Frey (1984).",
+      "fun_fact_nl": "Een chart-hit van Glenn Frey (1984).",
+      "fun_fact_it": "Un successo in classifica di Glenn Frey (1984)."
+    },
+    {
+      "artist": "Lil' Louis",
+      "title": "French Kiss - The Original Underground Mix",
+      "year": 1989,
+      "isrc": "USSM18900036",
+      "uri": "spotify:track:7hnqJYCKZFW7vMoykaraZG",
+      "uri_apple_music": "applemusic://track/190367461",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/190367461",
+        "de": "applemusic://track/190367461",
+        "gb": "applemusic://track/190367461",
+        "fr": "applemusic://track/190367461",
+        "es": "applemusic://track/190367461",
+        "nl": "applemusic://track/190367461",
+        "it": "applemusic://track/190367461"
+      },
+      "uri_youtube_music": "https://music.youtube.com/watch?v=rmOAVfEDyhA",
+      "uri_tidal": "tidal://track/13196742",
+      "uri_deezer": "deezer://track/15273623",
+      "alt_artists": [
+        "The World"
+      ],
+      "fun_fact": "A chart hit by Lil' Louis (1989).",
+      "fun_fact_de": "Ein Chart-Hit von Lil' Louis (1989).",
+      "fun_fact_es": "Un éxito de Lil' Louis (1989).",
+      "fun_fact_fr": "Un tube de Lil' Louis (1989).",
+      "fun_fact_nl": "Een chart-hit van Lil' Louis (1989).",
+      "fun_fact_it": "Un successo in classifica di Lil' Louis (1989)."
+    },
+    {
+      "artist": "Ziggy Marley & The Melody Makers",
+      "title": "Tomorrow People",
+      "year": 1988,
+      "isrc": "USVI28800002",
+      "uri": "spotify:track:07QZEz7d4OS6vmS1iiwJCc",
+      "uri_apple_music": "applemusic://track/712869766",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/712869766",
+        "de": "applemusic://track/712869766",
+        "gb": "applemusic://track/712869766",
+        "fr": "applemusic://track/712869766",
+        "es": "applemusic://track/712869766",
+        "nl": "applemusic://track/712869766",
+        "it": "applemusic://track/712869766"
+      },
+      "uri_youtube_music": "https://music.youtube.com/watch?v=tdBDFwL3pyI",
+      "uri_tidal": "tidal://track/1838936",
+      "uri_deezer": "deezer://track/3133926",
+      "fun_fact": "A chart hit by Ziggy Marley & The Melody Makers (1988).",
+      "fun_fact_de": "Ein Chart-Hit von Ziggy Marley & The Melody Makers (1988).",
+      "fun_fact_es": "Un éxito de Ziggy Marley & The Melody Makers (1988).",
+      "fun_fact_fr": "Un tube de Ziggy Marley & The Melody Makers (1988).",
+      "fun_fact_nl": "Een chart-hit van Ziggy Marley & The Melody Makers (1988).",
+      "fun_fact_it": "Un successo in classifica di Ziggy Marley & The Melody Makers (1988)."
+    },
+    {
+      "artist": "Run–D.M.C.",
+      "title": "It's Like That",
+      "year": 1983,
+      "isrc": null,
+      "uri": "spotify:track:0CtkjgZpkgnW7U6WmHsakD",
+      "uri_apple_music": "applemusic://track/256097956",
+      "uri_apple_music_by_region": {},
+      "uri_youtube_music": "https://music.youtube.com/watch?v=g6nthFTiPiI",
+      "uri_tidal": "tidal://track/38036078",
+      "uri_deezer": "deezer://track/2170703",
+      "alt_artists": [
+        "Jason Nevins"
+      ],
+      "fun_fact": "A chart hit by Run–D.M.C. (1983).",
+      "fun_fact_de": "Ein Chart-Hit von Run–D.M.C. (1983).",
+      "fun_fact_es": "Un éxito de Run–D.M.C. (1983).",
+      "fun_fact_fr": "Un tube de Run–D.M.C. (1983).",
+      "fun_fact_nl": "Een chart-hit van Run–D.M.C. (1983).",
+      "fun_fact_it": "Un successo in classifica di Run–D.M.C. (1983)."
+    },
+    {
+      "artist": "Eros Ramazzotti",
+      "title": "Ma che bello questo amore",
+      "year": 1987,
+      "isrc": "ITB008770681",
+      "uri": "spotify:track:12s8fpxTKhQl4HmKUKEYZv",
+      "uri_apple_music": "applemusic://track/254548590",
+      "uri_apple_music_by_region": {
+        "us": "applemusic://track/254548590",
+        "de": "applemusic://track/1308691199",
+        "gb": "applemusic://track/1308691199",
+        "fr": "applemusic://track/1308691199",
+        "es": "applemusic://track/1308691199",
+        "nl": "applemusic://track/1308691199",
+        "it": "applemusic://track/1308691199"
+      },
+      "uri_youtube_music": "https://music.youtube.com/watch?v=XLkHOnm0LIs",
+      "uri_tidal": "tidal://track/23093",
+      "uri_deezer": "deezer://track/604846",
+      "fun_fact": "A chart hit by Eros Ramazzotti (1987).",
+      "fun_fact_de": "Ein Chart-Hit von Eros Ramazzotti (1987).",
+      "fun_fact_es": "Un éxito de Eros Ramazzotti (1987).",
+      "fun_fact_fr": "Un tube de Eros Ramazzotti (1987).",
+      "fun_fact_nl": "Een chart-hit van Eros Ramazzotti (1987).",
+      "fun_fact_it": "Un successo in classifica di Eros Ramazzotti (1987)."
+    },
+    {
+      "year": 1980,
+      "uri": "spotify:track:0EsVQ8w52MJCvYWuxpAnNV",
+      "artist": "Status Quo",
+      "alt_artists": [
+        "Slade",
+        "Sweet",
+        "Smokie"
+      ],
+      "title": "What You're Proposing",
+      "isrc": "GBF088000784",
+      "uri_apple_music": "applemusic://track/1692897029",
+      "uri_deezer": "deezer://track/363782101",
+      "fun_fact": "Rossi and Bown wrote it in a hotel room in a few minutes, and it gave the band their highest UK chart placing since the early seventies.",
+      "fun_fact_de": "Rossi und Bown schrieben den Song in wenigen Minuten in einem Hotelzimmer, und er brachte der Band ihre beste britische Chartplatzierung seit den frühen Siebzigern.",
+      "fun_fact_es": "Rossi y Bown la escribieron en unos minutos en una habitación de hotel, y le dio al grupo su mejor puesto británico desde principios de los setenta.",
+      "fun_fact_fr": "Rossi et Bown l'ont écrite en quelques minutes dans une chambre d'hôtel, et elle a donné au groupe son meilleur classement britannique depuis le début des années soixante-dix.",
+      "fun_fact_nl": "Rossi en Bown schreven het in een paar minuten in een hotelkamer, en het gaf de band hun hoogste Britse notering sinds begin jaren zeventig.",
+      "fun_fact_it": "Rossi e Bown la scrissero in pochi minuti in una stanza d'albergo, e diede alla band la miglior posizione britannica dai primi anni settanta.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=9sivblqJGN4"
+    },
+    {
+      "year": 1980,
+      "uri": "spotify:track:3oEkrIfXfSh9zGnE7eBzSV",
+      "artist": "ABBA",
+      "alt_artists": [
+        "Agnetha Fältskog",
+        "Bucks Fizz",
+        "Blondie"
+      ],
+      "title": "The Winner Takes It All",
+      "isrc": "SEAYD8001020",
+      "uri_apple_music": "applemusic://track/1440816849",
+      "uri_deezer": "deezer://track/884035",
+      "fun_fact": "Björn wrote the words about his divorce from Agnetha, and then handed her the song to sing — she has called the recording the hardest day of her career.",
+      "fun_fact_de": "Björn schrieb den Text über seine Scheidung von Agnetha und gab ihr dann den Song zu singen — sie nannte die Aufnahme den schwersten Tag ihrer Laufbahn.",
+      "fun_fact_es": "Björn escribió la letra sobre su divorcio de Agnetha y luego le dio la canción para que la cantara; ella ha llamado a esa grabación el día más duro de su carrera.",
+      "fun_fact_fr": "Björn a écrit le texte sur son divorce d'avec Agnetha, puis lui a confié la chanson — elle a qualifié cet enregistrement de journée la plus dure de sa carrière.",
+      "fun_fact_nl": "Björn schreef de tekst over zijn scheiding van Agnetha en gaf haar daarna het nummer om te zingen — ze noemde die opname de zwaarste dag van haar loopbaan.",
+      "fun_fact_it": "Björn scrisse il testo sul divorzio da Agnetha e poi le affidò la canzone da cantare: lei ha definito quell'incisione il giorno più duro della sua carriera.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=92cwKCU8Z5c"
+    },
+    {
+      "year": 1981,
+      "uri": "spotify:track:1ynmMEK1fkyiZ6Z6F3ThEt",
+      "artist": "The J. Geils Band",
+      "alt_artists": [
+        "Huey Lewis and the News",
+        "The Cars",
+        "Billy Idol"
+      ],
+      "title": "Centerfold",
+      "isrc": "USCA28100075",
+      "uri_apple_music": "applemusic://track/724071636",
+      "uri_deezer": "deezer://track/3168236",
+      "fun_fact": "The band had been playing blues bars for twelve years when this pop record spent six weeks at number one and became the only thing most listeners know them for.",
+      "fun_fact_de": "Die Band spielte zwölf Jahre in Bluesbars, bevor diese Popplatte sechs Wochen auf Platz eins stand und das Einzige wurde, wofür die meisten Hörer sie kennen.",
+      "fun_fact_es": "El grupo llevaba doce años tocando en bares de blues cuando este disco pop pasó seis semanas en el número uno y se convirtió en lo único por lo que se le conoce.",
+      "fun_fact_fr": "Le groupe jouait dans des bars de blues depuis douze ans quand ce disque pop est resté six semaines premier et est devenu la seule chose pour laquelle on le connaît.",
+      "fun_fact_nl": "De band speelde twaalf jaar in bluesbars toen deze popplaat zes weken op nummer één stond en het enige werd waarvoor de meeste luisteraars hen kennen.",
+      "fun_fact_it": "La band suonava nei bar blues da dodici anni quando questo disco pop restò sei settimane al primo posto e divenne l'unica cosa per cui la conoscono.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=BqDjMZKf-wg"
+    },
+    {
+      "year": 1983,
+      "uri": "spotify:track:23EkZsgFWesLlXjqrHzbpx",
+      "artist": "Rainhard Fendrich",
+      "alt_artists": [
+        "Wolfgang Ambros",
+        "Georg Danzer",
+        "Falco"
+      ],
+      "title": "Weus'd a Herz hast wia a Bergwerk",
+      "isrc": "ATF078300110",
+      "uri_apple_music": "applemusic://track/1440924198",
+      "uri_deezer": "deezer://track/7905036",
+      "fun_fact": "Fendrich wrote it for his mother and sings it in Viennese dialect; it has been a fixed part of Austrian funerals and farewells ever since.",
+      "fun_fact_de": "Fendrich schrieb das Lied für seine Mutter und singt es im Wiener Dialekt; seither gehört es fest zu österreichischen Begräbnissen und Abschieden.",
+      "fun_fact_es": "Fendrich la escribió para su madre y la canta en dialecto vienés; desde entonces es parte fija de los funerales y despedidas en Austria.",
+      "fun_fact_fr": "Fendrich l'a écrite pour sa mère et la chante en dialecte viennois ; depuis, elle fait partie des enterrements et des adieux autrichiens.",
+      "fun_fact_nl": "Fendrich schreef het voor zijn moeder en zingt het in Weens dialect; sindsdien hoort het vast bij Oostenrijkse begrafenissen en afscheiden.",
+      "fun_fact_it": "Fendrich la scrisse per sua madre e la canta in dialetto viennese; da allora è parte fissa dei funerali e dei commiati austriaci.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=QQqWtxKN4cA"
+    },
+    {
+      "year": 1984,
+      "uri": "spotify:track:6sn3FHCq2csvNkq2h9Au8V",
+      "artist": "Nik Kershaw",
+      "alt_artists": [
+        "Howard Jones",
+        "Thomas Dolby",
+        "Nick Heyward"
+      ],
+      "title": "The Riddle",
+      "isrc": "GBBBY0200033",
+      "uri_apple_music": "applemusic://track/1443315009",
+      "uri_deezer": "deezer://track/1174772",
+      "fun_fact": "Kershaw has said the words are nonsense he wrote as a placeholder and never replaced, which did not stop years of listeners hunting for the hidden meaning.",
+      "fun_fact_de": "Kershaw sagt, der Text sei Unsinn, den er als Platzhalter schrieb und nie ersetzte — was Hörer jahrelang nicht davon abhielt, nach dem verborgenen Sinn zu suchen.",
+      "fun_fact_es": "Kershaw ha dicho que la letra es un sinsentido que escribió como relleno y nunca cambió, lo que no impidió que durante años se buscara su significado oculto.",
+      "fun_fact_fr": "Kershaw a dit que le texte est un charabia écrit comme provisoire et jamais remplacé, ce qui n'a pas empêché des années de chasse au sens caché.",
+      "fun_fact_nl": "Kershaw heeft gezegd dat de tekst onzin is die hij als tijdelijke invulling schreef en nooit verving, wat luisteraars jarenlang niet weerhield van zoeken naar de verborgen betekenis.",
+      "fun_fact_it": "Kershaw ha detto che il testo è un nonsenso scritto come segnaposto e mai sostituito, il che non ha impedito anni di caccia al significato nascosto.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=bDygS0a6Tgo"
+    },
+    {
+      "year": 1984,
+      "uri": "spotify:track:3qE6p9fN4YeILT0cQcY1cD",
+      "artist": "Bonnie Tyler",
+      "alt_artists": [
+        "Jim Steinman",
+        "Meat Loaf",
+        "Ann Wilson"
+      ],
+      "title": "Holding Out for a Hero",
+      "isrc": "USSM18400378",
+      "uri_apple_music": "applemusic://track/1721624197",
+      "uri_deezer": "deezer://track/911317852",
+      "fun_fact": "Jim Steinman wrote it for the Footloose soundtrack, and its gallop was built to run under the film's tractor chase rather than to sit on the radio.",
+      "fun_fact_de": "Jim Steinman schrieb den Song für den Footloose-Soundtrack, und sein Galopp war für die Traktorjagd des Films gebaut, nicht fürs Radio.",
+      "fun_fact_es": "Jim Steinman la escribió para la banda sonora de Footloose, y su galope estaba hecho para la persecución de tractores de la película, no para la radio.",
+      "fun_fact_fr": "Jim Steinman l'a écrite pour la bande originale de Footloose, et son galop était conçu pour la course de tracteurs du film, pas pour la radio.",
+      "fun_fact_nl": "Jim Steinman schreef het voor de Footloose-soundtrack, en de galop was gemaakt voor de tractorachtervolging in de film, niet voor de radio.",
+      "fun_fact_it": "Jim Steinman la scrisse per la colonna sonora di Footloose, e il suo galoppo era fatto per l'inseguimento dei trattori del film, non per la radio.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=bWcASV2sey0"
+    },
+    {
+      "year": 1984,
+      "uri": "spotify:track:1hlveB9M6ijHZRbzZ2teyh",
+      "artist": "Twisted Sister",
+      "alt_artists": [
+        "Quiet Riot",
+        "Dee Snider",
+        "Mötley Crüe"
+      ],
+      "title": "We're Not Gonna Take It",
+      "isrc": "USAT20000548",
+      "uri_apple_music": "applemusic://track/1788380899",
+      "uri_deezer": "deezer://track/3803466302",
+      "fun_fact": "Dee Snider built the melody on the Christmas carol 'O Come, All Ye Faithful', and a year later defended the song line by line before a US Senate committee.",
+      "fun_fact_de": "Dee Snider baute die Melodie auf dem Weihnachtslied 'O Come, All Ye Faithful' auf und verteidigte den Song ein Jahr später Zeile für Zeile vor einem Ausschuss des US-Senats.",
+      "fun_fact_es": "Dee Snider construyó la melodía sobre el villancico 'O Come, All Ye Faithful', y un año después defendió la canción verso a verso ante un comité del Senado estadounidense.",
+      "fun_fact_fr": "Dee Snider a bâti la mélodie sur le chant de Noël 'O Come, All Ye Faithful', et un an plus tard il a défendu la chanson vers par vers devant une commission du Sénat américain.",
+      "fun_fact_nl": "Dee Snider bouwde de melodie op het kerstlied 'O Come, All Ye Faithful', en verdedigde het nummer een jaar later regel voor regel voor een commissie van de Amerikaanse Senaat.",
+      "fun_fact_it": "Dee Snider costruì la melodia sul canto natalizio 'O Come, All Ye Faithful', e un anno dopo difese la canzone verso per verso davanti a una commissione del Senato americano.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=4xmckWVPRaI"
+    },
+    {
+      "year": 1985,
+      "uri": "spotify:track:3G0ENKW9vzV0SuYKaWFflI",
+      "artist": "Elton John",
+      "alt_artists": [
+        "George Michael",
+        "Wham!",
+        "Chris de Burgh"
+      ],
+      "title": "Nikita",
+      "isrc": "GBAMS8500203",
+      "uri_apple_music": "applemusic://track/1440912804",
+      "uri_deezer": "deezer://track/1146286",
+      "fun_fact": "Bernie Taupin's lyric is about a border guard on the far side of the Berlin Wall, and the video was shot with the singer trying to reach her across it.",
+      "fun_fact_de": "Bernie Taupins Text handelt von einer Grenzsoldatin auf der anderen Seite der Berliner Mauer, und das Video zeigt den Sänger beim Versuch, über sie hinweg zu ihr zu gelangen.",
+      "fun_fact_es": "La letra de Bernie Taupin trata de una guardia fronteriza al otro lado del Muro de Berlín, y el vídeo muestra al cantante intentando alcanzarla al otro lado.",
+      "fun_fact_fr": "Le texte de Bernie Taupin parle d'une garde-frontière de l'autre côté du mur de Berlin, et le clip montre le chanteur essayant de la rejoindre.",
+      "fun_fact_nl": "De tekst van Bernie Taupin gaat over een grenswacht aan de andere kant van de Berlijnse Muur, en de video toont de zanger die haar probeert te bereiken.",
+      "fun_fact_it": "Il testo di Bernie Taupin parla di una guardia di frontiera dall'altra parte del Muro di Berlino, e il video mostra il cantante che cerca di raggiungerla.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=Tg-Q-Acv4qs"
+    },
+    {
+      "year": 1985,
+      "uri": "spotify:track:2G1P5HoHl95ZWKmK4P9g47",
+      "artist": "Jennifer Rush",
+      "alt_artists": [
+        "Bonnie Tyler",
+        "Laura Branigan",
+        "Sandra"
+      ],
+      "title": "Destiny",
+      "isrc": "DEE868500070",
+      "uri_apple_music": "applemusic://track/250562025",
+      "uri_deezer": "deezer://track/8238050",
+      "fun_fact": "Rush was an American living in Frankfurt, and her records sold in Germany long before anyone in the United States had heard of her.",
+      "fun_fact_de": "Rush war eine Amerikanerin, die in Frankfurt lebte, und ihre Platten verkauften sich in Deutschland, lange bevor in den USA jemand ihren Namen kannte.",
+      "fun_fact_es": "Rush era una estadounidense afincada en Fráncfort, y sus discos se vendían en Alemania mucho antes de que nadie en Estados Unidos la conociera.",
+      "fun_fact_fr": "Rush était une Américaine installée à Francfort, et ses disques se vendaient en Allemagne bien avant que quiconque aux États-Unis n'entende parler d'elle.",
+      "fun_fact_nl": "Rush was een Amerikaanse die in Frankfurt woonde, en haar platen verkochten in Duitsland lang voordat iemand in de Verenigde Staten van haar had gehoord.",
+      "fun_fact_it": "Rush era un'americana che viveva a Francoforte, e i suoi dischi vendevano in Germania molto prima che negli Stati Uniti la conoscessero.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=WXS0YMbUzo4"
+    },
+    {
+      "year": 1986,
+      "uri": "spotify:track:3F4JxbEkur9ZXAtQ5GFVXB",
+      "artist": "Pet Shop Boys",
+      "alt_artists": [
+        "New Order",
+        "Erasure",
+        "Depeche Mode"
+      ],
+      "title": "Suburbia",
+      "isrc": "GBAYE8600050",
+      "uri_apple_music": "applemusic://track/710663004",
+      "uri_deezer": "deezer://track/3122972",
+      "fun_fact": "Neil Tennant took the title from the 1983 Penelope Spheeris film about Los Angeles punks, and the record opens with barking dogs to match it.",
+      "fun_fact_de": "Neil Tennant nahm den Titel vom Film von Penelope Spheeris aus dem Jahr 1983 über Punks in Los Angeles, und die Platte beginnt passend dazu mit bellenden Hunden.",
+      "fun_fact_es": "Neil Tennant tomó el título de la película de Penelope Spheeris de 1983 sobre los punks de Los Ángeles, y el disco empieza con perros ladrando a juego.",
+      "fun_fact_fr": "Neil Tennant a pris le titre du film de Penelope Spheeris de 1983 sur les punks de Los Angeles, et le disque s'ouvre sur des aboiements en écho.",
+      "fun_fact_nl": "Neil Tennant ontleende de titel aan de film van Penelope Spheeris uit 1983 over punks in Los Angeles, en de plaat opent passend met blaffende honden.",
+      "fun_fact_it": "Neil Tennant prese il titolo dal film di Penelope Spheeris del 1983 sui punk di Los Angeles, e il disco si apre di conseguenza con cani che abbaiano.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=-VCqAjYO3NM"
+    },
+    {
+      "year": 1986,
+      "uri": "spotify:track:1x9iOd3K1JC6tdjGZJpFgZ",
+      "artist": "Joe Cocker",
+      "alt_artists": [
+        "Randy Newman",
+        "Tom Jones",
+        "Etta James"
+      ],
+      "title": "You Can Leave Your Hat On",
+      "isrc": "USCA28600132",
+      "uri_apple_music": "applemusic://track/696198625",
+      "uri_deezer": "deezer://track/3104719",
+      "fun_fact": "Randy Newman wrote and recorded it in 1972 as a dry, uncomfortable song; Cocker's version for the film 9½ Weeks turned it into the opposite.",
+      "fun_fact_de": "Randy Newman schrieb und nahm den Song 1972 als trockenes, unbehagliches Stück auf; Cockers Fassung für den Film 9½ Wochen machte das Gegenteil daraus.",
+      "fun_fact_es": "Randy Newman la escribió y grabó en 1972 como una canción seca e incómoda; la versión de Cocker para la película Nueve semanas y media la convirtió en lo contrario.",
+      "fun_fact_fr": "Randy Newman l'a écrite et enregistrée en 1972 comme un morceau sec et gênant ; la version de Cocker pour le film 9 semaines ½ en a fait l'inverse.",
+      "fun_fact_nl": "Randy Newman schreef en nam het in 1972 op als een droog, ongemakkelijk nummer; Cockers versie voor de film 9½ Weken maakte er het tegendeel van.",
+      "fun_fact_it": "Randy Newman la scrisse e incise nel 1972 come un pezzo asciutto e a disagio; la versione di Cocker per il film 9 settimane e ½ ne fece l'opposto."
+    },
+    {
+      "year": 1986,
+      "uri": "spotify:track:54OoOYiMFZbt0m4KPW66GJ",
+      "artist": "Falco",
+      "alt_artists": [
+        "Rainhard Fendrich",
+        "Opus",
+        "Peter Schilling"
+      ],
+      "title": "The Sound of Musik",
+      "isrc": "DEA619453610",
+      "uri_apple_music": "applemusic://track/355932256",
+      "uri_deezer": "deezer://track/6469183",
+      "fun_fact": "The title puns on the Salzburg film Austria is best known for abroad, which Falco found faintly embarrassing and used anyway.",
+      "fun_fact_de": "Der Titel spielt auf den Salzburger Film an, für den Österreich im Ausland bekannt ist — Falco fand das leicht peinlich und nutzte es trotzdem.",
+      "fun_fact_es": "El título juega con la película de Salzburgo por la que Austria es conocida fuera, algo que a Falco le parecía un poco embarazoso y que usó igualmente.",
+      "fun_fact_fr": "Le titre joue sur le film salzbourgeois qui fait la renommée de l'Autriche à l'étranger, ce que Falco trouvait légèrement gênant et qu'il a utilisé quand même.",
+      "fun_fact_nl": "De titel speelt met de Salzburgse film waar Oostenrijk in het buitenland om bekend staat, wat Falco lichtelijk gênant vond en toch gebruikte.",
+      "fun_fact_it": "Il titolo gioca sul film salisburghese per cui l'Austria è nota all'estero, cosa che Falco trovava lievemente imbarazzante e che usò comunque."
+    },
+    {
+      "year": 1988,
+      "uri": "spotify:track:5OHUTC4EvTbL0DuZQRIGGX",
+      "artist": "Phil Collins",
+      "alt_artists": [
+        "The Mindbenders",
+        "Genesis",
+        "Peter Gabriel"
+      ],
+      "title": "A Groovy Kind of Love",
+      "isrc": "USRH11603370",
+      "uri_apple_music": "applemusic://track/1148701935",
+      "uri_deezer": "deezer://track/134036244",
+      "fun_fact": "The melody is lifted from a Muzio Clementi sonatina of 1801, which makes it one of the few number ones with a classical piano exercise underneath.",
+      "fun_fact_de": "Die Melodie stammt aus einer Sonatine von Muzio Clementi aus dem Jahr 1801 — einer der wenigen Nummer-eins-Hits mit einer klassischen Klavierübung darunter.",
+      "fun_fact_es": "La melodía procede de una sonatina de Muzio Clementi de 1801, lo que la convierte en uno de los pocos números uno con un ejercicio de piano clásico debajo.",
+      "fun_fact_fr": "La mélodie est tirée d'une sonatine de Muzio Clementi de 1801, ce qui en fait l'un des rares numéros un bâtis sur un exercice de piano classique.",
+      "fun_fact_nl": "De melodie komt uit een sonatine van Muzio Clementi uit 1801, wat het een van de weinige nummer-één-hits maakt met een klassieke pianoetude eronder.",
+      "fun_fact_it": "La melodia viene da una sonatina di Muzio Clementi del 1801, il che ne fa uno dei pochi primi posti costruiti su un esercizio di pianoforte classico.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=HsC_SARyPzk"
+    },
+    {
+      "year": 1988,
+      "uri": "spotify:track:1IDeAs57vupiUdvMkceoqY",
+      "artist": "Dominoe",
+      "alt_artists": [
+        "Bonfire",
+        "Frumpy",
+        "Münchener Freiheit"
+      ],
+      "title": "Here I Am",
+      "isrc": "DEKX91900105",
+      "uri_apple_music": "applemusic://track/1476351641",
+      "uri_deezer": "deezer://track/730302232",
+      "fun_fact": "Dominoe were a Munich band singing in English, and this one ballad outlived the rest of their catalogue on German radio by decades.",
+      "fun_fact_de": "Dominoe waren eine Münchner Band, die auf Englisch sang, und diese eine Ballade überlebte den Rest ihres Katalogs im deutschen Radio um Jahrzehnte.",
+      "fun_fact_es": "Dominoe era un grupo de Múnich que cantaba en inglés, y esta balada sobrevivió al resto de su catálogo en la radio alemana durante décadas.",
+      "fun_fact_fr": "Dominoe était un groupe munichois chantant en anglais, et cette seule ballade a survécu au reste de leur catalogue à la radio allemande pendant des décennies.",
+      "fun_fact_nl": "Dominoe was een band uit München die in het Engels zong, en deze ene ballade overleefde de rest van hun catalogus op de Duitse radio met decennia.",
+      "fun_fact_it": "I Dominoe erano un gruppo di Monaco che cantava in inglese, e questa sola ballata sopravvisse al resto del loro catalogo nelle radio tedesche per decenni.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=5x5bXOhMTdw"
+    },
+    {
+      "year": 1988,
+      "uri": "spotify:track:09huOVRryZNV2deKFZLJDC",
+      "artist": "Boy Meets Girl",
+      "alt_artists": [
+        "Whitney Houston",
+        "Belinda Carlisle",
+        "Taylor Dayne"
+      ],
+      "title": "Waiting for a Star to Fall",
+      "isrc": "USRC18805633",
+      "uri_apple_music": "applemusic://track/1357864216",
+      "uri_deezer": "deezer://track/471297912",
+      "fun_fact": "The duo had written 'How Will I Know' for Whitney Houston, offered her this one too, were turned down, and recorded it themselves.",
+      "fun_fact_de": "Das Duo hatte 'How Will I Know' für Whitney Houston geschrieben, bot ihr auch diesen Song an, wurde abgelehnt und nahm ihn selbst auf.",
+      "fun_fact_es": "El dúo había escrito 'How Will I Know' para Whitney Houston, le ofreció también esta, fue rechazado y la grabó él mismo.",
+      "fun_fact_fr": "Le duo avait écrit 'How Will I Know' pour Whitney Houston, lui a aussi proposé celle-ci, s'est fait refuser et l'a enregistrée lui-même.",
+      "fun_fact_nl": "Het duo had 'How Will I Know' voor Whitney Houston geschreven, bood haar ook dit nummer aan, werd afgewezen en nam het zelf op.",
+      "fun_fact_it": "Il duo aveva scritto 'How Will I Know' per Whitney Houston, offrì anche questa, fu rifiutato e la incise da sé.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=RhxF9Qg5mOU"
+    },
+    {
+      "year": 1989,
+      "uri": "spotify:track:7IBff7ScohvP2pdfHR6YLE",
+      "artist": "Camouflage",
+      "alt_artists": [
+        "Depeche Mode",
+        "Alphaville",
+        "And One"
+      ],
+      "title": "Love Is A Shield",
+      "isrc": "PTAB19400307",
+      "uri_apple_music": "applemusic://track/1443862180",
+      "uri_deezer": "deezer://track/5096565",
+      "fun_fact": "Camouflage came from Bietigheim-Bissingen and were so often taken for a Depeche Mode side project that the comparison followed them for a decade.",
+      "fun_fact_de": "Camouflage kamen aus Bietigheim-Bissingen und wurden so oft für ein Nebenprojekt von Depeche Mode gehalten, dass ihnen der Vergleich ein Jahrzehnt lang nachhing.",
+      "fun_fact_es": "Camouflage venía de Bietigheim-Bissingen y se les tomaba tan a menudo por un proyecto paralelo de Depeche Mode que la comparación les persiguió una década.",
+      "fun_fact_fr": "Camouflage venait de Bietigheim-Bissingen et on les prenait si souvent pour un projet parallèle de Depeche Mode que la comparaison les a suivis dix ans.",
+      "fun_fact_nl": "Camouflage kwam uit Bietigheim-Bissingen en werd zo vaak voor een zijproject van Depeche Mode aangezien dat de vergelijking hen tien jaar achtervolgde.",
+      "fun_fact_it": "I Camouflage venivano da Bietigheim-Bissingen ed erano scambiati così spesso per un progetto parallelo dei Depeche Mode che il paragone li seguì per un decennio.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=zXzqcDnzDgc"
+    },
+    {
+      "year": 1982,
+      "uri": "spotify:track:59uopHNpuKcozG1GQlZOiY",
+      "artist": "America",
+      "alt_artists": [
+        "Kenny Loggins",
+        "Christopher Cross",
+        "Air Supply"
+      ],
+      "title": "The Last Unicorn",
+      "isrc": "USUM71915371",
+      "uri_apple_music": "applemusic://track/1476083695",
+      "uri_deezer": "deezer://track/729597972",
+      "fun_fact": "Jimmy Webb wrote the whole score for the animated film, and the German dub kept the English title song, which is why it is a standard there and nowhere else.",
+      "fun_fact_de": "Jimmy Webb schrieb die gesamte Musik zum Zeichentrickfilm, und die deutsche Fassung behielt den englischen Titelsong — deshalb ist er dort ein Standard und sonst nirgends.",
+      "fun_fact_es": "Jimmy Webb compuso toda la banda sonora de la película de animación, y el doblaje alemán conservó la canción en inglés; por eso allí es un clásico y en ningún otro sitio.",
+      "fun_fact_fr": "Jimmy Webb a composé toute la musique du film d'animation, et la version allemande a gardé la chanson-titre en anglais, ce qui en fait un standard là-bas et nulle part ailleurs.",
+      "fun_fact_nl": "Jimmy Webb schreef de hele filmmuziek voor de animatiefilm, en de Duitse nasynchronisatie behield het Engelse titellied; daarom is het daar een standard en nergens anders.",
+      "fun_fact_it": "Jimmy Webb scrisse tutta la colonna sonora del film d'animazione, e il doppiaggio tedesco mantenne la canzone in inglese: per questo lì è uno standard e altrove no.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=51Ez6ZVz68c"
+    },
+    {
+      "year": 1980,
+      "uri": "spotify:track:2m5xo4HEFHgOQpqqrxCS5u",
+      "artist": "Barbra Streisand",
+      "alt_artists": [
+        "Bee Gees",
+        "Diana Ross",
+        "Donna Summer"
+      ],
+      "title": "Woman In Love",
+      "isrc": "USSM18000362",
+      "uri_apple_music": "applemusic://track/185861190",
+      "uri_deezer": "deezer://track/625398",
+      "fun_fact": "Barry Gibb wrote and produced it and sings the backing vocals; Streisand had never worked with an outside producer before.",
+      "fun_fact_de": "Barry Gibb schrieb und produzierte den Song und singt die Backing Vocals; Streisand hatte zuvor nie mit einem fremden Produzenten gearbeitet.",
+      "fun_fact_es": "Barry Gibb la escribió y produjo y canta los coros; Streisand nunca había trabajado antes con un productor ajeno.",
+      "fun_fact_fr": "Barry Gibb l'a écrite et produite et chante les chœurs ; Streisand n'avait jamais travaillé avec un producteur extérieur.",
+      "fun_fact_nl": "Barry Gibb schreef en produceerde het en zingt de achtergrondzang; Streisand had nooit eerder met een externe producer gewerkt.",
+      "fun_fact_it": "Barry Gibb la scrisse, la produsse e canta i cori; Streisand non aveva mai lavorato con un produttore esterno.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=hQLGCX8D-1Y"
+    },
+    {
+      "year": 1980,
+      "uri": "spotify:track:4w3tQBXhn5345eUXDGBWZG",
+      "artist": "Dolly Parton",
+      "alt_artists": [
+        "Kenny Rogers",
+        "Tammy Wynette",
+        "Loretta Lynn"
+      ],
+      "title": "9 to 5",
+      "isrc": "USRN19400384",
+      "uri_apple_music": "applemusic://track/282883590",
+      "uri_deezer": "deezer://track/992937",
+      "fun_fact": "Parton wrote it on set between takes and kept time by clicking her acrylic fingernails, which you can hear on the record.",
+      "fun_fact_de": "Parton schrieb den Song am Set zwischen zwei Takes und hielt den Takt mit ihren Kunstnägeln — auf der Platte ist es zu hören.",
+      "fun_fact_es": "Parton la escribió en el rodaje entre tomas y llevaba el ritmo con sus uñas postizas, que se oyen en el disco.",
+      "fun_fact_fr": "Parton l'a écrite sur le tournage entre deux prises et battait la mesure avec ses ongles en acrylique, que l'on entend sur le disque.",
+      "fun_fact_nl": "Parton schreef het op de set tussen opnames en hield de maat met haar kunstnagels, die op de plaat te horen zijn.",
+      "fun_fact_it": "Parton la scrisse sul set tra una ripresa e l'altra battendo il tempo con le unghie finte, che si sentono nel disco.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=UbxUSsFXYo4"
+    },
+    {
+      "year": 1981,
+      "uri": "spotify:track:0cGG2EouYCEEC3xfa0tDFV",
+      "artist": "Soft Cell",
+      "alt_artists": [
+        "Gloria Jones",
+        "Marc Almond",
+        "Depeche Mode"
+      ],
+      "title": "Tainted Love",
+      "isrc": null,
+      "uri_apple_music": "applemusic://track/1440913008",
+      "uri_deezer": null,
+      "fun_fact": "Gloria Jones recorded it in 1964 as a northern soul B-side; Soft Cell slowed it down and it became one of the best-selling British singles ever.",
+      "fun_fact_de": "Gloria Jones nahm den Song 1964 als Northern-Soul-B-Seite auf; Soft Cell verlangsamten ihn, und er wurde eine der meistverkauften britischen Singles überhaupt.",
+      "fun_fact_es": "Gloria Jones la grabó en 1964 como cara B de northern soul; Soft Cell la ralentizó y se convirtió en uno de los sencillos británicos más vendidos.",
+      "fun_fact_fr": "Gloria Jones l'a enregistrée en 1964 comme face B de northern soul ; Soft Cell l'a ralentie et elle est devenue l'un des singles britanniques les plus vendus.",
+      "fun_fact_nl": "Gloria Jones nam het in 1964 op als northern-soul-B-kant; Soft Cell vertraagde het en het werd een van de best verkochte Britse singles ooit.",
+      "fun_fact_it": "Gloria Jones la incise nel 1964 come lato B northern soul; i Soft Cell la rallentarono e divenne uno dei singoli britannici più venduti di sempre.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=XZVpR3Pk-r8"
+    },
+    {
+      "year": 1981,
+      "uri": "spotify:track:2j8bXaOBeEeyoY4ZpCcFIW",
+      "artist": "Shakin' Stevens",
+      "alt_artists": [
+        "Shakin' Stevens",
+        "Showaddywaddy",
+        "Matchbox"
+      ],
+      "title": "You Drive Me Crazy",
+      "isrc": "GBARL0801567",
+      "uri_apple_music": "applemusic://track/1539000123",
+      "uri_deezer": "deezer://track/1132667192",
+      "fun_fact": "Stevens was the best-selling singles artist in Britain across the whole decade, outselling every act now remembered as an eighties band.",
+      "fun_fact_de": "Stevens war im gesamten Jahrzehnt der meistverkaufte Singles-Künstler Britanniens — vor jeder Band, die heute als Achtziger-Gruppe erinnert wird.",
+      "fun_fact_es": "Stevens fue el artista de sencillos más vendido de Gran Bretaña en toda la década, por delante de cualquier grupo que hoy se recuerde como ochentero.",
+      "fun_fact_fr": "Stevens a été l'artiste de singles le plus vendu de Grande-Bretagne sur toute la décennie, devant tous les groupes dont on se souvient aujourd'hui.",
+      "fun_fact_nl": "Stevens was het hele decennium de best verkopende singleartiest van Groot-Brittannië, boven elke band die nu als tachtiger wordt herinnerd.",
+      "fun_fact_it": "Stevens fu l'artista di singoli più venduto in Gran Bretagna per tutto il decennio, davanti a ogni gruppo oggi ricordato come anni ottanta.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=OFZH1ZqrRS0"
+    },
+    {
+      "year": 1982,
+      "uri": "spotify:track:1HPJOoIVdUPuaebxzMrVaD",
+      "artist": "F.R. David",
+      "alt_artists": [
+        "Modern Talking",
+        "Fancy",
+        "Ryan Paris"
+      ],
+      "title": "Words",
+      "isrc": "FR6V81029402",
+      "uri_apple_music": "applemusic://track/490807202",
+      "uri_deezer": "deezer://track/5367498",
+      "fun_fact": "Robert Fitoussi is French and sang in English for a German-led European market; the record was a hit almost everywhere except Britain.",
+      "fun_fact_de": "Robert Fitoussi ist Franzose und sang auf Englisch für einen von Deutschland getriebenen europäischen Markt; die Platte lief fast überall, nur nicht in Britannien.",
+      "fun_fact_es": "Robert Fitoussi es francés y cantaba en inglés para un mercado europeo dominado por Alemania; el disco triunfó casi en todas partes salvo en Gran Bretaña.",
+      "fun_fact_fr": "Robert Fitoussi est français et chantait en anglais pour un marché européen mené par l'Allemagne ; le disque a marché presque partout sauf au Royaume-Uni.",
+      "fun_fact_nl": "Robert Fitoussi is Frans en zong in het Engels voor een door Duitsland gedreven Europese markt; de plaat scoorde bijna overal behalve in Groot-Brittannië.",
+      "fun_fact_it": "Robert Fitoussi è francese e cantava in inglese per un mercato europeo guidato dalla Germania; il disco funzionò quasi ovunque tranne che in Gran Bretagna.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=PTsSk0r_Tq8"
+    },
+    {
+      "year": 1982,
+      "uri": "spotify:track:3MrWxJaD2AT0W9DjWF64Vm",
+      "artist": "Dexys Midnight Runners",
+      "alt_artists": [
+        "The Pogues",
+        "Madness",
+        "The Specials"
+      ],
+      "title": "Come On Eileen",
+      "isrc": "GBF088200006",
+      "uri_apple_music": "applemusic://track/1490914106",
+      "uri_deezer": "deezer://track/106344460",
+      "fun_fact": "The band wore dungarees and played fiddles at the height of synth pop, and this was the only American number one any of them ever had.",
+      "fun_fact_de": "Die Band trug Latzhosen und spielte Geige auf dem Höhepunkt des Synthiepop — es blieb ihr einziger amerikanischer Nummer-eins-Hit.",
+      "fun_fact_es": "El grupo llevaba petos y tocaba violines en pleno auge del synth pop, y este fue su único número uno estadounidense.",
+      "fun_fact_fr": "Le groupe portait des salopettes et jouait du violon en plein essor de la synthpop, et ce fut leur unique numéro un américain.",
+      "fun_fact_nl": "De band droeg tuinbroeken en speelde viool op het hoogtepunt van de synthpop, en dit was hun enige Amerikaanse nummer één.",
+      "fun_fact_it": "Il gruppo indossava salopette e suonava violini nel pieno del synth pop, e questo restò il loro unico numero uno americano.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=6BODDyZRF6A"
+    },
+    {
+      "year": 1983,
+      "uri": "spotify:track:6AsF1pBjFMIEMXuA8JgRag",
+      "artist": "Ryan Paris",
+      "alt_artists": [
+        "F.R. David",
+        "Baltimora",
+        "Righeira"
+      ],
+      "title": "Dolce Vita",
+      "isrc": "DEA312007084",
+      "uri_apple_music": "applemusic://track/453093678",
+      "uri_deezer": "deezer://track/914062362",
+      "fun_fact": "The title borrows Fellini's film, and the singer is Italian but recorded in English because that was what the German charts wanted.",
+      "fun_fact_de": "Der Titel borgt sich Fellinis Film; der Sänger ist Italiener, nahm aber auf Englisch auf, weil die deutschen Charts das so wollten.",
+      "fun_fact_es": "El título toma prestada la película de Fellini, y el cantante es italiano pero grabó en inglés porque era lo que pedían las listas alemanas.",
+      "fun_fact_fr": "Le titre emprunte au film de Fellini, et le chanteur est italien mais a enregistré en anglais parce que c'est ce que voulaient les classements allemands.",
+      "fun_fact_nl": "De titel leent Fellini's film, en de zanger is Italiaan maar nam in het Engels op omdat de Duitse lijsten dat wilden.",
+      "fun_fact_it": "Il titolo prende in prestito il film di Fellini, e il cantante è italiano ma incise in inglese perché era ciò che volevano le classifiche tedesche.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=EXmABxvHTG4"
+    },
+    {
+      "year": 1984,
+      "uri": "spotify:track:0uBwcaTkY1BPpIZhxuhS67",
+      "artist": "Julio Iglesias",
+      "alt_artists": [
+        "Willie Nelson",
+        "Frank Sinatra",
+        "Kenny Rogers"
+      ],
+      "title": "To All the Girls I've Loved Before",
+      "isrc": "NLB630000270",
+      "uri_apple_music": "applemusic://track/719442565",
+      "uri_deezer": "deezer://track/15050607",
+      "fun_fact": "The song was ten years old and forgotten when the two singers cut it as a duet; it went to number one on the country chart.",
+      "fun_fact_de": "Der Song war zehn Jahre alt und vergessen, als die beiden Sänger ihn als Duett aufnahmen — er ging auf Platz eins der Country-Charts.",
+      "fun_fact_es": "La canción tenía diez años y estaba olvidada cuando ambos la grabaron a dúo; llegó al número uno de la lista country.",
+      "fun_fact_fr": "La chanson avait dix ans et était oubliée quand les deux chanteurs l'ont enregistrée en duo ; elle est arrivée première du classement country.",
+      "fun_fact_nl": "Het nummer was tien jaar oud en vergeten toen de twee zangers het als duet opnamen; het werd nummer één in de countrylijst.",
+      "fun_fact_it": "La canzone aveva dieci anni ed era dimenticata quando i due cantanti la incisero in duetto; arrivò al primo posto nella classifica country.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=rVq0ONrSH-Q"
+    },
+    {
+      "year": 1986,
+      "uri": "spotify:track:7g3g2sqevicvurLTZ75JTA",
+      "artist": "Mecano",
+      "alt_artists": [
+        "Ana Torroja",
+        "Sarah Brightman",
+        "Montserrat Caballé"
+      ],
+      "title": "Hijo de la Luna",
+      "isrc": "ES5028600049",
+      "uri_apple_music": "applemusic://track/1559520587",
+      "uri_deezer": "deezer://track/3786211662",
+      "fun_fact": "José María Cano wrote a Spanish art song about a gypsy legend and put it on a pop record; it has been covered in a dozen languages since.",
+      "fun_fact_de": "José María Cano schrieb ein spanisches Kunstlied über eine Zigeunerlegende und setzte es auf eine Popplatte; seither wurde es in einem Dutzend Sprachen gecovert.",
+      "fun_fact_es": "José María Cano escribió una canción culta sobre una leyenda gitana y la puso en un disco pop; desde entonces se ha versionado en una docena de idiomas.",
+      "fun_fact_fr": "José María Cano a écrit une chanson savante espagnole sur une légende gitane et l'a mise sur un disque pop ; elle a depuis été reprise dans une douzaine de langues.",
+      "fun_fact_nl": "José María Cano schreef een Spaans kunstlied over een zigeunerlegende en zette het op een popplaat; sindsdien is het in een tiental talen gecoverd.",
+      "fun_fact_it": "José María Cano scrisse una canzone d'arte spagnola su una leggenda gitana e la mise su un disco pop; da allora è stata reincisa in una dozzina di lingue.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=OwGG5fX7bxY"
+    },
+    {
+      "year": 1986,
+      "uri": "spotify:track:5zWZ9iNevP0397xB3jWV2z",
+      "artist": "Modern Talking",
+      "alt_artists": [
+        "Bad Boys Blue",
+        "Fancy",
+        "Blue System"
+      ],
+      "title": "Brother Louie",
+      "isrc": "DEC738600004",
+      "uri_apple_music": "applemusic://track/348891991",
+      "uri_deezer": "deezer://track/548510",
+      "fun_fact": "Dieter Bohlen wrote and produced everything and sang the high parts himself; Thomas Anders was the face and the low voice.",
+      "fun_fact_de": "Dieter Bohlen schrieb und produzierte alles und sang die hohen Stimmen selbst; Thomas Anders war das Gesicht und die tiefe Stimme.",
+      "fun_fact_es": "Dieter Bohlen escribía y producía todo y cantaba él mismo las voces agudas; Thomas Anders era la cara y la voz grave.",
+      "fun_fact_fr": "Dieter Bohlen écrivait et produisait tout et chantait lui-même les voix aiguës ; Thomas Anders était le visage et la voix grave.",
+      "fun_fact_nl": "Dieter Bohlen schreef en produceerde alles en zong zelf de hoge partijen; Thomas Anders was het gezicht en de lage stem.",
+      "fun_fact_it": "Dieter Bohlen scriveva e produceva tutto e cantava lui stesso le parti acute; Thomas Anders era il volto e la voce grave.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=Lp2qcCrdBLA"
+    },
+    {
+      "year": 1986,
+      "uri": "spotify:track:58RdxKqvxh631GXrvTxJ2z",
+      "artist": "The Housemartins",
+      "alt_artists": [
+        "The Beautiful South",
+        "The Smiths",
+        "Fine Young Cannibals"
+      ],
+      "title": "Caravan Of Love",
+      "isrc": "GBF080080423",
+      "uri_apple_music": "applemusic://track/1527750547",
+      "uri_deezer": "deezer://track/914435",
+      "fun_fact": "The band sang it unaccompanied, and their own bass player Norman Cook later became Fatboy Slim.",
+      "fun_fact_de": "Die Band sang das Stück a cappella, und ihr Bassist Norman Cook wurde später Fatboy Slim.",
+      "fun_fact_es": "El grupo la cantó a capela, y su propio bajista, Norman Cook, se convirtió después en Fatboy Slim.",
+      "fun_fact_fr": "Le groupe l'a chantée a cappella, et leur bassiste Norman Cook est devenu plus tard Fatboy Slim.",
+      "fun_fact_nl": "De band zong het a capella, en hun eigen bassist Norman Cook werd later Fatboy Slim.",
+      "fun_fact_it": "Il gruppo la cantò a cappella, e il loro bassista Norman Cook divenne poi Fatboy Slim.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=ehfiQd7lcPY"
+    },
+    {
+      "year": 1987,
+      "uri": "spotify:track:6BOr4LUEiAeg0xUtsgZ6Ri",
+      "artist": "The Other Ones",
+      "alt_artists": [
+        "Alphaville",
+        "Camouflage",
+        "Münchener Freiheit"
+      ],
+      "title": "Holiday",
+      "isrc": "DEG128600401",
+      "uri_apple_music": "applemusic://track/1442299008",
+      "uri_deezer": "deezer://track/131741286",
+      "fun_fact": "Two Australian brothers moved to Berlin, sang in English and were taken for a German band by almost everyone who bought the record.",
+      "fun_fact_de": "Zwei australische Brüder zogen nach Berlin, sangen auf Englisch und wurden von fast allen Käufern für eine deutsche Band gehalten.",
+      "fun_fact_es": "Dos hermanos australianos se mudaron a Berlín, cantaban en inglés y casi todos los compradores del disco los tomaron por un grupo alemán.",
+      "fun_fact_fr": "Deux frères australiens se sont installés à Berlin, chantaient en anglais et étaient pris pour un groupe allemand par presque tous les acheteurs.",
+      "fun_fact_nl": "Twee Australische broers verhuisden naar Berlijn, zongen in het Engels en werden door bijna elke koper voor een Duitse band aangezien.",
+      "fun_fact_it": "Due fratelli australiani si trasferirono a Berlino, cantavano in inglese ed erano scambiati per un gruppo tedesco da quasi tutti gli acquirenti.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=U4a6-MFR9es"
+    },
+    {
+      "year": 1987,
+      "uri": "spotify:track:4V9BTST4BSkvOL4xIQNHuS",
+      "artist": "Belinda Carlisle",
+      "alt_artists": [
+        "The Go-Go's",
+        "Cyndi Lauper",
+        "Bananarama"
+      ],
+      "title": "Heaven Is A Place On Earth",
+      "isrc": "GBAAA8700010",
+      "uri_apple_music": "applemusic://track/1818605567",
+      "uri_deezer": "deezer://track/3808827462",
+      "fun_fact": "Carlisle had been the singer of a Los Angeles punk band, and the video was directed by Diane Keaton.",
+      "fun_fact_de": "Carlisle war zuvor Sängerin einer Punkband aus Los Angeles, und Regie beim Video führte Diane Keaton.",
+      "fun_fact_es": "Carlisle había sido cantante de una banda punk de Los Ángeles, y el vídeo lo dirigió Diane Keaton.",
+      "fun_fact_fr": "Carlisle avait été la chanteuse d'un groupe punk de Los Angeles, et le clip a été réalisé par Diane Keaton.",
+      "fun_fact_nl": "Carlisle was zangeres geweest van een punkband uit Los Angeles, en de video werd geregisseerd door Diane Keaton.",
+      "fun_fact_it": "Carlisle era stata la cantante di una band punk di Los Angeles, e il video fu diretto da Diane Keaton.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=j2F4INQFjEI"
+    },
+    {
+      "year": 1987,
+      "uri": "spotify:track:0hLHQyq7hpwq4qbXz3WNtH",
+      "artist": "Bonnie Bianco",
+      "alt_artists": [
+        "Sandra",
+        "Bonnie Tyler",
+        "Baltimora"
+      ],
+      "title": "Stay",
+      "isrc": "DEA370801465",
+      "uri_apple_music": null,
+      "uri_deezer": "deezer://track/1138340062",
+      "fun_fact": "The duet comes from the Italian teen film Cinderella '87, which almost nobody outside Germany has seen and everybody in Germany can hum.",
+      "fun_fact_de": "Das Duett stammt aus dem italienischen Jugendfilm Cinderella '87 — außerhalb Deutschlands kennt ihn kaum jemand, in Deutschland kann jeder die Melodie summen.",
+      "fun_fact_es": "El dúo viene de la película juvenil italiana Cinderella '87, que casi nadie fuera de Alemania ha visto y cuya melodía cualquiera en Alemania puede tararear.",
+      "fun_fact_fr": "Le duo vient du film italien pour adolescents Cinderella '87, que presque personne hors d'Allemagne n'a vu et dont tout le monde en Allemagne fredonne l'air.",
+      "fun_fact_nl": "Het duet komt uit de Italiaanse jeugdfilm Cinderella '87, die buiten Duitsland bijna niemand zag en waarvan in Duitsland iedereen de melodie kan neuriën.",
+      "fun_fact_it": "Il duetto viene dal film per ragazzi italiano Cinderella '87, che fuori dalla Germania quasi nessuno ha visto e la cui melodia in Germania tutti sanno canticchiare.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=NBvNTnTwxpE"
+    },
+    {
+      "year": 1988,
+      "uri": "spotify:track:3lrnlYbfVdJ5FW8ySUFyOV",
+      "artist": "Fancy",
+      "alt_artists": [
+        "Modern Talking",
+        "Bad Boys Blue",
+        "Blue System"
+      ],
+      "title": "Flames Of Love",
+      "isrc": "DEP551911248",
+      "uri_apple_music": "applemusic://track/330638484",
+      "uri_deezer": "deezer://track/3482046771",
+      "fun_fact": "Fancy is Manfred Alois Segieth from Munich, and his Italo-disco records sold across Europe while Britain ignored them entirely.",
+      "fun_fact_de": "Fancy ist Manfred Alois Segieth aus München; seine Italo-Disco-Platten verkauften sich europaweit, während Britannien sie vollständig ignorierte.",
+      "fun_fact_es": "Fancy es Manfred Alois Segieth, de Múnich; sus discos de italo disco se vendieron por toda Europa mientras Gran Bretaña los ignoraba del todo.",
+      "fun_fact_fr": "Fancy est Manfred Alois Segieth, de Munich ; ses disques d'italo-disco se vendaient dans toute l'Europe tandis que le Royaume-Uni les ignorait totalement.",
+      "fun_fact_nl": "Fancy is Manfred Alois Segieth uit München; zijn italodiscoplaten verkochten in heel Europa terwijl Groot-Brittannië ze volledig negeerde.",
+      "fun_fact_it": "Fancy è Manfred Alois Segieth, di Monaco; i suoi dischi italo disco vendevano in tutta Europa mentre la Gran Bretagna li ignorava del tutto.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=8C35sdjc_cw"
+    },
+    {
+      "year": 1988,
+      "uri": "spotify:track:4E94Aw2pCloMM0pnz9ddlr",
+      "artist": "Erasure",
+      "alt_artists": [
+        "Pet Shop Boys",
+        "Depeche Mode",
+        "Yazoo"
+      ],
+      "title": "Ship of Fools",
+      "isrc": "GBAJH9900351",
+      "uri_apple_music": "applemusic://track/1770272565",
+      "uri_deezer": "deezer://track/3783086672",
+      "fun_fact": "Vince Clarke had already left Depeche Mode and Yazoo before Erasure; this was his third band and the one that lasted.",
+      "fun_fact_de": "Vince Clarke hatte vor Erasure bereits Depeche Mode und Yazoo verlassen; es war seine dritte Band — und die, die blieb.",
+      "fun_fact_es": "Vince Clarke ya había dejado Depeche Mode y Yazoo antes de Erasure; fue su tercera banda y la que duró.",
+      "fun_fact_fr": "Vince Clarke avait déjà quitté Depeche Mode et Yazoo avant Erasure ; ce fut son troisième groupe et celui qui a duré.",
+      "fun_fact_nl": "Vince Clarke had voor Erasure al Depeche Mode en Yazoo verlaten; dit was zijn derde band en degene die bleef.",
+      "fun_fact_it": "Vince Clarke aveva già lasciato Depeche Mode e Yazoo prima degli Erasure; fu la sua terza band e quella che durò.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=ekc_aR5LyAk"
+    },
+    {
+      "year": 1989,
+      "uri": "spotify:track:6TR1HuLKAe7Xt4XPBaxvv2",
+      "artist": "Sandra",
+      "alt_artists": [
+        "Sandra",
+        "Enigma",
+        "Modern Talking"
+      ],
+      "title": "We'll Be Together",
+      "isrc": "DEC648900023",
+      "uri_apple_music": "applemusic://track/1443070134",
+      "uri_deezer": "deezer://track/125541398",
+      "fun_fact": "Sandra was married to Michael Cretu, who produced her records and later built Enigma on the same studio and the same voice.",
+      "fun_fact_de": "Sandra war mit Michael Cretu verheiratet, der ihre Platten produzierte und später Enigma auf demselben Studio und derselben Stimme aufbaute.",
+      "fun_fact_es": "Sandra estaba casada con Michael Cretu, que producía sus discos y luego levantó Enigma con el mismo estudio y la misma voz.",
+      "fun_fact_fr": "Sandra était mariée à Michael Cretu, qui produisait ses disques et a plus tard bâti Enigma sur le même studio et la même voix.",
+      "fun_fact_nl": "Sandra was getrouwd met Michael Cretu, die haar platen produceerde en later Enigma bouwde op dezelfde studio en dezelfde stem.",
+      "fun_fact_it": "Sandra era sposata con Michael Cretu, che produceva i suoi dischi e più tardi costruì gli Enigma sullo stesso studio e sulla stessa voce.",
+      "uri_youtube_music": "https://music.youtube.com/watch?v=kPrBhiRoQyc"
     }
   ]
 }

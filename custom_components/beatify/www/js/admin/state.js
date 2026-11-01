@@ -41,6 +41,8 @@ export const adminState = {
     activeFilterTags: ['all'],          // Tag filter state (Issue #70)
     selectedMediaPlayer: null,          // { entityId, state } or null
     mediaPlayerDocsUrl: '',
+    mediaPlayers: [],                   // #1627: raw players payload from /api/status
+    mediaPlayerTwinRemap: {},            // #1627: native entity_id → MA twin entity_id
     // Active filter state per category (Issue #70 filter bar)
     activeFilters: { decade: '', style: '', region: '', special: '' },
 
@@ -48,6 +50,7 @@ export const adminState = {
     currentView: 'setup',
     currentGame: null,
     cachedQRUrl: null,
+    setupComplete: false,               // #1663: server-side "is configured?" flag
 
     // --- game settings ---
     selectedLanguage: 'en',             // Story 12.4
@@ -63,6 +66,24 @@ export const adminState = {
     introModeEnabled: false,            // Issue #23
     closestWinsModeEnabled: false,      // Issue #442
     titleArtistModeEnabled: false,      // #1180
+    rampupOrderEnabled: false,          // Issue #1726
+    finaleDoubleEnabled: false,         // Issue #1725
+    finaleTiebreakerEnabled: false,     // Issue #1725
+    comebackTokenEnabled: false,        // Issue #1724
+    difficultyBetScalingEnabled: false, // Issue #1727
+    sabotageEnabled: false,             // Issue #1665
+
+    // --- Crate Digger / library ---
+    // #2973: these had no starting value. With no saved settings (server
+    // `{}`, empty localStorage) the library step printed "Top undefined%"
+    // and left the size and scan selects blank. The values are the ones the
+    // panel's markup shows and the backend falls back to
+    // (library/config.py SIZE_DEFAULT, YEAR_GATES["strict"]); saved settings
+    // still override them in loadSavedSettings / _loadServerSettings.
+    libraryPopPercent: 50,              // "Top 50%", slider at 101 - 50
+    librarySize: 30,                    // songs per game
+    libraryYearGate: 'strict',          // verified years only
+    libraryScanSize: 2500,              // the scan select's preselected option
 
     // --- lobby / admin-as-player (#477) ---
     previousLobbyPlayers: [],           // Story 16.8

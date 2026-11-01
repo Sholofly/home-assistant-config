@@ -8,7 +8,7 @@
 #
 platform: wifi_signal
 id: sensor_wifi_signal
-name: "${name} Wi-Fi Signal"
+name: "Wi-Fi signal"
 update_interval: 300s
 entity_category: diagnostic
 #device_id: "${id}_device"

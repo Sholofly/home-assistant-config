@@ -14,18 +14,133 @@
  * UI is the chips owned by game-settings + this capability gate), so it is NOT
  * a standalone module (see PR body).
  *
- * The no-compatible-players empty state renders inline `onclick="loadStatus()"`;
- * `loadStatus` lives in admin.js core and is already shimmed onto `window` there,
- * so this module needs no extra shim for it.
+ * The no-compatible-players empty state offers a "Refresh" button. It used to
+ * be an inline `onclick="loadStatus()"` that only resolved because admin.js
+ * published its core `loadStatus` on `window`. #2637 replaced that with a
+ * `refreshStatus` dependency handed in through `initMediaPlayers()`, so this
+ * module no longer needs admin.js to have run first for its own button to work.
  */
 
 import { adminState } from '../state.js';
 import { STORAGE_LAST_PLAYER, PLATFORM_LABELS } from '../constants.js';
+import { PROVIDERS } from '../../providers.generated.js';
 import { updateStartButtonState } from './playlists.js';
+import { tr } from '../util.js';
 
 // BeatifyUtils is a classic global script loaded before admin.min.js (module,
 // deferred), so this is safe at module init. Mirrors the admin.js pattern.
 const utils = window.BeatifyUtils || {};
+
+// Admin-core dependencies, injected once at init (#2637).
+const deps = {
+    refreshStatus: null,   // admin.js `loadStatus`
+    onSpeakerRejected: null,  // admin.js: banner above Start (#3223)
+    onSpeakerChanged: null,   // admin.js: clear that banner (#3223)
+};
+
+// The speaker the game stayed on after the last refused switch (#3223). A
+// later push of that same speaker is the revert, not a new switch, so it must
+// not clear the banner; a push of any other speaker that the server accepts is.
+let keptSpeaker = null;
+
+/**
+ * Wire the media-players section's admin-core dependencies once at init.
+ *
+ * @param {{ refreshStatus?: Function }} injected - `refreshStatus` re-runs the
+ *   admin core's status fetch; the no-compatible-players empty state's Refresh
+ *   button calls it.
+ */
+export function initMediaPlayers(injected = {}) {
+    deps.refreshStatus = injected.refreshStatus || null;
+    deps.onSpeakerRejected = injected.onSpeakerRejected || null;
+    deps.onSpeakerChanged = injected.onSpeakerChanged || null;
+}
+
+/**
+ * POST a settings patch to update-lobby and act on a refused speaker (#3223).
+ *
+ * Both callers that send a speaker (the speaker pick and saveGameSettings) were
+ * fire-and-forget, so a speaker the server refused stayed selected here while
+ * the game kept playing on the old one. A refused speaker answers with the
+ * rejection plus `media_player`, the speaker the game is still on; the server
+ * applies the rest of the patch either way.
+ *
+ * #3236: `opts.auto` marks a push the page made on its own (the stored speaker
+ * re-selected on load), not a host action. It is handed to `onSpeakerRejected`
+ * so a refusal of that push can stay silent mid-game.
+ *
+ * @param {object} payload - the update-lobby body.
+ * @param {{auto?: boolean}} [opts]
+ * @returns {Promise<object|null>} the parsed response, or null.
+ */
+export async function postLobbyUpdate(payload, opts = {}) {
+    let data;
+    let ok;
+    try {
+        const response = await window.BeatifyAuth?.fetch('/beatify/api/game/update-lobby', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        });
+        if (!response) return null;
+        ok = !!response.ok;
+        data = await response.json();
+    } catch (e) {
+        return null;  // fire-and-forget: a failed push never blocks the admin
+    }
+    if (!data) return null;
+    if (!ok && isSpeakerRejection(data)) {
+        revertRejectedSpeaker(data, { auto: !!opts.auto });
+    } else if (ok && Array.isArray(data.fields) && data.fields.includes('media_player')
+        && keptSpeaker && payload && payload.media_player && payload.media_player !== keptSpeaker) {
+        keptSpeaker = null;
+        deps.onSpeakerChanged?.();
+    }
+    return data;
+}
+
+/**
+ * Whether an update-lobby error body is a refused speaker (#3223). Only that
+ * rejection carries the speaker the game stayed on.
+ */
+export function isSpeakerRejection(data) {
+    return !!data && typeof data === 'object'
+        && Object.prototype.hasOwnProperty.call(data, 'media_player')
+        && Array.isArray(data.fields);
+}
+
+/**
+ * Put the selection back on the speaker the server kept (#3223).
+ *
+ * `beatify_last_player` goes back too, here and in the server's saved setup:
+ * every status render re-selects that key and pushes it, so leaving the
+ * refused speaker there would send the same switch again on the next load.
+ */
+export function revertRejectedSpeaker(data, opts = {}) {
+    const previous = typeof data.media_player === 'string' && data.media_player
+        ? data.media_player : null;
+    keptSpeaker = previous;
+    if (previous) {
+        try {
+            localStorage.setItem(STORAGE_LAST_PLAYER, previous);
+        } catch (e) { /* private mode */ }
+        const radio = document.querySelector(
+            `.media-player-radio[data-entity-id="${CSS.escape(previous)}"]`
+        );
+        if (radio) {
+            radio.checked = true;
+            handleMediaPlayerSelect(radio, true, { pushToLobby: false });
+        } else {
+            adminState.selectedMediaPlayer = { entityId: previous, state: 'unknown', platform: 'unknown' };
+        }
+        try {
+            globalThis.BeatifyPersistSetup?.();
+        } catch (e) {
+            console.warn('Failed to persist reverted speaker:', e);
+        }
+    }
+    deps.onSpeakerRejected?.(data, { auto: !!opts.auto });
+}
 
 /**
  * Update media player summary badge
@@ -36,6 +151,25 @@ export function updateMediaPlayerSummary(playerName) {
     if (summary) {
         summary.textContent = playerName || 'Select...';
     }
+}
+
+/**
+ * #1619-followup: decide whether a re-render should keep the current selection.
+ *
+ * `renderMediaPlayers()` used to blindly null `adminState.selectedMediaPlayer`
+ * on every call, then re-derive it from localStorage. That silently dropped a
+ * still-valid choice whenever it wasn't re-derivable — e.g. a speaker that is
+ * transiently `unavailable` (filtered out of the rendered list) during a routine
+ * status-poll re-render. We keep the selection as long as the chosen player is
+ * still present in the incoming payload (available OR unavailable); only a player
+ * that has actually disappeared clears it.
+ *
+ * @param {string|null} prevSelectedId - entityId of the current selection (or null)
+ * @param {Array} players - raw players payload (before the unavailable filter)
+ * @returns {boolean}
+ */
+export function _shouldKeepSelection(prevSelectedId, players) {
+    return !!prevSelectedId && (players || []).some((p) => p.entity_id === prevSelectedId);
 }
 
 /**
@@ -51,8 +185,15 @@ export function renderMediaPlayers(players) {
     container?.classList.remove('skeleton-list');
     const totalPlayers = players ? players.length : 0;
 
-    // Reset selection state
-    adminState.selectedMediaPlayer = null;
+    // #1619-followup: only drop the selection when the chosen player is actually
+    // gone from the new payload. A blind reset here silently lost a still-valid
+    // choice (e.g. a transiently-unavailable speaker) across status-poll
+    // re-renders. The localStorage auto-select below still re-derives it when the
+    // player is back in the available list.
+    const prevSelectedId = adminState.selectedMediaPlayer?.entityId || null;
+    if (!_shouldKeepSelection(prevSelectedId, players)) {
+        adminState.selectedMediaPlayer = null;
+    }
 
     // Filter out unavailable players
     const availablePlayers = (players || []).filter(p => p.state !== 'unavailable');
@@ -64,20 +205,22 @@ export function renderMediaPlayers(players) {
         // No compatible players found - show setup message with MA link
         container.innerHTML = `
             <div class="no-players-message">
-                <h3>🎵 No Compatible Players Found</h3>
-                <p>Beatify works with Music Assistant, Sonos, and Alexa players.</p>
-                <p><strong>Recommended:</strong> Install Music Assistant for the best experience with any speaker.</p>
+                <h3>${tr('admin.noCompatiblePlayersTitle', '🎵 No Compatible Players Found')}</h3>
+                <p>${tr('admin.noCompatiblePlayersDesc', 'Beatify works with Music Assistant, Sonos, and Alexa players.')}</p>
+                <p><strong>${tr('admin.recommendedLabel', 'Recommended:')}</strong> ${tr('admin.installMusicAssistant', 'Install Music Assistant for the best experience with any speaker.')}</p>
                 <div class="button-group">
                     <a href="https://music-assistant.io/getting-started/"
                        target="_blank" class="btn btn-secondary">
-                        📖 Music Assistant Setup Guide
+                        ${tr('admin.musicAssistantSetupGuide', '📖 Music Assistant Setup Guide')}
                     </a>
-                    <button onclick="loadStatus()" class="btn btn-primary">
-                        🔄 Refresh
+                    <button type="button" data-action="refresh-status" class="btn btn-primary">
+                        ${tr('admin.refresh', '🔄 Refresh')}
                     </button>
                 </div>
             </div>
         `;
+        container.querySelector('[data-action="refresh-status"]')
+            ?.addEventListener('click', () => { deps.refreshStatus?.(); });
         if (validationMsg) {
             validationMsg.classList.add('hidden');
         }
@@ -133,6 +276,44 @@ export function renderMediaPlayers(players) {
     }
 }
 
+// #2713: one place that knows how a provider id becomes a DOM attribute.
+// `apple_music` -> `data-supports-apple-music` -> `dataset.supportsAppleMusic`.
+// These three spellings of the same provider used to be typed out per provider
+// in three separate blocks below, which is why `amazon_music` reached the
+// dataset but never the payload and its chip could not enable.
+function supportsAttr(providerId) {
+    return `data-supports-${providerId.replace(/_/g, '-')}`;
+}
+
+function supportsDatasetKey(providerId) {
+    return `supports${providerId
+        .split('_')
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join('')}`;
+}
+
+/** The `data-supports-*` attributes for one backend player record. */
+function supportsAttributes(player) {
+    return PROVIDERS
+        .map((p) => `${supportsAttr(p.id)}="${player[p.supportsKey]}"`)
+        .join('\n                       ');
+}
+
+/** `{ providerId: boolean }` read back off a rendered radio's dataset. */
+function supportsFromDataset(dataset) {
+    const supports = {};
+    for (const p of PROVIDERS) {
+        supports[p.id] = dataset[supportsDatasetKey(p.id)] === 'true';
+    }
+    return supports;
+}
+
+/** Does the selected player serve this provider? Unknown player = yes. */
+function playerSupports(player, providerId) {
+    if (!player || !player.supports) return true;
+    return player.supports[providerId] === true;
+}
+
 /**
  * Render a single player item with platform badge and capability data attributes
  * @param {Object} player - Player object from backend
@@ -146,12 +327,7 @@ export function renderPlayerItem(player) {
         <div class="media-player-item list-item is-selectable"
              data-entity-id="${utils.escapeHtml(player.entity_id)}"
              data-platform="${utils.escapeHtml(player.platform)}"
-             data-supports-spotify="${player.supports_spotify}"
-             data-supports-apple-music="${player.supports_apple_music}"
-             data-supports-youtube-music="${player.supports_youtube_music}"
-             data-supports-tidal="${player.supports_tidal}"
-             data-supports-deezer="${player.supports_deezer}"
-             data-supports-amazon-music="${player.supports_amazon_music}">
+             ${supportsAttributes(player)}>
             <label class="radio-label">
                 <input type="radio"
                        class="media-player-radio"
@@ -159,12 +335,7 @@ export function renderPlayerItem(player) {
                        data-entity-id="${utils.escapeHtml(player.entity_id)}"
                        data-state="${utils.escapeHtml(player.state)}"
                        data-platform="${utils.escapeHtml(player.platform)}"
-                       data-supports-spotify="${player.supports_spotify}"
-                       data-supports-apple-music="${player.supports_apple_music}"
-                       data-supports-youtube-music="${player.supports_youtube_music}"
-                       data-supports-tidal="${player.supports_tidal}"
-                       data-supports-deezer="${player.supports_deezer}"
-                       data-supports-amazon-music="${player.supports_amazon_music}">
+                       ${supportsAttributes(player)}>
                 <span class="player-info">
                     <span class="player-name">${utils.escapeHtml(player.friendly_name)}</span>
                     ${platformBadge}
@@ -211,30 +382,33 @@ export function attachPlayerSelectionHandlers() {
  * Updates provider options based on platform capabilities.
  * @param {HTMLInputElement} radio
  * @param {boolean} skipSave - If true, don't save to localStorage (used for auto-select)
+ * @param {{pushToLobby?: boolean}} [opts] - pushToLobby=false skips the
+ *   update-lobby push (#3223: the revert after a refused speaker).
  */
-export function handleMediaPlayerSelect(radio, skipSave = false) {
+export function handleMediaPlayerSelect(radio, skipSave = false, opts = {}) {
     const entityId = radio.dataset.entityId;
     const state = radio.dataset.state;
     const platform = radio.dataset.platform;
-    const supportsSpotify = radio.dataset.supportsSpotify === 'true';
-    const supportsAppleMusic = radio.dataset.supportsAppleMusic === 'true';
-    const supportsYoutubeMusic = radio.dataset.supportsYoutubeMusic === 'true';
-    const supportsTidal = radio.dataset.supportsTidal === 'true';
-    const supportsDeezer = radio.dataset.supportsDeezer === 'true';
-    const supportsAmazonMusic = radio.dataset.supportsAmazonMusic === 'true';
 
-    // Update module state with platform capabilities
+    // Update module state with platform capabilities. One `supports` map keyed
+    // by provider id, rather than a named field per provider (#2713).
     adminState.selectedMediaPlayer = {
         entityId,
         state,
         platform,
-        supportsSpotify,
-        supportsAppleMusic,
-        supportsYoutubeMusic,
-        supportsTidal,
-        supportsDeezer,
-        supportsAmazonMusic,
+        supports: supportsFromDataset(radio.dataset),
     };
+
+    // Apply the device to an EXISTING lobby immediately (server no-ops when
+    // no lobby-phase game exists). Without this, rooms keep the device they
+    // were created with and a switch only took effect one game later.
+    // #3223: the answer is read — a refused speaker is put back. Skipped when
+    // this call IS that revert (the game is already on that speaker).
+    // #3236: `skipSave` is the auto-select of the stored speaker on render,
+    // which the page does by itself on every load.
+    if (opts.pushToLobby !== false) {
+        postLobbyUpdate({ media_player: entityId }, { auto: !!skipSave });
+    }
 
     // Update visual selection
     document.querySelectorAll('.media-player-item').forEach(item => {
@@ -266,6 +440,17 @@ export function handleMediaPlayerSelect(radio, skipSave = false) {
         } catch (e) {
             console.warn('Failed to save last player:', e);
         }
+        // #1927 write-through: mirror the pick to the server blob immediately.
+        // Until now only the wizard did that, so a speaker chosen here stayed
+        // local — and reconcileSavedSetup() (which lets the server win) would
+        // hand this device back the older wizard pick on the next load. With
+        // the write-through there is one source of truth and this selection IS
+        // the newest one. Best-effort: a failed POST never blocks the game.
+        try {
+            globalThis.BeatifyPersistSetup?.();
+        } catch (e) {
+            console.warn('Failed to persist speaker to server:', e);
+        }
     }
 
     updateStartButtonState();
@@ -276,95 +461,50 @@ export function handleMediaPlayerSelect(radio, skipSave = false) {
  * @param {Object} player - Selected player with capability flags
  */
 export function updateProviderOptions(player) {
-    const spotifyBtn = document.querySelector('.chip[data-provider="spotify"]');
-    const appleBtn = document.querySelector('.chip[data-provider="apple_music"]');
-    const youtubeBtn = document.querySelector('.chip[data-provider="youtube_music"]');
-    const tidalBtn = document.querySelector('.chip[data-provider="tidal"]');
-    const deezerBtn = document.querySelector('.chip[data-provider="deezer"]');
-    const amazonBtn = document.querySelector('.chip[data-provider="amazon_music"]');
+    // #2713: one loop over the registry. This used to be a `const xBtn =`
+    // lookup, an `if (xBtn)` toggle and a "fall back to Spotify" block per
+    // provider — six of each, and the Crate Digger chip that admin.html has
+    // shipped since #1590 was in none of them, so it never dimmed.
+    const chipFor = (id) => document.querySelector(`.chip[data-provider="${id}"]`);
+    const spotifyBtn = chipFor('spotify');
 
-    if (spotifyBtn) {
-        spotifyBtn.disabled = !player.supportsSpotify;
-        spotifyBtn.classList.toggle('chip--disabled', !player.supportsSpotify);
+    for (const p of PROVIDERS) {
+        const btn = chipFor(p.id);
+        if (!btn) continue;  // not every provider has a chip in the flat admin
+        const supported = playerSupports(player, p.id);
+        btn.disabled = !supported;
+        btn.classList.toggle('chip--disabled', !supported);
     }
 
-    if (appleBtn) {
-        appleBtn.disabled = !player.supportsAppleMusic;
-        appleBtn.classList.toggle('chip--disabled', !player.supportsAppleMusic);
-    }
-
-    if (youtubeBtn) {
-        youtubeBtn.disabled = !player.supportsYoutubeMusic;
-        youtubeBtn.classList.toggle('chip--disabled', !player.supportsYoutubeMusic);
-    }
-
-    if (tidalBtn) {
-        tidalBtn.disabled = !player.supportsTidal;
-        tidalBtn.classList.toggle('chip--disabled', !player.supportsTidal);
-    }
-
-    if (deezerBtn) {
-        deezerBtn.disabled = !player.supportsDeezer;
-        deezerBtn.classList.toggle('chip--disabled', !player.supportsDeezer);
-    }
-
-    if (amazonBtn) {
-        amazonBtn.disabled = !player.supportsAmazonMusic;
-        amazonBtn.classList.toggle('chip--disabled', !player.supportsAmazonMusic);
-    }
-
-    // If current selection is now disabled, switch to Spotify
-    if (adminState.selectedProvider === 'apple_music' && !player.supportsAppleMusic) {
-        // Update UI
+    // If current selection is now disabled, switch to Spotify.
+    const selected = adminState.selectedProvider;
+    if (selected && selected !== 'spotify' && !playerSupports(player, selected)) {
         document.querySelectorAll('.chip[data-provider]').forEach(c => c.classList.remove('chip--active'));
         if (spotifyBtn) spotifyBtn.classList.add('chip--active');
         adminState.selectedProvider = 'spotify';
     }
 
-    if (adminState.selectedProvider === 'youtube_music' && !player.supportsYoutubeMusic) {
-        // Update UI
-        document.querySelectorAll('.chip[data-provider]').forEach(c => c.classList.remove('chip--active'));
-        if (spotifyBtn) spotifyBtn.classList.add('chip--active');
-        adminState.selectedProvider = 'spotify';
-    }
-
-    if (adminState.selectedProvider === 'tidal' && !player.supportsTidal) {
-        // Update UI
-        document.querySelectorAll('.chip[data-provider]').forEach(c => c.classList.remove('chip--active'));
-        if (spotifyBtn) spotifyBtn.classList.add('chip--active');
-        adminState.selectedProvider = 'spotify';
-    }
-
-    if (adminState.selectedProvider === 'deezer' && !player.supportsDeezer) {
-        // Update UI
-        document.querySelectorAll('.chip[data-provider]').forEach(c => c.classList.remove('chip--active'));
-        if (spotifyBtn) spotifyBtn.classList.add('chip--active');
-        adminState.selectedProvider = 'spotify';
-    }
-
-    if (adminState.selectedProvider === 'amazon_music' && !player.supportsAmazonMusic) {
-        // Update UI
-        document.querySelectorAll('.chip[data-provider]').forEach(c => c.classList.remove('chip--active'));
-        if (spotifyBtn) spotifyBtn.classList.add('chip--active');
-        adminState.selectedProvider = 'spotify';
-    }
-
-    // Show hint for disabled providers
+    // Show hint for disabled providers. A provider Music Assistant can serve
+    // is named in the MA line; one it cannot (Amazon Music, which needs an
+    // Echo) gets its own line from the registry's own wording.
     const hint = document.getElementById('provider-hint');
     if (hint) {
         const maSpeakerNeeded = [];
-        if (!player.supportsAppleMusic) maSpeakerNeeded.push('Apple Music');
-        if (!player.supportsYoutubeMusic) maSpeakerNeeded.push('YouTube Music');
-        if (!player.supportsTidal) maSpeakerNeeded.push('Tidal');
-        if (!player.supportsDeezer) maSpeakerNeeded.push('Deezer');
+        const otherParts = [];
+        for (const p of PROVIDERS) {
+            if (p.id === 'spotify' || playerSupports(player, p.id)) continue;
+            if (p.platforms.includes('music_assistant')) {
+                maSpeakerNeeded.push(p.label);
+            } else if (p.id === 'amazon_music') {
+                otherParts.push('Amazon Music requires an Amazon Echo (alexa_media)');
+            }
+        }
 
         const hintParts = [];
         if (maSpeakerNeeded.length > 0) {
             hintParts.push(`${maSpeakerNeeded.join(' and ')} require${maSpeakerNeeded.length === 1 ? 's' : ''} a Music Assistant speaker`);
         }
-        if (!player.supportsAmazonMusic) {
-            hintParts.push('Amazon Music requires an Amazon Echo (alexa_media)');
-        }
+        hintParts.push(...otherParts);
 
         if (hintParts.length > 0) {
             hint.textContent = hintParts.join(' · ');

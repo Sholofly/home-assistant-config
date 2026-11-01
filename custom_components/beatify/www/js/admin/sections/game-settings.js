@@ -24,25 +24,139 @@
 
 import { adminState } from '../state.js';
 import { STORAGE_GAME_SETTINGS } from '../constants.js';
+import { normalizeRoundDuration, tr } from '../util.js';
+// #2625/#2626: the auto-advance chips and the difficulty hint are BUILT from
+// the shared mirror of const.py instead of being typed out in admin.html.
+import {
+    REVEAL_AUTO_ADVANCE_OPTIONS,
+    autoAdvanceChipLabel,
+    difficultyHint,
+    normalizeRevealAutoAdvance,
+} from '../../game-constants.js';
 import { renderPlaylists } from './playlists.js';
+import { postLobbyUpdate } from './media-players.js';  // #3223
+// #2637: the TTS + party-lights config getters used to be page globals set by
+// two classic scripts at the bottom of admin.html. Both are ES modules in the
+// admin bundle now, so this section imports them like anything else.
+import { ttsConfig } from '../../tts-settings.js';
+import { partyLightsConfig, refreshPartyLightsLabels } from '../../party-lights.js';
+import {
+    refreshLibraryMatchCount,
+    setupLibrarySettings,
+    syncLibraryControls,
+    updateLibraryPanelVisibility,
+} from './library.js';
+
+/**
+ * #1583: Single-select chip a11y. The chips are native `<button>`s, so role,
+ * focusability and Enter/Space activation are already provided by the browser —
+ * the missing piece was `aria-pressed`, without which a screen reader can't tell
+ * which chip in a group is selected. This helper syncs `aria-pressed` in lockstep
+ * with the visual `chip--active` class so the two never drift, and is reused by
+ * both the click handlers and the load-from-storage path.
+ *
+ * @param {string} groupSelector  selector matching every chip in the group
+ * @param {(chip: Element) => boolean} isActive  true for the chip to mark selected
+ */
+export function selectChip(groupSelector, isActive) {
+    document.querySelectorAll(groupSelector).forEach((chip) => {
+        const active = isActive(chip);
+        chip.classList.toggle('chip--active', active);
+        chip.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+}
+
+/**
+ * Build the reveal auto-advance chip group from the shared option list (#2626).
+ *
+ * admin.html used to carry the four chips as static markup — a third copy of a
+ * list that also lives in `const.py` and in the wizard. Adding a chip there was
+ * enough to ship a setting the server silently turns off, with no error and no
+ * sign of it until the first reveal. Rendering the group means the markup can
+ * no longer offer a value the server does not accept.
+ *
+ * Idempotent: safe to call again after a language switch, which is what
+ * re-translates the "Off" label.
+ */
+export function renderAutoAdvanceChips() {
+    const group = document.getElementById('reveal-advance-chips');
+    if (!group) return;
+    group.innerHTML = autoAdvanceChipsHtml(adminState.revealAutoAdvance, tr);
+}
+
+/**
+ * The chip-group markup for a given selection. Pure, so a test can read back
+ * which delays the UI offers and check the server would accept every one of
+ * them (#2626).
+ *
+ * @param {number} selected - the host's current choice, normalized here
+ * @param {(key: string, fallback: string) => string} t
+ * @returns {string} one `<button>` per entry of REVEAL_AUTO_ADVANCE_OPTIONS
+ */
+export function autoAdvanceChipsHtml(selected, t) {
+    const active = normalizeRevealAutoAdvance(selected);
+    return REVEAL_AUTO_ADVANCE_OPTIONS.map((seconds) => {
+        const label = autoAdvanceChipLabel(seconds);
+        // Keep the i18n key on the element so BeatifyI18n.initPageTranslations()
+        // keeps owning the label, exactly as it did for the static markup.
+        const i18n = label.key ? ` data-i18n="${label.key}"` : '';
+        const on = seconds === active;
+        return `<button type="button" class="chip${on ? ' chip--active' : ''}"`
+            + ` aria-pressed="${on ? 'true' : 'false'}"`
+            + ` data-reveal-advance="${seconds}"${i18n}>`
+            + `${label.key ? t(label.key, label.fallback) : label.fallback}</button>`;
+    }).join('');
+}
+
+/**
+ * Write the difficulty hint under the chips, derived from the scoring table
+ * (#2625).
+ *
+ * The string in admin.html/en.json was a hand-written summary and had drifted:
+ * it promised "Hard: only close guesses score" where the code pays 3 points
+ * within ±2 years. There is nothing left to drift now — the numbers come from
+ * `DIFFICULTY_SCORING`, and the locale files only carry the sentence around
+ * them.
+ */
+export function renderDifficultyHint() {
+    const el = document.getElementById('admin-difficulty-hint');
+    if (!el) return;
+    el.textContent = difficultyHint(adminState.selectedDifficulty, tr);
+}
 
 /**
  * Setup game settings controls (chips for language, timer, difficulty, toggle for artist challenge)
+ *
+ * @param {{reloadPlaylists?: () => void}} opts  #2679: passed straight through
+ *   to the Crate Digger panel, which saves playlists and has to refresh the
+ *   list afterwards. Injected rather than reached for on `window` — see
+ *   `initMixTab` / `initMediaPlayers` for the same seam.
  */
-export function setupGameSettings() {
+export function setupGameSettings(opts = {}) {
+    // #2626: the chip group is markup-free in admin.html — render it before any
+    // handler below queries `.chip[data-reveal-advance]`.
+    renderAutoAdvanceChips();
+    renderDifficultyHint();
+
     // Language chips
     document.querySelectorAll('.chip[data-lang]').forEach(chip => {
         chip.addEventListener('click', async function() {
             const lang = this.dataset.lang;
-            document.querySelectorAll('.chip[data-lang]').forEach(c => c.classList.remove('chip--active'));
-            this.classList.add('chip--active');
+            selectChip('.chip[data-lang]', (c) => c === this);
             adminState.selectedLanguage = lang;
             if (window.BeatifyI18n) {
                 await BeatifyI18n.setLanguage(lang);
                 BeatifyI18n.initPageTranslations();
             }
+            // #2620/#2625: both of these are composed in JS, so a language
+            // switch has to rebuild them — initPageTranslations only reaches
+            // elements carrying a data-i18n attribute.
+            renderAutoAdvanceChips();
+            renderDifficultyHint();
+            refreshPartyLightsLabels();
             updateGameSettingsSummary();
-            saveGameSettings();
+            // #3056: the server-side lobby (TV, TTS) has to follow the chip too.
+            saveGameSettings({ language: lang });
         });
     });
 
@@ -50,31 +164,31 @@ export function setupGameSettings() {
     document.querySelectorAll('.chip[data-duration]').forEach(chip => {
         chip.addEventListener('click', function() {
             const duration = parseInt(this.dataset.duration, 10);
-            document.querySelectorAll('.chip[data-duration]').forEach(c => c.classList.remove('chip--active'));
-            this.classList.add('chip--active');
+            selectChip('.chip[data-duration]', (c) => c === this);
             adminState.selectedDuration = duration;
             updateGameSettingsSummary();
             saveGameSettings();
         });
     });
 
-    // Reveal auto-advance chips (#1012)
-    document.querySelectorAll('.chip[data-reveal-advance]').forEach(chip => {
-        chip.addEventListener('click', function() {
-            adminState.revealAutoAdvance = parseInt(this.dataset.revealAdvance, 10) || 0;
-            document.querySelectorAll('.chip[data-reveal-advance]').forEach(c => c.classList.remove('chip--active'));
-            this.classList.add('chip--active');
-            saveGameSettings();
-        });
+    // Reveal auto-advance chips (#1012). Delegated: renderAutoAdvanceChips()
+    // replaces the buttons on every language switch, so a per-button listener
+    // would be thrown away with them (#2626).
+    document.getElementById('reveal-advance-chips')?.addEventListener('click', (event) => {
+        const chip = event.target.closest('.chip[data-reveal-advance]');
+        if (!chip) return;
+        adminState.revealAutoAdvance = normalizeRevealAutoAdvance(chip.dataset.revealAdvance);
+        selectChip('.chip[data-reveal-advance]', (c) => c === chip);
+        saveGameSettings();
     });
 
     // Difficulty chips
     document.querySelectorAll('.chip[data-difficulty]').forEach(chip => {
         chip.addEventListener('click', function() {
             const difficulty = this.dataset.difficulty;
-            document.querySelectorAll('.chip[data-difficulty]').forEach(c => c.classList.remove('chip--active'));
-            this.classList.add('chip--active');
+            selectChip('.chip[data-difficulty]', (c) => c === this);
             adminState.selectedDifficulty = difficulty;
+            renderDifficultyHint();
             updateGameSettingsSummary();
             saveGameSettings();
         });
@@ -108,6 +222,48 @@ export function setupGameSettings() {
         saveGameSettings();
     });
 
+    // Ramp-up Ordering toggle (Issue #1726)
+    document.getElementById('rampup-order-toggle')?.addEventListener('change', function() {
+        adminState.rampupOrderEnabled = this.checked;
+        updateGameSettingsSummary();
+        saveGameSettings();
+    });
+
+    // Finale ×2 toggle (Issue #1725)
+    document.getElementById('finale-double-toggle')?.addEventListener('change', function() {
+        adminState.finaleDoubleEnabled = this.checked;
+        updateGameSettingsSummary();
+        saveGameSettings();
+    });
+
+    // Finale Tiebreaker toggle (Issue #1725)
+    document.getElementById('finale-tiebreaker-toggle')?.addEventListener('change', function() {
+        adminState.finaleTiebreakerEnabled = this.checked;
+        updateGameSettingsSummary();
+        saveGameSettings();
+    });
+
+    // Comeback Token toggle (Issue #1724)
+    document.getElementById('comeback-token-toggle')?.addEventListener('change', function() {
+        adminState.comebackTokenEnabled = this.checked;
+        updateGameSettingsSummary();
+        saveGameSettings();
+    });
+
+    // Difficulty Bet Scaling toggle (Issue #1727)
+    document.getElementById('difficulty-bet-scaling-toggle')?.addEventListener('change', function() {
+        adminState.difficultyBetScalingEnabled = this.checked;
+        updateGameSettingsSummary();
+        saveGameSettings();
+    });
+
+    // Sabotage toggle (Issue #1665)
+    document.getElementById('sabotage-toggle')?.addEventListener('change', function() {
+        adminState.sabotageEnabled = this.checked;
+        updateGameSettingsSummary();
+        saveGameSettings();
+    });
+
     // Title & Artist Mode toggle (#1180)
     document.getElementById('title-artist-mode-toggle')?.addEventListener('change', function() {
         adminState.titleArtistModeEnabled = this.checked;
@@ -124,9 +280,10 @@ export function setupGameSettings() {
                 return;
             }
             const provider = this.dataset.provider;
-            document.querySelectorAll('.chip[data-provider]').forEach(c => c.classList.remove('chip--active'));
-            this.classList.add('chip--active');
+            selectChip('.chip[data-provider]', (c) => c === this);
             adminState.selectedProvider = provider;
+            // Crate Digger: show/hide its settings panel with the chip.
+            updateLibraryPanelVisibility();
             updateGameSettingsSummary();
             saveGameSettings();
             // Re-render playlists to show coverage for selected provider (preserve valid selections)
@@ -135,6 +292,11 @@ export function setupGameSettings() {
             }
         });
     });
+
+    // Crate Digger (ma_library) panel: settings, scan controls, backup and
+    // the live match count. Mounted here so it shares the game-settings
+    // persistence round-trip.
+    setupLibrarySettings(saveGameSettings, opts.reloadPlaylists);
 }
 
 /**
@@ -145,41 +307,53 @@ export async function loadSavedSettings() {
         const saved = localStorage.getItem(STORAGE_GAME_SETTINGS);
         if (saved) {
             const settings = JSON.parse(saved);
+            // Crate Digger settings ride along in the same blob.
+            try {
+                if (typeof settings.libraryYearGate === 'string') adminState.libraryYearGate = settings.libraryYearGate;
+                if (Number.isFinite(settings.libraryScanSize)) adminState.libraryScanSize = settings.libraryScanSize;
+                if (Number.isFinite(settings.libraryPopPercent)) adminState.libraryPopPercent = settings.libraryPopPercent;
+                if (Array.isArray(settings.libraryGenres)) adminState.libraryGenres = settings.libraryGenres;
+                syncLibraryControls();
+            } catch (e) { /* malformed — defaults stand */ }
 
             // Apply language
             if (settings.language) {
                 adminState.selectedLanguage = settings.language;
-                document.querySelectorAll('.chip[data-lang]').forEach(c => {
-                    c.classList.toggle('chip--active', c.dataset.lang === settings.language);
-                });
+                selectChip('.chip[data-lang]', (c) => c.dataset.lang === settings.language);
                 if (window.BeatifyI18n) {
                     await BeatifyI18n.setLanguage(settings.language);
                     BeatifyI18n.initPageTranslations();
+                    // The two JS-composed surfaces don't carry a data-i18n
+                    // attribute, so initPageTranslations cannot reach them.
+                    renderAutoAdvanceChips();
+                    renderDifficultyHint();
+                    refreshPartyLightsLabels();
                 }
             }
 
-            // Apply timer
-            if (settings.duration) {
-                adminState.selectedDuration = settings.duration;
-                document.querySelectorAll('.chip[data-duration]').forEach(c => {
-                    c.classList.toggle('chip--active', parseInt(c.dataset.duration, 10) === settings.duration);
-                });
+            // Apply timer (#1867: coerce + range-check, and select the chip
+            // from the normalized value so the highlight can't drift from the
+            // value the game will actually use)
+            const storedDuration = normalizeRoundDuration(settings.duration);
+            if (storedDuration !== null) {
+                adminState.selectedDuration = storedDuration;
+                selectChip('.chip[data-duration]', (c) => parseInt(c.dataset.duration, 10) === storedDuration);
             }
 
-            // Apply reveal auto-advance (#1012)
+            // Apply reveal auto-advance (#1012). #2626: normalize first — a blob
+            // written by an older build (or another device) can hold a value
+            // the server no longer accepts, and selecting a chip for it would
+            // show a setting the game is not running.
             if (typeof settings.revealAutoAdvance === 'number') {
-                adminState.revealAutoAdvance = settings.revealAutoAdvance;
-                document.querySelectorAll('.chip[data-reveal-advance]').forEach(c => {
-                    c.classList.toggle('chip--active', parseInt(c.dataset.revealAdvance, 10) === settings.revealAutoAdvance);
-                });
+                adminState.revealAutoAdvance = normalizeRevealAutoAdvance(settings.revealAutoAdvance);
+                selectChip('.chip[data-reveal-advance]', (c) => parseInt(c.dataset.revealAdvance, 10) === adminState.revealAutoAdvance);
             }
 
             // Apply difficulty
             if (settings.difficulty) {
                 adminState.selectedDifficulty = settings.difficulty;
-                document.querySelectorAll('.chip[data-difficulty]').forEach(c => {
-                    c.classList.toggle('chip--active', c.dataset.difficulty === settings.difficulty);
-                });
+                selectChip('.chip[data-difficulty]', (c) => c.dataset.difficulty === settings.difficulty);
+                renderDifficultyHint();
             }
 
             // Apply artist challenge
@@ -210,6 +384,48 @@ export async function loadSavedSettings() {
                 if (closestToggle) closestToggle.checked = settings.closestWinsMode;
             }
 
+            // Apply ramp-up ordering (Issue #1726)
+            if (typeof settings.rampupOrder === 'boolean') {
+                adminState.rampupOrderEnabled = settings.rampupOrder;
+                const rampupToggle = document.getElementById('rampup-order-toggle');
+                if (rampupToggle) rampupToggle.checked = settings.rampupOrder;
+            }
+
+            // Apply Finale ×2 (Issue #1725)
+            if (typeof settings.finaleDouble === 'boolean') {
+                adminState.finaleDoubleEnabled = settings.finaleDouble;
+                const finaleDoubleToggle = document.getElementById('finale-double-toggle');
+                if (finaleDoubleToggle) finaleDoubleToggle.checked = settings.finaleDouble;
+            }
+
+            // Apply Finale Tiebreaker (Issue #1725)
+            if (typeof settings.finaleTiebreaker === 'boolean') {
+                adminState.finaleTiebreakerEnabled = settings.finaleTiebreaker;
+                const finaleTbToggle = document.getElementById('finale-tiebreaker-toggle');
+                if (finaleTbToggle) finaleTbToggle.checked = settings.finaleTiebreaker;
+            }
+
+            // Apply Comeback Token (Issue #1724)
+            if (typeof settings.comebackToken === 'boolean') {
+                adminState.comebackTokenEnabled = settings.comebackToken;
+                const comebackToggle = document.getElementById('comeback-token-toggle');
+                if (comebackToggle) comebackToggle.checked = settings.comebackToken;
+            }
+
+            // Apply Difficulty Bet Scaling (Issue #1727)
+            if (typeof settings.difficultyBetScaling === 'boolean') {
+                adminState.difficultyBetScalingEnabled = settings.difficultyBetScaling;
+                const betScalingToggle = document.getElementById('difficulty-bet-scaling-toggle');
+                if (betScalingToggle) betScalingToggle.checked = settings.difficultyBetScaling;
+            }
+
+            // Apply Sabotage (Issue #1665)
+            if (typeof settings.sabotage === 'boolean') {
+                adminState.sabotageEnabled = settings.sabotage;
+                const sabotageToggle = document.getElementById('sabotage-toggle');
+                if (sabotageToggle) sabotageToggle.checked = settings.sabotage;
+            }
+
             // Apply Title & Artist mode (#1180)
             if (typeof settings.titleArtistMode === 'boolean') {
                 adminState.titleArtistModeEnabled = settings.titleArtistMode;
@@ -221,9 +437,7 @@ export async function loadSavedSettings() {
             // Apply provider
             if (settings.provider) {
                 adminState.selectedProvider = settings.provider;
-                document.querySelectorAll('.chip[data-provider]').forEach(c => {
-                    c.classList.toggle('chip--active', c.dataset.provider === settings.provider);
-                });
+                selectChip('.chip[data-provider]', (c) => c.dataset.provider === settings.provider);
             }
         }
     } catch (e) {
@@ -236,7 +450,19 @@ export async function loadSavedSettings() {
 /**
  * Save game settings to localStorage
  */
-export function saveGameSettings() {
+export function saveGameSettings(lobbyPatch = {}) {
+    // Apply lobby-mutable settings to an EXISTING game too (server no-ops
+    // when none is active): device, TTS, party lights — otherwise changes
+    // made after room creation only took effect one game later.
+    // #3223: through postLobbyUpdate, so a refused speaker is put back. The
+    // server applies TTS, lights and language even when it refuses the speaker.
+    postLobbyUpdate({
+        media_player: (adminState.selectedMediaPlayer || {}).entityId || null,
+        tts: ttsConfig(),
+        party_lights: partyLightsConfig(),
+        ...lobbyPatch,  // #3056: e.g. { language } from the chip
+    });
+
     try {
         const settings = {
             language: adminState.selectedLanguage,
@@ -248,9 +474,34 @@ export function saveGameSettings() {
             introMode: adminState.introModeEnabled,  // Issue #23
             closestWinsMode: adminState.closestWinsModeEnabled,  // Issue #442
             titleArtistMode: adminState.titleArtistModeEnabled,  // #1180
+            rampupOrder: adminState.rampupOrderEnabled,  // Issue #1726
+            finaleDouble: adminState.finaleDoubleEnabled,  // Issue #1725
+            finaleTiebreaker: adminState.finaleTiebreakerEnabled,  // Issue #1725
+            comebackToken: adminState.comebackTokenEnabled,  // Issue #1724
+            difficultyBetScaling: adminState.difficultyBetScalingEnabled,  // Issue #1727
+            sabotage: adminState.sabotageEnabled,  // Issue #1665
             provider: adminState.selectedProvider
         };
-        localStorage.setItem(STORAGE_GAME_SETTINGS, JSON.stringify(settings));
+        // #2573: in den bestehenden Blob MERGEN statt ihn zu ersetzen.
+        //
+        // Das Objekt oben wird aus adminState gebaut, und zwei Einstellungen
+        // haben dort kein Feld: `suddenDeathMode` und `maxRounds`. Beide
+        // stammen aus dem Wizard und werden in admin.js beim Start direkt aus
+        // dem localStorage gelesen — die Kommentare dort sagen das ausdruecklich.
+        // Ein Ueberschreiben loeschte sie also: der Gastgeber waehlte im Wizard
+        // Sudden Death und 20 Runden, tippte danach irgendeinen Chip im Admin
+        // an, und das Spiel lief ohne beides.
+        //
+        // Der Merge behebt den Verlust unabhaengig davon, welche Schluessel
+        // adminState kennt — auch fuer jeden kuenftigen, der denselben Weg geht.
+        let bestehend = {};
+        try {
+            bestehend = JSON.parse(localStorage.getItem(STORAGE_GAME_SETTINGS) || '{}') || {};
+        } catch (e) { bestehend = {}; }
+        localStorage.setItem(
+            STORAGE_GAME_SETTINGS,
+            JSON.stringify(Object.assign({}, bestehend, settings)),
+        );
     } catch (e) {
         console.warn('Failed to save settings:', e);
     }
@@ -264,7 +515,6 @@ export function updateGameSettingsSummary() {
     if (!summary) return;
 
     const difficultyLabels = { easy: 'Easy', normal: 'Normal', hard: 'Hard' };
-    const langLabels = { en: 'EN', de: 'DE', es: 'ES' };
     // #1180: year-round bonuses are suppressed while TA mode is on, so the badge
     // hides their icons too — but the underlying flags stay the host's untouched
     // source of truth (so toggling TA off restores them).
@@ -274,8 +524,24 @@ export function updateGameSettingsSummary() {
     const introIcon = (yearRoundActive && adminState.introModeEnabled) ? ' • ⚡' : '';  // Issue #23
     const closestIcon = (yearRoundActive && adminState.closestWinsModeEnabled) ? ' • 🎯' : '';  // Issue #442
     const taIcon = adminState.titleArtistModeEnabled ? ' • 🎵' : '';  // #1180
+    // Issue #1726: ramp-up ordering is independent of the year-round bonuses
+    // (it just reorders songs), so its icon shows regardless of TA mode.
+    const rampupIcon = adminState.rampupOrderEnabled ? ' • 📈' : '';
+    // Issue #1725: finale mechanics are mode-agnostic (end-game tension), so
+    // their icons show regardless of TA mode.
+    const finaleDoubleIcon = adminState.finaleDoubleEnabled ? ' • ✨' : '';
+    const finaleTbIcon = adminState.finaleTiebreakerEnabled ? ' • ⚔️' : '';
+    // Issue #1724: comeback token is mode-agnostic (rubber-banding), so its icon
+    // shows regardless of TA mode.
+    const comebackIcon = adminState.comebackTokenEnabled ? ' • 🎁' : '';
+    // Issue #1727: difficulty bet scaling only affects the year-round bet, so
+    // its icon shows only when year rounds are active (not in TA mode).
+    const betScalingIcon = (yearRoundActive && adminState.difficultyBetScalingEnabled) ? ' • 🎲' : '';
+    // Issue #1665: sabotage is mode-agnostic (hands out a token at game start
+    // regardless of TA/year rounds), so its icon shows unconditionally.
+    const sabotageIcon = adminState.sabotageEnabled ? ' • 💣' : '';
 
-    summary.textContent = `${difficultyLabels[adminState.selectedDifficulty] || 'Normal'} • ${adminState.selectedDuration}s • ${langLabels[adminState.selectedLanguage] || 'EN'}${taIcon}${artistIcon}${movieIcon}${introIcon}${closestIcon}`;
+    summary.textContent = `${difficultyLabels[adminState.selectedDifficulty] || 'Normal'} • ${adminState.selectedDuration}s • ${String(adminState.selectedLanguage || 'en').toUpperCase()}${taIcon}${artistIcon}${movieIcon}${introIcon}${closestIcon}${rampupIcon}${finaleDoubleIcon}${finaleTbIcon}${comebackIcon}${betScalingIcon}${sabotageIcon}`;
 }
 
 /**
@@ -312,4 +578,6 @@ export function syncTitleArtistModeUI() {
     if (diffHint) diffHint.classList.toggle('hidden', adminState.titleArtistModeEnabled);
     var taSummary = document.getElementById('admin-difficulty-ta-summary');
     if (taSummary) taSummary.classList.toggle('hidden', !adminState.titleArtistModeEnabled);
+    // #3106: the My Music song count depends on the mode.
+    refreshLibraryMatchCount();
 }

@@ -14,7 +14,8 @@ The mixin relies on a single attribute the host class owns and that lives on
 
 * ``self.players`` — mapping of player name → ``PlayerSession``. Each session
   exposes ``score``, ``name``, ``streak``, ``is_admin``, ``connected``,
-  ``previous_rank``, ``best_streak``, ``rounds_played`` and ``bets_won``.
+  ``previous_rank``, ``best_streak``, ``rounds_played``, ``bets_won`` and
+  ``round_scores``.
 
 It carries no state of its own and imports nothing from ``state.py``, so the
 extraction introduces no cyclic imports.
@@ -24,8 +25,10 @@ from __future__ import annotations
 
 from typing import Any
 
+from .state_contract import GameStateBase
 
-class LeaderboardMixin:
+
+class LeaderboardMixin(GameStateBase):
     """Leaderboard / ranking behavior for :class:`GameState`.
 
     See module docstring for the host-class attributes this mixin reads.
@@ -33,10 +36,19 @@ class LeaderboardMixin:
 
     def get_leaderboard(self) -> list[dict[str, Any]]:
         """
-        Get leaderboard sorted by score (Story 5.5).
+        Get the in-round leaderboard sorted by score (Story 5.5).
+
+        #1765: entries carry ONLY ``{rank, name, rank_change}``. Every other
+        per-player field (score, streak, is_admin, connected, eliminated,
+        eliminated_round) is already present in the ``players`` array of the
+        same broadcast frame, so duplicating it here shipped ~30-40% redundant
+        bytes on every PLAYING/REVEAL frame (and serialized it twice). Clients
+        re-attach those fields from ``players`` by name on receipt
+        (``BeatifyUtils.hydrateLeaderboard``). ``get_final_leaderboard`` (END
+        phase, sent once) keeps the full stat block.
 
         Returns:
-            List of player data with rank and movement info.
+            List of ``{rank, name, rank_change}`` sorted by score, then name.
             Note: is_current is set client-side based on playerName.
 
         """
@@ -62,16 +74,13 @@ class LeaderboardMixin:
             if player.previous_rank is not None:
                 rank_change = player.previous_rank - current_rank
 
-            entry = {
-                "rank": current_rank,
-                "name": player.name,
-                "score": player.score,
-                "streak": player.streak,
-                "is_admin": player.is_admin,
-                "rank_change": rank_change,
-                "connected": player.connected,
-            }
-            leaderboard.append(entry)
+            leaderboard.append(
+                {
+                    "rank": current_rank,
+                    "name": player.name,
+                    "rank_change": rank_change,
+                }
+            )
 
         return leaderboard
 
@@ -100,18 +109,39 @@ class LeaderboardMixin:
             Note: is_current is set client-side based on playerName.
 
         """
-        # Sort by score descending, then by name for tie-breaking display order
-        sorted_players = sorted(
-            self.players.values(),
-            key=lambda p: (-p.score, p.name),
+        # Issue #827: in a Sudden Death game the finish order IS the survival
+        # order — the last one standing is 1st, then players in reverse
+        # elimination order (eliminated latest = higher), score breaking ties.
+        # Ranks are sequential (no score-tie grouping) because survival is a
+        # total order. Falls back to the score sort for normal games.
+        sudden_death = self.sudden_death_mode and any(
+            p.eliminated for p in self.players.values()
         )
+        if sudden_death:
+            sorted_players = sorted(
+                self.players.values(),
+                key=lambda p: (
+                    p.eliminated,
+                    -(p.eliminated_round or 0),
+                    -p.score,
+                    p.name,
+                ),
+            )
+        else:
+            # Sort by score descending, then by name for tie-breaking display order
+            sorted_players = sorted(
+                self.players.values(),
+                key=lambda p: (-p.score, p.name),
+            )
 
         leaderboard = []
         current_rank = 0
         previous_score = None
 
         for i, player in enumerate(sorted_players):
-            if player.score != previous_score:
+            if sudden_death:
+                current_rank = i + 1
+            elif player.score != previous_score:
                 current_rank = i + 1
             previous_score = player.score
 
@@ -125,7 +155,64 @@ class LeaderboardMixin:
                 "best_streak": player.best_streak,
                 "rounds_played": player.rounds_played,
                 "bets_won": player.bets_won,
+                # Issue #827: Sudden Death
+                "eliminated": player.eliminated,
+                "eliminated_round": player.eliminated_round,
+                # #2746: vom Gastgeber herausgenommen. Rang und Punktestand
+                # bleiben genau, wo sie sind — das Feld faerbt die Zeile und
+                # setzt das Abzeichen „sitzt aus", es rechnet nichts um. Genau
+                # das macht den Griff des Gastgebers vertretbar: die Zeile
+                # bleibt stehen, statt dass der naechste durch eine Entfernung
+                # statt durch einen Tipp aufsteigt.
+                "sat_out_by_host": player.sat_out_by_host,
+                # Issue #2324: the collected row, carried into the END screen —
+                # the one artifact of a finished game worth photographing. A
+                # score vanishes when the game does; this list does not.
+                "collection": [dict(entry) for entry in player.collection],
+                # Issue #2563: the per-round series. It has existed on the
+                # player since the beginning — clutch_player and comeback_king
+                # are computed from it — but it was never serialized, so the
+                # END screen could only ever show the final number and not how
+                # it was arrived at. Sent in full rather than pre-digested: the
+                # closing moment uses two of these rows, and a later full
+                # replay would need all of them without another backend change.
+                # These are per-round deltas, not a running total.
+                "round_scores": list(player.round_scores),
             }
             leaderboard.append(entry)
 
         return leaderboard
+
+    def ghost_league(self) -> list[dict[str, Any]]:
+        """Die zweite Tabelle: wer nach seinem Aus noch weitergeraten hat (#2559).
+
+        Getrennt von :meth:`get_leaderboard` und nicht als Spalte darin — die
+        Rangliste des laufenden Spiels darf einen Geist nicht enthalten, sonst
+        steht er zwischen Lebenden und der Raum liest es als Wertung. Der
+        Fernseher setzt die Liga als eigenen Block darunter, ausdruecklich
+        beschriftet mit „eigene Punkte, kein Einfluss auf das Spiel".
+
+        Sortiert nach Geisterpunkten, bei Gleichstand nach der frueheren
+        Ausscheiderunde: wer laenger Geist war und dieselbe Zahl hat, hat sie
+        muehsamer verdient. ``schnitt`` ist die Zahl, auf die der Best-Ghost-
+        Award geht — roh gewinnt sonst, wer am fruehesten rausflog.
+        """
+        geister = [
+            p
+            for p in self.players.values()
+            if p.eliminated and not p.playoff_spectator and p.ghost_rounds > 0
+        ]
+        geister.sort(
+            key=lambda p: (-p.ghost_score, p.eliminated_round or 0, p.name.lower())
+        )
+        return [
+            {
+                "rank": i + 1,
+                "name": p.name,
+                "ghost_score": p.ghost_score,
+                "ghost_rounds": p.ghost_rounds,
+                "eliminated_round": p.eliminated_round,
+                "schnitt": round(p.ghost_score / p.ghost_rounds, 1),
+            }
+            for i, p in enumerate(geister)
+        ]

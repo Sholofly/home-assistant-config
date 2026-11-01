@@ -4,3 +4,12 @@
 ################################################
 lovelace:
   mode: storage
+  dashboards:
+    # Kale dashboard voor Immich Kiosk op de Nest Hubs (cast.show_lovelace_view)
+    kiosk-hub:
+      mode: yaml
+      title: Kiosk Hub
+      icon: mdi:image-frame
+      show_in_sidebar: false
+      require_admin: false
+      filename: lovelace/kiosk_hub.yaml

@@ -28,6 +28,7 @@ from homeassistant.helpers import entity_registry
 from homeassistant.helpers import restore_state
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 import homeassistant.helpers.config_validation as cv
+from homeassistant.helpers.device_registry import DeviceEntry
 import voluptuous as vol
 
 from .api import TplinkDecoApi
@@ -37,6 +38,8 @@ from .const import CONF_CLIENT_POSTFIX
 from .const import CONF_CLIENT_PREFIX
 from .const import CONF_DECO_POSTFIX
 from .const import CONF_DECO_PREFIX
+from .const import CONF_DEVICE_LIST_INTERVAL
+from .const import CONF_LINK_CLIENT_DEVICES
 from .const import CONF_TIMEOUT_ERROR_RETRIES
 from .const import CONF_TIMEOUT_SECONDS
 from .const import CONF_VERIFY_SSL
@@ -44,6 +47,7 @@ from .const import COORDINATOR_CLIENTS_KEY
 from .const import COORDINATOR_DECOS_KEY
 from .const import DEFAULT_CONSIDER_HOME
 from .const import DEFAULT_DECO_POSTFIX
+from .const import DEFAULT_LINK_CLIENT_DEVICES
 from .const import DEFAULT_SCAN_INTERVAL
 from .const import DEFAULT_TIMEOUT_ERROR_RETRIES
 from .const import DEFAULT_TIMEOUT_SECONDS
@@ -62,6 +66,14 @@ from .coordinator import TplinkDecoUpdateCoordinator
 _LOGGER: logging.Logger = logging.getLogger(__name__)
 
 
+def _remove_discovered_decos_from_clients(
+    client_data: dict[str:TpLinkDecoClient], deco_data: TpLinkDecoData
+) -> None:
+    """Remove provisional clients identified as Decos by the first refresh."""
+    for deco_mac in deco_data.decos:
+        client_data.pop(deco_mac, None)
+
+
 async def async_create_and_refresh_coordinators(
     hass: HomeAssistant,
     config_data: dict[str:Any],
@@ -77,6 +89,15 @@ async def async_create_and_refresh_coordinators(
     timeout_error_retries = config_data.get(CONF_TIMEOUT_ERROR_RETRIES)
     timeout_seconds = config_data.get(CONF_TIMEOUT_SECONDS)
     verify_ssl = config_data.get(CONF_VERIFY_SSL)
+    device_list_interval_seconds = config_data.get(CONF_DEVICE_LIST_INTERVAL)
+    if device_list_interval_seconds is None:
+        device_list_interval_seconds = (
+            int(update_interval.total_seconds())
+            if update_interval is not None
+            else DEFAULT_SCAN_INTERVAL
+        )
+    else:
+        device_list_interval_seconds = int(device_list_interval_seconds)
     session = async_get_clientsession(hass)
 
     api = TplinkDecoApi(
@@ -89,12 +110,24 @@ async def async_create_and_refresh_coordinators(
         timeout_seconds,
     )
     deco_coordinator = TplinkDecoUpdateCoordinator(
-        hass, api, config_entry, update_interval, deco_data
+        hass,
+        api,
+        config_entry,
+        update_interval,
+        deco_data,
+        device_list_interval_seconds,
     )
     if config_entry is None:
         await deco_coordinator._async_update_data()
     else:
         await deco_coordinator.async_config_entry_first_refresh()
+
+    # A stored unavailable state has no device_type, so it is provisionally
+    # restored as a client. The first device refresh identifies and removes
+    # any entries that are actually Decos before client entities are created.
+    if client_data:
+        _remove_discovered_decos_from_clients(client_data, deco_coordinator.data)
+
     clients_coordinator = TplinkDecoClientUpdateCoordinator(
         hass,
         api,
@@ -104,11 +137,6 @@ async def async_create_and_refresh_coordinators(
         update_interval,
         client_data,
     )
-    if config_entry is None:
-        await deco_coordinator._async_update_data()
-    else:
-        await clients_coordinator.async_config_entry_first_refresh()
-
     return {
         COORDINATOR_DECOS_KEY: deco_coordinator,
         COORDINATOR_CLIENTS_KEY: clients_coordinator,
@@ -134,16 +162,18 @@ async def async_create_config_data(hass: HomeAssistant, config_entry: ConfigEntr
 
     # Populate client list with existing entries so that we keep track of disconnected clients
     # since deco list_clients only returns connected clients.
-    last_states = restore_state.async_get(hass).last_states
+    restore_state_data = restore_state.async_get(hass)
+    # async_get_stored_state is available starting with Home Assistant 2026.11.
+    get_stored_state = getattr(restore_state_data, "async_get_stored_state", None)
+    if get_stored_state is None:
+        get_stored_state = restore_state_data.last_states.get
     for entry in existing_entries:
-        if entry.domain != DEVICE_TRACKER_DOMAIN:
+        if entry.domain != DEVICE_TRACKER_DOMAIN or entry.disabled_by is not None:
             continue
-        state = last_states.get(entry.entity_id)
+        state = get_stored_state(entry.entity_id)
         if state is None:
             continue
         device_type = state.state.attributes.get(ATTR_DEVICE_TYPE)
-        if device_type is None:
-            continue
         if device_type == DEVICE_TYPE_DECO:
             deco = TpLinkDeco(entry.unique_id)
             deco.name = normalize_name(entry.original_name)
@@ -199,8 +229,15 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
     data = await async_create_config_data(hass, config_entry)
     hass.data[DOMAIN][config_entry.entry_id] = data
     deco_coordinator = data[COORDINATOR_DECOS_KEY]
+    clients_coordinator = data[COORDINATOR_CLIENTS_KEY]
 
     await hass.config_entries.async_forward_entry_setups(config_entry, PLATFORMS)
+
+    config_entry.async_create_background_task(
+        hass,
+        clients_coordinator.async_request_refresh(),
+        name="tplink_deco initial client refresh",
+    )
 
     async def async_reboot_deco(service: ServiceCall) -> None:
         dr = device_registry.async_get(hass=hass)
@@ -300,37 +337,51 @@ async def update_listener(hass: HomeAssistant, config_entry: ConfigEntry) -> Non
     await hass.config_entries.async_reload(config_entry.entry_id)
 
 
+async def async_remove_config_entry_device(
+    hass: HomeAssistant, config_entry: ConfigEntry, device_entry: DeviceEntry
+) -> bool:
+    """Allow removal of old client devices when MAC linking is disabled."""
+    if config_entry.data.get(CONF_LINK_CLIENT_DEVICES, DEFAULT_LINK_CLIENT_DEVICES):
+        return False
+    return not any(domain == DOMAIN for domain, _ in device_entry.identifiers)
+
+
 async def async_migrate_entry(hass, config_entry: ConfigEntry):
     """Migrate old entry."""
     _LOGGER.debug("Migrating from version %s", config_entry.version)
 
     new = {**config_entry.data}
+    version = config_entry.version
 
-    if config_entry.version == 1:
-        config_entry.version = 2
+    if version == 1:
+        version = 2
         new[CONF_VERIFY_SSL] = True
 
-    if config_entry.version == 2:
-        config_entry.version = 3
+    if version == 2:
+        version = 3
         new[CONF_TIMEOUT_ERROR_RETRIES] = DEFAULT_TIMEOUT_ERROR_RETRIES
 
-    if config_entry.version == 3:
-        config_entry.version = 4
+    if version == 3:
+        version = 4
         new[CONF_TIMEOUT_SECONDS] = DEFAULT_TIMEOUT_SECONDS
 
-    if config_entry.version == 4:
-        config_entry.version = 5
+    if version == 4:
+        version = 5
         new[CONF_CLIENT_PREFIX] = ""
         new[CONF_CLIENT_POSTFIX] = ""
         new[CONF_DECO_PREFIX] = ""
         new[CONF_DECO_POSTFIX] = DEFAULT_DECO_POSTFIX
 
-    if config_entry.version == 5:
-        config_entry.version = 6
+    if version == 5:
+        version = 6
         new[CONF_HOST] = f"http://{new[CONF_HOST]}"
 
-    hass.config_entries.async_update_entry(config_entry, data=new)
+    if version == 6:
+        version = 7
+        new[CONF_LINK_CLIENT_DEVICES] = DEFAULT_LINK_CLIENT_DEVICES
 
-    _LOGGER.info("Migration to version %s successful", config_entry.version)
+    hass.config_entries.async_update_entry(config_entry, data=new, version=version)
+
+    _LOGGER.info("Migration to version %s successful", version)
 
     return True

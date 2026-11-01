@@ -148,8 +148,9 @@
         action: notify.mobile_app_telefoon_leny
   variables:
     message_data: "{% for entity_id in states.binary_sensor.ramen_boven.attributes.entity_id
-      -%}\n  {% if(states(entity_id) == 'on')-%}\n      {{- '\\n' -}}\n    - {% print(state_attr(entity_id,'friendly_name')
-      + ' (' + area_name(entity_id) + ')') -%}\n  {% endif-%}\n{%- endfor %}"
+      -%}\n  {% if(states(entity_id) == 'on')-%}\n      {{- '\\n' -}}\n    - {% print(([device_name(entity_id),
+      entity_name(entity_id)] | select | join(' ')) + ' (' + area_name(entity_id)
+      + ')') -%}\n  {% endif-%}\n{%- endfor %}"
 - id: '1629894664286'
   alias: Achtertuinverlichting aan
   triggers:
@@ -276,110 +277,6 @@
       entity_id: light.zolder_plafond
     action: light.toggle
   mode: restart
-- id: '1631009095968'
-  alias: Notificatie ramen zolder open
-  description: ''
-  triggers:
-  - trigger: time
-    at: '19:00:00'
-  conditions:
-  - condition: state
-    entity_id: binary_sensor.zolder_raam_achter_contact
-    state: 'on'
-  actions:
-  - data:
-      message: Dus dicht doen makker!
-      data:
-        ttl: 0
-        priority: high
-        channel: alarm_stream
-        importance: high
-        notification_icon: mdi:window-open
-      title: Het zolderraam staat nog open
-    action: notify.mobile_app_telefoon_rudolf
-  mode: single
-- id: '1632469998878'
-  alias: Wall tablet - Screen auto off
-  description: ''
-  triggers:
-  - entity_id:
-    - binary_sensor.wall_tablet_motion
-    to:
-    - 'off'
-    for:
-      hours: 0
-      minutes: 5
-      seconds: 0
-    trigger: state
-  - at: '23:00:00'
-    trigger: time
-  - entity_id:
-    - binary_sensor.wall_tablet_motion
-    to: unavailable
-    for:
-      hours: 0
-      minutes: 0
-      seconds: 5
-    trigger: state
-  - entity_id:
-    - group.trackable_family
-    to: not_home
-    trigger: state
-  conditions: []
-  actions:
-  - choose:
-    - conditions:
-      - condition: or
-        conditions:
-        - condition: time
-          after: '22:00:00'
-          before: 07:00:00
-        - condition: state
-          entity_id: group.trackable_family
-          state: not_home
-      sequence:
-      - data:
-          value: '0'
-        target:
-          entity_id: number.lenovo_tab_m10_fhd_plus_screen_brightness
-        action: number.set_value
-      - delay:
-          hours: 0
-          minutes: 0
-          seconds: 5
-          milliseconds: 0
-      - data: {}
-        target:
-          entity_id: switch.lenovo_tab_m10_fhd_plus_screen
-        action: switch.turn_off
-    default:
-    - data:
-        value: '0'
-      target:
-        entity_id: number.lenovo_tab_m10_fhd_plus_screen_brightness
-      action: number.set_value
-  mode: restart
-- id: '1632471920007'
-  alias: Wall tablet - Bright on motion
-  description: ''
-  triggers:
-  - entity_id:
-    - binary_sensor.wall_tablet_motion
-    to:
-    - 'on'
-    trigger: state
-  conditions: []
-  actions:
-  - data:
-      value: '100'
-    target:
-      entity_id: number.lenovo_tab_m10_fhd_plus_screen_brightness
-    action: number.set_value
-  - data: {}
-    target:
-      entity_id: switch.lenovo_tab_m10_fhd_plus_screen
-    action: switch.turn_on
-  mode: single
 - id: '1632481170491'
   alias: Voortuin verlichting 's nachts
   description: Wanneer het donker is, lampen hek na 10 minuten weer aan.
@@ -417,28 +314,6 @@
     action: light.turn_on
   - entity_id: light.voortuin_hek
     action: light.turn_off
-  mode: single
-- id: '1654416602001'
-  alias: Rudolf Antibiotica
-  description: ''
-  triggers:
-  - trigger: time
-    at:
-    - 07:00:00
-    - '12:00:00'
-    - '17:00:00'
-    - '22:00:00'
-  conditions: []
-  actions:
-  - data:
-      message: Het is tijd om je antibiotica te nemen!
-      data:
-        ttl: 0
-        priority: high
-        notification_icon: mdi:pill
-        channel: alarm_stream
-      title: Antibiotica
-    action: notify.mobile_app_telefoon_rudolf
   mode: single
 - id: '1671801460867'
   alias: Wasmachine - Status
@@ -555,7 +430,7 @@
   description: Status afhandeling airfryer
   triggers:
   - entity_id:
-    - sensor.kleine_schuur_airfryer_huidig_wattage
+    - sensor.kleine_schuur_kleine_schuur_airfryer_huidig_wattage
     for:
       hours: 0
       minutes: 1
@@ -563,7 +438,7 @@
     id: 'off'
     below: 1
     trigger: numeric_state
-  - entity_id: sensor.kleine_schuur_airfryer_huidig_wattage
+  - entity_id: sensor.kleine_schuur_kleine_schuur_airfryer_huidig_wattage
     for:
       hours: 0
       minutes: 0
@@ -572,7 +447,7 @@
     below: 7
     above: 1
     trigger: numeric_state
-  - entity_id: sensor.kleine_schuur_airfryer_huidig_wattage
+  - entity_id: sensor.kleine_schuur_kleine_schuur_airfryer_huidig_wattage
     for:
       hours: 0
       minutes: 0
@@ -637,7 +512,7 @@
         data:
           volume_level: 0.7
         target:
-          device_id: 65f629f228f84418b3b24aaac2fbf152
+          entity_id: media_player.woonkamer_google_home_mass
       - action: tts.speak
         metadata: {}
         data:
@@ -657,7 +532,7 @@
         data:
           volume_level: '{{ originele_volume | float }}'
         target:
-          device_id: 65f629f228f84418b3b24aaac2fbf152
+          entity_id: media_player.woonkamer_google_home_mass
     - conditions:
       - condition: trigger
         id: waiting
@@ -732,106 +607,6 @@
         notification_icon: mdi:fire-alert
     action: notify.family
   mode: single
-- id: '1677237418061'
-  alias: Radarr Webhook
-  description: ''
-  triggers:
-  - webhook_id: -7Kgxxk-5PWQXQLRXhCivP-ur
-    allowed_methods:
-    - POST
-    - PUT
-    local_only: true
-    trigger: webhook
-  conditions: []
-  actions:
-  - choose:
-    - conditions:
-      - condition: template
-        value_template: '{{trigger.json.eventType == ''Grab''}}'
-      sequence:
-      - data:
-          message: '{{ trigger.json.movie.title }}'
-          title: Nieuwe film wordt gedownload!
-          data:
-            ttl: 0
-            priority: high
-            notification_icon: mdi:movie-play
-        action: notify.mobile_app_telefoon_rudolf
-    - conditions:
-      - condition: template
-        value_template: '{{trigger.json.eventType == ''Download''}}'
-      sequence:
-      - data:
-          message: '{{ trigger.json.movie.title }}'
-          title: Nieuwe film is klaar met downloaden!
-          data:
-            ttl: 0
-            priority: high
-            notification_icon: mdi:movie-check
-        action: notify.mobile_app_telefoon_rudolf
-    - conditions:
-      - condition: template
-        value_template: '{{trigger.json.eventType == ''Test''}}'
-      sequence:
-      - data:
-          data:
-            ttl: 0
-            priority: high
-            notification_icon: mdi:movie-play
-          message: Testbericht van Radarr!
-        action: notify.mobile_app_telefoon_rudolf
-  mode: single
-- id: '1677238382816'
-  alias: Sonarr Webhook
-  description: ''
-  triggers:
-  - webhook_id: -o3qrQHmtUUPunjW4QaE7f0lt
-    allowed_methods:
-    - POST
-    - PUT
-    local_only: true
-    trigger: webhook
-  conditions: []
-  actions:
-  - choose:
-    - conditions:
-      - condition: template
-        value_template: '{{trigger.json.eventType == ''Grab''}}'
-      sequence:
-      - data:
-          title: Nieuwe aflevering van {{trigger.json.series.title}} wordt gedownload!
-          message: Seizoen {{trigger.json.episodes[0].seasonNumber}} - aflevering
-            {{ trigger.json.episodes[0].episodeNumber}}
-          data:
-            ttl: 0
-            priority: high
-            notification_icon: mdi:television-play
-        action: notify.mobile_app_telefoon_rudolf
-    - conditions:
-      - condition: template
-        value_template: '{{trigger.json.eventType == ''Download''}}'
-      sequence:
-      - data:
-          title: Nieuwe aflevering van {{trigger.json.series.title}} is gedownload!
-          message: Seizoen {{trigger.json.episodes[0].seasonNumber}} - aflevering
-            {{ trigger.json.episodes[0].episodeNumber}}
-          data:
-            ttl: 0
-            priority: high
-            notification_icon: mdi:television-check
-        action: notify.mobile_app_telefoon_rudolf
-    - conditions:
-      - condition: template
-        value_template: '{{trigger.json.eventType == ''Test''}}'
-      sequence:
-      - data:
-          data:
-            ttl: 0
-            priority: high
-            notification_icon: mdi:television
-          message: Testbericht van Sonarr!
-        action: notify.mobile_app_telefoon_rudolf
-  mode: single
 - id: '1677277974469'
   alias: Update ESPHome entities
   description: Werkt alle updatebare ESPHome entiteiten bij om 00:30 's nachts.
@@ -845,28 +620,6 @@
         | select(''is_state'', ''on'') | list }}'
     action: update.install
     data: {}
-  mode: single
-- id: '1677601535487'
-  alias: Bazarr Webhook
-  description: ''
-  triggers:
-  - webhook_id: -O9_Ycbdv-OQ2InxwBhZZYW21
-    allowed_methods:
-    - POST
-    - PUT
-    local_only: true
-    trigger: webhook
-  conditions: []
-  actions:
-  - choose:
-    - conditions: []
-      sequence: []
-    default:
-    - data:
-        message: Sonarr FTW
-        data:
-          notification_icon: mdi:television
-      action: notify.mobile_app_telefoon_rudolf
   mode: single
 - id: '1678708313676'
   alias: Schapen voeren
@@ -937,22 +690,9 @@
         action: notify.mobile_app_telefoon_leny
   variables:
     message_data: "{% for entity_id in states.binary_sensor.ramen_boven.attributes.entity_id
-      -%}\n  {% if(states(entity_id) == 'on')-%}\n      {{- '\\n' -}}\n    - {% print(state_attr(entity_id,'friendly_name')
-      + ' (' + area_name(entity_id) + ')') -%}\n  {% endif-%}\n{%- endfor %}"
-  mode: single
-- id: '1702301389683'
-  alias: Update water price
-  description: ''
-  triggers:
-  - trigger: time
-    at: input_datetime.water_tariff_change
-  conditions: []
-  actions:
-  - target:
-      entity_id: input_number.water_price
-    data:
-      value: 1.34
-    action: input_number.set_value
+      -%}\n  {% if(states(entity_id) == 'on')-%}\n      {{- '\\n' -}}\n    - {% print(([device_name(entity_id),
+      entity_name(entity_id)] | select | join(' ')) + ' (' + area_name(entity_id)
+      + ')') -%}\n  {% endif-%}\n{%- endfor %}"
   mode: single
 - id: '1703877804565'
   alias: Bijkeuken licht
@@ -1017,8 +757,10 @@
   triggers:
   - entity_id:
     - binary_sensor.gang_bel_button
-    from: 'off'
-    to: 'on'
+    from:
+    - 'off'
+    to:
+    - 'on'
     trigger: state
   conditions: []
   actions:
@@ -1028,11 +770,13 @@
       entity_id: script.deurbel
     action: script.turn_on
   - data:
-      media_content_id: /media/local/snapshots/snapshot_driveway.jpg
-      media_content_type: image/jpeg
+      media:
+        media_content_id: /media/local/snapshots/snapshot_driveway.jpg
+        media_content_type: image/jpeg
+        metadata: {}
     action: media_player.play_media
     target:
-      device_id: 5e7a4946b72771280b3bdb6d1a192e5a
+      entity_id: media_player.keuken_nest_hub_mass
   - delay:
       hours: 0
       minutes: 1
@@ -1041,22 +785,8 @@
   - metadata: {}
     data: {}
     target:
-      device_id: 5e7a4946b72771280b3bdb6d1a192e5a
+      device_id: 44700116b34e707dc29dac4ff7a6fb89
     action: media_player.turn_off
-  mode: single
-- id: '1713036861687'
-  alias: Wall tablet - Reload
-  description: ''
-  triggers:
-  - trigger: time
-    at: 01:15:00
-  conditions: []
-  actions:
-  - target:
-      device_id: f6b31284b6b269c52b5330a8f410eb5f
-    data:
-      url: http://192.168.1.21:8123/wall-tablet-v2
-    action: fully_kiosk.load_url
   mode: single
 - id: '1726487429371'
   alias: Lichten uit bij verlaten huis
@@ -1088,8 +818,9 @@
   mode: single
   variables:
     message_data: "{% for entity_id in states.light.functionele_verlichting.attributes.entity_id
-      -%}\n  {% if(states(entity_id) == 'on')-%}\n      {{- '\\n' -}}\n    - {% print(state_attr(entity_id,'friendly_name'))
-      -%}\n  {% endif-%}\n{%- endfor %}"
+      -%}\n  {% if(states(entity_id) == 'on')-%}\n      {{- '\\n' -}}\n    - {% print(([device_name(entity_id),
+      entity_name(entity_id)] | select | join(' '))) -%}\n  {% endif-%}\n{%- endfor
+      %}"
 - id: '1727854274643'
   alias: Mika deken aanzetten
   description: Zet Mika's deken aan om 18:30
@@ -1134,23 +865,7 @@
       button_toggle_dim_entity_first_press: true
       hold_to_dim_brightness_step: 20
       button_hold_to_dim: true
-- id: '1730240747048'
-  alias: Flight entry notification
-  description: ''
-  triggers:
-  - event_type: flightradar24_entry
-    trigger: event
-  actions:
-  - data:
-      message: Flight entry of {{ trigger.event.data.callsign }} to {{ trigger.event.data.airport_destination_city
-        }} [Open FlightRadar](https://www.flightradar24.com/{{ trigger.event.data.callsign
-        }})
-      data:
-        url: https://fr24.com/{{ trigger.event.data.callsign }}/{{ trigger.event.data.id
-          }}
-        image: '{{ trigger.event.data.aircraft_photo_medium }}'
-        notification_icon: mdi:airplane
-    action: notify.mobile_app_telefoon_rudolf
+      button_long_repeat_max_loop_repeats: 1279
 - id: '1733684130313'
   alias: Nieuw bericht VSCO.nl
   description: ''
@@ -1177,30 +892,6 @@
           uri: '{{state_attr(''event.nieuws_archive_vsco_61'', ''link'')}}'
   mode: queued
   max: 10
-- id: '1740346097698'
-  alias: Inkoopvergoedingen wijzigen
-  description: ''
-  triggers:
-  - trigger: time
-    at: input_datetime.datum_nieuw_tarief_eneco_stroom
-  conditions: []
-  actions:
-  - action: input_number.set_value
-    data:
-      value: '{{states(''input_number.eneco_nieuwe_inkoopvergoeding_stroom'')}}'
-    target:
-      entity_id: input_number.eneco_inkoopvergoeding_stroom
-  - action: input_number.set_value
-    data:
-      value: '{{states(''input_number.eneco_nieuwe_inkoopvergoeding_gas'')}}'
-    target:
-      entity_id: input_number.eneco_inkoopvergoeding_gas
-  - action: input_number.set_value
-    data:
-      value: '{{states(''input_number.eneco_nieuwe_verkoopvergoeding_stroom'')}}'
-    target:
-      entity_id: input_number.eneco_verkoopvergoeding_stroom
-  mode: single
 - id: '1746613388284'
   alias: Camera herstarten
   description: ''
@@ -1224,52 +915,6 @@
     data: {}
     target:
       device_id: a242f0ef45a22d30887fe61bb082784c
-  mode: single
-- id: '1746940797242'
-  alias: Sproeier voortuin automatisch uit
-  description: ''
-  triggers:
-  - type: turned_on
-    device_id: 2a3c6550788e4f2b98943abe7d1f0efc
-    entity_id: c0bdb0b064ce252186ac554594997037
-    domain: switch
-    trigger: device
-  conditions: []
-  actions:
-  - type: turn_off
-    device_id: 2a3c6550788e4f2b98943abe7d1f0efc
-    entity_id: c0bdb0b064ce252186ac554594997037
-    domain: switch
-  mode: single
-- id: '1748722408594'
-  alias: Noa nest hub
-  description: ''
-  triggers:
-  - device_id: a934a35a9e476072f18713a130942c68
-    domain: media_player
-    entity_id: 0f2bc0ac3c95c5937cc016a8c8a3f57a
-    type: playing
-    trigger: device
-    for:
-      hours: 0
-      minutes: 0
-      seconds: 10
-  conditions:
-  - condition: time
-    after: '21:30:00'
-    before: 06:30:00
-  actions:
-  - action: media_player.turn_off
-    metadata: {}
-    data: {}
-    target:
-      device_id: a934a35a9e476072f18713a130942c68
-  - action: notify.mobile_app_telefoon_rudolf
-    metadata: {}
-    data:
-      message: Nest hub noa is uitgezet
-      data:
-        notification_icon: mdi:google-home
   mode: single
 - id: '1757059485795'
   alias: Check externe IP verandering
@@ -1299,46 +944,6 @@
       data:
         notification_icon: mdi:ip-network
   mode: single
-- id: '1757426624890'
-  alias: SpotifyPlus Media Player Podcast Pause Player at End
-  description: Pauses the SpotifyPlus media player when podcast episode estimated
-    play time remaining is less than 10 seconds.
-  triggers:
-  - trigger: state
-    alias: When SpotifyPlus estimated play time remaining changes
-    entity_id:
-    - media_player.spotifyplus_rudolf_offereins
-    attribute: sp_play_time_remaining_est
-  conditions:
-  - alias: If SpotifyPlus is playing something
-    condition: state
-    entity_id: media_player.spotifyplus_rudolf_offereins
-    state: playing
-    enabled: true
-  - alias: If SpotifyPlus is playing podcast content
-    condition: state
-    entity_id: media_player.spotifyplus_rudolf_offereins
-    attribute: sp_item_type
-    state: podcast
-    enabled: true
-  - alias: If SpotifyPlus is playing an episode
-    condition: state
-    entity_id: media_player.spotifyplus_rudolf_offereins
-    attribute: sp_playing_type
-    state: episode
-    enabled: true
-  - alias: If less than 10 seconds remain of playing media content
-    condition: template
-    value_template: '{% if ((state_attr(''media_player.spotifyplus_rudolf_offereins'',''sp_play_time_remaining_est'')
-      | int(0)) < 10) %} true  {% else %}  false  {% endif %}'
-    enabled: true
-  actions:
-  - action: media_player.media_pause
-    alias: Pause SpotifyPlus media player
-    data:
-      entity_id: media_player.spotifyplus_rudolf_offereins
-    enabled: true
-  mode: single
 - id: '1761255353644'
   alias: Reset Orisha allowance registered today
   description: ''
@@ -1356,7 +961,7 @@
   description: ''
   triggers:
   - entity_id: person.rudolf
-    zone: zone.optimizers
+    zone: zone.orisha
     event: enter
     trigger: zone
     id: to_office_zwolle
@@ -1509,7 +1114,9 @@
   triggers:
   - trigger: numeric_state
     entity_id: sensor.waterverbruik_dit_kwartier
-    above: 10
+    above: 30
+    for:
+      minutes: 10
   conditions:
   - condition: state
     entity_id: valve.achtertuin_druppelslang
@@ -1702,50 +1309,6 @@
             priority: high
             notification_icon: mdi:water-percent
   mode: single
-- id: '1776890000001'
-  alias: Wall tablet - Muziek fullscreen
-  description: Schakel naar fullscreen muziekweergave als muziek begint te spelen.
-  triggers:
-  - trigger: state
-    entity_id: media_player.speakers_beneden
-    to: playing
-  conditions:
-  - condition: state
-    entity_id: input_boolean.wall_tablet_muziek_modus
-    state: 'off'
-  actions:
-  - action: input_boolean.turn_on
-    target:
-      entity_id: input_boolean.wall_tablet_muziek_modus
-  - action: browser_mod.navigate
-    data:
-      path: /wall-tablet-v2/muziekv2
-      browser_id:
-      - a1af2482692d51329c258b5abb7331e9
-  mode: single
-- id: '1776890000004'
-  alias: Wall tablet - Dashboard bij muziek stop
-  description: Terug naar het dashboard wanneer de muziek stopt.
-  triggers:
-  - trigger: state
-    entity_id: media_player.speakers_beneden
-    from: playing
-    for:
-      seconds: 10
-  conditions:
-  - condition: state
-    entity_id: input_boolean.wall_tablet_muziek_modus
-    state: 'on'
-  actions:
-  - action: input_boolean.turn_off
-    target:
-      entity_id: input_boolean.wall_tablet_muziek_modus
-  - action: browser_mod.navigate
-    data:
-      path: /wall-tablet-v2/0
-      browser_id:
-      - a1af2482692d51329c258b5abb7331e9
-  mode: single
 - id: '1776883500000'
   alias: Dagelijks batterij rapport
   description: 'Stuurt om 16:30 een melding met apparaten die een lage batterij hebben
@@ -1765,25 +1328,25 @@
         'search', 'telefoon')\n  | rejectattr('entity_id', 'search', 'tablet')\n  |
         rejectattr('entity_id', 'search', 'phone')\n  | rejectattr('entity_id', 'search',
         'lenovo')\n  | rejectattr('entity_id', 'search', '_battery_plus')\n  | list
-        %}\n{% for s in sensors %}\n  {% set name = state_attr(s.entity_id, 'friendly_name')\n
-        \   | default(s.entity_id)\n    | replace(' Battery', '')\n    | replace('
-        battery', '')\n    | replace(' Batterij', '') %}\n  {% set type_id = s.entity_id
-        | regex_replace('_battery(_\\d+)?$', '_battery_type') %}\n  {% set btype =
-        states(type_id) %}\n  {% set btype = btype if btype not in ['unknown', 'unavailable',
-        'None', none] else '?' %}\n  {% if s.state in ['unavailable', 'unknown'] %}\n
-        \   {% set ns.unavail = ns.unavail + [{'name': name, 'type': btype}] %}\n
-        \ {% elif s.state | float(0) < threshold %}\n    {% set ns.low = ns.low +
-        [{'name': name, 'level': s.state | float(0), 'display': s.state | round(0)
-        | int ~ '%', 'type': btype}] %}\n  {% endif %}\n{% endfor %} {% set low_sorted
-        = ns.low | sort(attribute='level') %} {% set parts = namespace(val='') %}
-        {% if ns.unavail | length > 0 %}\n  {% set lines = ['\U0001FAAB Unavailable
-        (' ~ ns.unavail | length ~ '):'] + ns.unavail | map(attribute='name') | map('regex_replace',
-        '^(.+)$', '• \\\\1') | list %}\n  {% set parts.val = parts.val ~ lines | join('\\n')
-        %}\n{% endif %} {% if low_sorted | length > 0 %}\n  {% set lines = ['\U0001F50B
-        Laag (' ~ low_sorted | length ~ '):'] + low_sorted | map(attribute='name')
+        %}\n{% for s in sensors %}\n  {% set name = ([device_name(s.entity_id), entity_name(s.entity_id)]
+        | select | join(' '))\n    | default(s.entity_id, true)\n    | replace(' Battery',
+        '')\n    | replace(' battery', '')\n    | replace(' Batterij', '') %}\n  {%
+        set type_id = s.entity_id | regex_replace('_battery(_\\d+)?$', '_battery_type')
+        %}\n  {% set btype = states(type_id) %}\n  {% set btype = btype if btype not
+        in ['unknown', 'unavailable', 'None', none] else '?' %}\n  {% if s.state in
+        ['unavailable', 'unknown'] %}\n    {% set ns.unavail = ns.unavail + [{'name':
+        name, 'type': btype}] %}\n  {% elif s.state | float(0) < threshold %}\n    {%
+        set ns.low = ns.low + [{'name': name, 'level': s.state | float(0), 'display':
+        s.state | round(0) | int ~ '%', 'type': btype}] %}\n  {% endif %}\n{% endfor
+        %} {% set low_sorted = ns.low | sort(attribute='level') %} {% set parts =
+        namespace(val='') %} {% if ns.unavail | length > 0 %}\n  {% set lines = ['\U0001FAAB
+        Unavailable (' ~ ns.unavail | length ~ '):'] + ns.unavail | map(attribute='name')
         | map('regex_replace', '^(.+)$', '• \\\\1') | list %}\n  {% set parts.val
-        = parts.val ~ ('\\n\\n' if parts.val | length > 0 else '') ~ lines | join('\\n')
-        %}\n{% endif %} {{ parts.val }}"
+        = parts.val ~ lines | join('\\n') %}\n{% endif %} {% if low_sorted | length
+        > 0 %}\n  {% set lines = ['\U0001F50B Laag (' ~ low_sorted | length ~ '):']
+        + low_sorted | map(attribute='name') | map('regex_replace', '^(.+)$', '• \\\\1')
+        | list %}\n  {% set parts.val = parts.val ~ ('\\n\\n' if parts.val | length
+        > 0 else '') ~ lines | join('\\n') %}\n{% endif %} {{ parts.val }}"
   - condition: template
     value_template: '{{ battery_lines | trim | length > 0 }}'
   - action: notify.mobile_app_telefoon_rudolf
@@ -1795,31 +1358,6 @@
         url: /mobile-dashboard/onderhoud
         notification_icon: mdi:battery-heart
   mode: single
-- id: '1776900000001'
-  alias: Log persoons-notificaties
-  description: Logt elke notificatie naar een mobiele companion app als persistent
-    notification
-  initial_state: false
-  triggers:
-  - trigger: event
-    event_type: call_service
-    event_data:
-      domain: notify
-  conditions:
-  - condition: template
-    value_template: '{{ trigger.event.data.service is match(''mobile_app_'') }}'
-  actions:
-  - action: persistent_notification.create
-    data:
-      title: "\U0001F4F2 Notificatie verzonden"
-      message: '**Naar:** {{ trigger.event.data.service | replace(''mobile_app_'',
-        '''') | replace(''_'', '' '') | title }} {% if trigger.event.data.service_data.title
-        is defined %} **Titel:** {{ trigger.event.data.service_data.title }} {% endif
-        %} **Bericht:** {{ trigger.event.data.service_data.message | default(''(geen
-        bericht)'') }} **Tijdstip:** {{ now().strftime(''%d-%m-%Y %H:%M:%S'') }}'
-      notification_id: notify_log_{{ now().strftime('%Y%m%d%H%M%S') }}
-  mode: queued
-  max: 20
 - id: '1777000000001'
   alias: Garage deur open bij vertrek
   description: Stuurt een actionable notificatie als de garagedeur nog open staat
@@ -1866,36 +1404,6 @@
     target:
       entity_id: cover.garage_garagedeur
   mode: single
-- id: '1777000000003'
-  alias: Ziggo beneden - reclame doorspolen
-  description: Spoelt automatisch door naar het einde van een reclameblok zodra ad_break_active
-    op true gaat. Werkt alleen in nDVR modus.
-  triggers:
-  - trigger: template
-    value_template: '{{ state_attr(''media_player.ziggo_beneden'', ''ad_break_active'')
-      == true }}'
-  conditions:
-  - condition: template
-    value_template: '{{ state_attr(''media_player.ziggo_beneden'', ''play_mode'')
-      == ''nDVR'' }}'
-  actions:
-  - variables:
-      current_pos: '{{ state_attr(''media_player.ziggo_beneden'', ''media_position'')
-        | float(0) }}'
-      ad_breaks: '{{ state_attr(''media_player.ziggo_beneden'', ''ad_breaks'') }}'
-      ad_end: "{% set pos = state_attr('media_player.ziggo_beneden', 'media_position')
-        | float(0) %} {% set breaks = state_attr('media_player.ziggo_beneden', 'ad_breaks')
-        %} {% set end = namespace(val=pos) %} {% for b in breaks %}\n  {% if b.start
-        <= pos <= b.end %}\n    {% set end.val = b.end %}\n  {% endif %}\n{% endfor
-        %} {{ end.val }}"
-  - condition: template
-    value_template: '{{ ad_end | float(0) > current_pos }}'
-  - action: media_player.media_seek
-    target:
-      entity_id: media_player.ziggo_beneden
-    data:
-      seek_position: '{{ ad_end | float }}'
-  mode: single
 - id: '1779000000001'
   alias: Omrin container geleegd - stuur melding naar Rudolf en Leny
   description: Stuurt een melding naar Rudolf en Leny wanneer een afvalcontainer is
@@ -1909,9 +1417,11 @@
     alias: Als aantal ophalingen vaan een afvaltype wijzigt
   conditions:
   - condition: template
-    value_template: '{{ trigger.from_state is not none and trigger.from_state.state
-      not in (''unknown'', ''unavailable'') }}'
-    alias: Niet na herstart (sla unknown/unavailable over)
+    value_template: "{{ trigger.from_state is not none\n   and trigger.to_state is
+      not none\n   and trigger.from_state.state not in ('unknown', 'unavailable')\n
+      \  and trigger.to_state.state not in ('unknown', 'unavailable')\n   and (trigger.from_state.state
+      | int(0)) < (trigger.to_state.state | int(0)) }}"
+    alias: Alleen bij stijging van het aantal ophalingen
   actions:
   - choose:
     - conditions:
@@ -2084,4 +1594,32 @@
         ttl: 0
         priority: high
         notification_icon: mdi:harddisk
+  mode: single
+- id: '1790349956450'
+  alias: Lampen Badkamer Wastafel
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - switch.badkamer_wastafel
+    to:
+    - 'on'
+    from:
+    - 'off'
+  - trigger: state
+    entity_id:
+    - switch.badkamer_wastafel
+    from:
+    - 'on'
+    to:
+    - 'off'
+  conditions: []
+  actions:
+  - action: light.toggle
+    metadata: {}
+    target:
+      entity_id: light.badkamer_wastafel
+    data:
+      color_temp_kelvin: 5203
+      brightness_pct: 75
   mode: single

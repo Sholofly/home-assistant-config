@@ -9,10 +9,10 @@
   "documentation": "https://github.com/hiall-fyi/tado_ce",
   "integration_type": "hub",
   "iot_class": "cloud_polling",
-  "issue_tracker": "https://github.com/hiall-fyi/tado_ce/issues",
+  "issue_tracker": "https://github.com/hiall-fyi/tado_ce/issues/new/choose",
+  "loggers": ["aiohomekit"],
   "requirements": [
-    "aiohttp>=3.8.0",
-    "aiohomekit==3.2.20"
+    "aiohomekit>=3.2.20"
   ],
-  "version": "4.2.1"
+  "version": "4.5.1"
 }

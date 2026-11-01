@@ -26,10 +26,17 @@ are unchanged.
   the RoundManager timer-task handle BEFORE ``end_round`` (#1029) so the
   subsequent ``cancel_timer`` cannot self-cancel the running task mid-REVEAL.
 * ``cancel_timer`` — cancel the round timer (delegates to ``RoundManager``).
+* ``force_end_round_if_overdue`` — the server-side backstop (#1865): ends a
+  round whose deadline has passed by more than the grace period while the
+  phase is still PLAYING. Driven by a periodic tick in ``__init__.py``, so it
+  does not depend on the per-round timer task surviving, and unlike the client
+  watchdog it does not depend on a browser being open.
 * ``_transition_to_reveal`` — REVEAL phase 4 (#1272): fire the combined REVEAL
-  announcement BEFORE the visible state change (audio leads), clear per-phase
-  reactions, then flip the phase to REVEAL through the ``_set_phase``
-  chokepoint (which stamps ``reveal_started_at`` and notifies observers).
+  announcement BEFORE the visible state change (audio leads), then flip the
+  phase to REVEAL through the ``_set_phase`` chokepoint (which stamps
+  ``reveal_started_at`` and notifies observers). It no longer touches the
+  reaction state — #2562 replaced the per-phase reaction budget with a
+  time-based throttle that survives the phase change on purpose.
 * ``_apply_reveal_lights`` — REVEAL phase 6 (#1272): set the REVEAL party-light
   phase, then flash gold (exact) or green (within one year) on the event.
 * ``confirm_intro_splash`` — admin confirmation of the intro splash (#292/#403);
@@ -62,12 +69,13 @@ The mixin relies on attributes / methods the host class owns and that live on
 * ``self.artist_challenge`` / ``self.movie_challenge`` /
   ``self.title_artist_challenge`` and their ``*_enabled`` / ``title_artist_mode``
   flags — the per-mode guess gates.
-* ``self._player_registry`` — the per-phase reaction reset on REVEAL entry.
 * ``self._announce_reveal`` / ``self.announce_time_up`` / ``self.announce_winner``
   / ``self.announce_podium`` — the TTS hooks (live on ``TtsAnnouncerMixin``).
 * ``self._lights_set_phase`` / ``self._lights_flash`` / ``self._party_lights`` /
   ``self.disable_party_lights`` — the party-light hooks (live on
   ``MediaControlMixin``).
+* ``self.stop_media`` — the #2605 terminal stop in ``advance_to_end`` (also
+  lives on ``MediaControlMixin``).
 * ``self._cancel_auto_advance`` — the #1012 REVEAL auto-advance cancel hook
   (lives on ``RevealAutoAdvanceMixin``).
 * ``self.end_round`` / ``self.play_deferred_song`` / ``self._on_round_end`` —
@@ -83,10 +91,13 @@ from __future__ import annotations
 import asyncio
 import logging
 
+from ..const import ROUND_OVERDUE_GRACE_SECONDS
+from .state_contract import GameStateBase
+
 _LOGGER = logging.getLogger(__name__)
 
 
-class RevealTransitionMixin:
+class RevealTransitionMixin(GameStateBase):
     """Round-timer & REVEAL/terminal-transition behavior for :class:`GameState`.
 
     Carries the early-reveal gate, the round-timer task, the REVEAL transition
@@ -116,24 +127,20 @@ class RevealTransitionMixin:
         # or if no one has guessed yet (don't block early reveal for ignored challenges)
         if self.artist_challenge_enabled and self.artist_challenge:
             has_winner = getattr(self.artist_challenge, "winner", None) is not None
-            anyone_guessed = any(
-                p.has_artist_guess for p in self.players.values() if p.is_active
-            )
+            anyone_guessed = any(p.has_artist_guess for p in self._active_guessers())
             if not has_winner and anyone_guessed:
-                for player in self.players.values():
-                    if player.is_active and not player.has_artist_guess:
+                for player in self._bonus_guessers():
+                    if not player.has_artist_guess:
                         return False
 
         # Issue #28: If movie quiz enabled and active, check movie guesses
         # Skip check if challenge already has correct guesses or no one interacted
         if self.movie_quiz_enabled and self.movie_challenge:
             has_correct = len(self.movie_challenge.correct_guesses) > 0
-            anyone_guessed = any(
-                p.has_movie_guess for p in self.players.values() if p.is_active
-            )
+            anyone_guessed = any(p.has_movie_guess for p in self._active_guessers())
             if not has_correct and anyone_guessed:
-                for player in self.players.values():
-                    if player.is_active and not player.has_movie_guess:
+                for player in self._bonus_guessers():
+                    if not player.has_movie_guess:
                         return False
 
         # #1180: In Title & Artist mode, wait for every active player to submit
@@ -141,11 +148,37 @@ class RevealTransitionMixin:
         # year guess, so there is no "winner" short-circuit — each player guesses
         # independently and we hold PLAYING until all are in.
         if self.title_artist_mode and self.title_artist_challenge:
-            for player in self.players.values():
-                if player.is_active and not player.has_title_artist_guess:
+            for player in self._active_guessers():
+                if not player.has_title_artist_guess:
                     return False
 
         return True
+
+    def _active_guessers(self) -> list:
+        """Players whose guess the early reveal is allowed to wait for (#2545).
+
+        ``all_submitted()`` has excluded out-of-play players since #827/#2578,
+        but the follow-up loops below used to filter only ``is_active`` and
+        ``eliminated``. A finale-playoff spectator is not eliminated, so their
+        missing challenge guess could hold the room until the timer expired.
+        """
+        return [p for p in self.players.values() if p.is_active and not p.out_of_play]
+
+    def _bonus_guessers(self) -> list:
+        """Players the artist / movie bonus wait still holds the round for (#3016).
+
+        A player who stole an answer has handed in their round: the steal
+        copies someone else's year and marks them submitted. They see the
+        same "done" state as everyone else, so nothing tells them a bonus
+        tile is still owed. When the player they stole from had tapped a
+        wrong artist or movie, the wait below then held the round open for a
+        guess the stealer did not know was expected, and the reveal never
+        came until the timer ran out or the host stepped in.
+
+        The stealer can still tap a bonus tile until the reveal; the round
+        just no longer waits for them to do so.
+        """
+        return [p for p in self._active_guessers() if not p.stole_from]
 
     async def _trigger_early_reveal(self) -> None:
         """
@@ -219,6 +252,64 @@ class RevealTransitionMixin:
             _LOGGER.debug("Timer task cancelled")
             raise
 
+    async def force_end_round_if_overdue(self) -> bool:
+        """End a round the round-timer task failed to end (#1865).
+
+        The round timer is a single ``asyncio`` task that sleeps to the
+        deadline and then calls ``end_round``. Everything downstream of that
+        sleep is a way for the round to never end: the task can be cancelled,
+        it can raise, or it can block in ``announce_time_up`` waiting on a TTS
+        service call. Until now the only thing that noticed was the countdown
+        running in a player's browser (``handle_round_timeout``) — so a host
+        who locked their phone, or a TV-only setup, sat on PLAYING forever.
+
+        This is the same nudge, driven from the server instead. It is called
+        from a periodic tick that is not owned by the round, so it survives
+        the round's own task dying. It does *not* make the round immune to a
+        blocked event loop — nothing in-process can — but a loop that stalls
+        and recovers now gets the round moved on by the next tick rather than
+        needing an open client.
+
+        ``end_round`` is idempotent, so racing the real timer is harmless: the
+        loser no-ops once the phase has moved on.
+
+        Returns:
+            True if this call ended the round, False if there was nothing to do.
+
+        """
+        from .state import GamePhase  # noqa: PLC0415 — avoid circular import
+
+        if self.phase != GamePhase.PLAYING:
+            return False
+        # Also covers the intro-splash case: while a splash is pending the
+        # deadline is only a placeholder and this reports not-passed (#1699).
+        if not self._round_manager.is_deadline_passed():
+            return False
+
+        deadline = self._round_manager.deadline
+        if deadline is None:
+            return False
+        overdue = (int(self._round_manager._now() * 1000) - deadline) / 1000.0
+        # The grace period keeps this a backstop rather than a competitor: the
+        # timer task firing a few hundred milliseconds late is normal, and
+        # ending the round from here first would only add a second code path
+        # to debug for a round that was about to end correctly anyway.
+        if overdue < ROUND_OVERDUE_GRACE_SECONDS:
+            return False
+
+        _LOGGER.warning(
+            "Round %d still PLAYING %.1fs past its deadline — server backstop "
+            "forcing end_round (the round timer task did not fire)",
+            self.round,
+            overdue,
+        )
+        # No broadcast follows: end_round already fires `_on_round_end` (and
+        # swallows its errors) on the way out. The client watchdog calls
+        # `handler.broadcast_state()` on top of it, which is a second push of
+        # the same state — not copied here.
+        await self.end_round()
+        return True
+
     async def _transition_to_reveal(self, correct_year: int | None) -> None:
         """Announce the reveal and flip the phase to REVEAL (#1272).
 
@@ -240,12 +331,33 @@ class RevealTransitionMixin:
             _LOGGER.error("REVEAL announcement failed: %s", err)
 
         # Transition to REVEAL
-        self._player_registry._reactions_this_phase = (
-            set()
-        )  # Story 18.9: Clear for new reveal phase
+        #
+        # #2562: the per-phase reaction reset that used to sit here is gone.
+        # It made sense while the budget was one reaction per REVEAL phase, but
+        # reactions now also run during PLAYING and the brake is a time-based
+        # throttle (REACTION_THROTTLE_SECONDS, game/player_registry.py). Wiping
+        # the throttle on REVEAL entry would lift the brake at the exact moment
+        # the whole room reacts at once — the burst it exists to smooth. The
+        # cost is that a player who reacted in the last seconds of PLAYING waits
+        # out the remainder of their cooldown into the reveal, which their phone
+        # shows as a running countdown rather than a dead button.
         # #1273: _set_phase stamps reveal_started_at on REVEAL entry (#1048 —
         # so the admin client can render the auto-advance countdown on the
         # sticky Next button) and notifies observers (#441).
+        # #2503: decide the encore window HERE, once, on the way into the
+        # reveal — not on every read. The mockup annotates that tapping the
+        # control twice makes it thirty, and a live re-derivation could not do
+        # that: the first tap moves the finish line, so "one song left" stops
+        # being true and the offer would vanish under the host's finger. What
+        # the chosen option promises is that the offer belongs to THIS reveal
+        # and dies when the next round starts, which is exactly a flag with
+        # those two edges.
+        self._encore_window = (
+            self.total_rounds > 1
+            and not self.last_round
+            and self._playlist_manager is not None
+            and self._playlist_manager.get_remaining_count() == 1
+        )
         self._set_phase(GamePhase.REVEAL)
 
     async def _apply_reveal_lights(self, correct_year: int | None) -> None:
@@ -282,9 +394,30 @@ class RevealTransitionMixin:
 
         Delegates to RoundManager.
         """
+        from .state import GamePhase  # noqa: PLC0415 — avoid circular import
+
         await self._round_manager.confirm_intro_splash(
-            self.play_deferred_song, self._on_round_end, self._timer_countdown
+            self.play_deferred_song,
+            self._on_round_end,
+            self._timer_countdown,
+            is_playing=lambda: self.phase == GamePhase.PLAYING,
         )
+        # #3152: the round clock was stamped just now, so the sample counts
+        # from here too. Skipped when the round left PLAYING during the start.
+        if self.phase == GamePhase.PLAYING and not self.intro_splash_pending:
+            self._arm_sample_stop()
+        # #2886: a pause that arrived while the song was starting left the
+        # media alone (pause_game), because a stop sent into that window races
+        # Music Assistant's start. Now the start has settled, so silence it:
+        # the song must not play to the room during the pause. resume_game
+        # restarts it from the beginning.
+        if (
+            self.phase == GamePhase.PAUSED
+            and self._paused_clock_unstarted
+            and self._media_player_service
+        ):
+            await self._media_player_service.stop()
+            _LOGGER.info("Intro song stopped: the game was paused while it started")
 
     def is_deadline_passed(self) -> bool:
         """Check if the round deadline has passed. Delegates to RoundManager."""
@@ -301,9 +434,31 @@ class RevealTransitionMixin:
 
         self.cancel_timer()
         self._round_manager._cancel_intro_timer()
+        self._round_manager._cancel_sample_timer()  # #3152
         self._cancel_auto_advance()  # #1012
         # #1273: transition clears reveal_started_at (#1048) + notifies (#441).
         self._set_phase(GamePhase.END)
+
+        # #2605: stop the round's song here, at the terminal, not only in the
+        # callers that happen to remember.
+        #
+        # `admin_end_game`, `admin_next_round` and the REST `end-game` view all
+        # call `stop_media()` before they get here. The unattended final round
+        # does not: `_reveal_auto_advance` breaks out of its wait loop on
+        # `elapsed >= hard_cap` as well as on `_song_finished()`, and on the
+        # last round that goes straight into the game-end ceremony. With a
+        # REVEAL timer set, the game therefore ended while the round's song was
+        # still playing, and nothing on the way to END asked the speaker to
+        # stop — the podium went up over Beatify's own music.
+        #
+        # Idempotent: `media_stop` on an already-idle speaker is a no-op, so
+        # the callers that stop first lose nothing. It runs BEFORE the podium
+        # TTS below on purpose — announce_winner speaks through this same
+        # speaker, and a stop afterwards would cut it off.
+        try:
+            await self.stop_media()
+        except Exception as err:  # noqa: BLE001 — a stop must never break the podium
+            _LOGGER.warning("advance_to_end: stop playback failed: %s (#2605)", err)
 
         # Issue #331: Celebrate with Party Lights, then stop (#553)
         if self._party_lights:
