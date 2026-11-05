@@ -1873,3 +1873,178 @@
         importance: high
         notification_icon: mdi:sleep-off
   mode: single
+- id: '1795000000007'
+  alias: Energie - ochtendmelding goedkoopste stroom
+  description: Om 07:00 het goedkoopste moment van vandaag voor wasmachine, droger en vaatwasser, naar wie thuis is.
+  triggers:
+  - trigger: time
+    at: '07:00:00'
+  actions:
+  - action: input_text.set_value
+    target:
+      entity_id: input_text.energie_ochtend_gemeld
+    data:
+      value: '|'
+  - repeat:
+      for_each:
+      - persoon: person.rudolf
+        key: rudolf
+        notify: notify.mobile_app_telefoon_rudolf
+      - persoon: person.leny
+        key: leny
+        notify: notify.mobile_app_telefoon_leny
+      - persoon: person.noa
+        key: noa
+        notify: notify.mobile_app_telefoon_noa
+      - persoon: person.mika
+        key: mika
+        notify: notify.mobile_app_telefoon_mika
+      sequence:
+      - condition: template
+        value_template: "{{ is_state(repeat.item.persoon, 'home') }}"
+      - action: script.energie_melding_sturen
+        data:
+          soort: ochtend
+          notify: "{{ repeat.item.notify }}"
+      - action: input_text.set_value
+        target:
+          entity_id: input_text.energie_ochtend_gemeld
+        data:
+          value: "{{ states('input_text.energie_ochtend_gemeld') ~ repeat.item.key ~ '|' }}"
+  mode: single
+- id: '1795000000008'
+  alias: Energie - avondmelding beste start voor morgenochtend
+  description: Om 17:00 het beste startmoment zodat alles morgenochtend klaar is, naar wie thuis is.
+  triggers:
+  - trigger: time
+    at: '17:00:00'
+  actions:
+  - action: input_text.set_value
+    target:
+      entity_id: input_text.energie_avond_gemeld
+    data:
+      value: '|'
+  - repeat:
+      for_each:
+      - persoon: person.rudolf
+        key: rudolf
+        notify: notify.mobile_app_telefoon_rudolf
+      - persoon: person.leny
+        key: leny
+        notify: notify.mobile_app_telefoon_leny
+      - persoon: person.noa
+        key: noa
+        notify: notify.mobile_app_telefoon_noa
+      - persoon: person.mika
+        key: mika
+        notify: notify.mobile_app_telefoon_mika
+      sequence:
+      - condition: template
+        value_template: "{{ is_state(repeat.item.persoon, 'home') }}"
+      - action: script.energie_melding_sturen
+        data:
+          soort: avond
+          notify: "{{ repeat.item.notify }}"
+      - action: input_text.set_value
+        target:
+          entity_id: input_text.energie_avond_gemeld
+        data:
+          value: "{{ states('input_text.energie_avond_gemeld') ~ repeat.item.key ~ '|' }}"
+  mode: single
+- id: '1795000000009'
+  alias: Energie - melding bij thuiskomst
+  description: Wie na 07:00 (tot 16:00) of na 17:00 (tot 23:30) thuiskomt en de energiemelding nog niet kreeg, krijgt hem alsnog.
+  triggers:
+  - trigger: state
+    entity_id: person.rudolf
+    to: home
+    id: rudolf
+  - trigger: state
+    entity_id: person.leny
+    to: home
+    id: leny
+  - trigger: state
+    entity_id: person.noa
+    to: home
+    id: noa
+  - trigger: state
+    entity_id: person.mika
+    to: home
+    id: mika
+  actions:
+  - if:
+    - condition: time
+      after: '07:00:00'
+      before: '16:00:00'
+    - condition: template
+      value_template: "{{ states('input_text.energie_ochtend_gemeld').startswith('|') and ('|' ~ trigger.id ~ '|') not in states('input_text.energie_ochtend_gemeld') }}"
+    then:
+    - action: script.energie_melding_sturen
+      data:
+        soort: ochtend
+        notify: "notify.mobile_app_telefoon_{{ trigger.id }}"
+    - action: input_text.set_value
+      target:
+        entity_id: input_text.energie_ochtend_gemeld
+      data:
+        value: "{{ states('input_text.energie_ochtend_gemeld') ~ trigger.id ~ '|' }}"
+  - if:
+    - condition: time
+      after: '17:00:00'
+      before: '23:30:00'
+    - condition: template
+      value_template: "{{ states('input_text.energie_avond_gemeld').startswith('|') and ('|' ~ trigger.id ~ '|') not in states('input_text.energie_avond_gemeld') }}"
+    then:
+    - action: script.energie_melding_sturen
+      data:
+        soort: avond
+        notify: "notify.mobile_app_telefoon_{{ trigger.id }}"
+    - action: input_text.set_value
+      target:
+        entity_id: input_text.energie_avond_gemeld
+      data:
+        value: "{{ states('input_text.energie_avond_gemeld') ~ trigger.id ~ '|' }}"
+  mode: queued
+- id: '1795000000010'
+  alias: Energie - melding vlak voor goedkoopste moment overdag
+  description: Een kwartier voor het begin van de goedkoopste periode overdag (start tussen 07:00 en 21:00)
+    een melding naar wie dan thuis is om de machines aan te zetten. Eén keer per periode.
+  triggers:
+  - trigger: template
+    value_template: >-
+      {% set p = (state_attr('sensor.stroomplanning', 'periodes') or []) | selectattr('label', 'in', ['Vandaag', 'Vandaag overdag']) | list %}
+      {% if p %}{% set x = p[0] %}{{ x.start - 900 <= now().timestamp() < x.start and 7 <= (x.start | timestamp_custom('%H', true) | int) < 21 }}{% else %}false{% endif %}
+  variables:
+    periode: >-
+      {{ ((state_attr('sensor.stroomplanning', 'periodes') or []) | selectattr('label', 'in', ['Vandaag', 'Vandaag overdag']) | list | first) }}
+  conditions:
+  - condition: template
+    value_template: "{{ states('input_text.energie_overdag_gemeld') != (periode.start | string) }}"
+  actions:
+  - action: input_text.set_value
+    target:
+      entity_id: input_text.energie_overdag_gemeld
+    data:
+      value: "{{ periode.start }}"
+  - repeat:
+      for_each:
+      - persoon: person.rudolf
+        notify: notify.mobile_app_telefoon_rudolf
+      - persoon: person.leny
+        notify: notify.mobile_app_telefoon_leny
+      - persoon: person.noa
+        notify: notify.mobile_app_telefoon_noa
+      - persoon: person.mika
+        notify: notify.mobile_app_telefoon_mika
+      sequence:
+      - condition: template
+        value_template: "{{ is_state(repeat.item.persoon, 'home') }}"
+      - action: "{{ repeat.item.notify }}"
+        data:
+          title: Over een kwartier is stroom het goedkoopst
+          message: "Het goedkoopste moment van de dag is {{ periode.start_hm }} tot {{ periode.einde_hm }}. Zet de wasmachine, droger en vaatwasser dan aan."
+          data:
+            tag: energie-overdag
+            channel: Energie
+            notification_icon: mdi:flash
+  mode: single

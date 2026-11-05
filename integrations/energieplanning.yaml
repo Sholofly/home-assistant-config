@@ -1,0 +1,251 @@
+################################################
+## Integrations / Energieplanning
+## Beste moment om wasmachine, droger en vaatwasser te starten op basis van de
+## Nord Pool-kwartierprijzen (vandaag en morgen). Meldingen: zie automations.yaml.
+################################################
+input_number:
+  duur_wasmachine:
+    name: Looptijd wasmachine
+    icon: mdi:washing-machine
+    min: 30
+    max: 360
+    step: 15
+    initial: 120
+    unit_of_measurement: min
+    mode: box
+  duur_droger:
+    name: Looptijd droger
+    icon: mdi:tumble-dryer
+    min: 30
+    max: 360
+    step: 15
+    initial: 150
+    unit_of_measurement: min
+    mode: box
+  duur_vaatwasser:
+    name: Looptijd vaatwasser
+    icon: mdi:dishwasher
+    min: 30
+    max: 360
+    step: 15
+    initial: 180
+    unit_of_measurement: min
+    mode: box
+
+  kwh_wasmachine:
+    name: Verbruik wasmachine per keer
+    icon: mdi:washing-machine
+    min: 0.1
+    max: 5
+    step: 0.1
+    initial: 0.7
+    unit_of_measurement: kWh
+    mode: box
+  kwh_droger:
+    name: Verbruik droger per keer
+    icon: mdi:tumble-dryer
+    min: 0.1
+    max: 5
+    step: 0.1
+    initial: 2.0
+    unit_of_measurement: kWh
+    mode: box
+  kwh_vaatwasser:
+    name: Verbruik vaatwasser per keer
+    icon: mdi:dishwasher
+    min: 0.1
+    max: 5
+    step: 0.1
+    initial: 1.0
+    unit_of_measurement: kWh
+    mode: box
+
+input_datetime:
+  energie_klaar_om:
+    name: Apparaten klaar om
+    icon: mdi:clock-check-outline
+    has_date: false
+    has_time: true
+    initial: "07:00"
+
+# Wie de melding al heeft gehad (kommagescheiden), zodat wie later thuiskomt hem alsnog krijgt
+input_text:
+  energie_ochtend_gemeld:
+    name: Energiemelding ochtend gemeld aan
+    max: 100
+  energie_avond_gemeld:
+    name: Energiemelding avond gemeld aan
+    max: 100
+  energie_overdag_gemeld:
+    name: Laatste goedkoopste moment overdag gemeld (starttijd)
+    max: 20
+
+template:
+  - trigger:
+      - trigger: time_pattern
+        hours: "/1"
+      - trigger: event
+        event_type: energieplanning_verversen
+      - trigger: homeassistant
+        event: start
+      - trigger: state
+        entity_id:
+          - input_number.duur_wasmachine
+          - input_number.duur_droger
+          - input_number.duur_vaatwasser
+          - input_number.kwh_wasmachine
+          - input_number.kwh_droger
+          - input_number.kwh_vaatwasser
+          - input_datetime.energie_klaar_om
+    action:
+      - action: nordpool.get_prices_for_date
+        data:
+          config_entry: "01KQ0A415V5KZ7DZ05V7FAQ1H6"
+          date: "{{ now().date() | string }}"
+        response_variable: today_prices
+      - action: nordpool.get_prices_for_date
+        continue_on_error: true
+        data:
+          config_entry: "01KQ0A415V5KZ7DZ05V7FAQ1H6"
+          date: "{{ (now().date() + timedelta(days=1)) | string }}"
+        response_variable: tomorrow_prices
+      - variables:
+          alle: >-
+            {%- set ns0 = namespace(l=[]) -%}
+            {%- for dag in [today_prices | default({}), tomorrow_prices | default({})] -%}
+              {%- for x in (dag.get('NL', []) if dag else []) -%}
+                {%- set ns0.l = ns0.l + [[(x.start | as_datetime).timestamp() | int, (x.price / 1000) | round(5)]] -%}
+              {%- endfor -%}
+            {%- endfor -%}
+            {{ ns0.l | sort(attribute=0) }}
+          plan: >-
+            {%- set nu = now().timestamp() | int -%}
+            {%- set nu_q = (nu // 900) * 900 -%}
+            {%- set vandaag_dag = now().strftime('%Y-%m-%d') -%}
+            {%- set middernacht = (today_at('00:00') + timedelta(days=1)).timestamp() | int -%}
+            {%- set kl = today_at(states('input_datetime.energie_klaar_om')) -%}
+            {%- set deadline = (kl if kl.timestamp() > nu else kl + timedelta(days=1)).timestamp() | int -%}
+            {%- set apparaten = [('wasmachine', 'input_number.duur_wasmachine'), ('droger', 'input_number.duur_droger'), ('vaatwasser', 'input_number.duur_vaatwasser')] -%}
+            {%- set dag_einde = (today_at('00:00') + timedelta(days=(1 if kl.timestamp() > nu else 2))).timestamp() | int -%}
+            {%- set periodes = [('vandaag', nu_q, middernacht), ('nacht', nu_q, deadline), ('overdag', deadline, dag_einde)] -%}
+            {%- set uit = namespace(vandaag=[], nacht=[], samen_vandaag=none, samen_nacht=none, samen_overdag=none) -%}
+            {%- for pn, van, tot in periodes -%}
+              {%- set sel = alle | selectattr(0, 'ge', van) | selectattr(0, 'lt', tot) | list -%}
+              {%- set pr = sel | map(attribute=1) | list -%}
+              {%- set res = namespace(l=[], n=[]) -%}
+              {%- for an, ent in apparaten -%}
+                {%- set n = ((states(ent) | float(120)) / 15) | round(0, 'ceil') | int -%}
+                {%- if n > 0 -%}{%- set res.n = res.n + [n] -%}{%- endif -%}
+                {%- if n > 0 and pr | count >= n -%}
+                  {%- set b = namespace(i=0, s=1000000.0) -%}
+                  {%- for i in range(0, pr | count - n + 1) -%}
+                    {%- set s = pr[i:i + n] | sum -%}
+                    {%- if s < b.s -%}{%- set b.s = s -%}{%- set b.i = i -%}{%- endif -%}
+                  {%- endfor -%}
+                  {%- set gem = b.s / n -%}
+                  {%- set nu_gem = (pr[0:n] | sum) / n -%}
+                  {%- set pgem = (pr | sum) / (pr | count) -%}
+                  {%- set st = sel[b.i][0] -%}
+                  {%- set en = sel[b.i + n - 1][0] + 900 -%}
+                  {%- set res.l = res.l + [{
+                      'apparaat': an,
+                      'start': st,
+                      'einde': en,
+                      'start_hm': st | timestamp_custom('%H:%M', true),
+                      'einde_hm': en | timestamp_custom('%H:%M', true),
+                      'dag': 'vandaag' if (st | timestamp_custom('%Y-%m-%d', true)) == vandaag_dag else 'morgen',
+                      'gem': gem | round(4),
+                      'periode_gem': pgem | round(4),
+                      'nu_gem': nu_gem | round(4),
+                      'voordeel_pct': ((1 - gem / pgem) * 100) | round(0) | int,
+                      'nu_voordeel_pct': ((1 - gem / nu_gem) * 100) | round(0) | int if nu_gem > 0 else 0
+                    }] -%}
+                {%- endif -%}
+              {%- endfor -%}
+              {%- set nmax = res.n | max if res.n else 0 -%}
+              {%- set samen = namespace(d=none) -%}
+              {%- if nmax > 0 and pr | count >= nmax -%}
+                {%- set c = namespace(i=0, s=1000000.0) -%}
+                {%- for i in range(0, pr | count - nmax + 1) -%}
+                  {%- set t = namespace(v=0.0) -%}
+                  {%- for m in res.n -%}{%- set t.v = t.v + (pr[i:i + m] | sum) -%}{%- endfor -%}
+                  {%- if t.v < c.s -%}{%- set c.s = t.v -%}{%- set c.i = i -%}{%- endif -%}
+                {%- endfor -%}
+                {%- set gem = c.s / (res.n | sum) -%}
+                {%- set pgem = (pr | sum) / (pr | count) -%}
+                {%- set st = sel[c.i][0] -%}
+                {%- set en = sel[c.i + nmax - 1][0] + 900 -%}
+                {%- set samen.d = {
+                    'start': st,
+                    'einde': en,
+                    'start_hm': st | timestamp_custom('%H:%M', true),
+                    'einde_hm': en | timestamp_custom('%H:%M', true),
+                    'dag': 'vandaag' if (st | timestamp_custom('%Y-%m-%d', true)) == vandaag_dag else 'morgen',
+                    'gem': gem | round(4),
+                    'periode_gem': pgem | round(4),
+                    'voordeel_pct': ((1 - gem / pgem) * 100) | round(0) | int
+                  } -%}
+              {%- endif -%}
+              {%- if pn == 'vandaag' -%}{%- set uit.vandaag = res.l -%}{%- set uit.samen_vandaag = samen.d -%}{%- elif pn == 'nacht' -%}{%- set uit.nacht = res.l -%}{%- set uit.samen_nacht = samen.d -%}{%- else -%}{%- set uit.samen_overdag = samen.d -%}{%- endif -%}
+            {%- endfor -%}
+            {%- set kwh = states('input_number.kwh_wasmachine') | float(0.7) + states('input_number.kwh_droger') | float(2.0) + states('input_number.kwh_vaatwasser') | float(1.0) -%}
+            {%- set od = namespace(d=none) -%}
+            {%- if uit.samen_overdag and uit.samen_nacht -%}
+              {%- set od.d = {
+                  'start_hm': uit.samen_overdag.start_hm,
+                  'einde_hm': uit.samen_overdag.einde_hm,
+                  'dag': uit.samen_overdag.dag,
+                  'pct': ((1 - uit.samen_overdag.gem / uit.samen_nacht.gem) * 100) | round(0) | int,
+                  'euro': ((uit.samen_nacht.gem - uit.samen_overdag.gem) * kwh * 1.21) | round(2)
+                } -%}
+            {%- endif -%}
+            {%- set toekomst = alle | selectattr(0, 'ge', nu_q) | map(attribute=1) | list -%}
+            {%- set huidig = toekomst[0] if toekomst else none -%}
+            {%- set lager = toekomst | select('le', huidig) | list | count if huidig is not none else 0 -%}
+            {%- set pct = (lager / (toekomst | count) * 100) if toekomst else 50 -%}
+            {%- set toek_gem = (toekomst | sum / (toekomst | count)) if toekomst else 0 -%}
+            {%- set deadline_voorbij = kl.timestamp() <= nu -%}
+            {%- set kand = [] -%}
+            {%- if deadline_voorbij and uit.samen_vandaag -%}{%- set kand = kand + [('Vandaag', uit.samen_vandaag)] -%}{%- endif -%}
+            {%- if uit.samen_nacht -%}{%- set kand = kand + [('Komende nacht', uit.samen_nacht)] -%}{%- endif -%}
+            {%- if uit.samen_overdag -%}{%- set kand = kand + [(('Morgen overdag' if uit.samen_overdag.dag == 'morgen' else 'Vandaag overdag'), uit.samen_overdag)] -%}{%- endif -%}
+            {%- set pl = namespace(l=[]) -%}
+            {%- for lab, d in kand -%}
+              {%- set pl.l = pl.l + [{
+                  'label': lab,
+                  'start': d.start,
+                  'einde': d.einde,
+                  'start_hm': d.start_hm,
+                  'einde_hm': d.einde_hm,
+                  'dag': d.dag,
+                  'gem': d.gem,
+                  'pct': ((1 - d.gem / toek_gem) * 100) | round(0) | int if toek_gem > 0 else 0,
+                  'bezig': d.start <= nu < d.einde
+                }] -%}
+            {%- endfor -%}
+            {{ {
+              'periodes': pl.l | sort(attribute='start'),
+              'vandaag': uit.vandaag,
+              'nacht': uit.nacht,
+              'samen_vandaag': uit.samen_vandaag,
+              'samen_nacht': uit.samen_nacht,
+              'overdag': od.d,
+              'nu': {'prijs': huidig, 'percentiel': pct | round(0) | int, 'niveau': ('laag' if pct <= 25 else 'hoog' if pct >= 75 else 'normaal')},
+              'deadline': deadline | timestamp_custom('%H:%M', true)
+            } }}
+    sensor:
+      - name: "Stroomplanning"
+        unique_id: stroomplanning
+        icon: mdi:calendar-clock
+        state: "{{ alle | count }}"
+        attributes:
+          vandaag: "{{ plan.vandaag }}"
+          nacht: "{{ plan.nacht }}"
+          samen_vandaag: "{{ plan.samen_vandaag }}"
+          samen_nacht: "{{ plan.samen_nacht }}"
+          overdag: "{{ plan.overdag }}"
+          periodes: "{{ plan.periodes }}"
+          nu: "{{ plan.nu }}"
+          deadline: "{{ plan.deadline }}"
+          prijzen: "{{ alle }}"
+          bijgewerkt: "{{ now().isoformat() }}"

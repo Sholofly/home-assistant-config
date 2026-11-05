@@ -159,3 +159,52 @@ afval_herinnering_sturen:
           title: Staat aan de weg
   mode: parallel
   max: 8
+energie_melding_sturen:
+  alias: Energiemelding sturen
+  description: Stuurt het beste moment voor wasmachine, droger en vaatwasser naar één persoon.
+    soort 'ochtend' = goedkoopste periode vandaag, 'avond' = beste start zodat alles morgenochtend klaar is.
+  fields:
+    soort:
+      description: ochtend of avond
+      example: ochtend
+    notify:
+      description: notify-actie van de telefoon
+      example: notify.mobile_app_telefoon_rudolf
+  sequence:
+  - if:
+    - condition: template
+      value_template: "{{ (now() - as_datetime(state_attr('sensor.stroomplanning', 'bijgewerkt') | default('1970-01-01T00:00:00+00:00'))).total_seconds() > 60 }}"
+    then:
+    - event: energieplanning_verversen
+    - wait_template: "{{ (now() - as_datetime(state_attr('sensor.stroomplanning', 'bijgewerkt') | default('1970-01-01T00:00:00+00:00'))).total_seconds() < 30 }}"
+      timeout: '00:00:30'
+      continue_on_timeout: true
+  - variables:
+      samen: "{{ state_attr('sensor.stroomplanning', 'samen_vandaag' if soort == 'ochtend' else 'samen_nacht') }}"
+  - condition: template
+    value_template: "{{ samen is mapping and samen.start_hm is defined }}"
+  - action: "{{ notify }}"
+    data:
+      title: >-
+        {{ 'Goedkoopste stroom vandaag' if soort == 'ochtend' else 'Beste starttijd voor morgenochtend' }}
+      message: >-
+        {%- if soort == 'ochtend' -%}
+          Start wasmachine, droger en vaatwasser om {{ samen.start_hm }}. Tot {{ samen.einde_hm }} is de stroom dan {{ samen.voordeel_pct }}% goedkoper dan gemiddeld.
+        {%- else -%}
+          Stel de uitgestelde start in op {{ samen.start_hm }}{{ ' (morgen)' if samen.dag == 'morgen' }}. Dan is alles uiterlijk {{ samen.einde_hm }} klaar, voor {{ state_attr('sensor.stroomplanning', 'deadline') }}.
+          {%- set od = state_attr('sensor.stroomplanning', 'overdag') -%}
+          {%- if od is mapping -%}
+          {{ '\n' }}
+          {%- if od.pct > 0 -%}
+          {{ od.dag | capitalize }} om {{ od.start_hm }} is het nog {{ od.pct }}% goedkoper (ca. € {{ '%.2f' | format(od.euro) | replace('.', ',') }} voor alle drie).
+          {%- else -%}
+          Overdag ({{ od.dag }} om {{ od.start_hm }}) is het {{ od.pct | abs }}% duurder, dus de nachtstart is het goedkoopst.
+          {%- endif -%}
+          {%- endif -%}
+        {%- endif -%}
+      data:
+        tag: "{{ 'energie-ochtend' if soort == 'ochtend' else 'energie-avond' }}"
+        channel: Energie
+        notification_icon: mdi:flash
+  mode: parallel
+  max: 8
