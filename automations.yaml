@@ -62,10 +62,15 @@
   actions:
   - data:
       title: Morgen is een afvaldag
-      message: 'Opgehaalde afval: {{ state_translated("sensor.omrin_morgen")| lower
-        }}'
+      message: 'Zet de {{ state_translated("sensor.omrin_morgen") | lower }} container
+        aan de weg.'
       data:
         notification_icon: mdi:trash-can-outline
+        ttl: 0
+        priority: high
+        channel: Afval
+        importance: high
+        tag: afval
     action: notify.family
   initial_state: true
 - id: '1624693857334'
