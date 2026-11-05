@@ -1,0 +1,38 @@
+################################################
+## Entities / Template Sensors / Noa slaapstatus
+## Schat of Noa wakker is, in bed ligt of slaapt op basis van telefoon, kamer, Nest Hub en school-laptop (dataverkeer).
+## Drempels staan bovenin de state-template (minuten) en zijn eenvoudig aan te passen.
+## Na een herstart van HA kan de sensor kort te snel "slaapt" melden (last_changed wordt gereset).
+################################################
+name: "Noa slaapstatus"
+unique_id: noa_slaapstatus
+icon: >-
+  {% set s = states('sensor.noa_slaapstatus') %}
+  {{ 'mdi:sleep' if s == 'slaapt' else 'mdi:bed' if s == 'in bed' else 'mdi:account' }}
+state: >-
+  {% set tel_min = 15 %}
+  {% set stil_min = 20 %}
+  {% set nu = now() %}
+  {% set nacht = nu.hour >= 20 or nu.hour < 10 %}
+  {% set thuis = is_state('person.noa', 'home') %}
+  {% set lader = is_state('binary_sensor.telefoon_noa_is_charging', 'on') %}
+  {% set licht_uit = is_state('light.noa_plafond', 'off') and not is_state('light.noa_plafond_led', 'on') %}
+  {% set muziek = is_state('media_player.noa_nest_hub_mass', 'playing') %}
+  {% set laptop = is_state('binary_sensor.laptop_noa_in_gebruik', 'on') %}
+  {% set tel_stil = ((nu - states.sensor.telefoon_noa_last_used_app.last_changed).total_seconds() / 60) if states.sensor.telefoon_noa_last_used_app else 999 %}
+  {% set beweging_nu = is_state('binary_sensor.noa_bewegingssensor_occupancy', 'on') %}
+  {% set beweging_stil = ((nu - states.binary_sensor.noa_bewegingssensor_occupancy.last_changed).total_seconds() / 60) if states.binary_sensor.noa_bewegingssensor_occupancy and not beweging_nu else 0 %}
+  {% if not (nacht and thuis and lader and licht_uit) or muziek %}wakker
+  {% elif tel_stil >= stil_min and beweging_stil >= stil_min and not laptop %}slaapt
+  {% else %}in bed{% endif %}
+attributes:
+  telefoon_stil_minuten: >-
+    {{ ((now() - states.sensor.telefoon_noa_last_used_app.last_changed).total_seconds() / 60) | round(0) | int if states.sensor.telefoon_noa_last_used_app else none }}
+  kamer_stil_minuten: >-
+    {{ 0 if is_state('binary_sensor.noa_bewegingssensor_occupancy', 'on') else ((now() - states.binary_sensor.noa_bewegingssensor_occupancy.last_changed).total_seconds() / 60) | round(0) | int if states.binary_sensor.noa_bewegingssensor_occupancy else none }}
+  telefoon_aan_lader: "{{ is_state('binary_sensor.telefoon_noa_is_charging', 'on') }}"
+  kamerlicht_uit: "{{ is_state('light.noa_plafond', 'off') }}"
+  laptop_online: "{{ is_state('device_tracker.gang_hallway_deco_laptop_15iprdt5', 'home') }}"
+  laptop_in_gebruik: "{{ is_state('binary_sensor.laptop_noa_in_gebruik', 'on') }}"
+  hub_speelt_muziek: "{{ is_state('media_player.noa_nest_hub_mass', 'playing') }}"
+  thuis: "{{ is_state('person.noa', 'home') }}"

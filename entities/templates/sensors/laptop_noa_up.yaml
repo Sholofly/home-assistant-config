@@ -1,0 +1,12 @@
+################################################
+## Entities / Template Sensors / Laptop Noa up
+## Actuele up-snelheid van de school-laptop van Noa uit de TP-Link Deco (0 als de laptop niet verbonden is)
+################################################
+name: "Laptop Noa upload"
+unique_id: laptop_noa_upload
+unit_of_measurement: "kB/s"
+device_class: data_rate
+state_class: measurement
+state: >-
+  {% set t = 'device_tracker.gang_hallway_deco_laptop_15iprdt5' %}
+  {{ state_attr(t, 'up_kilobytes_per_s') | float(0) if is_state(t, 'home') else 0 }}

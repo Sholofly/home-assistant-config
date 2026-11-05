@@ -1842,3 +1842,34 @@
       color_temp_kelvin: 5203
       brightness_pct: 75
   mode: single
+- id: '1795000000006'
+  alias: Noa - alert als ze om 22:00 niet slaapt
+  description: Stuurt Rudolf een melding als Noa om 22:00 thuis is en de slaapstatus niet 'slaapt' is.
+  triggers:
+  - trigger: time
+    at: '22:00:00'
+  conditions:
+  - condition: state
+    entity_id: person.noa
+    state: home
+  - condition: not
+    conditions:
+    - condition: state
+      entity_id: sensor.noa_slaapstatus
+      state: slaapt
+  actions:
+  - action: notify.mobile_app_telefoon_rudolf
+    data:
+      title: Noa slaapt nog niet
+      message: >-
+        Status: {{ states('sensor.noa_slaapstatus') }}.
+        Telefoon {{ state_attr('sensor.noa_slaapstatus', 'telefoon_stil_minuten') }} min stil,
+        kamer {{ state_attr('sensor.noa_slaapstatus', 'kamer_stil_minuten') }} min stil,
+        {{ 'aan de lader' if is_state('binary_sensor.telefoon_noa_is_charging', 'on') else 'niet aan de lader' }},
+        licht {{ 'uit' if is_state('light.noa_plafond', 'off') else 'aan' }}{{ ', laptop in gebruik' if is_state('binary_sensor.laptop_noa_in_gebruik', 'on') }}.
+      data:
+        tag: noa-slaap
+        channel: Noa slaap
+        importance: high
+        notification_icon: mdi:sleep-off
+  mode: single

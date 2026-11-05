@@ -1,0 +1,17 @@
+################################################
+## Entities / Template Binary Sensors / Laptop Noa in gebruik
+## Aan als de school-laptop van Noa verbonden is en merkbaar dataverkeer heeft.
+## Blijft 10 minuten aan na het laatste verkeer. Drempel (kB/s) staat in de state-template.
+################################################
+name: "Laptop Noa in gebruik"
+unique_id: laptop_noa_in_gebruik
+icon: mdi:laptop
+delay_off:
+  minutes: 10
+state: >-
+  {% set drempel = 30 %}
+  {% set verkeer = states('sensor.laptop_noa_download') | float(0) + states('sensor.laptop_noa_upload') | float(0) %}
+  {{ is_state('device_tracker.gang_hallway_deco_laptop_15iprdt5', 'home') and verkeer > drempel }}
+attributes:
+  verkeer_kbs: >-
+    {{ (states('sensor.laptop_noa_download') | float(0) + states('sensor.laptop_noa_upload') | float(0)) | round(1) }}
