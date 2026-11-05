@@ -208,3 +208,69 @@ energie_melding_sturen:
         notification_icon: mdi:flash
   mode: parallel
   max: 8
+energie_vaatwasser_advies:
+  alias: Stroom advies
+  description: Spreekt in de keuken op laag volume uit wanneer de stroom het goedkoopst is (de periodes voor wasmachine, droger en vaatwasser).
+    Bedoeld om met Google Home aan te roepen (routine 'wanneer is de stroom het goedkoopst' of 'Hey Google, activeer stroom advies').
+  icon: mdi:dishwasher
+  sequence:
+  - variables:
+      groep: media_player.speakers_beneden
+      leden: >-
+        {{ ((state_attr('media_player.speakers_beneden', 'group_members') or []) | reject('eq', 'media_player.speakers_beneden') | list)
+           or ['media_player.keuken_nest_hub_mass', 'media_player.woonkamer_chromecast_mass'] }}
+      oude_volumes: >-
+        {{ ((state_attr('media_player.speakers_beneden', 'group_members') or []) | reject('eq', 'media_player.speakers_beneden') | list
+            or ['media_player.keuken_nest_hub_mass', 'media_player.woonkamer_chromecast_mass']) | map('state_attr', 'volume_level') | list }}
+      tekst: >-
+        {%- macro tijd(hm) -%}{%- set u = hm.split(':')[0] | int -%}{%- set m = hm.split(':')[1] | int -%}{{ u }} uur{{ ' ' ~ m if m > 0 }}{%- endmacro -%}
+        {%- set p = state_attr('sensor.stroomplanning', 'periodes') or [] -%}
+        {%- set nu = now().timestamp() -%}
+        {%- if p | count == 0 -%}
+        Ik weet nog niet wanneer de stroom het goedkoopst is.
+        {%- else -%}
+        {%- set x = p[0] -%}
+        {%- if x.bezig -%}
+        Nu is de stroom het goedkoopst, tot {{ tijd(x.einde_hm) }}. Zet de wasmachine, droger en vaatwasser nu aan.
+        {%- else -%}
+        De stroom is het goedkoopst {{ x.label | lower }}, van {{ tijd(x.start_hm) }} tot {{ tijd(x.einde_hm) }}. Stel de apparaten in op klaar over {{ (((x.einde - nu) / 3600) | round(0)) | int }} uur.
+        {%- endif -%}
+        {%- if p | count > 1 -%}
+        {%- set y = p[1] %} Daarna is het ook goedkoop {{ y.label | lower }}, van {{ tijd(y.start_hm) }} tot {{ tijd(y.einde_hm) }}.
+        {%- endif -%}
+        {%- endif -%}
+  - repeat:
+      for_each: "{{ leden }}"
+      sequence:
+      - action: media_player.volume_set
+        continue_on_error: true
+        target:
+          entity_id: "{{ repeat.item }}"
+        data:
+          volume_level: "{{ states('input_number.energie_spreek_volume') | float(0.2) }}"
+  - action: tts.speak
+    continue_on_error: true
+    target:
+      entity_id: tts.home_assistant_cloud
+    data:
+      cache: false
+      language: nl-NL
+      media_player_entity_id: "{{ groep }}"
+      message: "{{ tekst }}"
+  - wait_template: "{{ is_state(groep, 'playing') }}"
+    timeout: '00:00:10'
+    continue_on_timeout: true
+  - wait_template: "{{ not is_state(groep, 'playing') }}"
+    timeout: '00:01:00'
+    continue_on_timeout: true
+  - delay: '00:00:02'
+  - repeat:
+      for_each: "{{ leden }}"
+      sequence:
+      - action: media_player.volume_set
+        continue_on_error: true
+        target:
+          entity_id: "{{ repeat.item }}"
+        data:
+          volume_level: "{{ oude_volumes[repeat.index - 1] | float(0.4) }}"
+  mode: single

@@ -2048,3 +2048,17 @@
             channel: Energie
             notification_icon: mdi:flash
   mode: single
+- id: '1795000000011'
+  alias: Energie - stroomadvies uitspreken via schakelaar
+  description: Zet je de schakelaar 'Stroom vraag' aan (bijvoorbeeld met een Google Home-routine), dan spreekt de keuken
+    het stroomadvies uit en gaat de schakelaar direct weer uit.
+  triggers:
+  - trigger: state
+    entity_id: input_boolean.energie_vaatwasser_vraag
+    to: 'on'
+  actions:
+  - action: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.energie_vaatwasser_vraag
+  - action: script.energie_vaatwasser_advies
+  mode: single

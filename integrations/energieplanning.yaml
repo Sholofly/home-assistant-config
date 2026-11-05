@@ -3,6 +3,12 @@
 ## Beste moment om wasmachine, droger en vaatwasser te starten op basis van de
 ## Nord Pool-kwartierprijzen (vandaag en morgen). Meldingen: zie automations.yaml.
 ################################################
+# Schakelaar voor Google Home-routines: aanzetten = het vaatwasseradvies uitspreken (gaat daarna vanzelf weer uit)
+input_boolean:
+  energie_vaatwasser_vraag:
+    name: Stroom vraag
+    icon: mdi:dishwasher
+
 input_number:
   duur_wasmachine:
     name: Looptijd wasmachine
@@ -59,6 +65,15 @@ input_number:
     initial: 1.0
     unit_of_measurement: kWh
     mode: box
+
+  energie_spreek_volume:
+    name: Volume spraakantwoord keuken
+    icon: mdi:volume-low
+    min: 0.05
+    max: 1
+    step: 0.05
+    initial: 0.2
+    mode: slider
 
 input_datetime:
   energie_klaar_om:
