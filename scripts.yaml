@@ -120,3 +120,42 @@ ask_kitchen_light_on:
         target:
           device_id: c9bcd9c5204db8412b82410fa077b8bb
   description: ''
+afval_herinnering_sturen:
+  alias: Afval herinnering sturen
+  description: Stuurt de persistente afvalherinnering met actieknop naar één persoon, als die thuis is.
+  fields:
+    persoon:
+      description: person-entiteit
+      example: person.rudolf
+    notify:
+      description: notify-actie van de telefoon
+      example: notify.mobile_app_telefoon_rudolf
+    actie:
+      description: actie-id van de knop
+      example: AFVAL_AAN_WEG_RUDOLF
+  variables:
+    ochtend: "{{ now().hour < 12 }}"
+    lijst: "{{ states('sensor.omrin_vandaag' if now().hour < 12 else 'sensor.omrin_morgen').split(',') | map('trim') | reject('eq', '') | list }}"
+    wat: "{{ 'de containers (' ~ (lijst[:-1] | join(', ')) ~ ' en ' ~ lijst[-1] ~ ')' if lijst | count > 1 else 'de ' ~ lijst[0] ~ ' container' }}"
+  sequence:
+  - condition: template
+    value_template: "{{ is_state(persoon, 'home') }}"
+  - action: "{{ notify }}"
+    data:
+      title: "{{ 'Vandaag is het afvaldag' if ochtend else 'Morgen is een afvaldag' }}"
+      message: "Zet {{ wat }} {{ 'nu ' if ochtend }}aan de weg."
+      data:
+        tag: afval
+        channel: Afval
+        importance: high
+        priority: high
+        ttl: 0
+        sticky: 'true'
+        persistent: true
+        clickAction: noAction
+        notification_icon: mdi:trash-can-outline
+        actions:
+        - action: "{{ actie }}"
+          title: Staat aan de weg
+  mode: parallel
+  max: 8

@@ -48,31 +48,226 @@
     action: notify.mobile_app_telefoon_rudolf
   mode: single
 - id: '1624693689373'
-  alias: Afval
+  alias: Afval - herinnering container aan de weg
+  description: Vanaf 17:00 de dag voor de ophaling elke 2 uur een persistente melding met
+    actieknop naar de gezinsleden die thuis zijn, tot iemand aangeeft dat de container
+    aan de weg staat.
   triggers:
-  - at: '17:00:00'
-    trigger: time
+  - trigger: time
+    at: '17:00:00'
+  - trigger: time
+    at: '19:00:00'
+  - trigger: time
+    at: '21:00:00'
   conditions:
-  - condition: not
-    conditions:
-    - condition: state
-      entity_id: sensor.omrin_morgen
-      state:
-      - Geen
+  - condition: template
+    value_template: "{{ states('sensor.omrin_morgen') not in ['Geen', 'unknown', 'unavailable'] }}"
+  - condition: state
+    entity_id: input_boolean.afval_aan_de_weg
+    state: 'off'
   actions:
-  - data:
-      title: Morgen is een afvaldag
-      message: 'Zet de {{ state_translated("sensor.omrin_morgen") | lower }} container
-        aan de weg.'
-      data:
-        notification_icon: mdi:trash-can-outline
-        ttl: 0
-        priority: high
-        channel: Afval
-        importance: high
-        tag: afval
-    action: notify.family
-  initial_state: true
+  - repeat:
+      for_each:
+      - persoon: person.rudolf
+        naam: Rudolf
+        notify: notify.mobile_app_telefoon_rudolf
+        actie: AFVAL_AAN_WEG_RUDOLF
+      - persoon: person.leny
+        naam: Leny
+        notify: notify.mobile_app_telefoon_leny
+        actie: AFVAL_AAN_WEG_LENY
+      - persoon: person.noa
+        naam: Noa
+        notify: notify.mobile_app_telefoon_noa
+        actie: AFVAL_AAN_WEG_NOA
+      - persoon: person.mika
+        naam: Mika
+        notify: notify.mobile_app_telefoon_mika
+        actie: AFVAL_AAN_WEG_MIKA
+      sequence:
+      - action: script.afval_herinnering_sturen
+        data:
+          persoon: "{{ repeat.item.persoon }}"
+          notify: "{{ repeat.item.notify }}"
+          actie: "{{ repeat.item.actie }}"
+  mode: single
+- id: '1795000000002'
+  alias: Afval - container aan de weg gezet
+  description: Verwerkt de actieknop. Zet de helper aan, ruimt de melding bij de persoon zelf
+    op en meldt aan de anderen wie de container aan de weg heeft gezet.
+  triggers:
+  - trigger: event
+    event_type: mobile_app_notification_action
+    event_data:
+      action: AFVAL_AAN_WEG_RUDOLF
+    id: rudolf
+  - trigger: event
+    event_type: mobile_app_notification_action
+    event_data:
+      action: AFVAL_AAN_WEG_LENY
+    id: leny
+  - trigger: event
+    event_type: mobile_app_notification_action
+    event_data:
+      action: AFVAL_AAN_WEG_NOA
+    id: noa
+  - trigger: event
+    event_type: mobile_app_notification_action
+    event_data:
+      action: AFVAL_AAN_WEG_MIKA
+    id: mika
+  conditions:
+  - condition: state
+    entity_id: input_boolean.afval_aan_de_weg
+    state: 'off'
+  actions:
+  - action: input_boolean.turn_on
+    target:
+      entity_id: input_boolean.afval_aan_de_weg
+  - variables:
+      lijst: "{{ states('sensor.omrin_vandaag' if now().hour < 12 else 'sensor.omrin_morgen').split(',') | map('trim') | reject('in', ['', 'Geen', 'unknown', 'unavailable']) | list }}"
+      wat: "{{ 'de containers (' ~ (lijst[:-1] | join(', ')) ~ ' en ' ~ lijst[-1] ~ ')' if lijst | count > 1 else 'de ' ~ lijst[0] ~ ' container' if lijst else 'de container' }}"
+      wie: "{{ trigger.id | capitalize }}"
+  - repeat:
+      for_each:
+      - persoon: person.rudolf
+        naam: Rudolf
+        notify: notify.mobile_app_telefoon_rudolf
+        actie: AFVAL_AAN_WEG_RUDOLF
+      - persoon: person.leny
+        naam: Leny
+        notify: notify.mobile_app_telefoon_leny
+        actie: AFVAL_AAN_WEG_LENY
+      - persoon: person.noa
+        naam: Noa
+        notify: notify.mobile_app_telefoon_noa
+        actie: AFVAL_AAN_WEG_NOA
+      - persoon: person.mika
+        naam: Mika
+        notify: notify.mobile_app_telefoon_mika
+        actie: AFVAL_AAN_WEG_MIKA
+      sequence:
+      - choose:
+        - conditions:
+          - condition: template
+            value_template: "{{ repeat.item.actie == trigger.event.data.action or not is_state(repeat.item.persoon, 'home') }}"
+          sequence:
+          - action: "{{ repeat.item.notify }}"
+            data:
+              message: clear_notification
+              data:
+                tag: afval
+        default:
+        - action: "{{ repeat.item.notify }}"
+          data:
+            title: Afval
+            message: "{{ wie }} heeft {{ wat }} aan de weg gezet."
+            data:
+              tag: afval
+              channel: Afval
+              notification_icon: mdi:check-circle-outline
+  mode: queued
+- id: '1795000000004'
+  alias: Afval - herinnering terugsturen na wegvegen
+  description: Als iemand de afvalmelding wegveegt zonder op 'Staat aan de weg' te drukken, komt
+    hij na 5 minuten terug. Alleen 's avonds (16:30-23:59) en 's ochtends (07:00-09:30) en zolang de container nog niet aan de weg staat.
+  triggers:
+  - trigger: event
+    event_type: mobile_app_notification_cleared
+    event_data:
+      tag: afval
+  conditions:
+  - condition: state
+    entity_id: input_boolean.afval_aan_de_weg
+    state: 'off'
+  - condition: or
+    conditions:
+    - condition: time
+      after: '16:30:00'
+      before: '23:59:00'
+    - condition: time
+      after: '07:00:00'
+      before: '09:30:00'
+  - condition: template
+    value_template: "{{ (trigger.event.data.action_1_key | default('')).startswith('AFVAL_AAN_WEG_') }}"
+  actions:
+  - variables:
+      actie: "{{ trigger.event.data.action_1_key }}"
+      naam: "{{ trigger.event.data.action_1_key.split('_')[-1] | lower }}"
+  - delay:
+      minutes: 5
+  - condition: state
+    entity_id: input_boolean.afval_aan_de_weg
+    state: 'off'
+  - action: script.afval_herinnering_sturen
+    data:
+      persoon: "person.{{ naam }}"
+      notify: "notify.mobile_app_telefoon_{{ naam }}"
+      actie: "{{ actie }}"
+  mode: parallel
+  max: 8
+- id: '1795000000005'
+  alias: Afval - ochtendherinnering container aan de weg
+  description: Om 07:00 op de ophaaldag een melding met actieknop naar de gezinsleden die
+    thuis zijn, als de container nog niet aan de weg is gezet.
+  triggers:
+  - trigger: time
+    at: '07:00:00'
+  conditions:
+  - condition: template
+    value_template: "{{ states('sensor.omrin_vandaag') not in ['Geen', 'unknown', 'unavailable'] }}"
+  - condition: state
+    entity_id: input_boolean.afval_aan_de_weg
+    state: 'off'
+  actions:
+  - repeat:
+      for_each:
+      - persoon: person.rudolf
+        naam: Rudolf
+        notify: notify.mobile_app_telefoon_rudolf
+        actie: AFVAL_AAN_WEG_RUDOLF
+      - persoon: person.leny
+        naam: Leny
+        notify: notify.mobile_app_telefoon_leny
+        actie: AFVAL_AAN_WEG_LENY
+      - persoon: person.noa
+        naam: Noa
+        notify: notify.mobile_app_telefoon_noa
+        actie: AFVAL_AAN_WEG_NOA
+      - persoon: person.mika
+        naam: Mika
+        notify: notify.mobile_app_telefoon_mika
+        actie: AFVAL_AAN_WEG_MIKA
+      sequence:
+      - action: script.afval_herinnering_sturen
+        data:
+          persoon: "{{ repeat.item.persoon }}"
+          notify: "{{ repeat.item.notify }}"
+          actie: "{{ repeat.item.actie }}"
+  mode: single
+- id: '1795000000003'
+  alias: Afval - reset aan de weg
+  description: Zet de helper elke dag om 12:00 terug en ruimt achtergebleven afvalmeldingen op.
+  triggers:
+  - trigger: time
+    at: '12:00:00'
+  actions:
+  - action: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.afval_aan_de_weg
+  - repeat:
+      for_each:
+      - notify.mobile_app_telefoon_rudolf
+      - notify.mobile_app_telefoon_leny
+      - notify.mobile_app_telefoon_noa
+      - notify.mobile_app_telefoon_mika
+      sequence:
+      - action: "{{ repeat.item }}"
+        data:
+          message: clear_notification
+          data:
+            tag: afval
+  mode: single
 - id: '1624693857334'
   alias: Nachtverlichting buiten
   description: Handle night lights based on illumination

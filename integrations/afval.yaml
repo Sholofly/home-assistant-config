@@ -1,0 +1,8 @@
+################################################
+## Integrations / Afval
+## Helper voor de afvalherinneringen: staat de container al aan de weg?
+################################################
+input_boolean:
+  afval_aan_de_weg:
+    name: Afvalcontainer aan de weg
+    icon: mdi:trash-can-outline
