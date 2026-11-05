@@ -63,3 +63,9 @@ zigbee2mqtt/configuration_backup_*.yaml
 tmp/snapshot_driveway_driveway.jpg
 tmp/snapshot_eekternas_driveway.jpg
 tmp/snapshot_voortuin.jpg
+
+# Runtime/tooling data
+/zigbee2mqtt/
+/.claudecode/
+/.ha_mcp/
+*.bak
