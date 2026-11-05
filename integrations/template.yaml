@@ -66,3 +66,54 @@ template:
               {% endif %}
             {% endfor %}
             {{ data.prices }}
+  # Kosten vandaag: telt elke meterstand-wijziging op tegen de Eneco-prijs van dat moment (reset om middernacht)
+  - trigger:
+      - trigger: state
+        entity_id:
+          - sensor.electricity_meter_energy_consumption_tarif_1
+          - sensor.electricity_meter_energy_consumption_tarif_2
+          - sensor.electricity_meter_energy_production_tarif_1
+          - sensor.electricity_meter_energy_production_tarif_2
+        id: meter
+      - trigger: time
+        at: "00:00:00"
+        id: reset
+    sensor:
+      - name: "Stroomkosten vandaag"
+        unique_id: stroomkosten_vandaag
+        unit_of_measurement: "EUR"
+        device_class: monetary
+        icon: mdi:cash
+        state: >-
+          {% if trigger.id == 'reset' %}0
+          {% else %}
+          {% set van = trigger.from_state.state | float(none) %}
+          {% set naar = trigger.to_state.state | float(none) %}
+          {% set prijs = states('sensor.eneco_stroomprijs_nu') | float(none) %}
+          {% set huidig = this.state | float(0) %}
+          {% if van is none or naar is none or prijs is none or naar < van or naar - van > 5 %}{{ huidig }}
+          {% else %}{% set kosten = (naar - van) * prijs %}{{ (huidig + (kosten if 'consumption' in trigger.entity_id else -kosten)) | round(4) }}{% endif %}
+          {% endif %}
+  - trigger:
+      - trigger: state
+        entity_id: sensor.gas_meter_gasverbruik
+        id: meter
+      - trigger: time
+        at: "00:00:00"
+        id: reset
+    sensor:
+      - name: "Gaskosten vandaag"
+        unique_id: gaskosten_vandaag
+        unit_of_measurement: "EUR"
+        device_class: monetary
+        icon: mdi:fire
+        state: >-
+          {% if trigger.id == 'reset' %}0
+          {% else %}
+          {% set van = trigger.from_state.state | float(none) %}
+          {% set naar = trigger.to_state.state | float(none) %}
+          {% set prijs = states('sensor.eneco_gasprijs_nu') | float(none) %}
+          {% set huidig = this.state | float(0) %}
+          {% if van is none or naar is none or prijs is none or naar < van or naar - van > 2 %}{{ huidig }}
+          {% else %}{{ (huidig + (naar - van) * prijs) | round(4) }}{% endif %}
+          {% endif %}
