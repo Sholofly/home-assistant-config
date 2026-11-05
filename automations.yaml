@@ -1583,7 +1583,7 @@
 - id: '1781000000001'
   alias: Schijfruimte bijna vol
   description: Waarschuwt wanneer de beschikbare schijfruimte onder de 20 GB zakt
-    om te voorkomen dat Frigate-opnames de schijf volledig vullen.
+    zodat de schijf niet volledig vol raakt.
   triggers:
   - trigger: numeric_state
     entity_id: sensor.system_monitor_disk_free
@@ -1594,7 +1594,7 @@
     data:
       title: Schijfruimte bijna vol!
       message: Er is nog maar {{ states('sensor.system_monitor_disk_free') }} GB vrij
-        op de schijf. Frigate-opnames of andere data vullen de schijf op.
+        op de schijf. Ruim data of back-ups op.
       data:
         ttl: 0
         priority: high

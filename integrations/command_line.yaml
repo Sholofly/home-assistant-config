@@ -24,7 +24,6 @@ command_line:
       json_attributes:
         - ha_config_gb
         - database_gb
-        - frigate_gb
         - other_addons_gb
         - media_gb
         - other_gb
