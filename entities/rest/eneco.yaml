@@ -1,0 +1,28 @@
+resource_template: "https://api-digital.enecogroup.com/dxpweb/public/nl/eneco/dynamic/prices?start={{ now().strftime('%Y-%m-%d') }}&interval=Hour&aggregation=Day"
+headers:
+  apikey: !secret eneco_api_key
+
+  Origin: "https://www.eneco.nl"
+scan_interval: 300 # elke 5 minuten
+sensor:
+  - name: "Eneco Stroomprijs nu"
+    unique_id: "Eneco Stroomprijs Nu"
+    value_template: >-
+      {% set key = utcnow().replace(minute=0, second=0, microsecond=0).strftime('%Y-%m-%dT%H:00:00Z') %}
+      {% set slices = value_json.data.products | selectattr('productType', 'eq', 'electricity') | map(attribute='slices') | first | default([]) %}
+      {% set gevonden = slices | selectattr('start', 'eq', key) | list %}
+      {% set current = gevonden[0] if gevonden else (slices[0] if slices else none) %}
+      {{ current.price.total | round(5) if current else none }}
+    unit_of_measurement: "€/kWh"
+    device_class: monetary
+
+  - name: "Eneco Gasprijs nu"
+    unique_id: "Eneco Gasprijs Nu"
+    value_template: >-
+      {% set key = utcnow().replace(minute=0, second=0, microsecond=0).strftime('%Y-%m-%dT%H:00:00Z') %}
+      {% set slices = value_json.data.products | selectattr('productType', 'eq', 'gas') | map(attribute='slices') | first | default([]) %}
+      {% set gevonden = slices | selectattr('start', 'eq', key) | list %}
+      {% set current = gevonden[0] if gevonden else (slices[0] if slices else none) %}
+      {{ current.price.total | round(5) if current else none }}
+    unit_of_measurement: "€/m³"
+    device_class: monetary
