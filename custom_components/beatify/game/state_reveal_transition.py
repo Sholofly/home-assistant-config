@@ -345,13 +345,9 @@ class RevealTransitionMixin(GameStateBase):
         # so the admin client can render the auto-advance countdown on the
         # sticky Next button) and notifies observers (#441).
         # #2503: decide the encore window HERE, once, on the way into the
-        # reveal — not on every read. The mockup annotates that tapping the
-        # control twice makes it thirty, and a live re-derivation could not do
-        # that: the first tap moves the finish line, so "one song left" stops
-        # being true and the offer would vanish under the host's finger. What
-        # the chosen option promises is that the offer belongs to THIS reveal
-        # and dies when the next round starts, which is exactly a flag with
-        # those two edges.
+        # reveal — not on every read. The offer belongs to THIS reveal and
+        # dies when the next round starts or when the host uses it (#3323:
+        # extend_rounds clears the flag, the tap moved the finish line).
         self._encore_window = (
             self.total_rounds > 1
             and not self.last_round
@@ -396,12 +392,16 @@ class RevealTransitionMixin(GameStateBase):
         """
         from .state import GamePhase  # noqa: PLC0415 — avoid circular import
 
-        await self._round_manager.confirm_intro_splash(
+        started = await self._round_manager.confirm_intro_splash(
             self.play_deferred_song,
             self._on_round_end,
             self._timer_countdown,
             is_playing=lambda: self.phase == GamePhase.PLAYING,
         )
+        if not started:
+            # #3286: same skip path as a normal round's failed start.
+            await self._skip_failed_intro_start()
+            return
         # #3152: the round clock was stamped just now, so the sample counts
         # from here too. Skipped when the round left PLAYING during the start.
         if self.phase == GamePhase.PLAYING and not self.intro_splash_pending:

@@ -17,12 +17,15 @@ from custom_components.beatify.const import (
     LOBBY_DISCONNECT_GRACE_PERIOD,
     MAX_GUESS_LEN,
 )
+from custom_components.beatify.events import fire_round_revealed, round_revealed_key
 from custom_components.beatify.server.companion_auth import extract_request_meta
 from custom_components.beatify.server.serializers import (
     REDACTED_PLACEHOLDER,
     build_state_message,
     get_game_state,
+    host_player_sockets,
     redact_state_for_player,
+    state_for_host_player,
 )
 from custom_components.beatify.server.ws_handlers import (
     handle_admin,
@@ -107,6 +110,10 @@ class BeatifyWebSocketHandler:
         # the final round both can pass the REVEAL/last_round checks. The claim
         # (see _claim_game_end) makes the end run exactly once per game.
         self._recorded_game_ids: set[str] = set()
+        # #3306: the last (game_id, round) a ``beatify_round_revealed`` event
+        # went out for. A reveal is broadcast more than once (the title/artist
+        # vote window closing, a resume back into REVEAL); the event is not.
+        self._round_revealed_fired: tuple[str, int] | None = None
         # Debouncing for concurrent player joins (Issue #41)
         self._broadcast_debounce_task: asyncio.Task | None = None
         self._broadcast_debounce_delay = 0.05  # 50ms
@@ -477,11 +484,28 @@ class BeatifyWebSocketHandler:
         player_json = json.dumps(player_message)
         admin_json = player_json if player_message is message else json.dumps(message)
 
+        # #3303: a third variant for the host who plays on their phone — the
+        # redacted player copy plus the encore keys, never the admin copy (it
+        # carries the answer). Only built when the frame carries those keys.
+        host_sockets: set = set()
+        host_json = player_json
+        if message.get("type") == "state":
+            host_message = state_for_host_player(message, player_message)
+            if host_message is not player_message:
+                host_sockets = host_player_sockets(game_state)
+                if host_sockets:
+                    host_json = json.dumps(host_message)
+
         # Build list of send tasks for all open connections
         tasks = []
         for ws in list(targets):
             if not ws.closed:
-                payload = admin_json if ws in admin_sockets else player_json
+                if ws in admin_sockets:
+                    payload = admin_json
+                elif ws in host_sockets:
+                    payload = host_json
+                else:
+                    payload = player_json
                 tasks.append(self._safe_send(ws, payload))
 
         # Execute all sends in parallel
@@ -589,6 +613,30 @@ class BeatifyWebSocketHandler:
             _LOGGER.debug(
                 "broadcast_state: get_state() returned None (game not initialized yet)"
             )
+
+    async def broadcast_round_end(self) -> None:
+        """Round-end callback: broadcast, then tell HA a round was revealed (#3306).
+
+        Wired as ``GameState.set_round_end_callback``. Every way into REVEAL
+        (timer, early reveal, admin Next, void) ends in this callback, so it is
+        the one place that sees each reveal. The event goes out only *after*
+        the broadcast — the room learns the answer first, the bus second — and
+        only when the game actually sits in REVEAL: the same callback also
+        carries the auto-advance into the next PLAYING round, which must not be
+        announced as a reveal.
+        """
+        try:
+            await self.broadcast_state()
+        finally:
+            game_state = get_game_state(self.hass)
+            key = round_revealed_key(game_state) if game_state else None
+            if (
+                game_state is not None
+                and key is not None
+                and key != self._round_revealed_fired
+            ):
+                self._round_revealed_fired = key
+                fire_round_revealed(self.hass, game_state)
 
     async def broadcast_metadata_update(self, metadata: dict) -> None:
         """

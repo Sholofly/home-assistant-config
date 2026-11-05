@@ -400,7 +400,9 @@ class GameStateSerializer:
         # travels with it so the control names the number instead of hardcoding
         # a five the reserve may not cover.
         state["encore_available"] = gs.encore_available()
-        state["encore_rounds"] = gs.ENCORE_ROUNDS
+        # #3323: what a tap would really add (a short reserve gives fewer),
+        # so "finish line to {total_rounds + encore_rounds}" is the tap result.
+        state["encore_rounds"] = gs.encore_offer_rounds()
         # #2746: wer zu dieser Runde zurueckgekommen ist. Eine Zeile auf dem
         # Fernseher, damit der Raum versteht, warum sich die Rangliste bewegt
         # hat — ohne sie sieht ein wieder auftauchender Name nach einem
@@ -614,6 +616,11 @@ class GameStateSerializer:
                 # is the phase where the row is on screen. Copied so a client
                 # payload can never alias the live player state.
                 "collection": [dict(entry) for entry in p.collection],
+                # #3322: same flags as get_players_state(). Without them the
+                # phone host's guest list (#3304) cannot show a sit-out until
+                # the next PLAYING broadcast.
+                "sat_out_by_host": p.sat_out_by_host,
+                "rejoin_requested": p.rejoin_requested,
             }
             # Story 20.4: Add artist bonus if challenge is enabled
             if gs.artist_challenge_enabled:

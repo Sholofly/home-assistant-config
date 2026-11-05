@@ -1,0 +1,2393 @@
+"""Run the ha-mcp FastMCP server in-process inside Home Assistant (issue #1527).
+
+The :class:`EmbeddedServerManager` owns the full lifecycle of the in-process
+ha-mcp server:
+
+* ensures the ``ha-mcp`` package is importable (the manifest pin Home
+  Assistant installed, or a runtime pip install honoring an options-flow
+  pip-spec override for pre-release testing, forcing a real reinstall when that
+  spec changes),
+* hands the server the administrator's long-lived token it uses to reach HA
+  core over loopback (REST + WebSocket),
+* runs the server on a dedicated thread with its own asyncio loop — uvicorn
+  skips signal capture off the main thread and a heavy tool can never stall HA's
+  event loop — and
+* tears the thread down cleanly, and on entry removal deletes the account and
+  token an older release provisioned (never the administrator's own).
+
+Everything the server needs from ha-mcp is imported **inside the worker thread**,
+after the required non-secret environment variables are staged, so importing this
+module never pulls in ``ha_mcp`` (which may not be installed yet) and never runs
+before the connection is in place. The loopback URL and the admin token are handed
+to ha-mcp **in memory** via ``ha_mcp.config.set_embedded_connection`` — never
+through ``os.environ`` — so the admin token can never be read from the shared HA
+process environment. ``ha_mcp`` module-level imports are therefore forbidden here.
+"""
+
+from __future__ import annotations
+
+import asyncio
+import importlib
+import importlib.metadata
+import importlib.util
+import logging
+import os
+import site
+import subprocess
+import sys
+import threading
+from contextlib import suppress
+from functools import partial
+from typing import TYPE_CHECKING, Any, Literal
+from urllib.parse import urlparse
+
+from homeassistant.const import __version__ as HA_VERSION
+from homeassistant.core import HomeAssistant
+from homeassistant.loader import async_get_integration
+from homeassistant.requirements import (
+    RequirementsNotFound,
+    async_process_requirements,
+)
+from homeassistant.util.package import is_virtual_env
+from packaging.requirements import InvalidRequirement, Requirement
+from packaging.utils import canonicalize_name
+from packaging.version import InvalidVersion, Version
+
+from .const import (
+    DATA_LAST_PIP_SPEC,
+    DATA_REINSTALL_REQUESTED,
+    DATA_SECRET_PATH,
+    DEFAULT_BIND_HOST,
+    DEFAULT_ENABLE_LLM_API,
+    DEFAULT_LOOPBACK_URL,
+    DEFAULT_PIP_SPEC,
+    DEFAULT_SERVER_PORT,
+    DIST_NAME_DEV,
+    DIST_NAME_STABLE,
+    DOMAIN,
+    MIN_EMBEDDED_HOME_ASSISTANT_VERSION,
+    OPT_BIND_HOST,
+    OPT_ENABLE_LLM_API,
+    OPT_PIP_SPEC,
+    OPT_SERVER_PORT,
+    OPT_SERVER_URL,
+    SERVER_CONFIG_SUBDIR,
+    SERVER_KEEPALIVE_SECONDS,
+)
+from .dependency_diagnostics import (
+    DependencyViolation,
+    PinningIntegration,
+    audit_dependency_graph,
+    describe_dependency_failure,
+    find_pinning_integrations,
+    requirement_forces_conflict,
+    root_import_failure,
+)
+from .embedded_listen import (
+    DirectListener,
+    async_probe_loopback,
+    default_host_origin_guard_off,
+)
+from .embedded_worker_teardown import (
+    shutdown_server_resources_bounded,
+    teardown_worker_loop,
+)
+from .loopback_url import derive_loopback_url
+from .pip_compat import pip_kwargs
+from .server_credentials import (
+    CredentialNeeded,
+    async_release_credentials,
+    async_server_access_token,
+)
+from .server_pin import server_dist, server_pins
+from .spec_dist import provides_server, spec_dist_name, version_dist
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from homeassistant.config_entries import ConfigEntry
+
+_LOGGER = logging.getLogger(__name__)
+
+# Readiness probe: fail the bring-up only when there is no observable startup
+# progress (no new modules landing in sys.modules, no phase advance) for this
+# long. The previous flat 90s deadline assumed real hardware imports the
+# server tree in seconds — issue #1904 (HA Green) showed a cold import alone
+# can take minutes there, and killing the still-importing worker at the
+# deadline is what created the orphaned-thread/port-collision cascade: the
+# worker cannot be joined mid-import, lingered as a zombie, and later bound
+# the port out from under the retry. The module count is process-wide (see
+# _progress_signature), so a wedged worker trips the stall budget on a quiet
+# instance and the absolute cap below at the latest.
+_READY_STALL_TIMEOUT_SECONDS = 90.0
+# Absolute ceiling on one bring-up regardless of apparent progress, matching
+# the HAOS e2e lane's own 600s readiness deadline.
+_READY_TOTAL_CAP_SECONDS = 600.0
+_READY_POLL_INTERVAL_SECONDS = 0.5
+
+# How long to wait for the worker thread to exit on stop before giving up and
+# leaking it rather than blocking HA shutdown.
+_STOP_JOIN_TIMEOUT_SECONDS = 10.0
+
+# Per-download HTTP timeout for a forced reinstall. The first install pulls the
+# whole fastmcp tree, well beyond HA's 60s requirements default.
+_PIP_INSTALL_TIMEOUT_SECONDS = 300
+
+# Uninstall just removes files/metadata, so it is quick; cap it so a wedged
+# subprocess can never tie up an executor thread indefinitely.
+_PIP_UNINSTALL_TIMEOUT_SECONDS = 120
+# Upper bound for ONE uv install attempt. Generous (a cold ARM wheel build
+# is slow but finite) and bounded, so a wedged uv cannot hold the
+# process-wide tracked-install slot — and with it the next bring-up —
+# forever. The extra-index fallback can spend this twice.
+_UV_INSTALL_TIMEOUT_SECONDS = 1800
+
+# How long a bring-up waits for an install job orphaned by a CANCELLED
+# previous bring-up before giving up: asyncio cancellation detaches the
+# awaiter but an executor pip job runs to completion regardless. Sized to
+# the same absolute budget as the readiness cap: pip's own timeout (300s)
+# is per-download, so a healthy cold install pulling the whole dependency
+# tree on slow hardware can legitimately run for minutes — a tighter bound
+# would misreport it as stuck. On expiry the bring-up fails with a clear
+# message and the next reload retries.
+_PENDING_INSTALL_WAIT_SECONDS = 600.0
+
+# The in-process connection API was added with the embedded server in 7.10.0.
+# Older distributions can be left behind by an unsupported Core version's
+# constraints and must never enter the worker thread.
+MIN_EMBEDDED_SERVER_VERSION = "7.10.0"
+
+
+class EmbeddedServerError(Exception):
+    """Raised when the in-process ha-mcp server could not be installed or started.
+
+    ``kind`` classifies the failure so the caller can file the matching repair
+    issue: ``"package"`` for a pip install / import failure, ``"token"`` when
+    there is no usable Home Assistant credential (the message is the reason's
+    translation key), ``"start"`` for everything else (thread crash,
+    readiness timeout).
+    """
+
+    def __init__(
+        self, message: str, *, kind: Literal["package", "start", "token"] = "start"
+    ) -> None:
+        """Store the message and the failure ``kind``."""
+        super().__init__(message)
+        self.kind = kind
+
+
+def _worker_startup_failure(exc: BaseException) -> EmbeddedServerError:
+    """Return the bring-up error to surface for a worker-thread crash ``exc``.
+
+    An :class:`EmbeddedServerError` composed inside the worker — the dependency
+    diagnosis, the SystemExit unwrap, the sentinel-connection refusal — is
+    surfaced verbatim: it already carries both its message and its failure
+    ``kind``, and re-wrapping it is what left the caller logging
+    "failed to start: HA-MCP in-process server failed to start: ...".
+    """
+    if isinstance(exc, EmbeddedServerError):
+        return exc
+    failure = EmbeddedServerError(f"the worker thread crashed: {exc}")
+    # Chained here rather than with ``raise ... from``: the caller raises this
+    # object as-is, and the branch above must not chain an error to itself.
+    failure.__cause__ = exc
+    return failure
+
+
+def _install_log_filters_if_available() -> None:
+    """Attach the shared MCP SDK/fastmcp log-noise filters, if this ha-mcp has them.
+
+    Mirrors the ``register_browser_landing`` guard just above ``_serve``'s call
+    site: the installed server version is user-controlled (the HACS component
+    release, a pip-spec override), so an older ha-mcp without ``ha_mcp.log_filters`` must
+    keep serving -- the filters are simply absent there, as they are today.
+
+    Only a ``ModuleNotFoundError`` for exactly ``ha_mcp.log_filters`` is that
+    "older ha-mcp" case and is swallowed silently. Anything else -- a version
+    mismatch in a third-party dependency this import touches (fastmcp,
+    pydantic), which ``_purge_ha_mcp_modules`` deliberately does NOT
+    reinstall per config entry, so a stale one left over from a previous
+    install can break this import -- is logged instead of silently doing
+    nothing: log cosmetics must never block startup, but they also must
+    never fail invisibly.
+    """
+    try:
+        from ha_mcp.log_filters import install_sdk_log_filters
+    except ModuleNotFoundError as err:
+        if err.name != "ha_mcp.log_filters":
+            _LOGGER.warning(
+                "Could not install MCP SDK log-noise filters (missing "
+                "dependency %s); continuing without them: %s",
+                err.name,
+                err,
+            )
+        return
+    except ImportError as err:
+        _LOGGER.warning(
+            "Could not install MCP SDK log-noise filters; continuing without them: %s",
+            err,
+        )
+        return
+    try:
+        install_sdk_log_filters()
+    except Exception as err:  # noqa: BLE001
+        _LOGGER.warning(
+            "Could not install MCP SDK log-noise filters; continuing without them: %s",
+            err,
+        )
+
+
+class EmbeddedServerManager:
+    """Manage the lifecycle of the in-process ha-mcp server for one config entry."""
+
+    def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
+        """Bind the manager to its Home Assistant instance and config entry."""
+        self._hass = hass
+        self._entry = entry
+
+        options = entry.options
+        self._port: int = int(options.get(OPT_SERVER_PORT, DEFAULT_SERVER_PORT))
+        self._bind_host: str = str(options.get(OPT_BIND_HOST, DEFAULT_BIND_HOST))
+        # An explicit server_url override wins verbatim (the operator manages
+        # scheme/verification themselves via the settings UI). A stored value
+        # equal to DEFAULT_LOOPBACK_URL is treated as no-override: the options
+        # form used to pre-fill that constant as suggested_value, so existing
+        # entries carry it without the user ever having chosen it.
+        _url_override = str(options.get(OPT_SERVER_URL) or "").rstrip("/")
+        self._loopback_verify_ssl: bool | None = None
+        if _url_override and _url_override != DEFAULT_LOOPBACK_URL:
+            self._server_url: str = _url_override
+        else:
+            self._server_url, self._loopback_verify_ssl = derive_loopback_url(hass)
+        # An explicit pip-spec override (PR / pre-release testing) wins over the
+        # server requirement this component release pins in its manifest.
+        # DEFAULT_PIP_SPEC in the field means "no override" (the options flow
+        # also normalizes it away on save; this guard keeps legacy/direct
+        # entries correct too).
+        raw_pip_spec = str(options.get(OPT_PIP_SPEC) or "").strip()
+        self._pip_spec_override: str = (
+            raw_pip_spec if raw_pip_spec and raw_pip_spec != DEFAULT_PIP_SPEC else ""
+        )
+        # The ha-mcp requirement in this component release's manifest. Home
+        # Assistant installs it before setup, like any integration requirement;
+        # read in async_start (the loader lookup is async).
+        self._paired_spec: str | None = None
+        self._llm_api_enabled: bool = bool(
+            options.get(OPT_ENABLE_LLM_API, DEFAULT_ENABLE_LLM_API)
+        )
+        # Provisional until async_start reads the manifest pin.
+        self._pip_spec: str = self._resolve_pip_spec()
+        self._secret_path: str = str(entry.data.get(DATA_SECRET_PATH, ""))
+        self._config_dir: str = hass.config.path(SERVER_CONFIG_SUBDIR)
+        # Home Assistant's own configuration directory, captured here on the
+        # event loop: the dependency diagnosis scans custom_components/ from
+        # the WORKER thread, which must never touch hass.
+        self._hass_config_dir: str = hass.config.config_dir
+
+        # Worker-thread state. ``_loop`` and ``_stop_event`` are created in the
+        # thread, so a stop can come before they exist; ``_stop_requested`` is
+        # replaced by each async_start before Thread.start() and covers that gap
+        # (#2801). _serve checks the worker's copy again before the listener,
+        # where the queued stop_event.set may not have run yet.
+        self._thread: threading.Thread | None = None
+        self._loop: asyncio.AbstractEventLoop | None = None
+        self._stop_event: asyncio.Event | None = None
+        self._stop_requested = threading.Event()
+        self._thread_exc: BaseException | None = None
+        # A worker that refused to die within the stop-join timeout (e.g.
+        # wedged in a slow cold import). Tracked so the next start can skip
+        # the module purge while it might still be importing.
+        self._orphaned_thread: threading.Thread | None = None
+        # Version reported by the CURRENT worker thread (stashed by _serve).
+        # Compared against the installed distribution after start to detect a
+        # stale-code worker (see _purge_ha_mcp_modules).
+        self._running_version: str | None = None
+        # Startup phase marker (plain attribute writes: init markers from the
+        # main thread, _note_startup_phase transitions from the worker). Read
+        # by the readiness poll for progress detection and error messages.
+        self._startup_phase: str = "not started"
+
+    @property
+    def port(self) -> int:
+        """TCP port the server listens on."""
+        return self._port
+
+    @property
+    def is_running(self) -> bool:
+        """Return True while the worker thread is alive."""
+        return self._thread is not None and self._thread.is_alive()
+
+    # -- lifecycle ---------------------------------------------------------
+
+    async def async_start(self) -> None:
+        """Install the package, resolve the token, and start the server thread.
+
+        Raises :class:`EmbeddedServerError` on any failure. The caller is
+        responsible for surfacing a repair issue — a failed start must never take
+        the rest of Home Assistant down with it.
+        """
+        if not self._secret_path:
+            raise EmbeddedServerError(
+                "Server secret path missing from the config entry; "
+                "reload the integration to regenerate it."
+            )
+        try:
+            home_assistant_version = Version(HA_VERSION)
+        except InvalidVersion as err:
+            raise EmbeddedServerError(
+                f"The in-process server could not determine whether Home "
+                f"Assistant {HA_VERSION} satisfies its minimum requirement of "
+                f"{MIN_EMBEDDED_HOME_ASSISTANT_VERSION}. Install a standard Home "
+                "Assistant release before reloading this integration.",
+                # Not "package": reinstalling the server cannot fix this.
+                kind="start",
+            ) from err
+        if home_assistant_version < Version(MIN_EMBEDDED_HOME_ASSISTANT_VERSION):
+            raise EmbeddedServerError(
+                f"The in-process server requires Home Assistant "
+                f"{MIN_EMBEDDED_HOME_ASSISTANT_VERSION} or newer; this instance "
+                f"is running {HA_VERSION}. Update Home Assistant before "
+                "reloading this integration.",
+                kind="start",
+            )
+
+        self._paired_spec = await _async_paired_server_requirement(self._hass)
+        if self._paired_spec is None and not self._pip_spec_override:
+            _LOGGER.warning(
+                "This component's manifest pins no ha-mcp server; running "
+                "whichever ha-mcp is installed. Reinstall from HACS or the Marketplace"
+            )
+        self._pip_spec = self._resolve_pip_spec()
+
+        # Read the importer registry BEFORE the package step too: replacing
+        # the distribution's files on disk under a live importer corrupts it
+        # exactly like the sys.modules purge does (review finding), so a
+        # mutating install is deferred while any registered worker is alive.
+        ready_version = await self._async_ensure_package(
+            defer_mutations=_prune_and_check_importing_workers()
+        )
+        await self._async_warn_on_dependency_conflicts()
+        access_token = await self._async_access_token()
+        await self._hass.async_add_executor_job(self._prepare_config_dir)
+
+        self._maybe_purge_stale_modules(ready_version)
+
+        self._thread_exc = None
+        self._uv_server: Any = None
+        self._startup_phase = "waiting for the worker thread"
+        self._stop_requested = threading.Event()
+        self._thread = threading.Thread(
+            target=self._thread_main,
+            args=(access_token,),
+            name="ha-mcp-server",
+            daemon=True,
+        )
+        # Registered by THIS (main) thread before start(): every bring-up
+        # runs its gate → register → start section synchronously on the one
+        # event loop, so another bring-up's purge gate can never interleave
+        # with a worker that exists but has not yet registered itself
+        # (review finding). The worker itself only ever deregisters.
+        with _IMPORTING_WORKERS_LOCK:
+            _IMPORTING_WORKERS.add(self._thread)
+        try:
+            self._thread.start()
+        except BaseException:
+            with _IMPORTING_WORKERS_LOCK:
+                _IMPORTING_WORKERS.discard(self._thread)
+            raise
+
+        await self._async_wait_until_ready()
+
+        # Belt-and-braces staleness check: the worker stashed the version
+        # reported by the package it imported; if that disagrees with the
+        # installed distribution the purge did not fully take (e.g. a stray
+        # import of ha_mcp outside the worker re-cached old modules) and only an
+        # HA core restart applies the update — say so instead of serving old
+        # code silently.
+        if self._running_version:
+            installed = await self._hass.async_add_executor_job(
+                _installed_ha_mcp_version, version_dist(self._pip_spec)
+            )
+            if installed and installed != self._running_version:
+                _LOGGER.warning(
+                    "HA-MCP in-process server is running version %s but "
+                    "version %s is installed; restart Home Assistant to "
+                    "finish applying the update.",
+                    self._running_version,
+                    installed,
+                )
+
+    async def async_stop(self) -> None:
+        """Signal the worker thread to shut down and join it (bounded).
+
+        Never blocks Home Assistant shutdown indefinitely: if the thread does not
+        exit within the timeout it is logged and left to die with the process.
+        Does NOT release credentials — that is reserved for
+        :meth:`async_revoke_credentials` (entry removal) so a reload keeps
+        working.
+        """
+        thread = self._thread
+        if thread is None:
+            return
+
+        # Before reading the event: a worker that publishes it after this read
+        # sees the request and stops itself.
+        self._stop_requested.set()
+        loop = self._loop
+        stop_event = self._stop_event
+        if loop is not None and stop_event is not None and not loop.is_closed():
+            try:
+                loop.call_soon_threadsafe(stop_event.set)
+            except RuntimeError:
+                # The worker's loop closed between the is_closed() check and
+                # this call (thread already exiting) - join below handles it.
+                pass
+
+        await self._hass.async_add_executor_job(thread.join, _STOP_JOIN_TIMEOUT_SECONDS)
+        if thread.is_alive():
+            _LOGGER.warning(
+                "HA-MCP in-process server thread did not stop within %.0fs; "
+                "leaving it to terminate with the process.",
+                _STOP_JOIN_TIMEOUT_SECONDS,
+            )
+            # Remember the zombie: the next start must not purge modules
+            # while this thread may still be importing them. The worker
+            # holds its own loop/stop-event as locals, so clearing the
+            # published references below cannot crash it.
+            self._orphaned_thread = thread
+        self._thread = None
+        self._loop = None
+        self._stop_event = None
+        self._thread_exc = None
+        self._running_version = None
+
+    async def async_revoke_credentials(self) -> None:
+        """Release the server's credential when the config entry is removed.
+
+        The entry is already out of the registry, so its data is left as is.
+        """
+        await async_release_credentials(self._hass, self._entry.data)
+
+    # -- package install ---------------------------------------------------
+
+    def _resolve_pip_spec(self) -> str:
+        """Return the effective pip requirement for the server.
+
+        An explicit override wins (any pip requirement string — a version pin,
+        a GitHub tarball URL, a ``file://`` wheel — for PR or pre-release
+        testing). Otherwise the requirement this component release pins in its
+        manifest, so the server that runs is the one HACS delivered with the
+        component. A hand-edited manifest without a pin falls back to the bare
+        ``ha-mcp`` distribution.
+        """
+        if self._pip_spec_override:
+            return self._pip_spec_override
+        return self._paired_spec or DEFAULT_PIP_SPEC
+
+    def _target_dist(self) -> str | None:
+        """Return the known server distribution the effective spec installs.
+
+        The distribution the spec names when that is ``ha-mcp`` or
+        ``ha-mcp-dev``, read from the file name for a bare wheel URL; None for
+        another distribution or a bare URL whose name is unknown here.
+        """
+        name = spec_dist_name(self._pip_spec)
+        return None if name is None else server_dist(name)
+
+    def _preferred_dist(self) -> str:
+        """The known server distribution the spec installs, else stable.
+
+        For the paths that weigh ``ha-mcp`` against ``ha-mcp-dev``; version
+        reads use :func:`version_dist`, which keeps any other name.
+        """
+        return self._target_dist() or DIST_NAME_STABLE
+
+    def _conflicting_dist_name(self) -> str | None:
+        """Return the other known server distribution, or None to skip.
+
+        ``ha-mcp`` and ``ha-mcp-dev`` share the ``ha_mcp`` import package, so
+        when the effective spec installs one of them the other must go. Home
+        Assistant installs the manifest pin before setup, so an override on
+        the other distribution (or a component 2.x dev-channel install) leaves
+        both on disk. None when the target is unknown (see _target_dist).
+        """
+        target = self._target_dist()
+        if target is None:
+            return None
+        return DIST_NAME_STABLE if target == DIST_NAME_DEV else DIST_NAME_DEV
+
+    def _maybe_purge_stale_modules(self, ready_version: str | None) -> None:
+        """Purge cached ha_mcp modules unless doing so is unsafe or pointless.
+
+        The purge makes the next worker import the code that is on disk NOW.
+        Without it, a reload after a pip install keeps serving the OLD code
+        forever: all workers are threads of the one HA core process, and
+        Python resolves ``import ha_mcp`` from sys.modules — installs only
+        took effect after a full HA core restart (observed live: options
+        saves reinstalled the package, the web UI footer showed the new
+        on-disk version, yet the serving worker kept reporting the version
+        it was first imported with).
+
+        SKIPPED while any previous worker may still be importing — ripping
+        entries out of sys.modules under a live importer corrupts its import
+        in progress. Two guards cover that: the per-manager orphan (a worker
+        this manager's stop could not join), and the process-global
+        ``_IMPORTING_WORKERS`` registry, because every bring-up constructs a
+        FRESH manager (async_bring_up_server) and an entry reload during a
+        slow cold import otherwise hands the purge to a manager that has
+        never heard of the still-importing worker — which then crashed
+        mid-import with KeyError: 'ha_mcp.config' (issue #1904, live on
+        1.1.1-dev.107). The post-start staleness check surfaces the
+        consequence (old code possibly serving) instead.
+
+        Also skipped when the cached modules already ARE the generation on
+        disk: purging on every attempt made each retry pay the full cold
+        import again, so slow hardware that missed the readiness window once
+        could never recover (#1904). Never skipped under a pip-spec override
+        — the one workflow where a reinstall can change the code without
+        changing the version string (re-pointed tarball/pin), which a
+        version-keyed skip would serve stale; every released or dev build
+        carries a distinct version.
+        """
+        orphan = self._orphaned_thread
+        if orphan is not None and not orphan.is_alive():
+            self._orphaned_thread = orphan = None
+        importing_busy = _prune_and_check_importing_workers()
+        if orphan is not None:
+            _LOGGER.warning(
+                "Skipping the ha_mcp module purge: a previous worker thread "
+                "is still shutting down. The new worker may serve the "
+                "previously imported code until Home Assistant restarts."
+            )
+        elif importing_busy:
+            # Distinct from the orphan message: that worker is still STARTING
+            # (mid cold-import, the #1904 incident shape), not shutting down —
+            # naming the actual state matters when reading logs during one.
+            _LOGGER.warning(
+                "Skipping the ha_mcp module purge: a previous bring-up's "
+                "worker thread is still importing. The new worker may serve "
+                "the previously imported code until Home Assistant restarts."
+            )
+        elif (
+            not self._pip_spec_override
+            and ready_version is not None
+            and _CACHED_IMPORT_VERSION is not None
+            and ready_version == _CACHED_IMPORT_VERSION
+        ):
+            _LOGGER.debug(
+                "Cached ha_mcp modules already match installed version %s; "
+                "skipping the module purge (warm start)",
+                ready_version,
+            )
+        else:
+            _purge_ha_mcp_modules()
+
+    async def _async_run_tracked_install_job(
+        self, func: Callable[[], object]
+    ) -> object:
+        """Run a package-mutating executor job, tracked process-wide.
+
+        Registration happens BEFORE dispatch and completion is signalled on
+        the executor thread in a finally, so a bring-up cancelled mid-job
+        (install or uninstall) leaves behind a waitable job instead of an
+        invisible one.
+        """
+        global _PENDING_INSTALL_DONE
+        done = threading.Event()
+        with _PENDING_INSTALL_LOCK:
+            _PENDING_INSTALL_DONE = done
+
+        def _run() -> object:
+            global _PENDING_INSTALL_DONE
+            try:
+                return func()
+            finally:
+                done.set()
+                with _PENDING_INSTALL_LOCK:
+                    # A newer job may already have replaced the slot.
+                    if _PENDING_INSTALL_DONE is done:
+                        _PENDING_INSTALL_DONE = None
+
+        try:
+            # Shielded: cancelling the awaiter must NOT cancel the executor
+            # job. Unshielded, a cancel landing while the job is still
+            # QUEUED removes it from the pool — _run never starts, nothing
+            # ever sets the event, and the next bring-up waits the full
+            # budget on a job that does not exist (review finding). With the
+            # shield, _run always runs and its finally always fires; the
+            # awaiter still detaches immediately on cancel.
+            return await asyncio.shield(self._hass.async_add_executor_job(_run))
+        except asyncio.CancelledError:
+            # The job is queued or running and its finally will clear the
+            # slot; leaving it registered is the whole point — the next
+            # bring-up must wait it out.
+            raise
+        except BaseException:
+            # A DISPATCH failure (e.g. executor already shut down) means
+            # _run never ran and nothing will ever set the event — clear our
+            # own registration or the next bring-up waits the full budget on
+            # a job that does not exist. The identity check makes this a
+            # no-op if _run did run and already cleaned up.
+            with _PENDING_INSTALL_LOCK:
+                if _PENDING_INSTALL_DONE is done:
+                    _PENDING_INSTALL_DONE = None
+            raise
+
+    async def _async_wait_for_pending_install(self) -> None:
+        """Wait out an install job orphaned by a cancelled previous bring-up.
+
+        Raises :class:`EmbeddedServerError` if it is still running after the
+        bounded wait — mutating the package (or importing from it) underneath
+        a live pip job is the same corruption class as purging sys.modules
+        under a live importer.
+
+        The wait occupies one pooled executor thread (bounded): the setter
+        runs on an executor thread with no handle to this loop, so a
+        loop-side wakeup would need cross-thread plumbing this rare recovery
+        path does not justify.
+        """
+        with _PENDING_INSTALL_LOCK:
+            pending = _PENDING_INSTALL_DONE
+        if pending is None or pending.is_set():
+            return
+        _LOGGER.warning(
+            "A previous bring-up's install job is still running on the "
+            "executor (the bring-up was cancelled but pip cannot be); "
+            "waiting for it to finish before touching the ha-mcp package."
+        )
+        finished = await self._hass.async_add_executor_job(
+            pending.wait, _PENDING_INSTALL_WAIT_SECONDS
+        )
+        if not finished:
+            raise EmbeddedServerError(
+                f"A previous install job was still running after "
+                f"{_PENDING_INSTALL_WAIT_SECONDS:.0f}s; refusing to modify "
+                "the ha-mcp package underneath it. Reload the integration "
+                "to retry.",
+                kind="package",
+            )
+
+    async def _async_ensure_package(
+        self, *, defer_mutations: bool = False
+    ) -> str | None:
+        """Use the externally managed package or ensure a managed install."""
+        if self._hass.config.skip_pip:
+            return await self._async_externally_managed_package_version()
+        version = await self._async_ensure_managed_package(
+            defer_mutations=defer_mutations
+        )
+        dist = version_dist(self._pip_spec)  # not installed yet when deferred
+        if await self._hass.async_add_executor_job(
+            lambda: _dist_installed(dist) and not provides_server(dist)
+        ):
+            _LOGGER.warning(
+                "The server requirement %r installs no ha_mcp package of its "
+                "own, so ha-mcp %s from another distribution serves; correct "
+                "the package override if that is not intended.",
+                self._pip_spec,
+                version,
+            )
+        return version
+
+    async def _async_ensure_managed_package(
+        self, *, defer_mutations: bool = False
+    ) -> str | None:
+        """Ensure ``ha-mcp`` is importable at the effective spec, installing if needed.
+
+        Returns the installed version that the worker is about to run, for the
+        caller's warm-cache purge decision.
+
+        Without an override the spec is the manifest pin, which Home Assistant
+        installed before setup like any integration requirement — so the
+        normal start installs nothing. An install happens only when:
+
+        * an override is set (a URL is always reinstalled; an index pin when
+          the installed version does not match it — Home Assistant puts the
+          manifest pin back on every restart),
+        * the spec changed since the last install in a way the installed
+          version cannot prove (a cleared override that installed the same
+          version string, issue #1914 — see _async_remove_replaced_source),
+        * the other server distribution is installed beside the target (a
+          component 2.x dev-channel install, a HACS pre-release swapping
+          ``ha-mcp`` for ``ha-mcp-dev`` or back, or an override on the other
+          one). It is removed first, and because both distributions own the
+          same ``ha_mcp`` files, that removal deletes the target's files too,
+          so the target is then REINSTALLED rather than upgraded,
+        * the package repair asked for a reinstall (``DATA_REINSTALL_REQUESTED``):
+          even a satisfied pin is reinstalled, and the flag is cleared only
+          once that install succeeds.
+
+        ``defer_mutations=True`` (a previous bring-up's worker is still
+        importing) downgrades any would-be uninstall/install to the
+        non-mutating path: replacing the distribution's files on disk under a
+        live importer corrupts it the same way a sys.modules purge does. The
+        deferred change applies on the next reload or HA restart.
+
+        Never imports ``ha_mcp`` in this (main) process — that happens only inside
+        the worker thread.
+        """
+        await self._async_wait_for_pending_install()
+
+        stored_spec = self._entry.data.get(DATA_LAST_PIP_SPEC)
+        target_dist = self._target_dist()
+        installed_version = await self._hass.async_add_executor_job(
+            _installed_ha_mcp_version, version_dist(self._pip_spec)
+        )
+        target_version = (
+            await self._hass.async_add_executor_job(
+                _installed_dist_version, target_dist
+            )
+            if target_dist is not None
+            else None
+        )
+        reinstall_requested = bool(self._entry.data.get(DATA_REINSTALL_REQUESTED))
+        conflicting = self._conflicting_dist_name()
+        conflict_present = (
+            conflicting is not None
+            and await self._hass.async_add_executor_job(_dist_installed, conflicting)
+        )
+
+        reason = (
+            "a reinstall was requested"
+            if reinstall_requested
+            else _install_reason(
+                self._pip_spec,
+                stored_spec=stored_spec,
+                target_dist=target_dist,
+                installed_version=installed_version,
+                target_version=target_version,
+                conflicting=conflicting if conflict_present else None,
+            )
+        )
+        deferred = False
+        if reason is None:
+            pass
+        elif defer_mutations:
+            deferred = True
+            await self._async_defer_package_mutations(installed_version)
+        else:
+            _LOGGER.info("Reinstalling the in-process server package: %s", reason)
+            reinstall = reinstall_requested
+            if conflict_present and conflicting is not None:
+                _LOGGER.info(
+                    "Removing %r, which shares the ha_mcp package with %r, "
+                    "before installing %r",
+                    conflicting,
+                    target_dist,
+                    self._pip_spec,
+                )
+                await self._async_remove_distribution(conflicting)
+                reinstall = True
+            if target_dist is not None:
+                await self._async_remove_legacy_target(target_dist, installed_version)
+            if not reinstall:
+                # A reinstall replaces the files whatever the version says, so
+                # the #1914 removal would only open a window with no server
+                # installed at all.
+                await self._async_remove_replaced_source(stored_spec, installed_version)
+            try:
+                await self._async_force_install(reinstall=reinstall)
+            finally:
+                # One attempt per request: a reinstall that fails would
+                # otherwise run again on every start.
+                if reinstall_requested:
+                    self._hass.config_entries.async_update_entry(
+                        self._entry,
+                        data={
+                            k: v
+                            for k, v in self._entry.data.items()
+                            if k != DATA_REINSTALL_REQUESTED
+                        },
+                    )
+
+        version: str | None = await self._hass.async_add_executor_job(
+            _installed_ha_mcp_version, version_dist(self._pip_spec)
+        )
+        if version is None:
+            raise EmbeddedServerError(
+                f"Installed the server requirement ({self._pip_spec!r}) but the "
+                "'ha-mcp' package is still not importable.",
+                kind="package",
+            )
+        if not _is_compatible_embedded_version(version):
+            raise EmbeddedServerError(
+                f"The installer left installed ha-mcp {version}, but this "
+                f"in-process component requires {MIN_EMBEDDED_SERVER_VERSION} "
+                "or newer. Review the installer output logged under "
+                "custom_components.ha_mcp_tools.embedded_server, correct the "
+                "package conflict, and reload this integration.",
+                kind="package",
+            )
+        _LOGGER.info("HA-MCP in-process server package ready (version %s)", version)
+        # A DEFERRED spec change must not be recorded as installed: with the
+        # stored spec advanced, the next reload would see "unchanged", count
+        # the spec as satisfied and skip the replaced-source uninstall, so the
+        # deferred change would silently never apply.
+        if not deferred and stored_spec != self._pip_spec:
+            self._store_installed_spec()
+        return version
+
+    async def _async_externally_managed_package_version(self) -> str:
+        """Validate and return the package supplied outside Home Assistant.
+
+        skip_pip means the surrounding system owns this interpreter. This
+        path therefore performs metadata/importability reads only: it never
+        calls Home Assistant's requirements manager, UV, or the config-entry
+        marker writers used by manual and automatic installs.
+        """
+        importable_version: str | None = await self._hass.async_add_executor_job(
+            _installed_ha_mcp_version
+        )
+        stable_version: str | None = await self._hass.async_add_executor_job(
+            _installed_dist_version, DIST_NAME_STABLE
+        )
+        dev_version: str | None = await self._hass.async_add_executor_job(
+            _installed_dist_version, DIST_NAME_DEV
+        )
+        target_dist = self._preferred_dist()
+        target_version = (
+            stable_version if target_dist == DIST_NAME_STABLE else dev_version
+        )
+        other_dist = (
+            DIST_NAME_DEV if target_dist == DIST_NAME_STABLE else DIST_NAME_STABLE
+        )
+        other_version = (
+            dev_version if target_dist == DIST_NAME_STABLE else stable_version
+        )
+
+        if importable_version is None:
+            raise EmbeddedServerError(
+                "Home Assistant was started with skip_pip enabled, so HA-MCP "
+                "will not install the externally managed server package. Use "
+                f"the system package manager to install {target_dist} "
+                f"{MIN_EMBEDDED_SERVER_VERSION} or newer, then reload this "
+                "integration.",
+                kind="package",
+            )
+
+        if stable_version is not None and dev_version is not None:
+            raise EmbeddedServerError(
+                f"Both {DIST_NAME_STABLE} {stable_version} and "
+                f"{DIST_NAME_DEV} {dev_version} are installed while skip_pip "
+                "is enabled. They share the ha_mcp import package, so HA-MCP "
+                "cannot safely select one without modifying the environment. "
+                "Use the system package manager to leave exactly one installed, "
+                "then reload this integration.",
+                kind="package",
+            )
+
+        if target_version is None:
+            raise EmbeddedServerError(
+                f"The server requirement ({self._pip_spec!r}) expects "
+                f"{target_dist}, but only {other_dist} {other_version} is "
+                "installed while skip_pip is enabled. Use the system package "
+                f"manager to install {target_dist} {MIN_EMBEDDED_SERVER_VERSION} "
+                "or newer, then reload this integration.",
+                kind="package",
+            )
+
+        if not _is_compatible_embedded_version(target_version):
+            raise EmbeddedServerError(
+                f"The externally managed {target_dist} {target_version} is "
+                "incompatible while skip_pip is enabled; this in-process "
+                f"component requires {MIN_EMBEDDED_SERVER_VERSION} or newer. "
+                "Upgrade it with the system package manager, then reload this "
+                "integration.",
+                kind="package",
+            )
+
+        _LOGGER.info(
+            "HA-MCP externally managed %s package ready (version %s; skip_pip enabled)",
+            target_dist,
+            target_version,
+        )
+        return target_version
+
+    async def _async_remove_legacy_target(
+        self, target_dist: str, installed_version: str | None
+    ) -> None:
+        """Remove an incompatible target distribution before reinstalling it."""
+        if installed_version is None or _is_compatible_embedded_version(
+            installed_version
+        ):
+            return
+        target_installed_version = await self._hass.async_add_executor_job(
+            _installed_dist_version, target_dist
+        )
+        if target_installed_version is None or _is_compatible_embedded_version(
+            target_installed_version
+        ):
+            return
+        _LOGGER.warning(
+            "Removing legacy %s %s before installing %r; the in-process "
+            "server requires %s or newer",
+            target_dist,
+            target_installed_version,
+            self._pip_spec,
+            MIN_EMBEDDED_SERVER_VERSION,
+        )
+        await self._async_remove_distribution(target_dist)
+
+    async def _async_defer_package_mutations(
+        self, installed_version: str | None
+    ) -> None:
+        """Handle the defer-mutations branch of :meth:`_async_ensure_package`.
+
+        A previous bring-up's worker is still importing, so the package files
+        must not be replaced under it. With an importable build on disk
+        (``installed_version`` non-None — importability only, compatibility is
+        checked by the caller afterwards) nothing is touched at all — not even
+        the requirements manager, which installs any unsatisfied spec and
+        would mutate exactly like the deferred force install. When nothing
+        imports there are no distribution files to replace under the live
+        importer, and without an install this bring-up cannot produce a
+        server at all, so the requirements manager still runs.
+        """
+        _LOGGER.warning(
+            "Deferring the ha-mcp install/upgrade: a previous bring-up's "
+            "worker thread is still importing, and replacing the package "
+            "files under it could corrupt that import. The currently "
+            "installed build will be used; reload the integration (or "
+            "restart Home Assistant) to apply the update."
+        )
+        if installed_version is None:
+            await self._async_process_requirements_fast()
+
+    def _replaced_dist_name(self) -> str | None:
+        """Return the distribution whose presence could no-op the new spec.
+
+        The known server distribution the effective spec installs by name
+        (:meth:`_target_dist`). None for a spec that names another
+        distribution or none at all (a direct URL): the installer reinstalls
+        a URL requirement outright (``--reinstall-package``, see
+        :func:`_force_install_package`) regardless of the installed version,
+        so a URL install is already real and nothing needs removing.
+        """
+        return self._target_dist()
+
+    async def _async_remove_replaced_source(
+        self, stored_spec: str | None, installed_version: str | None
+    ) -> None:
+        """Uninstall the replaced distribution when the requested source changed.
+
+        The forced install that follows relies on its upgrade flag, and the
+        installer decides "already satisfied" by VERSION alone — but a source
+        change can keep the version string. A PR branch's committed
+        ``project.version`` equals the release it branched from (only release
+        automation bumps it), so its tarball installs with that same version
+        string; clearing the override then resolves the paired spec to the
+        exact version already on disk and the install swaps nothing, leaving
+        the PR code running while the entry reports a clean paired install
+        (issue #1914). The same version-blindness bites a manual spec edit
+        that pins the version already installed. The installer cannot see the
+        difference, so when the spec that produced the current install
+        differs from the one about to be installed, the distribution the new
+        spec resolves to by name (:meth:`_replaced_dist_name`) is removed
+        first — the install that follows is then unconditionally real.
+
+        Skipped when nothing is installed, when the last-installed spec is
+        unknown (nothing to compare: first install, or entry data predating
+        the spec tracking), when the spec is unchanged (the routine
+        reload/restart path, where the upgrade flag alone is correct and an
+        uninstall would churn — and briefly break — a healthy install on
+        every restart), when the new spec is a direct URL (always installs
+        for real), when the named distribution is not installed (e.g. a
+        conflicting-dist removal already took it), when the stored spec is
+        an index requirement on the SAME distribution (a repin — e.g. a
+        component 2.x install stored bare ``ha-mcp`` and the pin is
+        ``ha-mcp==X`` — draws from the same index either way, so version
+        resolution is faithful and uninstalling a healthy install on a repin
+        would only add an offline-breakage window), or when the new spec is
+        an exact pin on a version provably different from the installed one
+        (the install cannot no-op, so the working build stays in place as
+        the fallback if it fails).
+
+        Unlike the other pre-install uninstalls this one is NOT best-effort:
+        if the distribution survives a failed uninstall, the forced install
+        would no-op as "already satisfied", the new spec would be persisted,
+        and the next reload would see it as unchanged — reproducing #1914 and
+        then permanently masking it. Raising instead keeps the stored spec on
+        the old value, so the next reload retries the whole source change.
+        """
+        if installed_version is None or stored_spec is None:
+            return
+        if stored_spec == self._pip_spec:
+            return
+        if _spec_is_url_requirement(self._pip_spec):
+            # A URL spec is reinstalled outright (--reinstall-package, see
+            # _scoped_install_flags), so the install cannot be skipped as
+            # "already satisfied" and there is nothing for this uninstall to
+            # unblock. Removing first would only delete the working build
+            # BEFORE the new URL is fetched, so a failed fetch (bad path,
+            # network, moved tarball) leaves no server installed at all —
+            # and it reopens the uninstall-then-extract window on our own
+            # package. _replaced_dist_name() already declines for a BARE
+            # url; a NAMED one ("ha-mcp @ file:///…", the shape the config
+            # flow and the e2e lane use) parses fine and would fall through
+            # to the removal below without this.
+            return
+        replaced_dist = self._replaced_dist_name()
+        if replaced_dist is None:
+            return
+        if _spec_is_index_requirement_on(stored_spec, replaced_dist):
+            # Same distribution, same index — only the pin changed. The old
+            # code on disk came from the index too, so "already satisfied by
+            # version" is the truth, not the #1914 lie.
+            return
+        if not await self._hass.async_add_executor_job(_dist_installed, replaced_dist):
+            return
+        # Compare the pin against the version of the distribution actually
+        # being replaced, not the caller's ``installed_version``: that one is
+        # read from whichever dist provides ``ha_mcp`` and is read BEFORE
+        # _async_ensure_managed_package removes the conflicting distribution,
+        # so on an ``ha-mcp`` <-> ``ha-mcp-dev`` swap it can describe the
+        # other distribution — or one already
+        # uninstalled. Comparing against it could report "the pin moved" for a
+        # target that is in fact already at the pinned version, skip this
+        # uninstall, and let the install no-op as satisfied (#1914).
+        replaced_version = await self._hass.async_add_executor_job(
+            _installed_dist_version, replaced_dist
+        )
+        if replaced_version is not None and _pin_moves_off_installed(
+            self._pip_spec, replaced_version
+        ):
+            # The new pin cannot be satisfied by the installed version, so the
+            # forced install is guaranteed to be real without any uninstall —
+            # and keeping the working build in place preserves it as the
+            # fallback if that install fails (e.g. offline).
+            return
+        _LOGGER.info(
+            "The requested server source changed (%r -> %r); removing the "
+            "installed %r first so the reinstall cannot be skipped as "
+            "already satisfied",
+            stored_spec,
+            self._pip_spec,
+            replaced_dist,
+        )
+        removed = await self._async_remove_distribution(replaced_dist)
+        if not removed and await self._hass.async_add_executor_job(
+            _dist_installed, replaced_dist
+        ):
+            raise EmbeddedServerError(
+                f"Could not remove the installed {replaced_dist!r} (from "
+                f"{stored_spec!r}) before installing {self._pip_spec!r}: the "
+                "installer would report the new source as already satisfied "
+                "and keep the old code running. Uninstall details are logged "
+                "above; reload the integration to retry the source change.",
+                kind="package",
+            )
+
+    async def _async_process_requirements_fast(self) -> None:
+        """Fast path: let HA's requirements manager satisfy the override spec."""
+        try:
+            await async_process_requirements(
+                self._hass,
+                f"{DOMAIN} server",
+                [self._pip_spec],
+                is_built_in=False,
+            )
+        except RequirementsNotFound as err:
+            raise EmbeddedServerError(
+                f"Could not install the server ({self._pip_spec!r}): {err}",
+                kind="package",
+            ) from err
+
+    async def _async_force_install(self, *, reinstall: bool = False) -> None:
+        """Force a real (re)install of the pip spec, bypassing the is-installed
+        cache.
+
+        Mirrors how ``homeassistant.requirements`` builds its pip invocation
+        (HA's own constraints file + ``config/deps`` target where applicable) so
+        the resolver honors Home Assistant's constraints, with one deliberate
+        difference from ``install_package(upgrade=True)``: that maps to uv's
+        EAGER ``--upgrade``, which re-resolves the whole dependency graph to
+        the newest allowed versions and replaces packages Home Assistant
+        already ships even when the installed version satisfies our spec —
+        exactly how the image's websockets kept getting force-replaced
+        (#2135/#2146). ``--upgrade-package`` scopes the upgrade to ha-mcp's
+        own distribution: every other installed package is kept whenever it
+        satisfies the resolution.
+
+        ``reinstall`` replaces the target's files even when its version
+        already matches: removing the other server distribution deletes the
+        ``ha_mcp`` files both of them own.
+        """
+        kwargs = pip_kwargs(self._hass.config.config_dir)
+        timeout = max(int(kwargs.get("timeout") or 0), _PIP_INSTALL_TIMEOUT_SECONDS)
+        installed = await self._async_run_tracked_install_job(
+            partial(
+                _force_install_package,
+                self._pip_spec,
+                target_dist=self._target_dist(),
+                reinstall=reinstall,
+                constraints=kwargs.get("constraints"),
+                target=kwargs.get("target"),
+                timeout=timeout,
+            )
+        )
+        if not installed:
+            raise EmbeddedServerError(
+                f"Could not install the server ({self._pip_spec!r}). The "
+                f"in-process server requires ha-mcp "
+                f"{MIN_EMBEDDED_SERVER_VERSION} or newer and Home Assistant "
+                f"{MIN_EMBEDDED_HOME_ASSISTANT_VERSION} or newer. The "
+                "installer's output is logged under "
+                "custom_components.ha_mcp_tools.embedded_server.",
+                kind="package",
+            )
+
+    async def _async_remove_distribution(self, dist_name: str) -> bool:
+        """Remove a distribution from the same target used for installation.
+
+        Tracked like the install: an uninstall mutates the same package files.
+        Returns whether the uninstall subprocess reported success; callers
+        decide whether a failure is best-effort (conflicting-dist / legacy
+        cleanup) or fatal (the replaced-source removal, whose failure would
+        silently void the reinstall — see ``_async_remove_replaced_source``).
+        """
+        target = pip_kwargs(self._hass.config.config_dir).get("target")
+        if target is None:
+            result = await self._async_run_tracked_install_job(
+                partial(_uninstall_distribution, dist_name)
+            )
+        else:
+            result = await self._async_run_tracked_install_job(
+                partial(_uninstall_distribution, dist_name, target=target)
+            )
+        return bool(result)
+
+    def _store_installed_spec(self) -> None:
+        """Persist the pip spec just installed so a restart skips the reinstall."""
+        new_data = {**self._entry.data, DATA_LAST_PIP_SPEC: self._pip_spec}
+        if new_data != dict(self._entry.data):
+            self._hass.config_entries.async_update_entry(self._entry, data=new_data)
+
+    # -- server token ------------------------------------------------------
+
+    async def _async_access_token(self) -> str:
+        """Return the access token the server runs with (#2427).
+
+        Raises ``EmbeddedServerError(kind="token")`` when there is no usable
+        credential; nothing is created to replace it.
+        """
+        try:
+            return await async_server_access_token(self._hass, self._entry)
+        except CredentialNeeded as err:
+            raise EmbeddedServerError(err.reason, kind="token") from err
+
+    def _prepare_config_dir(self) -> None:
+        """Create the server's persistent data directory (blocking)."""
+        os.makedirs(self._config_dir, exist_ok=True)
+
+    # -- dependency diagnostics --------------------------------------------
+
+    async def _async_warn_on_dependency_conflicts(self) -> None:
+        """Log the dependency diagnosis when the installed graph is already broken.
+
+        Runs between the install step and the worker's first ``ha_mcp`` import,
+        so a conflict a third-party integration reintroduces at every startup
+        (issue #2239: a manifest pinning ``mcp==1.14.1`` drags the shared
+        package below fastmcp's floor) is named in the log even when the import
+        that follows still succeeds — it does whenever a good copy is already
+        cached in ``sys.modules`` from before the downgrade.
+
+        Advisory only: no repair issue, no failure, and a diagnosis that itself
+        fails is logged at debug and dropped. Bring-up continues either way.
+        """
+        try:
+            report = await self._hass.async_add_executor_job(
+                self._dependency_conflict_report
+            )
+        except Exception:
+            _LOGGER.debug("HA-MCP dependency pre-flight audit failed", exc_info=True)
+            return
+        if report is not None:
+            _LOGGER.warning(
+                "HA-MCP in-process server: the installed dependency tree is "
+                "inconsistent. %s",
+                report,
+            )
+
+    def _dependency_conflict_report(self) -> str | None:
+        """Describe the installed graph's violations, or None when it is sound.
+
+        Blocking (metadata + manifest reads): call from an executor job or the
+        worker thread, never from the event loop.
+        """
+        violations = audit_dependency_graph(self._audit_dist_name())
+        if not violations:
+            return None
+        return describe_dependency_failure(
+            None, violations, self._pinning_integrations(violations)
+        )
+
+    def _dependency_failure(self, err: BaseException) -> EmbeddedServerError | None:
+        """Re-diagnose an import crash as a dependency conflict (blocking).
+
+        Returns None when ``err``'s chain holds no ``ImportError`` — every
+        other crash keeps its own error untouched. The chain, not the outermost
+        exception, decides: fastmcp catches the real import failure and
+        re-raises its generic "FastMCP server support is not installed" hint,
+        which names neither the package nor the version that moved.
+
+        Best-effort by construction: the diagnosis must never replace the
+        failure it explains, so any error inside it degrades to the root
+        ``ImportError`` text — still strictly better than the outer hint.
+        """
+        root = root_import_failure(err)
+        if not isinstance(root, ImportError):
+            return None
+        try:
+            violations = audit_dependency_graph(self._audit_dist_name())
+            detail = describe_dependency_failure(
+                root, violations, self._pinning_integrations(violations)
+            )
+        except Exception:
+            _LOGGER.warning(
+                "HA-MCP dependency diagnostics failed; reporting the import "
+                "error itself",
+                exc_info=True,
+            )
+            detail = f"The server package failed to import: {root}"
+        return EmbeddedServerError(detail, kind="package")
+
+    def _audit_dist_name(self) -> str:
+        """Distribution whose requirement graph the audit walks (blocking).
+
+        A pip-spec OVERRIDE names its root explicitly — the literal
+        distribution its requirement installs (:func:`_override_dist_name`:
+        a pin on ``ha-mcp``, or any ``name @ url`` form, names that
+        distribution), or ``ha-mcp`` for a bare URL, since a repository
+        tarball installs under that name. An explicit root
+        is returned even with its metadata missing: auditing it then
+        reports that root as the violation — the true story when its
+        install failed — where any fallback would walk a stale graph
+        instead. A bare-URL override skips the conflicting-dist removal, so
+        stale metadata for the other distribution can coexist with the one
+        actually running.
+
+        Without an override the pinned distribution is the root, falling
+        back to the other known one when only that one has metadata —
+        auditing a root that is not installed reports the root itself
+        instead of the real conflict.
+        """
+        if self._pip_spec_override:
+            named = _override_dist_name(self._pip_spec)
+            if named is None:
+                # A bare URL names nothing: prefer stable (a repository
+                # tarball installs as ha-mcp) but accept
+                # whichever known distribution actually has metadata — a
+                # dev wheel URL installs ha-mcp-dev, and auditing the
+                # absent stable would report a phantom missing root on
+                # every healthy bring-up (Codex on #2245).
+                named = next(
+                    (
+                        dist
+                        for dist in (DIST_NAME_STABLE, DIST_NAME_DEV)
+                        if _dist_installed(dist)
+                    ),
+                    DIST_NAME_STABLE,
+                )
+            return named
+        preferred = self._preferred_dist()
+        if _dist_installed(preferred):
+            return preferred
+        other = DIST_NAME_STABLE if preferred == DIST_NAME_DEV else DIST_NAME_DEV
+        return other if _dist_installed(other) else preferred
+
+    def _pinning_integrations(
+        self, violations: list[DependencyViolation]
+    ) -> list[PinningIntegration]:
+        """Find the custom integrations forcing each violation (blocking).
+
+        The manifest scan matches by package name; the
+        :func:`requirement_forces_conflict` filter then drops integrations
+        whose requirement is compatible with what the violated specifier
+        needs — naming those would send the user to uninstall an innocent
+        integration. This component's own domain is excluded outright: it
+        declares the server requirement legitimately and is never the pin
+        to remove.
+        """
+        pinners: list[PinningIntegration] = []
+        by_package: dict[str, list[DependencyViolation]] = {}
+        for violation in violations:
+            by_package.setdefault(violation.package, []).append(violation)
+        for package, package_violations in by_package.items():
+            pinners.extend(
+                pinner
+                for pinner in find_pinning_integrations(
+                    self._hass_config_dir, package, exclude_domains=(DOMAIN,)
+                )
+                if any(
+                    requirement_forces_conflict(pinner.requirement, violation)
+                    for violation in package_violations
+                )
+            )
+        return pinners
+
+    # -- worker thread -----------------------------------------------------
+
+    def _register_embedded_connection(
+        self, hamcp_config: Any, access_token: str
+    ) -> None:
+        """Hand the loopback URL, admin token and config dir over in memory.
+
+        Optional keywords are dropped one at a time, newest first, when the
+        installed server rejects them with ``TypeError``: an older release
+        predates ``config_dir`` (issue #2329) or ``verify_ssl`` (issue #1890).
+        Only the rejected keyword is dropped — falling straight back to the
+        two-argument call would re-open #1890's certificate failure on an
+        SSL-enabled instance just because the server is missing an unrelated,
+        newer parameter.
+        """
+        kwargs: dict[str, Any] = {
+            "config_dir": self._hass_config_dir,
+            "llm_api_enabled": self._llm_api_enabled,
+        }
+        if self._loopback_verify_ssl is not None:
+            kwargs["verify_ssl"] = self._loopback_verify_ssl
+        for optional in ("llm_api_enabled", "config_dir", "verify_ssl", None):
+            try:
+                hamcp_config.set_embedded_connection(
+                    self._server_url, access_token, **kwargs
+                )
+                return
+            except TypeError:
+                if optional is None:
+                    raise
+                if optional not in kwargs:
+                    continue
+                del kwargs[optional]
+                if optional == "config_dir":
+                    # Only costs the direct blueprint file read; the server
+                    # falls back to reading through this component.
+                    _LOGGER.debug(
+                        "Installed ha-mcp server does not accept config_dir for "
+                        "the embedded connection; blueprint reads route through "
+                        "the component until the server package updates"
+                    )
+                elif optional == "llm_api_enabled":
+                    _LOGGER.debug(
+                        "Installed ha-mcp server does not accept the LLM API "
+                        "metadata flag; retaining its legacy tools/list metadata"
+                    )
+                else:
+                    _LOGGER.warning(
+                        "Installed ha-mcp server does not accept verify_ssl for "
+                        "the embedded connection; loopback TLS verification stays "
+                        "enabled until the server package updates"
+                    )
+
+    def _note_startup_phase(self, phase: str) -> None:
+        """Publish the worker's startup phase (a plain attribute write).
+
+        Read by the readiness poll: a phase advance counts as progress, and the
+        failure message names the phase the worker was last seen in.
+        """
+        self._startup_phase = phase
+        _LOGGER.debug("HA-MCP in-process server startup: %s", phase)
+
+    def _thread_main(self, access_token: str) -> None:
+        """Thread entry point: stage non-secret env, then run the server.
+
+        Only the non-secret ``HA_MCP_CONFIG_DIR`` / ``HA_MCP_EMBEDDED`` variables
+        are staged here (both read lazily throughout ha_mcp), and they MUST be set
+        before the first ``ha_mcp`` import so data-dir resolution and embedded-mode
+        detection see them. The loopback URL and the admin token are handed to
+        ha_mcp in memory inside :meth:`_serve` — never via ``os.environ``.
+        """
+        # Captured once, so a later start's fresh flag never reaches this worker.
+        stop_requested = self._stop_requested
+        os.environ["HA_MCP_CONFIG_DIR"] = self._config_dir
+        os.environ["HA_MCP_EMBEDDED"] = "1"
+
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        # Created here and handed to _serve as a LOCAL; publishing to self
+        # is one-way, for async_stop's signaling only — see async_stop's
+        # zombie-thread comment for why the worker must never re-read it.
+        stop_event = asyncio.Event()
+        self._loop = loop
+        self._stop_event = stop_event
+        # After publishing: a stop that found no event above set the flag first.
+        if stop_requested.is_set():
+            stop_event.set()
+        # Registration in _IMPORTING_WORKERS happened on the MAIN thread,
+        # before start() — see async_start. This thread only deregisters:
+        # in _serve once the import section completes, and in the finally
+        # below on exit as the backstop.
+        try:
+            loop.run_until_complete(
+                self._serve(access_token, stop_event, stop_requested)
+            )
+        except SystemExit as err:
+            # uvicorn signals a startup failure (e.g. the port is already in
+            # use) with SystemExit(STARTUP_FAILURE), which ``except Exception``
+            # misses — live issue #1904 saw the real bind error surface only
+            # in HA's generic task-exception log while the component reported
+            # a bare readiness timeout. Unwrap the original error so the
+            # repair issue names the actual cause; a bare SystemExit (no
+            # chained exception) is reported by repr so an empty/zero exit
+            # code still reads as what it is. The phase names where in
+            # _serve the exit happened instead of hardcoding a bind failure.
+            cause = err.__context__ or err.__cause__
+            detail = str(cause) if cause is not None else repr(err)
+            self._thread_exc = EmbeddedServerError(
+                f"the server exited during startup ({self._startup_phase}): {detail}"
+            )
+            _LOGGER.error(
+                "HA-MCP in-process server exited during startup (%s): %s",
+                self._startup_phase,
+                detail,
+            )
+        except Exception as err:
+            _LOGGER.exception("HA-MCP in-process server thread crashed")
+            # Published LAST, after the (blocking) diagnosis: the readiness
+            # poll surfaces _thread_exc the moment it is set, so assigning the
+            # raw error first would race the enriched one out of the repair
+            # issue.
+            self._thread_exc = self._dependency_failure(err) or err
+        finally:
+            with _IMPORTING_WORKERS_LOCK:
+                _IMPORTING_WORKERS.discard(threading.current_thread())
+            teardown_worker_loop(loop)
+
+    async def _serve(  # noqa: PLR0915
+        self,
+        access_token: str,
+        stop_event: asyncio.Event,
+        stop_requested: threading.Event,
+    ) -> None:
+        """Build the ha-mcp server and run it until a stop is signaled.
+
+        Mirrors the CLI HTTP runner in ``ha_mcp.__main__`` without importing it
+        (that module runs process-global side effects — truststore SSL patching,
+        signal handlers, ``asyncio.run`` — that must never happen in-process).
+        """
+        # Hand ha-mcp the loopback URL + the administrator's token in memory, before
+        # the server (and its settings singleton) is built. Keeping the token out
+        # of os.environ is the whole point of the in-process channel.
+        self._note_startup_phase("importing the server package")
+        import ha_mcp.config as _hamcp_config
+
+        # Record which code generation this worker imported, reading the
+        # spec's own distribution first: ha_mcp.__version__ knows only ha-mcp
+        # and ha-mcp-dev metadata, so a leftover of either could otherwise be
+        # reported for a different install (see _running_ha_mcp_version).
+        self._running_version = _running_ha_mcp_version(version_dist(self._pip_spec))
+        # The cache in sys.modules now holds this generation — remembered
+        # process-wide so the next start can skip the purge when the install
+        # has not changed (issue #1904).
+        global _CACHED_IMPORT_VERSION
+        _CACHED_IMPORT_VERSION = self._running_version
+
+        # Drop any settings singleton cached by a PREVIOUS start in this same
+        # Python process: an entry reload must re-read the override files
+        # (feature flags, advanced settings) exactly like an add-on restart
+        # does. Fall back to the private seam on releases that predate the
+        # public alias.
+        _reset = getattr(
+            _hamcp_config,
+            "reset_global_settings",
+            getattr(_hamcp_config, "_reset_global_settings", None),
+        )
+        if _reset is not None:
+            _reset()
+        else:
+            _LOGGER.warning(
+                "ha_mcp.config exposes no settings-reset seam; a reloaded "
+                "entry may serve stale override values until HA restarts"
+            )
+
+        self._register_embedded_connection(_hamcp_config, access_token)
+
+        # Imported here, in the worker thread, after the connection is registered.
+        from ha_mcp.server import HomeAssistantSmartMCPServer
+        from ha_mcp.settings_ui import register_settings_routes
+
+        self._note_startup_phase("building the server")
+        server = HomeAssistantSmartMCPServer()
+
+        # Startup observability (no secrets): confirm the in-memory connection
+        # channel actually reached the settings singleton — a sentinel here means
+        # the server cannot talk to HA core and every tool call will fail.
+        OAUTH_MODE_TOKEN = _hamcp_config.OAUTH_MODE_TOKEN
+        OAUTH_MODE_URL = _hamcp_config.OAUTH_MODE_URL
+        get_global_settings = _hamcp_config.get_global_settings
+
+        resolved = get_global_settings()
+        _LOGGER.info(
+            "Embedded connection resolved: url=%s, token=%s (requested url=%s)",
+            resolved.homeassistant_url,
+            "set"
+            if resolved.homeassistant_token not in ("", OAUTH_MODE_TOKEN)
+            else "SENTINEL-MISSING",
+            self._server_url,
+        )
+        if resolved.homeassistant_url in (
+            "",
+            OAUTH_MODE_URL,
+        ) or resolved.homeassistant_token in ("", OAUTH_MODE_TOKEN):
+            # Refuse to serve: a sentinel connection means every tool call
+            # would fail while the bring-up still looked successful (webhook
+            # registered, connect-URL notification shown). Raising propagates
+            # via _thread_exc -> the readiness probe -> a repair issue, which
+            # is the honest outcome (live-found signal-swallow). URL and
+            # token are checked SYMMETRICALLY - today they can only fail
+            # jointly, but the guard must catch a future regression in
+            # either half of the in-memory channel.
+            raise EmbeddedServerError(
+                "The in-process settings channel did not apply - the server "
+                "has no Home Assistant connection (sentinel URL or token). "
+                "Refusing to start."
+            )
+
+        # Parity with the CLI HTTP runner: serve the web settings UI under the
+        # same secret path as the MCP endpoint.
+        self._note_startup_phase("registering web routes")
+        register_settings_routes(server.mcp, server, secret_path=self._secret_path)
+
+        # Parity with the CLI HTTP runner: answer a browser GET on the MCP path
+        # with the friendly landing page (405 + setup guidance) instead of a
+        # bare "Method Not Allowed" — both on the direct URL and through the
+        # ingress webhook. Guard only the import: the installed server version
+        # is user-controlled (the HACS component release, a pip-spec override), so an older
+        # ha-mcp without this module must keep serving; the landing is simply
+        # absent there, as it is today.
+        try:
+            from ha_mcp.browser_landing import register_browser_landing
+        except ImportError:
+            # Older installed ha-mcp: no landing helper to register.
+            pass
+        else:
+            register_browser_landing(server.mcp, self._secret_path)
+
+        # Parity with the CLI HTTP runner: demote the MCP SDK/fastmcp log
+        # noise (routine stateless teardown, benign tool-validation
+        # tracebacks, disconnect-caused "session crashed" tracebacks) that
+        # every other HTTP launcher already filters.
+        _install_log_filters_if_available()
+
+        # Own the uvicorn server instead of calling mcp.run_async(): cancelling
+        # run_async's task does NOT release the listening socket in-process
+        # (live-found: the next bring-up failed with EADDRINUSE and uvicorn's
+        # lifespan generator raised "athrow(): asynchronous generator is
+        # already running"). The CLI never sees this because its process exits.
+        # This mirrors fastmcp 3.4.2's run_http_async internals (http_app +
+        # uvicorn.Config defaults + _lifespan_manager), pinned by ha-mcp.
+        import uvicorn
+
+        # The listener's ha_mcp imports happen before the import window closes.
+        default_host_origin_guard_off()
+        listener = DirectListener(self._bind_host, self._port)
+
+        # The cold import — the multi-minute window that crashed in #1904 —
+        # is complete: every explicit ha_mcp import in _serve precedes this
+        # line. Leave the registry so a long-running healthy server never
+        # blocks later bring-ups' purges (removal from sys.modules cannot
+        # unload already-bound modules; only in-flight imports are
+        # corruptible, and any later lazy import is outside the window this
+        # registry protects).
+        with _IMPORTING_WORKERS_LOCK:
+            _IMPORTING_WORKERS.discard(threading.current_thread())
+
+        app, proxy_headers = listener.wrap(
+            server.mcp.http_app(path=self._secret_path, stateless_http=True)
+        )
+        config = uvicorn.Config(
+            app,
+            host=self._bind_host,
+            proxy_headers=proxy_headers,
+            port=self._port,
+            timeout_graceful_shutdown=2,
+            lifespan="on",
+            # HTTP-ONLY listener, so no WebSocket protocol is loaded. uvicorn
+            # resolves its ``ws`` class EAGERLY in Config.load(), and
+            # "websockets-sansio" imports the SHARED websockets package — the
+            # unowned, tearable copy ha-mcp vendors its own to stay clear of
+            # (#2135/#2146); a torn shared install crashed this server at
+            # startup. "none" imports nothing; the MCP app serves Streamable
+            # HTTP only. Pinned by tests/src/unit/test_vendored_websockets.py.
+            ws="none",
+            # Don't reconfigure HA's root logger; access lines carry the secret path.
+            log_config=None,
+            access_log=False,
+            timeout_keep_alive=SERVER_KEEPALIVE_SECONDS,
+        )
+        uv_server = self._uv_server = uvicorn.Server(config)
+
+        self._note_startup_phase("starting the HTTP listener")
+        try:
+            async with server.mcp._lifespan_manager():
+                # A stop that came during the cold import, the server build or
+                # the lifespan entry may not have set stop_event yet: async_stop
+                # queues that set with call_soon_threadsafe and sets
+                # stop_requested first. Without this check a stopped worker
+                # would still bind the port.
+                if stop_requested.is_set():
+                    _LOGGER.debug(
+                        "HA-MCP in-process server stopped before its HTTP "
+                        "listener started"
+                    )
+                    return
+                try:
+                    serve_kwargs = listener.bind()
+                except OSError as err:
+                    # Report a busy port as uvicorn does for its own bind.
+                    raise SystemExit(3) from err
+                stop_task = asyncio.create_task(stop_event.wait())
+                serve_task = asyncio.create_task(uv_server.serve(**serve_kwargs))
+                done, _pending = await asyncio.wait(
+                    {serve_task, stop_task}, return_when=asyncio.FIRST_COMPLETED
+                )
+                if stop_task in done:
+                    # Graceful shutdown through uvicorn's own path: waits out
+                    # in-flight requests (2s cap), runs lifespan shutdown, and
+                    # deterministically releases the socket for the next
+                    # bring-up.
+                    uv_server.should_exit = True
+                    await serve_task
+                else:
+                    stop_task.cancel()
+                    with suppress(asyncio.CancelledError):
+                        await stop_task
+                    # Surface a server that exited on its own (bind failure,
+                    # etc.).
+                    serve_task.result()
+        finally:
+            listener.close()
+            # CLI parity: the HTTP runner's shutdown path releases the served
+            # stack's HA connections; this in-process runner must too, on this
+            # loop, while it still runs — otherwise the reader tasks are only
+            # cancelled by the thread's loop teardown and their sockets are
+            # abandoned to garbage collection (issue #2127).
+            await shutdown_server_resources_bounded(server)
+
+    def _progress_signature(self) -> tuple[int, str]:
+        """Snapshot the observable startup progress of the worker thread.
+
+        ``len(sys.modules)`` moves continuously while the worker grinds
+        through a cold import (the single longest startup step — minutes on
+        slow hardware, issue #1904), and the published phase moves between
+        steps. Any change in the pair counts as progress. The module count is
+        PROCESS-wide — an approximation: nothing finer-grained is observable
+        from outside a thread stuck inside one ``import`` statement, and any
+        other HA thread importing concurrently also refreshes the stall
+        budget. Erring toward patience is the point; the absolute cap bounds
+        the wait regardless.
+        """
+        return (len(sys.modules), self._startup_phase)
+
+    async def _async_wait_until_ready(self) -> None:
+        """Poll a loopback TCP connect until the server accepts, or fail.
+
+        Patience is progress-based: the wait only gives up when there is no
+        observable progress for ``_READY_STALL_TIMEOUT_SECONDS`` (or the
+        absolute ``_READY_TOTAL_CAP_SECONDS`` ceiling is hit). A slow cold
+        import keeps the wait alive; a wedged worker is caught by the stall
+        budget on a quiet instance, by the cap at the latest (the progress
+        signal is process-wide). On failure stops the thread and raises
+        :class:`EmbeddedServerError` so the caller leaves the webhook
+        unregistered and files a repair issue.
+        """
+        start = self._hass.loop.time()
+        last_progress = start
+        last_signature = self._progress_signature()
+        while True:
+            if self._thread_exc is not None:
+                raise _worker_startup_failure(self._thread_exc)
+            if self._thread is not None and not self._thread.is_alive():
+                raise EmbeddedServerError(
+                    "HA-MCP in-process server thread exited during startup."
+                )
+            if await self._async_server_ready():
+                _LOGGER.info(
+                    "HA-MCP in-process server is listening on %s:%d",
+                    self._bind_host,
+                    self._port,
+                )
+                return
+            now = self._hass.loop.time()
+            signature = self._progress_signature()
+            if signature != last_signature:
+                last_signature = signature
+                last_progress = now
+            if now - start >= _READY_TOTAL_CAP_SECONDS:
+                failure = (
+                    f"HA-MCP in-process server did not become reachable on "
+                    f"port {self._port} within {_READY_TOTAL_CAP_SECONDS:.0f}s "
+                    f"(last startup phase: {self._startup_phase})."
+                )
+                break
+            if now - last_progress >= _READY_STALL_TIMEOUT_SECONDS:
+                failure = (
+                    f"HA-MCP in-process server did not become reachable on "
+                    f"port {self._port}: no startup progress observed for "
+                    f"{_READY_STALL_TIMEOUT_SECONDS:.0f}s (last phase: "
+                    f"{self._startup_phase}; {now - start:.0f}s since start)."
+                )
+                break
+            await asyncio.sleep(_READY_POLL_INTERVAL_SECONDS)
+
+        # Gave up — tear the thread down so we never leave a half-started
+        # server behind an unregistered webhook.
+        await self.async_stop()
+        raise EmbeddedServerError(failure)
+
+    async def _async_server_ready(self) -> bool:
+        """Return True once this worker's uvicorn serves and loopback reaches it.
+
+        A loopback connect alone also succeeds when another process already
+        holds the port, which reported a dead server as running (#2915).
+        """
+        server = self._uv_server
+        return bool(server and server.started) and await self._async_probe_port()
+
+    async def _async_probe_port(self) -> bool:
+        """Return True if a loopback TCP connection to the server port succeeds."""
+        return await async_probe_loopback(self._port, _READY_POLL_INTERVAL_SECONDS)
+
+
+# Worker threads that may still be executing their ha_mcp imports. Purging
+# sys.modules while any of them is alive corrupts the in-flight import
+# (KeyError from frozen importlib — issue #1904). Process-global because a
+# manager is recreated on every bring-up, so per-manager orphan tracking
+# cannot see a previous manager's abandoned worker. The spawning (main)
+# thread registers the worker BEFORE start() — see async_start — and the
+# worker deregisters once its import section completes (or on thread exit,
+# whichever comes first). All access
+# goes through the lock: CPython's GIL would make the individual set ops
+# atomic, but the purge gate's prune-then-check is a composite read and the
+# lock keeps its correctness independent of GIL scheduling arguments.
+# Deliberate tradeoff: a worker wedged forever inside its import stays
+# registered and blocks every later purge until an HA core restart — evicting
+# a live importer on a timer would reintroduce the very corruption this
+# registry prevents, and the skip warning plus the post-start staleness check
+# surface the condition.
+_IMPORTING_WORKERS_LOCK = threading.Lock()
+_IMPORTING_WORKERS: set[threading.Thread] = set()
+
+
+def _prune_and_check_importing_workers() -> bool:
+    """Drop dead workers from the registry; return True if any live one remains."""
+    with _IMPORTING_WORKERS_LOCK:
+        _IMPORTING_WORKERS.difference_update(
+            [t for t in _IMPORTING_WORKERS if not t.is_alive()]
+        )
+        return bool(_IMPORTING_WORKERS)
+
+
+# Completion event of the package-mutating install/uninstall job currently on
+# the executor, if any. asyncio cancellation of a bring-up detaches the
+# awaiter, but the executor job keeps running to completion — untracked, an
+# orphaned pip could swap the distribution's files under the NEXT bring-up's
+# install or its worker's cold import (found in review of PR #1911, the
+# #1904 fixes; pre-existing). The dispatching coroutine registers the event BEFORE handing
+# the job to the executor, and the executor fn sets it in a finally that
+# survives cancellation; the next bring-up waits on it before mutating
+# anything. Process-global for the same reason as _IMPORTING_WORKERS: a
+# manager is recreated on every bring-up.
+#
+# Single slot BY DESIGN: at most one tracked job can exist at a time — the
+# server entry is single-instance, an entry reload cancels-and-awaits the
+# previous bring-up before setting up, and every dispatch site sits behind
+# _async_wait_for_pending_install. A second concurrent dispatcher would
+# overwrite the slot and silently lose the older live job — keep any new
+# package-mutating call site behind the wait gate. The slot tracking wraps
+# the DIRECT-pip sites (force install, uninstalls); the fast path goes
+# through HA's requirements manager, which is behind the gate but untracked —
+# it only dispatches pip when the package is missing outright, which cannot
+# co-occur with a live orphaned job worth waiting on.
+_PENDING_INSTALL_LOCK = threading.Lock()
+_PENDING_INSTALL_DONE: threading.Event | None = None
+
+
+# Version of the ha_mcp generation currently cached in sys.modules — set by
+# the worker right after its first import lands, cleared by the purge. Process-wide
+# (the module cache it describes is process-wide too). Lets a retry with an
+# unchanged install keep the warm cache instead of paying the full cold import
+# again (issue #1904).
+_CACHED_IMPORT_VERSION: str | None = None
+
+
+def _safe_invalidate_caches() -> None:
+    """Run ``importlib.invalidate_caches()``, completing it if a finder breaks.
+
+    On Python 3.14 with ``homeassistant`` installed as a setuptools *editable*
+    package (the official HA container image), ``PathFinder.invalidate_caches()``
+    raises ``KeyError`` at its ``del sys.path_importer_cache[name]`` line: the
+    synthetic ``__editable__.<dist>.finder.__path_hook__`` placeholder is not an
+    absolute path, so CPython takes the ``del`` branch on a key an earlier
+    iteration already removed — a CPython 3.14 bug (the ``del`` should be a
+    ``pop``). That aborts ``importlib.invalidate_caches()`` partway and, before
+    this guard, crashed in-process server bring-up on every boot (issues #1891,
+    #1985).
+
+    On that ``KeyError`` we do CPython's own cleanup ourselves — prune the dead /
+    relative ``sys.path_importer_cache`` entries with ``pop`` instead of the
+    buggy ``del`` (the stale placeholder that trips the sweep is among them) —
+    then re-run ``importlib.invalidate_caches()``. With the offending entries
+    gone the retry completes CPython's full sweep itself: every live path-entry
+    finder invalidated, the namespace-path epoch advanced, and the metadata
+    finder refreshed. Delegating the second pass keeps us off private internals
+    (no ``_NamespacePath`` / ``_path_isabs`` poking) and faithful to whatever the
+    running Python's ``invalidate_caches`` does. Recovery only ever runs on the
+    broken 3.14 path (the top-level call succeeds everywhere else); every
+    non-``KeyError`` still propagates.
+
+    The retry is itself guarded: a concurrent import on another HA-core thread
+    could re-add a stale placeholder in the window between the prune and the
+    retry, so a *second* ``KeyError`` is tolerated (logged, best-effort) rather
+    than re-raised — a partial cache refresh must never re-crash bring-up, which
+    is the whole point of this helper. The recovery is logged at WARNING (it
+    recurs on every version check on an affected install), so it is visible for
+    diagnosis rather than a silent workaround.
+    """
+    try:
+        importlib.invalidate_caches()
+        return
+    except KeyError as err:
+        _LOGGER.warning(
+            "importlib.invalidate_caches() raised KeyError from a broken "
+            "(setuptools editable / Python 3.14) finder; pruning stale "
+            "sys.path_importer_cache entries and retrying: %s",
+            err,
+        )
+    for name in list(sys.path_importer_cache):
+        if sys.path_importer_cache.get(name) is None or not os.path.isabs(name):
+            sys.path_importer_cache.pop(name, None)
+    try:
+        importlib.invalidate_caches()
+    except KeyError as err:
+        _LOGGER.warning(
+            "importlib.invalidate_caches() still raised KeyError after pruning "
+            "stale sys.path_importer_cache entries; continuing with a best-effort "
+            "cache state (a concurrent import may have re-added the placeholder): "
+            "%s",
+            err,
+        )
+
+
+def _purge_ha_mcp_modules() -> None:
+    """Drop every cached ``ha_mcp`` module so the next import loads fresh code.
+
+    The in-process server runs as a thread of the HA core Python process, and
+    Python resolves imports from the process-wide ``sys.modules`` cache — so
+    after a pip install the next worker would silently reuse the OLD code
+    unless the cache is purged first. Safe here because ``ha_mcp`` is pure
+    Python and is only ever imported inside worker threads, and the caller's
+    gate guarantees no registered worker is mid-import when this runs (a
+    worker past its imports keeps its already-bound modules regardless);
+    third-party dependencies are deliberately NOT purged (they are shared
+    with the rest of Home Assistant), so a dependency-version change still
+    needs an HA core restart.
+    """
+    global _CACHED_IMPORT_VERSION
+    _CACHED_IMPORT_VERSION = None
+    # Snapshot the keys: sys.modules can be mutated by concurrent imports on
+    # other threads mid-iteration (HA core is heavily threaded).
+    purged = [
+        name
+        for name in list(sys.modules)
+        if name == "ha_mcp" or name.startswith("ha_mcp.")
+    ]
+    if not purged:
+        return
+    for name in purged:
+        sys.modules.pop(name, None)
+    _safe_invalidate_caches()
+    _LOGGER.debug("Purged %d cached ha_mcp module(s) before worker start", len(purged))
+
+
+def _installed_ha_mcp_version(preferred_dist: str | None = None) -> str | None:
+    """Return the installed server version, or None (blocking).
+
+    Invalidates the import caches first so a just-completed pip install is seen.
+    Reads ``preferred_dist`` first when it provides the server (any name), then
+    ``ha-mcp`` and ``ha-mcp-dev``, so stale metadata (a failed or skipped
+    conflicting uninstall, or the manifest pin beside an override under another
+    name) cannot mask the package just installed.
+    """
+    _safe_invalidate_caches()
+    # Metadata alone is not proof: the best-effort removal of the other
+    # server distribution can leave ORPHANED .dist-info whose files are gone
+    # (the shared ha_mcp/ tree belongs to whichever dist installed last).
+    # Require the import machinery to actually resolve the package before
+    # trusting any version.
+    if importlib.util.find_spec("ha_mcp") is None:
+        return None
+    if preferred_dist and not provides_server(preferred_dist):
+        preferred_dist = None
+    dist_names = (preferred_dist, DIST_NAME_STABLE, DIST_NAME_DEV)
+    for dist_name in dict.fromkeys(filter(None, dist_names)):
+        with suppress(importlib.metadata.PackageNotFoundError):
+            return importlib.metadata.version(dist_name)
+    return None
+
+
+def _dist_installed(dist_name: str) -> bool:
+    """Return True if the named distribution has installed metadata (blocking).
+
+    Invalidates the import caches first so a just-completed (un)install is seen.
+    """
+    _safe_invalidate_caches()
+    try:
+        importlib.metadata.version(dist_name)
+    except importlib.metadata.PackageNotFoundError:
+        return False
+    return True
+
+
+def _installed_dist_version(dist_name: str) -> str | None:
+    """Return the installed version of a SPECIFIC distribution, or None (blocking).
+
+    Invalidates the import caches first so a just-completed (un)install is seen.
+    Unlike :func:`_installed_ha_mcp_version` (which falls back from the
+    preferred distribution to either server distribution) this reads only the
+    given distribution name, so
+    the target's version is never read from the other distribution's metadata.
+    """
+    _safe_invalidate_caches()
+    try:
+        return importlib.metadata.version(dist_name)
+    except importlib.metadata.PackageNotFoundError:
+        return None
+
+
+def _running_ha_mcp_version(preferred_dist: str) -> str | None:
+    """Return the imported worker version, resolving cross-dist ambiguity.
+
+    ``ha_mcp.__version__`` reads only ``ha-mcp`` and ``ha-mcp-dev`` metadata,
+    so when it matches one of those beside a ``preferred_dist`` that provides
+    the server, it came from leftover metadata, and ``preferred_dist``'s
+    version is the imported one.
+    """
+    imported_version = getattr(sys.modules.get("ha_mcp"), "__version__", None)
+    preferred_version = _installed_dist_version(preferred_dist)
+    if preferred_version is None or not provides_server(preferred_dist):
+        return imported_version
+
+    other_dists = (d for d in (DIST_NAME_STABLE, DIST_NAME_DEV) if d != preferred_dist)
+    if imported_version in {_installed_dist_version(d) for d in other_dists}:
+        return preferred_version
+    return imported_version
+
+
+def _uninstall_distribution(dist_name: str, *, target: str | None = None) -> bool:
+    """Uninstall a distribution by name (blocking), best-effort.
+
+    Mirrors ``homeassistant.util.package.install_package``'s invocation style —
+    ``<python> -m uv pip ...`` with no shell. An explicit dependency target is
+    used when Home Assistant installs into ``config/deps``; otherwise ``--python``
+    selects Home Assistant's interpreter environment. A failure is logged but
+    not raised; the caller treats the cleanup as best-effort.
+    """
+    args = [
+        sys.executable,
+        "-m",
+        "uv",
+        "pip",
+        "uninstall",
+    ]
+    if target is not None:
+        args += ["--target", os.path.abspath(target)]
+    else:
+        args += ["--python", sys.executable]
+    args.append(dist_name)
+    try:
+        result = subprocess.run(
+            args,
+            capture_output=True,
+            text=True,
+            timeout=_PIP_UNINSTALL_TIMEOUT_SECONDS,
+            check=False,
+        )
+    except (OSError, subprocess.SubprocessError) as err:
+        _LOGGER.warning("Could not uninstall %r: %s", dist_name, err)
+        return False
+    if result.returncode != 0:
+        _LOGGER.warning(
+            "Uninstall of %r exited %d: %s",
+            dist_name,
+            result.returncode,
+            (result.stderr or "").strip(),
+        )
+        return False
+    return True
+
+
+def _force_install_package(
+    spec: str,
+    *,
+    target_dist: str | None,
+    reinstall: bool = False,
+    constraints: str | None,
+    target: str | None,
+    timeout: int | None,
+) -> bool:
+    """Install ``spec``, touching ONLY our own distribution (blocking).
+
+    Mirrors ``homeassistant.util.package.install_package``'s uv invocation
+    (index strategy, constraints, target, the uv --user workaround, and the
+    HTTP_TIMEOUT env) but never its eager ``--upgrade``, which re-resolves
+    EVERY dependency to the newest allowed version and replaces packages the
+    Home Assistant image already ships (#2135/#2146). The replacement flag
+    is chosen per spec shape by :func:`_scoped_install_flags`;
+    ``target_dist`` is the known server distribution the spec installs, used
+    to scope a bare URL that names none of its own.
+    """
+    env = os.environ.copy()
+    if timeout:
+        env["HTTP_TIMEOUT"] = str(timeout)
+    args = _uv_install_args(
+        spec,
+        target_dist=target_dist,
+        reinstall=reinstall,
+        constraints=constraints,
+        target=target,
+        env=env,
+    )
+    _LOGGER.info("Installing the in-process server package: %s", spec)
+    stderr = _run_uv_install(args, env)
+    if stderr is None:
+        return True
+
+    # install_package's extra-index fallback, mirrored: uv treats a failing
+    # extra index as FATAL where pip merely skips it, so a wheels-index
+    # outage would otherwise fail a bring-up that PyPI could satisfy on its
+    # own. When the error names an extra-index host, retry with that host
+    # dropped. Matched on host because wheel files may live outside the
+    # index path. The warning names the failing HOSTS rather than the
+    # configured URLs (which can carry credentials); uv's own stderr is
+    # included as-is, exactly as install_package logs it.
+    extra_urls = env.get("UV_EXTRA_INDEX_URL", "").split()
+    failing = {
+        url: host for url in extra_urls if (host := _url_host(url)) and host in stderr
+    }
+    if failing:
+        _LOGGER.warning(
+            "Could not install %r using extra index host %s: %s; retrying without it",
+            spec,
+            ", ".join(failing.values()),
+            stderr,
+        )
+        retry_env = env.copy()
+        if remaining := [url for url in extra_urls if url not in failing]:
+            retry_env["UV_EXTRA_INDEX_URL"] = " ".join(remaining)
+        else:
+            del retry_env["UV_EXTRA_INDEX_URL"]
+        stderr = _run_uv_install(args, retry_env)
+        if stderr is None:
+            return True
+
+    _LOGGER.error("Could not install %r: %s", spec, stderr)
+    return False
+
+
+def _scoped_install_flags(
+    spec: str, target_dist: str | None, *, reinstall: bool = False
+) -> list[str]:
+    """Return the uv flag that scopes this install to OUR distribution.
+
+    Never a bare ``--upgrade``: that re-resolves the whole graph and
+    replaces packages Home Assistant ships (#2135/#2146). Which scoped flag
+    is right depends on the SPEC SHAPE, not on which distribution it names:
+
+    * A URL requirement must be REINSTALLED. Measured on uv 0.11.33 (the
+      version CI pins), re-running an unchanged ``name @ file://…`` spec
+      reports "Checked 1 package" under both no flag and
+      ``--upgrade-package`` — it installs nothing — while
+      ``--reinstall-package`` replaces it. Auditing-and-skipping would keep
+      the OLD code running while the bring-up logs success (the #1914
+      shape), and it is exactly the "a URL install is always real"
+      guarantee that ``_replaced_dist_name`` and
+      ``_async_remove_replaced_source`` skip their uninstall on.
+    * An index requirement only needs an UPGRADE, scoped to the
+      distribution the spec itself names — unless ``reinstall`` is set:
+      removing the other server distribution deleted the shared ``ha_mcp``
+      files, and an upgrade of a version that already matches would leave
+      them missing (reproduced on Core 2026.10.0b0: ``No module named
+      'ha_mcp.config'``).
+
+    A bare URL names no distribution of its own, and either known dist can
+    be the one it provides (a repository tarball installs as ``ha-mcp``, a
+    dev wheel as ``ha-mcp-dev``) — guessing wrong would have uv report
+    success while leaving the real package un-refreshed, and a mutable URL
+    (a branch tarball, a rebuilt artifact) keeps its version string, so
+    nothing else would catch it. Both known dists are therefore named:
+    reinstalling one that is not installed is a harmless no-op for uv
+    (verified: exit 0, package still installed from the URL).
+    """
+    try:
+        requirement = Requirement(spec)
+    except InvalidRequirement:
+        candidates = [target_dist] if target_dist else []
+        candidates += [DIST_NAME_STABLE, DIST_NAME_DEV]
+        flags: list[str] = []
+        for dist in dict.fromkeys(candidates):  # ordered, deduplicated
+            flags += ["--reinstall-package", dist]
+        return flags
+    if requirement.url is not None or reinstall:
+        return ["--reinstall-package", requirement.name]
+    return ["--upgrade-package", requirement.name]
+
+
+def _url_host(url: str) -> str | None:
+    """Host of ``url``, or None when it cannot be parsed.
+
+    ``urlparse().hostname`` RAISES on a malformed URL (``ValueError:
+    Invalid IPv6 URL`` for an unclosed bracket), and the one caller runs on
+    the INSTALL-FAILURE path — where an operator's typo'd
+    ``UV_EXTRA_INDEX_URL`` entry would replace uv's real stderr with a
+    traceback from the error handler.
+    """
+    try:
+        return urlparse(url).hostname
+    except ValueError:
+        return None
+
+
+def _pin_moves_off_installed(spec: str, installed_version: str) -> bool:
+    """True when an exact-pin ``spec`` CANNOT be satisfied by what's installed.
+
+    Asks the pin's own specifier rather than comparing parsed versions: PEP
+    440 ``==1.0`` matches an installed ``1.0+local``, while
+    ``Version("1.0") != Version("1.0+local")`` is True. A version comparison
+    would therefore call that pin "moved", skip the caller's uninstall, and
+    let the installer no-op it as already satisfied — the #1914 shape.
+
+    False when the spec is not an exact pin, and False whenever the answer
+    is unprovable (unparseable requirement or version): "unknown" must not
+    be mistaken for "guaranteed to move", since the caller skips its
+    uninstall on a True.
+    """
+    if _exact_pinned_version(spec) is None:
+        return False
+    try:
+        requirement = Requirement(spec)
+        # Validate the installed version explicitly: SpecifierSet.contains()
+        # answers False for an unparseable version rather than raising, and
+        # False here would invert to "moved" — the unsafe direction.
+        Version(installed_version)
+    except (InvalidRequirement, InvalidVersion):
+        return False
+    if requirement.marker is not None and not requirement.marker.evaluate():
+        # The requirement does not apply to this interpreter, so the
+        # installer will skip it entirely — the pin cannot make the install
+        # real, whatever version it names.
+        return False
+    return not requirement.specifier.contains(installed_version, prereleases=True)
+
+
+def _override_dist_name(spec: str) -> str | None:
+    """Distribution name a pip-spec override installs, or None for a bare URL.
+
+    Unlike :meth:`EmbeddedServerManager._replaced_dist_name` — which maps
+    onto the two known server distributions for the replaced-source
+    checks — the audit needs the LITERAL name: an override may install an
+    arbitrary distribution (``acme-ha-mcp @ file:///pkg.whl``), and that
+    distribution's graph is the one the worker imports (CodeRabbit on
+    #2245).
+    """
+    try:
+        return Requirement(spec).name
+    except InvalidRequirement:
+        return None
+
+
+def _spec_is_url_requirement(spec: str) -> bool:
+    """True when ``spec`` installs from a URL rather than an index.
+
+    Same shape test :func:`_scoped_install_flags` routes on, and for the
+    same reason — an unparseable spec is treated as URL-ish so it takes the
+    conservative path.
+    """
+    try:
+        return Requirement(spec).url is not None
+    except InvalidRequirement:
+        return True
+
+
+def _uv_install_args(
+    spec: str,
+    *,
+    target_dist: str | None,
+    reinstall: bool = False,
+    constraints: str | None,
+    target: str | None,
+    env: dict[str, str],
+) -> list[str]:
+    """Build the ``uv pip install`` argv (mirrors install_package's shape)."""
+    args = [
+        sys.executable,
+        "-m",
+        "uv",
+        "pip",
+        "install",
+        "--quiet",
+        spec,
+        # Mirrors install_package: custom components may need a different
+        # version of a package than the one HA built wheels for.
+        "--index-strategy",
+        "unsafe-first-match",
+    ]
+    args += _scoped_install_flags(spec, target_dist, reinstall=reinstall)
+    if constraints is not None:
+        args += ["--constraint", constraints]
+    if target:
+        args += ["--target", os.path.abspath(target)]
+    elif (
+        not is_virtual_env()
+        # install_package's _UV_ENV_PYTHON_VARS, mirrored: an explicit uv
+        # python selection means uv already installs to the right place.
+        and not any(var in env for var in ("UV_SYSTEM_PYTHON", "UV_PYTHON"))
+        and (user_site := site.getusersitepackages())
+    ):
+        # uv has no --user (astral-sh/uv#2077); install_package's workaround.
+        args += ["--python", sys.executable, "--target", os.path.abspath(user_site)]
+    return args
+
+
+def _run_uv_install(args: list[str], env: dict[str, str]) -> str | None:
+    """Run one uv install attempt; return None on success, else its stderr.
+
+    Bounded by ``_UV_INSTALL_TIMEOUT_SECONDS``: this runs inside the
+    process-wide tracked-install slot, and the extra-index fallback can run
+    it twice, so a wedged uv would otherwise pin an executor thread (and
+    block the next bring-up) with no upper bound. The budget is deliberately
+    generous — a cold ARM wheel build is slow but finite.
+    """
+    try:
+        result = subprocess.run(
+            args,
+            capture_output=True,
+            text=True,
+            check=False,
+            env=env,
+            timeout=_UV_INSTALL_TIMEOUT_SECONDS,
+        )
+    except (OSError, subprocess.SubprocessError) as err:
+        return f"{type(err).__name__}: {err}"
+    if result.returncode != 0:
+        return (result.stderr or "").strip() or f"exit code {result.returncode}"
+    return None
+
+
+def _install_reason(
+    spec: str,
+    *,
+    stored_spec: str | None,
+    target_dist: str | None,
+    installed_version: str | None,
+    target_version: str | None,
+    conflicting: str | None,
+) -> str | None:
+    """Name the first reason ``_async_ensure_managed_package`` installs, or None.
+
+    None means the installed package already satisfies ``spec``. Logged before
+    every install so an unexpected reinstall (one that re-resolves the
+    dependency tree) can be traced to its cause.
+    """
+    if target_dist is None:
+        return f"{spec!r} names no known server distribution"
+    if installed_version is None:
+        return "no importable ha_mcp package"
+    if target_version is None:
+        return f"{target_dist} is not installed"
+    if conflicting is not None:
+        return f"{conflicting} is installed beside {target_dist}"
+    if _spec_is_url_requirement(spec):
+        return f"{spec!r} is a direct URL, which always installs"
+    if not _spec_satisfied_by(spec, target_version):
+        return f"installed {target_dist} {target_version} does not satisfy {spec!r}"
+    if not _is_compatible_embedded_version(target_version):
+        return (
+            f"installed {target_dist} {target_version} is older than "
+            f"{MIN_EMBEDDED_SERVER_VERSION}"
+        )
+    if (
+        stored_spec is None
+        or stored_spec == spec
+        # Same distribution from the same index: the version on disk is what
+        # the index served for it, so "satisfied by version" is the truth, not
+        # the #1914 lie.
+        or _spec_is_index_requirement_on(stored_spec, target_dist)
+    ):
+        return None
+    return f"the spec changed from {stored_spec!r} to {spec!r}"
+
+
+def _spec_satisfied_by(spec: str, installed_version: str) -> bool:
+    """True when the index requirement ``spec`` accepts ``installed_version``.
+
+    Mirrors ``homeassistant.util.package.is_installed`` (pre-releases count:
+    a pre-release component pins a dev build). False for anything unprovable.
+    """
+    try:
+        requirement = Requirement(spec)
+        Version(installed_version)
+    except (InvalidRequirement, InvalidVersion):
+        return False
+    if requirement.url:
+        return False
+    return requirement.specifier.contains(installed_version, prereleases=True)
+
+
+async def _async_paired_server_requirement(hass: HomeAssistant) -> str | None:
+    """Return the server requirement this component release pins, or None.
+
+    Every component release HACS delivers pins the ``ha-mcp`` (pre-release:
+    ``ha-mcp-dev``) build it was released with in ``manifest.json``'s ``requirements``, which Home
+    Assistant installs before setting the integration up. A copy taken from
+    master pins the last release; only a hand-edited manifest carries none.
+    """
+    integration = await async_get_integration(hass, DOMAIN)
+    return next(iter(server_pins(integration.requirements)), None)
+
+
+def _exact_pinned_version(spec: str) -> str | None:
+    """Return the version of an exact ``==``/``===`` single-clause pin, or None.
+
+    Anything else — URL specs, bare names, ranges, multi-clause specifiers —
+    returns None: only an exact pin lets the caller prove, without asking the
+    resolver, whether the installed version could satisfy the spec. A
+    wildcard pin (``==7.13.*``) is returned as-is; the caller's ``Version``
+    parse rejects it, which conservatively keeps the uninstall.
+    """
+    try:
+        req = Requirement(spec)
+    except InvalidRequirement:
+        return None
+    if req.url:
+        return None
+    clauses = list(req.specifier)
+    if len(clauses) != 1 or clauses[0].operator not in ("==", "==="):
+        return None
+    return clauses[0].version
+
+
+def _spec_is_index_requirement_on(spec: str, dist_name: str) -> bool:
+    """Return whether ``spec`` is a plain index requirement on ``dist_name``.
+
+    True only for a PEP 508 requirement with no direct-URL part whose
+    canonical name matches — i.e. a spec that installs ``dist_name`` from the
+    package index (bare name or version pin). A direct URL (whether a plain
+    URL string, which does not parse as a requirement, or a ``name @ url``
+    form) returns False: its origin is not the index, so it is a genuine
+    source change for the replaced-source check.
+    """
+    try:
+        req = Requirement(spec)
+    except InvalidRequirement:
+        return False
+    if req.url:
+        return False
+    return canonicalize_name(req.name) == canonicalize_name(dist_name)
+
+
+def _is_compatible_embedded_version(version: str) -> bool:
+    """Return whether a server distribution provides the embedded API."""
+    try:
+        return Version(version) >= Version(MIN_EMBEDDED_SERVER_VERSION)
+    except InvalidVersion:
+        return False

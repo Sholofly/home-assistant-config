@@ -23,6 +23,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import STATE_UNAVAILABLE
 from homeassistant.core import CALLBACK_TYPE, HomeAssistant
 from homeassistant.helpers import config_validation as cv, entity_platform
+from homeassistant.helpers.dispatcher import async_dispatcher_send
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.util import dt as dt_util
@@ -63,7 +64,9 @@ from .const import (
     REMOTE_KEY_PRESS,
     REWIND,
     SKIP_AD_BREAK,
+    signal_device_state,
 )
+from .keys import resolve_remote_key
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -128,8 +131,9 @@ async def async_setup_entry(
         elif call.service == RECORD:
             await device.record()
         elif call.service == REMOTE_KEY_PRESS:
-            key = call.data[CONF_REMOTE_KEY]
-            await device.send_key_to_box(key)
+            await device.send_key_to_box(
+                resolve_remote_key(call.data[CONF_REMOTE_KEY])
+            )
         elif call.service == SKIP_AD_BREAK:
             await device.skip_ad_break()
 
@@ -534,6 +538,9 @@ class LGHorizonMediaPlayer(MediaPlayerEntity):
             self._update_ad_break_checker()
             self._ad_break_active = self._is_in_ad_break()
             self.schedule_update_ha_state(True)
+            async_dispatcher_send(
+                self.hass, signal_device_state(self._device.device_id)
+            )
 
         await self._device.set_callback(state_callback)
         self._channels = await self.api.get_profile_channels()

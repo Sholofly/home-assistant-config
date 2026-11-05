@@ -23,7 +23,7 @@ from homeassistant.core import callback
 from homeassistant.exceptions import HomeAssistantError, ServiceNotFound
 from homeassistant.helpers.event import async_track_state_change_event
 
-from ...providers import name_fallback_providers, provider_uri_fields
+from ...providers import get_provider, name_fallback_providers, provider_uri_fields
 from .base import PlaybackStrategy
 from .uris import convert_uri_for_ma, uri_match_tokens
 
@@ -176,6 +176,45 @@ _EDITION_MARKERS = re.compile(
     r")\b",
     re.IGNORECASE,
 )
+
+
+_PROVIDER_LABELS = {
+    "spotify": "Spotify",
+    "apple_music": "Apple Music",
+    "tidal": "Tidal",
+    "youtube_music": "YouTube Music",
+    "deezer": "Deezer",
+}
+
+
+def _provider_label(uri: str) -> str:
+    """Name the provider behind ``uri`` for log text (#3297).
+
+    Falls back to "provider's" so the sentence still reads right for a scheme
+    we have no name for (``its provider's rate limiter``).
+    """
+    scheme = re.split(r"[:/]", uri or "", maxsplit=1)[0].lower()
+    return _PROVIDER_LABELS.get(scheme, "provider's")
+
+
+def _is_provider_unavailable(err: BaseException) -> bool:
+    """Whether Music Assistant refused a request because its provider is down.
+
+    #3328: Home Assistant's Music Assistant integration re-raises the client's
+    ``ProviderUnavailableError`` as a plain ``HomeAssistantError`` carrying the
+    same message ("The provider is currently unavailable."), with the original
+    exception as its cause. Both are checked, so the test does not depend on
+    which of the two layers a given Home Assistant version hands back.
+    """
+    seen: BaseException | None = err
+    while seen is not None:
+        if type(seen).__name__ == "ProviderUnavailableError":
+            return True
+        text = str(seen).lower()
+        if "provider" in text and ("unavailable" in text or "not available" in text):
+            return True
+        seen = seen.__cause__
+    return False
 
 
 def _edition_markers(text: str) -> set[str]:
@@ -550,7 +589,7 @@ class MusicAssistantStrategy(PlaybackStrategy):
             "MA playback confirmed after %.1fs for %s — past the %.0fs "
             "slow-start mark, on a %.0fs budget (a healthy warm start is about "
             "4s). Nothing failed, but Music Assistant's provider is very "
-            "likely backing off: its Apple Music rate limiter retries on an "
+            "likely backing off: its %s rate limiter retries on an "
             "exponential schedule (1s, 2s, 4s, 8s, ...) and that wait lands on "
             "top of every start. The next one may not fit in the budget. "
             "Confirm it in the Music Assistant add-on log — look for 'Rate "
@@ -559,6 +598,7 @@ class MusicAssistantStrategy(PlaybackStrategy):
             uri,
             MA_SLOW_START_SECONDS,
             timeout,
+            _provider_label(uri),
         )
 
     def _recent_slow_start(self) -> tuple[float, float] | None:
@@ -812,6 +852,11 @@ class MusicAssistantStrategy(PlaybackStrategy):
                 self.last_failure_reason = None
                 self._arm_stale_guard(uri, song_key)
                 return True
+            if self.last_failure_reason == "provider_unavailable":
+                # #3328: Music Assistant refused the request, so nothing is
+                # pending to land late, and the next URI of the same provider
+                # (or the name fallback) would be refused the same way.
+                return False
             # #3278: Beatify gave up on this request, Music Assistant may not
             # have. Remember it so a late arrival is recognised.
             self._note_abandoned_start(uri, song_key)
@@ -860,7 +905,11 @@ class MusicAssistantStrategy(PlaybackStrategy):
                 self._arm_stale_guard(expected_title, song_key)
                 return True
 
-        _LOGGER.error(
+        # WARNING, not ERROR (#3297): this line is also the normal outcome of a
+        # rate-limited provider, where the song is skipped and the game goes
+        # on. The case that really stops the game logs its own ERROR in
+        # GameState._skip_failed_start ("speaker unreachable, pausing game").
+        _LOGGER.warning(
             "MA playback: all %d URI candidate(s) failed for %s - %s (#768)",
             len(candidates),
             song.get("artist"),
@@ -910,6 +959,32 @@ class MusicAssistantStrategy(PlaybackStrategy):
                     err,
                 )
         return stopped
+
+    def _provider_unavailable(self, uri: str, err: BaseException) -> bool:
+        """Fail an attempt that Music Assistant refused outright (#3328).
+
+        Not a missing track and not a slow start: Music Assistant has no
+        working instance of the provider at all, so every other song and every
+        other URI of this provider fails the same way. Classified as
+        ``provider_unavailable`` so the game pauses at once with the reason
+        instead of skipping through the playlist.
+        """
+        known = get_provider(self._provider or "")
+        label = known.label if known else (self._provider or "selected")
+        _LOGGER.error(
+            "MA playback refused for %s on %s — the %s provider is not "
+            "available in Music Assistant (%s). Every song of this provider "
+            "fails the same way, so the game is paused: enable or "
+            "re-authenticate %s in Music Assistant, or start the game with a "
+            "provider that is set up there. (#3328)",
+            uri,
+            self._entity_id,
+            label,
+            err,
+            label,
+        )
+        self.last_failure_reason = "provider_unavailable"
+        return False
 
     async def try_play(
         self,
@@ -990,13 +1065,53 @@ class MusicAssistantStrategy(PlaybackStrategy):
         if artist_filter:
             service_data["artist"] = artist_filter
         self._last_play_request = dict(service_data)
-        await self._hass.services.async_call(
-            "music_assistant",
-            "play_media",
-            service_data,
-            target={"entity_id": self._entity_id},
-            blocking=False,
+
+        confirmed = asyncio.Event()
+        # #3328: the outcome of the play_media call itself. It used to be
+        # fire-and-forget, so when Music Assistant refused the request outright
+        # ("The provider is currently unavailable") the refusal was logged by
+        # Home Assistant's service runner and nothing reached Beatify, which
+        # then waited out the whole budget for a song that could never start.
+        # The call now runs in its own task: still never awaited to the end
+        # (a blocking play_media can hang on MA+YTMusic, see above), but its
+        # failure wakes the wait below and ends this attempt at once.
+        rejection: list[BaseException] = []
+
+        def _play_done(task: asyncio.Future[Any]) -> None:
+            if task.cancelled():
+                return
+            err = task.exception()
+            if err is None:
+                return
+            if _is_provider_unavailable(err):
+                rejection.append(err)
+                confirmed.set()
+                return
+            # Any other refusal keeps the old behaviour: the budget runs out
+            # and the speaker state decides how the failure is classified.
+            _LOGGER.debug("MA play_media for %s refused: %s", uri, err)
+
+        # Eager, so the request goes out now, exactly as the old direct call
+        # did, rather than whenever the loop next gets round to the task.
+        play_task = asyncio.Task(
+            self._hass.services.async_call(
+                "music_assistant",
+                "play_media",
+                service_data,
+                target={"entity_id": self._entity_id},
+                blocking=True,
+            ),
+            loop=asyncio.get_running_loop(),
+            eager_start=True,
         )
+        play_task.add_done_callback(_play_done)
+        if play_task.done() and not play_task.cancelled():
+            # Failed before it ever reached Music Assistant (no such service,
+            # bad data): raise it as the direct call did, so play_song reports
+            # it at once instead of waiting out the budget.
+            early = play_task.exception()
+            if early is not None and not _is_provider_unavailable(early):
+                raise early
 
         # Wait for the EXPECTED song to actually play on the speaker:
         # - media_title contains expected title (the strongest single signal —
@@ -1016,7 +1131,6 @@ class MusicAssistantStrategy(PlaybackStrategy):
         # while UI sat in REVEAL waiting for the timeout.
         expected_lower = expected_title.lower()
 
-        confirmed = asyncio.Event()
         start_time = asyncio.get_event_loop().time()
 
         def _check_state(state) -> bool:
@@ -1163,6 +1277,8 @@ class MusicAssistantStrategy(PlaybackStrategy):
                 return True
 
             await asyncio.wait_for(confirmed.wait(), timeout=timeout)
+            if rejection:
+                return self._provider_unavailable(uri, rejection[0])
             elapsed = asyncio.get_event_loop().time() - start_time
             final = self.context.state()
             _LOGGER.debug(

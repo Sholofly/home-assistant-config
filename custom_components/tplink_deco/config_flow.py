@@ -24,14 +24,18 @@ from .const import CONF_CLIENT_PREFIX
 from .const import CONF_DECO_POSTFIX
 from .const import CONF_DECO_PREFIX
 from .const import CONF_DEVICE_LIST_INTERVAL
+from .const import CONF_EXPOSE_WIFI_SSIDS
 from .const import CONF_LINK_CLIENT_DEVICES
 from .const import CONF_TIMEOUT_ERROR_RETRIES
 from .const import CONF_TIMEOUT_SECONDS
 from .const import CONF_VERIFY_SSL
 from .const import COORDINATOR_CLIENTS_KEY
 from .const import COORDINATOR_DECOS_KEY
+from .const import COORDINATOR_MOBILE_KEY
+from .const import COORDINATOR_WIRELESS_KEY
 from .const import DEFAULT_CONSIDER_HOME
 from .const import DEFAULT_DECO_POSTFIX
+from .const import DEFAULT_EXPOSE_WIFI_SSIDS
 from .const import DEFAULT_LINK_CLIENT_DEVICES
 from .const import DEFAULT_SCAN_INTERVAL
 from .const import DEFAULT_TIMEOUT_ERROR_RETRIES
@@ -132,6 +136,10 @@ def _get_schema(data: dict[str:Any]):
                 CONF_LINK_CLIENT_DEVICES,
                 default=data.get(CONF_LINK_CLIENT_DEVICES, DEFAULT_LINK_CLIENT_DEVICES),
             ): bool,
+            vol.Required(
+                CONF_EXPOSE_WIFI_SSIDS,
+                default=data.get(CONF_EXPOSE_WIFI_SSIDS, DEFAULT_EXPOSE_WIFI_SSIDS),
+            ): bool,
             vol.Optional(
                 CONF_CLIENT_PREFIX,
                 description={"suggested_value": data.get(CONF_CLIENT_PREFIX, "")},
@@ -177,6 +185,8 @@ async def _async_test_credentials(hass: HomeAssistant, data: dict[str:Any]):
         await asyncio.gather(
             coordinators[COORDINATOR_DECOS_KEY].async_shutdown(),
             coordinators[COORDINATOR_CLIENTS_KEY].async_shutdown(),
+            coordinators[COORDINATOR_MOBILE_KEY].async_shutdown(),
+            coordinators[COORDINATOR_WIRELESS_KEY].async_shutdown(),
         )
         return {}
     except TimeoutException:

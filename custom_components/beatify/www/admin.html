@@ -597,7 +597,7 @@
                             <span class="toggle-switch-compact"></span>
                         </label>
                     </div>
-                    <p class="setting-hint" data-i18n="admin.rampupOrderHint">Order songs by difficulty instead of at random: easy rounds first, the hardest known song saved for the finale. Falls back to random until songs have enough play history.</p>
+                    <p class="setting-hint" data-i18n="admin.rampupOrderHint">Order songs by difficulty instead of at random: easy rounds first, the hardest known song saved for the finale. Songs without play history are rated from their chart and certification data.</p>
                 </div>
 
                 <!-- Finale ×2 - Inline toggle (Issue #1725) -->
@@ -1604,6 +1604,13 @@
             <button id="round-end-score" class="round-end-choice round-end-choice--score" type="button">
                 <span class="round-end-choice-label" data-i18n="admin.roundEndScore">Score it as usual</span>
                 <span id="round-end-score-sub" class="round-end-choice-sub" hidden></span>
+            </button>
+            <!-- #3261: same round, different song. Sits right above "Do not
+                 score it" so the host sees both exits side by side with what
+                 each costs. Disabled with a reason when the pool is empty. -->
+            <button id="round-end-swap" class="round-end-choice round-end-choice--swap" type="button">
+                <span class="round-end-choice-label" data-i18n="admin.roundEndSwap">Play a different song</span>
+                <span id="round-end-swap-sub" class="round-end-choice-sub"></span>
             </button>
             <button id="round-end-void" class="round-end-choice round-end-choice--void" type="button">
                 <span class="round-end-choice-label" data-i18n="admin.roundEndVoid">Do not score it</span>

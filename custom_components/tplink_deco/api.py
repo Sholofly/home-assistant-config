@@ -14,7 +14,6 @@ from Crypto.PublicKey import RSA
 import aiohttp
 from aiohttp.hdrs import CONTENT_TYPE
 from aiohttp.hdrs import SET_COOKIE
-import async_timeout
 from cryptography.hazmat.primitives import padding
 from cryptography.hazmat.primitives.ciphers import Cipher
 from cryptography.hazmat.primitives.ciphers import algorithms
@@ -249,6 +248,27 @@ class TplinkDecoApi:
         self._check_authenticated_data_error_code(context, data)
         _LOGGER.debug("Rebooted decos %s", deco_macs)
 
+    async def async_get_wireless(self, form: str) -> dict:
+        """Return wireless configuration for a form."""
+        async with self._operation_lock:
+            return await self._async_call_with_retry(self._async_get_wireless, form)
+
+    async def _async_get_wireless(self, form: str) -> dict:
+        """Return wireless configuration without exposing it in logs."""
+        await self.async_login_if_needed()
+
+        context = f"Get Wireless {form}"
+        response_json = await self._async_post(
+            context,
+            f"{self._host}/cgi-bin/luci/;stok={self._stok}/admin/wireless",
+            params={"form": form},
+            data=self._encode_payload({"operation": "read"}),
+        )
+
+        data = self._decrypt_data(context, response_json["data"])
+        self._check_authenticated_data_error_code(context, data)
+        return data.get("result", {})
+
     # Return performance data (CPU / memory)
     async def async_get_performance(self) -> dict:
         async with self._operation_lock:
@@ -270,6 +290,47 @@ class TplinkDecoApi:
         data = self._decrypt_data(context, response_json["data"])
         self._check_authenticated_data_error_code(context, data)
         return data
+
+    async def async_get_mobile_data_usage(self) -> int | None:
+        """Return mobile data usage in KiB when supported by the firmware."""
+        async with self._operation_lock:
+            return await self._async_call_with_retry(self._async_get_mobile_data_usage)
+
+    async def _async_get_mobile_data_usage(self) -> int | None:
+        """Read only the non-sensitive mobile data usage value."""
+        await self.async_login_if_needed()
+
+        context = "Get Mobile Data Usage"
+        response_json = await self._async_post(
+            context,
+            f"{self._host}/cgi-bin/luci/;stok={self._stok}/admin/network",
+            params={"form": "internet"},
+            data=self._encode_payload({"operation": "read"}),
+        )
+
+        data = self._decrypt_data(context, response_json["data"])
+        self._check_authenticated_data_error_code(context, data)
+
+        result = data.get("result")
+        mobile_cpe = result.get("mobile_cpe") if isinstance(result, dict) else None
+        if not isinstance(mobile_cpe, dict):
+            _LOGGER.debug("Mobile data usage is not exposed by this firmware")
+            return None
+
+        value = mobile_cpe.get("data_usage")
+        if isinstance(value, bool):
+            return None
+
+        try:
+            usage_kib = int(value)
+        except (TypeError, ValueError):
+            return None
+
+        if usage_kib < 0:
+            return None
+
+        _LOGGER.debug("Mobile data usage is available")
+        return usage_kib
 
     # Return list of clients. Default lists clients for all decos.
     async def async_list_clients(
@@ -493,7 +554,7 @@ class TplinkDecoApi:
     async def _async_outer_post(self, params: dict[str, Any], data: str = ""):
         """POST a web-UI session request without applying outer encryption."""
         headers = {CONTENT_TYPE: "application/x-www-form-urlencoded; charset=UTF-8"}
-        async with async_timeout.timeout(self._timeout_seconds):
+        async with asyncio.timeout(self._timeout_seconds):
             return await self._session.post(
                 f"{self._host}/",
                 params=params,
@@ -637,7 +698,7 @@ class TplinkDecoApi:
             except Exception:
                 _LOGGER.warning("Could not parse session cookie")
         try:
-            async with async_timeout.timeout(self._timeout_seconds):
+            async with asyncio.timeout(self._timeout_seconds):
                 response = await self._session.post(
                     url,
                     params=params,

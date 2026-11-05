@@ -13,9 +13,14 @@ from typing import TYPE_CHECKING
 from aiohttp import web
 
 from custom_components.beatify.const import DOMAIN
+from custom_components.beatify.events import fire_game_ended
 from custom_components.beatify.game.state import GameState
 from custom_components.beatify.server.companion_auth import is_companion_trusted_meta
-from custom_components.beatify.server.serializers import redact_state_for_player
+from custom_components.beatify.server.serializers import (
+    host_player_sockets,
+    redact_state_for_player,
+    state_for_host_player,
+)
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
@@ -26,7 +31,10 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def _send_state_to(
-    handler: BeatifyWebSocketHandler, ws: web.WebSocketResponse, state_msg: dict
+    handler: BeatifyWebSocketHandler,
+    ws: web.WebSocketResponse,
+    state_msg: dict,
+    game_state: GameState | None = None,
 ) -> None:
     """Send a ``state`` message to a single recipient, redacted for players.
 
@@ -39,10 +47,15 @@ async def _send_state_to(
 
     #2638: the recipient check reads the socket off the handler, which owns it,
     instead of off ``GameState``.
+
+    #3303: when ``game_state`` is given and ``ws`` belongs to the host's own
+    player session, the redacted copy additionally carries the encore keys.
     """
     payload = state_msg
     if not handler.is_admin_socket(ws):
         payload = redact_state_for_player(state_msg)
+        if game_state is not None and ws in host_player_sockets(game_state):
+            payload = state_for_host_player(state_msg, payload)
     await ws.send_json(payload)
 
 
@@ -190,3 +203,7 @@ async def finalize_and_end(
         # than hitting "already claimed" and stranding the game in REVEAL.
         handler._release_game_end(game_state.game_id)
         raise
+
+    # #3306: the claim above makes this once per game, and it runs only after
+    # advance_to_end put the game in END — the podium is what the event carries.
+    fire_game_ended(handler.hass, game_state)

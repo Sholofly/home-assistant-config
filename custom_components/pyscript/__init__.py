@@ -91,7 +91,8 @@ async def restore_state(hass: HomeAssistant) -> None:
     """Restores the persisted pyscript state."""
     # this is a hack accessing hass internals; should re-implement using RestoreEntity
     restore_data = hass.data[DATA_RESTORE_STATE]
-    # HA 2026.11 renamed last_states to last_states_by_entity_id (local patch until pyscript is updated)
+    # Home Assistant 2026.11 split last_states by entity id and by registry id;
+    # pyscript states have no registry entry
     last_states = getattr(restore_data, "last_states_by_entity_id", None)
     if last_states is None:
         last_states = restore_data.last_states
@@ -221,8 +222,11 @@ async def watchdog_start(
                     return do_reload
                 return True
             # only reload if it's a script, yaml, or requirements.txt file
+            # also check dest_path: atomic saves (tempfile + os.replace) surface
+            # as a moved event whose src_path is an unrelated temp name
+            paths = (event.src_path, event.dest_path)
             for valid_suffix in [".py", ".yaml", "/" + REQUIREMENTS_FILE]:
-                if event.src_path.endswith(valid_suffix):
+                if any(path.endswith(valid_suffix) for path in paths):
                     return True
             return do_reload
 
