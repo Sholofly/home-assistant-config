@@ -49,7 +49,7 @@
   mode: single
 - id: '1624693689373'
   alias: Afval - herinnering container aan de weg
-  description: Vanaf 17:00 de dag voor de ophaling elke 2 uur een persistente melding met
+  description: Vanaf 17:00 (tot 23:00) de dag voor de ophaling elke 2 uur een persistente melding met
     actieknop naar de gezinsleden die thuis zijn, tot iemand aangeeft dat de container
     aan de weg staat.
   triggers:
@@ -59,6 +59,8 @@
     at: '19:00:00'
   - trigger: time
     at: '21:00:00'
+  - trigger: time
+    at: '23:00:00'
   conditions:
   - condition: template
     value_template: "{{ states('sensor.omrin_morgen') not in ['Geen', 'unknown', 'unavailable'] }}"
@@ -128,6 +130,16 @@
       lijst: "{{ states('sensor.omrin_vandaag' if now().hour < 12 else 'sensor.omrin_morgen').split(',') | map('trim') | reject('in', ['', 'Geen', 'unknown', 'unavailable']) | list }}"
       wat: "{{ 'de containers (' ~ (lijst[:-1] | join(', ')) ~ ' en ' ~ lijst[-1] ~ ')' if lijst | count > 1 else 'de ' ~ lijst[0] ~ ' container' if lijst else 'de container' }}"
       wie: "{{ trigger.id | capitalize }}"
+  - action: input_text.set_value
+    target:
+      entity_id: input_text.afval_aan_de_weg_door
+    data:
+      value: "{{ wie }}"
+  - action: input_text.set_value
+    target:
+      entity_id: input_text.afval_aan_de_weg_wat
+    data:
+      value: "{{ wat }}"
   - repeat:
       for_each:
       - persoon: person.rudolf
@@ -255,6 +267,13 @@
   - action: input_boolean.turn_off
     target:
       entity_id: input_boolean.afval_aan_de_weg
+  - action: input_text.set_value
+    target:
+      entity_id:
+      - input_text.afval_aan_de_weg_door
+      - input_text.afval_aan_de_weg_wat
+    data:
+      value: ''
   - repeat:
       for_each:
       - notify.mobile_app_telefoon_rudolf

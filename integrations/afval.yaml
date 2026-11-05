@@ -6,3 +6,13 @@ input_boolean:
   afval_aan_de_weg:
     name: Afvalcontainer aan de weg
     icon: mdi:trash-can-outline
+
+input_text:
+  afval_aan_de_weg_door:
+    name: Afvalcontainer aan de weg gezet door
+    icon: mdi:account-check
+    max: 50
+  afval_aan_de_weg_wat:
+    name: Afvalcontainer aan de weg (welke)
+    icon: mdi:trash-can-outline
+    max: 120

@@ -1,0 +1,14 @@
+################################################
+## Entities / Template Binary Sensors / Afval aan de weg nodig
+## Aan als er een container aan de weg moet en dat nog niet is gedaan:
+## 's avonds (vanaf 17:00) voor de ophaling morgen, 's ochtends (tot 12:00) op de ophaaldag.
+################################################
+name: "Afval aan de weg nodig"
+unique_id: afval_aan_de_weg_nodig
+icon: mdi:trash-can-outline
+state: >-
+  {% set klaar = is_state('input_boolean.afval_aan_de_weg', 'on') %}
+  {% set geen = ['Geen', 'unknown', 'unavailable', ''] %}
+  {% set avond = now().hour >= 17 and states('sensor.omrin_morgen') not in geen %}
+  {% set ochtend = now().hour < 12 and states('sensor.omrin_vandaag') not in geen %}
+  {{ not klaar and (avond or ochtend) }}
