@@ -2123,3 +2123,78 @@
       actie: 'AFVAL_AAN_WEG_{{ naam | upper }}'
   mode: queued
   max: 4
+- id: '1795000000014'
+  alias: Bijkeuken - licht bij beweging als het donker is
+  description: Zet het bijkeukenlicht aan bij beweging als het donker is. Het licht gaat uit als er 3 minuten geen
+    beweging is, ook als het licht handmatig is aangezet. Na een herstart van HA of een herlaad van de automations (timers kwijt)
+    gaat het licht uit als het 3 minuten later nog aan staat zonder beweging.
+  triggers:
+  - trigger: state
+    entity_id: binary_sensor.bijkeuken_bewegingssensor_occupancy
+    to: 'on'
+    id: beweging
+  - trigger: state
+    entity_id: binary_sensor.bijkeuken_bewegingssensor_occupancy
+    to: 'off'
+    for: 00:03:00
+    id: geen_beweging
+  - trigger: state
+    entity_id: light.bijkeuken_plafond_bijkeuken_plafond
+    to: 'on'
+    for: 00:03:00
+    id: licht_aan
+  - trigger: homeassistant
+    event: start
+    id: herstart
+  - trigger: event
+    event_type: automation_reloaded
+    id: herstart
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: beweging
+      - condition: state
+        entity_id: binary_sensor.donker_buiten
+        state: 'on'
+      - condition: state
+        entity_id: light.bijkeuken_plafond_bijkeuken_plafond
+        state: 'off'
+      sequence:
+      - action: light.turn_on
+        target:
+          entity_id: light.bijkeuken_plafond_bijkeuken_plafond
+    - conditions:
+      - condition: trigger
+        id:
+        - geen_beweging
+        - licht_aan
+      - condition: state
+        entity_id: binary_sensor.bijkeuken_bewegingssensor_occupancy
+        state: 'off'
+        for: 00:03:00
+      - condition: state
+        entity_id: light.bijkeuken_plafond_bijkeuken_plafond
+        state: 'on'
+      sequence:
+      - action: light.turn_off
+        target:
+          entity_id: light.bijkeuken_plafond_bijkeuken_plafond
+    - conditions:
+      - condition: trigger
+        id: herstart
+      sequence:
+      - delay: 00:03:00
+      - condition: state
+        entity_id: light.bijkeuken_plafond_bijkeuken_plafond
+        state: 'on'
+      - condition: not
+        conditions:
+        - condition: state
+          entity_id: binary_sensor.bijkeuken_bewegingssensor_occupancy
+          state: 'on'
+      - action: light.turn_off
+        target:
+          entity_id: light.bijkeuken_plafond_bijkeuken_plafond
+  mode: parallel
+  max: 3
