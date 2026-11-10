@@ -244,6 +244,7 @@ class GameSetupMixin(GameStateBase):
         # await from a prior game/session.
         self._game_epoch += 1
         self.game_id = secrets.token_urlsafe(8)
+        self.reported_songs: set[str] = set()  # #2688
         self.rematched_from_game_id = None  # #2947: a new game has no predecessor
         self.admin_token = secrets.token_urlsafe(16)  # Issue #386: REST admin auth
         self._set_phase(GamePhase.LOBBY)
@@ -287,6 +288,7 @@ class GameSetupMixin(GameStateBase):
 
         # Reset error detail
         self.last_error_detail = ""
+        self.last_error_kind = ""
         # #2614: the #1936 consecutive-timeout budget belongs to ONE game.
         # It is not config-managed, so nothing above clears it — and
         # create_game does not route through _reset_game_internals. Without
@@ -308,6 +310,9 @@ class GameSetupMixin(GameStateBase):
         # rematch path does not come through here, the admin page does) would
         # otherwise inherit the previous game's open window.
         self._encore_window = False
+        # #2586: picks parked on the old game's last reveal die with that game.
+        self._pending_round_settings = {}
+        self.round_settings_notice = None
         self._returned_this_round: list[str] = []
         self.pause_reason = None
         self._previous_phase = None
@@ -405,6 +410,10 @@ class GameSetupMixin(GameStateBase):
         service refs (_stats_service, _on_round_end, _on_metadata_update),
         or volume_level (caller's responsibility).
         """
+        # #2586: picks parked on the last reveal never landed, so they do not
+        # carry into a rematch. What did land is a game option and stays.
+        self._pending_round_settings = {}
+        self.round_settings_notice = None
         # #2638: the admin spectator WebSocket is an aiohttp socket the server
         # opens; it used to be de-referenced here. GameState no longer holds
         # it, so instead we tell whoever registered — in production
@@ -510,6 +519,7 @@ class GameSetupMixin(GameStateBase):
             await self.disable_tts()
             self._reset_game_internals()
             self.game_id = None
+            self.reported_songs = set()  # #2688
             self.rematched_from_game_id = None  # #2947
             self._set_phase(GamePhase.LOBBY, notify=False)
             self.players = {}
@@ -702,6 +712,7 @@ class GameSetupMixin(GameStateBase):
         # (QR scanned during the podium) can be led into this lobby.
         self.rematched_from_game_id = self.game_id
         self.game_id = secrets.token_urlsafe(8)
+        self.reported_songs = set()  # #2688: a rematch is a new game
         self.admin_token = secrets.token_urlsafe(16)  # Issue #386
 
         # Regenerate join_url with new game_id

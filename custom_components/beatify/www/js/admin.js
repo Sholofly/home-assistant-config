@@ -34,12 +34,15 @@ import { STORAGE_LAST_PLAYER, STORAGE_GAME_SETTINGS } from './admin/constants.js
 import { MAX_NAME_LENGTH, normalizeSampleDuration } from './game-constants.js';
 // #1927: reconcile the server-side setup blob with this browser's localStorage
 // so a stale local speaker can no longer outlive a newer pick from another device.
-import { reconcileSavedSetup, speakerLabelFor } from './admin/setup-sync.js';
+import { reconcileSavedSetup, speakerLabelFor, roomCardFailure } from './admin/setup-sync.js';
 // #1402 B7: consolidated modal Escape-close registry (replaces 3 duplicate
 // document keydown listeners; adds Escape to the reset + request modals).
 import { registerModalClose, setupModalEscapeHandler } from './admin/modal-escape.js';
+import { setupRoundSettings, renderRoundSettings, closeRoundSettings } from './round-settings.js';
 // #3059: the pending "join once the socket opens" wait, cancellable by the modal.
 import { startJoinWait, cancelJoinWait } from './admin/join-wait.js';
+// #3391: the refused-name mark, shared with the guest join form.
+import { markNameRejected, clearNameRejected } from './name-field.js';
 // #2646: the "End round N" card Next opens while a round is still running, the
 // ask/no-ask rule behind it, and the reveal's "does not count" banner. Shared
 // with the phone (player-game.js / player-reveal.js) so the wording and the
@@ -85,6 +88,7 @@ import {
     adminJoinNameValid,
     isLibrarySong,
     openSetupStepOne,
+    createLobbyFreshness,
 } from './admin/util.js';
 
 // #1279 Schritt 3/6: REST/WS hub layer. The admin WS connection lifecycle +
@@ -394,6 +398,8 @@ initAdminApi({
     setAdminPlayerName: (v) => { adminState.adminPlayerName = v; },
     setAdminSessionId: (v) => { adminState.adminSessionId = v; },
     handleAdminStateUpdate: (data) => handleAdminStateUpdate(data),
+    // #3370: after a reconnect this page did not watch the reveal begin.
+    onSocketClosed: () => { if (_adminMotionGate) _adminMotionGate.reset(); },
     startLobbyPolling: () => startLobbyPolling(),
     stopLobbyPolling: () => stopLobbyPolling(),
     showError: (msg) => showError(msg),
@@ -410,6 +416,7 @@ initAdminApi({
         ));
     },
     resetHomeStartButton: () => resetHomeStartButton(),
+    showJoinRejected: (name, message) => showAdminJoinRejected(name, message),
 });
 // #1048: REVEAL auto-advance countdown on the sticky Next button
 let revealAdvanceInterval = null;
@@ -588,7 +595,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         },
         async startSession() {
             const loading = document.getElementById('home-qr-loading');
-            if (loading) loading.classList.remove('hidden');
+            const startBtn = document.getElementById('home-start-game');
+            if (loading) {
+                // #3396: a retry after a failed create starts from the plain
+                // "Creating room…" line again, not the error text.
+                loading.textContent = tr('admin.home.qrLoading', 'Creating room…');
+                loading.setAttribute('data-i18n', 'admin.home.qrLoading');
+                loading.removeAttribute('role');
+                loading.removeAttribute('tabindex');
+                loading.classList.remove('hidden');
+            }
+            // #3396: no room yet, nothing to start.
+            if (startBtn) startBtn.disabled = true;
+            adminState._createFailure = null;
             try {
                 // Guard: startGame() reads adminState.selectedPlaylists/adminState.selectedMediaPlayer from module globals.
                 // Those globals are populated by loadStatus() on page load, which runs before enter().
@@ -596,10 +615,48 @@ document.addEventListener('DOMContentLoaded', async () => {
             } catch (err) {
                 console.warn('[Beatify] Home auto-start failed:', err);
             }
+            this.settleRoomCard();
+        },
+        // #3396: startGame() has settled. If no room came out of it, the card
+        // must not keep saying "Creating room…" with Start enabled.
+        settleRoomCard() {
+            const outcome = roomCardFailure(
+                adminState.currentGame, !!adminState._startInFlight, adminState._createFailure);
+            if (outcome === 'none') return;
+            const loading = document.getElementById('home-qr-loading');
+            const startBtn = document.getElementById('home-start-game');
+            if (outcome === 'rejected') {
+                // The server's reason is on screen as the setup banner; Start
+                // stays usable as the retry.
+                if (loading) loading.classList.add('hidden');
+                if (startBtn) startBtn.disabled = false;
+                return;
+            }
+            if (startBtn) startBtn.disabled = true;
+            if (!loading) return;
+            loading.textContent = tr('errors.networkRetry', 'Network error. Please try again.');
+            loading.removeAttribute('data-i18n');
+            loading.setAttribute('role', 'button');
+            loading.setAttribute('tabindex', '0');
+            loading.classList.remove('hidden');
+            if (!loading.dataset.retryBound) {
+                loading.dataset.retryBound = '1';
+                const retry = () => {
+                    if (loading.getAttribute('role') === 'button') window.BeatifyHome.startSession();
+                };
+                loading.addEventListener('click', retry);
+                loading.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); retry(); }
+                });
+            }
         },
         renderSession(gameData) {
             const loading = document.getElementById('home-qr-loading');
             if (loading) loading.classList.add('hidden');
+            // #3396: a room exists, Start is meaningful again.
+            adminState._createFailure = null;
+            const startNow = document.getElementById('home-start-game');
+            if (startNow) startNow.disabled = false;
 
             // Render the actual QR using the shared QRCode library.
             const qrContainer = document.getElementById('home-qr-code');
@@ -956,6 +1013,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         sendAdminCommand({ type: 'admin', action: 'extend_rounds' });
         setTimeout(function() { if (btn) btn.disabled = false; }, 1500);
     });
+    // #2586: timer and difficulty for the next round.
+    setupRoundSettings({ doc: document, send: sendAdminCommand, nextButtonId: 'admin-next-round' });
     document.getElementById('admin-rematch')?.addEventListener('click', showRematchModal);
     document.getElementById('admin-new-game')?.addEventListener('click', adminDismissGame);
     setupStarHint();
@@ -1199,7 +1258,8 @@ function setupCollapsibleSections() {
         if (!header) return;
         const section = header.closest('.section-collapsible');
         if (!section) return;
-        section.classList.toggle('collapsed');
+        if (utils.toggleCollapsibleSection) utils.toggleCollapsibleSection(section);
+        else section.classList.toggle('collapsed');
         header.setAttribute('aria-expanded', !section.classList.contains('collapsed'));
     });
 }
@@ -1607,6 +1667,7 @@ async function startGame() {
         connectAdminWebSocket();
 
     } catch (err) {
+        adminState._createFailure = 'network';  // #3396
         showError(tr('errors.networkRetry', 'Network error. Please try again.'));
         console.error('Start game error:', err);
     } finally {
@@ -2286,6 +2347,29 @@ function resetAdminJoinModalState() {
 }
 
 /**
+ * #3391: the server refused the host's name (NAME_TAKEN / NAME_INVALID). The
+ * home-mode join closes the modal as soon as it sends, so the refusal arrives
+ * after the field is gone. Bring the modal back holding the name, with the
+ * server's reason under the field and the field focused and marked, so the host
+ * types the fix straight away instead of reading a toast and starting over.
+ * @returns {boolean} false when there is no join modal on this page
+ */
+function showAdminJoinRejected(name, message) {
+    const modal = document.getElementById('admin-join-modal');
+    const nameInput = document.getElementById('admin-name-input');
+    const errorMsg = document.getElementById('admin-name-error');
+    if (!modal || !nameInput || !errorMsg) return false;
+    cancelJoinWait();
+    if (name && !nameInput.value) nameInput.value = name;
+    resetAdminJoinModalState();
+    errorMsg.textContent = message;
+    errorMsg.classList.remove('hidden');
+    modal.classList.remove('hidden');
+    markNameRejected(nameInput);
+    return true;
+}
+
+/**
  * Close admin join modal
  */
 function closeAdminJoinModal() {
@@ -2298,6 +2382,7 @@ function closeAdminJoinModal() {
     // Reset form — clear the name, then converge on the shared idle state.
     const nameInput = document.getElementById('admin-name-input');
     if (nameInput) nameInput.value = '';
+    clearNameRejected(nameInput);
     resetAdminJoinModalState();
 }
 
@@ -2319,6 +2404,7 @@ function setupAdminJoin() {
     if (nameInput) nameInput.maxLength = MAX_NAME_LENGTH;
 
     nameInput?.addEventListener('input', function() {
+        clearNameRejected(this);  // #3391
         joinBtn.disabled = !adminJoinNameValid(this.value.trim());
     });
 
@@ -2496,12 +2582,32 @@ function renderLobbyPlayers(players) {
     }
 }
 
+// #3390: when did the poll last get an answer, and the line that says so.
+const lobbyFreshness = createLobbyFreshness({ thresholdMs: 10000 });
+
+function setLobbyStaleLine(seconds) {
+    const el = typeof document !== 'undefined' && typeof document.getElementById === 'function'
+        ? document.getElementById('home-players-stale') : null;
+    if (!el || !el.classList) return;
+    if (seconds == null) {
+        el.classList.add('hidden');
+        return;
+    }
+    el.textContent = '⚠️ ' + tr(
+        'admin.home.playersStale',
+        "Player list last updated {seconds} s ago. Home Assistant isn't answering; the list catches up on its own.",
+        { seconds }
+    );
+    el.classList.remove('hidden');
+}
+
 /**
  * Start polling for lobby state updates
  */
 function startLobbyPolling() {
     // Clear any existing interval
     stopLobbyPolling();
+    lobbyFreshness.reset();
 
     // Poll every 3 seconds (balanced between responsiveness and server load)
     lobbyPollingInterval = setInterval(async function() {
@@ -2512,14 +2618,18 @@ function startLobbyPolling() {
 
         try {
             var response = await fetch('/beatify/api/status');
-            if (!response.ok) return;
+            if (!response.ok) throw new Error('HTTP ' + response.status);
 
             var status = await response.json();
+            lobbyFreshness.ok();
+            setLobbyStaleLine(null);
             if (status.active_game && status.active_game.players) {
                 renderLobbyPlayers(status.active_game.players);
             }
         } catch (err) {
+            // #3390: say that the list is old instead of freezing silently.
             console.error('Lobby polling error:', err);
+            setLobbyStaleLine(lobbyFreshness.fail());
         }
     }, 3000);
 }
@@ -2532,6 +2642,7 @@ function stopLobbyPolling() {
         clearInterval(lobbyPollingInterval);
         lobbyPollingInterval = null;
     }
+    setLobbyStaleLine(null);
 }
 
 // ============================================
@@ -2682,7 +2793,13 @@ async function renderRequestsList() {
     // (list / empty-state / summary) was removed from admin.html; the home-view
     // request modal is now the sole surface. The backend load is kept for its
     // refresh side-effect; all DOM rendering below the old null guard was dead.
-    await window.PlaylistRequests.getRequestsForDisplayAsync();
+    // #3390: a failed load now rejects instead of pretending the list is
+    // empty. Nothing on this page draws the list, so a failure only logs.
+    try {
+        await window.PlaylistRequests.getRequestsForDisplayAsync();
+    } catch (e) {
+        console.warn('[Beatify] playlist requests did not load:', e);
+    }
 }
 
 // ============================================
@@ -2783,6 +2900,10 @@ function renderAdminState(data) {
     }
     adminState.currentGame = data;
 
+    // #3370: read before any view draws, like the phone and the TV.
+    if (_adminMotionGate && data && data.phase) _adminMotionGate.enter(data.phase, data.round);
+    if (!data || data.phase !== 'REVEAL') clearAdminYearHold();
+
     // Restore adminState.isPlaying state from player list (survives page reload)
     if (data.players && !adminState.isPlaying) {
         var adminInList = data.players.find(function(p) { return p.is_admin; });
@@ -2816,6 +2937,7 @@ function renderAdminState(data) {
     // down so the sticky Next button restores its icon for other phases.
     if (data.phase !== 'REVEAL') {
         _stopRevealAdvanceCountdown();
+        closeRoundSettings();  // #2586
     }
 
     // Also hide setup sections
@@ -3307,6 +3429,53 @@ function startAdminCountdown(deadline, serverNowMs) {
 
 // ---- REVEAL phase view (#653: mirrors player layout) ----
 
+// #3370: the host's page holds the answer back until the TV's reel stops, like
+// the player phones, with the same gate. It has no reel of its own: the year
+// simply appears. Hoisted through `var`: initAdminApi above only reads this at
+// runtime, once a socket has closed.
+var _adminMotionGate = utils.createMotionGate
+    ? utils.createMotionGate({
+        reduced: function() {
+            return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+        }
+    })
+    : null;
+var _adminYearHold = null;
+
+function clearAdminYearHold() {
+    if (!_adminYearHold) return;
+    clearTimeout(_adminYearHold.timer);
+    _adminYearHold = null;
+    var section = document.getElementById('admin-reveal-section');
+    if (section) section.classList.remove('reveal-year-hold');
+}
+
+/**
+ * Start or end the hold for this frame.
+ * @param {Object} data - REVEAL state payload
+ * @returns {boolean} true while the year must stay off the screen
+ */
+function syncAdminYearHold(data) {
+    var stopAt = utils.tvYearReelStopMs ? utils.tvYearReelStopMs(data) : 0;
+    var year = data.song ? String(data.song.year) : '';
+    if (_adminYearHold && (!_adminMotionGate.isLive() || !stopAt || _adminYearHold.year !== year)) {
+        clearAdminYearHold();
+    }
+    if (!_adminYearHold && stopAt && _adminMotionGate && _adminMotionGate.once('year-hold')) {
+        var section = document.getElementById('admin-reveal-section');
+        if (section) section.classList.add('reveal-year-hold');
+        _adminYearHold = {
+            year: year,
+            timer: setTimeout(function() {
+                clearAdminYearHold();
+                var yearEl = document.getElementById('admin-reveal-correct-year');
+                if (yearEl) yearEl.textContent = year;
+            }, stopAt)
+        };
+    }
+    return !!_adminYearHold;
+}
+
 function showAdminRevealView(data) {
     var section = document.getElementById('admin-reveal-section');
     if (!section) return;
@@ -3390,6 +3559,7 @@ function showAdminRevealView(data) {
     // encore_available is admin-only in the serializer, so a guest socket
     // never carries it and this block simply stays hidden there.
     renderEncoreOffer(data);
+    renderRoundSettings(data, true);
 
     // #3268: on the last reveal this button ends the game (the server runs
     // finalize_and_end when `last_round` is set), so it must not promise a
@@ -3411,7 +3581,8 @@ function showAdminRevealView(data) {
         var artEl = document.getElementById('admin-reveal-album-art');
         if (titleEl) titleEl.textContent = data.song.title || '';
         if (artistEl) artistEl.textContent = data.song.artist || '';
-        if (yearEl) yearEl.textContent = data.song.year || '';
+        var yearHeld = syncAdminYearHold(data);
+        if (yearEl) yearEl.textContent = yearHeld ? '????' : (data.song.year || '');
         if (artEl && data.song.album_art) artEl.src = data.song.album_art;
     }
 
@@ -3765,6 +3936,13 @@ function _renderPauseRecoveryBanner(data) {
         if (reason === 'no_songs_available') {
             msg = BeatifyI18n.t('admin.pauseRecovery.noSongsAvailable') ||
                 'No playable songs left for this provider. Resume to retry, or end the game.';
+        } else if (providerName && data.last_error_kind === 'provider_unavailable') {
+            // #3339: the cause is known (Music Assistant does not have this
+            // provider at all), so say only that. The two-cause text below
+            // offers rate limiting, and a host who reads that waits.
+            msg = BeatifyI18n.t('admin.pauseRecovery.mediaPlayerErrorProviderUnavailable') ||
+                '{provider} is not available in Music Assistant. Reconnect it there (Settings → Music Assistant → {provider} → Reconnect), then hit Resume.';
+            msg = msg.replace(/\{provider\}/g, providerName);
         } else if (providerName) {
             // #808 follow-up: name the actual provider so the user knows
             // which one to re-authenticate in Music Assistant.

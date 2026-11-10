@@ -64,6 +64,8 @@
         <div id="loading-view" class="view">
             <div class="loading-spinner"></div>
             <p data-i18n="common.connecting">Connecting to game...</p>
+            <!-- #3390: shown after 5 s, so a slow Wi-Fi does not look like a hang -->
+            <p id="loading-slow-hint" class="hint hidden" data-i18n="join.slowHint">Taking longer than usual. The Wi-Fi may be slow.</p>
         </div>
 
         <!-- Cold-start bridge (#1287): animated vinyl disc while MA connects the
@@ -101,6 +103,34 @@
             <button id="refresh-btn" class="btn btn-primary btn-glow" data-i18n="common.retry">Try Again</button>
         </div>
 
+        <!-- #3390: the status check never reached Home Assistant (offline,
+             wrong Wi-Fi, timeout). Not "game not found": the QR code is fine. -->
+        <div id="offline-view" class="view hidden">
+            <div class="error-icon">📶</div>
+            <h1 data-i18n="errors.offlineTitle">Can't reach the game</h1>
+            <p data-i18n="errors.offlineHint">Is your phone on the party Wi-Fi? Mobile data and guest Wi-Fi often can't reach the game.</p>
+            <p class="hint" data-i18n="errors.qrCodeIsFine">Your QR code is fine.</p>
+            <button id="offline-retry-btn" class="btn btn-primary btn-glow" data-i18n="common.retry">Try Again</button>
+        </div>
+
+        <!-- #3390: Home Assistant answered, but with an error (5xx). -->
+        <div id="ha-error-view" class="view hidden">
+            <div class="error-icon">⚠️</div>
+            <h1 data-i18n="errors.haErrorTitle">Home Assistant had a problem</h1>
+            <p data-i18n="errors.haErrorHint">The game couldn't be loaded. Wait a moment, then try again. If it keeps happening, tell the host.</p>
+            <p class="hint" data-i18n="errors.qrCodeIsFine">Your QR code is fine.</p>
+            <button id="ha-error-retry-btn" class="btn btn-primary btn-glow" data-i18n="common.retry">Try Again</button>
+        </div>
+
+        <!-- #3390: the server has no game any more (Home Assistant restarted or
+             the game was reset) while this phone was in it. -->
+        <div id="game-stopped-view" class="view hidden">
+            <div class="error-icon">⏹️</div>
+            <h1 data-i18n="errors.gameStoppedTitle">This game has ended</h1>
+            <p data-i18n="errors.gameStoppedHint">The game stopped in Home Assistant, for example after a restart. Once the host starts a new game, tap Join again.</p>
+            <button id="game-stopped-rejoin-btn" class="btn btn-primary btn-glow" data-i18n="errors.gameStoppedRejoin">Join again</button>
+        </div>
+
         <!-- Error: Game ended -->
         <div id="ended-view" class="view hidden">
             <div class="error-icon">🎉</div>
@@ -126,10 +156,16 @@
                     from MAX_NAME_LENGTH (the mirror of const.py) in JS, so a
                     server-side change reaches the field instead of leaving a
                     stale literal behind. -->
+                    <!-- #3391: a name is not a word. Without autocorrect off and
+                    spellcheck off iOS "fixes" nicknames and suggests words above
+                    the keyboard; enterkeyhint="go" makes the return key say
+                    what it does here, which is join. -->
                     <input type="text" id="name-input" class="name-input"
                            data-i18n-placeholder="join.namePlaceholder"
                            placeholder="Your name"
-                           autocomplete="off" autocapitalize="words"
+                           autocomplete="off" autocapitalize="off"
+                           autocorrect="off" spellcheck="false"
+                           enterkeyhint="go"
                            aria-describedby="name-validation-msg">
                     <p id="name-validation-msg" class="validation-msg hidden"></p>
                 </div>
@@ -504,6 +540,8 @@
                          only the host's own button changed; to everyone else the
                          music just cut out while the timer kept running, which
                          reads as a failure. -->
+                    <!-- #2586: one round long, after the host changed the settings. -->
+                    <span id="round-settings-notice" class="arc-chip arc-chip--notice hidden"></span>
                     <span id="song-stopped-chip" class="arc-chip arc-chip--stopped hidden">
                         <span aria-hidden="true">⏹</span>
                         <span data-i18n="game.songStoppedChip">Song stopped — keep guessing</span>
@@ -942,6 +980,11 @@
                         </button>
                         <p id="player-encore-hint" class="encore-hint"></p>
                     </div>
+                    <!-- #2586: what the next round runs with; a tap opens the sheet. -->
+                    <button id="round-settings-row" type="button" class="round-settings-row hidden">
+                        <span id="round-settings-row-text"></span>
+                        <span class="round-settings-row__change" data-i18n="admin.roundSettingsChange">Change</span>
+                    </button>
                     <div class="reveal-admin-buttons">
                         <button id="invite-players-btn" class="invite-btn" type="button"
                                 aria-label="Invite players to join the game">
@@ -1377,6 +1420,29 @@
         </div>
     </div>
 
+
+    <!-- #2586: "Change for the next round". Same markup in admin.html and
+         player.html; js/round-settings.js paints the chips and the texts. -->
+    <div id="round-settings-sheet" class="modal round-settings-sheet hidden" role="dialog" aria-modal="true" aria-labelledby="round-settings-title">
+        <div class="modal-backdrop"></div>
+        <div class="round-settings-sheet__card">
+            <h2 id="round-settings-title" data-i18n="admin.roundSettingsTitle">Change for the next round</h2>
+            <div>
+                <div class="round-settings-label" data-i18n="admin.roundSettingsTime">Time per round</div>
+                <div id="round-settings-timer" class="round-settings-chips"></div>
+            </div>
+            <div id="round-settings-difficulty-block">
+                <div class="round-settings-label" data-i18n="admin.difficulty">Difficulty</div>
+                <div id="round-settings-difficulty" class="round-settings-chips"></div>
+                <p id="round-settings-hint" class="round-settings-hint"></p>
+            </div>
+            <p id="round-settings-foot" class="round-settings-foot"></p>
+            <button id="round-settings-next" type="button" class="btn btn-primary btn-full-width">
+                <span data-i18n="admin.nextRound">Next Round</span>
+                <span id="round-settings-next-count" class="round-settings-next__count hidden" role="timer"></span>
+            </button>
+        </div>
+    </div>
 
     <!-- #2646: "End round N" — the question Next asks when it is pressed while
          the round is still running. Three exits: score it (what Next always

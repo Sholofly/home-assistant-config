@@ -36,6 +36,7 @@ var _sabotageTrap = null;
 // player-game.js stays the public face and re-exports their consumer-facing
 // functions so player-core.js / player-reveal.js import surfaces are unchanged.
 export { startCountdown, stopCountdown } from './player-game/timer.js';
+import { countdownRemainingMs } from './player-game/timer.js';  // #3391
 export {
     renderArtistChallenge, handleArtistGuessAck,
     resetArtistChallengeState, renderArtistReveal
@@ -56,7 +57,7 @@ import {
 } from './player-game/movie-challenge.js';
 
 // #1663 item 1: non-blocking toast replaces the blocking alert() (connection lost).
-import { showToast } from './notify.js';
+import { showToast, showUndoToast } from './notify.js';
 // #2646: the "End round N" card that Next opens while a round is still
 // running, and the ask/no-ask rule behind it. Shared with admin.js.
 import { shouldAskBeforeEnding, openRoundEndChoice } from './round-end-choice.js';
@@ -209,6 +210,53 @@ function reconcileOwnSubmission(data) {
     handleSubmitAck();
 }
 
+/**
+ * #3367: the eye goes to the timer first. The timer pops, then whatever this
+ * round's input is follows 60 ms apart, all done in 400 ms. Everything rests on
+ * its final state and takes taps from the first frame. A part hidden in this
+ * mode (year and slider in Title & Artist) simply shows nothing.
+ */
+export function playRoundStartMotion(data) {
+    if (prefersReducedMotion()) return;
+    var ease = 'cubic-bezier(.2,.7,.2,1)';
+    var timer = document.getElementById('timer-neon');
+    if (timer && timer.animate) {
+        timer.animate(
+            [
+                { transform: 'scale(.3)', opacity: 0 },
+                { transform: 'scale(1.15)', opacity: 1, offset: 0.7 },
+                { transform: 'none', opacity: 1 }
+            ],
+            { duration: 240, easing: ease, fill: 'backwards' }
+        );
+    }
+    [['year-display-arc'], ['year-selector-container', 'title-artist-container'], ['submit-btn']]
+        .forEach(function(ids, i) {
+            ids.forEach(function(id) {
+                var el = document.getElementById(id);
+                if (!el || !el.animate) return;
+                el.animate(
+                    [{ transform: 'translateY(14px)', opacity: 0 }, { transform: 'none', opacity: 1 }],
+                    { delay: 60 * (i + 1), duration: 220, easing: ease, fill: 'backwards' }
+                );
+            });
+        });
+    // #3379: Finale x2 and the tiebreaker are announced, not just there. The chip
+    // springs in once after the timer, while the round already runs. The render
+    // that fills it is coalesced and may come a frame later; the delay covers it.
+    var chip = document.getElementById('last-round-banner');
+    if (chip && chip.animate && data && (data.finale_double_active || data.finale_playoff_active)) {
+        chip.animate(
+            [
+                { transform: 'scale(.4)', opacity: 0 },
+                { transform: 'scale(1.12)', opacity: 1, offset: 0.65 },
+                { transform: 'none', opacity: 1 }
+            ],
+            { delay: 240, duration: 300, easing: ease, fill: 'backwards' }
+        );
+    }
+}
+
 export function updateGameView(data) {
     applyYearRange(data.year_range);
     reconcileOwnSubmission(data);
@@ -266,6 +314,16 @@ export function updateGameView(data) {
         } else {
             closestBadge.classList.add('hidden');
         }
+    }
+
+    // #2586: "Now 30s · Hard", for the one round after the host changed it.
+    var settingsNotice = document.getElementById('round-settings-notice');
+    if (settingsNotice) {
+        var settingsNoticeText = utils.roundSettingsNoticeText
+            ? utils.roundSettingsNoticeText(data.round_settings_notice, false)
+            : '';
+        settingsNotice.textContent = settingsNoticeText;
+        settingsNotice.classList.toggle('hidden', !settingsNoticeText);
     }
 
     // Issue #1727: surface the active bet payout on the bet toggle. The server
@@ -490,6 +548,7 @@ function syncArcChipRow() {
         'closest-wins-badge',
         'intro-badge',
         'last-round-banner',
+        'round-settings-notice',  // #2586
         'song-stopped-chip'  // #2554
     ];
     var anyVisible = childIds.some(function(id) {
@@ -1098,6 +1157,7 @@ export function resetLeaderboardSummary(summaryId) {
 // ============================================
 
 var hasSubmitted = false;
+var guessJustTapped = false;  // #3365: see settleSubmit
 
 // #2339: the submit button was disabled on send and only ever re-enabled by
 // handleSubmitAck() or a new round. On a half-open socket — an access-point
@@ -1145,6 +1205,38 @@ var taInputWired = false;
 // the round number (round 2 → +2, round 3 → +3, etc).
 var yearSelectorInitialized = false;
 
+// #3365: the year answers the finger. A drag fires faster than the spring
+// lasts, so each change replaces the running one instead of stacking.
+var _yearSpring = null;
+
+function springYear() {
+    if (prefersReducedMotion()) return;
+    var el = document.getElementById('year-display-arc');
+    if (!el || !el.animate) return;
+    if (_yearSpring) _yearSpring.cancel();
+    _yearSpring = el.animate(
+        [{ transform: 'scale(1.1)' }, { transform: 'none' }],
+        { duration: 120, easing: 'ease-out' }
+    );
+}
+
+/**
+ * #3365: the button settles and the phone gives a short buzz. Only for a guess
+ * tapped just now, not for the ack path a reload or a duplicate submit takes.
+ * iOS Safari has no vibration API.
+ */
+function settleSubmit(btn) {
+    if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
+        navigator.vibrate(15);
+    }
+    if (btn && btn.animate && !prefersReducedMotion()) {
+        btn.animate(
+            [{ transform: 'scale(.92)' }, { transform: 'scale(1.03)', offset: 0.6 }, { transform: 'none' }],
+            { duration: 320, easing: 'cubic-bezier(.2,.7,.2,1)' }
+        );
+    }
+}
+
 /**
  * Initialize year selector interaction
  */
@@ -1160,6 +1252,7 @@ export function initYearSelector() {
     slider.addEventListener('input', function() {
         if (meOutOfPlay()) return;  // #827 / #2612: out-of-play players can't act
         yearDisplay.textContent = this.value;
+        springYear();
     });
 
     // ±1 / ±5 year-step buttons (Issue #662 — orig +/- · Issue #851 — fix double-fire + add ±5)
@@ -1168,6 +1261,7 @@ export function initYearSelector() {
         newVal = Math.max(parseInt(slider.min, 10), Math.min(parseInt(slider.max, 10), newVal));
         slider.value = newVal;
         yearDisplay.textContent = newVal;
+        springYear();
     }
 
     /**
@@ -1315,6 +1409,7 @@ export function initYearSelector() {
 export function handleSubmitGuess() {
     if (hasSubmitted) return;
     if (meOutOfPlay()) return;  // #827 / #2612: out-of-play players can't submit
+    settlePendingPowerupOnSubmit();  // #3391
 
     // #1665: freeze effect — the server rejects the submit with ERR_FROZEN, so
     // reflect that locally instead of firing a doomed request. A short toast
@@ -1340,11 +1435,13 @@ export function handleSubmitGuess() {
             year: year,
             bet: betActive || sabotageForcedBet  // #1665: forced bet rides along
         }));
+        guessJustTapped = true;
         // #2339: nothing below re-enables the button, so arm a watchdog.
         clearSubmitAckTimeout();
         submitAckTimeoutId = setTimeout(function () {
             submitAckTimeoutId = null;
             if (hasSubmitted) return;   // the ack won the race after all
+            guessJustTapped = false;
             var btn = document.getElementById('submit-btn');
             if (btn) {
                 btn.disabled = false;
@@ -1369,6 +1466,8 @@ export function handleSubmitAck() {
     // locked, and the player could submit twice.
     clearSubmitAckTimeout();
     hasSubmitted = true;
+    var settle = guessJustTapped;
+    guessJustTapped = false;
 
     var yearSelector = document.getElementById('year-selector');
     var yearXxl = document.getElementById('year-display-arc');
@@ -1391,6 +1490,7 @@ export function handleSubmitAck() {
         submitBtn.innerHTML = '<span>' + escapeHtml(utils.t('game.waitingForOthers') || 'Waiting for others') + '</span>'
             + '<span class="waiting-dot" aria-hidden="true"></span>';
     }
+    if (settle) settleSubmit(submitBtn);
 
     // Bet toggle stays visible but disabled — can't change after submit.
     if (betToggle) {
@@ -1413,6 +1513,7 @@ export function handleSubmitAck() {
  * @param {Object} data - Error data from server
  */
 export function handleSubmitError(data) {
+    guessJustTapped = false;
     var submitBtn = document.getElementById('submit-btn');
 
     if (submitBtn) {
@@ -1480,7 +1581,9 @@ export function resetSubmissionState() {
     // #2339: a pending watchdog from the previous round must not fire into
     // this one and flash an error at a player who has not tapped anything.
     clearSubmitAckTimeout();
+    cancelPendingPowerup();  // #3391: a power-up armed last round stays there
     hasSubmitted = false;
+    guessJustTapped = false;
     betActive = false;
 
     var yearSelector = document.getElementById('year-selector');
@@ -1754,7 +1857,7 @@ function hideStealUI() {
  * Handle steal button click - request targets and open modal
  */
 function handleStealClick() {
-    if (!hasStealAvailable || hasSubmitted) return;
+    if (!hasStealAvailable || hasSubmitted || pendingPowerup) return;
 
     if (state.ws && state.ws.readyState === WebSocket.OPEN) {
         state.ws.send(JSON.stringify({ type: 'get_steal_targets' }));
@@ -1840,6 +1943,21 @@ function openStealModal(targets, leaderboard) {
 }
 
 /**
+ * #3386: numbers follow the game language, not the phone's. A guest with an
+ * English phone in a German party would otherwise read 1,240 next to the
+ * 1.240 everyone else sees. Undefined (= browser default) before i18n loads.
+ * @returns {string|undefined}
+ */
+function gameLocale() {
+    try {
+        var i18n = typeof window !== 'undefined' ? window.BeatifyI18n : null;
+        return (i18n && typeof i18n.getLanguage === 'function' && i18n.getLanguage()) || undefined;
+    } catch (e) {
+        return undefined;
+    }
+}
+
+/**
  * #1663 item 2: locale-aware score formatting for steal rows (e.g. 1240 → 1.240
  * in de). Falls back to the raw number if Intl is unavailable.
  * @param {number} score
@@ -1847,7 +1965,7 @@ function openStealModal(targets, leaderboard) {
  */
 function formatStealScore(score) {
     var n = Number(score) || 0;
-    try { return n.toLocaleString(); } catch (e) { return String(n); }
+    try { return n.toLocaleString(gameLocale()); } catch (e) { return String(n); }
 }
 
 /**
@@ -1880,29 +1998,120 @@ function closeStealModal() {
 }
 
 /**
- * Select a steal target and confirm
+ * Select a steal target. #3391: the tap on the target is the decision; the
+ * steal leaves after the undo window (see armPowerup) instead of after a
+ * second "Steal Answer?" dialog.
  * @param {string} targetName - Name of player to steal from
  */
-async function selectStealTarget(targetName) {
-    var confirmMsg = utils.t('steal.confirm').replace('{name}', targetName);
-    var confirmed = await showConfirmModal(
-        utils.t('steal.confirmTitle') || 'Steal Answer?',
-        confirmMsg,
-        utils.t('steal.confirmButton') || 'Steal',
-        utils.t('common.cancel')
-    );
-    if (!confirmed) {
+function selectStealTarget(targetName) {
+    closeStealModal();
+    armPowerup('steal', targetName);
+}
+
+// ============================================
+// #3391: one tap plus Undo for steal and sabotage
+// ============================================
+// Picking a target used to open a confirm dialog on top of the target list:
+// three taps and two overlays while the round timer runs. Now the tap on the
+// target arms the power-up, a toast at the bottom says what is about to happen
+// with an Undo button, and the message goes to the server only when the toast
+// runs out. Undo sends nothing, so the token is still in hand. The server is
+// unchanged: it still receives one `steal` / `sabotage` message.
+
+var POWERUP_UNDO_MS = 3000;
+// The message has to reach the server before the deadline, or it is refused
+// with ERR_ROUND_EXPIRED and, for sabotage, burns nothing but time. A round
+// with less than undo + margin left gets a shorter window; under the margin it
+// goes straight away.
+var POWERUP_DEADLINE_MARGIN_MS = 600;
+var pendingPowerup = null;  // { kind, target, handle }
+
+/**
+ * How long the undo window may be with `remainingMs` left on the round.
+ * Pure, exported for the #3391 tests.
+ * @param {number|null} remainingMs - null when no countdown runs
+ * @returns {number} ms to wait before sending; 0 = send now
+ */
+export function powerupUndoWindowMs(remainingMs) {
+    if (typeof remainingMs !== 'number' || !isFinite(remainingMs)) return POWERUP_UNDO_MS;
+    var room = remainingMs - POWERUP_DEADLINE_MARGIN_MS;
+    if (room < 1000) return 0;  // a flash nobody can read is not an undo
+    return Math.min(POWERUP_UNDO_MS, room);
+}
+
+function sendPowerup(kind, targetName) {
+    if (state.ws && state.ws.readyState === WebSocket.OPEN) {
+        state.ws.send(JSON.stringify({ type: kind, target: targetName }));
+    }
+}
+
+function setPowerupButtonsPending(isPending) {
+    ['steal-btn', 'sabotage-btn'].forEach(function(id) {
+        var btn = document.getElementById(id);
+        if (btn) btn.disabled = !!isPending;
+    });
+}
+
+function armPowerup(kind, targetName) {
+    cancelPendingPowerup();
+    var windowMs = powerupUndoWindowMs(countdownRemainingMs());
+    if (windowMs <= 0) {
+        sendPowerup(kind, targetName);
         return;
     }
-
-    if (state.ws && state.ws.readyState === WebSocket.OPEN) {
-        state.ws.send(JSON.stringify({
-            type: 'steal',
-            target: targetName
-        }));
+    var isSteal = kind === 'steal';
+    var template = isSteal
+        ? (utils.t('steal.pending') || 'Stealing from {name}…')
+        : (utils.t('sabotage.pending') || 'Sabotaging {name}…');
+    var entry = { kind: kind, target: targetName, handle: null };
+    pendingPowerup = entry;
+    setPowerupButtonsPending(true);
+    entry.handle = showUndoToast(template.replace('{name}', targetName), {
+        duration: windowMs,
+        icon: isSteal ? '🥷' : '💣',
+        undoLabel: utils.t('common.undo') || 'Undo',
+        onCommit: function() {
+            if (pendingPowerup === entry) pendingPowerup = null;
+            setPowerupButtonsPending(false);
+            sendPowerup(kind, targetName);
+        },
+        onUndo: function() {
+            if (pendingPowerup === entry) pendingPowerup = null;
+            setPowerupButtonsPending(false);
+        },
+    });
+    if (!entry.handle) {
+        // No toast could be shown — never strand the choice.
+        pendingPowerup = null;
+        setPowerupButtonsPending(false);
+        sendPowerup(kind, targetName);
     }
+}
 
-    closeStealModal();
+/**
+ * Drop a power-up that has not been sent yet: the round ended, paused or a new
+ * one began under it. Nothing reaches the server, the token stays in hand.
+ */
+export function cancelPendingPowerup() {
+    if (!pendingPowerup) return;
+    var entry = pendingPowerup;
+    pendingPowerup = null;
+    if (entry.handle) entry.handle.cancel();
+    setPowerupButtonsPending(false);
+}
+
+/**
+ * The guest taps Submit while a power-up waits. A steal *is* a submission, so
+ * the own guess replaces it (nothing sent, token kept). A sabotage is aimed at
+ * someone else and stays valid, so it leaves now, ahead of the guess.
+ */
+function settlePendingPowerupOnSubmit() {
+    if (!pendingPowerup) return;
+    if (pendingPowerup.kind === 'sabotage' && pendingPowerup.handle) {
+        pendingPowerup.handle.commit();
+    } else {
+        cancelPendingPowerup();
+    }
 }
 
 /**
@@ -2033,7 +2242,7 @@ function hideSabotageUI() {
  * Handle sabotage button click - request targets and open modal (#1665).
  */
 function handleSabotageClick() {
-    if (!hasSabotageAvailable || hasSubmitted) return;
+    if (!hasSabotageAvailable || hasSubmitted || pendingPowerup) return;
 
     if (state.ws && state.ws.readyState === WebSocket.OPEN) {
         state.ws.send(JSON.stringify({ type: 'get_sabotage_targets' }));
@@ -2124,31 +2333,14 @@ function closeSabotageModal() {
 }
 
 /**
- * Select a sabotage target and confirm (#1665). The confirm copy states the
- * effect is random so the player is never surprised that they couldn't pick it.
+ * Select a sabotage target (#1665). #3391: one tap plus Undo, like steal. The
+ * picker's subtitle already says the effect is random, which is the one thing
+ * the removed confirm dialog added.
  * @param {string} targetName - Name of player to sabotage
  */
-async function selectSabotageTarget(targetName) {
-    var confirmMsg = (utils.t('sabotage.confirm') || 'Sabotage {name}? The effect is random.')
-        .replace('{name}', targetName);
-    var confirmed = await showConfirmModal(
-        utils.t('sabotage.confirmTitle') || 'Sabotage?',
-        confirmMsg,
-        utils.t('sabotage.confirmButton') || 'Sabotage',
-        utils.t('common.cancel')
-    );
-    if (!confirmed) {
-        return;
-    }
-
-    if (state.ws && state.ws.readyState === WebSocket.OPEN) {
-        state.ws.send(JSON.stringify({
-            type: 'sabotage',
-            target: targetName
-        }));
-    }
-
+function selectSabotageTarget(targetName) {
     closeSabotageModal();
+    armPowerup('sabotage', targetName);
 }
 
 /**

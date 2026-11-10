@@ -83,7 +83,11 @@ MA_CANCEL_TIMEOUT = 3.0
 # confirmed. MA's Apple Music limiter runs up to ~65 s. 120 s from the moment
 # Beatify gave up covers both with room to spare; past it, an old request is
 # not worth watching for.
-MA_STALE_START_WINDOW = 120.0
+#
+# #3418: widened to 300 s. The v4.8.8-rc7 live test (Spotify, heavy rate
+# limiting) saw an abandoned start land 184 s after Beatify gave up, 64 s past
+# the old window, and the round was then scored against the wrong song.
+MA_STALE_START_WINDOW = 300.0
 # #3278: at most this many corrections per confirmed start, so a speaker that
 # keeps flipping cannot turn the guard into a play_media loop.
 MA_STALE_START_MAX_CORRECTIONS = 3
@@ -212,6 +216,26 @@ def _is_provider_unavailable(err: BaseException) -> bool:
             return True
         text = str(seen).lower()
         if "provider" in text and ("unavailable" in text or "not available" in text):
+            return True
+        seen = seen.__cause__
+    return False
+
+
+def _is_media_not_found(err: BaseException) -> bool:
+    """Whether Music Assistant said the requested item does not exist (#3429).
+
+    Home Assistant's Music Assistant integration surfaces the client's
+    ``MediaNotFoundError`` as "The requested media item could not be found."
+    That is a dead link for this one song: the opposite of a throttling
+    provider, and certain the moment Music Assistant says it, so the attempt
+    ends at once instead of waiting out the playback budget.
+    """
+    seen: BaseException | None = err
+    while seen is not None:
+        if type(seen).__name__ == "MediaNotFoundError":
+            return True
+        text = str(seen).lower()
+        if "media item" in text and "could not be found" in text:
             return True
         seen = seen.__cause__
     return False
@@ -1076,6 +1100,13 @@ class MusicAssistantStrategy(PlaybackStrategy):
         # (a blocking play_media can hang on MA+YTMusic, see above), but its
         # failure wakes the wait below and ends this attempt at once.
         rejection: list[BaseException] = []
+        # #3429: Music Assistant answering "media item could not be found".
+        not_found: list[BaseException] = []
+        # Set once this attempt has returned. Music Assistant can answer a
+        # request long after Beatify gave up on it (the report saw it 29 s
+        # late); that answer belongs to a song the game has moved on from and
+        # must not touch the attempt that is running by then.
+        attempt_over = False  # rebound in the finally below; read by _play_done
 
         def _play_done(task: asyncio.Future[Any]) -> None:
             if task.cancelled():
@@ -1083,8 +1114,20 @@ class MusicAssistantStrategy(PlaybackStrategy):
             err = task.exception()
             if err is None:
                 return
+            if attempt_over:
+                _LOGGER.debug(
+                    "MA play_media for %s answered after Beatify gave up on "
+                    "it, ignoring: %s (#3429)",
+                    uri,
+                    err,
+                )
+                return
             if _is_provider_unavailable(err):
                 rejection.append(err)
+                confirmed.set()
+                return
+            if _is_media_not_found(err):
+                not_found.append(err)
                 confirmed.set()
                 return
             # Any other refusal keeps the old behaviour: the budget runs out
@@ -1110,7 +1153,11 @@ class MusicAssistantStrategy(PlaybackStrategy):
             # bad data): raise it as the direct call did, so play_song reports
             # it at once instead of waiting out the budget.
             early = play_task.exception()
-            if early is not None and not _is_provider_unavailable(early):
+            if (
+                early is not None
+                and not _is_provider_unavailable(early)
+                and not _is_media_not_found(early)
+            ):
                 raise early
 
         # Wait for the EXPECTED song to actually play on the speaker:
@@ -1279,6 +1326,15 @@ class MusicAssistantStrategy(PlaybackStrategy):
             await asyncio.wait_for(confirmed.wait(), timeout=timeout)
             if rejection:
                 return self._provider_unavailable(uri, rejection[0])
+            if not_found:
+                _LOGGER.warning(
+                    "MA playback: %s is not in Music Assistant (%s) — dead "
+                    "link, skipping this song. (#3429)",
+                    uri,
+                    not_found[0],
+                )
+                self.last_failure_reason = "unavailable"
+                return False
             elapsed = asyncio.get_event_loop().time() - start_time
             final = self.context.state()
             _LOGGER.debug(
@@ -1293,6 +1349,8 @@ class MusicAssistantStrategy(PlaybackStrategy):
             pass
         finally:
             unsub()
+            # The wait is over: from here on an answer from play_media is late.
+            attempt_over = True
 
         current_state = await self.context.state_with_retry()
         speaker_state = current_state.state if current_state else "unknown"
@@ -1562,6 +1620,41 @@ class MusicAssistantStrategy(PlaybackStrategy):
             # recovery banner within seconds instead of silently burning
             # through the playlist one unplayable song at a time.
             self.last_failure_reason = "error"
+            return False
+
+        # #3418: the guard above only knows starts it still remembers. A late
+        # arrival it has forgotten (or never saw) looks exactly like slow
+        # buffering to the title check below. Content-id evidence closes the
+        # gap: the speaker moved to a track id that is not ours, AND neither
+        # its title nor its artist resembles what we asked for. A relinked
+        # copy of the right song keeps its title, so it still passes.
+        if (
+            content_id_after
+            and content_id_after != content_id_before
+            and not any(token in content_id_after for token in match_tokens)
+            and expected_title
+            and not _titles_plausibly_match(expected_title, title_after)
+            and not _artist_matches(
+                expected_artist,
+                (current_state.attributes.get("media_artist") or "")
+                if current_state
+                else "",
+            )
+        ):
+            _LOGGER.warning(
+                "MA playback failed after %.1fs for %s — the speaker moved to "
+                "%r (%r), which is neither the requested track nor a title or "
+                "artist match for it. Treating it as a start Beatify gave up "
+                "on earlier that Music Assistant finished late, not as slow "
+                "buffering. Skipping this song silently. (#3418)",
+                timeout,
+                uri,
+                content_id_after,
+                title_after,
+            )
+            if await self._cancel_pending_start():
+                self._stopped_for_cascade = True
+            self.last_failure_reason = "unavailable"
             return False
 
         # #345 slow-buffer tolerance, narrowed to "title genuinely changed":

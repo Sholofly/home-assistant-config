@@ -575,19 +575,19 @@ function $b5e603aa525763fc$var$getNestedTranslation(obj, path) {
 
 
 var $9a28a77a5af263d9$exports = {};
-$9a28a77a5af263d9$exports = JSON.parse("{\"card\":{\"device_name\":\"Device Name\",\"expand\":\"Expand\",\"collapse\":\"Collapse\",\"loading\":\"Loading...\",\"no_devices_found\":\"No devices found for integration:\",\"device_card_name\":\"Device Card\",\"device_card_description\":\"A card to summarize the status of a Device.\",\"integration_card_name\":\"Integration Card\",\"integration_card_description\":\"A card to display all devices from a specific integration.\"},\"sections\":{\"controls\":\"Controls\",\"configuration\":\"Configuration\",\"sensors\":\"Sensors\",\"diagnostic\":\"Diagnostic\"}}");
+$9a28a77a5af263d9$exports = JSON.parse("{\"card\":{\"device_name\":\"Device Name\",\"expand\":\"Expand\",\"collapse\":\"Collapse\",\"loading\":\"Loading...\",\"no_devices_found\":\"No devices found for integration:\",\"device_card_name\":\"Device Card\",\"device_card_description\":\"A card to summarize the status of a Device.\",\"integration_card_name\":\"Integration Card\",\"integration_card_description\":\"A card to display all devices from a specific integration.\",\"hold_for_device\":\"Hold to open device page\"},\"sections\":{\"controls\":\"Controls\",\"configuration\":\"Configuration\",\"sensors\":\"Sensors\",\"diagnostic\":\"Diagnostic\"}}");
 
 
 var $a8bf67e13c48de4e$exports = {};
-$a8bf67e13c48de4e$exports = JSON.parse('{"card":{"device_name":"Nom de l\'appareil","expand":"D\xe9velopper","collapse":"R\xe9duire","loading":"Chargement...","no_devices_found":"Aucun appareil trouv\xe9 pour l\'int\xe9gration :","device_card_name":"Carte d\'Appareil","device_card_description":"Une carte pour r\xe9sumer le statut d\'un Appareil.","integration_card_name":"Carte d\'Int\xe9gration","integration_card_description":"Une carte pour afficher tous les appareils d\'une int\xe9gration sp\xe9cifique."},"sections":{"controls":"Contr\xf4les","configuration":"Configuration","sensors":"Capteurs","diagnostic":"Diagnostic"}}');
+$a8bf67e13c48de4e$exports = JSON.parse('{"card":{"device_name":"Nom de l\'appareil","expand":"D\xe9velopper","collapse":"R\xe9duire","loading":"Chargement...","no_devices_found":"Aucun appareil trouv\xe9 pour l\'int\xe9gration :","device_card_name":"Carte d\'Appareil","device_card_description":"Une carte pour r\xe9sumer le statut d\'un Appareil.","integration_card_name":"Carte d\'Int\xe9gration","integration_card_description":"Une carte pour afficher tous les appareils d\'une int\xe9gration sp\xe9cifique.","hold_for_device":"Maintenir pour ouvrir la page de l\'appareil"},"sections":{"controls":"Contr\xf4les","configuration":"Configuration","sensors":"Capteurs","diagnostic":"Diagnostic"}}');
 
 
 var $736e6599d6bbd3bf$exports = {};
-$736e6599d6bbd3bf$exports = JSON.parse('{"card":{"device_name":"Nome do Dispositivo","expand":"Expandir","collapse":"Recolher","loading":"Carregando...","no_devices_found":"Nenhum dispositivo encontrado para a integra\xe7\xe3o:","device_card_name":"Cart\xe3o de Dispositivo","device_card_description":"Um cart\xe3o para resumir o status de um Dispositivo.","integration_card_name":"Cart\xe3o de Integra\xe7\xe3o","integration_card_description":"Um cart\xe3o para exibir todos os dispositivos de uma integra\xe7\xe3o espec\xedfica."},"sections":{"controls":"Controles","configuration":"Configura\xe7\xe3o","sensors":"Sensores","diagnostic":"Diagn\xf3stico"}}');
+$736e6599d6bbd3bf$exports = JSON.parse('{"card":{"device_name":"Nome do Dispositivo","expand":"Expandir","collapse":"Recolher","loading":"Carregando...","no_devices_found":"Nenhum dispositivo encontrado para a integra\xe7\xe3o:","device_card_name":"Cart\xe3o de Dispositivo","device_card_description":"Um cart\xe3o para resumir o status de um Dispositivo.","integration_card_name":"Cart\xe3o de Integra\xe7\xe3o","integration_card_description":"Um cart\xe3o para exibir todos os dispositivos de uma integra\xe7\xe3o espec\xedfica.","hold_for_device":"Segure para abrir a p\xe1gina do dispositivo"},"sections":{"controls":"Controles","configuration":"Configura\xe7\xe3o","sensors":"Sensores","diagnostic":"Diagn\xf3stico"}}');
 
 
 var $9d8ca0c26d9d22c3$exports = {};
-$9d8ca0c26d9d22c3$exports = JSON.parse('{"card":{"device_name":"\u041D\u0430\u0437\u0432\u0430\u043D\u0438\u0435 \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0430","expand":"\u0420\u0430\u0437\u0432\u0435\u0440\u043D\u0443\u0442\u044C","collapse":"\u0421\u0432\u0435\u0440\u043D\u0443\u0442\u044C","loading":"\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0430...","no_devices_found":"\u041D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D\u043E \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432 \u0438\u0437 \u0438\u043D\u0442\u0435\u0433\u0440\u0430\u0446\u0438\u0438:","device_card_name":"\u041A\u0430\u0440\u0442\u043E\u0447\u043A\u0430 \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0430","device_card_description":"\u041A\u0430\u0440\u0442\u043E\u0447\u043A\u0430 \u0434\u043B\u044F \u043E\u0431\u043E\u0431\u0449\u0435\u043D\u0438\u044F \u0441\u043E\u0441\u0442\u043E\u044F\u043D\u0438\u044F \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0430.","integration_card_name":"\u041A\u0430\u0440\u0442\u043E\u0447\u043A\u0430 \u0438\u043D\u0442\u0435\u0433\u0440\u0430\u0446\u0438\u0438","integration_card_description":"\u041A\u0430\u0440\u0442\u043E\u0447\u043A\u0430 \u0434\u043B\u044F \u043E\u0442\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u044F \u0432\u0441\u0435\u0445 \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432 \u0438\u0437 \u043E\u043F\u0440\u0435\u0434\u0435\u043B\u0435\u043D\u043D\u043E\u0439 \u0438\u043D\u0442\u0435\u0433\u0440\u0430\u0446\u0438\u0438."},"sections":{"controls":"\u0423\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u0435","configuration":"\u041D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438","sensors":"\u0421\u0435\u043D\u0441\u043E\u0440\u044B","diagnostic":"\u0414\u0438\u0430\u0433\u043D\u043E\u0441\u0442\u0438\u043A\u0430"}}');
+$9d8ca0c26d9d22c3$exports = JSON.parse('{"card":{"device_name":"\u041D\u0430\u0437\u0432\u0430\u043D\u0438\u0435 \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0430","expand":"\u0420\u0430\u0437\u0432\u0435\u0440\u043D\u0443\u0442\u044C","collapse":"\u0421\u0432\u0435\u0440\u043D\u0443\u0442\u044C","loading":"\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0430...","no_devices_found":"\u041D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D\u043E \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432 \u0438\u0437 \u0438\u043D\u0442\u0435\u0433\u0440\u0430\u0446\u0438\u0438:","device_card_name":"\u041A\u0430\u0440\u0442\u043E\u0447\u043A\u0430 \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0430","device_card_description":"\u041A\u0430\u0440\u0442\u043E\u0447\u043A\u0430 \u0434\u043B\u044F \u043E\u0431\u043E\u0431\u0449\u0435\u043D\u0438\u044F \u0441\u043E\u0441\u0442\u043E\u044F\u043D\u0438\u044F \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0430.","integration_card_name":"\u041A\u0430\u0440\u0442\u043E\u0447\u043A\u0430 \u0438\u043D\u0442\u0435\u0433\u0440\u0430\u0446\u0438\u0438","integration_card_description":"\u041A\u0430\u0440\u0442\u043E\u0447\u043A\u0430 \u0434\u043B\u044F \u043E\u0442\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u044F \u0432\u0441\u0435\u0445 \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432 \u0438\u0437 \u043E\u043F\u0440\u0435\u0434\u0435\u043B\u0435\u043D\u043D\u043E\u0439 \u0438\u043D\u0442\u0435\u0433\u0440\u0430\u0446\u0438\u0438.","hold_for_device":"\u0423\u0434\u0435\u0440\u0436\u0438\u0432\u0430\u0439\u0442\u0435, \u0447\u0442\u043E\u0431\u044B \u043E\u0442\u043A\u0440\u044B\u0442\u044C \u0441\u0442\u0440\u0430\u043D\u0438\u0446\u0443 \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0430"},"sections":{"controls":"\u0423\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u0435","configuration":"\u041D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438","sensors":"\u0421\u0435\u043D\u0441\u043E\u0440\u044B","diagnostic":"\u0414\u0438\u0430\u0433\u043D\u043E\u0441\u0442\u0438\u043A\u0430"}}');
 
 
 const $623ffaa3e77fea87$export$b3bd0bc58e36cd63 = (0, $b5e603aa525763fc$exports.createLocalize)({
@@ -633,39 +633,6 @@ const $e92876f5a6849818$export$b6b5fe522e6ef18a = (hass, config, device)=>{
 };
 
 
-
-
-var $7b593e8e2f493f5e$exports = {};
-"use strict";
-Object.defineProperty($7b593e8e2f493f5e$exports, "__esModule", {
-    value: true
-});
-$7b593e8e2f493f5e$exports.resetPoatCardHelpersForTests = $7b593e8e2f493f5e$var$resetPoatCardHelpersForTests;
-$7b593e8e2f493f5e$exports.setPoatCardHelpers = $7b593e8e2f493f5e$var$setPoatCardHelpers;
-$7b593e8e2f493f5e$exports.getPoatCardHelpers = $7b593e8e2f493f5e$var$getPoatCardHelpers;
-$7b593e8e2f493f5e$exports.resolvePoatCardHelpers = $7b593e8e2f493f5e$var$resolvePoatCardHelpers;
-let $7b593e8e2f493f5e$var$_helpersPromise;
-/** Clears singleton state (unit tests only). */ function $7b593e8e2f493f5e$var$resetPoatCardHelpersForTests() {
-    $7b593e8e2f493f5e$var$_helpersPromise = undefined;
-    Reflect.deleteProperty(globalThis, 'poatCardHelpers');
-}
-function $7b593e8e2f493f5e$var$setPoatCardHelpers(helpers) {
-    globalThis.poatCardHelpers = helpers;
-}
-function $7b593e8e2f493f5e$var$getPoatCardHelpers() {
-    return globalThis.poatCardHelpers;
-}
-function $7b593e8e2f493f5e$var$resolvePoatCardHelpers(loader) {
-    const existing = $7b593e8e2f493f5e$var$getPoatCardHelpers();
-    if (existing) return Promise.resolve(existing);
-    if ($7b593e8e2f493f5e$var$_helpersPromise !== undefined) return $7b593e8e2f493f5e$var$_helpersPromise;
-    if (!loader) return Promise.reject(new Error('[custom-card] helpers: missing globalThis.loadCardHelpers'));
-    $7b593e8e2f493f5e$var$_helpersPromise = loader().then((helpers)=>{
-        $7b593e8e2f493f5e$var$setPoatCardHelpers(helpers);
-        return helpers;
-    });
-    return $7b593e8e2f493f5e$var$_helpersPromise;
-}
 
 
 var $c982213da4aa951b$exports = {};
@@ -1291,6 +1258,38 @@ const $ab210b2da7b39b9d$export$f5c524615a7708d6 = {
 
 
 
+var $7b593e8e2f493f5e$exports = {};
+"use strict";
+Object.defineProperty($7b593e8e2f493f5e$exports, "__esModule", {
+    value: true
+});
+$7b593e8e2f493f5e$exports.resetPoatCardHelpersForTests = $7b593e8e2f493f5e$var$resetPoatCardHelpersForTests;
+$7b593e8e2f493f5e$exports.setPoatCardHelpers = $7b593e8e2f493f5e$var$setPoatCardHelpers;
+$7b593e8e2f493f5e$exports.getPoatCardHelpers = $7b593e8e2f493f5e$var$getPoatCardHelpers;
+$7b593e8e2f493f5e$exports.resolvePoatCardHelpers = $7b593e8e2f493f5e$var$resolvePoatCardHelpers;
+let $7b593e8e2f493f5e$var$_helpersPromise;
+/** Clears singleton state (unit tests only). */ function $7b593e8e2f493f5e$var$resetPoatCardHelpersForTests() {
+    $7b593e8e2f493f5e$var$_helpersPromise = undefined;
+    Reflect.deleteProperty(globalThis, 'poatCardHelpers');
+}
+function $7b593e8e2f493f5e$var$setPoatCardHelpers(helpers) {
+    globalThis.poatCardHelpers = helpers;
+}
+function $7b593e8e2f493f5e$var$getPoatCardHelpers() {
+    return globalThis.poatCardHelpers;
+}
+function $7b593e8e2f493f5e$var$resolvePoatCardHelpers(loader) {
+    const existing = $7b593e8e2f493f5e$var$getPoatCardHelpers();
+    if (existing) return Promise.resolve(existing);
+    if ($7b593e8e2f493f5e$var$_helpersPromise !== undefined) return $7b593e8e2f493f5e$var$_helpersPromise;
+    if (!loader) return Promise.reject(new Error('[custom-card] helpers: missing globalThis.loadCardHelpers'));
+    $7b593e8e2f493f5e$var$_helpersPromise = loader().then((helpers)=>{
+        $7b593e8e2f493f5e$var$setPoatCardHelpers(helpers);
+        return helpers;
+    });
+    return $7b593e8e2f493f5e$var$_helpersPromise;
+}
+
 
 /**
  * Renders a Lovelace entity row element via {@link getPoatCardHelpers}.
@@ -1331,15 +1330,6 @@ Object.defineProperty($d2b7651828735a8b$exports, "__esModule", {
     value: true
 });
 $d2b7651828735a8b$exports.moreInfo = $d2b7651828735a8b$var$moreInfo;
-var $12a7dbfb4049bb75$exports = {};
-"use strict";
-/**
- * https://github.com/home-assistant/frontend/blob/dev/src/state/more-info-mixin.ts
- */ Object.defineProperty($12a7dbfb4049bb75$exports, "__esModule", {
-    value: true
-});
-
-
 var $d8229c453ce2530e$exports = {};
 "use strict";
 Object.defineProperty($d8229c453ce2530e$exports, "__esModule", {
@@ -1383,6 +1373,15 @@ Object.defineProperty($5c300232e2fb99f1$exports, "__esModule", {
     return event;
 };
 $d8229c453ce2530e$exports.fireEvent = $d8229c453ce2530e$var$fireEvent;
+
+
+var $12a7dbfb4049bb75$exports = {};
+"use strict";
+/**
+ * https://github.com/home-assistant/frontend/blob/dev/src/state/more-info-mixin.ts
+ */ Object.defineProperty($12a7dbfb4049bb75$exports, "__esModule", {
+    value: true
+});
 
 
 /**
@@ -1445,6 +1444,45 @@ const $5cc8c88379d13dba$export$16bd37df0047a29c = (entity)=>{
         `)}
     </div>
   `;
+};
+
+
+/**
+ * Checks if a string matches a pattern which can be:
+ * - Exact match
+ * - Wildcard pattern with * (e.g., "sensor_*")
+ * - Regex pattern enclosed in /.../ (e.g., "/sensor\\.(temp|humid)/")
+ *
+ * @param str - The string to check
+ * @param pattern - The pattern to match against
+ * @returns True if the string matches the pattern
+ */ const $8e9091561798c377$export$78e968efcca6b7ef = (str, pattern)=>{
+    if (str === null) return false;
+    // Check if it's a regex pattern (enclosed in slashes)
+    const regexPattern = /^\/(.+)\/$/;
+    const regexMatch = regexPattern.exec(pattern);
+    if (regexMatch) try {
+        const regex = new RegExp(regexMatch[1]);
+        return regex.test(str);
+    } catch (e) {
+        // If regex is invalid, fall back to treating it as a literal string
+        console.warn(`Invalid regex pattern: ${pattern}`, e);
+        return str === pattern;
+    }
+    // Check if it's a wildcard pattern (contains *)
+    if (pattern.includes('*')) {
+        // Convert wildcard pattern to regex
+        const regexPattern = pattern.replaceAll(/[.+?^${}()|[\]\\]/g, String.raw`\$&`) // Escape special regex chars
+        .replaceAll('*', '.*'); // Convert * to .*
+        const regex = new RegExp(`^${regexPattern}$`, 'i');
+        return regex.test(str);
+    }
+    // Default to exact match
+    return str === pattern;
+};
+const $8e9091561798c377$export$74ca6da3809e132c = (deviceId, deviceName, nameByUser, patterns)=>{
+    if (!patterns?.length) return false;
+    return patterns.some((p)=>$8e9091561798c377$export$78e968efcca6b7ef(deviceId, p) || $8e9091561798c377$export$78e968efcca6b7ef(deviceName, p) || $8e9091561798c377$export$78e968efcca6b7ef(nameByUser ?? null, p));
 };
 
 
@@ -1532,19 +1570,36 @@ class $107bb7d062dde330$export$befdefbdce210f91 {
     }
     return baseClass;
 }
-const $a6a6434f1848f426$export$40075bc608c4544e = (entity, inverseEntities = [])=>{
+const $a6a6434f1848f426$export$99f94b5241c778e7 = (entityId, percentage, percentColors)=>{
+    if (!percentColors) return undefined;
+    const match = Object.entries(percentColors).find(([pattern])=>(0, $8e9091561798c377$export$78e968efcca6b7ef)(entityId, pattern));
+    if (!match) return undefined;
+    const value = match[1];
+    if (typeof value === 'string') return value;
+    if (!Array.isArray(value)) return undefined;
+    const thresholds = value.filter((t)=>typeof t?.color === 'string' && Number.isFinite(t?.value)).sort((a, b)=>a.value - b.value);
+    let color = thresholds[0]?.color;
+    for (const threshold of thresholds)if (percentage >= threshold.value) color = threshold.color;
+    return color;
+};
+const $a6a6434f1848f426$export$40075bc608c4544e = (entity, inverseEntities = [], percentColors)=>{
     // Extract the percentage value from the entity state
     const percentage = Number(entity.state);
+    // A custom color replaces the default high/medium/low scale entirely
+    const customColor = $a6a6434f1848f426$export$99f94b5241c778e7(entity.entity_id, percentage, percentColors);
     // Check if this entity should use inverted colors
     const isInverse = inverseEntities.includes(entity.entity_id);
     // Determine the color class based on percentage value and inverse setting
-    const colorClass = $a6a6434f1848f426$var$getColorClass(percentage, isInverse);
+    const colorClass = customColor ? '' : $a6a6434f1848f426$var$getColorClass(percentage, isInverse);
     return (0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`
     <div class="percent-gauge">
       <div
         class="percent-gauge-fill ${colorClass}"
         style=${(0, $19f464fcda7d2482$export$1e5b4ce2fa884e6a)({
-        width: `${percentage}%`
+        width: `${percentage}%`,
+        ...customColor ? {
+            'background-color': customColor
+        } : {}
     })}
       ></div>
     </div>
@@ -1757,13 +1812,27 @@ const $424623214c66460e$export$9dd6ff9ea0189349 = (0, $def2de46b9306e8a$export$d
   /* Container for a row */
   .row {
     position: relative;
-    border-radius: 3px;
+    isolation: isolate;
     cursor: pointer;
-    transition: background-color 0.2s ease;
   }
 
-  .row:hover {
-    background-color: var(--secondary-background-color);
+  /* Hover highlight: rounded, bleeds slightly past the row so it isn't flush */
+  .row::before {
+    content: '';
+    position: absolute;
+    inset: 0 -8px;
+    border-radius: 8px;
+    background-color: var(--primary-text-color);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  @media (hover: hover) {
+    .row:hover::before {
+      opacity: 0.06;
+    }
   }
 
   .row.expanded-row {
@@ -1871,17 +1940,6 @@ const $424623214c66460e$export$9dd6ff9ea0189349 = (0, $def2de46b9306e8a$export$d
 
 
 class $a56ca3d5ac1672a8$export$c22534166de5f0ff extends (0, $5af8360155067557$exports.HassConfigMixin)((0, $ab210b2da7b39b9d$export$3f2f9f5909897157)) {
-    connectedCallback() {
-        super.connectedCallback();
-        this.addEventListener('ll-custom', this._onLlCustom);
-        (0, $7b593e8e2f493f5e$exports.resolvePoatCardHelpers)(globalThis.loadCardHelpers).then((helpers)=>{
-            this._cardHelpers = helpers;
-        });
-    }
-    disconnectedCallback() {
-        this.removeEventListener('ll-custom', this._onLlCustom);
-        super.disconnectedCallback();
-    }
     /**
    * Returns the component's styles
    */ static get styles() {
@@ -1891,8 +1949,6 @@ class $a56ca3d5ac1672a8$export$c22534166de5f0ff extends (0, $5af8360155067557$ex
    * renders the lit element card
    * @returns {TemplateResult} The rendered HTML template
    */ render() {
-        // Avoid rendering sections until helpers are resolved; this keeps all downstream rendering sync.
-        if (!this._cardHelpers) return 0, $f58f44579a4747ac$export$45b790e32b2810ee;
         let statusClassName;
         if (this.entity.isProblemEntity) statusClassName = this.entity.isActive ? 'status-error' : 'status-ok';
         const unitOfMeasurement = this.entity.attributes.unit_of_measurement;
@@ -1904,6 +1960,7 @@ class $a56ca3d5ac1672a8$export$c22534166de5f0ff extends (0, $5af8360155067557$ex
             statusClassName,
             this._expanded ? 'expanded-row' : ''
         ].join(' ')}"
+      @ll-custom=${this._handleLLCustomEvent}
     >
       <div class="row-content">
         ${(0, $c982213da4aa951b$exports.entityRow)(this.hass, {
@@ -1911,7 +1968,7 @@ class $a56ca3d5ac1672a8$export$c22534166de5f0ff extends (0, $5af8360155067557$ex
             name: this.entity.name,
             ...this.entity.config
         }, statusClassName)}
-        ${showBar ? (0, $a6a6434f1848f426$export$40075bc608c4544e)(this.entity, inverseEntities) : (0, $f58f44579a4747ac$export$45b790e32b2810ee)}
+        ${showBar ? (0, $a6a6434f1848f426$export$40075bc608c4544e)(this.entity, inverseEntities, this.config?.percent_colors) : (0, $f58f44579a4747ac$export$45b790e32b2810ee)}
       </div>
       ${this._expanded ? (0, $5cc8c88379d13dba$export$16bd37df0047a29c)(this.entity) : (0, $f58f44579a4747ac$export$45b790e32b2810ee)}
     </div>`;
@@ -1922,7 +1979,7 @@ class $a56ca3d5ac1672a8$export$c22534166de5f0ff extends (0, $5af8360155067557$ex
    * Entity ID comes from ev.detail.device_card.entity_id.
    *
    * @param ev - The CustomEvent with detail.device_card.expand and detail.device_card.entity_id
-   */ this._onLlCustom = (ev)=>{
+   */ this._handleLLCustomEvent = (ev)=>{
             const ce = ev;
             const dc = ce.detail?.device_card;
             if (!dc?.expand || dc.entity_id !== this.entity?.entity_id) return;
@@ -1939,9 +1996,6 @@ class $a56ca3d5ac1672a8$export$c22534166de5f0ff extends (0, $5af8360155067557$ex
 (0, $e710f43c4558477c$export$29e00dfd3077644b)([
     (0, $04c21ea1ce1f6057$export$ca000e230c0caa3e)()
 ], $a56ca3d5ac1672a8$export$c22534166de5f0ff.prototype, "_expanded", void 0);
-(0, $e710f43c4558477c$export$29e00dfd3077644b)([
-    (0, $04c21ea1ce1f6057$export$ca000e230c0caa3e)()
-], $a56ca3d5ac1672a8$export$c22534166de5f0ff.prototype, "_cardHelpers", void 0);
 $a56ca3d5ac1672a8$export$c22534166de5f0ff = (0, $e710f43c4558477c$export$29e00dfd3077644b)([
     (0, $14742f68afc766d6$export$da64fc29f17f9d0e)('device-card-row')
 ], $a56ca3d5ac1672a8$export$c22534166de5f0ff);
@@ -2050,10 +2104,10 @@ const $2ae7b32fc5b69f7f$export$980c1089c0604ea3 = (isExpanded, onToggleSection)=
   </div>`;
 const $2ae7b32fc5b69f7f$export$ae9a281c4379b144 = (entities, isExpanded, size, onToggleSection)=>(0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`<div class="section-footer">
     ${isExpanded ? (0, $f58f44579a4747ac$export$45b790e32b2810ee) : (0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`
-          <div class="show-more" @click=${onToggleSection}>
-            Show ${entities.length - size} more...
-          </div>
-        `}
+            <div class="show-more" @click=${onToggleSection}>
+              Show ${entities.length - size} more...
+            </div>
+          `}
   </div>`;
 
 
@@ -2185,44 +2239,6 @@ $2264182dc78b4841$export$da5a23a47e25d1ad = (0, $e710f43c4558477c$export$29e00df
 ], $2264182dc78b4841$export$da5a23a47e25d1ad);
 
 
-/**
- * Checks if a string matches a pattern which can be:
- * - Exact match
- * - Wildcard pattern with * (e.g., "sensor_*")
- * - Regex pattern enclosed in /.../ (e.g., "/sensor\\.(temp|humid)/")
- *
- * @param str - The string to check
- * @param pattern - The pattern to match against
- * @returns True if the string matches the pattern
- */ const $8e9091561798c377$export$78e968efcca6b7ef = (str, pattern)=>{
-    if (str === null) return false;
-    // Check if it's a regex pattern (enclosed in slashes)
-    const regexPattern = /^\/(.+)\/$/;
-    const regexMatch = regexPattern.exec(pattern);
-    if (regexMatch) try {
-        const regex = new RegExp(regexMatch[1]);
-        return regex.test(str);
-    } catch (e) {
-        // If regex is invalid, fall back to treating it as a literal string
-        console.warn(`Invalid regex pattern: ${pattern}`, e);
-        return str === pattern;
-    }
-    // Check if it's a wildcard pattern (contains *)
-    if (pattern.includes('*')) {
-        // Convert wildcard pattern to regex
-        const regexPattern = pattern.replaceAll(/[.+?^${}()|[\]\\]/g, String.raw`\$&`) // Escape special regex chars
-        .replaceAll('*', '.*'); // Convert * to .*
-        const regex = new RegExp(`^${regexPattern}$`, 'i');
-        return regex.test(str);
-    }
-    // Default to exact match
-    return str === pattern;
-};
-const $8e9091561798c377$export$74ca6da3809e132c = (deviceId, deviceName, nameByUser, patterns)=>{
-    if (!patterns?.length) return false;
-    return patterns.some((p)=>$8e9091561798c377$export$78e968efcca6b7ef(deviceId, p) || $8e9091561798c377$export$78e968efcca6b7ef(deviceName, p) || $8e9091561798c377$export$78e968efcca6b7ef(nameByUser ?? null, p));
-};
-
 
 var $582ca952b94144dd$exports = {};
 "use strict";
@@ -2283,8 +2299,14 @@ $acba4c6c62d44419$exports.getEntity = void 0;
     if (!entity) return undefined;
     return {
         entity_id: entity.entity_id,
+        name: entity.name,
         device_id: entity.device_id,
-        translation_key: entity.translation_key
+        area_id: entity.area_id,
+        labels: entity.labels,
+        hidden: entity.hidden,
+        entity_category: entity.entity_category,
+        translation_key: entity.translation_key,
+        platform: entity.platform
     };
 };
 $acba4c6c62d44419$exports.getEntity = $acba4c6c62d44419$var$getEntity;
@@ -2306,7 +2328,8 @@ $c5218a11ead5212e$exports.getState = void 0;
         entity_id: state.entity_id,
         state: state.state,
         attributes: state.attributes,
-        last_changed: state.last_changed
+        last_changed: state.last_changed,
+        last_updated: state.last_updated
     };
 };
 $c5218a11ead5212e$exports.getState = $c5218a11ead5212e$var$getState;
@@ -2327,7 +2350,7 @@ var $d25e6b86739c3dd6$exports = {};
  */ Object.defineProperty($d25e6b86739c3dd6$exports, "__esModule", {
     value: true
 });
-$d25e6b86739c3dd6$exports.isOffState = $d25e6b86739c3dd6$exports.OFF_STATES = $d25e6b86739c3dd6$exports.OFF = $d25e6b86739c3dd6$exports.ON = $d25e6b86739c3dd6$exports.UNKNOWN = $d25e6b86739c3dd6$exports.UNAVAILABLE = void 0;
+$d25e6b86739c3dd6$exports.isOffState = $d25e6b86739c3dd6$exports.isUnavailableState = $d25e6b86739c3dd6$exports.OFF_STATES = $d25e6b86739c3dd6$exports.UNAVAILABLE_STATES = $d25e6b86739c3dd6$exports.OFF = $d25e6b86739c3dd6$exports.ON = $d25e6b86739c3dd6$exports.UNKNOWN = $d25e6b86739c3dd6$exports.UNAVAILABLE = void 0;
 var $f4456c331bb6c271$exports = {};
 "use strict";
 /**
@@ -2348,18 +2371,23 @@ $d25e6b86739c3dd6$exports.UNAVAILABLE = 'unavailable';
 $d25e6b86739c3dd6$exports.UNKNOWN = 'unknown';
 $d25e6b86739c3dd6$exports.ON = 'on';
 $d25e6b86739c3dd6$exports.OFF = 'off';
+$d25e6b86739c3dd6$exports.UNAVAILABLE_STATES = [
+    $d25e6b86739c3dd6$exports.UNAVAILABLE,
+    $d25e6b86739c3dd6$exports.UNKNOWN
+];
 $d25e6b86739c3dd6$exports.OFF_STATES = [
     $d25e6b86739c3dd6$exports.UNAVAILABLE,
     $d25e6b86739c3dd6$exports.UNKNOWN,
     $d25e6b86739c3dd6$exports.OFF
 ];
+$d25e6b86739c3dd6$exports.isUnavailableState = (0, $f4456c331bb6c271$exports.arrayLiteralIncludes)($d25e6b86739c3dd6$exports.UNAVAILABLE_STATES);
 $d25e6b86739c3dd6$exports.isOffState = (0, $f4456c331bb6c271$exports.arrayLiteralIncludes)($d25e6b86739c3dd6$exports.OFF_STATES);
 
 
 
 function $46dabcff6df1e992$var$stateActive(stateObj, state) {
     const domain = (0, $9be1c046bd0bdc20$exports.computeDomain)(stateObj.entity_id);
-    const compareState = state !== undefined ? state : stateObj?.state;
+    const compareState = state ?? stateObj?.state;
     if ([
         'button',
         'event',
@@ -2394,7 +2422,11 @@ function $46dabcff6df1e992$var$stateActive(stateObj, state) {
         case 'lock':
             return compareState !== 'locked';
         case 'media_player':
-            return compareState !== 'standby';
+            // Upstream treats paused as active; cards treat paused like standby (inactive).
+            return ![
+                'standby',
+                'paused'
+            ].includes(compareState);
         case 'vacuum':
             return ![
                 'idle',
@@ -2477,6 +2509,7 @@ const $562e4e067cd81a2b$export$30c823bc834d6ab4 = (hass, config)=>{
     if (!deviceId) return undefined;
     const hassDevice = (0, $f14e78138687b521$exports.getDevice)(hass, deviceId);
     if (!hassDevice) return undefined;
+    device.id = hassDevice.id;
     device.name = hassDevice.name_by_user ?? hassDevice.name ?? 'Device';
     device.model = [
         hassDevice.manufacturer,
@@ -2543,15 +2576,19 @@ const $fc7b5ec53f835fd3$export$9dd6ff9ea0189349 = (0, $def2de46b9306e8a$export$d
   }
 
   .card-header {
+    position: relative;
+    isolation: isolate;
     padding: 0px 0px 10px 16px;
     line-height: 35px;
     border-bottom: 1px solid var(--divider-color);
     margin-bottom: 8px;
     cursor: pointer;
-    transition: background-color 0.2s ease;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    /* long-press opens the device page; don't select text on hold */
+    user-select: none;
+    -webkit-user-select: none;
   }
 
   /* Remove bottom border when collapsed */
@@ -2560,8 +2597,26 @@ const $fc7b5ec53f835fd3$export$9dd6ff9ea0189349 = (0, $def2de46b9306e8a$export$d
     margin-bottom: 0;
   }
 
-  .card-header:hover {
-    background-color: var(--secondary-background-color);
+  /*
+   * Hover highlight: a rounded layer that bleeds a little past the header's
+   * edges so it doesn't hug the text, and stops short of the divider.
+   */
+  .card-header::before {
+    content: '';
+    position: absolute;
+    inset: -6px -8px 4px -8px;
+    border-radius: 10px;
+    background-color: var(--primary-text-color);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  @media (hover: hover) {
+    .card-header:hover::before {
+      opacity: 0.06;
+    }
   }
 
   .title {
@@ -2650,12 +2705,19 @@ Object.defineProperty($3c586c3c0c49fb9f$exports, "__esModule", {
 });
 $3c586c3c0c49fb9f$exports.HassUpdateMixin = void 0;
 /**
- * Mixin that keeps `hass` in sync with the global `hass-update` event.
+ * Mixin that keeps `hass` in sync with a scoped `hass-update` event.
  *
  * Stacks on `HassConfigMixin`, so the superclass already provides the `hass`
  * and `config` fields; this mixin just reassigns `hass` whenever a
- * `hass-update` event is fired on `globalThis`. Use it on children whose parent
+ * `hass-update` event is fired on its scope. Use it on children whose parent
  * skips full Lit updates, so they can react to `hass` changes themselves.
+ *
+ * The listener is attached to the element's own root node (the parent card's
+ * shadow tree) rather than `globalThis`, so each card's events stay isolated
+ * from sibling cards on the same dashboard. The owning card should dispatch
+ * `hass-update` on its own `shadowRoot`. A `_host` escape hatch handles
+ * portalled descendants (e.g. dialogs HA's dialog manager moves out of the
+ * tree).
  *
  * @param superClass - The base class to mixin
  */ const $3c586c3c0c49fb9f$var$HassUpdateMixin = (superClass)=>{
@@ -2666,11 +2728,40 @@ $3c586c3c0c49fb9f$exports.HassUpdateMixin = void 0;
         }
         connectedCallback() {
             super.connectedCallback();
-            globalThis.addEventListener('hass-update', this._boundHassUpdateHandler);
+            this._bindHassUpdateListener();
         }
         disconnectedCallback() {
             super.disconnectedCallback();
-            globalThis.removeEventListener('hass-update', this._boundHassUpdateHandler);
+            this._unbindHassUpdateListener();
+        }
+        /**
+         * Attaches the listener to the closest scope: an explicit `_host`'s
+         * shadow root if set (for portalled descendants), otherwise the
+         * component's own root node (the parent shadow tree). Each card has a
+         * distinct shadow root, so this naturally isolates events per card.
+         *
+         * Exposed so portalled descendants can re-bind after `_host` is supplied,
+         * since their `connectedCallback` runs before the property is set.
+         */ _bindHassUpdateListener() {
+            if (this._listenerTarget) return;
+            const target = this._resolveListenerTarget();
+            if (target) {
+                this._listenerTarget = target;
+                target.addEventListener('hass-update', this._boundHassUpdateHandler);
+            }
+        }
+        _unbindHassUpdateListener() {
+            if (this._listenerTarget) {
+                this._listenerTarget.removeEventListener('hass-update', this._boundHassUpdateHandler);
+                this._listenerTarget = undefined;
+            }
+        }
+        _resolveListenerTarget() {
+            if (this._host?.shadowRoot) return this._host.shadowRoot;
+            const getRootNode = this.getRootNode;
+            if (typeof getRootNode !== 'function') return undefined;
+            const root = getRootNode.call(this);
+            return root && root !== this ? root : undefined;
         }
         _handleHassUpdate(event) {
             const { detail: { hass: hass } } = event;
@@ -2682,11 +2773,74 @@ $3c586c3c0c49fb9f$exports.HassUpdateMixin = void 0;
 $3c586c3c0c49fb9f$exports.HassUpdateMixin = $3c586c3c0c49fb9f$var$HassUpdateMixin;
 
 
+const $7e1b6b68a433657e$export$3dbc4d142b74abb7 = (deviceId)=>`/config/devices/device/${deviceId}`;
+const $7e1b6b68a433657e$export$c4cd3376877ad1ca = ()=>({
+        action: 'fire-dom-event',
+        device_card: {
+            collapse: true
+        }
+    });
+const $7e1b6b68a433657e$export$417ba4bc9a3a109 = (deviceId)=>({
+        action: 'navigate',
+        navigation_path: $7e1b6b68a433657e$export$3dbc4d142b74abb7(deviceId)
+    });
+const $7e1b6b68a433657e$export$51b268ce3e31c09a = (deviceId)=>({
+        tap_action: $7e1b6b68a433657e$export$c4cd3376877ad1ca(),
+        ...deviceId ? {
+            hold_action: $7e1b6b68a433657e$export$417ba4bc9a3a109(deviceId)
+        } : {}
+    });
 
 
 
+
+var $505f309a99680a49$exports = {};
+"use strict";
+/**
+ * https://github.com/home-assistant/frontend/blob/dev/src/panels/lovelace/common/directives/action-handler-directive.ts
+ */ Object.defineProperty($505f309a99680a49$exports, "__esModule", {
+    value: true
+});
+$505f309a99680a49$exports.actionHandler = $505f309a99680a49$exports.actionHandlerBind = void 0;
+
+
+
+
+const $505f309a99680a49$var$getActionHandler = ()=>{
+    const body = document.body;
+    if (body.querySelector('action-handler')) return body.querySelector('action-handler');
+    const actionhandler = document.createElement('action-handler');
+    body.appendChild(actionhandler);
+    return actionhandler;
+};
+const $505f309a99680a49$var$actionHandlerBind = (element, options)=>{
+    const actionhandler = $505f309a99680a49$var$getActionHandler();
+    if (!actionhandler) return;
+    actionhandler.bind(element, options);
+};
+$505f309a99680a49$exports.actionHandlerBind = $505f309a99680a49$var$actionHandlerBind;
+$505f309a99680a49$exports.actionHandler = (0, $107bb7d062dde330$export$99b43ad1ed32e735)(class extends $107bb7d062dde330$export$befdefbdce210f91 {
+    update(part, [options]) {
+        (0, $505f309a99680a49$exports.actionHandlerBind)(part.element, options);
+        return $f58f44579a4747ac$export$9c068ae9cc5db4e8;
+    }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    render(_options) {}
+});
+
+
+
+
+/**
+ * Forwards an action-handler gesture to Home Assistant as a `hass-action`.
+ */ const $b7f3e24f44369f7c$var$handleHeaderAction = (ev, deviceId)=>{
+    (0, $d8229c453ce2530e$exports.fireEvent)(ev.currentTarget, 'hass-action', {
+        config: (0, $7e1b6b68a433657e$export$51b268ce3e31c09a)(deviceId),
+        action: ev.detail.action
+    });
+};
 const $b7f3e24f44369f7c$export$3b502e1826736bc0 = (params)=>{
-    const { config: config, device: device, hass: hass, collapse: collapse, onCollapseToggle: onCollapseToggle, entity: entity } = params;
+    const { config: config, device: device, hass: hass, collapse: collapse, entity: entity } = params;
     const hideTitle = (0, $6ba6bcddf6d39f36$exports.hasFeature)(config, 'hide_title');
     const hideDeviceModel = (0, $6ba6bcddf6d39f36$exports.hasFeature)(config, 'hide_device_model');
     const hideHeader = hideTitle && hideDeviceModel;
@@ -2695,7 +2849,6 @@ const $b7f3e24f44369f7c$export$3b502e1826736bc0 = (params)=>{
         device: device,
         hass: hass,
         collapse: collapse,
-        onCollapseToggle: onCollapseToggle,
         entity: entity,
         hideTitle: hideTitle,
         hideDeviceModel: hideDeviceModel,
@@ -2705,7 +2858,8 @@ const $b7f3e24f44369f7c$export$3b502e1826736bc0 = (params)=>{
     return 0, $f58f44579a4747ac$export$45b790e32b2810ee;
 };
 function $b7f3e24f44369f7c$var$renderFullHeader(params) {
-    const { config: config, device: device, hass: hass, collapse: collapse, onCollapseToggle: onCollapseToggle, entity: entity, hideTitle: hideTitle, hideDeviceModel: hideDeviceModel, hideIcon: hideIcon } = params;
+    const { config: config, device: device, hass: hass, collapse: collapse, entity: entity, hideTitle: hideTitle, hideDeviceModel: hideDeviceModel, hideIcon: hideIcon } = params;
+    const deviceId = device.id;
     const titleContent = hideTitle ? (0, $f58f44579a4747ac$export$45b790e32b2810ee) : (0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`<span>${config.title ?? device.name}</span>`;
     const modelContent = hideDeviceModel ? (0, $f58f44579a4747ac$export$45b790e32b2810ee) : (0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`<span class="model">${device.model}</span>`;
     let iconContent;
@@ -2718,11 +2872,16 @@ function $b7f3e24f44369f7c$var$renderFullHeader(params) {
     else if (config.icon) iconContent = (0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`<ha-icon .icon=${config.icon}></ha-icon>`;
     else iconContent = (0, $f58f44579a4747ac$export$45b790e32b2810ee);
     const collapseLabel = collapse ? (0, $623ffaa3e77fea87$export$b3bd0bc58e36cd63)(hass, 'card.expand') : (0, $623ffaa3e77fea87$export$b3bd0bc58e36cd63)(hass, 'card.collapse');
+    // second tooltip line hints at the hold gesture when it's available
+    const tooltip = deviceId ? `${collapseLabel}\n${(0, $623ffaa3e77fea87$export$b3bd0bc58e36cd63)(hass, 'card.hold_for_device')}` : collapseLabel;
     return (0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`
     <div
       class="card-header ${collapse ? 'collapsed' : ''}"
-      @click="${onCollapseToggle}"
-      title="${collapseLabel}"
+      @action=${(ev)=>$b7f3e24f44369f7c$var$handleHeaderAction(ev, deviceId)}
+      .actionHandler=${(0, $505f309a99680a49$exports.actionHandler)({
+        hasHold: !!deviceId
+    })}
+      title="${tooltip}"
     >
       <div class="title">
         ${iconContent}
@@ -2869,24 +3028,34 @@ class $76efc5be730c974a$export$cee8aa229c046b5e extends (0, $3c586c3c0c49fb9f$ex
             device: this._device,
             hass: this._hass,
             collapse: this.collapse,
-            onCollapseToggle: ()=>this.collapse = !this.collapse,
             entity: entity
         });
         return (0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`
-      <ha-card class="${problem ? 'problem' : ''}">
+      <ha-card
+        class="${problem ? 'problem' : ''}"
+        @ll-custom=${this._handleLLCustomEvent}
+      >
         ${headerContent}
         ${this.collapse ? (0, $f58f44579a4747ac$export$45b790e32b2810ee) : (0, $e92876f5a6849818$export$b6b5fe522e6ef18a)(this._hass, this._config, this._device).map((s)=>(0, $f58f44579a4747ac$export$c0bb0b647f701bb5)`<device-card-section
-                  .hass=${this._hass}
-                  .config=${this._config}
-                  .section=${s}
-                ></device-card-section>`)}
+                    .hass=${this._hass}
+                    .config=${this._config}
+                    .section=${s}
+                  ></device-card-section>`)}
       </ha-card>
     `;
     }
     constructor(...args){
         super(...args), /**
    * Internal collapsed state, separate from the config
-   */ this.collapse = false;
+   */ this.collapse = false, /**
+   * Toggles collapse when the header's `fire-dom-event` tap action comes
+   * back from Home Assistant as `ll-custom`.
+   */ this._handleLLCustomEvent = (ev)=>{
+            const detail = ev.detail;
+            if (!detail?.device_card?.collapse) return;
+            ev.stopPropagation();
+            this.collapse = !this.collapse;
+        };
     }
 }
 (0, $e710f43c4558477c$export$29e00dfd3077644b)([
@@ -3495,7 +3664,6 @@ async function $21a2be1ad8240bf4$export$75025f85344f722b(hass, params) {
 
 
 
-
 const $5d5dec7c32377406$export$d424543ab4012665 = (0, $def2de46b9306e8a$export$dbf350e5966cf602)`
   :host {
     --card-padding: 16px;
@@ -3621,10 +3789,14 @@ class $3bda94c4eb71d8c0$export$ad4bbebd033175bb extends (0, $ab210b2da7b39b9d$ex
    * @param {HomeAssistant} hass - The Home Assistant instance
    */ set hass(hass) {
         this._hass = hass;
-        // update children who are subscribed
-        (0, $d8229c453ce2530e$exports.fireEvent)(this, 'hass-update', {
-            hass: hass
-        });
+        // Child device-cards (HassUpdateMixin) listen on their root node, which is
+        // this card's shadow root. Dispatch there so the event reaches them and
+        // stays scoped to this card; firing on the host never enters the shadow tree.
+        this.shadowRoot?.dispatchEvent(new CustomEvent('hass-update', {
+            detail: {
+                hass: hass
+            }
+        }));
     }
     connectedCallback() {
         super.connectedCallback();
@@ -3715,6 +3887,8 @@ class $3bda94c4eb71d8c0$export$ad4bbebd033175bb extends (0, $ab210b2da7b39b9d$ex
                 exclude_entities: this._config.exclude_entities,
                 exclude_sections: this._config.exclude_sections,
                 section_order: this._config.section_order,
+                inverse_percent: this._config.inverse_percent,
+                percent_colors: this._config.percent_colors,
                 sort: this._config.sort,
                 tap_action: this._config.tap_action,
                 hold_action: this._config.hold_action,
@@ -3938,7 +4112,7 @@ class $bb372a36f92bd9c9$export$9e322cdd8735282 extends (0, $ab210b2da7b39b9d$exp
 
 
 var $b06602ab53bd58a3$exports = {};
-$b06602ab53bd58a3$exports = JSON.parse("{\"name\":\"device-card\",\"version\":\"1.0.0\",\"author\":{\"name\":\"Patrick Masters\",\"url\":\"https://curiouscat.consulting/projects/ha-device-card?utm_source=github-device-card&utm_medium=package-metadata&utm_campaign=oss-presence&utm_content=author-url\"},\"license\":\"ISC\",\"prettier\":\"@homeassistant-extras/config/prettier\",\"description\":\"Custom Home Assistant card to show info about your devices.\",\"homepage\":\"https://homeassistant-extras.github.io/device-card/\",\"repository\":{\"type\":\"git\",\"url\":\"https://github.com/homeassistant-extras/device-card.git\"},\"bugs\":{\"url\":\"https://github.com/homeassistant-extras/device-card/issues\"},\"source\":\"src/index.ts\",\"module\":\"dist/device-card.js\",\"targets\":{\"module\":{\"includeNodeModules\":true}},\"@parcel/resolver-default\":{\"packageExports\":true},\"scripts\":{\"watch\":\"parcel watch\",\"build\":\"parcel build\",\"lint\":\"eslint .\",\"lint:fix\":\"eslint . --fix\",\"format\":\"prettier --write .\",\"pass\":\"yarn format && yarn typecheck && yarn lint && yarn test\",\"typecheck\":\"tsc --noEmit && tsc -p tsconfig.test.json --noEmit\",\"test\":\"TS_NODE_PROJECT='./tsconfig.test.json' mocha\",\"test:coverage\":\"nyc yarn test\",\"test:watch\":\"TS_NODE_PROJECT='./tsconfig.test.json' mocha --watch\",\"update\":\"npx npm-check-updates -u && yarn install\"},\"devDependencies\":{\"@eslint/js\":\"^10.0.1\",\"@homeassistant-extras/config\":\"^0.2.0\",\"@istanbuljs/nyc-config-typescript\":\"^1.0.2\",\"@open-wc/testing\":\"^4.0.0\",\"@parcel/transformer-inline-string\":\"^2.16.4\",\"@testing-library/dom\":\"^10.4.1\",\"@trivago/prettier-plugin-sort-imports\":\"^6.0.2\",\"@types/chai\":\"^5.2.3\",\"@types/jsdom\":\"^28.0.3\",\"@types/mocha\":\"^10.0.10\",\"@types/node\":\"^25.9.1\",\"@types/sinon\":\"^21.0.1\",\"chai\":\"^6.2.2\",\"eslint\":\"^10.4.1\",\"eslint-plugin-lit\":\"^2.3.1\",\"eslint-plugin-wc\":\"^3.1.0\",\"globals\":\"^17.6.0\",\"jsdom\":\"^29.1.1\",\"mocha\":\"^11.7.6\",\"nyc\":\"^18.0.0\",\"parcel\":\"^2.16.4\",\"prettier\":\"3.8.3\",\"prettier-plugin-organize-imports\":\"^4.3.0\",\"proxyquire\":\"^2.1.3\",\"sinon\":\"^22.0.0\",\"ts-node\":\"^10.9.2\",\"tsconfig-paths\":\"^4.2.0\",\"typescript\":\"^6.0.3\",\"typescript-eslint\":\"^8.60.1\"},\"dependencies\":{\"@homeassistant-extras/hass\":\"^0.4.0\",\"@lit/task\":\"^1.0.3\",\"fast-deep-equal\":\"^3.1.3\",\"lit\":\"^3.3.3\"}}");
+$b06602ab53bd58a3$exports = JSON.parse("{\"name\":\"device-card\",\"version\":\"2.0.0\",\"author\":{\"name\":\"Patrick Masters\",\"url\":\"https://curiouscat.consulting/projects/ha-device-card?utm_source=github-device-card&utm_medium=package-metadata&utm_campaign=oss-presence&utm_content=author-url\"},\"license\":\"ISC\",\"prettier\":\"@homeassistant-extras/config/prettier\",\"description\":\"Custom Home Assistant card to show info about your devices.\",\"homepage\":\"https://homeassistant-extras.github.io/device-card/\",\"repository\":{\"type\":\"git\",\"url\":\"https://github.com/homeassistant-extras/device-card.git\"},\"bugs\":{\"url\":\"https://github.com/homeassistant-extras/device-card/issues\"},\"source\":\"src/index.ts\",\"module\":\"dist/device-card.js\",\"targets\":{\"module\":{\"includeNodeModules\":true}},\"@parcel/resolver-default\":{\"packageExports\":true},\"scripts\":{\"watch\":\"parcel watch\",\"build\":\"parcel build\",\"lint\":\"eslint .\",\"lint:fix\":\"eslint . --fix\",\"format\":\"prettier --write .\",\"pass\":\"yarn format && yarn typecheck && yarn lint && yarn test\",\"typecheck\":\"tsc --noEmit && tsc -p tsconfig.test.json --noEmit\",\"test\":\"TS_NODE_PROJECT='./tsconfig.test.json' mocha\",\"test:coverage\":\"nyc yarn test\",\"test:watch\":\"TS_NODE_PROJECT='./tsconfig.test.json' mocha --watch\",\"update\":\"npx npm-check-updates -u && yarn install\"},\"devDependencies\":{\"@eslint/js\":\"^10.0.1\",\"@homeassistant-extras/config\":\"^0.3.1\",\"@istanbuljs/nyc-config-typescript\":\"^1.0.2\",\"@open-wc/testing\":\"^5.0.0\",\"@parcel/transformer-inline-string\":\"^2.16.4\",\"@testing-library/dom\":\"^10.4.2\",\"@trivago/prettier-plugin-sort-imports\":\"^6.0.2\",\"@types/chai\":\"^5.2.3\",\"@types/jsdom\":\"^30.0.0\",\"@types/mocha\":\"^10.0.10\",\"@types/node\":\"^26.6.6\",\"@types/sinon\":\"^22.0.2\",\"chai\":\"^6.3.0\",\"eslint\":\"^10.14.0\",\"eslint-plugin-lit\":\"^2.3.1\",\"eslint-plugin-wc\":\"^3.1.0\",\"globals\":\"^17.14.0\",\"jsdom\":\"^31.0.0\",\"mocha\":\"^12.0.3\",\"nyc\":\"^18.0.0\",\"parcel\":\"^2.16.4\",\"prettier\":\"3.9.10\",\"prettier-plugin-organize-imports\":\"^4.3.0\",\"proxyquire\":\"^2.1.3\",\"sinon\":\"^22.1.0\",\"ts-node\":\"^10.9.2\",\"tsconfig-paths\":\"^4.2.0\",\"typescript\":\"^6.0.3\",\"typescript-eslint\":\"^8.72.1\"},\"dependencies\":{\"@homeassistant-extras/hass\":\"^0.8.0\",\"@lit/task\":\"^1.0.3\",\"fast-deep-equal\":\"^3.1.3\",\"lit\":\"^3.3.3\"}}");
 
 
 // Kick off HA card helper resolution once when the bundle loads

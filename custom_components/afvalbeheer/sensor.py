@@ -13,6 +13,9 @@ from .API import get_wastedata_from_config
 from .const import (
     ATTR_DAYS_UNTIL,
     ATTR_HIDDEN,
+    ATTR_DATA_STALE,
+    ATTR_LAST_SUCCESSFUL_UPDATE,
+    ATTR_LAST_UPDATE_SUCCESS,
     ATTR_SORT_DATE,
     ATTR_UPCOMING_DAY,
     ATTR_UPCOMING_WASTE_TYPES,
@@ -86,7 +89,8 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
             notification_id=f"{NOTIFICATION_ID}_yaml_import_{config.get(CONF_WASTE_COLLECTOR, '')}".lower(),
         )
 
-    schedule_update = not (discovery_info and "config" in discovery_info)
+    entry_id = config.get(CONF_ENTRY_ID)
+    schedule_update = not entry_id and not (discovery_info and "config" in discovery_info)
     _LOGGER.debug("Schedule update: %s", schedule_update)
 
     config_data = discovery_info["config"] if discovery_info and "config" in discovery_info else config
@@ -98,7 +102,10 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
 
     await async_prepare_translations(hass, resolve_language(config_data))
 
-    data = hass.data[DOMAIN].get(config_data[CONF_ID], None) if not schedule_update else get_wastedata_from_config(hass, config)
+    if entry_id:
+        data = hass.data[DOMAIN][entry_id]["waste_data"]
+    else:
+        data = hass.data[DOMAIN].get(config_data[CONF_ID], None) if not schedule_update else get_wastedata_from_config(hass, config)
     _LOGGER.debug("Data source: %s", data)
 
     entities = [WasteTypeSensor(data, resource, config_data) for resource in config_data[CONF_RESOURCES]]
@@ -125,16 +132,11 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
 
 async def async_setup_entry(hass, entry: ConfigEntry, async_add_entities):
     """Set up Afvalbeheer sensors from a config entry."""
-    entry.async_on_unload(entry.add_update_listener(async_reload_entry))
-    config = dict({**entry.data, **entry.options})  # Make a mutable copy
+    config = dict(hass.data[DOMAIN][entry.entry_id]["config"])
     config[CONF_ENTRY_ID] = entry.entry_id  # Add entry_id to config
 
 
     await async_setup_platform(hass, config, async_add_entities)
-
-async def async_reload_entry(hass, entry):
-    await hass.config_entries.async_reload(entry.entry_id)
-
 
 class BaseSensor(RestoreEntity, SensorEntity):
     """
@@ -179,7 +181,15 @@ class BaseSensor(RestoreEntity, SensorEntity):
     @property
     def extra_state_attributes(self):
         """Return additional state attributes."""
-        return self._attrs
+        attributes = dict(self._attrs)
+        collector = getattr(self.data, "collector", None)
+        if collector is not None:
+            attributes.update({
+                ATTR_LAST_UPDATE_SUCCESS: collector.last_update_success,
+                ATTR_LAST_SUCCESSFUL_UPDATE: collector.last_successful_update,
+                ATTR_DATA_STALE: collector.last_update_success is not True,
+            })
+        return attributes
 
     @property
     def entity_picture(self):
@@ -241,6 +251,13 @@ class BaseSensor(RestoreEntity, SensorEntity):
         translated = translate_date_text(self.language, state)
         _LOGGER.debug("Translated state: %s", translated)
         return translated
+
+    def _no_collection_state(self):
+        """Distinguish a confirmed absence from missing, stale calendar data."""
+        collector = getattr(self.data, "collector", None)
+        if collector is not None and collector.last_update_success is not True:
+            return None
+        return text(self.language, "none")
 
     def _format_date(self, collection_date):
         """
@@ -442,7 +459,7 @@ class WasteDateSensor(BaseSensor):
         collections = self.data.collections.get_by_date(date, self.waste_types)
         if not collections:
             self._hidden = True
-            self._state = text(self.language, "none")
+            self._state = self._no_collection_state()
         else:
             self._hidden = False
             self._state = ", ".join(sorted({x.waste_type for x in collections}))
@@ -495,7 +512,7 @@ class WasteUpcomingSensor(BaseSensor):
         collections = self.data.collections.get_first_upcoming(self.waste_types)
         if not collections:
             self._hidden = True
-            self._state = text(self.language, "none")
+            self._state = self._no_collection_state()
             self.upcoming_day = None
             self.upcoming_waste_types = None
         else:

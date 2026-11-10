@@ -59,6 +59,16 @@ export function _t(key, fallback) {
     return fallback;
 }
 
+/** #3386: dates follow the game language, not the browser's. */
+function _locale() {
+    try {
+        const i18n = window.BeatifyI18n;
+        return (i18n && typeof i18n.getLanguage === 'function' && i18n.getLanguage()) || undefined;
+    } catch (e) {
+        return undefined;
+    }
+}
+
 function _escape(s) {
     if (s == null) return '';
     return String(s)
@@ -88,7 +98,7 @@ function _relTime(unixSec) {
     if (delta < day * 7) return _t('playlistHub.time.daysAgo', '{n}d ago').replace('{n}', Math.floor(delta / day));
     if (delta < day * 30) return _t('playlistHub.time.weeksAgo', '{n}w ago').replace('{n}', Math.floor(delta / (day * 7)));
     const d = new Date(unixSec * 1000);
-    return d.toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
+    return d.toLocaleDateString(_locale(), { month: 'short', year: 'numeric' });
 }
 
 function _formatAddedDate(iso) {
@@ -96,7 +106,7 @@ function _formatAddedDate(iso) {
     try {
         const d = new Date(iso);
         if (isNaN(d.getTime())) return '';
-        return d.toLocaleDateString(undefined, { month: 'short', year: '2-digit' }).toUpperCase();
+        return d.toLocaleDateString(_locale(), { month: 'short', year: '2-digit' }).toUpperCase();
     } catch (e) { return ''; }
 }
 
@@ -278,6 +288,7 @@ const state = {
     requestModalOpen: false,
     loading: true,
     error: null,
+    requestsError: false,      // #3390: the request list did not load
 };
 
 export function mount(rootEl, options = {}) {
@@ -354,7 +365,12 @@ async function _loadData() {
             _fetchJson(`${API_USAGE}?kind=recent&limit=12`).catch(() => ({ items: [] })),
         ]);
         if (!skipStatus) {
-            state.playlists = (statusResp && Array.isArray(statusResp.playlists)) ? statusResp.playlists : [];
+            // #3390: a failed status load used to become an empty list, so the
+            // hub said "no community playlists installed" and the error card
+            // below was unreachable. A list from an earlier load stays put.
+            const outcome = playlistLoadOutcome(statusResp, state.playlists);
+            state.playlists = outcome.playlists;
+            if (outcome.error) state.error = outcome.error;
         }
         state.topPlaylists = (topResp && Array.isArray(topResp.items)) ? topResp.items : [];
         state.recentPlaylists = (recentResp && Array.isArray(recentResp.items)) ? recentResp.items : [];
@@ -362,9 +378,16 @@ async function _loadData() {
         if (window.PlaylistRequests) {
             const cached = window.PlaylistRequests.loadRequests();
             state.requests = Array.isArray(cached.requests) ? cached.requests : [];
+            state.requestsError = false;
             window.PlaylistRequests.getRequestsForDisplayAsync()
                 .then((rs) => { state.requests = rs || []; if (state.currentTab === 'mine') _renderTabBody(); })
-                .catch((e) => console.warn('[PlaylistHub] requests load failed:', e));
+                .catch((e) => {
+                    // #3390: keep what is on screen; with nothing to show, say
+                    // the load failed instead of "No requests yet".
+                    console.warn('[PlaylistHub] requests load failed:', e);
+                    state.requestsError = true;
+                    if (state.currentTab === 'mine') _renderTabBody();
+                });
         }
     } catch (e) {
         state.error = e && e.message ? e.message : 'Failed to load';
@@ -472,9 +495,11 @@ function _onClick(e) {
     if (check) {
         e.stopPropagation();
         const path = check.dataset.plhCheck;
+        const position = _tappedCardPosition(path, check);
         _toggleSelected(path);
         _renderTabBody();
         _renderCtaBar();
+        _answerPick(path, position);
         return;
     }
     const detailClose = e.target.closest('[data-plh-action="close-detail"]');
@@ -563,6 +588,30 @@ function _onKeyDown(e) {
         if (state.detailFor) { state.detailFor = null; _renderDetailSheet(); return; }
         if (state.showSelectedSheet) { state.showSelectedSheet = false; _renderDetailSheet(); }
     }
+}
+
+/** Every card of one playlist, in page order. Exported for unit tests. */
+export function _cardsFor(root, path) {
+    return Array.from(root.querySelectorAll('[data-plh-card]')).filter((c) => c.dataset.plhCard === path);
+}
+
+/**
+ * #3367: one playlist can sit on several shelves, and a re-render replaces them
+ * all. The position among its cards says which one was tapped; -1 when this tap
+ * takes the playlist out, which stays quiet.
+ */
+function _tappedCardPosition(path, check) {
+    if (state.selectedPaths.has(path)) return -1;
+    return _cardsFor(state.root, path).indexOf(check.closest('[data-plh-card]'));
+}
+
+function _answerPick(path, position) {
+    const feedback = window.BeatifyUtils?.pickFeedback;
+    if (!feedback || position < 0) return;
+    const card = _cardsFor(state.root, path)[position];
+    if (card) feedback(card.querySelector('.plh-cover'), card.querySelector('.plh-pill svg'));
+    // The bar has no song total, only this count of playlists, so it springs.
+    feedback(null, state.root.querySelector('.plh-cta-count'));
 }
 
 function _toggleSelected(path) {
@@ -795,6 +844,35 @@ function _counts() {
     return { bundled, community, mine };
 }
 
+/**
+ * What a finished status load leaves in the hub (#3390). Pure, for the tests.
+ * A missing answer is an error, unless an earlier load already filled the
+ * list — then that list stays and nothing is overwritten.
+ * @returns {{playlists: Array, error: string|null}}
+ */
+export function playlistLoadOutcome(statusResp, previous) {
+    if (statusResp && Array.isArray(statusResp.playlists)) {
+        return { playlists: statusResp.playlists, error: null };
+    }
+    const prev = Array.isArray(previous) ? previous : [];
+    if (statusResp) return { playlists: [], error: null };  // answered, no list field
+    return prev.length ? { playlists: prev, error: null } : { playlists: [], error: 'load-failed' };
+}
+
+/**
+ * The hub's error card (#3390): what happened, what to do, a retry button.
+ * Pure, exported for the tests.
+ */
+export function _loadErrorCardHtml(titleKey, titleFallback) {
+    return `
+            <div class="plh-empty" role="alert">
+                <div class="plh-empty-icon">⚠</div>
+                <h2 class="plh-empty-title">${_escape(_t(titleKey, titleFallback))}</h2>
+                <p class="plh-empty-body">${_escape(_t('playlistHub.error.body', "Home Assistant didn't answer. Check that it is running, then try again."))}</p>
+                <button class="plh-btn plh-btn-primary" data-plh-action="retry">${_escape(_t('playlistHub.retry', 'Retry'))}</button>
+            </div>`;
+}
+
 function _renderTabBody() {
     const host = state.root && state.root.querySelector('[data-plh-body]');
     if (!host) return;
@@ -803,13 +881,7 @@ function _renderTabBody() {
         return;
     }
     if (state.error) {
-        host.innerHTML = `
-            <div class="plh-empty">
-                <div class="plh-empty-icon">⚠</div>
-                <h2 class="plh-empty-title">${_escape(_t('playlistHub.error.title', 'Could not load playlists'))}</h2>
-                <p class="plh-empty-body">${_escape(state.error)}</p>
-                <button class="plh-btn plh-btn-primary" data-plh-action="retry">${_escape(_t('playlistHub.retry', 'Retry'))}</button>
-            </div>`;
+        host.innerHTML = _loadErrorCardHtml('playlistHub.error.title', 'Could not load playlists');
         return;
     }
     // #2970: the body is rebuilt from HTML on every change, including "+ Add"
@@ -1154,6 +1226,10 @@ function _languageName(code) {
 
 function _renderMine(host) {
     const reqs = state.requests || [];
+    if (reqs.length === 0 && state.requestsError) {
+        host.innerHTML = _loadErrorCardHtml('playlistHub.error.requestsTitle', 'Could not load your requests');
+        return;
+    }
     if (reqs.length === 0) {
         host.innerHTML = `
             <div class="plh-mine-empty">

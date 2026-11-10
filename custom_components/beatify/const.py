@@ -24,6 +24,9 @@ SUDDEN_DEATH_MIN_PLAYERS = 3
 DEFAULT_ROUND_DURATION = 45  # seconds
 ROUND_DURATION_MIN = 15  # seconds (Story 13.1)
 ROUND_DURATION_MAX = 60  # seconds (Story 13.1)
+# #2586: what the host can switch the round timer to between two rounds.
+# www/js/game-constants.js mirrors the tuple for the chips.
+ROUND_TIMER_OPTIONS: tuple[int, ...] = (30, 45, 60)  # seconds
 # #3152: how long the song plays in a round, separately from how long the
 # players have to answer. 0 means "the whole round" (the behaviour before the
 # setting existed); otherwise one of these, and strictly shorter than the
@@ -58,9 +61,14 @@ REACTION_THROTTLE_SECONDS = 8
 # backoff up to its fifth retry (~23s to first audio). A timeout that still
 # happens under that budget means MA is at its sixth attempt or later, where
 # the next retry alone is ~16s — so waiting is no longer the better answer and
-# this counter is what keeps the game moving instead. Three of them in a row
-# still pauses, and the log now says which of the two causes it was.
-MAX_CONSECUTIVE_PLAYBACK_FAILURES = 3
+# this counter is what keeps the game moving instead. Two of them in a row
+# pause, and the log now says which of the two causes it was.
+#
+# #3429 lowered it from 3 to 2: at a 25s budget each, a third attempt kept the
+# players in REVEAL with no feedback for another 25s. A song Music Assistant
+# reports as not found does not count here: that answer is immediate and
+# certain, so skipping it costs no time.
+MAX_CONSECUTIVE_PLAYBACK_FAILURES = 2
 
 # Server-side round backstop (#1865). A periodic tick ends a round whose
 # deadline passed while the phase is still PLAYING, so the game does not depend
@@ -69,6 +77,10 @@ MAX_CONSECUTIVE_PLAYBACK_FAILURES = 3
 # and should still be the thing that ends the round.
 ROUND_SUPERVISOR_INTERVAL_SECONDS = 2
 ROUND_OVERDUE_GRACE_SECONDS = 2.0
+# #3340: an admin next_round that reaches a PLAYING round younger than this is
+# stale (sent against the previous round's REVEAL, or a double tap) and is
+# ignored instead of revealing the round it just started.
+STALE_NEXT_ROUND_WINDOW_SECONDS = 2.0
 # #1012 / #2626: the auto-advance delays a host can pick at the reveal, in
 # seconds; 0 means "off" (advance manually or when the song ends). This tuple is
 # the ONLY list of allowed values: server/game_views.py validates against it and

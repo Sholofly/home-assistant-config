@@ -144,6 +144,371 @@ window.BeatifyUtils = (function() {
     }
 
     // ==========================================================================
+    // Reveal motion (#3365), shared by the TV and the phone
+    // ==========================================================================
+
+    function prefersReducedMotionNow() {
+        return !!(typeof window !== 'undefined' && window.matchMedia
+            && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    }
+
+    // #3367: iOS Safari applies :active only while a touch listener exists on the
+    // way up the tree. Without this the shared button press never shows there.
+    if (typeof document !== 'undefined' && document.addEventListener) {
+        document.addEventListener('touchstart', function() {}, { passive: true });
+    }
+
+    /**
+     * Decides whether this client lived through the moment it is about to
+     * animate. Both surfaces re-render on every state update, so a start
+     * condition must survive repeats (#3117), and a client that reloads or
+     * reconnects into a running reveal has to get the final picture at once.
+     *
+     * REVEAL is live only straight after PLAYING of the same round, END only
+     * straight after a round. Anything else (first frame, PAUSED, a dropped
+     * socket via reset()) is not.
+     *
+     * @param {Object} [opts]
+     * @param {Function} [opts.reduced] - true when motion must be skipped
+     * @returns {{enter: Function, isLive: Function, once: Function, reset: Function}}
+     */
+    function createMotionGate(opts) {
+        var reduced = (opts && opts.reduced) || function() { return false; };
+        var last = null;
+        var live = false;
+        var done = {};
+        var roundStart = false;
+        return {
+            enter: function(phase, round) {
+                if (last && last.phase === phase && last.round === round) return live;
+                var came = last ? last.phase : null;
+                // #3367: a round this phone saw begin. It says nothing about
+                // `live`, which stays the question of the reveal and the podium.
+                roundStart = !reduced() && phase === 'PLAYING' && !!last && last.round !== round
+                    && (came === 'REVEAL' || came === 'PLAYING' || came === 'LOBBY');
+                live = !reduced() && (
+                    (phase === 'REVEAL' && came === 'PLAYING' && last.round === round) ||
+                    (phase === 'END' && (came === 'REVEAL' || came === 'PLAYING'))
+                );
+                last = { phase: phase, round: round };
+                done = {};
+                return live;
+            },
+            isLive: function() { return live; },
+            /** True the first time per phase entry, and only on a live one. */
+            once: function(name) {
+                if (!live || done[name]) return false;
+                done[name] = true;
+                return true;
+            },
+            /** #3367: true once per round this phone saw begin, then false. */
+            takeRoundStart: function() {
+                var was = roundStart;
+                roundStart = false;
+                return was;
+            },
+            reset: function() { last = null; live = false; done = {}; roundStart = false; }
+        };
+    }
+
+    /**
+     * #3367: the small selection answer. The check springs in and the tile glows
+     * once. The glow is a pseudo-element fading in opacity, so nothing repaints a
+     * shadow. Touches only the elements it is handed: a list that re-renders on a
+     * click passes the one tile that was tapped.
+     * @param {Element} tile
+     * @param {Element} [check]
+     */
+    function pickFeedback(tile, check) {
+        if (prefersReducedMotionNow()) return;
+        if (tile && tile.classList) {
+            tile.classList.remove('motion-pick-glow');
+            tile.classList.add('motion-pick-glow');
+            setTimeout(function() { tile.classList.remove('motion-pick-glow'); }, 320);
+        }
+        if (check && check.animate) {
+            check.animate(
+                [{ transform: 'scale(0)' }, { transform: 'scale(1.35)', offset: 0.65 }, { transform: 'none' }],
+                { duration: 260, easing: 'cubic-bezier(.2,.7,.2,1)' }
+            );
+        }
+    }
+
+    /**
+     * #3367: a number walks to its new value instead of jumping. The final value
+     * is written first, so a browser that never runs a frame still shows it.
+     * @param {Element} el
+     * @param {number} to
+     * @param {number} [duration]
+     */
+    function countTo(el, to, duration) {
+        if (!el) return;
+        var from = parseInt(el.textContent, 10);
+        if (el._countFrame && typeof cancelAnimationFrame === 'function') cancelAnimationFrame(el._countFrame);
+        el._countFrame = null;
+        el.textContent = to;
+        if (!isFinite(from) || from === to || prefersReducedMotionNow()
+            || typeof requestAnimationFrame !== 'function') return;
+        var total = duration || 280;
+        var start = null;
+        function step(now) {
+            if (start === null) start = now;
+            var p = Math.min((now - start) / total, 1);
+            el.textContent = Math.round(from + (to - from) * (1 - Math.pow(1 - p, 3)));
+            el._countFrame = p < 1 ? requestAnimationFrame(step) : null;
+        }
+        el._countFrame = requestAnimationFrame(step);
+    }
+
+    /**
+     * #3379: a number counts up from `from` to `to` once `delay` has passed,
+     * shown through `format`. Unlike countTo it starts from a value the screen
+     * never showed (zero, the points before a bet), so the start is written
+     * first. The count always ends on `run.end`: a render that arrives while it
+     * runs replaces that through setCountedText instead of the live digits, and
+     * a safety timer lands it even when no frame runs (a phone put away).
+     * Reduced motion writes the end straight away and returns null. With
+     * `hold` the run stays on `to` for that long after counting, so a caller
+     * can step the text on (a bonus being added) before it lands on `end`.
+     * @param {Element} el
+     * @param {number} from
+     * @param {number} to
+     * @param {Object} [opts] - {delay, duration, format, end, hold}
+     * @returns {{end: string, finish: Function}|null}
+     */
+    function countUp(el, from, to, opts) {
+        if (!el) return null;
+        var o = opts || {};
+        var format = o.format || String;
+        var end = o.end != null ? String(o.end) : format(to);
+        if (el._countRun) el._countRun.finish();
+        if (from === to || prefersReducedMotionNow() || typeof requestAnimationFrame !== 'function') {
+            el.textContent = end;
+            return null;
+        }
+        var delay = o.delay || 0;
+        var total = o.duration || 380;
+        var hold = o.hold || 0;
+        var frame = null;
+        var start = null;
+        var run = { end: end, finish: finish };
+        function finish() {
+            if (el._countRun !== run) return;
+            el._countRun = null;
+            clearTimeout(begin);
+            clearTimeout(safety);
+            if (frame !== null && typeof cancelAnimationFrame === 'function') cancelAnimationFrame(frame);
+            el.textContent = run.end;
+        }
+        function step(now) {
+            if (el._countRun !== run) return;
+            if (start === null) start = now;
+            var p = Math.min((now - start) / total, 1);
+            if (p >= 1) {
+                frame = null;
+                if (hold) el.textContent = format(to);
+                else finish();
+                return;
+            }
+            el.textContent = format(Math.round(from + (to - from) * (1 - Math.pow(1 - p, 3))));
+            frame = requestAnimationFrame(step);
+        }
+        el._countRun = run;
+        el.textContent = format(from);
+        var begin = setTimeout(function() { frame = requestAnimationFrame(step); }, delay);
+        var safety = setTimeout(finish, delay + total + hold + 120);
+        return run;
+    }
+
+    /**
+     * #3379: write a counted element's text. While a countUp runs on it the new
+     * text becomes where the count lands; otherwise it is written at once.
+     * @param {Element} el
+     * @param {string} text
+     */
+    function setCountedText(el, text) {
+        if (!el) return;
+        if (el._countRun) el._countRun.end = String(text);
+        else el.textContent = text;
+    }
+
+    /**
+     * #3367: open or close one `.section-collapsible` in 200 ms. Only a tap comes
+     * through here; a state set while the page loads keeps writing the class
+     * directly and never moves. The `collapsed` class changes at once, so the
+     * state is right from the first moment, and `is-closing` keeps the content
+     * displayed until its height has run out. This is the one place in the app
+     * that animates a height: the page below has to move with it.
+     * @param {Element} section
+     * @returns {boolean} true when the section is now collapsed
+     */
+    function toggleCollapsibleSection(section) {
+        var collapse = !section.classList.contains('collapsed');
+        var content = section.querySelector ? section.querySelector('.section-content') : null;
+        var running = content && content._sectionAnim;
+        var fromHeight = content && content.getBoundingClientRect
+            ? content.getBoundingClientRect().height : 0;
+        if (running) {
+            content._sectionAnim = null;
+            running.cancel();
+        }
+        section.classList.remove('is-closing', 'is-toggling');
+        if (prefersReducedMotionNow() || !content || !content.animate) {
+            section.classList.toggle('collapsed', collapse);
+            return collapse;
+        }
+        section.classList.add('is-toggling');
+        if (collapse) section.classList.add('is-closing');
+        section.classList.toggle('collapsed', collapse);
+        var cs = getComputedStyle(content);
+        var open = {
+            height: (collapse ? fromHeight : content.scrollHeight) + 'px',
+            paddingTop: cs.paddingTop,
+            paddingBottom: cs.paddingBottom,
+            opacity: 1,
+            overflow: 'hidden'
+        };
+        var shut = { height: '0px', paddingTop: '0px', paddingBottom: '0px', opacity: 0, overflow: 'hidden' };
+        // Turning round half way starts from where the section stands right now.
+        var first = collapse ? open : (running ? Object.assign({}, open, { height: fromHeight + 'px' }) : shut);
+        var anim = content.animate([first, collapse ? shut : open], {
+            duration: 200,
+            easing: 'cubic-bezier(.2,.7,.2,1)'
+        });
+        content._sectionAnim = anim;
+        anim.onfinish = function() {
+            if (content._sectionAnim !== anim) return;
+            content._sectionAnim = null;
+            section.classList.remove('is-closing', 'is-toggling');
+        };
+        return collapse;
+    }
+
+    /**
+     * The digits one reel column runs through, ending on the real one. Later
+     * columns are longer, which is what makes them stop later.
+     * @param {string} digit
+     * @param {number} index - column, 0 = leftmost
+     * @returns {string[]}
+     */
+    function yearReelDigits(digit, index) {
+        var steps = 10 + index * 4;
+        var out = [];
+        for (var k = 0; k < steps; k++) out.push(String((+digit + k + 1 + index * 3) % 10));
+        out.push(String(digit));
+        return out;
+    }
+
+    /**
+     * Roll a year into an element, digits stopping left to right. Every column
+     * rests on its final digit and is animated from the top, so a browser that
+     * never runs a frame still lands on the answer. When the reel stops the
+     * plain text replaces it; the safety timer does the same with the tab asleep.
+     *
+     * @param {HTMLElement} el
+     * @param {number|string} year
+     * @param {Object} opts - {delay, base, step} in ms
+     * @returns {{active: Function, finish: Function, year: string}}
+     */
+    function rollYear(el, year, opts) {
+        var text = String(year);
+        var running = false;
+        var timer;
+        function finish() {
+            if (!running) return;
+            clearTimeout(timer);
+            running = false;
+            el.removeAttribute('aria-label');
+            el.classList.remove('year-reel-host');
+            el.textContent = text;
+        }
+        var controller = { year: text, active: function() { return running; }, finish: finish };
+        var cols = text.split('');
+        if (!/^\d+$/.test(text) || !el.animate) {
+            el.textContent = text;
+            return controller;
+        }
+        var delay = opts.delay || 0;
+        var total = delay + opts.base + (cols.length - 1) * opts.step;
+        el.setAttribute('aria-label', text);
+        el.classList.add('year-reel-host');
+        el.innerHTML = '<span class="year-reel" aria-hidden="true">' + cols.map(function(d, i) {
+            var digits = yearReelDigits(d, i);
+            return '<span class="year-reel-win"><span class="year-reel-col" style="transform:translateY(-' +
+                (digits.length - 1) + 'em)"><span>' + digits.join('</span><span>') + '</span></span></span>';
+        }).join('') + '</span>';
+        var colEls = el.querySelectorAll('.year-reel-col');
+        running = true;
+        for (var i = 0; i < colEls.length; i++) {
+            colEls[i].animate(
+                [{ transform: 'translateY(0)' }, { transform: colEls[i].style.transform }],
+                { delay: delay, duration: opts.base + i * opts.step, easing: 'cubic-bezier(.25,.8,.25,1)', fill: 'backwards' }
+            );
+        }
+        timer = setTimeout(finish, total + 60);
+        return controller;
+    }
+
+    /**
+     * #3370: how long after the REVEAL frame arrives the TV's year reel stops,
+     * or 0 when the TV rolls no reel (Title & Artist, voided, no year). Phones
+     * hold the answer back until this moment. Mirrors dashboard.js: the 220 ms
+     * scene wipe, then the reel start (guesses land first, if there are any),
+     * then the reel itself. reveal-year-hold-3370.test.js compares these
+     * numbers with the dashboard's constants.
+     * @param {Object} data - REVEAL state payload
+     * @returns {number} ms
+     */
+    function tvYearReelStopMs(data) {
+        var d = data || {};
+        if (d.title_artist_mode || d.round_voided) return 0;
+        if (!(parseInt((d.song || {}).year, 10) > 0)) return 0;
+        var guesses = ((d.round_analytics || {}).all_guesses || []).filter(function(g) {
+            return g && typeof g.guess === 'number';
+        });
+        return 220 + (guesses.length ? 1280 : 180) + 520 + 3 * 200;
+    }
+
+    /**
+     * When each guess lands: furthest first, closest last, inside a fixed total
+     * however many players there are.
+     * @param {number[]} offs - years off per dot, in DOM order
+     * @param {number} totalMs - start of the first landing to end of the last
+     * @param {number} landMs - one landing
+     * @returns {Array<{index: number, delay: number}>} in landing order
+     */
+    function guessLandingPlan(offs, totalMs, landMs) {
+        var order = offs.map(function(off, index) { return { index: index, off: +off || 0 }; });
+        order.sort(function(a, b) { return (b.off - a.off) || (a.index - b.index); });
+        var gap = order.length > 1 ? Math.max(0, totalMs - landMs) / (order.length - 1) : 0;
+        return order.map(function(item, i) {
+            return { index: item.index, delay: Math.round(i * gap) };
+        });
+    }
+
+    /**
+     * Where each shown row comes from, as a position among the rows on screen.
+     * The phone shows the podium and your own row, so an old place off screen
+     * clamps to the nearest row that is there. A row without an old place stays.
+     * @param {Array<{key: string, index: number}>} rows - shown rows, top down,
+     *   with `index` their place on the whole board
+     * @param {Object} prevOrder - key to old place on the whole board
+     * @returns {Array<{to: number, from: number}>} only rows that move
+     */
+    function rowTravelPlan(rows, prevOrder) {
+        var moves = [];
+        rows.forEach(function(row, to) {
+            var old = prevOrder ? prevOrder[row.key] : undefined;
+            if (typeof old !== 'number') return;
+            var from = 0;
+            rows.forEach(function(other) { if (other.index < old) from++; });
+            from = Math.min(from, rows.length - 1);
+            if (from !== to) moves.push({ to: to, from: from });
+        });
+        return moves;
+    }
+
+    // ==========================================================================
     // Localization Helpers
     // ==========================================================================
 
@@ -385,7 +750,8 @@ window.BeatifyUtils = (function() {
      * (no overflow / NaN) — the caller may keep incrementing indefinitely.
      *
      * @param {number} attempt - 1-based reconnect attempt number
-     * @param {Object} [opts] - { baseDelay=1000, maxDelay=30000 }
+     * @param {Object} [opts] - { baseDelay=1000, maxDelay=30000, firstDelay }
+     *   firstDelay replaces the delay of attempt 1 only (#3367).
      * @returns {number} delay in ms, in [baseDelay, maxDelay]
      */
     function reconnectBackoffDelay(attempt, opts) {
@@ -393,9 +759,159 @@ window.BeatifyUtils = (function() {
         var baseDelay = opts.baseDelay || 1000;
         var maxDelay = opts.maxDelay || 30000;
         var n = (typeof attempt === 'number' && attempt > 0) ? attempt : 1;
+        if (n === 1 && opts.firstDelay) return opts.firstDelay;
         // Math.pow can overflow to Infinity for huge n; Math.min collapses that
         // to maxDelay, so the result is always a finite number in range.
         return Math.min(baseDelay * Math.pow(2, n - 1), maxDelay);
+    }
+
+    /**
+     * When the reconnecting overlay is on screen (#3367). A dropout shorter than
+     * the delay shows nothing at all; only an overlay that was really visible
+     * gets the "back" signal, and it does not cover the page while it plays.
+     *
+     * @param {Object} deps
+     * @param {number} deps.delay - wait after the loss, in ms
+     * @param {Function} deps.show - puts the overlay on screen
+     * @param {Function} deps.hide - takes it away at once
+     * @param {Function} [deps.signal] - starts the "back" signal; returns its length in ms
+     * @param {Function} [deps.unsignal] - the signal was cut short by a new loss
+     * @param {Function} [deps.reduced] - true: no signal, straight to the end picture
+     * @returns {{lost: Function, back: Function, stop: Function, state: Function}}
+     */
+    function createReconnectOverlay(deps) {
+        var current = 'idle';
+        var timer = null;
+        var reduced = deps.reduced || function() { return false; };
+        function clear() {
+            if (timer !== null) clearTimeout(timer);
+            timer = null;
+        }
+        return {
+            lost: function() {
+                if (current === 'idle') {
+                    current = 'waiting';
+                    timer = setTimeout(function() {
+                        timer = null;
+                        current = 'visible';
+                        deps.show();
+                    }, deps.delay);
+                } else if (current === 'signal') {
+                    clear();
+                    current = 'visible';
+                    if (deps.unsignal) deps.unsignal();
+                }
+            },
+            back: function() {
+                if (current === 'waiting') {
+                    clear();
+                    current = 'idle';
+                } else if (current === 'visible') {
+                    if (reduced() || !deps.signal) {
+                        current = 'idle';
+                        deps.hide();
+                        return;
+                    }
+                    current = 'signal';
+                    timer = setTimeout(function() {
+                        timer = null;
+                        current = 'idle';
+                        deps.hide();
+                    }, deps.signal());
+                }
+            },
+            /** Giving up or a takeover: no wait and no signal. */
+            stop: function() {
+                clear();
+                current = 'idle';
+                deps.hide();
+            },
+            state: function() { return current; }
+        };
+    }
+
+    /**
+     * App-level heartbeat for a socket that must notice server SILENCE (#3390).
+     *
+     * A half-open socket (Wi-Fi gone without a TCP reset) never fires onclose,
+     * so the screen keeps the last state as if it were live. Every `interval`
+     * this sends a ping while the socket is open; once nothing has arrived from
+     * the server for `timeout`, it calls `onDead()` once and stops. The server
+     * answers `{type:'ping'}` with a pong before any game check (#967), so a
+     * healthy socket is never quiet for long. Same numbers as the phone.
+     *
+     * @param {Object} deps
+     * @param {number} [deps.interval=15000]
+     * @param {number} [deps.timeout=40000]
+     * @param {Function} deps.isOpen - () => boolean
+     * @param {Function} deps.sendPing - () => void (may throw)
+     * @param {Function} deps.onDead - () => void
+     * @param {Function} [deps.now] - clock, defaults to Date.now
+     * @returns {{start: Function, stop: Function, activity: Function}}
+     */
+    function createSocketHeartbeat(deps) {
+        var interval = deps.interval || 15000;
+        var timeout = deps.timeout || 40000;
+        var now = deps.now || function() { return Date.now(); };
+        var timer = null;
+        var lastActivity = 0;
+        function stop() {
+            if (timer !== null) clearInterval(timer);
+            timer = null;
+        }
+        return {
+            start: function() {
+                stop();
+                lastActivity = now();
+                timer = setInterval(function() {
+                    if (!deps.isOpen()) return;
+                    if (now() - lastActivity > timeout) {
+                        stop();
+                        deps.onDead();
+                        return;
+                    }
+                    try { deps.sendPing(); } catch (e) { /* the timeout catches it */ }
+                }, interval);
+            },
+            stop: stop,
+            /** Any frame from the server proves the socket is alive. */
+            activity: function() { lastActivity = now(); }
+        };
+    }
+
+    /**
+     * A notice that appears only once a loss has lasted `delay` ms (#3390).
+     * `lost()` repeated during one outage keeps the first start time, so a
+     * reconnect loop does not push the notice back on every failed attempt.
+     *
+     * @param {Object} deps
+     * @param {number} deps.delay
+     * @param {Function} deps.show
+     * @param {Function} deps.hide
+     * @returns {{lost: Function, back: Function, isShown: Function}}
+     */
+    function createDelayedNotice(deps) {
+        var timer = null;
+        var shown = false;
+        return {
+            lost: function() {
+                if (timer !== null || shown) return;
+                timer = setTimeout(function() {
+                    timer = null;
+                    shown = true;
+                    deps.show();
+                }, deps.delay);
+            },
+            back: function() {
+                if (timer !== null) clearTimeout(timer);
+                timer = null;
+                if (shown) {
+                    shown = false;
+                    deps.hide();
+                }
+            },
+            isShown: function() { return shown; }
+        };
     }
 
     /**
@@ -596,6 +1112,40 @@ window.BeatifyUtils = (function() {
         if (!isFinite(seconds) || seconds < 1) return 0;
         if (seconds >= roundSeconds) return 0;
         return seconds;
+    }
+
+    /**
+     * The room notice after the host changed timer or difficulty (#2586).
+     *
+     * Names only what changed; the server leaves the other half out of
+     * `round_settings_notice`. Lives here because the phone and the TV both
+     * load this file, and the TV bundle cannot import a module.
+     *
+     * @param {?Object} notice - `round_settings_notice` from the state payload
+     * @param {boolean} long - TV wording ("30 seconds", with the points)
+     * @returns {string} the chip text, or '' when there is nothing to say
+     */
+    function roundSettingsNoticeText(notice, long) {
+        if (!notice) return '';
+        var parts = [];
+        if (notice.round_duration) {
+            parts.push(long
+                ? t('admin.roundSettingsNoticeSeconds', { seconds: notice.round_duration })
+                : notice.round_duration + 's');
+        }
+        if (notice.difficulty) {
+            var labels = { easy: t('admin.easy'), normal: t('admin.normal'), hard: t('admin.hard') };
+            var label = labels[notice.difficulty] || notice.difficulty;
+            parts.push(long
+                ? t('admin.roundSettingsNoticeBands', {
+                    difficulty: label,
+                    points: notice.close_points,
+                    range: notice.close_range
+                })
+                : label);
+        }
+        if (!parts.length) return '';
+        return t('admin.roundSettingsNotice', { value: parts.join(' · ') });
     }
 
     /** How many deviations the sentence may name before it stops being one glance. */
@@ -944,6 +1494,23 @@ window.BeatifyUtils = (function() {
         // Debug
         debug: debug,
 
+        // Round settings room notice (#2586)
+        roundSettingsNoticeText: roundSettingsNoticeText,
+
+        // Reveal motion (#3365)
+        createMotionGate: createMotionGate,
+        pickFeedback: pickFeedback,
+        countTo: countTo,
+        countUp: countUp,
+        setCountedText: setCountedText,
+        toggleCollapsibleSection: toggleCollapsibleSection,
+        createReconnectOverlay: createReconnectOverlay,
+        yearReelDigits: yearReelDigits,
+        rollYear: rollYear,
+        tvYearReelStopMs: tvYearReelStopMs,
+        guessLandingPlan: guessLandingPlan,
+        rowTravelPlan: rowTravelPlan,
+
         // Leaderboard (#1765)
         hydrateLeaderboard: hydrateLeaderboard,
 
@@ -985,6 +1552,8 @@ window.BeatifyUtils = (function() {
         reconnectBackoffDelay: reconnectBackoffDelay,
         createReconnectGuard: createReconnectGuard,
         createWsCloseHandler: createWsCloseHandler,
+        createSocketHeartbeat: createSocketHeartbeat,
+        createDelayedNotice: createDelayedNotice,
 
         // URL utilities
         getQueryParam: getQueryParam

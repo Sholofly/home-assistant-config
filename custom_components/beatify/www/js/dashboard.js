@@ -207,7 +207,16 @@
     // #1705: coalesced entry point — the heavy DOM render runs at most once per
     // frame and only when the visible state changed. Assigned here (both the
     // renderer and the coalescer factory are hoisted function declarations).
-    var _scheduleRender = createRenderCoalescer(_applyStateRender, { isEqual: _stateRenderEqual });
+    var _scheduleRender = createRenderCoalescer(_applyFrame, { isEqual: _stateRenderEqual });
+
+    // #3365: did this TV live through the moment it is about to animate?
+    var _motionGate = utils.createMotionGate
+        ? utils.createMotionGate({ reduced: _reducedMotion })
+        : null;
+
+    function _reducedMotion() {
+        return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    }
 
     // Utility functions from BeatifyUtils
     // waitForI18n, t, getLocalizedSongField, escapeHtml moved to BeatifyUtils
@@ -275,6 +284,85 @@
         if (el) el.classList.add('hidden');
     }
 
+    // #3390: after 30 s without a connection the badge gets one line about the
+    // network, so the room knows what to check. The TV keeps retrying forever.
+    var TV_LOST_NOTICE_MS = 30000;
+    function _setReconnectNotice(visible) {
+        var el = document.getElementById('dashboard-reconnect-notice');
+        if (el) el.classList.toggle('hidden', !visible);
+        var badge = document.getElementById('dashboard-reconnect-indicator');
+        if (badge) badge.classList.toggle('dashboard-reconnect-indicator--long', !!visible);
+    }
+    var _lostNotice = utils.createDelayedNotice
+        ? utils.createDelayedNotice({
+            delay: TV_LOST_NOTICE_MS,
+            show: function() { _setReconnectNotice(true); },
+            hide: function() { _setReconnectNotice(false); }
+        })
+        : { lost: function() {}, back: function() {} };
+
+    // #3390: the phone has had a heartbeat since #967, the TV had none. A Wi-Fi
+    // drop without a TCP reset left the socket half open: no onclose, no badge,
+    // and the old round on screen as if it were live. Same numbers as the
+    // phone: a ping every 15 s, and 40 s without any frame means dead.
+    var _heartbeat = utils.createSocketHeartbeat
+        ? utils.createSocketHeartbeat({
+            isOpen: function() { return !!ws && ws.readyState === WebSocket.OPEN; },
+            sendPing: function() { ws.send(JSON.stringify({ type: 'ping' })); },
+            onDead: function() {
+                debug('[Dashboard] No server frame for 40 s — treating the socket as dead');
+                _dropDeadSocket();
+            }
+        })
+        : { start: function() {}, stop: function() {}, activity: function() {} };
+
+    /**
+     * A half-open socket may take minutes to report its own close, so the
+     * heartbeat cuts it loose and runs the loss path right away (#3390).
+     */
+    function _dropDeadSocket() {
+        if (ws) {
+            ws.onopen = ws.onmessage = ws.onclose = ws.onerror = null;
+            try { ws.close(); } catch (e) { /* already closed */ }
+            ws = null;
+        }
+        _handleSocketLost();
+    }
+
+    /**
+     * The connection is gone: dim the last frame, show the badge, stop the
+     * clock and schedule the next attempt (#1398, #1712, #3390).
+     */
+    function _handleSocketLost() {
+        _heartbeat.stop();
+        // #1398 + #1397: retry FOREVER with capped backoff, scheduled through
+        // the dedup guard so a visibilitychange reconnect can cancel the
+        // pending timer instead of racing it into a second socket.
+        reconnectAttempts++;
+        // #1712: a transient mid-game WS drop must NOT wipe the live game.
+        // Keep whatever view is currently rendered (leaderboard / round /
+        // art / scores) frozen and dimmed, and surface ONLY the reconnect
+        // badge. The "No active game" screen is reserved for a
+        // server-CONFIRMED no-game state (handleStateUpdate), never a
+        // dropped socket — that used to read as a crash to the whole room.
+        _setDisconnectedDim(true);
+        // #3390: a frozen clock that keeps counting down reads as live. Stop
+        // it, and forget the painted frame so the first state after the
+        // reconnect repaints and restarts the clock from the server's deadline.
+        stopCountdown();
+        _scheduleRender.reset();
+        // #3365: whatever the next state shows, this TV did not watch it
+        // happen, so it gets the final picture.
+        if (_motionGate) _motionGate.reset();
+        _lastScenePhase = null;
+        // #1578: surface the reconnect attempt visibly on the TV display.
+        _showReconnectIndicator();
+        _lostNotice.lost();
+        var delay = getReconnectDelay();
+        debug('[Dashboard] Reconnecting in ' + delay + 'ms (attempt ' + reconnectAttempts + ')');
+        reconnectGuard.schedule(connectWebSocket, delay);
+    }
+
     /**
      * Connect to WebSocket as read-only observer (AC 10.4.1)
      */
@@ -300,6 +388,8 @@
             reconnectAttempts = 0;
             // #1578: connection is back — drop the "Reconnecting…" badge.
             _hideReconnectIndicator();
+            _lostNotice.back();
+            _heartbeat.start();
             // #1712: un-dim the frozen last frame; the server's next `state`
             // broadcast is what decides whether we stay on the live view or
             // switch to the confirmed "No active game" screen.
@@ -309,6 +399,7 @@
         };
 
         ws.onmessage = function(event) {
+            _heartbeat.activity();
             try {
                 var data = JSON.parse(event.data);
                 handleServerMessage(data);
@@ -319,22 +410,7 @@
 
         ws.onclose = function() {
             debug('[Dashboard] WebSocket closed');
-            // #1398 + #1397: retry FOREVER with capped backoff, scheduled through
-            // the dedup guard so a visibilitychange reconnect can cancel the
-            // pending timer instead of racing it into a second socket.
-            reconnectAttempts++;
-            // #1712: a transient mid-game WS drop must NOT wipe the live game.
-            // Keep whatever view is currently rendered (leaderboard / round /
-            // art / scores) frozen and dimmed, and surface ONLY the reconnect
-            // badge. The "No active game" screen is reserved for a
-            // server-CONFIRMED no-game state (handleStateUpdate), never a
-            // dropped socket — that used to read as a crash to the whole room.
-            _setDisconnectedDim(true);
-            // #1578: surface the reconnect attempt visibly on the TV display.
-            _showReconnectIndicator();
-            var delay = getReconnectDelay();
-            debug('[Dashboard] Reconnecting in ' + delay + 'ms (attempt ' + reconnectAttempts + ')');
-            reconnectGuard.schedule(connectWebSocket, delay);
+            _handleSocketLost();
         };
 
         ws.onerror = function(err) {
@@ -495,6 +571,13 @@
         var banner = document.getElementById('dashboard-wakelock-banner');
         if (!banner) return;
         banner.classList.remove('hidden');
+        // #3391: a remote control has no pointer to aim with. Put the focus on
+        // Activate so the first OK press does the likely thing, and the ring
+        // in dashboard.html shows where the focus is.
+        var activateBtn = document.getElementById('dashboard-wakelock-activate');
+        if (activateBtn && typeof activateBtn.focus === 'function') {
+            try { activateBtn.focus({ preventScroll: true }); } catch (e) { /* ignore */ }
+        }
     }
 
     function _initWakeBanner() {
@@ -541,6 +624,8 @@
      */
     function showNoGameView() {
         _scheduleRender.reset();
+        if (_sceneWipeHold) _sceneWipeHold.data = null;
+        _lastScenePhase = null;
         stopCountdown();
         showView('dashboard-no-game');
     }
@@ -631,11 +716,39 @@
         debug('[Dashboard] Metadata updated:', song.artist, '-', song.title);
     }
 
+    // #3371: newest state seen. A state that waited for a language switch is
+    // dropped when a newer one has arrived since: the newer one is the screen.
+    var _stateSeq = 0;
+    // Upper bound for that wait, so a hung translation fetch cannot freeze the TV.
+    var LANGUAGE_WAIT_MS = 3000;
+
     /**
      * Handle state update from server
      * @param {Object} data - State data
      */
     function handleStateUpdate(data) {
+        var seq = ++_stateSeq;
+        // #3371: getLanguage() flips to the new code the moment a switch
+        // starts, but t() keeps answering in the old locale until the file has
+        // loaded. A state arriving in that window passed the check below
+        // (same code) and was painted in the previous language, a TV in an
+        // English game showing German. Hold it until the switch has settled.
+        if (typeof BeatifyI18n !== 'undefined' && BeatifyI18n.isSwitching && BeatifyI18n.isSwitching()) {
+            var settle = Promise.race([
+                BeatifyI18n.languageReady(),
+                new Promise(function(resolve) { setTimeout(resolve, LANGUAGE_WAIT_MS); })
+            ]);
+            settle.then(function() {
+                if (seq !== _stateSeq) return;
+                BeatifyI18n.initPageTranslations();
+                _handleStateNow(data, seq);
+            });
+            return;
+        }
+        _handleStateNow(data, seq);
+    }
+
+    function _handleStateNow(data, seq) {
         // Apply language from game state (Story 12.5, 16.3)
         // Must re-render after language loads to update dynamic content
         // Guard: skip if i18n unavailable
@@ -658,7 +771,10 @@
                     if (data.language !== appliedLang) {
                         data = Object.assign({}, data, { language: appliedLang });
                     }
-                    handleStateUpdate(data);
+                    // #3371: a newer state arrived while the file loaded; it
+                    // renders itself, this older one must not paint over it.
+                    if (seq !== _stateSeq) return;
+                    _handleStateNow(data, seq);
                 }
             });
             // Don't render yet - wait for language to load
@@ -677,6 +793,192 @@
      * of a burst — never call this directly from the WS handler.
      * @param {Object} data - State data
      */
+    function _applyFrame(data) {
+        // #3365: the wipe covers the screen first and the new scene is drawn
+        // under it. Frames arriving meanwhile only replace what gets drawn, so
+        // the #1705 rule of one paint per change still holds.
+        if (_sceneWipeHold) {
+            _sceneWipeHold.data = data;
+            return;
+        }
+        var from = _lastScenePhase;
+        var noGame = !data.phase || (data.phase === 'END' && !data.game_id);
+        _lastScenePhase = noGame ? null : data.phase;
+        if (!noGame && shouldWipeScene(from, data.phase, _reducedMotion())) {
+            var hold = { data: data };
+            _sceneWipeHold = hold;
+            var started = playSceneWipe(function() {
+                _sceneWipeHold = null;
+                if (hold.data) _renderFrame(hold.data);
+            });
+            if (started) return;
+            _sceneWipeHold = null;
+        }
+        // #3379: leaving a pause, the pause card goes first, then the scene is drawn.
+        if (!noGame && from === 'PAUSED' && data.phase !== 'PAUSED' && !_reducedMotion()) {
+            var exitHold = { data: data };
+            _sceneWipeHold = exitHold;
+            var leaving = playPauseExit(function() {
+                _sceneWipeHold = null;
+                if (exitHold.data) _renderFrame(exitHold.data);
+            });
+            if (leaving) return;
+            _sceneWipeHold = null;
+        }
+        _renderFrame(data);
+        // #3379: a pause the room watched begin gets its entrance. A reload or a
+        // reconnect into a pause (no scene before it) shows the final picture.
+        if (!noGame && data.phase === 'PAUSED' && !!from && from !== 'PAUSED') playPauseEntrance();
+    }
+
+    // #3379: the pause has an entrance. The emoji drops in and settles, the
+    // reason rises, then the word Pause and the hint follow. transform and
+    // opacity only, like every TV motion.
+    var PAUSE_EXIT_MS = 200;
+    var PAUSE_ENTRANCE = [
+        ['#dashboard-paused .dashboard-centered', [{ opacity: 0 }, { opacity: 1 }], 0, 200, 'linear'],
+        ['#dashboard-pause-icon', [
+            { transform: 'translateY(-160%)', opacity: 0 },
+            { transform: 'translateY(6%)', opacity: 1, offset: 0.6 },
+            { transform: 'translateY(-4%)', opacity: 1, offset: 0.82 },
+            { transform: 'none', opacity: 1 }
+        ], 100, 480, null],
+        ['#dashboard-pause-title', [{ transform: 'translateY(24px)', opacity: 0 }, { transform: 'none', opacity: 1 }], 380, 300, null],
+        ['#dashboard-pause-state', [{ opacity: 0 }, { opacity: 1 }], 520, 240, 'linear'],
+        ['#dashboard-pause-message', [{ transform: 'translateY(10px)', opacity: 0 }, { transform: 'none', opacity: 1 }], 620, 260, null]
+    ];
+
+    function playPauseEntrance() {
+        if (_reducedMotion()) return;
+        PAUSE_ENTRANCE.forEach(function(step) {
+            var el = document.querySelector(step[0]);
+            if (!el || !el.animate) return;
+            el.animate(step[1], {
+                delay: step[2], duration: step[3], easing: step[4] || MOTION_EASE, fill: 'backwards'
+            });
+        });
+    }
+
+    /**
+     * The pause card leaves in 200 ms, then onGone draws the next scene. Returns
+     * false when the browser cannot animate: the caller then draws straight away.
+     */
+    function playPauseExit(onGone) {
+        var card = document.querySelector('#dashboard-paused .dashboard-centered');
+        var view = document.getElementById('dashboard-paused');
+        if (!card || !card.animate || !view || view.classList.contains('hidden')) return false;
+        var out = card.animate(
+            [{ transform: 'none', opacity: 1 }, { transform: 'translateY(-16px)', opacity: 0 }],
+            { duration: PAUSE_EXIT_MS, easing: 'ease-in', fill: 'forwards' }
+        );
+        setTimeout(function() {
+            try {
+                onGone();
+            } finally {
+                out.cancel();
+            }
+        }, PAUSE_EXIT_MS);
+        return true;
+    }
+
+    function _renderFrame(data) {
+        // #3365: read before any view draws. The last round frame is also the
+        // only record of the order and scores the reveal starts from.
+        if (data.phase !== 'REVEAL') cutRevealMotion();
+        if (_motionGate && data.phase) _motionGate.enter(data.phase, data.round);
+        if (data.phase === 'PLAYING') _boardBefore = snapshotBoard(data);
+        // #3379: once per round this TV saw begin, never on a repeated frame.
+        var roundStart = data.phase === 'PLAYING' && !!_motionGate && _motionGate.takeRoundStart();
+        _applyStateRender(data);
+        if (roundStart) playSpecialRoundAnnounce();
+    }
+
+    // #3379: the Finale x2 or tiebreaker pill is announced once at the start of
+    // its round: it stands large in the middle of the screen, then flies to its
+    // place in the chip strip. Same pill, only the way there is new. The round
+    // already runs underneath; the content is dimmed with opacity while it flies.
+    var ANNOUNCE_AT_MS = 150;
+    var ANNOUNCE_MS = 1400;
+    var ANNOUNCE_SCALE = 2.3;
+
+    function playSpecialRoundAnnounce() {
+        if (_reducedMotion()) return;
+        var ids = ['dashboard-playoff-banner-playing', 'dashboard-finale-banner-playing'];
+        var pill = null;
+        for (var i = 0; i < ids.length && !pill; i++) {
+            var el = document.getElementById(ids[i]);
+            if (el && !el.classList.contains('hidden')) pill = el;
+        }
+        if (!pill || !pill.animate || !pill.getBoundingClientRect) return;
+        var box = pill.getBoundingClientRect();
+        var vw = window.innerWidth || document.documentElement.clientWidth || 0;
+        var vh = window.innerHeight || document.documentElement.clientHeight || 0;
+        if (!box.width || !vw || !vh) return;
+        var big = Math.min(ANNOUNCE_SCALE, (vw * 0.9) / box.width);
+        if (big <= 1) return;
+        var at = 'translate(' + Math.round(vw / 2 - (box.left + box.width / 2)) + 'px,' +
+            Math.round(vh / 2 - (box.top + box.height / 2)) + 'px) ';
+        pill.classList.add('is-announcing');
+        var fly = pill.animate(
+            [
+                { transform: at + 'scale(' + (big * 0.7).toFixed(2) + ')', opacity: 0 },
+                { transform: at + 'scale(' + big.toFixed(2) + ')', opacity: 1, offset: 0.16 },
+                { transform: at + 'scale(' + (big * 0.93).toFixed(2) + ')', opacity: 1, offset: 0.62 },
+                { transform: 'none', opacity: 1 }
+            ],
+            { delay: ANNOUNCE_AT_MS, duration: ANNOUNCE_MS, easing: MOTION_EASE, fill: 'backwards' }
+        );
+        var done = function() { pill.classList.remove('is-announcing'); };
+        fly.onfinish = done;
+        fly.oncancel = done;
+        var content = document.querySelector('#dashboard-playing .dashboard-playing-content');
+        if (content && content.animate) {
+            content.animate(
+                [{ opacity: 0.35 }, { opacity: 0.35, offset: 0.55 }, { opacity: 1 }],
+                { delay: ANNOUNCE_AT_MS, duration: ANNOUNCE_MS, easing: 'linear', fill: 'backwards' }
+            );
+        }
+    }
+
+    // #3365: the colour wipe between the scenes the room actually watches. A
+    // first frame, a reconnect and PAUSED are no scene change the room saw.
+    var SCENE_WIPE_PHASES = { LOBBY: true, PLAYING: true, REVEAL: true, END: true };
+    var SCENE_WIPE_IN_MS = 220;
+    var SCENE_WIPE_OUT_MS = 260;
+    var _sceneWipeHold = null;
+    var _lastScenePhase = null;
+
+    function shouldWipeScene(from, to, reduced) {
+        return !reduced && !!from && from !== to && !!SCENE_WIPE_PHASES[from] && !!SCENE_WIPE_PHASES[to];
+    }
+
+    /**
+     * Cover the screen, run onCovered, uncover. Returns false when the browser
+     * cannot animate: the caller then draws straight away.
+     */
+    function playSceneWipe(onCovered) {
+        var el = document.getElementById('dashboard-wipe');
+        if (!el || !el.animate) return false;
+        el.style.transformOrigin = 'left center';
+        var cover = el.animate(
+            [{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }],
+            { duration: SCENE_WIPE_IN_MS, easing: 'ease-in', fill: 'forwards' }
+        );
+        setTimeout(function() {
+            try {
+                onCovered();
+            } finally {
+                el.style.transformOrigin = 'right center';
+                el.animate(
+                    [{ transform: 'scaleX(1)' }, { transform: 'scaleX(0)' }],
+                    { duration: SCENE_WIPE_OUT_MS, easing: 'ease-out' }
+                );
+                cover.cancel();
+            }
+        }, SCENE_WIPE_IN_MS);
+        return true;
+    }
+
     function _applyStateRender(data) {
         var phase = data.phase;
 
@@ -789,7 +1091,7 @@
         var fallback = 'Waiting for host to reconnect...';
         if (reason === 'media_player_error') {
             key = 'game.pausedSpeaker';
-            fallback = 'Speaker is not responding — the host is on it';
+            fallback = 'The music has stopped for a moment — the host is on it';
         } else if (reason === 'no_songs_available') {
             key = 'game.pausedNoSongs';
             fallback = 'No more songs available';
@@ -1019,12 +1321,27 @@
      * so the right half stays filled without scrolling for a normal party.
      *
      * @param {number} count - players in the lobby
-     * @returns {number} 3, 4 or 5
+     * @param {Array<string>} [names] - player names; long ones lower the count (#3398)
+     * @returns {number} 2, 3, 4 or 5
      */
-    function lobbyWallColumns(count) {
-        if (count >= 13) return 5;
-        if (count >= 7) return 4;
-        return 3;
+    function lobbyWallColumns(count, names) {
+        var cols = 3;
+        if (count >= 13) cols = 5;
+        else if (count >= 7) cols = 4;
+        // #3398: a tile is only as wide as its column, so on a wide-but-few wall
+        // a name like "QA-Tester" was cut to "QA-Te…" while the screen had
+        // room. Step down to fewer, wider columns until the longest name fits.
+        // Budgets are characters per column count, kept on the safe side for
+        // the wide display font.
+        var budget = { 2: 12, 3: 7, 4: 6, 5: 6 };
+        var longest = 0;
+        (Array.isArray(names) ? names : []).forEach(function(n) {
+            longest = Math.max(longest, String(n == null ? '' : n).length);
+        });
+        // Two columns only while the wall stays short enough not to scroll.
+        var minCols = count > 8 ? 3 : 2;
+        while (cols > minCols && longest > budget[cols]) cols--;
+        return cols;
     }
 
     /**
@@ -1176,7 +1493,7 @@
         }).join('\u0001');
         if (listEl.getAttribute('data-wall') === signature) return;
         listEl.setAttribute('data-wall', signature);
-        listEl.setAttribute('data-cols', String(lobbyWallColumns(sortedPlayers.length)));
+        listEl.setAttribute('data-cols', String(lobbyWallColumns(sortedPlayers.length, sortedPlayers.map(function(p) { return p.name; }))));
 
         // Index the tiles already on screen by player name.
         var existing = {};
@@ -1305,6 +1622,17 @@
             } else {
                 closestBadge.classList.add('hidden');
             }
+        }
+
+        // #2586: the larger notice, for the one round after the host changed
+        // timer or difficulty.
+        var settingsNotice = document.getElementById('dashboard-round-settings-notice');
+        if (settingsNotice) {
+            var settingsNoticeText = utils.roundSettingsNoticeText
+                ? utils.roundSettingsNoticeText(data.round_settings_notice, true)
+                : '';
+            settingsNotice.textContent = settingsNoticeText;
+            settingsNotice.classList.toggle('hidden', !settingsNoticeText);
         }
 
         // Update album art (blurred - AC 10.4.3)
@@ -1767,9 +2095,18 @@
         var titleEl = document.getElementById('reveal-title');
         var yearEl = document.getElementById('reveal-year');
 
-        if (artistEl) artistEl.textContent = song.artist || 'Unknown Artist';
-        if (titleEl) titleEl.textContent = song.title || 'Unknown Song';
-        if (yearEl) yearEl.textContent = song.year || '????';
+        if (artistEl) artistEl.textContent = song.artist || utils.t('reveal.unknownArtist', 'Unknown Artist');
+        if (titleEl) titleEl.textContent = song.title || utils.t('reveal.unknownSong', 'Unknown Song');
+        // #3365: a running reel owns the element until it stops. A re-render
+        // must not cut it, unless the answer itself changed (host override).
+        if (yearEl) {
+            var reelRunning = _revealReel && _revealReel.active();
+            if (reelRunning && _revealReel.year !== String(song.year)) {
+                _revealReel.finish();
+                reelRunning = false;
+            }
+            if (!reelRunning) yearEl.textContent = song.year || '????';
+        }
 
         // Lower-third announce: the YEAR is the hero in year mode; in Title &
         // Artist mode the year row hides and the TA banner carries the answer.
@@ -1808,6 +2145,7 @@
 
         // Render leaderboard with position changes
         renderRevealLeaderboard(data.leaderboard || []);
+        var boardLive = _motionGate ? _motionGate.isLive() : false;
         renderStandingsMore((data.leaderboard || []).length, axisMode);
         renderGhostLeague(data.ghost_league, 'ghost-league-reveal');
 
@@ -1848,24 +2186,217 @@
 
         // #2702: run the three beats. Keyed on the round inside, so calling it
         // on every re-broadcast is cheap and does not restart anything.
-        startRevealStaging(data);
+        if (boardLive && !axisMode) startRevealStaging(data);
+
+        // #3365: in year mode the axis runs its own sequence (guesses, line and
+        // reel, glow, standings), which replaces the #2702 beats. Title & Artist
+        // and a voided round have no year, so they keep the beats. A TV that did
+        // not live through the round gets neither: it shows the final picture.
+        if (_motionGate && boardLive) {
+            var rowsAt = REVEAL_BEAT_3_MS;
+            if (axisMode && _motionGate.once('axis')) rowsAt = playRevealSequence(song.year);
+            if (_motionGate.once('rows') && _boardBefore && _boardBefore.round === data.round) {
+                playRowTravel(document.getElementById('reveal-leaderboard'), data.leaderboard || [], _boardBefore, rowsAt);
+            }
+        }
 
         // Render song difficulty rating (Story 15.1)
         renderSongDifficulty(data.song_difficulty);
 
         // Story 14.5 (AC1, AC2, AC7): Trigger celebration confetti on dashboard
         // M1 fix: Prioritize record over exact to avoid duplicate confetti
+        var confettiType = null;
         if (data.game_performance && data.game_performance.is_new_record) {
-            triggerConfetti('record');
-        } else {
-            // Check for any exact guesses this round
-            var hasExactGuess = players.some(function(p) {
-                return p.years_off === 0 && !p.missed_round;
-            });
-            if (hasExactGuess) {
-                triggerConfetti('exact');
+            confettiType = 'record';
+        } else if (players.some(function(p) { return p.years_off === 0 && !p.missed_round; })) {
+            confettiType = 'exact';
+        }
+        // #3365: once per reveal, only for a TV that watched it, and only once
+        // the reel stands. Checked per frame: a host override can create the
+        // exact guess after the first frame.
+        if (confettiType && _motionGate && _motionGate.once('confetti')) {
+            var confettiWait = Math.max(0, _revealReelEndsAt - Date.now());
+            if (confettiWait > 0) {
+                _revealStageTimers.push(setTimeout(function() { triggerConfetti(confettiType); }, confettiWait));
+            } else {
+                triggerConfetti(confettiType);
             }
         }
+    }
+
+    // #3365: timings of the year-mode reveal, from the moment the scene is drawn
+    // (the wipe has been running for 220 ms by then, which is where the approved
+    // 0.4 / 1.5 / 2.7 / 2.9 s of the draft come from).
+    var REVEAL_LAND_AT_MS = 180;
+    var REVEAL_LAND_TOTAL_MS = 1000;
+    var REVEAL_LAND_MS = 420;
+    var REVEAL_REEL_AT_MS = 1280;
+    var REVEAL_REEL_BASE_MS = 520;
+    var REVEAL_REEL_STEP_MS = 200;
+    var REVEAL_GLOW_AFTER_REEL_MS = 80;
+    var REVEAL_ROWS_AFTER_REEL_MS = 280;
+    var ROW_TRAVEL_MS = 620;
+    var MOTION_EASE = 'cubic-bezier(.2,.7,.2,1)';
+    var _revealReel = null;
+    var _revealReelEndsAt = 0;
+    var _boardBefore = null;
+    var _rowCount = null;
+
+    /** The order and scores a reveal starts from. */
+    function snapshotBoard(data) {
+        var order = {};
+        var score = {};
+        utils.hydrateLeaderboard(data.leaderboard || [], data.players).forEach(function(entry, i) {
+            order[entry.name] = i;
+            score[entry.name] = entry.score;
+        });
+        return { round: data.round, order: order, score: score };
+    }
+
+    /**
+     * Year mode: guesses land furthest first, then the line falls and the reel
+     * runs, then the closest guess lights up. Colours and the span stay held
+     * back until then, since they give the answer away. Everything rests on the
+     * final picture, so a cut (next round, re-drawn axis) never leaves a gap.
+     * @param {number|string} year
+     * @returns {number} ms from now until the standings should move
+     */
+    function playRevealSequence(year) {
+        var plot = document.getElementById('guess-axis-plot');
+        var yearEl = document.getElementById('reveal-year');
+        var yearRow = document.getElementById('reveal-year-row');
+        var dots = plot ? [].slice.call(plot.querySelectorAll('.guess-axis-dot')) : [];
+
+        // Without guesses there is nothing to wait for.
+        var reelAt = dots.length ? REVEAL_REEL_AT_MS : REVEAL_LAND_AT_MS;
+        var reelMs = REVEAL_REEL_BASE_MS + 3 * REVEAL_REEL_STEP_MS;
+        var reelEnd = reelAt + reelMs;
+        var glowAt = reelEnd + REVEAL_GLOW_AFTER_REEL_MS;
+
+        if (plot && dots.length) {
+            plot.classList.add('guess-axis--hold');
+            var offs = dots.map(function(d) { return parseInt(d.getAttribute('data-off'), 10) || 0; });
+            utils.guessLandingPlan(offs, REVEAL_LAND_TOTAL_MS, REVEAL_LAND_MS).forEach(function(step) {
+                var dot = dots[step.index];
+                if (!dot.animate) return;
+                dot.animate([
+                    { opacity: 0, transform: 'translateY(-80px) scale(.7)' },
+                    { opacity: 1, transform: 'translateY(0) scale(1.15)', offset: 0.8 },
+                    { opacity: 1, transform: 'none' }
+                ], { delay: REVEAL_LAND_AT_MS + step.delay, duration: REVEAL_LAND_MS, easing: MOTION_EASE, fill: 'backwards' });
+            });
+            [].slice.call(plot.querySelectorAll('.guess-axis-span, .guess-axis-span-label, .guess-axis-span-name')).forEach(function(el) {
+                if (el.animate) {
+                    el.animate([{ opacity: 0 }, { opacity: 1 }], { delay: glowAt, duration: 300, easing: MOTION_EASE, fill: 'backwards' });
+                }
+            });
+            _revealStageTimers.push(setTimeout(function() {
+                plot.classList.remove('guess-axis--hold');
+                var closest = Math.min.apply(null, offs);
+                dots.forEach(function(dot, i) {
+                    if (offs[i] === closest && dot.animate) {
+                        dot.animate(
+                            [{ transform: 'none' }, { transform: 'scale(1.18)', offset: 0.5 }, { transform: 'none' }],
+                            { duration: 300, easing: MOTION_EASE }
+                        );
+                    }
+                });
+            }, glowAt));
+        }
+
+        var marker = plot ? plot.querySelector('.guess-axis-marker') : null;
+        if (marker && marker.animate) {
+            marker.style.transformOrigin = 'top';
+            marker.animate([{ transform: 'scaleY(0)' }, { transform: 'none' }],
+                { delay: reelAt, duration: 300, easing: MOTION_EASE, fill: 'backwards' });
+        }
+        if (yearRow && yearRow.animate) {
+            yearRow.animate([{ opacity: 0 }, { opacity: 1 }], { delay: reelAt, duration: 120, fill: 'backwards' });
+        }
+        if (yearEl) {
+            _revealReel = utils.rollYear(yearEl, year, { delay: reelAt, base: REVEAL_REEL_BASE_MS, step: REVEAL_REEL_STEP_MS });
+            _revealReelEndsAt = Date.now() + reelEnd;
+        }
+        return reelEnd + REVEAL_ROWS_AFTER_REEL_MS;
+    }
+
+    /**
+     * Rows travel from their old place to the new one while the scores count up.
+     * Only transforms, and at most one layout read, at the start of the reveal.
+     * @param {HTMLElement} container
+     * @param {Array} leaderboard - hydrated board
+     * @param {Object} before - snapshotBoard() of the round
+     * @param {number} delay - ms until the rows set off
+     */
+    function playRowTravel(container, leaderboard, before, delay) {
+        if (!container) return;
+        var place = {};
+        var finalScore = {};
+        leaderboard.forEach(function(entry, i) {
+            place[entry.name] = i;
+            finalScore[entry.name] = entry.score;
+        });
+        // A capped board hides its tail in CSS; those rows have no height.
+        var els = [].slice.call(container.children).filter(function(el) { return el.offsetHeight > 0; });
+        var rows = els.map(function(el) {
+            var key = el.getAttribute('data-row-key');
+            return { key: key, index: place[key] };
+        });
+        var tops = els.map(function(el) { return el.offsetTop; });
+        utils.rowTravelPlan(rows, before.order).forEach(function(move) {
+            var el = els[move.to];
+            if (!el.animate) return;
+            if (move.from > move.to) el.classList.add('leaderboard-entry--travelling');
+            el.animate(
+                [{ transform: 'translateY(' + (tops[move.from] - tops[move.to]) + 'px)' }, { transform: 'none' }],
+                { delay: delay, duration: ROW_TRAVEL_MS, easing: MOTION_EASE, fill: 'backwards' }
+            );
+        });
+        var items = [];
+        els.forEach(function(el, i) {
+            var key = rows[i].key;
+            var scoreEl = el.querySelector('.entry-score');
+            var from = before.score[key];
+            if (scoreEl && typeof from === 'number' && from !== finalScore[key]) {
+                scoreEl.textContent = from;
+                items.push({ el: scoreEl, from: from, to: finalScore[key] });
+            }
+        });
+        if (!items.length) return;
+        _rowCount = { items: items, tick: null, wait: null };
+        _rowCount.wait = setTimeout(function() {
+            var startedAt = Date.now();
+            // A stepped count: on a Chromecast 15 writes a second are enough to
+            // read as counting, a write every frame costs paint for nothing.
+            _rowCount.tick = setInterval(function() {
+                var p = Math.min(1, (Date.now() - startedAt) / ROW_TRAVEL_MS);
+                if (p >= 1) {
+                    finishRowCount();
+                    return;
+                }
+                items.forEach(function(item) {
+                    item.el.textContent = Math.round(item.from + (item.to - item.from) * p);
+                });
+            }, 66);
+        }, delay);
+    }
+
+    /** A fast next round cuts the sequence, and never halfway. */
+    function cutRevealMotion() {
+        if (_revealReel) _revealReel.finish();
+        _revealReelEndsAt = 0;
+        finishRowCount();
+        var plot = document.getElementById('guess-axis-plot');
+        if (plot && plot.classList) plot.classList.remove('guess-axis--hold');
+    }
+
+    /** Put every counting score on its final value and stop. */
+    function finishRowCount() {
+        if (!_rowCount) return;
+        clearTimeout(_rowCount.wait);
+        if (_rowCount.tick !== null) clearInterval(_rowCount.tick);
+        _rowCount.items.forEach(function(item) { item.el.textContent = item.to; });
+        _rowCount = null;
     }
 
     /**
@@ -2840,7 +3371,7 @@
         L.dots.forEach(function(dot) {
             var label = utils.escapeHtml(dot.name) + ' — ' + dot.guess;
             html += '<div class="guess-axis-dot guess-axis-dot--' + (dot.plus ? 'more' : dot.kind) + '" ' +
-                'style="left:' + pct(dot.x) + ';--row:' + dot.row + '" title="' + label + '" aria-label="' + label + '">' +
+                'style="left:' + pct(dot.x) + ';--row:' + dot.row + '" data-off="' + (dot.yearsOff || 0) + '" title="' + label + '" aria-label="' + label + '">' +
                 (dot.plus ? '+' + dot.plus : utils.escapeHtml(dot.initials)) +
                 '</div>';
         });
@@ -2954,6 +3485,26 @@
     // every reconnect, and a closing shot that replays on a dropped socket is
     // worse than no closing shot.
     var closingMomentPlayedFor = null;
+    // #3365: third place, second place, a pause, then the winner.
+    var PODIUM_BUILD = [['podium-3', 200], ['podium-2', 800], ['podium-1', 1800]];
+    var PODIUM_RISE_MS = 520;
+    var PODIUM_BUILD_MS = 1800 + PODIUM_RISE_MS;
+
+    /**
+     * Build the podium. It rests in place, so a cut shows the final picture.
+     * @param {number} startAt - ms until the stage is uncovered
+     */
+    function playPodiumBuild(startAt) {
+        PODIUM_BUILD.forEach(function(step) {
+            var place = document.querySelector('#dashboard-end .' + step[0]);
+            if (!place || !place.animate) return;
+            place.animate(
+                [{ transform: 'translateY(100%)', opacity: 0 }, { transform: 'none', opacity: 1 }],
+                { delay: startAt + step[1], duration: PODIUM_RISE_MS, easing: MOTION_EASE, fill: 'backwards' }
+            );
+        });
+    }
+
     // #3117: renderEndView runs on every END frame; the winner confetti is a
     // one-time effect of reaching the podium, so it keys on the game too.
     var endConfettiPlayedFor = null;
@@ -3115,7 +3666,7 @@
             var name = el('text', {
                 x: RIGHT + 18, y: py(item.s.cum[rounds]) + 10, fill: item.color,
                 'font-size': '30', 'font-weight': '700', 'text-anchor': 'start',
-                stroke: 'var(--color-bg, #0a0a0f)', 'stroke-width': '6',
+                stroke: 'var(--color-bg-primary)', 'stroke-width': '6',
                 'paint-order': 'stroke',
                 'font-family': "var(--font-display, 'Outfit'), sans-serif"
             });
@@ -3179,6 +3730,10 @@
         // #2563: the prologue covers the stage while the rest of this function
         // builds it underneath. Nothing below waits for it except the confetti.
         var momentOnScreen = playClosingMoment(data);
+        var stageAt = momentOnScreen ? 3600 : 0;
+        // #3365: once per game, and only for a TV that came here from a round.
+        var podiumBuilds = !!(_motionGate && _motionGate.once('podium'));
+        if (podiumBuilds) playPodiumBuild(stageAt);
 
         // Issue #827: Sudden-Death "Last One Standing" hero above the podium.
         renderSuddenDeathLastStanding(data);
@@ -3245,8 +3800,10 @@
             endConfettiPlayedFor = endGameId;
             // #2563: fired behind the prologue it would be over before anyone
             // saw it, so it waits for the stage to be uncovered.
-            if (momentOnScreen) {
-                setTimeout(function() { triggerConfetti('winner'); }, 3600);
+            // #3365: and the winner is on the podium before it goes off.
+            var confettiAt = stageAt + (podiumBuilds ? PODIUM_BUILD_MS : 0);
+            if (confettiAt > 0) {
+                setTimeout(function() { triggerConfetti('winner'); }, confettiAt);
             } else {
                 triggerConfetti('winner');
             }

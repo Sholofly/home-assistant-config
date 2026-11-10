@@ -47,8 +47,8 @@
          the browser fetch it at low priority without blocking the render; the
          onload swap applies it the moment it arrives. The page is fully
          readable in the fallback stack until then. -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700;900&display=swap" rel="stylesheet"></noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700;900&display=swap" rel="stylesheet"></noscript>
     <!-- Story 18.4: Use minified CSS in production -->
     <link rel="stylesheet" href="/beatify/static/css/styles.min.css?v={{ASSET_VER}}">
     <link rel="stylesheet" href="/beatify/static/css/dashboard.min.css?v={{ASSET_VER}}">
@@ -79,7 +79,7 @@
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             color: #fff;
-            font-family: 'Inter', sans-serif;
+            font-family: var(--font-body);
             animation: wakelock-banner-in 320ms ease-out;
         }
         .dashboard-wakelock-banner.hidden { display: none; }
@@ -139,11 +139,26 @@
             color: rgba(255, 255, 255, 0.6);
             font-size: 1.1rem;
             line-height: 1;
-            transition: background 120ms ease, color 120ms ease;
+            transition: background 120ms ease, color 120ms ease, transform 120ms ease;
         }
         .dashboard-wakelock-dismiss:hover {
             background: rgba(255, 255, 255, 0.12);
             color: #fff;
+        }
+        /* #3391: the TV is driven by a remote (Fire TV, Chromecast), and a
+           remote has no pointer — without a visible ring nobody sees which of
+           the two buttons is selected. Cyan, 3 px, outside the button. The ×
+           also gets the press state the Activate button already had. */
+        .dashboard-wakelock-activate:focus-visible,
+        .dashboard-wakelock-dismiss:focus-visible {
+            outline: 3px solid var(--color-accent-secondary, #00f5ff);
+            outline-offset: 3px;
+        }
+        .dashboard-wakelock-dismiss:active { transform: scale(0.94); }
+        @media (prefers-reduced-motion: reduce) {
+            .dashboard-wakelock-banner { animation: none; }
+            .dashboard-wakelock-activate:active,
+            .dashboard-wakelock-dismiss:active { transform: none; }
         }
         /* Reconnect indicator (#1578): small unobtrusive top-right badge shown
            while the dashboard WebSocket is down and reconnecting. Same dark
@@ -165,12 +180,23 @@
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             color: rgba(255, 255, 255, 0.85);
-            font-family: 'Inter', sans-serif;
+            font-family: var(--font-body);
             font-size: 0.82rem;
             font-weight: 600;
             animation: dashboard-reconnect-in 320ms ease-out;
         }
         .dashboard-reconnect-indicator.hidden { display: none; }
+        /* #3390: the one line about the network, below spinner + "Reconnecting…".
+           It appears without motion; the badge's own intro already ran. */
+        .dashboard-reconnect-indicator { flex-wrap: wrap; justify-content: center; }
+        .dashboard-reconnect-notice {
+            flex: 1 0 100%;
+            text-align: center;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .dashboard-reconnect-notice.hidden { display: none; }
+        .dashboard-reconnect-indicator--long { border-radius: 18px; }
         @keyframes dashboard-reconnect-in {
             from { opacity: 0; transform: translateY(-8px); }
             to   { opacity: 1; transform: translateY(0); }
@@ -206,6 +232,7 @@
                 padding: 16px 32px;
                 font-size: 1.6rem;
             }
+            .dashboard-reconnect-indicator--long { border-radius: 28px; }
             .dashboard-reconnect-spinner {
                 width: 26px;
                 height: 26px;
@@ -233,6 +260,9 @@
             <p data-i18n="dashboard.landscapeHint">This dashboard works best in landscape mode</p>
         </div>
     </div>
+
+    <!-- #3365: colour wipe between scenes, animated by dashboard.js -->
+    <div id="dashboard-wipe" class="dashboard-wipe" aria-hidden="true"></div>
 
     <!-- Main dashboard content -->
     <main class="dashboard-container">
@@ -368,6 +398,8 @@
                 <!-- Issue #827: Sudden-Death FINAL banner (design S5-C) — shown by
                      dashboard.js when exactly 2 players remain in Sudden Death. -->
                 <div id="sd-final-banner-playing" class="sd-final-banner hidden"></div>
+                <!-- #2586: one round long, after the host changed the settings. -->
+                <div id="dashboard-round-settings-notice" class="dashboard-round-settings-notice hidden"></div>
                 <!-- #2719: Finale ×2 is live this round. The phones have said so
                      since #1725; the TV showed the doubled scores and nothing
                      else, which reads as a scoring bug in the deciding round. -->
@@ -771,6 +803,8 @@
     <div id="dashboard-reconnect-indicator" class="dashboard-reconnect-indicator hidden" role="status" aria-live="polite">
         <span class="dashboard-reconnect-spinner" aria-hidden="true"></span>
         <span data-i18n="dashboard.reconnecting">Reconnecting…</span>
+        <!-- #3390: appears after 30 s without a connection -->
+        <span id="dashboard-reconnect-notice" class="dashboard-reconnect-notice hidden" data-i18n="dashboard.reconnectNotice">The TV can't reach Home Assistant. Check the TV's Wi-Fi.</span>
     </div>
 
     <!-- Reaction Container (Story 18.9) - floating reactions from players -->

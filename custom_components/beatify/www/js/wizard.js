@@ -323,14 +323,31 @@ function _t(key, fallback, params) {
     return out;
 }
 
-async function _fetchStatus() {
+// #3390: a failed load is not an empty list. Each loader reports whether it
+// got an answer, so "No speakers found, install Music Assistant" is only shown
+// after Home Assistant really said "none" — never after it did not answer.
+let statusLoadFailed = false;
+let lightsLoadFailed = false;
+let ttsLoadFailed = false;
+
+/**
+ * GET a JSON endpoint and say whether it worked (#3390).
+ * @returns {Promise<{ok: boolean, data: any}>}
+ */
+export async function fetchJsonResult(url, fetchFn) {
     try {
-        const r = await fetch('/beatify/api/status');
-        if (!r.ok) return null;
-        return await r.json();
+        const r = await fetchFn(url);
+        if (!r.ok) return { ok: false, data: null };
+        return { ok: true, data: await r.json() };
     } catch (e) {
-        return null;
+        return { ok: false, data: null };
     }
+}
+
+async function _fetchStatus() {
+    const res = await fetchJsonResult('/beatify/api/status', (u) => fetch(u));
+    statusLoadFailed = !res.ok;
+    return res.ok ? res.data : null;
 }
 
 async function _fetchCapabilities() {
@@ -343,27 +360,49 @@ async function _fetchCapabilities() {
     }
 }
 
+// #3390: null (not []) on failure, so the next visit to step 5 asks again.
 async function _fetchLights() {
-    try {
-        const r = await BeatifyAuth.fetch('/beatify/api/lights');
-        if (!r.ok) return [];
-        const data = await r.json();
-        return (data && data.lights) || [];
-    } catch (e) {
-        return [];
-    }
+    const res = await fetchJsonResult('/beatify/api/lights', (u) => BeatifyAuth.fetch(u));
+    lightsLoadFailed = !res.ok;
+    if (!res.ok) return null;
+    return (res.data && res.data.lights) || [];
 }
 
 // #1073: list registered tts.* entities for the Step 5 dropdown picker.
 async function _fetchTtsEntities() {
-    try {
-        const r = await BeatifyAuth.fetch('/beatify/api/tts-entities');
-        if (!r.ok) return [];
-        const data = await r.json();
-        return (data && data.entities) || [];
-    } catch (e) {
-        return [];
+    const res = await fetchJsonResult('/beatify/api/tts-entities', (u) => BeatifyAuth.fetch(u));
+    ttsLoadFailed = !res.ok;
+    if (!res.ok) return null;
+    return (res.data && res.data.entities) || [];
+}
+
+/**
+ * The error block for a list that did not load (#3390): what happened, what
+ * to do, and a button that asks again. `kind` names the list for the button.
+ * Pure, exported for the tests.
+ */
+export function loadErrorHtml(kind, translate) {
+    const t = translate || _t;
+    const texts = {
+        speakers: [
+            t('wizard.loadError.speakersTitle', "Couldn't load your speakers"),
+            t('wizard.loadError.speakersHint', "Home Assistant didn't answer. Your speakers are probably fine. Try again."),
+        ],
+        lights: [
+            t('wizard.loadError.lightsTitle', "Couldn't load your lights"),
+            t('wizard.loadError.hint', "Home Assistant didn't answer. Try again."),
+        ],
+        tts: [
+            t('wizard.loadError.ttsTitle', "Couldn't load your voice services"),
+            t('wizard.loadError.hint', "Home Assistant didn't answer. Try again."),
+        ],
+    };
+    const [title, hint] = texts[kind] || texts.lights;
+    const retry = t('common.retry', 'Try Again');
+    if (kind === 'speakers') {
+        return `<div class="wiz-row" style="cursor:default" role="alert"><div class="wiz-row-text"><div class="wiz-row-name">${escapeText(title)}</div><div class="wiz-row-sub">${escapeText(hint)}</div></div><button type="button" class="btn btn-ghost" data-wiz-retry="speakers">${escapeText(retry)}</button></div>`;
     }
+    return `<div class="wiz-detail-empty" role="alert"><div>${escapeText(title)}</div><div>${escapeText(hint)}</div><button type="button" class="btn btn-ghost wiz-detail-test" data-wiz-retry="${escapeAttr(kind)}">${escapeText(retry)}</button></div>`;
 }
 
 // Hydrate level-up details from the existing admin localStorage shapes
@@ -410,7 +449,10 @@ function _hydrateLevelUpDetails() {
     } catch (e) { /* ignore */ }
 }
 
-function _setProgress(step) {
+function _setProgress(step, animate) {
+    // #3367: the bar only moves on a step change. Opening or resuming the wizard
+    // writes the same classes without this one and shows the final bar at once.
+    document.getElementById('wiz-progress')?.classList?.toggle('wiz-progress--live', !!animate);
     const segs = document.querySelectorAll('#wiz-progress .wiz-seg');
     segs.forEach((seg, i) => {
         const stepNum = i + 1;
@@ -458,11 +500,103 @@ function _syncStep3Mode() {
     }
 }
 
-function _showFrame(n) {
+/**
+ * #3367: which way a step change moves. 'forward' comes from the right, 'back'
+ * from the left, null does not move at all.
+ * @param {number} from
+ * @param {number} to
+ * @param {boolean} reduced - prefers-reduced-motion
+ * @returns {'forward'|'back'|null}
+ */
+export function wizardStepDirection(from, to, reduced) {
+    if (reduced || from === to) return null;
+    return to > from ? 'forward' : 'back';
+}
+
+function _reducedMotion() {
+    return !!(typeof window !== 'undefined' && window.matchMedia
+        && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+}
+
+// ------------------------------------------------------------------
+// #3391: Android Back (and the browser's Back) goes one step back
+// ------------------------------------------------------------------
+// Without a history entry of its own the wizard is one page, so the system
+// Back left the admin for whatever HA page came before — mid-setup, with the
+// host's choices only rescued by localStorage. Now, while the wizard is past
+// its first step, one "guard" entry sits on top of the history. Back pops it,
+// the wizard shows the step before, and the guard goes back on if there is
+// still a step to return to. On step 1, or once the wizard is closed, there is
+// no guard, so Back behaves as it always did. One entry at most, however many
+// steps are walked: going forward and back in the wizard never piles up
+// history the host would have to press through later.
+
+/**
+ * Pure, exported for the #3391 tests.
+ * @param {Object} deps
+ * @param {{pushState: Function, back: Function}} deps.history
+ * @param {() => boolean} deps.isOpen - the wizard is on screen
+ * @param {() => number} deps.getStep
+ * @param {() => void} deps.stepBack - show the step before (calls sync again)
+ */
+export function createWizardBackGuard({ history, isOpen, getStep, stepBack }) {
+    let guarded = false;
+    let swallowNextPop = false;
+    function sync() {
+        if (!history) return;
+        const want = isOpen() && getStep() > 1;
+        if (want && !guarded) {
+            try {
+                history.pushState({ beatifyWizardGuard: true }, '');
+                guarded = true;
+            } catch (e) { /* sandboxed frame — Back stays as it was */ }
+        } else if (!want && guarded) {
+            // Our entry is on top; take it off so the next Back leaves as usual.
+            guarded = false;
+            swallowNextPop = true;
+            try { history.back(); } catch (e) { swallowNextPop = false; }
+        }
+    }
+    function onPopState() {
+        if (swallowNextPop) { swallowNextPop = false; return; }
+        if (!guarded) return;  // not our entry
+        guarded = false;
+        if (isOpen() && getStep() > 1) stepBack();
+        else sync();
+    }
+    return { sync, onPopState, isGuarded: () => guarded };
+}
+
+let _backGuard = null;
+
+function _wizardOpen() {
+    const root = document.getElementById('wizard-root');
+    return !!root && !root.classList.contains('hidden');
+}
+
+function _syncBackGuard() {
+    if (_backGuard) _backGuard.sync();
+}
+
+/**
+ * @param {number} n - the step to show
+ * @param {Object} [opts]
+ * @param {boolean} [opts.instant] - opening or resuming: the final picture, no movement
+ */
+export function _showFrame(n, opts = {}) {
+    const direction = opts.instant ? null : wizardStepDirection(currentStep, n, _reducedMotion());
     document.querySelectorAll('.wiz-frame').forEach((frame) => {
         const frameNum = parseInt(frame.dataset.frame, 10);
-        if (frameNum === n) frame.removeAttribute('hidden');
-        else frame.setAttribute('hidden', '');
+        if (frameNum === n) {
+            frame.removeAttribute('hidden');
+            if (direction && frame.animate) {
+                const dx = direction === 'forward' ? 48 : -48;
+                frame.animate(
+                    [{ transform: `translateX(${dx}px)`, opacity: 0 }, { transform: 'none', opacity: 1 }],
+                    { duration: 240, easing: 'cubic-bezier(.2,.7,.2,1)' }
+                );
+            }
+        } else frame.setAttribute('hidden', '');
     });
     currentStep = n;
     if (n === 3) {
@@ -470,8 +604,9 @@ function _showFrame(n) {
     } else {
         document.body.classList.remove('wiz-lib-step');
     }
-    _setProgress(Math.min(n, TOTAL_STEPS));
+    _setProgress(Math.min(n, TOTAL_STEPS), !!direction);
     _updateCta();
+    _syncBackGuard();  // #3391
     // Persist wizard state so refresh / revisit resumes at the right step.
     // Skip step 6 (done) here — _advance() writes the final 'done' state.
     if (n >= 1 && n <= 5) {
@@ -578,6 +713,17 @@ function _renderSpeakers() {
     const list = document.getElementById('wiz-speaker-list');
     if (!list) return;
     const players = (cachedStatus && cachedStatus.media_players) || [];
+    if (players.length === 0 && statusLoadFailed) {
+        // #3390: Home Assistant did not answer — not "no speakers".
+        list.innerHTML = loadErrorHtml('speakers');
+        list.querySelector('[data-wiz-retry="speakers"]')?.addEventListener('click', async () => {
+            cachedStatus = await _fetchStatus();
+            _renderSpeakers();
+            _renderProviders();
+            _updateCta();
+        });
+        return;
+    }
     if (players.length === 0) {
         list.innerHTML = `<div class="wiz-row" style="cursor:default"><div class="wiz-row-text"><div class="wiz-row-name">${_t(
             'wizard.step1.empty',
@@ -629,6 +775,12 @@ function _renderSpeakers() {
                 chosenProvider = null;
             }
             _renderSpeakers();
+            if (speakerChanged) {
+                // #3367: the list was just rebuilt, so look the tapped row up again.
+                const row = Array.from(list.querySelectorAll('.wiz-row[data-entity-id]'))
+                    .find((r) => r.dataset.entityId === newSpeaker);
+                if (row) window.BeatifyUtils?.pickFeedback?.(row, row.querySelector('.wiz-row-check'));
+            }
             // Capability set changed — Step 2's chip dimming must be recomputed
             // or users see stale lock icons from the previous speaker.
             _renderProviders();
@@ -942,6 +1094,18 @@ export function buildWizChip(id, label, group, activeId) {
     return `<button type="button" class="wiz-chip${active}" data-${group}="${id}">${label}</button>`;
 }
 
+/**
+ * #3367: a chip group rebuilds on every tap, so the tapped chip is found again
+ * in the new markup. Tapping the chip that was already on stays quiet.
+ */
+function _chipPicked(elId, value, wasActive) {
+    if (wasActive) return;
+    const el = document.getElementById(elId);
+    if (!el) return;
+    const chip = Array.from(el.querySelectorAll('.wiz-chip.active')).find((c) => c.dataset.value === value);
+    if (chip) window.BeatifyUtils?.pickFeedback?.(chip);
+}
+
 function _renderChipGroup(elId, items, active, onPick) {
     const el = document.getElementById(elId);
     if (!el) return;
@@ -958,8 +1122,11 @@ function _renderChipGroup(elId, items, active, onPick) {
     el.querySelectorAll('.wiz-chip').forEach((btn) => {
         btn.addEventListener('click', () => {
             const raw = btn.dataset.value;
+            const wasActive = btn.classList.contains('active');
             // Duration is numeric
-            onPick(items[0] && typeof items[0] === 'number' ? parseInt(raw, 10) : raw);
+            const done = onPick(items[0] && typeof items[0] === 'number' ? parseInt(raw, 10) : raw);
+            // The language chip re-renders only after its strings have loaded.
+            Promise.resolve(done).then(() => _chipPicked(elId, raw, wasActive));
         });
     });
 }
@@ -1019,8 +1186,10 @@ function _renderSampleDuration() {
         el.innerHTML = sampleChipsHtml(chosenSampleDuration, chosenDuration, _t);
         el.querySelectorAll('.wiz-chip:not([disabled])').forEach((btn) => {
             btn.addEventListener('click', () => {
+                const before = chosenSampleDuration;
                 chosenSampleDuration = normalizeSampleDuration(parseInt(btn.dataset.value, 10), chosenDuration);
                 _renderGameMode();
+                _chipPicked('wiz-sample', btn.dataset.value, before === chosenSampleDuration);
             });
         });
     }
@@ -1543,6 +1712,7 @@ function _renderRounds() {
     el.querySelectorAll('.wiz-chip').forEach((btn) => {
         btn.addEventListener('click', () => {
             const raw = btn.dataset.value;
+            const wasActive = btn.classList.contains('active');
             if (raw === 'custom') {
                 customRoundsOpen = true;
                 // Seed the field with the current cap so the host edits a
@@ -1553,6 +1723,7 @@ function _renderRounds() {
                 chosenMaxRounds = clampRoundCount(parseInt(raw, 10), pool);
             }
             _renderGameMode();
+            _chipPicked('wiz-rounds', raw, wasActive);
         });
     });
 
@@ -1627,6 +1798,10 @@ function _renderGameMode() {
 
 function _lightsDetailHtml() {
     const lights = cachedLights || [];
+    // #3390: a failed load gets its own block instead of "No lights available".
+    if (lightsLoadFailed && cachedLights === null) {
+        return `<div class="wiz-detail"><div class="wiz-field">${loadErrorHtml('lights')}</div></div>`;
+    }
     const rows = lights.length
         ? lights.map((l) => {
               const checked = chosenLightEntityIds.has(l.entity_id) ? 'checked' : '';
@@ -1717,7 +1892,9 @@ function _ttsDetailHtml() {
     const staleOpt = (chosenTtsEntityId && !known.has(chosenTtsEntityId))
         ? `<option value="${escapeAttr(chosenTtsEntityId)}" selected>${escapeText(chosenTtsEntityId)} ${_t('wizard.step5.tts.entityStale', '(not currently registered)')}</option>`
         : '';
-    const placeholderLabel = entities.length === 0
+    // #3390: "add one in HA first" only when HA said there are none.
+    const ttsFailed = ttsLoadFailed && cachedTtsEntities === null;
+    const placeholderLabel = entities.length === 0 && !ttsFailed
         ? _t('wizard.step5.tts.entityNone', 'No TTS entities — add one in HA first')
         : _t('wizard.step5.tts.entityPlaceholder', '— Select TTS entity —');
     const entityFieldHtml = `
@@ -1730,6 +1907,7 @@ function _ttsDetailHtml() {
         <div class="wiz-detail">
           <div class="wiz-field">
             <span class="wiz-field-label">${_t('wizard.step5.tts.entityLabel', 'TTS service (entity ID)')}</span>
+            ${ttsFailed ? loadErrorHtml('tts') : ''}
             ${entityFieldHtml}
             <span class="wiz-field-hint">${_t('wizard.step5.tts.entityHint', "No TTS service yet? In Home Assistant: Settings → Devices & Services → Add Integration → 'Google Translate text-to-speech' (free, no API key). It will then appear in this list.")}</span>
             <button type="button" id="wiz-tts-test" class="btn btn-ghost wiz-detail-test" ${chosenTtsEntityId ? '' : 'disabled'}>
@@ -1798,6 +1976,15 @@ function _renderLevelUp() {
         head.addEventListener('click', () => {
             const key = card.dataset.levelup;
             chosenLevelUps[key] = !chosenLevelUps[key];
+            _renderLevelUp();
+        });
+    });
+
+    // #3390: "Try again" on a list that did not load.
+    list.querySelectorAll('[data-wiz-retry]').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+            if (btn.dataset.wizRetry === 'lights') cachedLights = await _fetchLights();
+            if (btn.dataset.wizRetry === 'tts') cachedTtsEntities = await _fetchTtsEntities();
             _renderLevelUp();
         });
     });
@@ -2240,7 +2427,7 @@ export async function show(stepOverride) {
     _renderProviders();
     _renderPlaylists();
     _renderGameMode();
-    _showFrame(start);
+    _showFrame(start, { instant: true });
 }
 
 export function hide({ dismissed } = {}) {
@@ -2249,6 +2436,7 @@ export function hide({ dismissed } = {}) {
     root.classList.add('hidden');
     root.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('wizard-active');
+    _syncBackGuard();  // #3391: closed — Back leaves the admin again
     if (dismissed) {
         try { localStorage.setItem(LS_WIZARD_STATE, 'dismissed'); } catch (e) { /* private mode */ }
     }
@@ -2330,6 +2518,16 @@ async function _advance() {
 }
 
 export async function init() {
+    if (!_backGuard && typeof window !== 'undefined' && window.history
+        && typeof window.addEventListener === 'function') {
+        _backGuard = createWizardBackGuard({
+            history: window.history,
+            isOpen: _wizardOpen,
+            getStep: () => currentStep,
+            stepBack: () => _showFrame(currentStep - 1),
+        });
+        window.addEventListener('popstate', _backGuard.onPopState);
+    }
     const nextBtn = document.getElementById('wiz-next');
     const backBtn = document.getElementById('wiz-back');
     const skipBtn = document.getElementById('wiz-skip');
