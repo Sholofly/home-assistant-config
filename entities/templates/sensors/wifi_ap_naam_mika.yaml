@@ -1,18 +1,14 @@
 ################################################
 ## Entities / Template Sensors / WiFi AP Naam Mika
-## Geeft de naam van de Deco AP waar Mika op zit
+## Geeft de naam van de Deco AP (attribuut deco_device van de telefoon-tracker) waar Mika op zit
 ################################################
 name: "Telefoon Mika WiFi AP"
 unique_id: "wifi_ap_naam_mika"
 icon: "mdi:router-wireless"
 state: >
-  {% set aps = {
-    'gang':          'device_tracker.gang_deco_a56_van_mika',
-    'zolder':        'device_tracker.zolder_deco_a56_van_mika',
-    'slaapkamer':    'device_tracker.slaapkamer_deco_a56_van_mika',
-    'kleine_schuur': 'device_tracker.kleine_schuur_deco_a56_van_mika',
-    'grote_schuur':  'device_tracker.grote_schuur_deco_a56_van_mika'
-  } %}
-  {% for naam, entity in aps.items() %}
-    {% if is_state(entity, 'home') %}{{ naam | replace('_', ' ') | title }}{% endif %}
-  {% endfor %}
+  {% set apparaten = states.device_tracker
+     | selectattr('attributes.host_name', 'defined')
+     | selectattr('attributes.host_name', 'eq', 'A56-van-Mika')
+     | selectattr('state', 'eq', 'home') | list %}
+  {% set namen = {'Hallway': 'Gang', 'Bedroom': 'Slaapkamer'} %}
+  {% if apparaten %}{% set ap = apparaten[0].attributes.deco_device | default('') %}{{ namen.get(ap, ap) }}{% endif %}
