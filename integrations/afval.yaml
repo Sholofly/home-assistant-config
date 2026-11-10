@@ -3,6 +3,10 @@
 ## Helper voor de afvalherinneringen: staat de container al aan de weg?
 ################################################
 input_boolean:
+  # Schakelaar voor Google Home-routines: aanzetten = de afvalvraag uitspreken (gaat daarna vanzelf weer uit)
+  afval_vraag:
+    name: Afval vraag
+    icon: mdi:trash-can-outline
   afval_aan_de_weg:
     name: Afvalcontainer aan de weg
     icon: mdi:trash-can-outline

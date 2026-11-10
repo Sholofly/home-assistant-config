@@ -274,3 +274,71 @@ energie_vaatwasser_advies:
         data:
           volume_level: "{{ oude_volumes[repeat.index - 1] | float(0.4) }}"
   mode: single
+afval_advies:
+  alias: Afval advies
+  description: Spreekt op laag volume uit wanneer welke container aan de weg moet, en wie dat al gedaan heeft.
+    Bedoeld om met Google Home aan te roepen (routine 'wanneer moet de container aan de weg').
+  icon: mdi:trash-can-outline
+  sequence:
+  - variables:
+      groep: media_player.speakers_beneden
+      leden: >-
+        {{ ((state_attr('media_player.speakers_beneden', 'group_members') or []) | reject('eq', 'media_player.speakers_beneden') | list)
+           or ['media_player.keuken_nest_hub_mass', 'media_player.woonkamer_chromecast_mass'] }}
+      oude_volumes: >-
+        {{ ((state_attr('media_player.speakers_beneden', 'group_members') or []) | reject('eq', 'media_player.speakers_beneden') | list
+            or ['media_player.keuken_nest_hub_mass', 'media_player.woonkamer_chromecast_mass']) | map('state_attr', 'volume_level') | list }}
+      tekst: >-
+        {%- set dag = state_attr('sensor.omrin_eerstvolgende', 'Upcoming_day') -%}
+        {%- set soort = state_attr('sensor.omrin_eerstvolgende', 'Upcoming_waste_types') -%}
+        {%- set d = strptime(dag, '%d-%m-%Y').date() if dag else none -%}
+        {%- if d is none or not soort -%}
+        Ik weet nog niet wanneer de volgende ophaling is.
+        {%- else -%}
+        {%- set n = (d - now().date()).days -%}
+        {%- set dagen = ['maandag', 'dinsdag', 'woensdag', 'donderdag', 'vrijdag', 'zaterdag', 'zondag'] -%}
+        {%- set maanden = ['januari', 'februari', 'maart', 'april', 'mei', 'juni', 'juli', 'augustus', 'september', 'oktober', 'november', 'december'] -%}
+        {%- if n == 0 -%}Vandaag wordt {{ soort }} opgehaald.
+        {%- elif n == 1 -%}Morgen wordt {{ soort }} opgehaald.
+        {%- elif n == 2 -%}Overmorgen wordt {{ soort }} opgehaald.
+        {%- else -%}Op {{ dagen[d.weekday()] }} {{ d.day }} {{ maanden[d.month - 1] }} wordt {{ soort }} opgehaald.
+        {%- endif -%}
+        {%- if is_state('input_boolean.afval_aan_de_weg', 'on') and n <= 1 %} De container staat al aan de weg{{ ', gezet door ' ~ states('input_text.afval_aan_de_weg_door') if states('input_text.afval_aan_de_weg_door') not in ['', 'unknown', 'unavailable'] }}.
+        {%- elif n <= 1 %} De container moet nog aan de weg.
+        {%- endif -%}
+        {%- endif -%}
+  - repeat:
+      for_each: "{{ leden }}"
+      sequence:
+      - action: media_player.volume_set
+        continue_on_error: true
+        target:
+          entity_id: "{{ repeat.item }}"
+        data:
+          volume_level: "{{ states('input_number.energie_spreek_volume') | float(0.2) }}"
+  - action: tts.speak
+    continue_on_error: true
+    target:
+      entity_id: tts.home_assistant_cloud
+    data:
+      cache: false
+      language: nl-NL
+      media_player_entity_id: "{{ groep }}"
+      message: "{{ tekst }}"
+  - wait_template: "{{ is_state(groep, 'playing') }}"
+    timeout: '00:00:10'
+    continue_on_timeout: true
+  - wait_template: "{{ not is_state(groep, 'playing') }}"
+    timeout: '00:01:00'
+    continue_on_timeout: true
+  - delay: '00:00:02'
+  - repeat:
+      for_each: "{{ leden }}"
+      sequence:
+      - action: media_player.volume_set
+        continue_on_error: true
+        target:
+          entity_id: "{{ repeat.item }}"
+        data:
+          volume_level: "{{ oude_volumes[repeat.index - 1] | float(0.4) }}"
+  mode: single

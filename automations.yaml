@@ -2080,3 +2080,18 @@
       entity_id: input_boolean.energie_vaatwasser_vraag
   - action: script.energie_vaatwasser_advies
   mode: single
+- id: '1795000000012'
+  alias: Afval - ophaalvraag uitspreken via schakelaar
+  description: Zet je de schakelaar 'Afval vraag' aan (bijvoorbeeld met een Google
+    Home-routine), dan spreekt de keuken uit wanneer welke container aan de weg moet
+    en gaat de schakelaar direct weer uit.
+  triggers:
+  - trigger: state
+    entity_id: input_boolean.afval_vraag
+    to: 'on'
+  actions:
+  - action: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.afval_vraag
+  - action: script.afval_advies
+  mode: single
