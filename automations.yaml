@@ -49,9 +49,9 @@
   mode: single
 - id: '1624693689373'
   alias: Afval - herinnering container aan de weg
-  description: Vanaf 17:00 (tot 23:00) de dag voor de ophaling elke 2 uur een persistente melding met
-    actieknop naar de gezinsleden die thuis zijn, tot iemand aangeeft dat de container
-    aan de weg staat.
+  description: Vanaf 17:00 (tot 23:00) de dag voor de ophaling elke 2 uur een persistente
+    melding met actieknop naar de gezinsleden die thuis zijn, tot iemand aangeeft
+    dat de container aan de weg staat.
   triggers:
   - trigger: time
     at: '17:00:00'
@@ -63,7 +63,8 @@
     at: '23:00:00'
   conditions:
   - condition: template
-    value_template: "{{ states('sensor.omrin_morgen') not in ['Geen', 'unknown', 'unavailable'] }}"
+    value_template: '{{ states(''sensor.omrin_morgen'') not in [''Geen'', ''unknown'',
+      ''unavailable''] }}'
   - condition: state
     entity_id: input_boolean.afval_aan_de_weg
     state: 'off'
@@ -89,14 +90,14 @@
       sequence:
       - action: script.afval_herinnering_sturen
         data:
-          persoon: "{{ repeat.item.persoon }}"
-          notify: "{{ repeat.item.notify }}"
-          actie: "{{ repeat.item.actie }}"
+          persoon: '{{ repeat.item.persoon }}'
+          notify: '{{ repeat.item.notify }}'
+          actie: '{{ repeat.item.actie }}'
   mode: single
 - id: '1795000000002'
   alias: Afval - container aan de weg gezet
-  description: Verwerkt de actieknop. Zet de helper aan, ruimt de melding bij de persoon zelf
-    op en meldt aan de anderen wie de container aan de weg heeft gezet.
+  description: Verwerkt de actieknop. Zet de helper aan, ruimt de melding bij de persoon
+    zelf op en meldt aan de anderen wie de container aan de weg heeft gezet.
   triggers:
   - trigger: event
     event_type: mobile_app_notification_action
@@ -127,19 +128,23 @@
     target:
       entity_id: input_boolean.afval_aan_de_weg
   - variables:
-      lijst: "{{ states('sensor.omrin_vandaag' if now().hour < 12 else 'sensor.omrin_morgen').split(',') | map('trim') | reject('in', ['', 'Geen', 'unknown', 'unavailable']) | list }}"
-      wat: "{{ 'de containers (' ~ (lijst[:-1] | join(', ')) ~ ' en ' ~ lijst[-1] ~ ')' if lijst | count > 1 else 'de ' ~ lijst[0] ~ ' container' if lijst else 'de container' }}"
-      wie: "{{ trigger.id | capitalize }}"
+      lijst: '{{ states(''sensor.omrin_vandaag'' if now().hour < 12 else ''sensor.omrin_morgen'').split('','')
+        | map(''trim'') | reject(''in'', ['''', ''Geen'', ''unknown'', ''unavailable''])
+        | list }}'
+      wat: '{{ ''de containers ('' ~ (lijst[:-1] | join('', '')) ~ '' en '' ~ lijst[-1]
+        ~ '')'' if lijst | count > 1 else ''de '' ~ lijst[0] ~ '' container'' if lijst
+        else ''de container'' }}'
+      wie: '{{ trigger.id | capitalize }}'
   - action: input_text.set_value
     target:
       entity_id: input_text.afval_aan_de_weg_door
     data:
-      value: "{{ wie }}"
+      value: '{{ wie }}'
   - action: input_text.set_value
     target:
       entity_id: input_text.afval_aan_de_weg_wat
     data:
-      value: "{{ wat }}"
+      value: '{{ wat }}'
   - repeat:
       for_each:
       - persoon: person.rudolf
@@ -162,18 +167,19 @@
       - choose:
         - conditions:
           - condition: template
-            value_template: "{{ repeat.item.actie == trigger.event.data.action or not is_state(repeat.item.persoon, 'home') }}"
+            value_template: '{{ repeat.item.actie == trigger.event.data.action or
+              not is_state(repeat.item.persoon, ''home'') }}'
           sequence:
-          - action: "{{ repeat.item.notify }}"
+          - action: '{{ repeat.item.notify }}'
             data:
               message: clear_notification
               data:
                 tag: afval
         default:
-        - action: "{{ repeat.item.notify }}"
+        - action: '{{ repeat.item.notify }}'
           data:
             title: Afval
-            message: "{{ wie }} heeft {{ wat }} aan de weg gezet."
+            message: '{{ wie }} heeft {{ wat }} aan de weg gezet.'
             data:
               tag: afval
               channel: Afval
@@ -181,8 +187,9 @@
   mode: queued
 - id: '1795000000004'
   alias: Afval - herinnering terugsturen na wegvegen
-  description: Als iemand de afvalmelding wegveegt zonder op 'Staat aan de weg' te drukken, komt
-    hij na 5 minuten terug. Alleen 's avonds (16:30-23:59) en 's ochtends (07:00-09:30) en zolang de container nog niet aan de weg staat.
+  description: Als iemand de afvalmelding wegveegt zonder op 'Staat aan de weg' te
+    drukken, komt hij na 5 minuten terug. Alleen 's avonds (16:30-23:59) en 's ochtends
+    (07:00-09:30) en zolang de container nog niet aan de weg staat.
   triggers:
   - trigger: event
     event_type: mobile_app_notification_cleared
@@ -198,14 +205,15 @@
       after: '16:30:00'
       before: '23:59:00'
     - condition: time
-      after: '07:00:00'
-      before: '09:30:00'
+      after: 07:00:00
+      before: 09:30:00
   - condition: template
-    value_template: "{{ (trigger.event.data.action_1_key | default('')).startswith('AFVAL_AAN_WEG_') }}"
+    value_template: '{{ (trigger.event.data.action_1_key | default('''')).startswith(''AFVAL_AAN_WEG_'')
+      }}'
   actions:
   - variables:
-      actie: "{{ trigger.event.data.action_1_key }}"
-      naam: "{{ trigger.event.data.action_1_key.split('_')[-1] | lower }}"
+      actie: '{{ trigger.event.data.action_1_key }}'
+      naam: '{{ trigger.event.data.action_1_key.split(''_'')[-1] | lower }}'
   - delay:
       minutes: 5
   - condition: state
@@ -213,21 +221,22 @@
     state: 'off'
   - action: script.afval_herinnering_sturen
     data:
-      persoon: "person.{{ naam }}"
-      notify: "notify.mobile_app_telefoon_{{ naam }}"
-      actie: "{{ actie }}"
+      persoon: person.{{ naam }}
+      notify: notify.mobile_app_telefoon_{{ naam }}
+      actie: '{{ actie }}'
   mode: parallel
   max: 8
 - id: '1795000000005'
   alias: Afval - ochtendherinnering container aan de weg
-  description: Om 07:00 op de ophaaldag een melding met actieknop naar de gezinsleden die
-    thuis zijn, als de container nog niet aan de weg is gezet.
+  description: Om 07:00 op de ophaaldag een melding met actieknop naar de gezinsleden
+    die thuis zijn, als de container nog niet aan de weg is gezet.
   triggers:
   - trigger: time
-    at: '07:00:00'
+    at: 07:00:00
   conditions:
   - condition: template
-    value_template: "{{ states('sensor.omrin_vandaag') not in ['Geen', 'unknown', 'unavailable'] }}"
+    value_template: '{{ states(''sensor.omrin_vandaag'') not in [''Geen'', ''unknown'',
+      ''unavailable''] }}'
   - condition: state
     entity_id: input_boolean.afval_aan_de_weg
     state: 'off'
@@ -253,13 +262,14 @@
       sequence:
       - action: script.afval_herinnering_sturen
         data:
-          persoon: "{{ repeat.item.persoon }}"
-          notify: "{{ repeat.item.notify }}"
-          actie: "{{ repeat.item.actie }}"
+          persoon: '{{ repeat.item.persoon }}'
+          notify: '{{ repeat.item.notify }}'
+          actie: '{{ repeat.item.actie }}'
   mode: single
 - id: '1795000000003'
   alias: Afval - reset aan de weg
-  description: Zet de helper elke dag om 12:00 terug en ruimt achtergebleven afvalmeldingen op.
+  description: Zet de helper elke dag om 12:00 terug en ruimt achtergebleven afvalmeldingen
+    op.
   triggers:
   - trigger: time
     at: '12:00:00'
@@ -281,7 +291,7 @@
       - notify.mobile_app_telefoon_noa
       - notify.mobile_app_telefoon_mika
       sequence:
-      - action: "{{ repeat.item }}"
+      - action: '{{ repeat.item }}'
         data:
           message: clear_notification
           data:
@@ -913,16 +923,6 @@
       entity_name(entity_id)] | select | join(' ')) + ' (' + area_name(entity_id)
       + ')') -%}\n  {% endif-%}\n{%- endfor %}"
   mode: single
-- id: '1703877804565'
-  alias: Bijkeuken licht
-  description: ''
-  use_blueprint:
-    path: freakshock88/motion_illuminance_activated_entity.yaml
-    input:
-      motion_sensor: binary_sensor.bijkeuken_bewegingssensor_occupancy
-      target_entity: light.bijkeuken_plafond_bijkeuken_plafond
-      blocker_entity: binary_sensor.licht_binnen
-      no_motion_wait: input_number.bijkeuken_turn_off_light_after
 - id: '1704015365838'
   alias: Melding Leny Kerk Uit
   description: Verstuurt een melding naar Rudolf wanneer Leny de kerk verlaat, mits
@@ -1844,7 +1844,8 @@
   mode: single
 - id: '1795000000006'
   alias: Noa - alert als ze om 22:00 niet slaapt
-  description: Stuurt Rudolf een melding als Noa om 22:00 thuis is en de slaapstatus niet 'slaapt' is.
+  description: Stuurt Rudolf een melding als Noa om 22:00 thuis is en de slaapstatus
+    niet 'slaapt' is.
   triggers:
   - trigger: time
     at: '22:00:00'
@@ -1861,12 +1862,12 @@
   - action: notify.mobile_app_telefoon_rudolf
     data:
       title: Noa slaapt nog niet
-      message: >-
-        Status: {{ states('sensor.noa_slaapstatus') }}.
-        Telefoon {{ state_attr('sensor.noa_slaapstatus', 'telefoon_stil_minuten') }} min stil,
-        kamer {{ state_attr('sensor.noa_slaapstatus', 'kamer_stil_minuten') }} min stil,
-        {{ 'aan de lader' if is_state('binary_sensor.telefoon_noa_is_charging', 'on') else 'niet aan de lader' }},
-        licht {{ 'uit' if is_state('light.noa_plafond', 'off') else 'aan' }}{{ ', laptop in gebruik' if is_state('binary_sensor.laptop_noa_in_gebruik', 'on') }}.
+      message: 'Status: {{ states(''sensor.noa_slaapstatus'') }}. Telefoon {{ state_attr(''sensor.noa_slaapstatus'',
+        ''telefoon_stil_minuten'') }} min stil, kamer {{ state_attr(''sensor.noa_slaapstatus'',
+        ''kamer_stil_minuten'') }} min stil, {{ ''aan de lader'' if is_state(''binary_sensor.telefoon_noa_is_charging'',
+        ''on'') else ''niet aan de lader'' }}, licht {{ ''uit'' if is_state(''light.noa_plafond'',
+        ''off'') else ''aan'' }}{{ '', laptop in gebruik'' if is_state(''binary_sensor.laptop_noa_in_gebruik'',
+        ''on'') }}.'
       data:
         tag: noa-slaap
         channel: Noa slaap
@@ -1875,10 +1876,11 @@
   mode: single
 - id: '1795000000007'
   alias: Energie - ochtendmelding goedkoopste stroom
-  description: Om 07:00 het goedkoopste moment van vandaag voor wasmachine, droger en vaatwasser, naar wie thuis is.
+  description: Om 07:00 het goedkoopste moment van vandaag voor wasmachine, droger
+    en vaatwasser, naar wie thuis is.
   triggers:
   - trigger: time
-    at: '07:00:00'
+    at: 07:00:00
   actions:
   - action: input_text.set_value
     target:
@@ -1901,20 +1903,22 @@
         notify: notify.mobile_app_telefoon_mika
       sequence:
       - condition: template
-        value_template: "{{ is_state(repeat.item.persoon, 'home') }}"
+        value_template: '{{ is_state(repeat.item.persoon, ''home'') }}'
       - action: script.energie_melding_sturen
         data:
           soort: ochtend
-          notify: "{{ repeat.item.notify }}"
+          notify: '{{ repeat.item.notify }}'
       - action: input_text.set_value
         target:
           entity_id: input_text.energie_ochtend_gemeld
         data:
-          value: "{{ states('input_text.energie_ochtend_gemeld') ~ repeat.item.key ~ '|' }}"
+          value: '{{ states(''input_text.energie_ochtend_gemeld'') ~ repeat.item.key
+            ~ ''|'' }}'
   mode: single
 - id: '1795000000008'
   alias: Energie - avondmelding beste start voor morgenochtend
-  description: Om 17:00 het beste startmoment zodat alles morgenochtend klaar is, naar wie thuis is.
+  description: Om 17:00 het beste startmoment zodat alles morgenochtend klaar is,
+    naar wie thuis is.
   triggers:
   - trigger: time
     at: '17:00:00'
@@ -1940,20 +1944,22 @@
         notify: notify.mobile_app_telefoon_mika
       sequence:
       - condition: template
-        value_template: "{{ is_state(repeat.item.persoon, 'home') }}"
+        value_template: '{{ is_state(repeat.item.persoon, ''home'') }}'
       - action: script.energie_melding_sturen
         data:
           soort: avond
-          notify: "{{ repeat.item.notify }}"
+          notify: '{{ repeat.item.notify }}'
       - action: input_text.set_value
         target:
           entity_id: input_text.energie_avond_gemeld
         data:
-          value: "{{ states('input_text.energie_avond_gemeld') ~ repeat.item.key ~ '|' }}"
+          value: '{{ states(''input_text.energie_avond_gemeld'') ~ repeat.item.key
+            ~ ''|'' }}'
   mode: single
 - id: '1795000000009'
   alias: Energie - melding bij thuiskomst
-  description: Wie na 07:00 (tot 16:00) of na 17:00 (tot 23:30) thuiskomt en de energiemelding nog niet kreeg, krijgt hem alsnog.
+  description: Wie na 07:00 (tot 16:00) of na 17:00 (tot 23:30) thuiskomt en de energiemelding
+    nog niet kreeg, krijgt hem alsnog.
   triggers:
   - trigger: state
     entity_id: person.rudolf
@@ -1974,58 +1980,68 @@
   actions:
   - if:
     - condition: time
-      after: '07:00:00'
+      after: 07:00:00
       before: '16:00:00'
     - condition: template
-      value_template: "{{ states('input_text.energie_ochtend_gemeld').startswith('|') and ('|' ~ trigger.id ~ '|') not in states('input_text.energie_ochtend_gemeld') }}"
+      value_template: '{{ states(''input_text.energie_ochtend_gemeld'').startswith(''|'')
+        and (''|'' ~ trigger.id ~ ''|'') not in states(''input_text.energie_ochtend_gemeld'')
+        }}'
     then:
     - action: script.energie_melding_sturen
       data:
         soort: ochtend
-        notify: "notify.mobile_app_telefoon_{{ trigger.id }}"
+        notify: notify.mobile_app_telefoon_{{ trigger.id }}
     - action: input_text.set_value
       target:
         entity_id: input_text.energie_ochtend_gemeld
       data:
-        value: "{{ states('input_text.energie_ochtend_gemeld') ~ trigger.id ~ '|' }}"
+        value: '{{ states(''input_text.energie_ochtend_gemeld'') ~ trigger.id ~ ''|''
+          }}'
   - if:
     - condition: time
       after: '17:00:00'
       before: '23:30:00'
     - condition: template
-      value_template: "{{ states('input_text.energie_avond_gemeld').startswith('|') and ('|' ~ trigger.id ~ '|') not in states('input_text.energie_avond_gemeld') }}"
+      value_template: '{{ states(''input_text.energie_avond_gemeld'').startswith(''|'')
+        and (''|'' ~ trigger.id ~ ''|'') not in states(''input_text.energie_avond_gemeld'')
+        }}'
     then:
     - action: script.energie_melding_sturen
       data:
         soort: avond
-        notify: "notify.mobile_app_telefoon_{{ trigger.id }}"
+        notify: notify.mobile_app_telefoon_{{ trigger.id }}
     - action: input_text.set_value
       target:
         entity_id: input_text.energie_avond_gemeld
       data:
-        value: "{{ states('input_text.energie_avond_gemeld') ~ trigger.id ~ '|' }}"
+        value: '{{ states(''input_text.energie_avond_gemeld'') ~ trigger.id ~ ''|''
+          }}'
   mode: queued
 - id: '1795000000010'
   alias: Energie - melding vlak voor goedkoopste moment overdag
-  description: Een kwartier voor het begin van de goedkoopste periode overdag (start tussen 07:00 en 21:00)
-    een melding naar wie dan thuis is om de machines aan te zetten. Eén keer per periode.
+  description: Een kwartier voor het begin van de goedkoopste periode overdag (start
+    tussen 07:00 en 21:00) een melding naar wie dan thuis is om de machines aan te
+    zetten. Eén keer per periode.
   triggers:
   - trigger: template
-    value_template: >-
-      {% set p = (state_attr('sensor.stroomplanning', 'periodes') or []) | selectattr('label', 'in', ['Vandaag', 'Vandaag overdag']) | list %}
-      {% if p %}{% set x = p[0] %}{{ x.start - 900 <= now().timestamp() < x.start and 7 <= (x.start | timestamp_custom('%H', true) | int) < 21 }}{% else %}false{% endif %}
+    value_template: '{% set p = (state_attr(''sensor.stroomplanning'', ''periodes'')
+      or []) | selectattr(''label'', ''in'', [''Vandaag'', ''Vandaag overdag'']) |
+      list %} {% if p %}{% set x = p[0] %}{{ x.start - 900 <= now().timestamp() <
+      x.start and 7 <= (x.start | timestamp_custom(''%H'', true) | int) < 21 }}{%
+      else %}false{% endif %}'
   variables:
-    periode: >-
-      {{ ((state_attr('sensor.stroomplanning', 'periodes') or []) | selectattr('label', 'in', ['Vandaag', 'Vandaag overdag']) | list | first) }}
+    periode: '{{ ((state_attr(''sensor.stroomplanning'', ''periodes'') or []) | selectattr(''label'',
+      ''in'', [''Vandaag'', ''Vandaag overdag'']) | list | first) }}'
   conditions:
   - condition: template
-    value_template: "{{ states('input_text.energie_overdag_gemeld') != (periode.start | string) }}"
+    value_template: '{{ states(''input_text.energie_overdag_gemeld'') != (periode.start
+      | string) }}'
   actions:
   - action: input_text.set_value
     target:
       entity_id: input_text.energie_overdag_gemeld
     data:
-      value: "{{ periode.start }}"
+      value: '{{ periode.start }}'
   - repeat:
       for_each:
       - persoon: person.rudolf
@@ -2038,11 +2054,12 @@
         notify: notify.mobile_app_telefoon_mika
       sequence:
       - condition: template
-        value_template: "{{ is_state(repeat.item.persoon, 'home') }}"
-      - action: "{{ repeat.item.notify }}"
+        value_template: '{{ is_state(repeat.item.persoon, ''home'') }}'
+      - action: '{{ repeat.item.notify }}'
         data:
           title: Over een kwartier is stroom het goedkoopst
-          message: "Het goedkoopste moment van de dag is {{ periode.start_hm }} tot {{ periode.einde_hm }}. Zet de wasmachine, droger en vaatwasser dan aan."
+          message: Het goedkoopste moment van de dag is {{ periode.start_hm }} tot
+            {{ periode.einde_hm }}. Zet de wasmachine, droger en vaatwasser dan aan.
           data:
             tag: energie-overdag
             channel: Energie
@@ -2050,8 +2067,9 @@
   mode: single
 - id: '1795000000011'
   alias: Energie - stroomadvies uitspreken via schakelaar
-  description: Zet je de schakelaar 'Stroom vraag' aan (bijvoorbeeld met een Google Home-routine), dan spreekt de keuken
-    het stroomadvies uit en gaat de schakelaar direct weer uit.
+  description: Zet je de schakelaar 'Stroom vraag' aan (bijvoorbeeld met een Google
+    Home-routine), dan spreekt de keuken het stroomadvies uit en gaat de schakelaar
+    direct weer uit.
   triggers:
   - trigger: state
     entity_id: input_boolean.energie_vaatwasser_vraag
