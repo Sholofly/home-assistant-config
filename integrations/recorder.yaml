@@ -32,8 +32,6 @@ recorder:
     # Losse entities zonder historische waarde
     entities:
       - sensor.external_ip_address
-      - sensor.media_player_beneden_channel
-      - sensor.media_player_boven_channel
       - binary_sensor.home_assistant_versions_beta_update_available
       - binary_sensor.home_assistant_website_update_available
       - binary_sensor.home_assistant_versions_update_available
