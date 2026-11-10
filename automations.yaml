@@ -2095,3 +2095,31 @@
       entity_id: input_boolean.afval_vraag
   - action: script.afval_advies
   mode: single
+- id: '1795000000013'
+  alias: Afval - herinnering bij thuiskomst
+  description: Komt iemand thuis terwijl er nog een container aan de weg moet (en niemand dat heeft aangegeven), dan krijgt
+    die persoon direct de afvalmelding met actieknop. Gebruikt dezelfde voorwaarden als de sensor 'Afval aan de weg nodig'.
+  triggers:
+  - trigger: state
+    entity_id:
+    - person.rudolf
+    - person.leny
+    - person.noa
+    - person.mika
+    to: home
+  conditions:
+  - condition: state
+    entity_id: binary_sensor.afval_aan_de_weg_nodig
+    state: 'on'
+  - condition: template
+    value_template: '{{ now().hour < 23 }}'
+  actions:
+  - variables:
+      naam: '{{ trigger.entity_id.split(''.'')[1] }}'
+  - action: script.afval_herinnering_sturen
+    data:
+      persoon: '{{ trigger.entity_id }}'
+      notify: 'notify.mobile_app_telefoon_{{ naam }}'
+      actie: 'AFVAL_AAN_WEG_{{ naam | upper }}'
+  mode: queued
+  max: 4
