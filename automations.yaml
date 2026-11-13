@@ -659,7 +659,7 @@
   description: Status afhandeling airfryer
   triggers:
   - entity_id:
-    - sensor.kleine_schuur_kleine_schuur_airfryer_huidig_wattage
+    - sensor.kleine_schuur_kleine_schuur_airfryer_power
     for:
       hours: 0
       minutes: 1
@@ -667,7 +667,7 @@
     id: 'off'
     below: 1
     trigger: numeric_state
-  - entity_id: sensor.kleine_schuur_kleine_schuur_airfryer_huidig_wattage
+  - entity_id: sensor.kleine_schuur_kleine_schuur_airfryer_power
     for:
       hours: 0
       minutes: 0
@@ -676,7 +676,7 @@
     below: 7
     above: 1
     trigger: numeric_state
-  - entity_id: sensor.kleine_schuur_kleine_schuur_airfryer_huidig_wattage
+  - entity_id: sensor.kleine_schuur_kleine_schuur_airfryer_power
     for:
       hours: 0
       minutes: 0
@@ -734,34 +734,47 @@
             notification_icon: mdi:french-fries
         action: notify.mobile_app_telefoon_rudolf
       - variables:
-          originele_volume: '{{ state_attr(''media_player.woonkamer_google_home_mass'',
-            ''volume_level'') }}'
-      - action: media_player.volume_set
-        metadata: {}
-        data:
-          volume_level: 0.7
-        target:
-          entity_id: media_player.woonkamer_google_home_mass
+          groep: media_player.speakers_beneden
+          leden: >-
+            {{ ((state_attr('media_player.speakers_beneden', 'group_members') or []) | reject('eq', 'media_player.speakers_beneden') | list)
+               or ['media_player.keuken_nest_hub_mass', 'media_player.woonkamer_chromecast_mass'] }}
+          oude_volumes: >-
+            {{ ((state_attr('media_player.speakers_beneden', 'group_members') or []) | reject('eq', 'media_player.speakers_beneden') | list
+                or ['media_player.keuken_nest_hub_mass', 'media_player.woonkamer_chromecast_mass']) | map('state_attr', 'volume_level') | list }}
+      - repeat:
+          for_each: '{{ leden }}'
+          sequence:
+          - action: media_player.volume_set
+            continue_on_error: true
+            target:
+              entity_id: '{{ repeat.item }}'
+            data:
+              volume_level: 0.6
       - action: tts.speak
-        metadata: {}
-        data:
-          cache: false
-          message: De airfryer is klaar
-          language: nl-NL
-          media_player_entity_id: media_player.woonkamer_google_home_mass
+        continue_on_error: true
         target:
           entity_id: tts.home_assistant_cloud
-      - wait_for_trigger:
-        - trigger: state
-          entity_id:
-          - media_player.woonkamer_google_home_mass
-          to: idle
-      - action: media_player.volume_set
-        metadata: {}
         data:
-          volume_level: '{{ originele_volume | float }}'
-        target:
-          entity_id: media_player.woonkamer_google_home_mass
+          cache: false
+          language: nl-NL
+          media_player_entity_id: '{{ groep }}'
+          message: De airfryer is klaar
+      - wait_template: '{{ is_state(groep, ''playing'') }}'
+        timeout: 00:00:10
+        continue_on_timeout: true
+      - wait_template: '{{ not is_state(groep, ''playing'') }}'
+        timeout: 00:01:00
+        continue_on_timeout: true
+      - delay: 00:00:02
+      - repeat:
+          for_each: '{{ leden }}'
+          sequence:
+          - action: media_player.volume_set
+            continue_on_error: true
+            target:
+              entity_id: '{{ repeat.item }}'
+            data:
+              volume_level: '{{ oude_volumes[repeat.index - 1] | float(0.4) }}'
     - conditions:
       - condition: trigger
         id: waiting
@@ -800,7 +813,7 @@
         target:
           entity_id: switch.kleine_schuur_airfryer
         action: switch.turn_off
-  mode: single
+  mode: queued
   max: 10
 - id: '1672759812479'
   alias: Smoke detection
