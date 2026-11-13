@@ -735,12 +735,14 @@
         action: notify.mobile_app_telefoon_rudolf
       - variables:
           groep: media_player.speakers_beneden
-          leden: >-
-            {{ ((state_attr('media_player.speakers_beneden', 'group_members') or []) | reject('eq', 'media_player.speakers_beneden') | list)
-               or ['media_player.keuken_nest_hub_mass', 'media_player.woonkamer_chromecast_mass'] }}
-          oude_volumes: >-
-            {{ ((state_attr('media_player.speakers_beneden', 'group_members') or []) | reject('eq', 'media_player.speakers_beneden') | list
-                or ['media_player.keuken_nest_hub_mass', 'media_player.woonkamer_chromecast_mass']) | map('state_attr', 'volume_level') | list }}
+          leden: "{{ ((state_attr('media_player.speakers_beneden', 'group_members')
+            or []) | reject('eq', 'media_player.speakers_beneden') | list)\n   or
+            ['media_player.keuken_nest_hub_mass', 'media_player.woonkamer_chromecast_mass']
+            }}"
+          oude_volumes: "{{ ((state_attr('media_player.speakers_beneden', 'group_members')
+            or []) | reject('eq', 'media_player.speakers_beneden') | list\n    or
+            ['media_player.keuken_nest_hub_mass', 'media_player.woonkamer_chromecast_mass'])
+            | map('state_attr', 'volume_level') | list }}"
       - repeat:
           for_each: '{{ leden }}'
           sequence:
@@ -2110,8 +2112,9 @@
   mode: single
 - id: '1795000000013'
   alias: Afval - herinnering bij thuiskomst
-  description: Komt iemand thuis terwijl er nog een container aan de weg moet (en niemand dat heeft aangegeven), dan krijgt
-    die persoon direct de afvalmelding met actieknop. Gebruikt dezelfde voorwaarden als de sensor 'Afval aan de weg nodig'.
+  description: Komt iemand thuis terwijl er nog een container aan de weg moet (en
+    niemand dat heeft aangegeven), dan krijgt die persoon direct de afvalmelding met
+    actieknop. Gebruikt dezelfde voorwaarden als de sensor 'Afval aan de weg nodig'.
   triggers:
   - trigger: state
     entity_id:
@@ -2132,15 +2135,16 @@
   - action: script.afval_herinnering_sturen
     data:
       persoon: '{{ trigger.entity_id }}'
-      notify: 'notify.mobile_app_telefoon_{{ naam }}'
-      actie: 'AFVAL_AAN_WEG_{{ naam | upper }}'
+      notify: notify.mobile_app_telefoon_{{ naam }}
+      actie: AFVAL_AAN_WEG_{{ naam | upper }}
   mode: queued
   max: 4
 - id: '1795000000014'
   alias: Bijkeuken - licht bij beweging als het donker is
-  description: Zet het bijkeukenlicht aan bij beweging als het donker is. Het licht gaat uit als er 3 minuten geen
-    beweging is, ook als het licht handmatig is aangezet. Na een herstart van HA of een herlaad van de automations (timers kwijt)
-    gaat het licht uit als het 3 minuten later nog aan staat zonder beweging.
+  description: Zet het bijkeukenlicht aan bij beweging als het donker is. Het licht
+    gaat uit als er 3 minuten geen beweging is, ook als het licht handmatig is aangezet.
+    Na een herstart van HA of een herlaad van de automations (timers kwijt) gaat het
+    licht uit als het 3 minuten later nog aan staat zonder beweging.
   triggers:
   - trigger: state
     entity_id: binary_sensor.bijkeuken_bewegingssensor_occupancy
@@ -2209,5 +2213,120 @@
       - action: light.turn_off
         target:
           entity_id: light.bijkeuken_plafond_bijkeuken_plafond
+  mode: parallel
+  max: 3
+- id: '1794592878477'
+  alias: HolyArrs Notifications
+  description: ''
+  triggers:
+  - trigger: webhook
+    allowed_methods:
+    - POST
+    - PUT
+    local_only: true
+    webhook_id: -hXBSMlh8klaxB-xc2L9OWMtW
+  conditions: []
+  actions:
+  - action: persistent_notification.create
+    metadata: {}
+    data:
+      message: '{{ trigger.json }}'
+  mode: single
+- id: '1795000000016'
+  alias: Badkamer - licht bij beweging (nacht gedimd)
+  description: Bij beweging in de badkamer gaat tussen 07:00 en 21:00 het licht aan (plafond en wastafel op 75%, 5203 K).
+    Tussen 21:00 en 07:00 gaan alleen de lampen boven de wastafel aan, op 1% en zo warm mogelijk (2700 K), om
+    daarna beter door te kunnen slapen. Na 20 minuten zonder beweging gaat het licht uit, ook als het handmatig is
+    aangezet en ook na een herstart of herlaad van HA.
+  triggers:
+  - trigger: state
+    entity_id: binary_sensor.badkamer_badkamer_bewegingssensor_bezetting
+    to: 'on'
+    id: beweging
+  - trigger: state
+    entity_id: binary_sensor.badkamer_badkamer_bewegingssensor_bezetting
+    to: 'off'
+    for: 00:20:00
+    id: geen_beweging
+  - trigger: state
+    entity_id: light.badkamer
+    to: 'on'
+    for: 00:20:00
+    id: licht_aan
+  - trigger: homeassistant
+    event: start
+    id: herstart
+  - trigger: event
+    event_type: automation_reloaded
+    id: herstart
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: beweging
+      - condition: state
+        entity_id: light.badkamer
+        state: 'off'
+      - condition: time
+        after: '07:00:00'
+        before: '21:00:00'
+      sequence:
+      - action: light.turn_on
+        target:
+          entity_id: light.badkamer_plafond
+      - action: light.turn_on
+        target:
+          entity_id: light.badkamer_wastafel
+        data:
+          brightness_pct: 75
+          color_temp_kelvin: 5203
+    - conditions:
+      - condition: trigger
+        id: beweging
+      - condition: state
+        entity_id: light.badkamer
+        state: 'off'
+      - condition: time
+        after: '21:00:00'
+        before: '07:00:00'
+      sequence:
+      - action: light.turn_on
+        target:
+          entity_id: light.badkamer_wastafel
+        data:
+          brightness_pct: 1
+          color_temp_kelvin: 2702
+    - conditions:
+      - condition: trigger
+        id:
+        - geen_beweging
+        - licht_aan
+      - condition: state
+        entity_id: binary_sensor.badkamer_badkamer_bewegingssensor_bezetting
+        state: 'off'
+        for: 00:20:00
+      - condition: state
+        entity_id: light.badkamer
+        state: 'on'
+      sequence:
+      - action: light.turn_off
+        target:
+          entity_id: light.badkamer
+    - conditions:
+      - condition: trigger
+        id: herstart
+      sequence:
+      - delay: 00:20:00
+      - condition: state
+        entity_id: light.badkamer
+        state: 'on'
+      - condition: not
+        conditions:
+        - condition: state
+          entity_id: binary_sensor.badkamer_badkamer_bewegingssensor_bezetting
+          state: 'on'
+      - action: light.turn_off
+        target:
+          entity_id: light.badkamer
   mode: parallel
   max: 3
