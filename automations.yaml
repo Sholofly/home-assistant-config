@@ -1003,24 +1003,6 @@
     target:
       entity_id: script.deurbel
     action: script.turn_on
-  - data:
-      media:
-        media_content_id: /media/local/snapshots/snapshot_driveway.jpg
-        media_content_type: image/jpeg
-        metadata: {}
-    action: media_player.play_media
-    target:
-      entity_id: media_player.keuken_nest_hub_mass
-  - delay:
-      hours: 0
-      minutes: 1
-      seconds: 0
-      milliseconds: 0
-  - metadata: {}
-    data: {}
-    target:
-      device_id: 44700116b34e707dc29dac4ff7a6fb89
-    action: media_player.turn_off
   mode: single
 - id: '1726487429371'
   alias: Lichten uit bij verlaten huis
