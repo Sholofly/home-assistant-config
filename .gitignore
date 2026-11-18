@@ -69,3 +69,6 @@ tmp/snapshot_voortuin.jpg
 /.claudecode/
 /.ha_mcp/
 *.bak
+
+# Deurbel-snapshot (foto voordeur)
+www/deurbel.jpg
