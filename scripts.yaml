@@ -24,18 +24,26 @@ deurbel:
       action: camera.snapshot
       target:
         device_id: 3cf9bf2f72fa5b42af3a558448f660c6
+    - metadata: {}
+      data:
+        filename: /config/www/deurbel.jpg
+      action: camera.snapshot
+      target:
+        device_id: 3cf9bf2f72fa5b42af3a558448f660c6
     - action: ai_task.generate_data
       metadata: {}
       data:
         task_name: Gather doorbell data
-        instructions: "- Describe the scene, describe every person on the scene\n-
-          Count number of persons\n- Describe vehicle in image, retrieve license plate
-          number\n- Ignore the hanging basket in the picture. \n"
+        instructions: "- Describe only the people and vehicles in the image. Do not describe
+          the surroundings, the house, the driveway or the weather.\n- For every person:
+          gender/age group, clothing, and what they are holding or doing.\n- For every vehicle:
+          type, color and license plate number if visible.\n- Count number of persons\n-
+          Ignore the hanging basket in the picture.\n"
         entity_id: ai_task.google_ai_task
         structure:
           summary:
-            description: Summary in Dutch of the scene and the people inside it. Keep
-              it under 180 characters
+            description: Short summary in Dutch of only the people and vehicles in the
+              image, without describing the surroundings. Keep it under 180 characters
             selector:
               text:
           person_count:
@@ -68,35 +76,9 @@ deurbel:
         message: '{{doorbell_data.data.summary}}'
         data:
           tag: doorbell
-    - action: ai_task.generate_image
-      metadata: {}
-      data:
-        task_name: cartoon
-        instructions: Transform this image into a super cute cartoon!
-        entity_id: ai_task.google_ai_task
-        attachments:
-          media_content_id: media-source://media_source/local/snapshots/snapshot_driveway.jpg
-          media_content_type: image/jpeg
-          metadata:
-            title: snapshot_driveway.jpg
-            thumbnail:
-            media_class: image
-            children_media_class:
-            navigateIds:
-            - {}
-            - media_content_type: app
-              media_content_id: media-source://media_source
-            - media_content_type: ''
-              media_content_id: media-source://media_source/local/snapshots
-      response_variable: doorbell_cartoon
-    - action: notify.mobile_app_telefoon_rudolf
-      metadata: {}
-      data:
-        title: "\U0001F514 Deurbel ({{doorbell_data.data.person_count}} \U0001F9D1\U0001F3FB‍\U0001F9B1)"
-        message: '{{doorbell_data.data.summary}}'
-        data:
-          tag: doorbell
-          image: http://homeassistant.local:8123{{doorbell_cartoon.url}}
+          image: /local/deurbel.jpg?v={{ now().timestamp() | int }}
+          clickAction: /mobile-dashboard/deurbel
+          url: /mobile-dashboard/deurbel
   description: ''
 announce_keuken:
   use_blueprint:
