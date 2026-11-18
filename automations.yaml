@@ -2209,10 +2209,22 @@
     webhook_id: -hXBSMlh8klaxB-xc2L9OWMtW
   conditions: []
   actions:
-  - action: persistent_notification.create
-    metadata: {}
-    data:
-      message: '{{ trigger.json }}'
+  - variables:
+      moment: trigger.json.moment
+      event_kind: trigger.json.event_kind
+  - if:
+    - condition: template
+      value_template: '{{ event_kind == ''import_done'' }}'
+    then:
+    - action: notify.mobile_app_telefoon_rudolf
+      metadata: {}
+      data:
+        title: '{{ trigger.json.subject }}'
+        message: '{{ trigger.json.text }}'
+    - action: persistent_notification.create
+      metadata: {}
+      data:
+        message: '{{ trigger.json }}'
   mode: single
 - id: '1795000000016'
   alias: Badkamer - licht uit na 5 minuten zonder beweging
