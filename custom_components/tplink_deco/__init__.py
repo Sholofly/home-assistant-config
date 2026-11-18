@@ -61,15 +61,27 @@ from .const import PLATFORMS
 from .const import SERVICE_PAUSE_POLLING
 from .const import SERVICE_REBOOT_DECO
 from .const import SERVICE_RESUME_POLLING
+from .const import SYSLOG_FORWARDER_KEY
 from .coordinator import TpLinkDeco
 from .coordinator import TpLinkDecoClient
 from .coordinator import TpLinkDecoData
 from .coordinator import TplinkDecoClientUpdateCoordinator
 from .coordinator import TplinkDecoUpdateCoordinator
 from .mobile import TplinkDecoMobileDataUpdateCoordinator
+from .services import async_setup_services
+from .syslog_forwarder import async_remove_syslog_store
+from .syslog_forwarder import async_setup_syslog_forwarder
 from .wireless import TplinkDecoWirelessUpdateCoordinator
 
 _LOGGER: logging.Logger = logging.getLogger(__name__)
+
+CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
+
+
+async def async_setup(hass: HomeAssistant, config: dict) -> bool:
+    """Register actions once, shared by all config entries."""
+    async_setup_services(hass)
+    return True
 
 
 def _remove_discovered_decos_from_clients(
@@ -292,6 +304,12 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry):
         name="tplink_deco initial mobile data refresh",
     )
 
+    syslog_forwarder = await async_setup_syslog_forwarder(
+        hass, config_entry, deco_coordinator
+    )
+    if syslog_forwarder is not None:
+        data[SYSLOG_FORWARDER_KEY] = syslog_forwarder
+
     async def async_reboot_deco(service: ServiceCall) -> None:
         dr = device_registry.async_get(hass=hass)
         device_ids = cast([str], service.data.get(ATTR_DEVICE_ID))
@@ -361,13 +379,7 @@ async def async_unload_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> 
     deco_coordinator = data.get(COORDINATOR_DECOS_KEY)
     clients_coordinator = data.get(COORDINATOR_CLIENTS_KEY)
     mobile_coordinator = data.get(COORDINATOR_MOBILE_KEY)
-
-    if deco_coordinator is not None:
-        await deco_coordinator.async_close()
-    if clients_coordinator is not None:
-        await clients_coordinator.async_close()
-    if mobile_coordinator is not None:
-        await mobile_coordinator.async_shutdown()
+    wireless_coordinator = data.get(COORDINATOR_WIRELESS_KEY)
 
     unloaded = all(
         await asyncio.gather(
@@ -378,18 +390,45 @@ async def async_unload_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> 
         )
     )
 
-    if unloaded:
-        hass.data[DOMAIN].pop(config_entry.entry_id, None)
-        hass.services.async_remove(DOMAIN, SERVICE_PAUSE_POLLING)
-        hass.services.async_remove(DOMAIN, SERVICE_RESUME_POLLING)
+    if not unloaded:
+        return False
 
-    return unloaded
+    syslog_forwarder = data.get(SYSLOG_FORWARDER_KEY)
+    if syslog_forwarder is not None:
+        await syslog_forwarder.async_stop()
+
+    for coordinator in (
+        deco_coordinator,
+        clients_coordinator,
+        mobile_coordinator,
+        wireless_coordinator,
+    ):
+        if coordinator is not None:
+            await coordinator.async_shutdown()
+
+    if deco_coordinator is not None:
+        await deco_coordinator.async_close()
+    if clients_coordinator is not None:
+        await clients_coordinator.async_close()
+    if deco_coordinator is not None:
+        await deco_coordinator.api.async_logout()
+
+    hass.data[DOMAIN].pop(config_entry.entry_id, None)
+    hass.services.async_remove(DOMAIN, SERVICE_PAUSE_POLLING)
+    hass.services.async_remove(DOMAIN, SERVICE_RESUME_POLLING)
+
+    return True
 
 
 async def update_listener(hass: HomeAssistant, config_entry: ConfigEntry) -> None:
     """Update options."""
     _LOGGER.debug("update_listener: Reloading %s", config_entry.entry_id)
     await hass.config_entries.async_reload(config_entry.entry_id)
+
+
+async def async_remove_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> None:
+    """Delete stored state when an entry is deleted."""
+    await async_remove_syslog_store(hass, config_entry.entry_id)
 
 
 async def async_remove_config_entry_device(

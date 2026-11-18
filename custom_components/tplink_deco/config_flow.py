@@ -26,6 +26,12 @@ from .const import CONF_DECO_PREFIX
 from .const import CONF_DEVICE_LIST_INTERVAL
 from .const import CONF_EXPOSE_WIFI_SSIDS
 from .const import CONF_LINK_CLIENT_DEVICES
+from .const import CONF_SYSLOG_ENABLED
+from .const import CONF_SYSLOG_HOST
+from .const import CONF_SYSLOG_INTERVAL
+from .const import CONF_SYSLOG_LOG_LEVEL
+from .const import CONF_SYSLOG_PORT
+from .const import CONF_SYSLOG_PROTOCOL
 from .const import CONF_TIMEOUT_ERROR_RETRIES
 from .const import CONF_TIMEOUT_SECONDS
 from .const import CONF_VERIFY_SSL
@@ -38,10 +44,19 @@ from .const import DEFAULT_DECO_POSTFIX
 from .const import DEFAULT_EXPOSE_WIFI_SSIDS
 from .const import DEFAULT_LINK_CLIENT_DEVICES
 from .const import DEFAULT_SCAN_INTERVAL
+from .const import DEFAULT_SYSLOG_ENABLED
+from .const import DEFAULT_SYSLOG_INTERVAL
+from .const import DEFAULT_SYSLOG_LOG_LEVEL
+from .const import DEFAULT_SYSLOG_PORT
+from .const import DEFAULT_SYSLOG_PROTOCOL
 from .const import DEFAULT_TIMEOUT_ERROR_RETRIES
 from .const import DEFAULT_TIMEOUT_SECONDS
 from .const import DOMAIN
+from .const import MIN_SYSLOG_INTERVAL
+from .const import SYSLOG_PROTOCOL_TCP
+from .const import SYSLOG_PROTOCOL_UDP
 from .exceptions import TimeoutException
+from .system_log import SystemLogLevel
 
 _LOGGER: logging.Logger = logging.getLogger(__name__)
 SCAN_INTERVAL_OPTIONS = [10, 30, 60, 120]
@@ -74,6 +89,14 @@ def _normalize_intervals(data: dict[str:Any]) -> None:
         data[CONF_DEVICE_LIST_INTERVAL] = int(data[CONF_DEVICE_LIST_INTERVAL])
 
 
+def _validate_intervals(data: dict[str:Any]) -> dict[str, str]:
+    """Keep the disjoint interval constraint out of the serialized schema."""
+    interval = data.get(CONF_DEVICE_LIST_INTERVAL)
+    if interval is not None and interval != 0 and interval < 10:
+        return {CONF_DEVICE_LIST_INTERVAL: "invalid_device_list_interval"}
+    return {}
+
+
 def _get_auth_schema(data: dict[str:Any]):
     if data is None:
         data = {}
@@ -93,7 +116,7 @@ def _get_schema(data: dict[str:Any]):
         device_list_interval = int(device_list_interval)
     except (TypeError, ValueError):
         device_list_interval = int(scan_interval)
-    if device_list_interval != 0 and device_list_interval < 10:
+    if device_list_interval < 0:
         device_list_interval = int(scan_interval)
 
     schema.update(
@@ -113,7 +136,7 @@ def _get_schema(data: dict[str:Any]):
             vol.Required(
                 CONF_DEVICE_LIST_INTERVAL,
                 default=device_list_interval,
-            ): vol.All(vol.Coerce(int), vol.Any(0, vol.Range(min=10))),
+            ): vol.All(vol.Coerce(int), vol.Range(min=0)),
             vol.Required(
                 CONF_CONSIDER_HOME,
                 default=data.get(CONF_CONSIDER_HOME, DEFAULT_CONSIDER_HOME),
@@ -158,9 +181,50 @@ def _get_schema(data: dict[str:Any]):
                     "suggested_value": data.get(CONF_DECO_POSTFIX, DEFAULT_DECO_POSTFIX)
                 },
             ): str,
+            vol.Required(
+                CONF_SYSLOG_ENABLED,
+                default=data.get(CONF_SYSLOG_ENABLED, DEFAULT_SYSLOG_ENABLED),
+            ): bool,
+            vol.Optional(
+                CONF_SYSLOG_HOST,
+                description={"suggested_value": data.get(CONF_SYSLOG_HOST, "")},
+            ): vol.All(str, vol.Strip),
+            vol.Required(
+                CONF_SYSLOG_PORT,
+                default=data.get(CONF_SYSLOG_PORT, DEFAULT_SYSLOG_PORT),
+            ): vol.All(vol.Coerce(int), vol.Range(min=1, max=65535)),
+            vol.Required(
+                CONF_SYSLOG_PROTOCOL,
+                default=data.get(CONF_SYSLOG_PROTOCOL, DEFAULT_SYSLOG_PROTOCOL),
+            ): selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=[SYSLOG_PROTOCOL_UDP, SYSLOG_PROTOCOL_TCP],
+                    mode=selector.SelectSelectorMode.DROPDOWN,
+                )
+            ),
+            vol.Required(
+                CONF_SYSLOG_LOG_LEVEL,
+                default=data.get(CONF_SYSLOG_LOG_LEVEL, DEFAULT_SYSLOG_LOG_LEVEL),
+            ): selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=list(SystemLogLevel.__members__),
+                    mode=selector.SelectSelectorMode.DROPDOWN,
+                )
+            ),
+            vol.Required(
+                CONF_SYSLOG_INTERVAL,
+                default=data.get(CONF_SYSLOG_INTERVAL, DEFAULT_SYSLOG_INTERVAL),
+            ): vol.All(vol.Coerce(int), vol.Range(min=MIN_SYSLOG_INTERVAL)),
         }
     )
     return schema
+
+
+def _validate_syslog(data: dict[str:Any]) -> dict[str, str]:
+    """Require a syslog host when forwarding is enabled."""
+    if data.get(CONF_SYSLOG_ENABLED) and not data.get(CONF_SYSLOG_HOST):
+        return {CONF_SYSLOG_HOST: "syslog_host_required"}
+    return {}
 
 
 # We need to make sure the optional keys are set so that they get updated in update_listener async_update_entry() call
@@ -170,6 +234,7 @@ def _ensure_user_input_optionals(data: dict[str:Any]) -> None:
         CONF_CLIENT_POSTFIX,
         CONF_DECO_PREFIX,
         CONF_DECO_POSTFIX,
+        CONF_SYSLOG_HOST,
     ]:
         if key not in data:
             data[key] = ""
@@ -206,7 +271,6 @@ class TplinkDecoFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     """Config flow for tplink_deco."""
 
     VERSION = 7
-    CONNECTION_CLASS = config_entries.CONN_CLASS_CLOUD_POLL
     reauth_entry: ConfigEntry = None
 
     def __init__(self):
@@ -219,7 +283,11 @@ class TplinkDecoFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             _normalize_intervals(user_input)
-            self._errors = await _async_test_credentials(self.hass, user_input)
+            self._errors = _validate_intervals(user_input) | _validate_syslog(
+                user_input
+            )
+            if not self._errors:
+                self._errors = await _async_test_credentials(self.hass, user_input)
             if len(self._errors) == 0:
                 _ensure_user_input_optionals(user_input)
                 return self.async_create_entry(
@@ -288,7 +356,8 @@ class TplinkDecoOptionsFlowHandler(config_entries.OptionsFlow):
             )
             self.data.update(user_input)
 
-            if connection_settings_changed:
+            self._errors = _validate_intervals(self.data) | _validate_syslog(self.data)
+            if connection_settings_changed and not self._errors:
                 self._errors = await _async_test_credentials(self.hass, self.data)
             if len(self._errors) == 0:
                 self.hass.config_entries.async_update_entry(

@@ -1016,7 +1016,12 @@
     "guessAxisYearsOff": "{count} Jahre daneben",
     "guessAxisYearsOffOne": "1 Jahr daneben",
     "standingsMore": "+ {count} weitere",
-    "reconnectNotice": "Der Fernseher erreicht Home Assistant nicht. WLAN des Fernsehers prüfen."
+    "reconnectNotice": "Der Fernseher erreicht Home Assistant nicht. WLAN des Fernsehers prüfen.",
+    "soundGate": {
+      "title": "Musik läuft über diesen Bildschirm",
+      "button": "Ton an",
+      "hint": "Einmal mit der Fernbedienung bestätigen"
+    }
   },
   "launcher": {
     "title": "Beatify",
@@ -1218,7 +1223,7 @@
       "HA_LOGIN_REQUIRED": "Melde dich dafür bei Home Assistant an.",
       "ONLY_ADMIN": "Das darf nur der Gastgeber.",
       "ALREADY_STARTED": "Das Spiel läuft bereits",
-      "NEED_PLAYERS": "Es braucht mindestens {min_players} Spieler. Warte, bis noch jemand beitritt.",
+      "NEED_PLAYERS": "Mindestens ein Spieler muss beitreten, bevor das Spiel starten kann.",
       "START_FAILED": "Das Spiel ist nicht gestartet. Versuch es noch mal.",
       "START_FAILED_NO_SONGS": "Keine Songs zum Spielen. Wähl eine andere Playlist.",
       "MEDIA_PLAYER_ERROR": "Der Lautsprecher hat ein Problem ({detail}). Prüf ihn und tippe dann auf „Fortsetzen“.",
@@ -1748,5 +1753,16 @@
     "errorTitle": "Anmeldung fehlgeschlagen",
     "errorBody": "Beatify konnte keine Verbindung zu Home Assistant herstellen. Bitte prüfe die Beatify-Konfiguration (interne URL / SSL) und versuche es erneut.",
     "errorRetry": "Erneut versuchen"
+  },
+  "browserTarget": {
+    "group": "Ohne Lautsprecher · 30-s-Ausschnitte",
+    "source": "Ausschnitte: Deezer",
+    "tvName": "TV-Bildschirm",
+    "tvSub": "Ton aus dem Fernseher",
+    "tvConnected": "verbunden",
+    "tvOpenHint": "TV-Seite dort öffnen",
+    "phoneName": "Dieses Handy",
+    "phoneBadge": "Dieses Gerät",
+    "phoneSub": "Für kleine Runden"
   }
 }

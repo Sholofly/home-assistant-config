@@ -1,13 +1,18 @@
 import asyncio
 import base64
+import gzip
 import hashlib
+import io
 import json
 import logging
 import math
+from pathlib import PurePosixPath
 import re
 import secrets
+import tarfile
 from typing import Any
 from urllib.parse import quote_plus
+import zlib
 
 from Crypto.Cipher import PKCS1_v1_5
 from Crypto.PublicKey import RSA
@@ -29,6 +34,8 @@ from .exceptions import LoginInvalidException
 from .exceptions import TimeoutException
 from .exceptions import TransientConnectionException
 from .exceptions import UnexpectedApiException
+from .exceptions import UnsupportedFirmwareException
+from .system_log import SystemLogLevel
 
 AES_KEY_BYTES = 16
 MIN_AES_KEY = 10 ** (AES_KEY_BYTES - 1)
@@ -36,8 +43,51 @@ MAX_AES_KEY = (10**AES_KEY_BYTES) - 1
 
 PKCS1_v1_5_HEADER_BYTES = 11
 
+SYSTEM_LOG_CONTEXT = "Get System Log"
+
 _LOGGER: logging.Logger = logging.getLogger(__name__)
 LEGACY_ERROR_DECODING_PATTERN = re.compile(r"^<Error Decoding (.*)>$")
+
+
+def _decode_system_log(body: bytes) -> str:
+    """Decode firmware-dependent snapshots without extracting files to disk."""
+    if body.startswith(b"\x1f\x8b"):
+        try:
+            body = gzip.decompress(body)
+        except (OSError, EOFError, zlib.error) as err:
+            raise UnexpectedApiException(
+                f"{SYSTEM_LOG_CONTEXT} returned invalid gzip data"
+            ) from err
+
+    stream = io.BytesIO(body)
+    if not tarfile.is_tarfile(stream):
+        if body[257:262] == b"ustar":
+            raise UnexpectedApiException(
+                f"{SYSTEM_LOG_CONTEXT} returned an invalid tar archive"
+            )
+        return body.decode("utf-8", errors="replace")
+
+    stream.seek(0)
+    try:
+        with tarfile.open(fileobj=stream, mode="r:") as archive:
+            members = [member for member in archive.getmembers() if member.isfile()]
+            if not members:
+                return ""
+            member = next(
+                (m for m in members if PurePosixPath(m.name).name == "syslog.log"),
+                members[0],
+            )
+            extracted = archive.extractfile(member)
+            if extracted is None:
+                raise UnexpectedApiException(
+                    f"{SYSTEM_LOG_CONTEXT} could not read the archived log"
+                )
+            with extracted:
+                return extracted.read().decode("utf-8", errors="replace")
+    except (tarfile.TarError, OSError, EOFError) as err:
+        raise UnexpectedApiException(
+            f"{SYSTEM_LOG_CONTEXT} returned an invalid tar archive"
+        ) from err
 
 
 def normalize_name(name: str):
@@ -331,6 +381,80 @@ class TplinkDecoApi:
 
         _LOGGER.debug("Mobile data usage is available")
         return usage_kib
+
+    async def async_get_system_log(
+        self, level: SystemLogLevel = SystemLogLevel.ALL
+    ) -> str:
+        """Return the system log text at level or more severe."""
+        async with self._operation_lock:
+            return await self._async_call_with_retry(self._async_get_system_log, level)
+
+    async def _async_get_system_log(self, level: SystemLogLevel) -> str:
+        await self.async_login_if_needed()
+        if self._outer_id is not None:
+            raise UnsupportedFirmwareException(
+                f"{SYSTEM_LOG_CONTEXT} is not supported on firmware with the legacy"
+                " encrypted web session"
+            )
+
+        # These two calls are the web UI's Save Log: "build" snapshots the log at
+        # level, and "save_log" returns that snapshot as one plain-text file.
+        response_json = await self._async_post(
+            SYSTEM_LOG_CONTEXT,
+            self._log_export_url(),
+            params={"form": "feedback_log"},
+            data=self._encode_payload(
+                {"operation": "build", "params": {"level": level}}
+            ),
+        )
+        data = self._decrypt_data(SYSTEM_LOG_CONTEXT, response_json["data"])
+        self._check_authenticated_data_error_code(SYSTEM_LOG_CONTEXT, data)
+        return await self._async_save_system_log()
+
+    def _log_export_url(self) -> str:
+        return f"{self._host}/cgi-bin/luci/;stok={self._stok}/admin/log_export"
+
+    async def _async_save_system_log(self) -> str:
+        """Return the built snapshot. Unlike other calls, save_log is unencrypted."""
+        form = aiohttp.FormData()
+        form.add_field("operation", "save")
+        cookies = dict([self._cookie.split("=", 1)]) if self._cookie else {}
+        try:
+            async with asyncio.timeout(self._timeout_seconds):
+                response = await self._session.post(
+                    self._log_export_url(),
+                    params={"form": "save_log"},
+                    data=form,
+                    cookies=cookies,
+                    ssl=self._ssl_context,
+                )
+                response.raise_for_status()
+                if response.content_type == "text/plain":
+                    body = await response.read()
+                    return await asyncio.to_thread(_decode_system_log, body)
+                raise self._save_log_error(await response.json(content_type=None))
+        except asyncio.TimeoutError as err:
+            raise TimeoutException(f"{SYSTEM_LOG_CONTEXT} timed out") from err
+        except aiohttp.ClientResponseError as err:
+            if err.status in (401, 403):
+                self.clear_auth()
+                raise ForbiddenException(
+                    f"{SYSTEM_LOG_CONTEXT} forbidden: {err}"
+                ) from err
+            raise err
+        except (aiohttp.ClientPayloadError, aiohttp.ServerDisconnectedError) as err:
+            raise TransientConnectionException(
+                f"{SYSTEM_LOG_CONTEXT} transient connection error: {err}"
+            ) from err
+
+    def _save_log_error(self, error: dict) -> Exception:
+        """Return the exception for a save_log error body."""
+        # LuCI answers an expired session with errorcode "timeout".
+        error_code = error.get("errorcode") or error.get("error_code")
+        if error_code == "timeout":
+            self.clear_auth()
+            return EmptyDataException(f"{SYSTEM_LOG_CONTEXT} session expired")
+        return UnexpectedApiException(f"{SYSTEM_LOG_CONTEXT} error_code={error_code}")
 
     # Return list of clients. Default lists clients for all decos.
     async def async_list_clients(
@@ -878,6 +1002,25 @@ class TplinkDecoApi:
         self._stok = None
         self._cookie = None
         self._clear_outer_auth()
+
+    async def async_logout(self) -> None:
+        """Best-effort logout that always clears local authentication state."""
+        async with self._operation_lock:
+            if self._stok is None or self._cookie is None:
+                self.clear_auth()
+                return
+
+            try:
+                await self._async_post(
+                    "Logout",
+                    f"{self._host}/cgi-bin/luci/;stok={self._stok}/admin/system",
+                    params={"form": "logout"},
+                    data=self._encode_payload({"operation": "logout"}),
+                )
+            except Exception as err:
+                _LOGGER.debug("Logout failed: %s", err)
+            finally:
+                self.clear_auth()
 
     def _check_authenticated_data_error_code(self, context: str, data: dict) -> None:
         """Check an authenticated response and recover from an expired session."""
